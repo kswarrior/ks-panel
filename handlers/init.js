@@ -4,47 +4,53 @@ const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
 
 async function init() {
-  const skyport = await db.get("skyport_instance");
-  if (!skyport) {
-    log.init("This is probably your first time starting Skyport, welcome!");
-    log.init("You can find documentation for the panel at skyport.dev");
+  const ksPanel = await db.get("ks_panel_instance");
+
+  if (!ksPanel) {
+    log.init("This is probably your first time starting KS Panel, welcome!");
 
     const errorMessages = [];
 
-    let imageCheck = await db.get("images");
-    let userCheck = await db.get("users");
+    const imageCheck = await db.get("images");
+    const userCheck = await db.get("users");
 
+    // Check if seed was run
     if (!imageCheck) {
       errorMessages.push(
-        "Before starting Skyport for the first time, you didn't run the seed command!"
+        "Before starting KS Panel for the first time, you didn't run the seed command!"
       );
       errorMessages.push("Please run: npm run seed");
     }
 
+    // Check if user exists
     if (!userCheck) {
       errorMessages.push(
-        "If you didn't do it already, make a user for yourself: npm run createUser"
+        "If you didn't do it already, create a user for yourself: npm run createUser"
       );
     }
 
+    // Stop if errors exist
     if (errorMessages.length > 0) {
       errorMessages.forEach((errorMsg) => log.error(errorMsg));
-      process.exit();
+      process.exit(1);
     }
 
-    const skyportId = uuidv4();
+    // Generate new panel instance
+    const panelId = uuidv4();
     const setupTime = Date.now();
 
     const info = {
-      skyportId: skyportId,
+      panelId: panelId,
       setupTime: setupTime,
       originalVersion: config.version,
     };
 
-    await db.set("skyport_instance", info);
-    log.info("Initialized Skyport panel with ID: " + skyportId);
+    await db.set("ks_panel_instance", info);
+
+    log.info("Initialized KS Panel with ID: " + panelId);
   }
-  log.info("Init complete!");
+
+  log.info("KS Panel init complete!");
 }
 
 module.exports = { init };
