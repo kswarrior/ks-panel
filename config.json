@@ -4,11 +4,11 @@
   "session_secret": "Random",
   "domain": "localhost",
   "mode": "production",
-  "version": "0.3.0",
-  "note": "you can also use Mysql if you put mysql://user:pass@localhost:3306/dbname into databaseURL!",
-  "databaseURL": "sqlite://skyport.db",
-  "databaseTable": "skyport",
+  "version": "1.0.0",
+  "note": "You can also use MySQL if you put mysql://user:pass@localhost:3306/dbname into databaseURL!",
+  "databaseURL": "sqlite://ks-panel.db",
+  "databaseTable": "ks_panel",
   "saltRounds": 10,
-  "ogTitle": "Skyport Panel",
-  "ogDescription": "This is an instance of the Skyport Panel - learn more at github.com/skyportlabs"
+  "ogTitle": "KS Panel",
+  "ogDescription": "This is an instance of the KS Panel."
 }
