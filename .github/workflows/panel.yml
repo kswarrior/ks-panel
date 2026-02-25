@@ -44,7 +44,7 @@ jobs:
         
       # Step 7: Create a user
       - name: Create user
-        run: npm run create:user -- --username=kshosting --email=kshosting@ksmail.com --password=yourpassword
+        run: npm run create:user -- --username=kshosting --email=kshosting@ksmail.com --password=kshosting@55
 
       - name: Start
         run: npm start
