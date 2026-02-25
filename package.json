@@ -11,8 +11,8 @@
     "dev": "nodemon index.js",
     "dev:full": "concurrently \"npm run dev\" \"npm run watch\"",
     "watch": "browser-sync start --config bs-config.js",
-    "seed": "ks-panel seed",
-    "create:user": "ks-panel createUser",
+    "seed": "node exec/seed.js",
+    "create:user": "node exec/createUser.js",
     "build:css": "npx @tailwindcss/cli -i ./public/tw.conf -o ./public/assets/tailwind.css --watch"
   },
   "author": "ks-panel-team",
