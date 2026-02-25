@@ -1,4 +1,4 @@
-name: Run KS Panel
+name: Run KS Panel5
 
 on:
   workflow_dispatch:
