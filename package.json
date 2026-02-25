@@ -1,21 +1,21 @@
 {
-  "name": "skyport",
-  "version": "0.3.0",
-  "description": "Skyport is an open source panel for managing and operating game servers and applications built using Node.js with Express and Docker.",
+  "name": "ks-panel",
+  "version": "1.0.0",
+  "description": "KS Panel is an open-source web panel for managing game servers and applications built with Node.js, Express, and Docker.",
   "main": "index.js",
   "bin": {
-    "skyport": "./exec/bin/index.js"
+    "ks-panel": "./exec/bin/index.js"
   },
   "scripts": {
     "start": "node index.js",
-    "start:dev": "nodemon index.js",
-    "dev": "concurrently \"npm run start\" \"npm run watch\"",
+    "dev": "nodemon index.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run watch\"",
     "watch": "browser-sync start --config bs-config.js",
-    "seed": "skyport seed",
-    "createUser": "skyport createUser",
+    "seed": "ks-panel seed",
+    "create:user": "ks-panel createUser",
     "build:css": "npx @tailwindcss/cli -i ./public/tw.conf -o ./public/assets/tailwind.css --watch"
   },
-  "author": "skyport-team",
+  "author": "ks-panel-team",
   "license": "MIT",
   "dependencies": {
     "@keyv/sqlite": "^3.6.7",
@@ -30,6 +30,7 @@
     "cat-loggr": "^1.2.2",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
+    "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.7",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
@@ -38,7 +39,6 @@
     "express-session": "^1.18.2",
     "express-ws": "^5.0.2",
     "form-data": "^4.0.4",
-    "fs": "^0.0.1-security",
     "keyv": "^4.5.4",
     "multer": "^2.0.2",
     "node-schedule": "^2.1.1",
@@ -54,7 +54,9 @@
   },
   "devDependencies": {
     "browser-sync": "^2.26.2",
-    "concurrently": "^8.2.2",
     "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
