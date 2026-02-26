@@ -224,9 +224,16 @@ app.listen(config.port, () =>
   log.info(`KS Panel is listening on port ${config.port}`)
 );
 
-app.get("*", async function (req, res) {
-  res.render("errors/404", {
-    req,
-    name: (await db.get("name")) || "KS Panel",
-  });
+app.get('*', async function (req, res) {
+  try {
+    const settings = await db.get('settings') || {};
+
+    res.status(404).render('errors/404', {
+      req,
+      name: settings.name || 'KS Panel'
+    });
+
+  } catch (err) {
+    res.status(500).send("Error loading page");
+  }
 });
