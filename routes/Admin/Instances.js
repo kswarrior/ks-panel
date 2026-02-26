@@ -72,6 +72,39 @@ function deleteWorkflowFromFile(instanceId) {
   }
 }
 
+router.post("/instances/deploy", isAdmin, async (req, res) => {
+  try {
+    const {
+  name,
+  image,
+  imagename,
+  nodeId,
+  user,
+  memory,
+  cpu,
+  disk,
+  ports,
+  primary,
+  configFilePath,
+  configFileContent,
+  variables
+} = req.body;
+
+    // Validate
+    if (!name || !image || !nodeId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // TODO: Add your container creation logic here
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error("Deploy error:", err);
+    return res.status(500).json({ error: "Deployment failed" });
+  }
+});
+
 router.get("/admin/instances", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
