@@ -428,32 +428,25 @@ function isPositiveIntegerCpu(value) {
 }
 
 function sendData(nodeData, createBtn) {
-    const baseUrl = '/instances/deploy';
-    const queryParams = serializeParams(nodeData);
-    const fullUrl = `${baseUrl}?${queryParams}`;
-
-    fetch(fullUrl, {
-        method: 'GET',
+    fetch('/instances/deploy', {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(nodeData)
     })
     .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
+        if (!response.ok) {
             throw new Error('Failed to create instance');
         }
+        return response.json();
     })
     .then(data => {
-	window.location.href = '../admin/instances?err=CREATED'
-        console.log('Instance created:', data);
-        createBtn.textContent = 'Create';
-        createBtn.disabled = false;
+        window.location.href = '../admin/instances?err=CREATED';
     })
     .catch(error => {
         console.error('Error creating instance:', error);
-        alert('Error! Instance creation failed. Check the console for more details.');
+        alert('Error! Instance creation failed.');
         createBtn.textContent = 'Create';
         createBtn.disabled = false;
     });
