@@ -2,7 +2,6 @@
 
 <main id="content" class="min-h-screen pb-10">
 
-  <!-- Header -->
   <div class="px-8 pt-6">
     <h1 class="text-2xl font-semibold text-white tracking-tight">
       <%= req.translations.auditLogs %>
@@ -12,22 +11,19 @@
     </p>
   </div>
 
-  <!-- Filters Section -->
   <div class="px-8 mt-6">
     <div class="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-lg backdrop-blur-md">
-
       <div class="flex flex-wrap items-center gap-6">
 
-        <!-- Action Filter -->
         <div class="flex items-center gap-3">
           <label for="actionFilter" class="text-sm text-neutral-300">
-            Filter by Action:
+            <%= req.translations.filterByAction || 'Filter by Action:' %>
           </label>
           <select id="actionFilter"
             class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
             <option value="" class="text-neutral-800"
               <%= !filters.actionFilter ? 'selected' : '' %>>
-              All Actions
+              <%= req.translations.allActions || 'All Actions' %>
             </option>
             <% actions.forEach(action => { %>
               <option value="<%= action %>" class="text-neutral-800"
@@ -38,29 +34,35 @@
           </select>
         </div>
 
-        <!-- Date Filter -->
         <div class="flex items-center gap-3">
           <label for="dateRange" class="text-sm text-neutral-300">
-            Date Range:
+            <%= req.translations.dateRange || 'Date Range:' %>
           </label>
           <select id="dateRange"
             class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-            <option value="2" <%= filters.dateRange == 2 ? 'selected' : '' %>>Last 2 Days</option>
-            <option value="7" <%= filters.dateRange == 7 ? 'selected' : '' %>>Last Week</option>
-            <option value="30" <%= filters.dateRange == 30 ? 'selected' : '' %>>Last Month</option>
-            <option value="" <%= !filters.dateRange ? 'selected' : '' %>>All Time</option>
+            <option value="2" <%= filters.dateRange == 2 ? 'selected' : '' %>>
+              <%= req.translations.last2Days || 'Last 2 Days' %>
+            </option>
+            <option value="7" <%= filters.dateRange == 7 ? 'selected' : '' %>>
+              <%= req.translations.lastWeek || 'Last Week' %>
+            </option>
+            <option value="30" <%= filters.dateRange == 30 ? 'selected' : '' %>>
+              <%= req.translations.lastMonth || 'Last Month' %>
+            </option>
+            <option value="" <%= !filters.dateRange ? 'selected' : '' %>>
+              <%= req.translations.allTime || 'All Time' %>
+            </option>
           </select>
         </div>
 
-        <!-- Sort Buttons -->
         <div class="flex items-center gap-3">
           <button id="sortAsc"
             class="rounded-xl bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition shadow-md">
-            Sort ↑
+            ↑
           </button>
           <button id="sortDesc"
             class="rounded-xl bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition shadow-md">
-            Sort ↓
+            ↓
           </button>
         </div>
 
@@ -68,13 +70,10 @@
     </div>
   </div>
 
-  <!-- Table Section -->
   <div class="px-8 mt-8">
-
     <% if (audits && audits.length > 0) { %>
 
       <div class="overflow-x-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-lg">
-
         <table id="auditTable" class="min-w-full divide-y divide-white/10">
 
           <thead class="bg-white/5">
@@ -95,7 +94,6 @@
           </thead>
 
           <tbody id="auditBody" class="divide-y divide-white/5">
-
             <% audits.forEach(function(audit) { %>
               <tr class="hover:bg-white/5 transition"
                   data-timestamp="<%= new Date(audit.timestamp).getTime() %>">
@@ -124,23 +122,20 @@
 
               </tr>
             <% }); %>
-
           </tbody>
-        </table>
 
+        </table>
       </div>
 
     <% } else { %>
 
-      <div class="px-8 mt-6 text-neutral-500 text-sm">
+      <div class="mt-6 text-neutral-500 text-sm">
         <%= req.translations.auditLogsNotAvailable %>
       </div>
 
     <% } %>
-
   </div>
 
-  <!-- Pagination -->
   <div class="px-8 mt-6">
     <%- include('../components/pagination', {
       pagination,
@@ -205,5 +200,6 @@ document.addEventListener('DOMContentLoaded', function () {
     sortDesc.addEventListener('click', () => sortTable(false));
 
   window.navigateWithFilters = navigateWithFilters;
+
 });
 </script>
