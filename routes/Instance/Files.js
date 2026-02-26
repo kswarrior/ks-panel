@@ -108,7 +108,7 @@ router.get("/instance/:id/files/search", async (req, res) => {
             `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/search?q=${encodeURIComponent(q)}`,
             {
                 auth: {
-                    username: "Skyport",
+                    username: "kspanel",
                     password: instance.Node.apiKey,
                 },
             }

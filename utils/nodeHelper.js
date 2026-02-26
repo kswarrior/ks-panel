@@ -36,7 +36,7 @@ async function checkNodeStatus(node, skipCache = false) {
       method: "get",
       url: `http://${node.address}:${node.port}/`,
       auth: {
-        username: "Skyport",
+        username: "kspanel",
         password: node.apiKey,
       },
       headers: {

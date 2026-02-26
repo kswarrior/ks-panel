@@ -59,7 +59,7 @@ function prepareEditRequestData(instance, Image, Memory, Cpu, Disk) {
     method: "put",
     url: `http://${node.address}:${node.port}/instances/edit/${instance.ContainerId}`,
     auth: {
-      username: "Skyport",
+      username: "kspanel",
       password: node.apiKey,
     },
     headers: {

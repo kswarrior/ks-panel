@@ -18,7 +18,7 @@ async function deleteInstance(instance) {
       method: "delete",
       url: `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.ContainerId}`,
       auth: {
-        username: "Skyport",
+        username: "kspanel",
         password: instance.Node.apiKey,
       },
       headers: {

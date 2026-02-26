@@ -134,7 +134,7 @@ async function prepareRequestData(
     method: "post",
     url: `http://${node.address}:${node.port}/instances/reinstall/${containerId}/${id}`,
     auth: {
-      username: "Skyport",
+      username: "kspanel",
       password: node.apiKey,
     },
     headers: {

@@ -8,8 +8,8 @@ _____/ /____  ______  ____  _____/ /_
          /   
 
 
-https://github.com/skyport-team
-https://skyport.dev
+https://github.com/kswarrior
+https://kspanel.dev
 
 
 (c) 2024 Matt James and contributors.

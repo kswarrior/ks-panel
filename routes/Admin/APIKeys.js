@@ -30,7 +30,7 @@ router.post("/apikeys/create", isAdmin, async (req, res) => {
   try {
     const newApiKey = {
       id: uuidv4(),
-      key: "skyport_" + uuidv4(),
+      key: "kspanel_" + uuidv4(),
       createdAt: new Date().toISOString(),
     };
 

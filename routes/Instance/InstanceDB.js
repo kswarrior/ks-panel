@@ -119,7 +119,7 @@ router.post("/instance/:id/db/create/:name", async (req, res) => {
         instance.Node.port
       }/database/create/${encodeURIComponent(name)}`,
       auth: {
-        username: "Skyport",
+        username: "kspanel",
         password: instance.Node.apiKey,
       },
       headers: {
@@ -182,7 +182,7 @@ router.get("/instance/:id/db/delete/:name", async (req, res) => {
         instance.Node.port
       }/database/delete/${encodeURIComponent(name)}`,
       auth: {
-        username: "Skyport",
+        username: "kspanel",
         password: instance.Node.apiKey,
       },
       headers: {
