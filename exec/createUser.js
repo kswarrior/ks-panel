@@ -1,9 +1,11 @@
+#!/usr/bin/env node
+
 const readline = require("readline");
 const { db } = require("../handlers/db.js");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
-const log = new (require("cat-loggr"))();
 const config = require("../config.json");
+
 const saltRounds = config.saltRounds || 10;
 
 const rl = readline.createInterface({
@@ -11,48 +13,62 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+/* -------------------------
+   Simple Echo Logger
+--------------------------*/
+function echo(message) {
+  console.log(`[KS-PANEL] ${message}`);
+}
+
+function echoError(message) {
+  console.error(`[KS-PANEL ERROR] ${message}`);
+}
+
+/* -------------------------
+   Parse CLI Arguments
+--------------------------*/
 function parseArguments() {
   const args = {};
   process.argv.slice(2).forEach((arg) => {
-    const [key, value] = arg.split("=");
-    if (key.startsWith("--")) {
-      args[key.slice(2)] = value;
+    if (arg.startsWith("--")) {
+      const [key, value] = arg.replace("--", "").split("=");
+      args[key] = value;
     }
   });
   return args;
 }
 
+/* -------------------------
+   Validation Helpers
+--------------------------*/
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/* -------------------------
+   Database Checks
+--------------------------*/
 async function doesUserExist(username) {
   const users = await db.get("users");
-  return users ? users.some((user) => user.username === username) : false;
+  return users ? users.some((u) => u.username === username) : false;
 }
 
 async function doesEmailExist(email) {
   const users = await db.get("users");
-  return users ? users.some((user) => user.email === email) : false;
+  return users ? users.some((u) => u.email === email) : false;
 }
 
-async function initializeUsersTable(username, email, password) {
+/* -------------------------
+   Create User
+--------------------------*/
+async function createUser(username, email, password) {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const userId = uuidv4();
-  const users = [
-    {
-      userId,
-      username,
-      email,
-      password: hashedPassword,
-      accessTo: [],
-      admin: true,
-      verified: true,
-    },
-  ];
-  return db.set("users", users);
-}
 
-async function addUserToUsersTable(username, email, password) {
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  const userId = uuidv4();
-  const users = (await db.get("users")) || [];
+  let users = await db.get("users");
+  if (!users) users = [];
+
   users.push({
     userId,
     username,
@@ -62,75 +78,69 @@ async function addUserToUsersTable(username, email, password) {
     admin: true,
     verified: true,
   });
-  return db.set("users", users);
+
+  await db.set("users", users);
 }
 
-async function createUser(username, email, password) {
-  const users = await db.get("users");
-  if (!users) {
-    return initializeUsersTable(username, email, password);
-  } else {
-    return addUserToUsersTable(username, email, password);
-  }
-}
-
-function askQuestion(question) {
+/* -------------------------
+   CLI Question Helper
+--------------------------*/
+function ask(question) {
   return new Promise((resolve) => {
-    rl.question(question, (answer) => {
-      resolve(answer);
-    });
+    rl.question(question, resolve);
   });
 }
 
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
+/* -------------------------
+   Main Function
+--------------------------*/
 async function main() {
   const args = parseArguments();
 
-  let username, email, password;
+  let username = args.username;
+  let email = args.email;
+  let password = args.password;
 
-  if (args.username && args.email && args.password) {
-    username = args.username;
-    email = args.email;
-    password = args.password;
-  } else {
-    log.init("Create a new *admin* user for the Skyport Panel:");
-    log.init("You can make regular users from the admin -> users page.");
+  if (!username || !email || !password) {
+    echo("Create a new ADMIN user for KS Panel");
 
-    username = await askQuestion("Username: ");
-    email = await askQuestion("Email: ");
+    username = await ask("Username: ");
+    email = await ask("Email: ");
 
     if (!isValidEmail(email)) {
-      log.error("Invalid email!");
-      rl.close();
-      return;
+      echoError("Invalid email format.");
+      process.exit(1);
     }
 
-    password = await askQuestion("Password: ");
+    password = await ask("Password: ");
+  }
+
+  if (!isValidEmail(email)) {
+    echoError("Invalid email format.");
+    process.exit(1);
   }
 
   const userExists = await doesUserExist(username);
   const emailExists = await doesEmailExist(email);
-  if (userExists || emailExists) {
-    log.error("User already exists!");
-    rl.close();
-    return;
+
+  if (userExists) {
+    echoError("Username already exists.");
+    process.exit(1);
+  }
+
+  if (emailExists) {
+    echoError("Email already exists.");
+    process.exit(1);
   }
 
   try {
     await createUser(username, email, password);
-    log.info("Done! User created.");
+    echo("Admin user created successfully!");
   } catch (err) {
-    log.error("Error creating user:", err);
+    echoError("Failed to create user: " + err.message);
   } finally {
     rl.close();
   }
 }
 
-main().catch((err) => {
-  log.error("Unexpected error:", err);
-  rl.close();
-});
+main();
