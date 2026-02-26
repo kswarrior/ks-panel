@@ -1,88 +1,121 @@
 <%- include('../components/template') %>
+
 <main id="content">
-   <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-8 pt-4">
-         <div class="sm:flex-auto">
-           <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.images %></h1>
-           <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.imagesText %></p>
-         </div>
-         <div class="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
-          <button id="uploadimage" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
-            <%= req.translations.importImage %>
-          </button>
-        </div>
-       </div>
-      <div style="display: block;" id="nodeTable" class="mt-6 w-full">
-      <table class="mt-6 w-full whitespace-nowrap text-left">
-        <colgroup>
-          <col class="w-full sm:w-4/12">
-          <col class="lg:w-4/12">
-          <col class="lg:w-2/12">
-          <col class="lg:w-1/12">
-          <col class="lg:w-1/12">
-        </colgroup>
-        <thead class="border-b border-white/5 text-sm leading-6 text-white">
-          <tr>
-            <th scope="col" class="py-2 pl-4 pr-8 font-medium sm:pl-6 lg:pl-8"><%= req.translations.name %></th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell"><%= req.translations.author %></th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell"><%= req.translations.dockerImage %></th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell"><%= req.translations.actions %></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-white/5">
-         <% images.forEach(function(image) { %>
-          <tr class="image-row" data-image='<%= JSON.stringify(image) %>'>
-            <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8 cursor-pointer">
-              <div class="flex items-center gap-x-4">
-                <div class="truncate text-sm font-medium leading-6 text-white"><%= image.Name %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-              <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-neutral-400"><%= image.Author %> (<%= image.AuthorName %>)</div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-              <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-neutral-400"><%= image.Image %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-              <div class="flex gap-x-3">
-                <div onclick="deleteImage('<%= image.Id %>')" class="block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                  <%= req.translations.remove %>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <% }); %>
-        </tbody>
-      </table>
-      </div>
-      <%- include('../components/pagination', { pagination }) %>
-      <div style="display: none;" id="imageDetail" class="mt-6 pl-8 w-full text-white">
-        <button id="backButton" class="block rounded-xl bg-neutral-800 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-neutral-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          <%= req.translations.back %>
-        </button>
-        <h1 id="imageName" class="text-2xl font-bold mt-4"></h1>
-        <p id="imageDescription" class="mt-2 text-neutral-400"></p>
-        <div class="mt-4">
-          <span id="dockerImage" class="bg-white/5 text-white text-sm font-mono mr-2 px-2.5 py-1 rounded-xl"></span>
-          <span id="envVars" class="bg-white/5 text-white text-sm font-mono mr-2 px-2.5 py-1 rounded-xl"></span>
-        </div>
-        <div class="mt-4">
-          <p id="authorInfo" class="text-neutral-400"></p>
-        </div>
-        <div class="mt-4 flex">
-          <button id="deleteImageButton" class="block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            <%= req.translations.imageDelete %>
-          </button>
-          <button id="replaceImageButton" class="block rounded-xl ml-2 bg-neutral-800 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-neutral-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            <%= req.translations.imageReplace %>
-          </button>
-        </div>
-      </div>
+<style>
+  .hidden { display: none; }
+  .fade-in { animation: fadeIn .2s ease-in-out; }
+  @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+</style>
+
+<div class="bg-transparent">
+
+  <div class="sm:flex sm:items-center px-8 pt-4">
+    <div class="sm:flex-auto">
+      <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.images %></h1>
+      <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.imagesText %></p>
     </div>
+    <div class="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
+      <button id="uploadimage" type="button"
+        class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-sm font-medium shadow-lg transition">
+        <%= req.translations.importImage %>
+      </button>
+    </div>
+  </div>
+
+  <div id="nodeTable" class="mt-6 w-full fade-in">
+    <table class="mt-6 w-full whitespace-nowrap text-left">
+      <colgroup>
+        <col class="w-full sm:w-4/12">
+        <col class="lg:w-4/12">
+        <col class="lg:w-2/12">
+        <col class="lg:w-2/12">
+      </colgroup>
+
+      <thead class="border-b border-white/5 text-sm leading-6 text-white">
+        <tr>
+          <th class="py-2 pl-4 pr-8 font-medium sm:pl-6 lg:pl-8"><%= req.translations.name %></th>
+          <th class="py-2 pl-0 pr-8 font-medium"><%= req.translations.author %></th>
+          <th class="py-2 pl-0 pr-8 font-medium"><%= req.translations.dockerImage %></th>
+          <th class="py-2 pl-0 pr-8 font-medium"><%= req.translations.actions %></th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-white/5">
+        <% if(images.length === 0){ %>
+          <tr>
+            <td colspan="4" class="text-center py-6 text-neutral-400">
+              No images found.
+            </td>
+          </tr>
+        <% } %>
+
+        <% images.forEach(function(image){ %>
+        <tr class="image-row cursor-pointer hover:bg-white/5 transition"
+            data-image='<%- JSON.stringify(image) %>'>
+          <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
+            <div class="truncate text-sm font-medium text-white">
+              <%= image.Name %>
+            </div>
+          </td>
+
+          <td class="py-4 text-sm text-neutral-400">
+            <%= image.Author %> (<%= image.AuthorName %>)
+          </td>
+
+          <td class="py-4 text-sm font-mono text-neutral-400">
+            <%= image.Image %>
+          </td>
+
+          <td class="py-4">
+            <div class="flex gap-x-2">
+              <button onclick="event.stopPropagation();deleteImage('<%= image.Id %>')"
+                class="rounded-xl bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-500 transition">
+                <%= req.translations.remove %>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <%- include('../components/pagination', { pagination }) %>
+
+  <div id="imageDetail" class="hidden mt-6 pl-8 w-full text-white fade-in">
+    <button id="backButton"
+      class="rounded-xl bg-neutral-800 px-3 py-2 text-sm text-white shadow-lg hover:bg-neutral-600 transition">
+      <%= req.translations.back %>
+    </button>
+
+    <h1 id="imageName" class="text-2xl font-bold mt-4"></h1>
+    <p id="imageDescription" class="mt-2 text-neutral-400"></p>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <span id="dockerImage"
+        class="bg-white/5 text-white text-sm font-mono px-2.5 py-1 rounded-xl"></span>
+      <span id="envVars"
+        class="bg-white/5 text-white text-sm font-mono px-2.5 py-1 rounded-xl"></span>
+    </div>
+
+    <div class="mt-4">
+      <p id="authorInfo" class="text-neutral-400"></p>
+    </div>
+
+    <div class="mt-6 flex gap-x-2">
+      <button id="deleteImageButton"
+        class="rounded-xl bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-500 transition">
+        <%= req.translations.imageDelete %>
+      </button>
+
+      <button id="replaceImageButton"
+        class="rounded-xl bg-neutral-800 px-3 py-2 text-sm text-white hover:bg-neutral-600 transition">
+        <%= req.translations.imageReplace %>
+      </button>
+    </div>
+  </div>
+
+</div>
 </main>
 <%- include('../components/footer') %>
 <script>
