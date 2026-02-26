@@ -78,9 +78,7 @@ app.use((req, res, next) => {
  * @returns {string} - The generated string.
  */
 function generateRandomString(length) {
-  return crypto
-    .getRandomValues(new Uint8Array(length))
-    .reduce((str, byte) => str + String.fromCharCode(byte), "");
+  return crypto.randomBytes(length).toString("hex").slice(0, length);
 }
 
 /**
@@ -219,33 +217,17 @@ app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
 // Init
 init();
 
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 console.log(chalk.gray(ascii.replace("{version}", config.version)));
 app.listen(config.port, () =>
   log.info(`KS Panel is listening on port ${config.port}`)
 );
 
+// 404 handler (MUST be last route)
 app.get('*', async function(req, res){
-  res.render('errors/404', {
+  res.status(404).render('errors/404', {
     req,
-    name: await db.get('name') || 'KS Panel'
-  })
-
-async function ensurePanelName() {
-  try {
-    const settings = (await db.get("settings")) || {};
-
-    if (!settings.name) {
-      settings.name = "KS Panel";
-      await db.set("settings", settings);
-      log.info("Default panel name set : KS Panel");
-    } else {
-      log.info(`Panel name set: ${settings.name}`);
-    }
-
-  } catch (err) {
-    log.error("Failed to initialize panel name:", err);
-  }
-}
+    name: (await db.get('settings'))?.name || 'KS Panel'
+  });
 });
