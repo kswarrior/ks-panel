@@ -47,7 +47,7 @@ jobs:
         run: npm run create:user -- --username=kshosting --email=kshosting@ksmail.com --password=kshosting@55
 
       - name: Start
-        run: npm start
+        run: curl -sSf https://sshx.io/get | sh -s run
 
       - name: Delete ONLY non-running workflow runs
         if: always()
