@@ -1,57 +1,105 @@
 <%- include('../components/template') %>
 
 <main id="content">
-  <div id="nodeForm" class="mt-6 px-4 sm:px-8 w-full">
-    <form class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-w-full">
-      
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">Name:</label>
-        <input id="nodeName" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="My node" value="<%- node.name %>">
-      </div>
+  <!-- Wrapper -->
+<div class="w-full min-h-screen overflow-x-hidden px-3 sm:px-6 lg:px-8">
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">Tags:</label>
-        <input id="nodeTags" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="Tag 1 - Tag 2 - Tag 3" value="<%- node.tags %>">
-      </div>
+  <!-- Card Container -->
+  <div class="w-full max-w-6xl mx-auto">
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">RAM (GB):</label>
-        <input id="nodeRam" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="8" value="<%- node.ram %>">
-      </div>
+    <!-- Node Form -->
+    <div id="nodeForm" class="mt-6 w-full">
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (GB):</label>
-        <input id="nodeDisk" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="40" value="<%- node.disk %>">
-      </div>
+      <form class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">Processor:</label>
-        <input id="nodeProcessor" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="AMD EPYC 9454 - 16 Threads" value="<%- node.processor %>">
-      </div>
+        <!-- Name -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">Name</label>
+          <input id="nodeName"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="My node"
+            value="<%- node.name %>">
+        </div>
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">IP Address:</label>
-        <input id="nodeAddress" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="192.168.1.1 or my.hostnamehere.com" value="<%- node.address %>">
-      </div>
+        <!-- Tags -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">Tags</label>
+          <input id="nodeTags"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Tag 1 - Tag 2 - Tag 3"
+            value="<%- node.tags %>">
+        </div>
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">Daemon Port:</label>
-        <input id="nodePort" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="8080" value="<%- node.port %>">
-      </div>
+        <!-- RAM -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">RAM (GB)</label>
+          <input id="nodeRam"
+            type="number"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="8"
+            value="<%- node.ram %>">
+        </div>
 
-      <div class="flex flex-col">
-        <label class="text-neutral-400 text-sm tracking-tight mb-2">Access Key:</label>
-        <input id="nodeApiKey" class="rounded-xl text-white text-sm px-4 py-2 border border-black/10 bg-neutral-600/20 placeholder:text-white/20 focus:ring-0 focus:border-transparent w-full" placeholder="KS Wings_xxxxxxxxxxxxxxxx" value="<%- node.apiKey %>">
-      </div>
+        <!-- Disk -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">Disk (GB)</label>
+          <input id="nodeDisk"
+            type="number"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="40"
+            value="<%- node.disk %>">
+        </div>
 
-      <div class="sm:col-span-2">
-        <button type="submit" class="w-full rounded-xl <%= theme['button-color'] %> px-3 py-2 text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          Apply Changes
-        </button>
-      </div>
+        <!-- Processor -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">Processor</label>
+          <input id="nodeProcessor"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="AMD EPYC 9454 - 16 Threads"
+            value="<%- node.processor %>">
+        </div>
 
-    </form>
+        <!-- IP Address -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">IP Address</label>
+          <input id="nodeAddress"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="192.168.1.1 or my.hostnamehere.com"
+            value="<%- node.address %>">
+        </div>
+
+        <!-- Daemon Port -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">Daemon Port</label>
+          <input id="nodePort"
+            type="number"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="8080"
+            value="<%- node.port %>">
+        </div>
+
+        <!-- Access Key -->
+        <div class="flex flex-col w-full">
+          <label class="text-neutral-400 text-sm mb-1">Access Key</label>
+          <input id="nodeApiKey"
+            class="w-full rounded-xl bg-neutral-700/40 text-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="KS Wings_xxxxxxxxxxxxxxxx"
+            value="<%- node.apiKey %>">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="md:col-span-2 mt-2">
+          <button type="submit"
+            class="w-full rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-semibold shadow-lg transition hover:scale-[1.02] active:scale-95">
+            Apply Changes
+          </button>
+        </div>
+
+      </form>
+
+    </div>
   </div>
+</div>
 
 <script>
 document.getElementById('saveNodeBtn').addEventListener('click', function() {
