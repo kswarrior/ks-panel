@@ -8,6 +8,8 @@ const { checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/n
 const { getPaginatedInstances, invalidateCache, invalidateCacheGroup } = require("../../utils/dbHelper.js");
 const fs = require("fs");
 const path = require("path");
+const { checkContainerState } = require("../../utils/checkstate.js");
+const { v4: uuid } = require("uuid");
 const log = new (require("cat-loggr"))();
 
 const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
@@ -70,6 +72,199 @@ function deleteWorkflowFromFile(instanceId) {
   } catch (error) {
     console.error("Error deleting workflow from file:", error);
   }
+}
+
+async function prepareRequestData(
+  image,
+  memory,
+  cpu,
+  disk,
+  ports,
+  name,
+  node,
+  Id,
+  variables,
+  imagename
+) {
+  const rawImages = await db.get("images");
+  const imageData = rawImages.find((i) => i.Name === imagename);
+
+  const requestData = {
+    method: "post",
+    url: `http://${node.address}:${node.port}/instances/create`,
+    auth: {
+      username: "kspanel",
+      password: node.apiKey,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      Name: name,
+      Id,
+      Image: image,
+      Env: imageData ? imageData.Env : undefined,
+      Scripts: imageData ? imageData.Scripts : undefined,
+      Memory: memory ? parseInt(memory) : undefined,
+      Cpu: cpu ? parseInt(cpu) : undefined,
+      Disk: disk ? parseInt(disk) : undefined,
+      ExposedPorts: {},
+      PortBindings: {},
+      variables,
+      AltImages: imageData ? imageData.AltImages : [],
+      StopCommand: imageData ? imageData.StopCommand : undefined,
+      imageData,
+    },
+  };
+
+  if (ports) {
+    ports.split(",").forEach((portMapping) => {
+      const [containerPort, hostPort] = portMapping.split(":");
+
+      // Adds support for TCP
+      const tcpKey = `${containerPort}/tcp`;
+      if (!requestData.data.ExposedPorts[tcpKey]) {
+        requestData.data.ExposedPorts[tcpKey] = {};
+      }
+
+      if (!requestData.data.PortBindings[tcpKey]) {
+        requestData.data.PortBindings[tcpKey] = [{ HostPort: hostPort }];
+      }
+
+      // Adds support for UDP
+      const udpKey = `${containerPort}/udp`;
+      if (!requestData.data.ExposedPorts[udpKey]) {
+        requestData.data.ExposedPorts[udpKey] = {};
+      }
+
+      if (!requestData.data.PortBindings[udpKey]) {
+        requestData.data.PortBindings[udpKey] = [{ HostPort: hostPort }];
+      }
+    });
+  }
+
+  return requestData;
+}
+
+async function updateDatabaseWithNewInstance(
+  responseData,
+  userId,
+  node,
+  image,
+  memory,
+  cpu,
+  disk,
+  ports,
+  primary,
+  name,
+  Id,
+  imagename
+) {
+  const rawImages = await db.get("images");
+  const imageData = rawImages.find((i) => i.Name === imagename);
+
+  let altImages = imageData ? imageData.AltImages : [];
+
+  const instanceData = {
+    Name: name,
+    Id,
+    Node: node,
+    User: userId,
+    InternalState: "INSTALLING",
+    ContainerId: responseData.containerId,
+    VolumeId: Id,
+    Memory: parseInt(memory),
+    Cpu: parseInt(cpu),
+    Disk: disk ? parseInt(disk) : 0,
+    Ports: ports,
+    Primary: primary,
+    Image: image,
+    AltImages: altImages,
+    StopCommand: imageData ? imageData.StopCommand : undefined,
+    imageData,
+    Env: responseData.Env,
+  };
+
+  const userInstances = (await db.get(`${userId}_instances`)) || [];
+  userInstances.push(instanceData);
+  await db.set(`${userId}_instances`, userInstances);
+
+  const globalInstances = (await db.get("instances")) || [];
+  globalInstances.push(instanceData);
+  await db.set("instances", globalInstances);
+
+  await db.set(`${Id}_instance`, instanceData);
+}
+
+function prepareEditRequestData(instance, Image, Memory, Cpu, Disk) {
+  const node = instance.Node;
+  return {
+    method: "put",
+    url: `http://${node.address}:${node.port}/instances/edit/${instance.ContainerId}`,
+    auth: {
+      username: "kspanel",
+      password: node.apiKey,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      Image: Image || instance.Image,
+      Memory: Memory || instance.Memory,
+      Cpu: Cpu || instance.Cpu,
+      Disk: Disk || instance.Disk,
+      VolumeId: instance.VolumeId,
+    },
+  };
+}
+
+async function updateInstanceInDatabase(
+  id,
+  instance,
+  Image,
+  Memory,
+  Cpu,
+  Disk,
+  newContainerId
+) {
+  const updatedInstance = {
+    ...instance,
+    Image: Image || instance.Image,
+    Memory: Memory || instance.Memory,
+    Cpu: Cpu || instance.Cpu,
+    Disk: Disk || instance.Disk,
+    ContainerId: newContainerId,
+  };
+
+  // Update user instances
+  await updateUserInstances(instance.User, id, updatedInstance);
+
+  // Update global instances
+  await updateGlobalInstances(id, updatedInstance);
+
+  // Update individual instance record
+  await db.set(`${newContainerId}_instance`, updatedInstance);
+
+  // Delete old instance record
+  await db.del(`${id}_instance`);
+
+  return updatedInstance;
+}
+
+async function updateUserInstances(userId, oldContainerId, updatedInstance) {
+  const userInstances = (await db.get(`${userId}_instances`)) || [];
+  const updatedUserInstances = userInstances.map((inst) =>
+    inst.ContainerId === oldContainerId ? { ...inst, ...updatedInstance } : inst
+  );
+  await db.set(`${userId}_instances`, updatedUserInstances);
+}
+
+async function updateGlobalInstances(oldContainerId, updatedInstance) {
+  const globalInstances = (await db.get("instances")) || [];
+  const updatedGlobalInstances = globalInstances.map((inst) =>
+    inst.ContainerId === oldContainerId ? { ...inst, ...updatedInstance } : inst
+  );
+  await db.set("instances", updatedGlobalInstances);
 }
 
 router.get("/admin/instances", isAdmin, async (req, res) => {
@@ -228,6 +423,133 @@ router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
   } catch (error) {
     log.error("Error in unsuspend instance endpoint:", error);
     res.status(500).send("An error occurred while unsuspending the instance");
+  }
+});
+
+router.get("/instances/deploy", isAdmin, async (req, res) => {
+  const {
+    image,
+    imagename,
+    memory,
+    cpu,
+    disk,
+    ports,
+    nodeId,
+    name,
+    user,
+    primary,
+    variables,
+  } = req.query;
+  if (
+    !image ||
+    !memory ||
+    !cpu ||
+    !disk ||
+    !ports ||
+    !nodeId ||
+    !name ||
+    !user ||
+    !primary
+  ) {
+    return res.status(400).json({ error: "Missing parameters" });
+  }
+
+  try {
+    const Id = uuid().split("-")[0];
+    const node = await db.get(`${nodeId}_node`);
+    if (!node) {
+      return res.status(400).json({ error: "Invalid node" });
+    }
+
+    const requestData = await prepareRequestData(
+      image,
+      memory,
+      cpu,
+      disk,
+      ports,
+      name,
+      node,
+      Id,
+      variables,
+      imagename
+    );
+    const response = await axios(requestData);
+
+    await updateDatabaseWithNewInstance(
+      response.data,
+      user,
+      node,
+      image,
+      memory,
+      cpu,
+      disk,
+      ports,
+      primary,
+      name,
+      Id,
+      imagename
+    );
+
+    // Start the state checking process
+    checkContainerState(Id, node.address, node.port, node.apiKey, user);
+
+    logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
+    res.status(201).json({
+      message:
+        "Container creation initiated. State will be updated asynchronously.",
+      volumeId: Id,
+      state: "INSTALLING",
+    });
+  } catch (error) {
+    log.error("Error deploying instance:", error);
+    res.status(500).json({
+      error: "Failed to create container",
+      details: error.response
+        ? error.response.data
+        : "No additional error info",
+    });
+  }
+});
+
+router.put("/instances/edit/:id", isAdmin, async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+
+  const { id } = req.params;
+  const { Image, Memory, Cpu, Disk } = req.body;
+
+  try {
+    const instance = await db.get(`${id}_instance`);
+    if (!instance) {
+      return res.status(404).json({ message: "Instance not found" });
+    }
+
+    const requestData = prepareEditRequestData(instance, Image, Memory, Cpu, Disk);
+    const response = await axios(requestData);
+
+    await updateInstanceInDatabase(
+      id,
+      instance,
+      Image,
+      Memory,
+      Cpu,
+      Disk,
+      response.data.newContainerId
+    );
+
+    logAudit(req.user.userId, req.user.username, "instance:edit", req.ip);
+
+    res.status(200).json({
+      message: "Instance updated successfully",
+      oldContainerId: id,
+      newContainerId: response.data.newContainerId,
+    });
+  } catch (error) {
+    log.error("Error updating instance:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to update instance", error: error.message });
   }
 });
 
