@@ -1,112 +1,34 @@
 <%- include('../components/template') %>
-
 <main id="content">
+<div id="nodeForm" class="mt-6 px-8 w-full">
+	<form>
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Name:</label>
+	 <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="My node" value="<%- node.name %>">
 
-<div style="width:100%; min-height:100vh; overflow-x:hidden; padding:12px 16px; box-sizing:border-box;">
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Tags:</label>
+	 <input id="nodeTags" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="Tag 1 - Tag 2 - Tag 3" value="<%- node.tags %>">
 
-  <div style="width:100%; max-width:1150px; margin:auto;">
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">RAM (GB):</label>
+	 <input id="nodeRam" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="8" value="<%- node.ram %>">
 
-    <div id="nodeForm" style="margin-top:24px; width:100%;">
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (GB):</label>
+	 <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="40" value="<%- node.disk %>">
 
-      <form style="display:grid; grid-template-columns:1fr; gap:16px; width:100%;" id="nodeFormGrid">
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Processor:</label>
+	 <input id="nodeProcessor" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="AMD EPYC 9454 - 16 Threads"  value="<%- node.processor %>">
 
-        <!-- Name -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">Name</label>
-          <input id="nodeName"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="My node"
-            value="<%- node.name %>">
-        </div>
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">IP Address:</label>
+	 <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="192.168.1.1 or my.hostnamehere.com" value="<%- node.address %>">
 
-        <!-- Tags -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">Tags</label>
-          <input id="nodeTags"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="Tag 1 - Tag 2 - Tag 3"
-            value="<%- node.tags %>">
-        </div>
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Daemon Port:</label>
+	 <input id="nodePort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="8080" value="<%- node.port %>">
 
-        <!-- RAM -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">RAM (GB)</label>
-          <input id="nodeRam"
-            type="number"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="8"
-            value="<%- node.ram %>">
-        </div>
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Access Key:</label>
+	 <input id="nodeApiKey" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="skyportd_xxxxxxxxxxxxxxxx" value="<%- node.apiKey %>">
 
-        <!-- Disk -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">Disk (GB)</label>
-          <input id="nodeDisk"
-            type="number"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="40"
-            value="<%- node.disk %>">
-        </div>
-
-        <!-- Processor -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">Processor</label>
-          <input id="nodeProcessor"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="AMD EPYC 9454 - 16 Threads"
-            value="<%- node.processor %>">
-        </div>
-
-        <!-- IP Address -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">IP Address</label>
-          <input id="nodeAddress"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="192.168.1.1 or my.hostnamehere.com"
-            value="<%- node.address %>">
-        </div>
-
-        <!-- Daemon Port -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">Daemon Port</label>
-          <input id="nodePort"
-            type="number"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="8080"
-            value="<%- node.port %>">
-        </div>
-
-        <!-- Access Key -->
-        <div style="display:flex; flex-direction:column; width:100%;">
-          <label style="color:#a3a3a3; font-size:14px; margin-bottom:6px;">Access Key</label>
-          <input id="nodeApiKey"
-            style="width:100%; border-radius:12px; background:#404040; color:white; padding:10px 14px; font-size:14px; border:none; outline:none;"
-            placeholder="KS Wings_xxxxxxxxxxxxxxxx"
-            value="<%- node.apiKey %>">
-        </div>
-
-        <!-- Submit -->
-        <div style="grid-column:1 / -1; margin-top:8px;">
-          <button type="submit"
-            style="width:100%; border-radius:12px; background:#6366f1; color:white; padding:10px; font-size:14px; font-weight:600; border:none; cursor:pointer;">
-            Apply Changes
-          </button>
-        </div>
-
-      </form>
-
-    </div>
-  </div>
+	 <button id="saveNodeBtn" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Apply Changes</button>
+  </form>
 </div>
-
-<!-- Responsive 2 Column for Desktop -->
-<style>
-@media (min-width: 768px) {
-  #nodeFormGrid {
-    grid-template-columns: 1fr 1fr !important;
-  }
-}
-</style>
 
 <script>
 document.getElementById('saveNodeBtn').addEventListener('click', function() {
@@ -143,6 +65,5 @@ document.getElementById('saveNodeBtn').addEventListener('click', function() {
     .catch(error => console.error('Error editing node:', error));
 });
 </script>
-
 </main>
 <%- include('../components/footer') %>
