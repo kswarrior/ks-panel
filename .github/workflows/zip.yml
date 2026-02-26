@@ -1,0 +1,46 @@
+name: Zip and Upload Repo to Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install GitHub CLI (needed to create release if not exists)
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
+
+      # 3. Create zip of repository
+      - name: Create zip of repository
+        run: |
+          ZIP_NAME="${GITHUB_REPOSITORY##*/}-${GITHUB_REF_NAME}.zip"
+          echo "Creating zip file $ZIP_NAME"
+          zip -r "$ZIP_NAME" . -x ".git/*"
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      # 4. Create release if it doesn't exist
+      - name: Ensure release exists
+        run: |
+          if ! gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
+            echo "Release not found, creating..."
+            gh release create "${GITHUB_REF_NAME}" -t "Release ${GITHUB_REF_NAME}" -n "Automated release for ${GITHUB_REF_NAME}"
+          else
+            echo "Release already exists."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 5. Upload zip to the release
+      - name: Upload zip to release
+        run: |
+          gh release upload "${GITHUB_REF_NAME}" "${ZIP_NAME}" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
