@@ -1,181 +1,173 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
+<main id="content" class="min-h-screen pb-10">
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <div>
-      <h1 class="text-lg font-semibold text-white">
-        <%= req.translations.settings %>
-      </h1>
-      <p class="mt-1 text-sm text-neutral-400">
-        <%= req.translations.changeSettings %>
-      </p>
-    </div>
+  <div class="px-8 pt-6">
+    <h1 class="text-2xl font-semibold text-white tracking-tight">
+      <%= req.translations.settings %>
+    </h1>
+    <p class="mt-2 text-sm text-neutral-400">
+      <%= req.translations.changeSettings %>
+    </p>
   </div>
 
-<%- include('../../components/template') %>
+  <%- include('../../components/settings') %>
 
-  <!-- SMTP CARD -->
-  <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+  <div class="mx-8 mt-8 bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-md">
 
-    <!-- Card Title -->
-    <div class="px-6 py-4 border-b border-white/10 bg-white/5">
-      <h2 class="text-white text-base font-medium">
+    <div class="px-6 py-4 border-b border-white/10">
+      <h2 class="text-lg font-semibold text-white">
         <%= req.translations.smtp %>
       </h2>
     </div>
 
+    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-    <div class="p-6 space-y-10">
-
-      <!-- Save SMTP Settings -->
-      <form action="/admin/settings/saveSmtpSettings" method="POST" class="space-y-6 max-w-3xl">
+      <!-- SMTP Settings Form -->
+      <form action="/admin/settings/saveSmtpSettings" method="POST" class="space-y-5">
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="smtpServer" class="block text-sm text-neutral-400">
             <%= req.translations.smtpServer %>
           </label>
           <input
             type="text"
+            id="smtpServer"
             name="smtpServer"
+            required
             value="<%= smtpSettings.server || '' %>"
             placeholder="<%= req.translations.smtpServer %>"
-            required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="smtpPort" class="block text-sm text-neutral-400">
             <%= req.translations.smtpPort %>
           </label>
           <input
             type="number"
+            id="smtpPort"
             name="smtpPort"
+            required
             value="<%= smtpSettings.port || '' %>"
             placeholder="<%= req.translations.smtpPort %>"
-            required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="smtpUser" class="block text-sm text-neutral-400">
             <%= req.translations.smtpUsername %>
           </label>
           <input
             type="text"
+            id="smtpUser"
             name="smtpUser"
+            required
             value="<%= smtpSettings.username || '' %>"
             placeholder="<%= req.translations.smtpUsername %>"
-            required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="smtpPass" class="block text-sm text-neutral-400">
             <%= req.translations.smtpPassword %>
           </label>
           <input
             type="password"
+            id="smtpPass"
             name="smtpPass"
+            required
             value="<%= smtpSettings.password || '' %>"
             placeholder="<%= req.translations.smtpPassword %>"
-            required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="smtpFromName" class="block text-sm text-neutral-400">
             <%= req.translations.mailFromName %>
           </label>
           <input
             type="text"
+            id="smtpFromName"
             name="smtpFromName"
+            required
             value="<%= smtpSettings.fromName || '' %>"
             placeholder="<%= req.translations.mailFromName %>"
-            required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="smtpFromAddress" class="block text-sm text-neutral-400">
             <%= req.translations.mailFromAddress %>
           </label>
           <input
             type="email"
+            id="smtpFromAddress"
             name="smtpFromAddress"
+            required
             value="<%= smtpSettings.fromAddress || '' %>"
             placeholder="<%= req.translations.mailFromAddress %>"
-            required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <button
           type="submit"
-          class="rounded-xl <%= theme['button-color'] %> px-5 py-2 text-sm font-medium shadow transition"
-        >
+          class="w-full rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
           <%= req.translations.saveSmtpSettings %>
         </button>
 
       </form>
 
-
-      <!-- Divider -->
-      <div class="border-t border-white/10"></div>
-
-
-      <!-- Test Email -->
-      <form action="/sendTestEmail" method="POST" class="space-y-5 max-w-xl">
+      <!-- Test Email Form -->
+      <form action="/sendTestEmail" method="POST" class="space-y-5">
 
         <div>
-          <label class="block text-sm text-neutral-400 mb-2">
+          <label for="recipientEmail" class="block text-sm text-neutral-400">
             <%= req.translations.recipientEmail %>
           </label>
           <input
             type="email"
+            id="recipientEmail"
             name="recipientEmail"
             required
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
         <button
           type="submit"
-          class="rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-2 text-sm font-medium text-white shadow transition"
-        >
+          class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
           <%= req.translations.sendTestEmail %>
         </button>
 
-
-        <!-- Messages -->
         <% if (req.query.msg === "TestemailSentsuccess") { %>
-          <p class="text-emerald-500 text-sm">
+          <div class="text-emerald-500 text-sm">
             <%= req.translations.testEmailSuccess %>
-          </p>
+          </div>
         <% } %>
 
         <% if (req.query.err === "TestemailSentfailed") { %>
-          <p class="text-red-500 text-sm">
+          <div class="text-red-500 text-sm">
             <%= req.translations.testEmailFailed %>
-          </p>
+          </div>
         <% } %>
 
         <% if (req.query.msg === "SmtpSaveSuccess") { %>
-          <p class="text-emerald-500 text-sm">
+          <div class="text-emerald-500 text-sm">
             <%= req.translations.settingsSaved %>
-          </p>
+          </div>
         <% } %>
 
         <% if (req.query.err === "SmtpSaveFailed") { %>
-          <p class="text-red-500 text-sm">
+          <div class="text-red-500 text-sm">
             <%= req.translations.settingsSaveFailed %>
-          </p>
+          </div>
         <% } %>
 
       </form>
