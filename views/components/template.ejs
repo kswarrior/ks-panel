@@ -133,7 +133,22 @@
      
       -->
                   <div class="flex items-center space-x-4 py-4 px-4 border-y border-white/5">
-                     <img class="h-8 w-8 rounded-xl" src="https://api.dicebear.com/9.x/thumbs/svg?seed=<%= user.username %>" alt="User avatar">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <circle cx="14" cy="8.5" r="5.5" fill="#ffffff"/>
+
+  <!-- Body with smooth transition and nicer shoulders -->
+  <path 
+    d="M7 22 
+       C7 17.5 9.5 14.5 14 14.5 
+       C18.5 14.5 21 17.5 21 22 
+       L21 24 
+       C21 25.1 20.1 26 19 26 
+       L9 26 
+       C7.9 26 7 25.1 7 24 Z" 
+    fill="#ffffff"
+  />
+</svg>
                      <div class="group-[.collapsed]:hidden">
                        <p class="text-sm font-medium text-white"><%= user.username %></p>
                        <p class="text-xs text-neutral-500"><%= user.userId.substring(0, 6) %></p>
@@ -287,7 +302,12 @@
    -->
    <div class="relative mt-3 mr-4">
      <button type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
-       <img class="h-8 w-8 rounded-lg bg-transparent" src="https://api.dicebear.com/9.x/thumbs/svg?seed=<%= user.username %>" alt="">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="14" cy="14" r="11.5" stroke="#ffffff" stroke-width="2.4"/>
+  <path d="M3 14H25" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M14 2.5C10 7 10 21 14 25.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M14 2.5C18 7 18 21 14 25.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
        <span class="hidden lg:flex lg:items-center ml-2.5 text-sm font-medium leading-6 text-white" aria-hidden="true">
          <%= user.username %>
          <span class="font-mono text-xs text-zinc-300 font-normal ml-1">(<%= user.userId.substring(0, 6) %>)</span>
