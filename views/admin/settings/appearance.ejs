@@ -1,93 +1,78 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
+<main id="content" class="min-h-screen pb-10">
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <div>
-      <h1 class="text-lg font-semibold text-white">
-        <%= req.translations.settings %>
-      </h1>
-      <p class="mt-1 text-sm text-neutral-400">
-        <%= req.translations.changeSettings %>
-      </p>
-    </div>
+  <div class="px-8 pt-6">
+    <h1 class="text-2xl font-semibold text-white tracking-tight">
+      <%= req.translations.settings %>
+    </h1>
+    <p class="mt-2 text-sm text-neutral-400">
+      <%= req.translations.changeSettings %>
+    </p>
   </div>
 
-<%- include('../../components/template') %>
+  <%- include('../../components/settings') %>
 
-  <!-- GENERAL SETTINGS CARD -->
-  <div class="mt-8 bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+  <div class="mx-8 mt-8 bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-md">
 
-    <!-- Card Title -->
-    <div class="px-6 py-4 border-b border-white/10 bg-white/5">
-      <h2 class="text-white text-base font-medium">
+    <div class="px-6 py-4 border-b border-white/10">
+      <h2 class="text-lg font-semibold text-white">
         <%= req.translations.general %>
       </h2>
     </div>
 
-    <!-- Card Content -->
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-
-      <!-- Panel Name -->
+      <!-- Change Panel Name -->
       <div>
         <form action="/admin/settings/change/name" method="POST" class="space-y-4">
-          <div>
-            <label class="block text-sm text-neutral-400 mb-2">
-              <%= req.translations.panelName %>
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value="<%= name %>"
-              placeholder="<%= name %>"
-              required
-              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
-            />
-          </div>
-
+          <label for="name" class="block text-sm text-neutral-400">
+            <%= req.translations.panelName %>
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            value="<%= name %>"
+            placeholder="<%= name %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
           <button
             type="submit"
-            class="rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow transition"
-          >
+            class="w-full rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
             <%= req.translations.save %>
           </button>
         </form>
       </div>
 
-
-      <!-- Panel Logo -->
+      <!-- Change Logo -->
       <div>
         <form action="/admin/settings/change/logo" method="POST" enctype="multipart/form-data" class="space-y-4">
-
           <label class="block text-sm text-neutral-400">
             <%= req.translations.panelLogo %>
           </label>
 
-          <div class="flex items-center gap-2">
-            <input
-              id="useImage"
-              name="useImage"
-              type="checkbox"
-              class="w-4 h-4 rounded border-white/10 bg-transparent"
-            />
-            <span class="text-sm text-neutral-400">
+          <div class="flex items-center gap-3">
+            <input id="useImage" name="useImage" type="checkbox"
+              class="w-4 h-4 bg-transparent border-white/10 rounded focus:ring-2 focus:ring-blue-500">
+            <label for="useImage" class="text-sm text-neutral-400">
               <%= req.translations.image %>
-            </span>
+            </label>
           </div>
 
           <div id="imageUploadBox" class="hidden">
-            <label class="block text-sm text-neutral-400 mb-2">
-              <%= req.translations.uploadLogo %>
-            </label>
             <input
               type="file"
               name="logo"
               id="logo"
               accept="image/*"
-              class="block w-full text-sm text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-white/10 file:text-white hover:file:bg-white/20 transition"
+              class="block w-full text-sm text-neutral-400
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-xl file:border-0
+                     file:text-sm file:font-medium
+                     file:bg-white/5 file:text-neutral-300
+                     hover:file:bg-white/10 transition"
             />
           </div>
 
@@ -96,92 +81,100 @@
           <button
             id="logoButton"
             type="submit"
-            class="rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow transition"
-          >
+            class="w-full rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
             <%= req.translations.removeLogo %>
           </button>
-
         </form>
       </div>
 
-
-      <!-- Register + Force Verify -->
+      <!-- Register & Force Verify -->
       <div class="space-y-8">
 
-
-        <!-- Register Toggle -->
-        <form action="/admin/settings/toggle/register" method="POST" class="space-y-4">
-
+        <!-- Toggle Register -->
+        <form action="/admin/settings/toggle/register" method="POST" class="space-y-3">
           <div>
             <% if (settings.register === true) { %>
-              <p class="text-sm text-neutral-400">
+              <span class="text-sm text-neutral-400">
                 <%= req.translations.registerPage %>
-                <span class="ml-2 text-green-500 font-medium">
+                <span class="text-green-500 font-medium">
                   <%= req.translations.enabled %>
                 </span>
-              </p>
+              </span>
             <% } else { %>
-              <p class="text-sm text-neutral-400">
+              <span class="text-sm text-neutral-400">
                 <%= req.translations.registerPage %>
-                <span class="ml-2 text-red-500 font-medium">
+                <span class="text-red-500 font-medium">
                   <%= req.translations.disabled %>
                 </span>
-              </p>
+              </span>
             <% } %>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-3">
+          <div class="flex">
             <% if (settings.register === true) { %>
               <button type="submit"
-                class="rounded-lg bg-white text-neutral-900 px-4 py-2 text-sm font-medium shadow hover:bg-neutral-200 transition">
+                class="flex-1 rounded-l-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.disable %>
               </button>
+              <button disabled
+                class="flex-1 rounded-r-xl bg-green-600 text-white py-2 text-sm font-medium opacity-70">
+                <%= req.translations.enable %>
+              </button>
             <% } else { %>
+              <button disabled
+                class="flex-1 rounded-l-xl bg-red-600 text-white py-2 text-sm font-medium opacity-70">
+                <%= req.translations.disable %>
+              </button>
               <button type="submit"
-                class="rounded-lg bg-white text-neutral-900 px-4 py-2 text-sm font-medium shadow hover:bg-neutral-200 transition">
+                class="flex-1 rounded-r-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.enable %>
               </button>
             <% } %>
           </div>
         </form>
 
-
-        <!-- Force Verify Toggle -->
-        <form action="/admin/settings/toggle/force-verify" method="POST" class="space-y-4">
-
+        <!-- Toggle Force Verify -->
+        <form action="/admin/settings/toggle/force-verify" method="POST" class="space-y-3">
           <div>
             <% if (settings.forceVerify === true) { %>
-              <p class="text-sm text-neutral-400">
+              <span class="text-sm text-neutral-400">
                 <%= req.translations.forceVerifyEmail %>
-                <span class="ml-2 text-green-500 font-medium">
+                <span class="text-green-500 font-medium">
                   <%= req.translations.enabled %>
                 </span>
-              </p>
+              </span>
             <% } else { %>
-              <p class="text-sm text-neutral-400">
+              <span class="text-sm text-neutral-400">
                 <%= req.translations.forceVerifyEmail %>
-                <span class="ml-2 text-red-500 font-medium">
+                <span class="text-red-500 font-medium">
                   <%= req.translations.disabled %>
                 </span>
-              </p>
+              </span>
             <% } %>
           </div>
 
-          <div>
+          <div class="flex">
             <% if (settings.forceVerify === true) { %>
               <button type="submit"
-                class="rounded-lg bg-white text-neutral-900 px-4 py-2 text-sm font-medium shadow hover:bg-neutral-200 transition">
+                class="flex-1 rounded-l-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.disable %>
               </button>
+              <button disabled
+                class="flex-1 rounded-r-xl bg-green-600 text-white py-2 text-sm font-medium opacity-70">
+                <%= req.translations.enable %>
+              </button>
             <% } else { %>
+              <button disabled
+                class="flex-1 rounded-l-xl bg-red-600 text-white py-2 text-sm font-medium opacity-70">
+                <%= req.translations.disable %>
+              </button>
               <button type="submit"
-                class="rounded-lg bg-white text-neutral-900 px-4 py-2 text-sm font-medium shadow hover:bg-neutral-200 transition">
+                class="flex-1 rounded-r-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.enable %>
               </button>
             <% } %>
           </div>
         </form>
-
 
       </div>
 
@@ -193,19 +186,24 @@
 <%- include('../../components/footer') %>
 
 <script>
-   document.getElementById('useImage').addEventListener('change', function() {
-     const imageUploadBox = document.getElementById('imageUploadBox');
-     const logoButton = document.getElementById('logoButton');
-     const logoType = document.getElementById('logoType');
-     
-     if (this.checked) {
-       imageUploadBox.classList.remove('hidden');
-       logoButton.textContent = '<%= req.translations.saveNewLogo %>';
-       logoType.value = 'image';
-     } else {
-       imageUploadBox.classList.add('hidden');
-       logoButton.textContent = '<%= req.translations.removeLogo %>';
-       logoType.value = 'none';
-     }
-   });
+document.addEventListener('DOMContentLoaded', function () {
+  const useImage = document.getElementById('useImage');
+  const imageUploadBox = document.getElementById('imageUploadBox');
+  const logoButton = document.getElementById('logoButton');
+  const logoType = document.getElementById('logoType');
+
+  if (useImage) {
+    useImage.addEventListener('change', function () {
+      if (this.checked) {
+        imageUploadBox.classList.remove('hidden');
+        logoButton.textContent = '<%= req.translations.saveNewLogo %>';
+        logoType.value = 'image';
+      } else {
+        imageUploadBox.classList.add('hidden');
+        logoButton.textContent = '<%= req.translations.removeLogo %>';
+        logoType.value = 'none';
+      }
+    });
+  }
+});
 </script>
