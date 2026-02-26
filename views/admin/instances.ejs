@@ -34,63 +34,139 @@
 </div>
 <% } %>
 
-<div id="instanceTable" class="mt-6 w-full">
-<table class="mt-6 w-full whitespace-nowrap text-left">
-<thead class="border-b border-white/5 text-sm text-white">
-<tr>
-<th class="py-2 pl-6"><%= req.translations.name %></th>
-<th>State</th>
-<th><%= req.translations.node %></th>
-<th><%= req.translations.dockerID %></th>
-<th><%= req.translations.volumeANDMount %></th>
-<th></th>
-</tr>
-</thead>
-<tbody class="divide-y divide-white/5">
-<% if (instances.length == 0) { %>
-<tr>
-<td colspan="6" class="text-center py-4 text-neutral-400">
-<%= req.translations.noInstancesText %>
-</td>
-</tr>
-<% } %>
+<!-- Improved Instance Table (Styled like User Table) -->
+<div class="overflow-hidden shadow ring-1 ring-white/5 rounded-xl m-8" id="instanceTable">
+  <table class="min-w-full divide-y divide-white/10">
 
-<% instances.forEach(function(instance){ %>
-<tr class="cursor-pointer hover:bg-white/5 transition" onclick="location.href='/instance/<%= instance.Id %>'">
-<td class="py-4 pl-6 text-white"><%= instance.Name %></td>
-<td class="text-neutral-400"><%= instance.InternalState %></td>
-<td class="text-neutral-400"><%= instance.Node.name %></td>
-<td class="text-neutral-400"><%= instance.ContainerId %></td>
-<td class="text-neutral-400">/volumes/<%= instance.VolumeId %></td>
-<td class="text-right space-x-2">
+    <!-- Header -->
+    <thead class="bg-white/5">
+      <tr>
+        <th class="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-white">
+          <%= req.translations.name %>
+        </th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+          State
+        </th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+          <%= req.translations.node %>
+        </th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+          <%= req.translations.dockerID %>
+        </th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+          <%= req.translations.volumeANDMount %>
+        </th>
+        <th class="px-3 py-3.5 pr-6 text-right text-sm font-semibold text-white">
+          <%= req.translations.actions %>
+        </th>
+      </tr>
+    </thead>
 
-<button onclick="location.href='/admin/instance/delete/<%= instance.Id %>';event.stopPropagation();" class="rounded-xl bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-500">
-<%= req.translations.remove %>
-</button>
+    <!-- Body -->
+    <tbody class="divide-y divide-white/5">
 
-<% if(instance.suspended){ %>
-<form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST" class="inline">
-<button type="submit" onclick="event.stopPropagation();" class="rounded-xl <%= theme['button-color'] %> px-3 py-2 text-sm">
-<%= req.translations.unsuspend %>
-</button>
-</form>
-<% } else { %>
-<form action="/admin/instances/suspend/<%= instance.Id %>" method="POST" class="inline">
-<button type="submit" onclick="event.stopPropagation();" class="rounded-xl <%= theme['button-color'] %> px-3 py-2 text-sm">
-<%= req.translations.suspend %>
-</button>
-</form>
-<% } %>
+      <% if (instances.length === 0) { %>
+      <tr>
+        <td colspan="6" class="text-center py-6 text-neutral-400">
+          <%= req.translations.noInstancesText %>
+        </td>
+      </tr>
+      <% } %>
 
-<button onclick="location.href='/admin/instances/<%= instance.Id %>/edit';event.stopPropagation();" class="rounded-xl <%= theme['button-color'] %> px-3 py-2 text-sm">
-<%= req.translations.edit %>
-</button>
+      <% instances.forEach(function(instance){ %>
+      <tr class="hover:bg-white/5 transition cursor-pointer" onclick="location.href='/instance/<%= instance.Id %>'">
 
-</td>
-</tr>
-<% }) %>
-</tbody>
-</table>
+        <!-- Name -->
+        <td class="py-4 pl-6 pr-3 min-w-[180px]">
+          <div class="font-medium text-white truncate max-w-[180px]">
+            <%= instance.Name %>
+          </div>
+          <div class="text-xs text-neutral-400">
+            ID: <%= instance.Id %>
+          </div>
+        </td>
+
+        <!-- State -->
+        <td class="py-4 px-3 min-w-[120px]">
+          <span class="px-3 py-1 text-xs rounded-lg
+            <%= instance.InternalState === 'running'
+              ? 'bg-emerald-600/10 text-emerald-400'
+              : instance.InternalState === 'stopped'
+              ? 'bg-neutral-600/10 text-neutral-400'
+              : 'bg-amber-600/10 text-amber-400' %>">
+            <%= instance.InternalState %>
+          </span>
+        </td>
+
+        <!-- Node -->
+        <td class="py-4 px-3 min-w-[150px]">
+          <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs text-neutral-300 truncate inline-block">
+            <%= instance.Node.name %>
+          </div>
+        </td>
+
+        <!-- Docker ID -->
+        <td class="py-4 px-3 min-w-[180px]">
+          <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs font-mono text-neutral-300 truncate inline-block max-w-[160px]">
+            <%= instance.ContainerId %>
+          </div>
+        </td>
+
+        <!-- Volume -->
+        <td class="py-4 px-3 min-w-[180px]">
+          <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs text-neutral-300 truncate inline-block">
+            /volumes/<%= instance.VolumeId %>
+          </div>
+        </td>
+
+        <!-- Actions -->
+        <td class="py-4 px-3 pr-6">
+          <div class="flex justify-end gap-2 min-w-[240px]">
+
+            <button
+              onclick="location.href='/admin/instance/delete/<%= instance.Id %>';event.stopPropagation();"
+              class="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition"
+            >
+              <%= req.translations.remove %>
+            </button>
+
+            <% if(instance.suspended){ %>
+              <form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST" class="inline">
+                <button
+                  type="submit"
+                  onclick="event.stopPropagation();"
+                  class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
+                >
+                  <%= req.translations.unsuspend %>
+                </button>
+              </form>
+            <% } else { %>
+              <form action="/admin/instances/suspend/<%= instance.Id %>" method="POST" class="inline">
+                <button
+                  type="submit"
+                  onclick="event.stopPropagation();"
+                  class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
+                >
+                  <%= req.translations.suspend %>
+                </button>
+              </form>
+            <% } %>
+
+            <button
+              onclick="location.href='/admin/instances/<%= instance.Id %>/edit';event.stopPropagation();"
+              class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
+            >
+              <%= req.translations.edit %>
+            </button>
+
+          </div>
+        </td>
+
+      </tr>
+      <% }) %>
+
+    </tbody>
+  </table>
 </div>
 
 <%- include('../components/pagination',{pagination}) %>
