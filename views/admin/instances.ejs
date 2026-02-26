@@ -427,29 +427,32 @@ function isPositiveIntegerCpu(value) {
     return Number.isInteger(num) && num > 0;
 }
 
-function sendData(nodeData, createBtn) {
-    fetch('/instances/deploy', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(nodeData)
-    })
-    .then(response => {
+async function sendData(nodeData, createBtn) {
+    try {
+        const response = await fetch('/instances/deploy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nodeData)
+        });
+
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error('Failed to create instance');
+            throw new Error(data.error || 'Failed to create instance');
         }
-        return response.json();
-    })
-    .then(data => {
+
         window.location.href = '../admin/instances?err=CREATED';
-    })
-    .catch(error => {
-        console.error('Error creating instance:', error);
-        alert('Error! Instance creation failed.');
         createBtn.textContent = 'Create';
         createBtn.disabled = false;
-    });
+
+    } catch (error) {
+        console.error(error);
+        alert('Error creating instance');
+        createBtn.textContent = 'Create';
+        createBtn.disabled = false;
+    }
 }
 
 function handleResponse(response) {
