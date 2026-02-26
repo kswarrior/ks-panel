@@ -419,20 +419,50 @@ function showPopup(command) {
   const popup = document.createElement('div');
   popup.className = 'bg-neutral-800 text-white border border-white/5 rounded-xl shadow-xl p-6 max-w-2xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0';
   popup.innerHTML = `
+  <div class="bg-neutral-900/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl w-full max-w-lg p-8 relative animate-fadeIn">
+
+    <!-- Success Icon -->
     <div class="flex justify-center items-center mb-6">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48" class="text-emerald-500">
-        <path fill="currentColor" d="M16.599,41.42L1.58,26.401c-0.774-0.774-0.774-2.028,0-2.802l4.019-4.019 c0.774-0.774,2.028-0.774,2.802,0L23.42,34.599c0.774,0.774,0.774,2.028,0,2.802l-4.019,4.019 C18.627,42.193,17.373,42.193,16.599,41.42z"/>
-        <path fill="currentColor" d="M12.58,34.599L39.599,7.58c0.774-0.774,2.028-0.774,2.802,0l4.019,4.019 c0.774,0.774,0.774,2.028,0,2.802L19.401,41.42c-0.774,0.774-2.028,0.774-2.802,0l-4.019-4.019 C11.807,36.627,11.807,35.373,12.58,34.599z"/>
-      </svg>
+      <div class="bg-emerald-500/10 p-4 rounded-2xl ring-1 ring-emerald-500/30">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" class="text-emerald-400">
+          <path fill="currentColor" d="M16.599,41.42L1.58,26.401c-0.774-0.774-0.774-2.028,0-2.802l4.019-4.019c0.774-0.774,2.028-0.774,2.802,0L23.42,34.599c0.774,0.774,0.774,2.028,0,2.802l-4.019,4.019C18.627,42.193,17.373,42.193,16.599,41.42z"/>
+          <path fill="currentColor" d="M12.58,34.599L39.599,7.58c0.774-0.774,2.028-0.774,2.802,0l4.019,4.019c0.774,0.774,0.774,2.028,0,2.802L19.401,41.42c-0.774,0.774-2.028,0.774-2.802,0l-4.019-4.019C11.807,36.627,11.807,35.373,12.58,34.599z"/>
+        </svg>
+      </div>
     </div>
-    <h2 class="text-2xl font-bold mb-2 text-center">Token Created</h2>
-    <p class="mb-4 text-neutral-300 text-center">To auto-configure your node, run the following command:</p>
-    <pre class="bg-neutral-900 p-3 rounded-xl mb-4 overflow-x-auto"><code id="commandCode" class="text-emerald-500">${command}</code></pre>
-    <div class="flex justify-end">
-      <button id="copyBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-xl mr-2 hover:bg-emerald-700 transition-colors">Copy</button>
-      <button id="doneBtn" class="bg-neutral-700 text-white px-4 py-2 rounded-xl hover:bg-neutral-600 transition-colors">Close</button>
+
+    <!-- Title -->
+    <h2 class="text-2xl font-semibold text-white text-center tracking-tight">
+      Token Created Successfully
+    </h2>
+
+    <!-- Subtitle -->
+    <p class="mt-2 text-sm text-neutral-400 text-center">
+      To auto-configure your node, run the command below:
+    </p>
+
+    <!-- Command Box -->
+    <div class="mt-6 bg-black/40 border border-white/10 rounded-xl p-4 overflow-x-auto">
+      <code id="commandCode" class="text-emerald-400 text-sm break-all">
+        ${command}
+      </code>
     </div>
-  `;
+
+    <!-- Buttons -->
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="copyBtn"
+        class="px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all duration-200">
+        Copy
+      </button>
+
+      <button id="doneBtn"
+        class="px-4 py-2 text-sm font-medium bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl border border-white/10 transition-all duration-200">
+        Close
+      </button>
+    </div>
+
+  </div>
+`;
 
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
