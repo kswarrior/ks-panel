@@ -41,97 +41,114 @@
        </div>
       <% } %>	  
  
-      <div style="display: block;" id="instanceTable" class="mt-6 w-full">
-      <table class="mt-6 w-full whitespace-nowrap text-left">
-        <colgroup>
-          <col class="w-full sm:w-4/12">
-          <col class="lg:w-4/12">
-          <col class="lg:w-2/12">
-          <col class="lg:w-1/12">
-          <col class="lg:w-1/12">
-          <col class="lg:w-1/12">
-        </colgroup>
-        <thead class="border-b border-white/5 text-sm leading-6 text-white">
-          <tr>
-            <th scope="col" class="py-2 pl-4 pr-8 font-medium sm:pl-6 lg:pl-8"><%= req.translations.name %></th>
-		      	<th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell">State</th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell"><%= req.translations.node %></th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell"><%= req.translations.dockerID %></th>
-            <th scope="col" class="py-2 pl-0 pr-4 text-right font-medium sm:pr-8 sm:text-left lg:pr-20"><%= req.translations.volumeANDMount %></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-white/5">
-          <% if (instances.length == 0) { %>
-            <tr>
-              <td colspan="4" class="text-center py-4">
-                <p class="text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
-              </td>
-            </tr>
-          <% } %>
-         <% instances.forEach(function(instance) { %>
-          <tr class="cursor-pointer hover:bg-white/5 transition" onclick="location.href='/instance/<%= instance.Id %>'">
-            <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-              <div class="flex items-center gap-x-4">
-                <div class="truncate text-sm font-medium leading-6 text-white"><%= instance.Name %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-              <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-neutral-400"><%= instance.InternalState %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-              <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-neutral-400"><%= instance.Node.name %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-              <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-neutral-400"><%= instance.ContainerId %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20">
-              <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-neutral-400">/volumes/<%= instance.VolumeId %></div>
-              </div>
-            </td>
-            <td class="py-4 pl-0 pr-4 text-right sm:pr-8 lg:pr-20">
-              <div class="flex gap-x-3">
-                <button onclick="location.href='/admin/instance/delete/<%= instance.Id %>'; event.stopPropagation();" class="block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                  <%= req.translations.remove %>
-                </button>
-                <% if (instance.suspended === true) { %>
-                  <% if (instance['suspended-flagg']) { %>
+      <div style="display: block;" id="instanceTable" class="mt-6 w-full overflow-x-auto">
+  <table class="min-w-full text-sm text-left text-white border-collapse">
 
-                    <button onclick="openSuspendInfoModal('<%= instance['suspended-flagg'] %>'); event.stopPropagation();" class="block rounded-xl bg-yellow-600/5 border border-1 border-neutral-200/5 px-3 py-1 text-center text-sm font-medium shadow-lg transition-all duration-300 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:bg-yellow-400/10 hover:text-white hover:shadow-xl hover:scale-105">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6 text-yellow-500 mx-auto">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                      </svg>
-                    </button>
-                    
-                  <% } %>
-                  <form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST">
-                    <button type="submit" onclick="event.stopPropagation();" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                      <%= req.translations.unsuspend %>
-                    </button>
-                  </form>
-                <% } else { %>
-                  <form action="/admin/instances/suspend/<%= instance.Id %>" method="POST">
-                    <button type="submit" onclick="event.stopPropagation();" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                      <%= req.translations.suspend %>
-                    </button>
-                  </form>
-                <% } %>        
-                <button onclick="location.href='/admin/instances/<%= instance.Id %>/edit'; event.stopPropagation();" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                  <%= req.translations.edit %>
+    <!-- Table Head -->
+    <thead class="border-b border-white/10 text-neutral-400">
+      <tr>
+        <th class="py-3 px-4 font-medium min-w-[180px]"><%= req.translations.name %></th>
+        <th class="py-3 px-4 font-medium min-w-[120px]">State</th>
+        <th class="py-3 px-4 font-medium min-w-[120px]"><%= req.translations.node %></th>
+        <th class="py-3 px-4 font-medium min-w-[200px]"><%= req.translations.dockerID %></th>
+        <th class="py-3 px-4 font-medium min-w-[200px]"><%= req.translations.volumeANDMount %></th>
+        <th class="py-3 px-4 font-medium min-w-[200px] text-right"><%= req.translations.actions %></th>
+      </tr>
+    </thead>
+
+    <!-- Table Body -->
+    <tbody class="divide-y divide-white/5">
+      <% if (instances.length === 0) { %>
+        <tr>
+          <td colspan="6" class="text-center py-4">
+            <p class="text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
+          </td>
+        </tr>
+      <% } %>
+
+      <% instances.forEach(function(instance) { %>
+      <tr class="hover:bg-white/5 transition cursor-pointer" onclick="location.href='/instance/<%= instance.Id %>'">
+
+        <!-- Name -->
+        <td class="py-4 px-4 min-w-[180px]">
+          <div class="flex items-center gap-3 truncate">
+            <span class="font-medium text-sm truncate"><%= instance.Name %></span>
+          </div>
+        </td>
+
+        <!-- State -->
+        <td class="py-4 px-4 min-w-[120px]">
+          <div class="font-mono text-sm text-neutral-400 truncate">
+            <%= instance.InternalState %>
+          </div>
+        </td>
+
+        <!-- Node -->
+        <td class="py-4 px-4 min-w-[120px]">
+          <div class="font-mono text-sm text-neutral-400 truncate">
+            <%= instance.Node.name %>
+          </div>
+        </td>
+
+        <!-- Docker ID -->
+        <td class="py-4 px-4 min-w-[200px]">
+          <div class="font-mono text-sm text-neutral-400 truncate">
+            <%= instance.ContainerId %>
+          </div>
+        </td>
+
+        <!-- Volume -->
+        <td class="py-4 px-4 min-w-[200px]">
+          <div class="font-mono text-sm text-neutral-400 truncate">
+            /volumes/<%= instance.VolumeId %>
+          </div>
+        </td>
+
+        <!-- Actions -->
+        <td class="py-4 px-4 min-w-[200px] text-right">
+          <div class="flex justify-end gap-2">
+
+            <!-- Delete Button -->
+            <button onclick="location.href='/admin/instance/delete/<%= instance.Id %>'; event.stopPropagation();" class="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition">
+              <%= req.translations.remove %>
+            </button>
+
+            <!-- Suspend / Unsuspend -->
+            <% if (instance.suspended === true) { %>
+              <% if (instance['suspended-flagg']) { %>
+                <button onclick="openSuspendInfoModal('<%= instance['suspended-flagg'] %>'); event.stopPropagation();" class="rounded-lg bg-yellow-600/5 border border-neutral-200/5 px-3 py-1 text-xs font-medium shadow hover:bg-yellow-400/10 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-yellow-500 mx-auto">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
                 </button>
-              </div>
-            </td>
-          </tr>
-          <% }); %>
-        </tbody>
-      </table>
-      </div>
+              <% } %>
+              <form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST">
+                <button type="submit" onclick="event.stopPropagation();" class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow">
+                  <%= req.translations.unsuspend %>
+                </button>
+              </form>
+            <% } else { %>
+              <form action="/admin/instances/suspend/<%= instance.Id %>" method="POST">
+                <button type="submit" onclick="event.stopPropagation();" class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow">
+                  <%= req.translations.suspend %>
+                </button>
+              </form>
+            <% } %>
+
+            <!-- Edit Button -->
+            <button onclick="location.href='/admin/instances/<%= instance.Id %>/edit'; event.stopPropagation();" class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow">
+              <%= req.translations.edit %>
+            </button>
+
+          </div>
+        </td>
+
+      </tr>
+      <% }); %>
+
+    </tbody>
+  </table>
+</div>
       <%- include('../components/pagination', { pagination }) %>
 
       <div id="instanceForm" class="hidden flex gap-4 mt-6 px-8 w-full">
