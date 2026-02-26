@@ -1,143 +1,209 @@
 <%- include('../components/template') %>
-<main id="content">
-  <div class="bg-transparent">
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.auditLogs %></h1>
-        <p class="mt-1 text-sm text-neutral-500">
-          <%= req.translations.auditLogsText %>
-        </p>
-        <div class="mt-4">
-          <div class="flex flex-wrap items-center gap-4 mb-4">
-            <div class="flex items-center gap-2">
-              <label for="actionFilter" class="text-sm text-white">Filter by Action:</label>
-              <select id="actionFilter" class="bg-neutral-600/20 border border-white/5 text-white rounded-xl px-3 py-1.5">
-                <option value="" class="text-neutral-800" <%= !filters.actionFilter ? 'selected' : '' %>>All Actions</option>
-                <% actions.forEach(action => { %>
-                  <option value="<%= action %>" class="text-neutral-800" <%= filters.actionFilter === action ? 'selected' : '' %>><%= action %></option>
-                <% }); %>
-              </select>
-            </div>
-            <div class="flex items-center gap-2">
-              <label for="dateRange" class="text-sm text-white">Date Range:</label>
-              <select id="dateRange" class="bg-neutral-600/20 placeholder:text-white/20 border border-white/5 text-white rounded-xl px-3 py-1.5">
-                <option value="2" <%= filters.dateRange == 2 ? 'selected' : '' %>>Last 2 Days</option>
-                <option value="7" <%= filters.dateRange == 7 ? 'selected' : '' %>>Last Week</option>
-                <option value="30" <%= filters.dateRange == 30 ? 'selected' : '' %>>Last Month</option>
-                <option value="" <%= filters.dateRange == null || filters.dateRange === '' ? 'selected' : '' %>>All Time</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-2">
-              <button id="sortAsc" class="bg-blue-600 text-white rounded-xl px-4 py-1.5 hover:bg-blue-700 transition">Sort Ascending</button>
-              <button id="sortDesc" class="bg-blue-600 text-white rounded-xl px-4 py-1.5 hover:bg-blue-700 transition">Sort Descending</button>
-            </div>
-          </div>
 
-          <div class="mt-8">
-            <% if (audits && audits.length > 0) { %>
-              <table id="auditTable" class="min-w-full table-auto border-separate border border-white/5 shadow rounded-xl">
-                <thead>
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"><%= req.translations.user %></th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"><%= req.translations.action %></th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"><%= req.translations.addressIP %></th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"><%= req.translations.timestamp %></th>
-                  </tr>
-                </thead>
-                <tbody id="auditBody" class="bg-transparent divide-y divide-neutral-200">
-                  <% audits.forEach(function(audit) { %>
-                    <tr data-timestamp="<%= new Date(audit.timestamp).getTime() %>">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                        <% if (audit.userId === req.user.userId) { %>
-                          <%= req.translations.you %> <span class="text-neutral-400">(<%= audit.userId %>)</span>
-                        <% } else { %>
-                          <%= audit.username %> <span class="text-neutral-400">(<%= audit.userId %>)</span>
-                        <% } %>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500"><%= audit.action %></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500"><%= audit.ip %></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500"><%= new Date(audit.timestamp).toLocaleString() %></td>
-                    </tr>
-                  <% }); %>
-                </tbody>
-              </table>
-            <% } else { %>
-              <p class="text-sm text-neutral-500"><%= req.translations.auditLogsNotAvailable %></p>
-            <% } %>
-          </div>
-          <%- include('../components/pagination', { pagination, filters: { action: filters.actionFilter, dateRange: filters.dateRange } }) %>
+<main id="content" class="min-h-screen pb-10">
+
+  <!-- Header -->
+  <div class="px-8 pt-6">
+    <h1 class="text-2xl font-semibold text-white tracking-tight">
+      <%= req.translations.auditLogs %>
+    </h1>
+    <p class="mt-2 text-sm text-neutral-400">
+      <%= req.translations.auditLogsText %>
+    </p>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="px-8 mt-6">
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-lg backdrop-blur-md">
+
+      <div class="flex flex-wrap items-center gap-6">
+
+        <!-- Action Filter -->
+        <div class="flex items-center gap-3">
+          <label for="actionFilter" class="text-sm text-neutral-300">
+            Filter by Action:
+          </label>
+          <select id="actionFilter"
+            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            <option value="" class="text-neutral-800"
+              <%= !filters.actionFilter ? 'selected' : '' %>>
+              All Actions
+            </option>
+            <% actions.forEach(action => { %>
+              <option value="<%= action %>" class="text-neutral-800"
+                <%= filters.actionFilter === action ? 'selected' : '' %>>
+                <%= action %>
+              </option>
+            <% }); %>
+          </select>
         </div>
+
+        <!-- Date Filter -->
+        <div class="flex items-center gap-3">
+          <label for="dateRange" class="text-sm text-neutral-300">
+            Date Range:
+          </label>
+          <select id="dateRange"
+            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            <option value="2" <%= filters.dateRange == 2 ? 'selected' : '' %>>Last 2 Days</option>
+            <option value="7" <%= filters.dateRange == 7 ? 'selected' : '' %>>Last Week</option>
+            <option value="30" <%= filters.dateRange == 30 ? 'selected' : '' %>>Last Month</option>
+            <option value="" <%= !filters.dateRange ? 'selected' : '' %>>All Time</option>
+          </select>
+        </div>
+
+        <!-- Sort Buttons -->
+        <div class="flex items-center gap-3">
+          <button id="sortAsc"
+            class="rounded-xl bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition shadow-md">
+            Sort ↑
+          </button>
+          <button id="sortDesc"
+            class="rounded-xl bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition shadow-md">
+            Sort ↓
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
+
+  <!-- Table Section -->
+  <div class="px-8 mt-8">
+
+    <% if (audits && audits.length > 0) { %>
+
+      <div class="overflow-x-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-lg">
+
+        <table id="auditTable" class="min-w-full divide-y divide-white/10">
+
+          <thead class="bg-white/5">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
+                <%= req.translations.user %>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
+                <%= req.translations.action %>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
+                <%= req.translations.addressIP %>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
+                <%= req.translations.timestamp %>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody id="auditBody" class="divide-y divide-white/5">
+
+            <% audits.forEach(function(audit) { %>
+              <tr class="hover:bg-white/5 transition"
+                  data-timestamp="<%= new Date(audit.timestamp).getTime() %>">
+
+                <td class="px-6 py-4 text-sm text-white font-medium">
+                  <% if (audit.userId === req.user.userId) { %>
+                    <%= req.translations.you %>
+                    <span class="text-neutral-400">(<%= audit.userId %>)</span>
+                  <% } else { %>
+                    <%= audit.username %>
+                    <span class="text-neutral-400">(<%= audit.userId %>)</span>
+                  <% } %>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-neutral-400">
+                  <%= audit.action %>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-neutral-400">
+                  <%= audit.ip %>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-neutral-400">
+                  <%= new Date(audit.timestamp).toLocaleString() %>
+                </td>
+
+              </tr>
+            <% }); %>
+
+          </tbody>
+        </table>
+
+      </div>
+
+    <% } else { %>
+
+      <div class="px-8 mt-6 text-neutral-500 text-sm">
+        <%= req.translations.auditLogsNotAvailable %>
+      </div>
+
+    <% } %>
+
+  </div>
+
+  <!-- Pagination -->
+  <div class="px-8 mt-6">
+    <%- include('../components/pagination', {
+      pagination,
+      filters: {
+        action: filters.actionFilter,
+        dateRange: filters.dateRange
+      }
+    }) %>
+  </div>
+
 </main>
+
 <%- include('../components/footer') %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const actionFilter = document.getElementById('actionFilter');
-    const dateRange = document.getElementById('dateRange');
-    const sortAsc = document.getElementById('sortAsc');
-    const sortDesc = document.getElementById('sortDesc');
-    const tableBody = document.getElementById('auditBody');
-    
-    // Only initialize table interactions if table body exists
-    let originalRows = [];
-    if (tableBody) {
-      originalRows = Array.from(tableBody.querySelectorAll('tr'));
-    }
+document.addEventListener('DOMContentLoaded', function () {
 
-    function navigateWithFilters(page = 1) {
-      const action = actionFilter.value;
-      const range = dateRange.value;
-      const params = new URLSearchParams();
-      params.set('page', page);
-      
-      // Add action filter if set
-      if (action) {
-        params.set('action', action);
-      } else {
-        params.delete('action');
-      }
-      
-      // Add dateRange if set, delete if empty
-      if (range) {
-        params.set('dateRange', range);
-      } else {
-        params.delete('dateRange');
-      }
-      
-      const newUrl = '/admin/auditlogs?' + params.toString();
-      console.log('Navigating to:', newUrl);
-      window.location.href = newUrl;
-    }
+  const actionFilter = document.getElementById('actionFilter');
+  const dateRange = document.getElementById('dateRange');
+  const sortAsc = document.getElementById('sortAsc');
+  const sortDesc = document.getElementById('sortDesc');
+  const tableBody = document.getElementById('auditBody');
 
-    function sortTable(ascending) {
-      if (!tableBody) return; // Exit if no table
-      const rows = Array.from(tableBody.querySelectorAll('tr'));
+  function navigateWithFilters(page = 1) {
+    const params = new URLSearchParams();
+    params.set('page', page);
 
-      rows.sort((a, b) => {
-        const timestampA = parseInt(a.getAttribute('data-timestamp'));
-        const timestampB = parseInt(b.getAttribute('data-timestamp'));
+    if (actionFilter && actionFilter.value)
+      params.set('action', actionFilter.value);
 
-        return ascending ? timestampA - timestampB : timestampB - timestampA;
-      });
+    if (dateRange && dateRange.value)
+      params.set('dateRange', dateRange.value);
 
-      tableBody.innerHTML = '';
-      rows.forEach(row => tableBody.appendChild(row));
-    }
+    window.location.href = '/admin/auditlogs?' + params.toString();
+  }
 
-    // Change filter and reset to page 1
-    actionFilter.addEventListener('change', () => {
-      navigateWithFilters(1);
+  function sortTable(ascending) {
+    if (!tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+    rows.sort((a, b) => {
+      const tA = parseInt(a.dataset.timestamp);
+      const tB = parseInt(b.dataset.timestamp);
+      return ascending ? tA - tB : tB - tA;
     });
-    dateRange.addEventListener('change', () => {
-      navigateWithFilters(1);
-    });
+
+    tableBody.innerHTML = '';
+    rows.forEach(row => tableBody.appendChild(row));
+  }
+
+  if (actionFilter)
+    actionFilter.addEventListener('change', () => navigateWithFilters(1));
+
+  if (dateRange)
+    dateRange.addEventListener('change', () => navigateWithFilters(1));
+
+  if (sortAsc)
     sortAsc.addEventListener('click', () => sortTable(true));
+
+  if (sortDesc)
     sortDesc.addEventListener('click', () => sortTable(false));
 
-    // Expose function for pagination component
-    window.navigateWithFilters = navigateWithFilters;
-  });
+  window.navigateWithFilters = navigateWithFilters;
+});
 </script>
