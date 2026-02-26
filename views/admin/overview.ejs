@@ -1,44 +1,72 @@
 <%- include('../components/template') %>
-<main id="content">
+
+<main id="content" class="min-h-screen pb-10">
+
+   <!-- Page Header -->
    <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-8 pt-4">
+      <div class="sm:flex sm:items-center px-8 pt-6">
          <div class="sm:flex-auto">
-           <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.overview %></h1>
-           <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.overviewText %></p>
+            <h1 class="text-2xl font-semibold text-white tracking-tight">
+               <%= req.translations.overview %>
+            </h1>
+            <p class="mt-2 text-sm text-neutral-400">
+               <%= req.translations.overviewText %>
+            </p>
          </div>
-       </div>
+      </div>
+   </div>
 
-       <div class="px-8 mt-5">
-        <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-4">
-            <div class="overflow-hidden rounded-xl bg-neutral-700/10 px-4 py-5 shadow sm:p-6">
-               <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.users %></dt>
-               <dd class="mt-1 text-3xl font-medium tracking-tight text-white">
-                  <%= usersTotal %>
-               </dd>
-            </div>
+   <!-- Stats Cards -->
+   <div class="px-8 mt-8">
+      <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
-            <div class="overflow-hidden rounded-xl bg-neutral-700/10 px-4 py-5 shadow sm:p-6">
-               <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.instances %></dt>
-               <dd class="mt-1 text-3xl font-medium tracking-tight text-white">
-                  <%= instancesTotal %>
-               </dd>
-            </div>
+         <!-- Users Card -->
+         <div class="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-6 shadow-lg hover:shadow-xl transition duration-300">
+            <dt class="text-sm font-medium text-neutral-400">
+               <%= req.translations.users %>
+            </dt>
+            <dd class="mt-3 text-4xl font-semibold text-white">
+               <%= usersTotal %>
+            </dd>
+            <p class="mt-2 text-xs text-neutral-500">Total registered users</p>
+         </div>
 
-            <div class="overflow-hidden rounded-xl bg-neutral-700/10 px-4 py-5 shadow sm:p-6">
-               <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.nodes %></dt>
-               <dd class="mt-1 text-3xl font-medium tracking-tight text-white">
-                  <%= nodesTotal %> 
-               </dd>
-            </div>
+         <!-- Instances Card -->
+         <div class="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-6 shadow-lg hover:shadow-xl transition duration-300">
+            <dt class="text-sm font-medium text-neutral-400">
+               <%= req.translations.instances %>
+            </dt>
+            <dd class="mt-3 text-4xl font-semibold text-white">
+               <%= instancesTotal %>
+            </dd>
+            <p class="mt-2 text-xs text-neutral-500">Active server instances</p>
+         </div>
 
-            <div class="overflow-hidden rounded-xl bg-neutral-700/10 px-4 py-5 shadow sm:p-6">
-               <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.images %></dt>
-               <dd class="mt-1 text-3xl font-medium tracking-tight text-white">
-                  <%= imagesTotal %>
-               </dd>
-            </div>
-         </dl>
-       </div>
-    </div>
+         <!-- Nodes Card -->
+         <div class="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-6 shadow-lg hover:shadow-xl transition duration-300">
+            <dt class="text-sm font-medium text-neutral-400">
+               <%= req.translations.nodes %>
+            </dt>
+            <dd class="mt-3 text-4xl font-semibold text-white">
+               <%= nodesTotal %>
+            </dd>
+            <p class="mt-2 text-xs text-neutral-500">Connected system nodes</p>
+         </div>
+
+         <!-- Images Card -->
+         <div class="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-6 shadow-lg hover:shadow-xl transition duration-300">
+            <dt class="text-sm font-medium text-neutral-400">
+               <%= req.translations.images %>
+            </dt>
+            <dd class="mt-3 text-4xl font-semibold text-white">
+               <%= imagesTotal %>
+            </dd>
+            <p class="mt-2 text-xs text-neutral-500">Available server images</p>
+         </div>
+
+      </dl>
+   </div>
+
 </main>
+
 <%- include('../components/footer') %>
