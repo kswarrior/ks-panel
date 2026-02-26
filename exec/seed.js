@@ -1,24 +1,37 @@
 const axios = require("axios");
 const { db } = require("../handlers/db");
-const log = new (require("cat-loggr"))();
 const readline = require("readline");
 const { v4: uuidv4 } = require("uuid");
-const config = require("../config.json");
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
+/* -------------------------
+   Simple Echo Logger
+--------------------------*/
+function echo(message) {
+  console.log(`[KS-PANEL] ${message}`);
+}
+
+function echoError(message) {
+  console.error(`[KS-PANEL ERROR] ${message}`);
+}
+
+/* -------------------------
+   Seed Function
+--------------------------*/
 async function seed() {
   try {
     const existingImages = await db.get("images");
+
     if (existingImages && existingImages.length > 0) {
       rl.question(
-        "'images' is already set in the database. Do you want to continue seeding? (y/n) ",
+        "'images' already exists in database. Continue seeding? (y/n): ",
         async (answer) => {
           if (answer.toLowerCase() !== "y") {
-            log.info("seeding aborted by the user.");
+            echo("Seeding aborted by user.");
             rl.close();
             process.exit(0);
           } else {
@@ -32,51 +45,64 @@ async function seed() {
       rl.close();
     }
   } catch (error) {
-    log.error(`failed during seeding process: ${error}`);
+    echoError("Seeding failed: " + error.message);
     rl.close();
   }
 }
 
+/* -------------------------
+   Perform Seeding
+--------------------------*/
 async function performSeeding() {
   try {
-    const imagesIndexResponse = await axios.get(
+    echo("Fetching image index...");
+
+    const indexResponse = await axios.get(
       "https://raw.githubusercontent.com/skyport-team/images/refs/heads/main/seed/0.1.0-beta2.json"
     );
-    const imageUrls = imagesIndexResponse.data;
+
+    const imageUrls = indexResponse.data;
     let imageDataArray = [];
 
-    for (let url of imageUrls) {
-      log.init("fetching image data...");
+    for (const url of imageUrls) {
       try {
-        const imageDataResponse = await axios.get(url);
-        let imageData = imageDataResponse.data;
-        imageData.Id = uuidv4();
+        echo("Fetching image data...");
+        const imageResponse = await axios.get(url);
+        let imageData = imageResponse.data;
 
-        log.init("seeding: " + imageData.Name);
+        imageData.Id = uuidv4();
+        echo("Seeding: " + imageData.Name);
+
         imageDataArray.push(imageData);
-      } catch (error) {
-        log.error(`failed to fetch image data from ${url}: ${error}`);
+      } catch (err) {
+        echoError("Failed to fetch from " + url);
       }
     }
 
     if (imageDataArray.length > 0) {
       await db.set("images", imageDataArray);
-      log.info("seeding complete!");
+      echo("Seeding completed successfully!");
     } else {
-      log.info("no new images to seed.");
+      echo("No new images were added.");
     }
   } catch (error) {
-    log.error(`failed to fetch image URLs or store image data: ${error}`);
+    echoError("Failed to fetch index or store data: " + error.message);
   }
 }
 
-seed();
-
-process.on("exit", (code) => {
-  log.info(`exiting...`);
+/* -------------------------
+   Exit Handlers
+--------------------------*/
+process.on("exit", () => {
+  echo("Exiting...");
 });
 
-process.on("unhandledRejection", (reason, promise) => {
-  log.error("Unhandled Rejection at:", promise, "reason:", reason);
+process.on("unhandledRejection", (reason) => {
+  echoError("Unhandled Rejection: " + reason);
   process.exit(1);
 });
+
+/* -------------------------
+   Run Seeder
+--------------------------*/
+seed();
