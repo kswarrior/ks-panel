@@ -224,16 +224,26 @@ app.listen(config.port, () =>
   log.info(`KS Panel is listening on port ${config.port}`)
 );
 
-app.get('*', async function (req, res) {
-  try {
-    const settings = await db.get('settings') || {};
+app.get('*', async function(req, res){
+  res.render('errors/404', {
+    req,
+    name: await db.get('name') || 'KS Panel'
+  })
 
-    res.status(404).render('errors/404', {
-      req,
-      name: settings.name || 'KS Panel'
-    });
+async function ensurePanelName() {
+  try {
+    const settings = (await db.get("settings")) || {};
+
+    if (!settings.name) {
+      settings.name = "KS Panel";
+      await db.set("settings", settings);
+      log.info("Default panel name set : KS Panel");
+    } else {
+      log.info(`Panel name set: ${settings.name}`);
+    }
 
   } catch (err) {
-    res.status(500).send("Error loading page");
+    log.error("Failed to initialize panel name:", err);
   }
+}
 });
