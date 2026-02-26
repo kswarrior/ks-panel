@@ -219,6 +219,8 @@ app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
 // Init
 init();
 
+app.set('trust proxy', true);
+
 console.log(chalk.gray(ascii.replace("{version}", config.version)));
 app.listen(config.port, () =>
   log.info(`KS Panel is listening on port ${config.port}`)
