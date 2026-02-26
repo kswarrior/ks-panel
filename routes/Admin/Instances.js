@@ -8,9 +8,10 @@ const { checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/n
 const { getPaginatedInstances, invalidateCache, invalidateCacheGroup } = require("../../utils/dbHelper.js");
 const fs = require("fs");
 const path = require("path");
+const log = new (require("cat-loggr"))();
+
 const { checkContainerState } = require("../../utils/checkstate.js");
 const { v4: uuid } = require("uuid");
-const log = new (require("cat-loggr"))();
 
 const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
 
