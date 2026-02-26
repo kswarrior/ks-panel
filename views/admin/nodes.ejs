@@ -440,7 +440,7 @@ function showPopup(command) {
         let allValid = true;
         tags.forEach(tag => {
             if (tag !== '' && (!validator || validator(tag))) {
-                createBadge(tag);
+                createBadge(tag, container, input);
             } else {
                 allValid = false;
             }
@@ -455,12 +455,6 @@ function showPopup(command) {
 
     input.addEventListener('blur', function() {
         processInput();
-    });
-    input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            processInput();
-        }
     });
 
     input.addEventListener('keypress', function(e) {
@@ -544,7 +538,10 @@ function showPopup(command) {
       console.log('Node created:', data);
       window.location.href = '../admin/nodes?err=none'
     })
-    .catch(error => alert('Error creating node:', error));
+    .catch(error => {
+  console.error(error);
+  alert('Error creating node');
+});
   });
 </script>
 <%- include('../components/footer') %>
