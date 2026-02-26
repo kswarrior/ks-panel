@@ -70,28 +70,28 @@
       <tr class="hover:bg-white/5 transition cursor-pointer" onclick="location.href='/instance/<%= instance.Id %>'">
 
         <!-- Name -->
-        <td class="py-4 px-4 min-w-[180px]">
+        <td class="py-4 px-4 min-w-[200px]">
           <div class="flex items-center gap-3 truncate">
             <span class="font-medium text-sm truncate"><%= instance.Name %></span>
           </div>
         </td>
 
         <!-- State -->
-        <td class="py-4 px-4 min-w-[120px]">
+        <td class="py-4 px-4 min-w-[150px]">
           <div class="font-mono text-sm text-neutral-400 truncate">
             <%= instance.InternalState %>
           </div>
         </td>
 
         <!-- Node -->
-        <td class="py-4 px-4 min-w-[120px]">
+        <td class="py-4 px-4 min-w-[150px]">
           <div class="font-mono text-sm text-neutral-400 truncate">
             <%= instance.Node.name %>
           </div>
         </td>
 
         <!-- Docker ID -->
-        <td class="py-4 px-4 min-w-[200px]">
+        <td class="py-4 px-4 min-w-[250px]">
           <div class="font-mono text-sm text-neutral-400 truncate">
             <%= instance.ContainerId %>
           </div>
@@ -105,7 +105,7 @@
         </td>
 
         <!-- Actions -->
-        <td class="py-4 px-4 min-w-[200px] text-right">
+        <td class="py-4 px-4 min-w-[250px] text-right">
           <div class="flex justify-end gap-2">
 
             <!-- Delete Button -->
