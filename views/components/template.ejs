@@ -48,55 +48,49 @@
          @media (max-width: 1024px) {
 
   .sidebar {
+    display: none;
     position: fixed;
-    top: 0;
-    left: 0;
     z-index: 50;
     height: 100%;
-    width: 260px;
+    width: 225px;
+    backdrop-filter: blur(var(--backdrop-blur));
+    background: rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
 
-    /* Glass effect */
-    backdrop-filter: blur(16px);
-    background: rgba(15, 15, 20, 0.75);
+    /* Original transform */
+    transform: translateX(-100%);
 
-    /* Smooth animation */
-    transform: translateX(-110%);
+    /* Added smooth animation */
     opacity: 0;
-    visibility: hidden;
-
     transition: 
       transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.3s ease,
-      visibility 0.3s ease;
-
-    box-shadow: 0 0 40px rgba(0,0,0,0.5);
-    overflow-y: auto;
+      opacity 0.3s ease;
   }
 
   .sidebar.open {
+    display: block;
     transform: translateX(0);
+
+    /* Added fade in */
     opacity: 1;
-    visibility: visible;
+    animation: sidebarSlide 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .sidebar.expanded {
     width: 100%;
   }
 
-  /* Optional overlay background */
-  .sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
-  }
+}
 
-  .sidebar-overlay.active {
+/* Animation */
+@keyframes sidebarSlide {
+  from {
+    transform: translateX(-110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
     opacity: 1;
-    visibility: visible;
   }
 }
          
