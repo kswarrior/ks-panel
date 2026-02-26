@@ -77,12 +77,12 @@
        </div>	      
       <% } %>
       <!-- Responsive Node Table -->
-<div style="margin-bottom: 75px;" class="overflow-x-auto m-8">
+<div class="overflow-x-auto m-8">
   <div class="min-w-[900px] overflow-hidden shadow ring-1 ring-white/5 rounded-lg" id="nodeTable">
-    <table class="min-w-full divide-y divide-white/10">
+    <table class="min-w-full text-sm text-left text-white border-collapse">
       
       <!-- Head -->
-      <thead class="bg-white/5">
+      <thead class="border-b border-white/10 text-neutral-400">
         <tr>
           <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">
             <%= req.translations.name %>
@@ -100,7 +100,7 @@
       </thead>
 
       <!-- Body -->
-      <tbody class="divide-y divide-white/5 bg-white/5">
+      <tbody class="divide-y divide-white/5">
         <% nodes.forEach(function(node) { %>
         <tr class="hover:bg-white/[0.05] transition">
 
