@@ -75,33 +75,99 @@ function deleteWorkflowFromFile(instanceId) {
 router.post("/instances/deploy", isAdmin, async (req, res) => {
   try {
     const {
-  name,
-  image,
-  imagename,
-  nodeId,
-  user,
-  memory,
-  cpu,
-  disk,
-  ports,
-  primary,
-  configFilePath,
-  configFileContent,
-  variables
-} = req.body;
+      name,
+      image,
+      imagename,
+      nodeId,
+      user,
+      memory,
+      cpu,
+      disk,
+      ports,
+      primary,
+      configFilePath,
+      configFileContent,
+      variables
+    } = req.body;
 
-    // Validate
-    if (!name || !image || !nodeId) {
+    if (!name || !nodeId || !user) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // TODO: Add your container creation logic here
+    const node = (await db.get("nodes"))?.find(n => n.Id === nodeId);
+    if (!node) {
+      return res.status(404).json({ error: "Node not found" });
+    }
 
-    return res.json({ success: true });
+    const instanceId = Date.now().toString();
+    const containerName = `ks_${name}_${instanceId}`;
 
-  } catch (err) {
-    console.error("Deploy error:", err);
-    return res.status(500).json({ error: "Deployment failed" });
+    /* ================= CREATE CONTAINER ON NODE ================= */
+
+    const requestData = {
+      method: "post",
+      url: `http://${node.address}:${node.port}/instances`,
+      auth: {
+        username: "kspanel",
+        password: node.apiKey,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        name: containerName,
+        image,
+        memory: parseInt(memory),
+        cpu: parseInt(cpu),
+        disk: parseInt(disk),
+        ports,
+        primaryPort: primary,
+        configFilePath,
+        configFileContent,
+        variables: JSON.parse(variables)
+      }
+    };
+
+    const response = await axios(requestData);
+
+    const newInstance = {
+      Id: instanceId,
+      Name: name,
+      ContainerId: response.data.id,
+      Image: imagename,
+      Node: node,
+      User: user,
+      Memory: memory,
+      Cpu: cpu,
+      Disk: disk,
+      Ports: ports,
+      Primary: primary,
+      suspended: false,
+      createdAt: new Date()
+    };
+
+    /* ================= SAVE TO DATABASE ================= */
+
+    await db.set(instanceId + "_instance", newInstance);
+
+    let instances = (await db.get("instances")) || [];
+    instances.push(newInstance);
+    await db.set("instances", instances);
+
+    let userInstances = (await db.get(user + "_instances")) || [];
+    userInstances.push(newInstance);
+    await db.set(user + "_instances", userInstances);
+
+    invalidateCache("instances");
+    invalidateCache(user + "_instances");
+
+    logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
+
+    res.json({ success: true });
+
+  } catch (error) {
+    log.error("Instance deploy error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Instance creation failed" });
   }
 });
 
