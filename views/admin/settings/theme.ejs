@@ -1,209 +1,152 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
+<main id="content" class="<%= theme['paneltheme-color'] %> min-h-screen">
+   <div class="bg-transparent">
+      <div class="sm:flex sm:items-center px-8 pt-6">
+         <div class="sm:flex-auto">
+            <h1 class="text-xl font-semibold leading-6 text-white">
+               <%= req.translations.settings %>
+            </h1>
+            <p class="mt-2 tracking-tight text-sm text-neutral-400">
+               <%= req.translations.changeSettings %>
+            </p>
+         </div>
+      </div>
+   </div>
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <div>
-      <h1 class="text-lg font-semibold text-white">
-        <%= req.translations.settings %>
+   <%- include('../../components/settings') %>
+
+   <div class="flex flex-col bg-white/5 backdrop-blur-md m-8 py-6 rounded-2xl shadow-xl border border-white/10">
+      <h1 class="text-white text-[18px] px-6 py-4 w-full bg-white/5 rounded-t-2xl font-medium border-b border-white/10">
+         Theme Settings
       </h1>
-      <p class="mt-1 text-sm text-neutral-400">
-        <%= req.translations.changeSettings %>
-      </p>
-    </div>
-  </div>
-<%- include('../../components/template') %>
 
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-6 py-6">
 
-  <!-- THEME CARD -->
-  <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+         <!-- Button Color -->
+         <div class="bg-white/5 p-5 rounded-xl border border-white/10">
+            <form action="/admin/settings/change/theme/color" method="POST" class="flex flex-col">
+               <label class="text-neutral-400 text-sm mb-2">Button Color</label>
 
-    <!-- Card Title -->
-    <div class="px-6 py-4 border-b border-white/10 bg-white/5">
-      <h2 class="text-white text-base font-medium">
-        Theme
-      </h2>
-    </div>
+               <select name="buttoncolor"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2 border border-white/10 bg-white/5 focus:ring-0 focus:outline-none">
+                  <option value="bg-white hover:bg-neutral-300 text-neutral-800"
+                     <%= theme['button-color'] === 'bg-white hover:bg-neutral-300 text-neutral-800' ? 'selected' : '' %>>
+                     White
+                  </option>
+                  <option value="bg-blue-500 hover:bg-blue-600 text-neutral-100"
+                     <%= theme['button-color'] === 'bg-blue-500 hover:bg-blue-600 text-neutral-100' ? 'selected' : '' %>>
+                     Blue
+                  </option>
+                  <option value="bg-pink-500 hover:bg-pink-600 text-neutral-100"
+                     <%= theme['button-color'] === 'bg-pink-500 hover:bg-pink-600 text-neutral-100' ? 'selected' : '' %>>
+                     Pink
+                  </option>
+               </select>
 
-    <div class="p-6 space-y-10">
+               <button type="submit"
+                  class="mt-5 rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow-lg transition focus:outline-none">
+                  <%= req.translations.save %>
+               </button>
+            </form>
+         </div>
 
-      <!-- Button Color -->
-      <form action="/admin/settings/change/theme/color" method="POST" class="space-y-5 max-w-xl">
+         <!-- Panel Theme -->
+         <div class="bg-white/5 p-5 rounded-xl border border-white/10">
+            <form action="/admin/settings/change/theme/color" method="POST" class="flex flex-col">
+               <label class="text-neutral-400 text-sm mb-2">Panel Theme</label>
 
-        <div>
-          <label class="block text-sm text-neutral-400 mb-2">
-            Button Color
-          </label>
+               <select name="paneltheme"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2 border border-white/10 bg-white/5 focus:ring-0 focus:outline-none">
+                  <option value="bg-[#141414]"
+                     <%= theme['paneltheme-color'] === 'bg-[#141414]' ? 'selected' : '' %>>
+                     Dark
+                  </option>
+                  <option value="bg-sky-950"
+                     <%= theme['paneltheme-color'] === 'bg-sky-950' ? 'selected' : '' %>>
+                     Sky Blue
+                  </option>
+                  <option value="bg-[#002b36]"
+                     <%= theme['paneltheme-color'] === 'bg-[#002b36]' ? 'selected' : '' %>>
+                     Solarized Dark
+                  </option>
+                  <option value="bg-fuchsia-950"
+                     <%= theme['paneltheme-color'] === 'bg-fuchsia-950' ? 'selected' : '' %>>
+                     Fuchsia
+                  </option>
+                  <option value="bg-[#33404d]"
+                     <%= theme['paneltheme-color'] === 'bg-[#33404d]' ? 'selected' : '' %>>
+                     Pterodactyl
+                  </option>
+                  <option value="bg-neutral-800"
+                     <%= theme['paneltheme-color'] === 'bg-neutral-800' ? 'selected' : '' %>>
+                     Bright
+                  </option>
+               </select>
 
-          <select
-            name="buttoncolor"
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
-          >
-            <option value="bg-white hover:bg-neutral-300 text-neutral-800"
-              <%= theme['button-color'] == 'bg-white hover:bg-neutral-300 text-neutral-800' ? 'selected' : '' %>>
-              White
-            </option>
+               <button type="submit"
+                  class="mt-5 rounded-xl <%= theme['button-color'] %> px-4 py-2 text-sm font-medium shadow-lg transition focus:outline-none">
+                  <%= req.translations.save %>
+               </button>
+            </form>
+         </div>
 
-            <option value="bg-blue-500 hover:bg-blue-600 text-neutral-100"
-              <%= theme['button-color'] == 'bg-blue-500 hover:bg-blue-600 text-neutral-100' ? 'selected' : '' %>>
-              Blue
-            </option>
+         <!-- Footer Toggle + Sidebar -->
+         <div class="bg-white/5 p-5 rounded-xl border border-white/10 space-y-6">
 
-            <option value="bg-pink-500 hover:bg-pink-600 text-neutral-100"
-              <%= theme['button-color'] == 'bg-pink-500 hover:bg-pink-600 text-neutral-100' ? 'selected' : '' %>>
-              Pink
-            </option>
-          </select>
-        </div>
+            <!-- Footer Toggle -->
+            <form action="/admin/settings/toggle/theme/footer" method="POST">
+               <div class="mb-3 text-neutral-400 text-sm">
+                  Skyport Credits:
+                  <% if (settings.footer === true) { %>
+                     <span class="text-green-500 font-medium">
+                        <%= req.translations.enabled %>
+                     </span>
+                  <% } else { %>
+                     <span class="text-red-500 font-medium">
+                        <%= req.translations.disabled %>
+                     </span>
+                  <% } %>
+               </div>
 
-        <button
-          type="submit"
-          class="rounded-xl <%= theme['button-color'] %> px-5 py-2 text-sm font-medium shadow transition"
-        >
-          <%= req.translations.save %>
-        </button>
+               <div class="flex space-x-2">
+                  <% if (settings.footer === true) { %>
+                     <button type="submit"
+                        class="px-4 py-2 rounded-lg bg-white text-neutral-800 text-sm shadow hover:bg-neutral-200 transition">
+                        <%= req.translations.disable %>
+                     </button>
+                  <% } else { %>
+                     <button type="submit"
+                        class="px-4 py-2 rounded-lg bg-white text-neutral-800 text-sm shadow hover:bg-neutral-200 transition">
+                        <%= req.translations.enable %>
+                     </button>
+                  <% } %>
+               </div>
+            </form>
 
-      </form>
+            <!-- Sidebar Direction -->
+            <form action="/admin/settings/change/theme/color" method="POST">
+               <div class="mb-3 text-neutral-400 text-sm">
+                  Sidebar Position:
+                  <% if (theme['sidebar-direction'] === "right") { %>
+                     <span class="text-purple-500 font-medium">Right</span>
+                  <% } else { %>
+                     <span class="text-blue-500 font-medium">Left</span>
+                  <% } %>
+               </div>
 
+               <input type="hidden" name="sidebardirection"
+                  value="<%= theme['sidebar-direction'] === 'right' ? 'left' : 'right' %>">
 
-      <!-- Divider -->
-      <div class="border-t border-white/10"></div>
+               <button type="submit"
+                  class="px-4 py-2 rounded-lg <%= theme['button-color'] %> text-sm shadow transition">
+                  Switch Sidebar
+               </button>
+            </form>
 
-
-      <!-- Panel Theme -->
-      <form action="/admin/settings/change/theme/color" method="POST" class="space-y-5 max-w-xl">
-
-        <div>
-          <label class="block text-sm text-neutral-400 mb-2">
-            Panel Theme
-          </label>
-
-          <select
-            name="paneltheme"
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
-          >
-            <option value="bg-[#141414]"
-              <%= theme['paneltheme-color'] == 'bg-[#141414]' ? 'selected' : '' %>>
-              Dark
-            </option>
-
-            <option value="bg-sky-950"
-              <%= theme['paneltheme-color'] == 'bg-sky-950' ? 'selected' : '' %>>
-              Sky Blue
-            </option>
-
-            <option value="bg-[#002b36]"
-              <%= theme['paneltheme-color'] == 'bg-[#002b36]' ? 'selected' : '' %>>
-              Solarized Dark
-            </option>
-
-            <option value="bg-fuchsia-950"
-              <%= theme['paneltheme-color'] == 'bg-fuchsia-950' ? 'selected' : '' %>>
-              Fuchsia
-            </option>
-
-            <option value="bg-[#33404d]"
-              <%= theme['paneltheme-color'] == 'bg-[#33404d]' ? 'selected' : '' %>>
-              Pterodactyl
-            </option>
-
-            <option value="bg-neutral-800"
-              <%= theme['paneltheme-color'] == 'bg-neutral-800' ? 'selected' : '' %>>
-              Bright
-            </option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          class="rounded-xl <%= theme['button-color'] %> px-5 py-2 text-sm font-medium shadow transition"
-        >
-          <%= req.translations.save %>
-        </button>
-
-      </form>
-
-
-      <!-- Divider -->
-      <div class="border-t border-white/10"></div>
-
-
-      <!-- Footer Toggle -->
-      <form action="/admin/settings/toggle/theme/footer" method="POST" class="space-y-4 max-w-xl">
-
-        <div>
-          <% if (settings.footer === true) { %>
-            <p class="text-sm text-neutral-400">
-              KS Panel Credits:
-              <span class="text-green-500 font-medium">
-                <%= req.translations.enabled %>
-              </span>
-            </p>
-          <% } else { %>
-            <p class="text-sm text-neutral-400">
-              KS Panel Credits:
-              <span class="text-red-500 font-medium">
-                <%= req.translations.disabled %>
-              </span>
-            </p>
-          <% } %>
-        </div>
-
-        <div class="flex gap-3 flex-wrap">
-
-          <% if (settings.footer === true) { %>
-            <button type="submit"
-              class="rounded-lg bg-white px-4 py-2 text-sm font-medium text-neutral-800 shadow hover:bg-neutral-200 transition">
-              <%= req.translations.disable %>
-            </button>
-          <% } else { %>
-            <button type="submit"
-              class="rounded-lg bg-white px-4 py-2 text-sm font-medium text-neutral-800 shadow hover:bg-neutral-200 transition">
-              <%= req.translations.enable %>
-            </button>
-          <% } %>
-
-        </div>
-
-      </form>
-
-
-      <!-- Divider -->
-      <div class="border-t border-white/10"></div>
-
-
-      <!-- Sidebar Direction -->
-      <form action="/admin/settings/change/theme/color" method="POST" class="space-y-4 max-w-xl">
-
-        <input type="hidden" name="sidebardirection" value="toggle">
-
-        <div>
-          <% if (theme['sidebar-direction'] === "right") { %>
-            <p class="text-sm text-neutral-400">
-              Sidebar Position:
-              <span class="text-purple-500 font-medium">Right</span>
-            </p>
-          <% } else { %>
-            <p class="text-sm text-neutral-400">
-              Sidebar Position:
-              <span class="text-blue-500 font-medium">Left</span>
-            </p>
-          <% } %>
-        </div>
-
-        <button
-          type="submit"
-          class="rounded-lg bg-white px-4 py-2 text-sm font-medium text-neutral-800 shadow hover:bg-neutral-200 transition"
-        >
-          Toggle Position
-        </button>
-
-      </form>
-
-    </div>
-  </div>
-
+         </div>
+      </div>
+   </div>
 </main>
 
 <%- include('../../components/footer') %>
