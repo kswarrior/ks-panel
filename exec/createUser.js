@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const readline = require("readline");
 const { db } = require("../handlers/db.js");
 const { v4: uuidv4 } = require("uuid");
