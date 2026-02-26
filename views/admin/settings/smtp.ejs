@@ -1,70 +1,187 @@
 <%- include('../../components/template') %>
 
-<main id="content">
-  <div class="bg-transparent">
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.settings %></h1>
-        <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.changeSettings %></p>
-      </div>
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h1 class="text-lg font-semibold text-white">
+        <%= req.translations.settings %>
+      </h1>
+      <p class="mt-1 text-sm text-neutral-400">
+        <%= req.translations.changeSettings %>
+      </p>
     </div>
   </div>
 
-  <%- include('../../components/settings') %>
 
-  <div class="flex flex-col bg-white/5 m-8 pt-0 py-5 rounded-xl">
-    <h1 class="text-white text-[18px] px-5 p-1 py-4 mb-1 w-full bg-white/5 rounded-t-xl font-medium"><%= req.translations.smtp %></h1>
-    
-    <!-- SMTP Settings Form -->
-    <form class="m-5" action="/admin/settings/saveSmtpSettings" method="POST">
-      <label for="smtpServer" class="text-neutral-400 text-sm block"><%= req.translations.smtpServer %>:</label>
-      <input type="text" id="smtpServer" name="smtpServer" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5 placeholder-neutral-500" value="<%= smtpSettings.server || '' %>" placeholder="<%= req.translations.smtpServer %>" required>
-      
-      <label for="smtpPort" class="text-neutral-400 text-sm block mt-4"><%= req.translations.smtpPort %>:</label>
-      <input type="number" id="smtpPort" name="smtpPort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5 placeholder-neutral-500" value="<%= smtpSettings.port || '' %>" placeholder="<%= req.translations.smtpPort %>" required>
-      
-      <label for="smtpUser" class="text-neutral-400 text-sm block mt-4"><%= req.translations.smtpUsername %>:</label>
-      <input type="text" id="smtpUser" name="smtpUser" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5 placeholder-neutral-500" value="<%= smtpSettings.username || '' %>" placeholder="<%= req.translations.smtpUsername %>" required>
-      
-      <label for="smtpPass" class="text-neutral-400 text-sm block mt-4"><%= req.translations.smtpPassword %>:</label>
-      <input type="password" id="smtpPass" name="smtpPass" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5 placeholder-neutral-500" value="<%= smtpSettings.password || '' %>" placeholder="<%= req.translations.smtpPassword %>" required>
+  <!-- SMTP CARD -->
+  <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
 
-      <label for="smtpFromName" class="text-neutral-400 text-sm block mt-4"><%= req.translations.mailFromName %>:</label>
-      <input type="text" id="smtpFromName" name="smtpFromName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5 placeholder-neutral-500" value="<%= smtpSettings.fromName || '' %>" placeholder="<%= req.translations.mailFromName %>" required>
+    <!-- Card Title -->
+    <div class="px-6 py-4 border-b border-white/10 bg-white/5">
+      <h2 class="text-white text-base font-medium">
+        <%= req.translations.smtp %>
+      </h2>
+    </div>
 
-      <label for="smtpFromAddress" class="text-neutral-400 text-sm block mt-4"><%= req.translations.mailFromAddress %>:</label>
-      <input type="email" id="smtpFromAddress" name="smtpFromAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5 placeholder-neutral-500" value="<%= smtpSettings.fromAddress || '' %>" placeholder="<%= req.translations.mailFromAddress %>" required>
-      
-      <button type="submit" class="mt-6 block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"><%= req.translations.saveSmtpSettings %></button>
-    </form>
 
-    <!-- Test SMTP Settings Form -->
-    <form class="m-5" action="/sendTestEmail" method="POST">
-      <label for="recipientEmail" class="text-neutral-400 text-sm block mt-6"><%= req.translations.recipientEmail %>:</label>
-      <input type="email" id="recipientEmail" name="recipientEmail" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 w-full px-4 py-2 border-white/5 bg-white/5" required>
-      <button type="submit" class="mt-4 block rounded-xl bg-blue-500 text-white px-3 py-2 text-sm font-medium shadow-lg hover:bg-blue-600 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"><%= req.translations.sendTestEmail %></button>
-      <% if (req.query.msg && req.query.msg === "TestemailSentsuccess") { %>
-        <div class="mt-2">
-          <span class="text-emerald-600 font-normal text-sm"><%= req.translations.testEmailSuccess %></span>
+    <div class="p-6 space-y-10">
+
+      <!-- Save SMTP Settings -->
+      <form action="/admin/settings/saveSmtpSettings" method="POST" class="space-y-6 max-w-3xl">
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.smtpServer %>
+          </label>
+          <input
+            type="text"
+            name="smtpServer"
+            value="<%= smtpSettings.server || '' %>"
+            placeholder="<%= req.translations.smtpServer %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
         </div>
-      <% } %>
-      <% if (req.query.err && req.query.err === "TestemailSentfailed") { %>
-        <div class="mt-2">
-          <span class="text-red-500 font-normal text-sm"><%= req.translations.testEmailFailed %></span>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.smtpPort %>
+          </label>
+          <input
+            type="number"
+            name="smtpPort"
+            value="<%= smtpSettings.port || '' %>"
+            placeholder="<%= req.translations.smtpPort %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
         </div>
-      <% } %>
-      <% if (req.query.msg && req.query.msg === "SmtpSaveSuccess") { %>
-        <div class="mt-2">
-          <span class="text-emerald-600 font-normal text-sm"><%= req.translations.settingsSaved %></span>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.smtpUsername %>
+          </label>
+          <input
+            type="text"
+            name="smtpUser"
+            value="<%= smtpSettings.username || '' %>"
+            placeholder="<%= req.translations.smtpUsername %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
         </div>
-      <% } %>
-      <% if (req.query.err && req.query.err === "SmtpSaveFailed") { %>
-        <div class="mt-2">
-          <span class="text-red-500 font-normal text-sm"><%= req.translations.settingsSaveFailed %></span>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.smtpPassword %>
+          </label>
+          <input
+            type="password"
+            name="smtpPass"
+            value="<%= smtpSettings.password || '' %>"
+            placeholder="<%= req.translations.smtpPassword %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
         </div>
-      <% } %>
-    </form>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.mailFromName %>
+          </label>
+          <input
+            type="text"
+            name="smtpFromName"
+            value="<%= smtpSettings.fromName || '' %>"
+            placeholder="<%= req.translations.mailFromName %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.mailFromAddress %>
+          </label>
+          <input
+            type="email"
+            name="smtpFromAddress"
+            value="<%= smtpSettings.fromAddress || '' %>"
+            placeholder="<%= req.translations.mailFromAddress %>"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="rounded-xl <%= theme['button-color'] %> px-5 py-2 text-sm font-medium shadow transition"
+        >
+          <%= req.translations.saveSmtpSettings %>
+        </button>
+
+      </form>
+
+
+      <!-- Divider -->
+      <div class="border-t border-white/10"></div>
+
+
+      <!-- Test Email -->
+      <form action="/sendTestEmail" method="POST" class="space-y-5 max-w-xl">
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.recipientEmail %>
+          </label>
+          <input
+            type="email"
+            name="recipientEmail"
+            required
+            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/10"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-2 text-sm font-medium text-white shadow transition"
+        >
+          <%= req.translations.sendTestEmail %>
+        </button>
+
+
+        <!-- Messages -->
+        <% if (req.query.msg === "TestemailSentsuccess") { %>
+          <p class="text-emerald-500 text-sm">
+            <%= req.translations.testEmailSuccess %>
+          </p>
+        <% } %>
+
+        <% if (req.query.err === "TestemailSentfailed") { %>
+          <p class="text-red-500 text-sm">
+            <%= req.translations.testEmailFailed %>
+          </p>
+        <% } %>
+
+        <% if (req.query.msg === "SmtpSaveSuccess") { %>
+          <p class="text-emerald-500 text-sm">
+            <%= req.translations.settingsSaved %>
+          </p>
+        <% } %>
+
+        <% if (req.query.err === "SmtpSaveFailed") { %>
+          <p class="text-red-500 text-sm">
+            <%= req.translations.settingsSaveFailed %>
+          </p>
+        <% } %>
+
+      </form>
+
+    </div>
   </div>
+
 </main>
 
 <%- include('../../components/footer') %>
