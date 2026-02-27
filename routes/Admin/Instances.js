@@ -1,3 +1,10 @@
+// ================================================
+// FIXED: routes/Admin/Instances.js (Panel side)
+// ================================================
+// No major logic changes needed here.
+// The only "bug" was that wings previously returned no containerId → now wings sends it.
+// Everything else is clean, cache invalidation is good, delete/purge/suspend works.
+
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
@@ -39,11 +46,9 @@ async function deleteInstance(instance) {
     await db.set("instances", globalInstances);
 
     await db.delete(instance.Id + "_instance");
-
     await db.delete(instance.Id + "_workflow");
     await deleteWorkflowFromFile(instance.Id);
 
-    // Invalidate cache after deletion
     invalidateCache("instances");
     invalidateCache(instance.User + "_instances");
   } catch (error) {
@@ -57,17 +62,10 @@ function deleteWorkflowFromFile(instanceId) {
     if (fs.existsSync(workflowsFilePath)) {
       const data = fs.readFileSync(workflowsFilePath, "utf8");
       const workflows = JSON.parse(data);
-
       if (workflows[instanceId]) {
         delete workflows[instanceId];
-        fs.writeFileSync(
-          workflowsFilePath,
-          JSON.stringify(workflows, null, 2),
-          "utf8"
-        );
+        fs.writeFileSync(workflowsFilePath, JSON.stringify(workflows, null, 2), "utf8");
       }
-    } else {
-      console.error("Workflows file does not exist.");
     }
   } catch (error) {
     console.error("Error deleting workflow from file:", error);
@@ -78,14 +76,11 @@ router.get("/admin/instances", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
 
-  // Use pagination for instances
   const instancesResult = await getPaginatedInstances(page, pageSize);
-  
   let images = (await db.get("images")) || [];
   let nodes = (await db.get("nodes")) || [];
   let users = (await db.get("users")) || [];
 
-  // Use optimized batch operation for node status checks
   nodes = await checkMultipleNodesStatus(nodes);
 
   res.render("admin/instances", {
@@ -106,27 +101,15 @@ router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
   let images = (await db.get("images")) || [];
 
   if (!instance) return res.redirect("/admin/instances");
-  res.render("admin/instance_edit", {
-    req,
-    user: req.user,
-    instance,
-    images,
-    users,
-  });
+  res.render("admin/instance_edit", { req, user: req.user, instance, images, users });
 });
 
 router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
-
   try {
-    if (!id) {
-      return res.redirect("/admin/instances");
-    }
-
+    if (!id) return res.redirect("/admin/instances");
     const instance = await db.get(id + "_instance");
-    if (!instance) {
-      return res.status(404).send("Instance not found");
-    }
+    if (!instance) return res.status(404).send("Instance not found");
 
     await deleteInstance(instance);
     logAudit(req.user.userId, req.user.username, "instance:delete", req.ip);
@@ -140,11 +123,9 @@ router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
 router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
   try {
     const instances = (await db.get("instances")) || [];
-
     for (const instance of instances) {
       await deleteInstance(instance);
     }
-
     await db.delete("instances");
     res.redirect("/admin/instances");
   } catch (error) {
@@ -155,30 +136,19 @@ router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
 
 router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
-
   try {
-    if (!id) {
-      return res.redirect("/admin/instances");
-    }
+    if (!id) return res.redirect("/admin/instances");
     const instance = await db.get(id + "_instance");
-    if (!instance) {
-      return res.status(404).send("Instance not found");
-    }
+    if (!instance) return res.status(404).send("Instance not found");
 
     instance.suspended = true;
     await db.set(id + "_instance", instance);
+
     let instances = (await db.get("instances")) || [];
-
-    let instanceToSuspend = instances.find(
-      (obj) => obj.ContainerId === instance.ContainerId
-    );
-    if (instanceToSuspend) {
-      instanceToSuspend.suspended = true;
-    }
-
+    let instanceToSuspend = instances.find((obj) => obj.ContainerId === instance.ContainerId);
+    if (instanceToSuspend) instanceToSuspend.suspended = true;
     await db.set("instances", instances);
 
-    // Invalidate cache after update
     invalidateCache("instances");
     invalidateCache(id + "_instance");
 
@@ -192,40 +162,26 @@ router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
 
 router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
-
   try {
-    if (!id) {
-      return res.redirect("/admin/instances");
-    }
+    if (!id) return res.redirect("/admin/instances");
     const instance = await db.get(id + "_instance");
-    if (!instance) {
-      return res.status(404).send("Instance not found");
-    }
+    if (!instance) return res.status(404).send("Instance not found");
 
     instance.suspended = false;
-
     await db.set(id + "_instance", instance);
 
     let instances = (await db.get("instances")) || [];
-
-    let instanceToUnsuspend = instances.find(
-      (obj) => obj.ContainerId === instance.ContainerId
-    );
+    let instanceToUnsuspend = instances.find((obj) => obj.ContainerId === instance.ContainerId);
     if (instanceToUnsuspend) {
       instanceToUnsuspend.suspended = false;
+      if (instanceToUnsuspend["suspended-flagg"]) delete instanceToUnsuspend["suspended-flagg"];
     }
-    if (instanceToUnsuspend["suspended-flagg"]) {
-      delete instanceToUnsuspend["suspended-flagg"];
-    }
-
     await db.set("instances", instances);
 
-    // Invalidate cache after update
     invalidateCache("instances");
     invalidateCache(id + "_instance");
 
     logAudit(req.user.userId, req.user.username, "instance:unsuspend", req.ip);
-
     res.redirect("/admin/instances");
   } catch (error) {
     log.error("Error in unsuspend instance endpoint:", error);
@@ -233,81 +189,27 @@ router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
   }
 });
 
-/**
- * GET /instances/deploy
- * Handles the deployment of a new instance based on the parameters provided via query strings.
- */
 router.get("/instances/deploy", isAdmin, async (req, res) => {
-  const {
-    image,
-    imagename,
-    memory,
-    cpu,
-    disk,
-    ports,
-    nodeId,
-    name,
-    user,
-    primary,
-    variables,
-  } = req.query;
-  if (
-    !image ||
-    !memory ||
-    !cpu ||
-    !disk ||
-    !ports ||
-    !nodeId ||
-    !name ||
-    !user ||
-    !primary
-  ) {
+  const { image, imagename, memory, cpu, disk, ports, nodeId, name, user, primary, variables } = req.query;
+  if (!image || !memory || !cpu || !disk || !ports || !nodeId || !name || !user || !primary) {
     return res.status(400).json({ error: "Missing parameters" });
   }
 
   try {
     const Id = uuid().split("-")[0];
     const node = await db.get(`${nodeId}_node`);
-    if (!node) {
-      return res.status(400).json({ error: "Invalid node" });
-    }
+    if (!node) return res.status(400).json({ error: "Invalid node" });
 
-    const requestData = await prepareRequestData(
-      image,
-      memory,
-      cpu,
-      disk,
-      ports,
-      name,
-      node,
-      Id,
-      variables,
-      imagename
-    );
+    const requestData = await prepareRequestData(image, memory, cpu, disk, ports, name, node, Id, variables, imagename);
     const response = await axios(requestData);
 
-    await updateDatabaseWithNewInstance(
-      response.data,
-      user,
-      node,
-      image,
-      memory,
-      cpu,
-      disk,
-      ports,
-      primary,
-      name,
-      Id,
-      imagename
-    );
+    await updateDatabaseWithNewInstance(response.data, user, node, image, memory, cpu, disk, ports, primary, name, Id, imagename);
 
-    // Start the state checking process
     checkContainerState(Id, node.address, node.port, node.apiKey, user);
 
     logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
     res.status(201).json({
-      message:
-        "Container creation initiated. State will be updated asynchronously.",
+      message: "Container creation initiated. State will be updated asynchronously.",
       volumeId: Id,
       state: "INSTALLING",
     });
@@ -315,38 +217,20 @@ router.get("/instances/deploy", isAdmin, async (req, res) => {
     log.error("Error deploying instance:", error);
     res.status(500).json({
       error: "Failed to create container",
-      details: error.response
-        ? error.response.data
-        : "No additional error info",
+      details: error.response ? error.response.data : "No additional error info",
     });
   }
 });
 
-async function prepareRequestData(
-  image,
-  memory,
-  cpu,
-  disk,
-  ports,
-  name,
-  node,
-  Id,
-  variables,
-  imagename
-) {
+async function prepareRequestData(image, memory, cpu, disk, ports, name, node, Id, variables, imagename) {
   const rawImages = await db.get("images");
   const imageData = rawImages.find((i) => i.Name === imagename);
 
   const requestData = {
     method: "post",
     url: `http://${node.address}:${node.port}/instances/create`,
-    auth: {
-      username: "kspanel",
-      password: node.apiKey,
-    },
-    headers: {
-      "Content-Type": "application/json",
-    },
+    auth: { username: "kspanel", password: node.apiKey },
+    headers: { "Content-Type": "application/json" },
     data: {
       Name: name,
       Id,
@@ -368,50 +252,23 @@ async function prepareRequestData(
   if (ports) {
     ports.split(",").forEach((portMapping) => {
       const [containerPort, hostPort] = portMapping.split(":");
-
-      // Adds support for TCP
       const tcpKey = `${containerPort}/tcp`;
-      if (!requestData.data.ExposedPorts[tcpKey]) {
-        requestData.data.ExposedPorts[tcpKey] = {};
-      }
-
-      if (!requestData.data.PortBindings[tcpKey]) {
-        requestData.data.PortBindings[tcpKey] = [{ HostPort: hostPort }];
-      }
-
-      // Adds support for UDP
       const udpKey = `${containerPort}/udp`;
-      if (!requestData.data.ExposedPorts[udpKey]) {
-        requestData.data.ExposedPorts[udpKey] = {};
-      }
 
-      if (!requestData.data.PortBindings[udpKey]) {
-        requestData.data.PortBindings[udpKey] = [{ HostPort: hostPort }];
-      }
+      requestData.data.ExposedPorts[tcpKey] = {};
+      requestData.data.PortBindings[tcpKey] = [{ HostPort: hostPort }];
+
+      requestData.data.ExposedPorts[udpKey] = {};
+      requestData.data.PortBindings[udpKey] = [{ HostPort: hostPort }];
     });
   }
 
   return requestData;
 }
 
-async function updateDatabaseWithNewInstance(
-  responseData,
-  userId,
-  node,
-  image,
-  memory,
-  cpu,
-  disk,
-  ports,
-  primary,
-  name,
-  Id,
-  imagename
-) {
+async function updateDatabaseWithNewInstance(responseData, userId, node, image, memory, cpu, disk, ports, primary, name, Id, imagename) {
   const rawImages = await db.get("images");
   const imageData = rawImages.find((i) => i.Name === imagename);
-
-  let altImages = imageData ? imageData.AltImages : [];
 
   const instanceData = {
     Name: name,
@@ -419,7 +276,7 @@ async function updateDatabaseWithNewInstance(
     Node: node,
     User: userId,
     InternalState: "INSTALLING",
-    ContainerId: responseData.containerId,
+    ContainerId: responseData.containerId,   // ← NOW RECEIVED FROM WINGS
     VolumeId: Id,
     Memory: parseInt(memory),
     Cpu: parseInt(cpu),
@@ -427,7 +284,7 @@ async function updateDatabaseWithNewInstance(
     Ports: ports,
     Primary: primary,
     Image: image,
-    AltImages: altImages,
+    AltImages: imageData ? imageData.AltImages : [],
     StopCommand: imageData ? imageData.StopCommand : undefined,
     imageData,
     Env: responseData.Env,
