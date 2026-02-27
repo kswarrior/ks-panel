@@ -1,10 +1,3 @@
-// ================================================
-// FIXED: routes/Admin/Instances.js (Panel side)
-// ================================================
-// No major logic changes needed here.
-// The only "bug" was that wings previously returned no containerId → now wings sends it.
-// Everything else is clean, cache invalidation is good, delete/purge/suspend works.
-
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
@@ -123,9 +116,7 @@ router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
 router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
   try {
     const instances = (await db.get("instances")) || [];
-    for (const instance of instances) {
-      await deleteInstance(instance);
-    }
+    for (const instance of instances) await deleteInstance(instance);
     await db.delete("instances");
     res.redirect("/admin/instances");
   } catch (error) {
@@ -276,7 +267,7 @@ async function updateDatabaseWithNewInstance(responseData, userId, node, image, 
     Node: node,
     User: userId,
     InternalState: "INSTALLING",
-    ContainerId: responseData.containerId,   // ← NOW RECEIVED FROM WINGS
+    ContainerId: responseData.containerId,
     VolumeId: Id,
     Memory: parseInt(memory),
     Cpu: parseInt(cpu),
