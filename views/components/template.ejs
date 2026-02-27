@@ -273,7 +273,8 @@
       </div>
       <div id="colcont" class="lg:pl-56 group-[.collapsed]:pl-[4.2rem] group-[.sidebar-right]:pl-[1.2rem] group-[.sidebar-right]:pr-[14.2rem]">
       <div class="sticky backdrop-blur top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-transparent px-4 sm:gap-x-6 sm:px-4 lg:px-4">
-         <div class="hidden lg:block">
+         <!-- Desktop sidebar toggle is now completely hidden (always) -->
+         <div class="hidden">
          <button type="button" id="sidebar-toggle" class="hidden lg:block w-fit p-2 mt-1 rounded-xl text-white border border-white/5 hover:scale-110 active:scale-100 duration-200">
             <span class="sr-only">Open sidebar</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -479,6 +480,7 @@
             const sidebar = document.querySelector('.sidebar');
             const toggleButton = document.getElementById('sidebar-toggle');
             const colcont = document.getElementById('colcont');
+            const mobileToggleButton = document.getElementById('mobile-sidebar-toggle');
 
             function setCookie(name, value, days) {
                const date = new Date();
@@ -496,31 +498,55 @@
                }
                return null;
             }
-            const sidebarState = getCookie('sidebar-collapsed');
-            if (sidebarState === 'true') {
-               sidebar.classList.add('collapsed');
-               colcont.classList.add('colcont');
-            } else {
+
+            // === DESKTOP: always opened + sidebar-toggle completely hidden (already done above) ===
+            const isDesktop = window.innerWidth >= 1024;
+            if (isDesktop) {
                sidebar.classList.remove('collapsed');
                colcont.classList.remove('colcont');
+            } else {
+               // mobile collapse state from cookie (unchanged)
+               const sidebarState = getCookie('sidebar-collapsed');
+               if (sidebarState === 'true') {
+                  sidebar.classList.add('collapsed');
+                  colcont.classList.add('colcont');
+               } else {
+                  sidebar.classList.remove('collapsed');
+                  colcont.classList.remove('colcont');
+               }
             }
-            toggleButton.addEventListener('click', () => {
-               sidebar.classList.toggle('collapsed');
-               colcont.classList.toggle('colcont');
-               const isCollapsed = sidebar.classList.contains('collapsed');
-               setCookie('sidebar-collapsed', isCollapsed, 7);
-            });
 
-            const mobileToggleButton = document.getElementById('mobile-sidebar-toggle');
+            // desktop toggle listener (kept exactly as original - button is hidden so it never fires on desktop)
+            if (toggleButton) {
+               toggleButton.addEventListener('click', () => {
+                  sidebar.classList.toggle('collapsed');
+                  colcont.classList.toggle('colcont');
+                  const isCollapsed = sidebar.classList.contains('collapsed');
+                  setCookie('sidebar-collapsed', isCollapsed, 7);
+               });
+            }
+
+            // === MOBILE: click toggle → open sidebar + hide toggle button ===
             if (mobileToggleButton) {
                mobileToggleButton.addEventListener('click', () => {
                   sidebar.classList.toggle('open');
                   if (sidebar.classList.contains('open')) {
-                     mobileToggleButton.classList.add('right-4');
-                     mobileToggleButton.classList.remove('left-4');
+                     mobileToggleButton.classList.add('hidden');
                   } else {
-                     mobileToggleButton.classList.add('left-4');
-                     mobileToggleButton.classList.remove('right-4');
+                     mobileToggleButton.classList.remove('hidden');
+                  }
+               });
+            }
+
+            // === MOBILE: click anywhere outside sidebar → close + show toggle again ===
+            if (mobileToggleButton) {
+               document.addEventListener('click', (e) => {
+                  if (window.innerWidth < 1024 && 
+                      sidebar.classList.contains('open') && 
+                      !sidebar.contains(e.target) && 
+                      !mobileToggleButton.contains(e.target)) {
+                     sidebar.classList.remove('open');
+                     mobileToggleButton.classList.remove('hidden');
                   }
                });
             }
