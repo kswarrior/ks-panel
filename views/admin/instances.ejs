@@ -151,112 +151,71 @@
 </div>
       <%- include('../components/pagination', { pagination }) %>
 
-      <div id="instanceForm" class="hidden mt-6 px-4 sm:px-8 w-full">
-    <div class="p-6 sm:p-8 lg:p-10 bg-neutral-800/50 border border-white/5 rounded-xl shadow-xl max-w-4xl mx-auto">
-        <form class="grid gap-4 sm:gap-6">
-
-            <!-- Grid for Desktop, Stacked for Mobile -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Name -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.name %>:</label>
-                    <input id="name" placeholder="My instance" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+      <div id="instanceForm" class="hidden flex gap-4 mt-6 px-8 w-full">
+        <div class="p-3 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden sm:p-6 lg:p-10 card" style="width: 800px;">
+            <form>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.name %>:</label>
+                        <input id="name" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="My instance">
+                    </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.user %>:</label>
+                        <select id="user" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5">
+                            <% users.forEach(function(user) { %>
+                                <option value="<%= user.userId %>" class="text-neutral-800 text-sm tracking-tight mb-2"><%= user.username %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div>
+                      <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.image %>:</label>
+                      <select id="image" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5">
+                          <% images.forEach(function(image) { %>
+                              <option value="<%= image.Image %>" class="text-neutral-800 text-sm tracking-tight mb-2" data-configfilepath="<%= image.ConfigFilePath %>" data-imagename="<%= image.Name %>" data-configfilecontent="<%= image.ConfigFileContent %>" data-variables="<%= JSON.stringify(image.Variables) %>"><%= image.Name %> (<%= image.Image %>)</option>
+                          <% }); %>
+                      </select>
+                  </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.node %>:</label>
+                        <select id="node" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5">
+                            <% nodes.forEach(function(node) { %>
+                                <option value="<%= node.id %>" class="text-neutral-800 text-sm tracking-tight mb-2"><%= node.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.memory %> (MiB):</label>
+                        <input id="memory" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="2048">
+                    </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.cpuThreads %>:</label>
+                        <input id="cpu" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="1">
+                    </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (MiB):</label>
+                        <input id="disk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="10240">
+                    </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.ports %>:</label>
+                        <input id="ports" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="25565:25565,8080:8080">
+                    </div>
+                    <div>
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.primaryPort %>:</label>
+                        <input id="primary" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="25565">
+                    </div>
                 </div>
-
-                <!-- User -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.user %>:</label>
-                    <select id="user" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        <% users.forEach(function(user) { %>
-                            <option value="<%= user.userId %>" class="text-neutral-800"><%= user.username %></option>
-                        <% }); %>
-                    </select>
+                <div class="mt-4">
+                    <button id="createNodeBtn" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
+                      <%= req.translations.create %>
+                    </button>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Image -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.image %>:</label>
-                    <select id="image" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        <% images.forEach(function(image) { %>
-                            <option value="<%= image.Image %>" data-configfilepath="<%= image.ConfigFilePath %>" data-imagename="<%= image.Name %>" data-configfilecontent="<%= image.ConfigFileContent %>" data-variables="<%= JSON.stringify(image.Variables) %>"><%= image.Name %> (<%= image.Image %>)</option>
-                        <% }); %>
-                    </select>
-                </div>
-
-                <!-- Node -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.node %>:</label>
-                    <select id="node" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        <% nodes.forEach(function(node) { %>
-                            <option value="<%= node.id %>"><%= node.name %></option>
-                        <% }); %>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Memory -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.memory %> (MiB):</label>
-                    <input id="memory" placeholder="2048" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-
-                <!-- CPU -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.cpuThreads %>:</label>
-                    <input id="cpu" placeholder="1" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Disk -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block">Disk (MiB):</label>
-                    <input id="disk" placeholder="10240" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-
-                <!-- Ports -->
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.ports %>:</label>
-                    <input id="ports" placeholder="25565:25565,8080:8080" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-            </div>
-
-            <!-- Primary Port -->
-            <div>
-                <label class="text-neutral-400 text-sm mb-1 block"><%= req.translations.primaryPort %>:</label>
-                <input id="primary" placeholder="25565" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-            </div>
-
-            <!-- Optional: Version and Build -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block">Version:</label>
-                    <input id="version" placeholder="1.21.4" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="text-neutral-400 text-sm mb-1 block">Build #:</label>
-                    <input id="buildNumber" placeholder="Optional" class="w-full px-4 py-2 bg-neutral-600/20 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-            </div>
-
-            <!-- Create Button -->
-            <div class="mt-4">
-                <button id="createNodeBtn" type="button" class="w-full py-3 rounded-xl <%= theme['button-color'] %> text-sm font-medium shadow-lg hover:opacity-90 transition">
-                    <%= req.translations.create %>
-                </button>
-            </div>
-
+            </form>
+        </div>
+        <div id="secondCard" class="p-3 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden sm:p-6 lg:p-10 card hidden" style="width: 800px;">
+          <form id="variablesForm">
         </form>
+        </div>
     </div>
-
-    <!-- Variables Form Card -->
-    <div id="secondCard" class="p-6 sm:p-8 lg:p-10 bg-neutral-800/50 border border-white/5 rounded-xl shadow-xl mt-6 hidden max-w-4xl mx-auto">
-        <form id="variablesForm"></form>
-    </div>
-</div>
 </main>
 
   <div id="suspendInfoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
