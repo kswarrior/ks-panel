@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  fetch('/api/v1/version')
+  fetch('/version')
     .then(response => response.json())
     .then(data => {
       const icon = document.getElementById('update-icon');
