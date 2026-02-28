@@ -30,34 +30,87 @@
     background-size: 100% auto;  /* keeps full width */" >
       <!-- Todo : remove this style for tailwind css-->
       <style>
+/* ────────────────────────────────────────────────
+   SIDEBAR BASE STYLES (desktop + mobile shared)
+───────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  inset-y: 0;
+  z-index: 50;
+  width: 14rem;                    /* 56 * 0.25rem = 224px ≈ lg:w-56 */
+  transition: all 0.3s ease-in-out;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
 
-         .sidebar nav ul {
-            position: relative;
-         }
-         .nav-link {
-            position: relative;
-            z-index: 1;
-         }
-         .nav-link.active {
-            color: white;
-            font-weight: 500;
-         }
-         @media (max-width: 1024px) {
+/* Inner sidebar container */
+#pc-sidebar2 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1.25rem;                    /* gap-y-5 */
+  padding: 1rem;                   /* p-2 from parent + internal spacing */
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);     /* consistent glass effect */
+  border-radius: 1.5rem;           /* rounded-3xl on right, lg on left */
+  overflow-y: auto;
 
+  /* Prevents content from being cut off at bottom */
+  padding-bottom: 7rem;            /* crucial fix for logout button / bottom items */
+  min-height: 100vh;
+}
+
+/* Safe area support (iPhone notch / Android gesture bar) */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #pc-sidebar2 {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* ────────────────────────────────────────────────
+   DESKTOP BEHAVIOR (lg and up)
+───────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex !important;      /* always visible on desktop */
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+  }
+
+  /* Collapsed mode (very narrow icons-only) */
+  .sidebar.group\/.collapsed {
+    width: 4.2rem;                 /* ≈ 4% + a bit more breathing room */
+  }
+
+  .sidebar.group\/.collapsed #pc-sidebar2 {
+    border-radius: 1.5rem;         /* keep nice rounding even when collapsed */
+    align-items: center;
+    padding: 1rem 0.5rem;
+  }
+
+  /* Right-aligned sidebar support */
+  .sidebar.right-0 {
+    right: 0;
+    left: auto;
+  }
+
+  .sidebar.right-0 #pc-sidebar2 {
+    border-radius: 1.5rem 0 0 1.5rem; /* rounded-l-3xl when right */
+  }
+}
+
+/* ────────────────────────────────────────────────
+   MOBILE BEHAVIOR (below lg = <1024px)
+───────────────────────────────────────────────── */
+@media (max-width: 1023px) {
   .sidebar {
     display: none;
-    position: fixed;
-    z-index: 50;
-    height: 100%;
-    width: 225px;
-    backdrop-filter: blur(var(--backdrop-blur));
+    width: 225px;                    /* fixed mobile width */
     background: rgba(0, 0, 0, 0.4);
-    overflow-y: auto;
-
-    /* Original transform */
+    backdrop-filter: blur(12px);     /* match --backdrop-blur or hardcode */
     transform: translateX(-100%);
-
-    /* Added smooth animation */
     opacity: 0;
     transition: 
       transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
@@ -67,8 +120,6 @@
   .sidebar.open {
     display: block;
     transform: translateX(0);
-
-    /* Added fade in */
     opacity: 1;
     animation: sidebarSlide 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -77,9 +128,45 @@
     width: 100%;
   }
 
+  /* Extra bottom padding when open on small screens */
+  .sidebar.open #pc-sidebar2 {
+    padding-bottom: 9rem;          /* more generous on mobile */
+  }
 }
 
-/* Animation */
+/* ────────────────────────────────────────────────
+   NAVIGATION & ACTIVE STATE
+───────────────────────────────────────────────── */
+.sidebar nav ul {
+  position: relative;
+}
+
+.nav-link {
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-link.active {
+  color: white;
+  font-weight: 500;
+}
+
+/* Moving highlight background behind active link */
+#active-background {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2.5rem;                  /* ≈ py-1.5 + some margin */
+  background: rgba(255,255,255,0.08);
+  border-radius: 0.75rem;          /* rounded-xl */
+  transition: transform 0.3s ease, height 0.3s ease;
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────
+   SLIDE ANIMATION (mobile only)
+───────────────────────────────────────────────── */
 @keyframes sidebarSlide {
   from {
     transform: translateX(-110%);
@@ -90,10 +177,26 @@
     opacity: 1;
   }
 }
-         
 
+/* ────────────────────────────────────────────────
+   Scrollbar styling (optional polish)
+───────────────────────────────────────────────── */
+#pc-sidebar2::-webkit-scrollbar {
+  width: 6px;
+}
 
+#pc-sidebar2::-webkit-scrollbar-track {
+  background: transparent;
+}
 
+#pc-sidebar2::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+}
+
+#pc-sidebar2::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.3);
+}
       </style>
 
 <script>
@@ -289,7 +392,7 @@
 <div class="flex items-center gap-x-4 lg:gap-x-6">
    <!-- Ping Display -->
 <span id="pingDisplay"
-      class="flex flex-col items-center text-white bg-neutral-800/50 px-3 py-2 rounded-xl w-fit">
+      class="flex flex-col items-center text-white bg-transparent px-3 py-2 rounded-xl w-fit border border-white/10">
 
   <!-- SVG WiFi Icon -->
   <svg id="pingIcon"
