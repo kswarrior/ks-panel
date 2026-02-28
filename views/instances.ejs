@@ -11,33 +11,35 @@
 
   <% if (req.user.admin === true) { %>
   <!-- Right Side -->
-  <label for="instance-toggle" class="flex items-center cursor-pointer">
-    <div class="relative">
-      <input type="checkbox"
-             id="instance-toggle"
-             class="peer sr-only"
-             <%= req.query.see === 'other' ? 'checked' : '' %>>
+  <label for="instance-toggle" class="flex items-center cursor-pointer select-none">
+  <div class="relative inline-flex items-center h-6">
+    
+    <input type="checkbox"
+           id="instance-toggle"
+           class="peer sr-only"
+           <%= req.query.see === 'other' ? 'checked' : '' %>>
 
-      <!-- Track -->
-      <div class="w-11 h-6 rounded-full
-                  bg-white/10
-                  peer-checked:bg-blue-600
-                  peer-checked:shadow-lg peer-checked:shadow-blue-500/30
-                  transition-all duration-300">
-      </div>
-
-      <!-- Dot -->
-      <div class="absolute top-1 left-1
-                  w-4 h-4 rounded-full bg-white shadow-md
-                  transition-all duration-300
-                  peer-checked:translate-x-5">
-      </div>
+    <!-- Track -->
+    <div class="w-11 h-6 rounded-full
+                bg-white/10
+                peer-checked:bg-blue-600
+                transition-all duration-300">
     </div>
 
-    <span class="ml-3 text-sm font-medium text-white">
-      Show All
-    </span>
-  </label>
+    <!-- Dot -->
+    <div class="absolute
+                left-1 top-1/2 -translate-y-1/2
+                w-4 h-4 rounded-full bg-white shadow-md
+                transition-all duration-300
+                peer-checked:translate-x-5">
+    </div>
+
+  </div>
+
+  <span class="ml-3 text-sm font-medium text-white">
+    Show All
+  </span>
+</label>
   <% } %>
 
 </div>
@@ -71,7 +73,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
           class="mx-auto h-12 w-12 text-neutral-500">
           <path fill-rule="evenodd"
-            d="M11.622 1.602a.75.75 0 0 1 .756 0l2.25 1.313a.75.75 0 0 1-.756 1.295L12 3.118 10.128 4.21a.75.75 0 1 1-.756-1.295l2.25-1.313ZM5.898 5.81a.75.75 0 0 1-.27 1.025l-1.14 .665 1.14 .665a.75.75 0 1 1-.756 1.295L3.75 8.806v.944a.75.75 0 0 1-1.5 0V7.5a.75.75 0 0 1 .372-.648l2.25-1.312a.75.75 0 0 1 1.026 .27Zm12.204 0a.75.75 0 0 1 1.026-.27l2.25 1.312a.75.75 0 0 1 .372 .648v2.25a.75.75 0 0 1-1.5 0v-.944l-1.122 .654a.75.75 0 1 1-.756-1.295l1.14-.665-1.14-.665a.75.75 0 0 1-.27-1.025Zm-9 5.25a.75.75 0 0 1 1.026-.27L12 11.882l1.872-1.092a.75.75 0 1 1 .756 1.295l-1.878 1.096V15a.75.75 0 0 1-1.5 0v-1.82l-1.878-1.095a.75.75 0 0 1-.27-1.025ZM3 13.5a.75.75 0 0 1 .75.75v1.82l1.878 1.095a.75.75 0 1 1-.756 1.295l-2.25-1.312a.75.75 0 0 1-.372-.648v-2.25A.75.75 0 0 1 3 13.5Zm18 0a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.372 .648l-2.25 1.312a.75.75 0 1 1-.756-1.295l1.878-1.096V14.25a.75.75 0 0 1 .75-.75Zm-9 5.25a.75.75 0 0 1 .75.75v.944l1.122-.654a.75.75 0 1 1 .756 1.295l-2.25 1.313a.75.75 0 0 1-.756 0l-2.25-1.313a.75.75 0 1 1 .756-1.295l1.122 .654V19.5a.75.75 0 0 1 .75-.75Z"
+            d="M11.622 1.602a.75.75 0 0 1 .756 0l2.25 1.313a.75.75 0 0 1-.756 1.295L12 3.118 10.128 4.21a.75.75 0 1 1-.756-1.295l2.25-1.313ZM5.898 5.81a.75.75 0 0 1-.27 1.025l-1.14.665 1.14.665a.75.75 0 1 1-.756 1.295L3.75 8.806v.944a.75.75 0 0 1-1.5 0V7.5a.75.75 0 0 1 .372-.648l2.25-1.312a.75.75 0 0 1 1.026.27Zm12.204 0a.75.75 0 0 1 1.026-.27l2.25 1.312a.75.75 0 0 1 .372.648v2.25a.75.75 0 0 1-1.5 0v-.944l-1.122.654a.75.75 0 1 1-.756-1.295l1.14-.665-1.14-.665a.75.75 0 0 1-.27-1.025Zm-9 5.25a.75.75 0 0 1 1.026-.27L12 11.882l1.872-1.092a.75.75 0 1 1 .756 1.295l-1.878 1.096V15a.75.75 0 0 1-1.5 0v-1.82l-1.878-1.095a.75.75 0 0 1-.27-1.025ZM3 13.5a.75.75 0 0 1 .75.75v1.82l1.878 1.095a.75.75 0 1 1-.756 1.295l-2.25-1.312a.75.75 0 0 1-.372-.648v-2.25A.75.75 0 0 1 3 13.5Zm18 0a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.372.648l-2.25 1.312a.75.75 0 1 1-.756-1.295l1.878-1.096V14.25a.75.75 0 0 1 .75-.75Zm-9 5.25a.75.75 0 0 1 .75.75v.944l1.122-.654a.75.75 0 1 1 .756 1.295l-2.25 1.313a.75.75 0 0 1-.756 0l-2.25-1.313a.75.75 0 1 1 .756-1.295l1.122.654V19.5a.75.75 0 0 1 .75-.75Z"
             clip-rule="evenodd" />
         </svg>
         <h3 class="mt-4 text-md font-medium text-white"><%= req.translations.noInstances %></h3>
@@ -91,12 +93,12 @@
           </thead>
           <tbody class="divide-y divide-white/5 bg-white/5">
             <% instances.forEach(function (instance) { %>
-              <tr onclick="window.location.href = '../instance/<%= instance.Id %>';" class="hover:bg-white/[0.05] cursor-pointer transition-colors" data-instance-id="<%= instance.Id %>">
+              <tr onclick="window.location.href = href='../instance/<%= instance.Id %>';" class="hover:bg-white/[0.05] cursor-pointer transition-colors" data-instance-id="<%= instance.Id %>">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                   <div class="flex items-center">
                     <div class="rounded-xl bg-white/5 p-2 mr-3">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
-                        <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372 .648l8.628 5.033Z" />
+                        <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
                       </svg>
                     </div>
                     <a href="../instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-300"><%= instance.Name %></a>
@@ -142,6 +144,14 @@
 </main>
 <%- include('components/footer') %>
 
+<style>
+  #instance-toggle:checked ~ .toggle-track {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  #instance-toggle:checked ~ .toggle-dot {
+    transform: translateX(100%);
+  }
+</style>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const toggleSwitch = document.getElementById('instance-toggle');
