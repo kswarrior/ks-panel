@@ -321,6 +321,21 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
 });
 
 router.get("/admin/node/:id", isAdmin, async (req, res) => {
+  const locationsIds = (await db.get("locations")) || [];
+const locations = [];
+for (const locId of locationsIds) {
+  const loc = await db.get(locId + "_location");
+  if (loc) locations.push(loc);
+}
+
+res.render("admin/node", {
+  req,
+  user: req.user,
+  node,
+  // NEW: Pass locations
+  locations,
+});
+  
   const { id } = req.params;
   const node = await db.get(id + "_node");
 
