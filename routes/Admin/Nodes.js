@@ -33,12 +33,24 @@ router.get("/admin/nodes", isAdmin, async (req, res) => {
   // Use optimized batch operation for node status checks
   let nodes = await checkMultipleNodesStatus(nodeIds);
 
+  // NEW: Fetch locations (assuming DB structure like nodes)
+  const locationsIds = (await db.get("locations")) || [];  // Array of location IDs
+  const locations = [];
+  for (const locId of locationsIds) {
+    const loc = await db.get(locId + "_location");  // Full location object { id, name, ... }
+    if (loc) {
+      locations.push(loc);
+    }
+  }
+
   res.render("admin/nodes", {
     req,
     user: req.user,
     nodes,
     set,
     pagination: nodesResult.pagination,
+    // NEW: Pass locations to template
+    locations,
   });
 });
 
@@ -95,12 +107,14 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
   const node = {
     id: uuidv4(),
     name: req.body.name,
+    tags: req.body.tags,
     ram: req.body.ram,
     disk: req.body.disk,
     processor: req.body.processor,
-    location: req.body.location,
     address: req.body.address,
     port: req.body.port,
+    // NEW: Add location (from form select value)
+    location: req.body.location,  // e.g., location ID
     apiKey: null,
     configureKey: configureKey,
     status: "Unconfigured",
@@ -108,12 +122,14 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
 
   if (
     !req.body.name ||
+    !req.body.tags ||
     !req.body.ram ||
     !req.body.disk ||
     !req.body.processor ||
-    !req.body.location ||
     !req.body.address ||
     !req.body.port
+    // OPTIONAL: Validate location if required
+    // || !req.body.location
   ) {
     return res.status(400).send("Form validation failure.");
   }
