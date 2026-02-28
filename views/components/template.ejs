@@ -18,6 +18,9 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+      <script>
+         var CURRENT_VERSION = '<%= version %>';
+      </script>
    </head>
    <body 
   style="
@@ -295,6 +298,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
             </div>
             <script src="/javascript/search/index.js"></script>
 <div class="flex items-center gap-x-4 lg:gap-x-6">
+   <svg id="update-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor: pointer; margin-right: 8px;">
+     <path d="M21 4v6h-6"/>
+     <path d="M3 20v-6h6"/>
+     <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
+   </svg>
    <!-- Ping Display -->
 <span id="pingDisplay"
       class="flex flex-col items-center text-white bg-transparent px-3 py-2 rounded-xl w-fit">
