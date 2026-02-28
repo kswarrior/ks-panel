@@ -365,10 +365,11 @@ document.getElementById('createButton')?.addEventListener('click', function () {
 });
 
 // ────────────────────────────────────────────────
-// Create new node
+// Create new node (FIXED: Robust error parsing)
 // ────────────────────────────────────────────────
 document.getElementById('createNodeBtn')?.addEventListener('click', async function () {
   const btn = this;
+  const originalText = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = 'Creating...';
 
@@ -376,12 +377,13 @@ document.getElementById('createNodeBtn')?.addEventListener('click', async functi
     const name     = document.getElementById('nodeName')?.value?.trim()     || '';
     const ram      = document.getElementById('nodeRam')?.value?.trim()      || '';
     const disk     = document.getElementById('nodeDisk')?.value?.trim()     || '';
+    const processor= document.getElementById('nodeProcessor')?.value?.trim() || '';  // Assuming this ID exists
     const address  = document.getElementById('nodeAddress')?.value?.trim()  || '';
     const port     = document.getElementById('nodePort')?.value?.trim()     || '';
     const location = document.getElementById('nodeLocation')?.value?.trim() || '';
 
-    // Basic client-side validation (you can expand this)
-    if (!name || !ram || !disk || !address || !port) {
+    // Client-side validation
+    if (!name || !ram || !disk || !processor || !address || !port) {
       throw new Error('Please fill in all required fields');
     }
 
@@ -389,9 +391,11 @@ document.getElementById('createNodeBtn')?.addEventListener('click', async functi
       name,
       ram,
       disk,
+      processor,
       address,
       port,
-      location,          // will be "" if not selected → backend can handle as optional or required
+      location,
+      // tags: ... if you have a tags field
     };
 
     const response = await fetch('/nodes/create', {
@@ -402,26 +406,37 @@ document.getElementById('createNodeBtn')?.addEventListener('click', async functi
       body: JSON.stringify(nodeData),
     });
 
-    const result = await response.json();
-
+    // FIXED: Read as text first, then try JSON
+    let errorMsg = 'Failed to create node';
     if (!response.ok) {
-      throw new Error(result.error || 'Failed to create node');
+      const text = await response.text();
+      try {
+        const result = JSON.parse(text);  // Try parsing as JSON
+        errorMsg = result.error || text;
+      } catch (parseErr) {
+        errorMsg = text || errorMsg;  // Fallback to raw text if not JSON
+      }
+      throw new Error(errorMsg);
     }
 
+    // Success: Parse JSON response
+    const result = await response.json();
     showNotification('Node created successfully!', 'success');
-    window.location.href = '/admin/nodes?err=none';  // or just location.reload()
+    window.location.href = '/admin/nodes?err=none';
 
   } catch (error) {
     console.error('Create node error:', error);
     showNotification(error.message || 'Error creating node', 'error');
+    // Optional: Reset form fields on error
+    // document.getElementById('nodeForm').reset();
   } finally {
     btn.disabled = false;
-    btn.innerHTML = 'Create Node';  // reset button text (adjust to your original text)
+    btn.innerHTML = originalText;
   }
 });
 
 // ────────────────────────────────────────────────
-// Delete node (with confirmation for instances)
+// Delete node (unchanged, but add similar error handling if needed)
 // ────────────────────────────────────────────────
 async function deletenode(nodeId) {
   if (!nodeId) return;
@@ -433,7 +448,18 @@ async function deletenode(nodeId) {
       body: JSON.stringify({ nodeId }),
     });
 
-    let result = await response.json();
+    // Similar fix: Handle text/JSON
+    let result;
+    if (!response.ok) {
+      const text = await response.text();
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error(text || 'Failed to delete node');
+      }
+    } else {
+      result = await response.json();
+    }
 
     if (response.ok) {
       showNotification('Node successfully deleted', 'success');
@@ -454,7 +480,13 @@ async function deletenode(nodeId) {
         body: JSON.stringify({ nodeId }),
       });
 
-      result = await response.json();
+      // Reuse the same error handling logic here...
+      const text = await response.text();
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error(text || 'Failed to force delete');
+      }
 
       if (response.ok) {
         showNotification('Node and all instances deleted', 'success');
@@ -472,7 +504,7 @@ async function deletenode(nodeId) {
 }
 
 // ────────────────────────────────────────────────
-// Copy configure command to clipboard
+// Copy configure command to clipboard (unchanged)
 // ────────────────────────────────────────────────
 async function configure(nodeId) {
   if (!nodeId) return;
@@ -494,18 +526,18 @@ async function configure(nodeId) {
 }
 
 // ────────────────────────────────────────────────
-// Handle clicking on table row (but ignore buttons/links)
+// Handle clicking on table row (ignore buttons/links)
 // ────────────────────────────────────────────────
 function handleRowClick(event, url) {
   const target = event.target;
   if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button, a')) {
-    return; // let the button/link handle its own click
+    return;
   }
   window.location.href = url;
 }
 
 // ────────────────────────────────────────────────
-// Optional: Radar check (if still used)
+// Radar check (unchanged)
 // ────────────────────────────────────────────────
 async function radarcheck() {
   try {
@@ -513,18 +545,14 @@ async function radarcheck() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
-    // You might want to show a notification here too
-    // showNotification('Radar check triggered', 'success');
+    showNotification('Radar check triggered', 'success');
   } catch (err) {
     console.error('Radar check failed:', err);
   }
 }
 
-// Optional: Initialize anything on page load
+// Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
-  // Example: auto-trigger radarcheck on load?
-  // radarcheck();
-
-  // You can add more init logic here if needed
+  // Any init code here
 });
 </script>
