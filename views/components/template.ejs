@@ -678,13 +678,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const paths = icon.querySelectorAll('path');
 
       if (data.status === 'outdated') {
-        // Old version: red color, click opens GitHub
-        paths.forEach(path => path.setAttribute('stroke', '#F44336'));
-        icon.onclick = () => window.open('https://github.com/kswarrior/ks-panel', '_blank');
+        // Old version: yellow color, click shows confirm with update button behavior
+        paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
+        icon.onclick = () => {
+          if (confirm(`Old version running: ${data.currentVersion}. Latest: ${data.latestVersion}. Update now?`)) {
+            window.open('https://github.com/kswarrior/ks-panel', '_blank');
+          }
+        };
       } else {
-        // Latest version: green color, click shows message
+        // Latest version: green color, click shows message with version
         paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
-        icon.onclick = () => alert('Latest version running');
+        icon.onclick = () => alert(`Latest version running: ${data.currentVersion}`);
       }
     })
     .catch(error => {
@@ -695,3 +699,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+   </body>
+</html>
