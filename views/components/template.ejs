@@ -298,24 +298,65 @@
             </div>
             <script src="/javascript/search/index.js"></script>
 <div class="flex items-center gap-x-4 lg:gap-x-6">
-   <span id="pingDisplay" class="text-sm font-medium text-white bg-neutral-800/50 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-  
-  <!-- WiFi Ping Icon -->
-  <svg id="pingIcon" width="22" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Top Layer -->
-    <path id="pingLayer3" d="M2 6C7-1 17-1 22 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.2"/>
-    
-    <!-- Middle Layer -->
-    <path id="pingLayer2" d="M5 10C9 5 15 5 19 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.2"/>
-    
-    <!-- Bottom Layer -->
-    <path id="pingLayer1" d="M8.5 14C10.5 12 13.5 12 15.5 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.2"/>
-    
-    <!-- Dot -->
-    <circle id="pingDot" cx="12" cy="17" r="1.8" fill="currentColor"/>
-  </svg>
+   <!-- Ping Display -->
+<span id="pingDisplay"
+      class="flex flex-col items-center text-sm font-medium text-white bg-neutral-800/50 px-4 py-3 rounded-xl border border-white/10 w-fit">
 
-  <span id="pingValue">--</span> ms
+  <div class="flex items-center gap-2">
+
+    <!-- SVG WiFi Icon -->
+    <svg id="pingIcon"
+         width="24"
+         height="20"
+         viewBox="0 0 24 20"
+         xmlns="http://www.w3.org/2000/svg"
+         class="transition-all duration-300">
+
+      <!-- Top -->
+      <path id="pingLayer3"
+            d="M2 6C7-1 17-1 22 6"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            opacity="0.2" />
+
+      <!-- Middle -->
+      <path id="pingLayer2"
+            d="M5 10C9 5 15 5 19 10"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            opacity="0.2" />
+
+      <!-- Bottom -->
+      <path id="pingLayer1"
+            d="M8.5 14C10.5 12 13.5 12 15.5 14"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            opacity="0.2" />
+
+      <!-- Dot -->
+      <circle id="pingDot"
+              cx="12"
+              cy="18"
+              r="2"
+              fill="currentColor"
+              opacity="0.2" />
+    </svg>
+
+    <span>
+      <span id="pingValue">--</span> ms
+    </span>
+
+  </div>
+
+  <!-- Status Text -->
+  <span id="pingStatus"
+        class="text-xs text-gray-400 mt-1 transition-all duration-300">
+    Checking...
+  </span>
+
 </span>
    <!--
      
@@ -576,11 +617,13 @@
          </script>         
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const pingValue = document.getElementById('pingValue');
 
-  const layer1 = document.getElementById('pingLayer1'); // bottom
-  const layer2 = document.getElementById('pingLayer2'); // middle
-  const layer3 = document.getElementById('pingLayer3'); // top
+  const pingValue = document.getElementById('pingValue');
+  const pingStatus = document.getElementById('pingStatus');
+
+  const layer1 = document.getElementById('pingLayer1');
+  const layer2 = document.getElementById('pingLayer2');
+  const layer3 = document.getElementById('pingLayer3');
   const dot = document.getElementById('pingDot');
 
   function resetSignal() {
@@ -589,6 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.opacity = "0.2";
       el.setAttribute("stroke", "currentColor");
       el.setAttribute("fill", "currentColor");
+      el.style.filter = "none";
     });
   }
 
@@ -598,36 +642,46 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.opacity = "1";
       el.setAttribute("stroke", color);
       el.setAttribute("fill", color);
+
+      // Soft glow effect
+      el.style.filter = `drop-shadow(0 0 6px ${color})`;
     });
   }
 
   async function measurePing() {
     const startTime = performance.now();
+
     try {
       const response = await fetch('/ping', { cache: 'no-store' });
       if (!response.ok) throw new Error('Ping failed');
 
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
+
       pingValue.textContent = latency;
 
       resetSignal();
 
       if (latency < 100) {
-        // Low ping → all layers green
         setSignalColor([layer1, layer2, layer3, dot], "#22c55e");
+        pingStatus.textContent = "Excellent Connection";
+        pingStatus.className = "text-xs mt-1 text-green-400";
       }
       else if (latency < 200) {
-        // Medium ping → bottom + middle yellow
         setSignalColor([layer1, layer2, dot], "#eab308");
+        pingStatus.textContent = "Moderate Connection";
+        pingStatus.className = "text-xs mt-1 text-yellow-400";
       }
       else {
-        // High ping → only bottom red
         setSignalColor([layer1, dot], "#ef4444");
+        pingStatus.textContent = "High Latency";
+        pingStatus.className = "text-xs mt-1 text-red-400";
       }
 
     } catch (error) {
-      pingValue.textContent = "Error";
+      pingValue.textContent = "--";
+      pingStatus.textContent = "Connection Failed";
+      pingStatus.className = "text-xs mt-1 text-red-400";
       resetSignal();
       setSignalColor([layer1, dot], "#ef4444");
     }
@@ -635,5 +689,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   measurePing();
   setInterval(measurePing, 30000);
+
 });
 </script>
