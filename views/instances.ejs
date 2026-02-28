@@ -5,18 +5,30 @@
     <div class="sm:flex sm:items-center px-8 pt-4">
       <div class="sm:flex-auto">
         <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.instances %></h1>
-        <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.viewInstances %></p>
       </div>
       <% if (req.user.admin === true) { %>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <label for="instance-toggle" class="flex items-center cursor-pointer">
-            <span class="mr-3 text-sm font-medium text-white">Your Instances</span>
             <div class="relative">
-              <input type="checkbox" id="instance-toggle" class="sr-only" <%= req.query.see === 'other' ? 'checked' : '' %>>
-              <div class="toggle-track w-9 h-5 bg-white/10 rounded-full shadow-inner transition-colors duration-200"></div>
-              <div class="toggle-dot absolute w-4 h-4 bg-white rounded-full shadow left-0.5 top-0.5 transition-transform duration-200"></div>
-            </div>
-            <span class="ml-3 text-sm font-medium text-white">All Instances</span>
+  <input type="checkbox" id="instance-toggle" 
+         class="peer sr-only"
+         <%= req.query.see === 'other' ? 'checked' : '' %>>
+
+  <!-- Track -->
+  <div class="w-10 h-5 rounded-full bg-white/10 
+              peer-checked:bg-emerald-500/70
+              transition-all duration-300 shadow-inner">
+  </div>
+
+  <!-- Dot -->
+  <div class="absolute top-0.5 left-0.5 
+              w-4 h-4 rounded-full bg-white shadow-md
+              transition-all duration-300
+              peer-checked:translate-x-5
+              peer-checked:shadow-emerald-400/70">
+  </div>
+</div>
+            <span class="ml-3 text-sm font-medium text-white">Show All</span>
           </label>
         </div>
       <% } %>
