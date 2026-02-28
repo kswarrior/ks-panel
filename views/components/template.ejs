@@ -298,6 +298,9 @@
             </div>
             <script src="/javascript/search/index.js"></script>
 <div class="flex items-center gap-x-4 lg:gap-x-6">
+   <span id="pingDisplay" class="text-sm font-medium text-white bg-neutral-800/50 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1.5">
+      Ping: <span id="pingValue">--</span> ms
+    </span>
    <!--
      
                      
@@ -555,3 +558,34 @@
             }
          });
          </script>         
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const pingValue = document.getElementById('pingValue');
+    const pingDisplay = document.getElementById('pingDisplay');
+
+    async function measurePing() {
+      const startTime = performance.now();
+      try {
+        const response = await fetch('/ping', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Ping failed');
+        const endTime = performance.now();
+        const latency = Math.round(endTime - startTime);
+        pingValue.textContent = latency;
+
+        let colorClass = 'text-green-300';
+        if (latency >= 100 && latency < 200) colorClass = 'text-yellow-300';
+        else if (latency >= 200) colorClass = 'text-red-300';
+
+        pingDisplay.classList.remove('text-green-300', 'text-yellow-300', 'text-red-300');
+        pingDisplay.classList.add(colorClass);
+      } catch (error) {
+        pingValue.textContent = 'Error';
+        pingDisplay.classList.remove('text-green-300', 'text-yellow-300');
+        pingDisplay.classList.add('text-red-300');
+      }
+    }
+
+    measurePing();
+    setInterval(measurePing, 30000);
+  });
+</script>
