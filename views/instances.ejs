@@ -2,37 +2,49 @@
 <% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
 <main id="content">
   <div class="bg-transparent">
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.instances %></h1>
+    <div class="flex items-center justify-between px-8 pt-4">
+
+  <!-- Left Side -->
+  <h1 class="text-base font-medium text-white">
+    <%= req.translations.instances %>
+  </h1>
+
+  <% if (req.user.admin === true) { %>
+  <!-- Right Side -->
+  <label for="instance-toggle" class="flex items-center cursor-pointer select-none">
+
+    <div class="relative">
+      <input type="checkbox"
+             id="instance-toggle"
+             class="peer sr-only"
+             <%= req.query.see === 'other' ? 'checked' : '' %>>
+
+      <!-- Track -->
+      <div class="w-11 h-6 rounded-full 
+                  bg-white/10
+                  peer-checked:bg-blue-600
+                  transition-all duration-300
+                  shadow-inner">
       </div>
-      <% if (req.user.admin === true) { %>
-        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <label for="instance-toggle" class="flex items-center cursor-pointer">
-            <div class="relative">
-  <input type="checkbox" id="instance-toggle" 
-         class="peer sr-only"
-         <%= req.query.see === 'other' ? 'checked' : '' %>>
 
-  <!-- Track -->
-  <div class="w-10 h-5 rounded-full bg-white/10 
-              peer-checked:bg-emerald-500/70
-              transition-all duration-300 shadow-inner">
-  </div>
-
-  <!-- Dot -->
-  <div class="absolute top-0.5 left-0.5 
-              w-4 h-4 rounded-full bg-white shadow-md
-              transition-all duration-300
-              peer-checked:translate-x-5
-              peer-checked:shadow-emerald-400/70">
-  </div>
-</div>
-            <span class="ml-3 text-sm font-medium text-white">Show All</span>
-          </label>
-        </div>
-      <% } %>
+      <!-- Dot -->
+      <div class="absolute top-1 left-1
+                  w-4 h-4 rounded-full bg-white
+                  shadow-md
+                  transition-all duration-300
+                  peer-checked:translate-x-5
+                  peer-checked:shadow-blue-500/60">
+      </div>
     </div>
+
+    <span class="ml-3 text-sm font-medium text-white">
+      Show All
+    </span>
+
+  </label>
+  <% } %>
+
+</div>
   </div>
   <% if (req.query.err == "NOTACTIVEYET") { %>
     <div class="rounded-xl bg-amber-800/10 px-4 py-6 m-7">
