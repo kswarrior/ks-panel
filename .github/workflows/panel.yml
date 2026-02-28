@@ -139,6 +139,6 @@ jobs:
         if: ${{ always() }}
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: Run KS Paneljeje
+          workflow: Run KS Panel
           ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
