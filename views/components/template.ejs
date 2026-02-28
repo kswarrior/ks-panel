@@ -294,15 +294,26 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
                </div>
             </div>
             <script src="/javascript/search/index.js"></script>
-<div class="flex items-center gap-x-4 lg:gap-x-6">
-   <svg id="update-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor: pointer; margin-right: 8px;">
-     <path d="M21 4v6h-6"/>
-     <path d="M3 20v-6h6"/>
-     <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
-   </svg>
+<div class="flex items-center space-x-0">
+   <svg id="update-icon"
+     xmlns="http://www.w3.org/2000/svg"
+     width="24"
+     height="24"
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="#808080"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     class="cursor-pointer">
+
+  <path d="M21 4v6h-6"/>
+  <path d="M3 20v-6h6"/>
+  <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
+</svg>
    <!-- Ping Display -->
 <span id="pingDisplay"
-      class="flex flex-col items-center text-white bg-transparent px-3 py-2 rounded-xl w-fit">
+      class="flex flex-col items-center text-white bg-transparent w-fit">
 
   <!-- SVG WiFi Icon -->
   <svg id="pingIcon"
@@ -353,7 +364,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
    DROPDOWN PROFILE
      
    -->
-   <div class="relative mt-3 mr-4">
+   <div class="relative">
      <button type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="14" cy="14" r="11.5" stroke="#ffffff" stroke-width="2.4"/>
