@@ -271,7 +271,7 @@
         <!-- Location -->
 <div>
   <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
-    Location:
+    <%= req.translations.location %>:
   </label>
   <select id="nodeLocation"
     class="rounded-xl text-white text-sm w-full px-4 py-2
@@ -317,119 +317,73 @@
       
 </main>
 <script>
+// ────────────────────────────────────────────────
+// Utility: Show floating notification
+// ────────────────────────────────────────────────
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('notification');
+  if (!notification) return;
 
-  async function radarcheck() {
-    await fetch('/admin/nodes/radar/check',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-  }
+  notification.textContent = message;
+  notification.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl transform transition-all duration-300 z-50 ${
+    type === 'error' ? 'bg-red-600/90 text-white' : 'bg-green-600/90 text-white'
+  }`;
 
-  function handleRowClick(event, url) {
-    if (event.target.tagName !== 'BUTTON' && event.target.tagName !== 'A') {
-      window.location = url;
-    }
-  }
+  notification.classList.remove('opacity-0', 'translate-y-10');
+  notification.classList.add('opacity-100', 'translate-y-0');
 
-async function deletenode(nodeId) {
-  try {
-    let response = await fetch('/nodes/delete', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ nodeId })
-    });
-
-    let result = await response.json();
-
-    if (response.ok) {
-      alert('Node successfully deleted');
-      window.location.reload();
-    } else if (result.error === "There are instances on the node") {
-      const confirmDelete = confirm('There are still instances on this node. Do you want to delete all instances and remove the node?');
-
-      if (confirmDelete) {
-        response = await fetch(`/nodes/delete?deleteinstances=true`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ nodeId })
-        });
-
-        result = await response.json();
-
-        if (response.ok) {
-          alert('Node and instances successfully deleted');
-          window.location.reload();
-        } 
-      }
-    }
-  } catch (error) {
-    console.error('Request failed:', error);
-  }
+  setTimeout(() => {
+    notification.classList.remove('opacity-100', 'translate-y-0');
+    notification.classList.add('opacity-0', 'translate-y-10');
+    setTimeout(() => {
+      notification.className = 'opacity-0 translate-y-10'; // reset
+    }, 300);
+  }, 2800);
 }
 
+// ────────────────────────────────────────────────
+// Toggle between table/stats view and create form
+// ────────────────────────────────────────────────
+document.getElementById('createButton')?.addEventListener('click', function () {
+  const table = document.getElementById('nodeTable');
+  const form = document.getElementById('nodeForm');
+  const stats = document.getElementById('stats');
 
-
-document.getElementById('createButton').addEventListener('click', function() {
-  var table = document.getElementById('nodeTable');
-  var form = document.getElementById('nodeForm');
-  var stats = document.getElementById('stats');
+  if (!table || !form || !stats) return;
 
   if (table.classList.contains('hidden')) {
+    // Show table & stats, hide form
     stats.classList.remove('hidden');
     table.classList.remove('hidden');
     form.classList.add('hidden');
   } else {
+    // Show form, hide table & stats
     stats.classList.add('hidden');
     table.classList.add('hidden');
     form.classList.remove('hidden');
   }
 });
 
+// ────────────────────────────────────────────────
+// Create new node
+// ────────────────────────────────────────────────
+document.getElementById('createNodeBtn')?.addEventListener('click', async function () {
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = 'Creating...';
 
-  async function configure(nodeId) {
   try {
-    const response = await fetch(`/admin/node/${nodeId}/configure-command`);
-    if (!response.ok) throw new Error('Failed to fetch configure command');
+    const name     = document.getElementById('nodeName')?.value?.trim()     || '';
+    const ram      = document.getElementById('nodeRam')?.value?.trim()      || '';
+    const disk     = document.getElementById('nodeDisk')?.value?.trim()     || '';
+    const address  = document.getElementById('nodeAddress')?.value?.trim()  || '';
+    const port     = document.getElementById('nodePort')?.value?.trim()     || '';
+    const location = document.getElementById('nodeLocation')?.value?.trim() || '';
 
-    const data = await response.json();
-    const command = data.configureCommand;
-
-    await navigator.clipboard.writeText(command);
-
-    showNotification("Configure command copied to clipboard!");
-
-  } catch (error) {
-    console.error(error);
-    showNotification("Failed to copy configure command");
-  }
-}
-
-function showNotification(message) {
-  const notification = document.getElementById("notification");
-  notification.textContent = message;
-
-  notification.classList.remove("opacity-0", "translate-y-full");
-  notification.classList.add("opacity-100", "translate-y-0");
-
-  setTimeout(() => {
-    notification.classList.remove("opacity-100", "translate-y-0");
-    notification.classList.add("opacity-0", "translate-y-full");
-  }, 2000);
-}
-
-  document.getElementById('createNodeBtn').addEventListener('click', function() {
-    const name = document.getElementById('nodeName').value;
-    const ram = document.getElementById('nodeRam').value;
-    const disk = document.getElementById('nodeDisk').value;
-    const address = document.getElementById('nodeAddress').value;
-    const location = document.getElementById('nodeLocation').value;
-    const port = document.getElementById('nodePort').value;
+    // Basic client-side validation (you can expand this)
+    if (!name || !ram || !disk || !address || !port) {
+      throw new Error('Please fill in all required fields');
+    }
 
     const nodeData = {
       name,
@@ -437,29 +391,140 @@ function showNotification(message) {
       disk,
       address,
       port,
-      location
+      location,          // will be "" if not selected → backend can handle as optional or required
     };
 
-    fetch('/nodes/create', {
+    const response = await fetch('/nodes/create', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(nodeData)
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-      throw new Error('Failed to create node');
-    })
-    .then(data => {
-      console.log('Node created:', data);
-      window.location.href = '../admin/nodes?err=none'
-    })
-    .catch(error => {
-  console.error(error);
-  alert('Error creating node');
+      body: JSON.stringify(nodeData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to create node');
+    }
+
+    showNotification('Node created successfully!', 'success');
+    window.location.href = '/admin/nodes?err=none';  // or just location.reload()
+
+  } catch (error) {
+    console.error('Create node error:', error);
+    showNotification(error.message || 'Error creating node', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Create Node';  // reset button text (adjust to your original text)
+  }
 });
-  });
+
+// ────────────────────────────────────────────────
+// Delete node (with confirmation for instances)
+// ────────────────────────────────────────────────
+async function deletenode(nodeId) {
+  if (!nodeId) return;
+
+  try {
+    let response = await fetch('/nodes/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nodeId }),
+    });
+
+    let result = await response.json();
+
+    if (response.ok) {
+      showNotification('Node successfully deleted', 'success');
+      window.location.reload();
+      return;
+    }
+
+    if (result.error?.includes('instances')) {
+      const confirmed = confirm(
+        'There are still instances on this node. Delete all instances and the node?'
+      );
+
+      if (!confirmed) return;
+
+      response = await fetch('/nodes/delete?deleteinstances=true', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nodeId }),
+      });
+
+      result = await response.json();
+
+      if (response.ok) {
+        showNotification('Node and all instances deleted', 'success');
+        window.location.reload();
+      } else {
+        throw new Error(result.error || 'Failed to force delete');
+      }
+    } else {
+      throw new Error(result.error || 'Unknown error');
+    }
+  } catch (err) {
+    console.error('Delete failed:', err);
+    showNotification(err.message || 'Failed to delete node', 'error');
+  }
+}
+
+// ────────────────────────────────────────────────
+// Copy configure command to clipboard
+// ────────────────────────────────────────────────
+async function configure(nodeId) {
+  if (!nodeId) return;
+
+  try {
+    const response = await fetch(`/admin/node/${nodeId}/configure-command`);
+    if (!response.ok) throw new Error('Failed to get configure command');
+
+    const { configureCommand } = await response.json();
+
+    if (!configureCommand) throw new Error('No command received');
+
+    await navigator.clipboard.writeText(configureCommand);
+    showNotification('Configure command copied to clipboard!', 'success');
+  } catch (err) {
+    console.error(err);
+    showNotification('Failed to copy configure command', 'error');
+  }
+}
+
+// ────────────────────────────────────────────────
+// Handle clicking on table row (but ignore buttons/links)
+// ────────────────────────────────────────────────
+function handleRowClick(event, url) {
+  const target = event.target;
+  if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button, a')) {
+    return; // let the button/link handle its own click
+  }
+  window.location.href = url;
+}
+
+// ────────────────────────────────────────────────
+// Optional: Radar check (if still used)
+// ────────────────────────────────────────────────
+async function radarcheck() {
+  try {
+    await fetch('/admin/nodes/radar/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    // You might want to show a notification here too
+    // showNotification('Radar check triggered', 'success');
+  } catch (err) {
+    console.error('Radar check failed:', err);
+  }
+}
+
+// Optional: Initialize anything on page load
+document.addEventListener('DOMContentLoaded', () => {
+  // Example: auto-trigger radarcheck on load?
+  // radarcheck();
+
+  // You can add more init logic here if needed
+});
 </script>
