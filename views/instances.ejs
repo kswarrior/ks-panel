@@ -1,271 +1,240 @@
 <%- include('components/template') %>
 <% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
-
-<main id="content" class="min-h-screen">
+<main id="content">
   <div class="bg-transparent">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 md:px-8 pt-5 pb-4 gap-4">
-      <div>
-        <h1 class="text-lg font-semibold leading-7 text-white">
-          <%= req.translations.instances || 'Instances' %>
-        </h1>
-        <p class="mt-1 text-sm text-neutral-400 tracking-tight">
-          <%= req.translations.viewInstances || 'View the instances that you have access to.' %>
-        </p>
+    <div class="sm:flex sm:items-center px-8 pt-4">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.instances %></h1>
+        <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.viewInstances %></p>
       </div>
-
       <% if (req.user.admin === true) { %>
-        <div class="flex items-center">
-          <label 
-            for="instance-toggle" 
-            class="group flex items-center cursor-pointer select-none"
-          >
-            <span class="mr-3 text-sm font-medium text-neutral-300 group-hover:text-white transition-colors duration-150">
-              <%= req.translations.yourInstances || 'Your Instances' %>
-            </span>
-
-            <!-- Toggle container -->
-            <div class="relative w-11 h-6 bg-white/10 rounded-full shadow-inner transition-all duration-200 ease-in-out group-hover:bg-white/20 peer-checked:bg-emerald-600/30">
-              <!-- Moving dot -->
-              <div class="dot absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-200 ease-spring group-hover:scale-105 peer-checked:translate-x-5 peer-checked:bg-white peer-focus:ring-2 peer-focus:ring-emerald-400 peer-focus:ring-offset-2 peer-focus:ring-offset-neutral-900"></div>
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <label for="instance-toggle" class="flex items-center cursor-pointer">
+            <span class="mr-3 text-sm font-medium text-white">Your Instances</span>
+            <div class="relative">
+              <input type="checkbox" id="instance-toggle" class="sr-only" <%= req.query.see === 'other' ? 'checked' : '' %>>
+              <div class="toggle-track w-9 h-5 bg-white/10 rounded-full shadow-inner transition-colors duration-200"></div>
+              <div class="toggle-dot absolute w-4 h-4 bg-white rounded-full shadow left-0.5 top-0.5 transition-transform duration-200"></div>
             </div>
-
-            <span class="ml-3 text-sm font-medium text-neutral-300 group-hover:text-white transition-colors duration-150">
-              <%= req.translations.allInstances || 'All Instances' %>
-            </span>
-
-            <!-- Hidden input -->
-            <input
-              type="checkbox"
-              id="instance-toggle"
-              class="peer sr-only"
-              <%= req.query.see === 'other' ? 'checked' : '' %>
-            >
+            <span class="ml-3 text-sm font-medium text-white">All Instances</span>
           </label>
         </div>
       <% } %>
     </div>
   </div>
-
-  <% if (req.query.err === "NOTACTIVEYET") { %>
-    <div class="mx-6 md:mx-8 mt-4 rounded-xl bg-amber-900/20 border border-amber-700/30 px-5 py-5">
-      <div class="flex items-start gap-4">
-        <div class="flex-shrink-0 pt-1">
-          <svg class="animate-spin h-6 w-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-base font-medium text-amber-300">Awaiting Installation</h3>
-          <p class="mt-1 text-sm text-amber-300/80">
-            The instance either isn't installed yet, or is in a failed state.
-          </p>
-        </div>
+  <% if (req.query.err == "NOTACTIVEYET") { %>
+    <div class="rounded-xl bg-amber-800/10 px-4 py-6 m-7">
+      <div class="flex">
+          <div class="flex-shrink-0 ml-1.5">
+              <svg class="animate-spin mt-2 h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg"
+                  fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                  </circle>
+                  <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+              </svg>
+          </div>
+          <div class="ml-5">
+              <h3 class="text-sm font-medium text-amber-400">Awaiting Installation</h3>
+              <div class="text-sm text-amber-400/50">
+                  <p>The instance either isn't installed yet, or is in a failed state.</p>
+              </div>
+          </div>
       </div>
-    </div>
-  <% } %>
-
-  <div class="px-4 sm:px-6 lg:px-8 mt-6">
-    <% if (instances.length === 0) { %>
-      <!-- No instances state -->
-      <div id="noInstancesContainer" class="text-center py-32">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mx-auto h-16 w-16 text-neutral-600">
-          <path fill-rule="evenodd" d="M11.622 1.602a.75.75 0 0 1 .756 0l2.25 1.313a.75.75 0 0 1-.756 1.295L12 3.118 10.128 4.21a.75.75 0 1 1-.756-1.295l2.25-1.313ZM5.898 5.81a.75.75 0 0 1-.27 1.025l-1.14.665 1.14.665a.75.75 0 1 1-.756 1.295L3.75 8.806v.944a.75.75 0 0 1-1.5 0V7.5a.75.75 0 0 1 .372-.648l2.25-1.312a.75.75 0 0 1 1.026.27Zm12.204 0a.75.75 0 0 1 1.026-.27l2.25 1.312a.75.75 0 0 1 .372.648v2.25a.75.75 0 0 1-1.5 0v-.944l-1.122.654a.75.75 0 1 1-.756-1.295l1.14-.665-1.14-.665a.75.75 0 0 1-.27-1.025Zm-9 5.25a.75.75 0 0 1 1.026-.27L12 11.882l1.872-1.092a.75.75 0 1 1 .756 1.295l-1.878 1.096V15a.75.75 0 0 1-1.5 0v-1.82l-1.878-1.095a.75.75 0 0 1-.27-1.025ZM3 13.5a.75.75 0 0 1 .75.75v1.82l1.878 1.095a.75.75 0 1 1-.756 1.295l-2.25-1.312a.75.75 0 0 1-.372-.648v-2.25A.75.75 0 0 1 3 13.5Zm18 0a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.372.648l-2.25 1.312a.75.75 0 1 1-.756-1.295l1.878-1.096V14.25a.75.75 0 0 1 .75-.75Zm-9 5.25a.75.75 0 0 1 .75.75v.944l1.122-.654a.75.75 0 1 1 .756 1.295l-2.25 1.313a.75.75 0 0 1-.756 0l-2.25-1.313a.75.75 0 1 1 .756-1.295l1.122.654V19.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+  </div>
+    <% } %>	  
+  <div class="px-4 sm:px-6 lg:px-8 mt-8">
+    <% if (instances.length == 0) { %>
+      <!-- No instances -->
+      <div id="noInstancesContainer" class="text-center mt-64">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+          class="mx-auto h-12 w-12 text-neutral-500">
+          <path fill-rule="evenodd"
+            d="M11.622 1.602a.75.75 0 0 1 .756 0l2.25 1.313a.75.75 0 0 1-.756 1.295L12 3.118 10.128 4.21a.75.75 0 1 1-.756-1.295l2.25-1.313ZM5.898 5.81a.75.75 0 0 1-.27 1.025l-1.14.665 1.14.665a.75.75 0 1 1-.756 1.295L3.75 8.806v.944a.75.75 0 0 1-1.5 0V7.5a.75.75 0 0 1 .372-.648l2.25-1.312a.75.75 0 0 1 1.026.27Zm12.204 0a.75.75 0 0 1 1.026-.27l2.25 1.312a.75.75 0 0 1 .372.648v2.25a.75.75 0 0 1-1.5 0v-.944l-1.122.654a.75.75 0 1 1-.756-1.295l1.14-.665-1.14-.665a.75.75 0 0 1-.27-1.025Zm-9 5.25a.75.75 0 0 1 1.026-.27L12 11.882l1.872-1.092a.75.75 0 1 1 .756 1.295l-1.878 1.096V15a.75.75 0 0 1-1.5 0v-1.82l-1.878-1.095a.75.75 0 0 1-.27-1.025ZM3 13.5a.75.75 0 0 1 .75.75v1.82l1.878 1.095a.75.75 0 1 1-.756 1.295l-2.25-1.312a.75.75 0 0 1-.372-.648v-2.25A.75.75 0 0 1 3 13.5Zm18 0a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.372.648l-2.25 1.312a.75.75 0 1 1-.756-1.295l1.878-1.096V14.25a.75.75 0 0 1 .75-.75Zm-9 5.25a.75.75 0 0 1 .75.75v.944l1.122-.654a.75.75 0 1 1 .756 1.295l-2.25 1.313a.75.75 0 0 1-.756 0l-2.25-1.313a.75.75 0 1 1 .756-1.295l1.122.654V19.5a.75.75 0 0 1 .75-.75Z"
+            clip-rule="evenodd" />
         </svg>
-        <h3 class="mt-6 text-lg font-medium text-white">
-          <%= req.translations.noInstances || 'No instances deployed' %>
-        </h3>
-        <p class="mt-2 text-sm text-neutral-400 max-w-md mx-auto">
-          <%= req.translations.noInstancesText || 'There are no instances that you have access to at the moment.' %>
-        </p>
+        <h3 class="mt-4 text-md font-medium text-white"><%= req.translations.noInstances %></h3>
+        <p class="mt-1 text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
       </div>
     <% } else { %>
-      <!-- Instances table -->
-      <div class="overflow-hidden shadow-sm ring-1 ring-white/5 rounded-xl">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-white/8">
-            <thead class="bg-white/4">
-              <tr>
-                <th scope="col" class="py-4 pl-6 pr-3 text-left text-sm font-semibold text-white sm:pl-6">Instance</th>
-                <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-white">Status</th>
-                <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-white">RAM Usage</th>
-                <th scope="col" class="px-3 py-4 text-left text-sm font-semibold text-white">CPU Usage</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5 bg-white/3">
-              <% instances.forEach(function (instance) { %>
-                <tr 
-                  data-instance-id="<%= instance.Id %>" 
-                  class="hover:bg-white/[0.04] transition-colors cursor-pointer"
-                  onclick="window.location.href = '/instance/<%= instance.Id %>'"
-                >
-                  <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm">
-                    <div class="flex items-center gap-3">
-                      <div class="rounded-lg bg-white/5 p-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white/90">
-                          <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
-                        </svg>
-                      </div>
-                      <a href="/instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-200 transition-colors">
-                        <%= instance.Name %>
-                      </a>
+      <div class="overflow-hidden shadow ring-1 ring-white/5 rounded-lg">
+  <div class="w-full overflow-x-auto">
+        <table class="min-w-full divide-y divide-white/10">
+          <thead class="bg-white/5">
+            <tr>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">Instance</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">RAM Usage</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">CPU Usage</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5 bg-white/5">
+            <% instances.forEach(function (instance) { %>
+              <tr onclick="window.location.href = href='../instance/<%= instance.Id %>';" class="hover:bg-white/[0.05] cursor-pointer transition-colors" data-instance-id="<%= instance.Id %>">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                  <div class="flex items-center">
+                    <div class="rounded-xl bg-white/5 p-2 mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                        <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
+                      </svg>
                     </div>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm">
-                    <span data-status-bg class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-700/30 text-neutral-300">
-                      <span data-status class="flex items-center">
-                        <svg class="animate-spin h-3.5 w-3.5 mr-1.5 text-white/70" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <%= req.translations.loading || 'Loading...' %>
-                      </span>
+                    <a href="../instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-300"><%= instance.Name %></a>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                  <span data-status-bg class="bg-neutral-600/20 text-neutral-400 px-2.5 py-1 rounded-full text-xs font-medium">
+                    <span data-status>
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
                     </span>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-neutral-300" data-ram-usage>
-                    <svg class="animate-spin h-3.5 w-3.5 mr-1.5 inline-flex text-white/70" fill="none" viewBox="0 0 24 24">
+                  </span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-neutral-400">
+                  <span data-ram-usage>
+                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <%= req.translations.loading || 'Loading...' %>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-neutral-300" data-cpu-usage>
-                    <svg class="animate-spin h-3.5 w-3.5 mr-1.5 inline-flex text-white/70" fill="none" viewBox="0 0 24 24">
+                    <%= req.translations.loading %>
+                  </span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-neutral-400">
+                  <span data-cpu-usage>
+                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <%= req.translations.loading || 'Loading...' %>
-                  </td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
+                    <%= req.translations.loading %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
         </div>
       </div>
     <% } %>
   </div>
 </main>
-
 <%- include('components/footer') %>
 
 <style>
-  /* Toggle Switch – Modern & Fixed */
-  #instance-toggle:checked ~ div > .dot {
-    transform: translateX(140%);
+  #instance-toggle:checked ~ .toggle-track {
+    background-color: rgba(255, 255, 255, 0.2);
   }
-
-  #instance-toggle:focus-visible ~ div {
-    outline: 2px solid rgba(34, 197, 94, 0.5);
-    outline-offset: 2px;
-  }
-
-  /* Spring-like transition feel */
-  .ease-spring {
-    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @media (max-width: 640px) {
-    #instance-toggle:checked ~ div > .dot {
-      transform: translateX(130%);
-    }
+  #instance-toggle:checked ~ .toggle-dot {
+    transform: translateX(100%);
   }
 </style>
-
 <script>
-// ────────────────────────────────────────────────
-// Your existing WebSocket stats script (unchanged, looks solid)
-// ────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
-  const toggleSwitch = document.getElementById('instance-toggle');
-  if (toggleSwitch) {
-    toggleSwitch.addEventListener('change', function () {
-      window.location.href = this.checked ? '/instances?see=other' : '/instances';
-    });
-  }
-
-  const instances = document.querySelectorAll('[data-instance-id]');
-  instances.forEach(instance => {
-    const containerId = instance.dataset.instanceId;
-    const isSecure = window.location.protocol === 'https:';
-    const wsProtocol = isSecure ? 'wss' : 'ws';
-    const wsPort = isSecure ? '' : `:<%= config.port %>`;
-    const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
-
-    const statusElement = instance.querySelector('[data-status]');
-    const statusBg   = instance.querySelector('[data-status-bg]');
-    const ramUsageElement = instance.querySelector('[data-ram-usage]');
-    const cpuUsageElement = instance.querySelector('[data-cpu-usage]');
-
-    function formatBytes(bytes, decimals = 2) {
-      if (bytes === 0) return '0.00 B';
-      const k = 1024;
-      const dm = decimals < 0 ? 0 : decimals;
-      const sizes = ['B', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggleSwitch = document.getElementById('instance-toggle');
+    if (toggleSwitch) {
+      toggleSwitch.addEventListener('change', function () {
+        if (this.checked) {
+          window.location.href = '/instances?see=other';
+        } else {
+          window.location.href = '/instances';
+        }
+      });
     }
 
-    function isValidJson(str) {
-      try { JSON.parse(str); return true; }
-      catch (e) { return false; }
-    }
+    const instances = document.querySelectorAll('[data-instance-id]');
+    instances.forEach(instance => {
+      const containerId = instance.dataset.instanceId;
+      const isSecure = window.location.protocol === 'https:';
+      const wsProtocol = isSecure ? 'wss' : 'ws';
+      const wsPort = isSecure ? '' : `:<%= config.port %>`;
+      const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
 
-    socket.onmessage = event => {
-      let stats;
+      const statusElement = instance.querySelector('[data-status]');
+      const statusBg = instance.querySelector('[data-status-bg]');
+      const ramUsageElement = instance.querySelector('[data-ram-usage]');
+      const ramLimitElement = instance.querySelector('[data-ram-limit]');
+      const cpuUsageElement = instance.querySelector('[data-cpu-usage]');
 
-      try {
-        if (isValidJson(event.data)) stats = JSON.parse(event.data);
-      } catch (e) {
-        if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
-          statusBg.classList.remove('bg-neutral-700/30');
-          statusBg.classList.add('bg-yellow-900/20');
-          statusElement.className = 'text-orange-400 flex items-center';
-          statusElement.innerHTML = 'KS Wings is Offline!';
-          socket.close();
-          return;
-        } else if (event.data.includes('Container not found')) {
-          statusBg.classList.remove('bg-neutral-700/30');
-          statusBg.classList.add('bg-yellow-900/20');
-          statusElement.className = 'text-orange-400 flex items-center';
-          statusElement.innerHTML = 'Container not found!';
-          socket.close();
+      function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0.00 B';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['B', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      }
+
+      function isValidJson(str) {
+            try {
+              JSON.parse(str);
+            } catch (e) {
+              return false;
+            }
+            return true;
+        }
+
+      socket.onmessage = event => {
+        let stats;
+
+        try {
+          if (isValidJson(event.data)) stats = JSON.parse(event.data);
+        } catch (e) {
+          if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
+            statusBg.classList.remove('bg-neutral-600/20');
+            statusBg.classList.add('bg-yellow-600/10');
+            statusElement.className = 'text-orange-500';
+            statusElement.textContent = 'KS Wings is Offline!';
+            socket.close();
+            return;
+          } else if (event.data.includes('Container not found')) {
+            statusBg.classList.remove('bg-neutral-600/20');
+            statusBg.classList.add('bg-yellow-600/10');
+            statusElement.className = 'text-orange-500';
+            statusElement.textContent = 'Container not found!';
+            socket.close();
+            return null;
+          }
+        }
+
+        if (stats && stats.error) {
+          console.error('Error fetching stats:', stats.error);
           return;
         }
-      }
 
-      if (!stats || stats.error) {
-        ramUsageElement.textContent = '0 B';
-        cpuUsageElement.textContent = '0%';
-        return;
-      }
+        if (!stats || stats.error) {
+          ramUsageElement.textContent = '0 B <%= req.translations.ramUsage %>';
+          cpuUsageElement.textContent = '0% <%= req.translations.cpuUsage %>';
+          return;
+        }
 
-      const ramUsageRaw = stats.memory_stats?.usage / 1024 || 0;
-      const ramUsage = formatBytes(ramUsageRaw);
-      ramUsageElement.textContent = ramUsage;
+        const ramUsageRaw = stats.memory_stats.usage / 1024;
+        const ramUsage = isNaN(ramUsageRaw) ? '0 B' : formatBytes(ramUsageRaw);
+        const ramLimitRaw = stats.memory_stats.limit / 1024;
+        const ramLimit = isNaN(ramLimitRaw) ? '0 B' : formatBytes(ramLimitRaw);
+        ramUsageElement.textContent = ramUsage + ' <%= req.translations.ramUsage %>';
 
-      if (isNaN(ramUsageRaw) || ramUsageRaw === 0) {
-        statusElement.className = 'text-neutral-400 flex items-center';
-        statusBg.classList.remove('bg-neutral-700/30', 'bg-emerald-600/30');
-        statusBg.classList.add('bg-red-900/20');
-        statusElement.innerHTML = '<span class="text-red-400">Offline</span>';
-      } else {
-        statusBg.classList.remove('bg-neutral-700/30', 'bg-red-900/20');
-        statusBg.classList.add('bg-emerald-900/20');
-        statusElement.className = 'text-emerald-400 flex items-center';
-        statusElement.innerHTML = 'Online';
-      }
+        if (isNaN(ramUsageRaw)) {
+          statusElement.className = 'text-neutral-500';
+          statusBg.classList.remove('bg-neutral-600/20');
+          statusBg.classList.add('bg-red-700/30');
+          statusElement.classList.add('text-red-500');
+          statusElement.textContent = 'Offline';
+        } else if (ramUsageRaw > 1) {
+          statusBg.classList.remove('bg-neutral-600/20');
+          statusBg.classList.add('bg-emerald-600/10');
+          statusElement.className = 'text-emerald-500';
+          statusElement.textContent = 'Online';
+        }
 
-      const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage || 0;
-      const systemCpuDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage || 0;
-      const cpuUsagePercent = (cpuDelta && systemCpuDelta)
-        ? ((cpuDelta / systemCpuDelta) * 100).toFixed(1) + '%'
-        : '0%';
-      cpuUsageElement.textContent = cpuUsagePercent;
-    };
-
-    socket.onerror = () => {
-      statusElement.textContent = 'Connection error';
-    };
+        const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+        const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+        const cpuUsagePercent = (cpuDelta && systemCpuDelta && !isNaN(cpuDelta) && !isNaN(systemCpuDelta))
+          ? ((cpuDelta / systemCpuDelta) * 100).toFixed(2) + '%'
+          : '0%';
+        cpuUsageElement.textContent = cpuUsagePercent + ' <%= req.translations.cpuUsage %>';
+      };
+    });
   });
-});
 </script>
