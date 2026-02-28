@@ -131,9 +131,9 @@ class="lg:hidden fixed left-4 top-1/2 -translate-y-1/2 z-50 w-fit p-2 rounded-xl
      
       -->
                   <div class="flex items-center space-x-4 py-4 px-4 border-y border-white/5">
-                  <img class="h-6 w-6 rounded-full border border-white/10"
-     src="https://mc-heads.net/bust/<%= user.username %>/25"
-     alt="Minecraft Profile">
+                  <img class="w-6 h-6 rounded-full object-cover"
+     src="https://mc-heads.net/head/<%= user.username %>/25"
+     alt="Profile">
                      <div class="group-[.collapsed]:hidden">
                        <p class="text-sm font-medium text-white"><%= user.username %></p>
                        <p class="text-xs text-neutral-500"><%= user.userId.substring(0, 6) %></p>
