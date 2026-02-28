@@ -15,7 +15,7 @@ function compareVersions(v1, v2) {
   return 0;
 }
 
-router.get('/', (req, res) => {
+router.get('/version', (req, res) => {
   const localVersion = require('../../../package.json').version; // Adjust path if routes are nested differently
 
   https.get('https://raw.githubusercontent.com/kswarrior/ks-panel/main/package.json', (response) => {
