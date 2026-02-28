@@ -91,6 +91,9 @@
             <%= req.translations.connection %>
           </th>
           <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+            <%= req.translations.location %>
+          </th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
             <%= req.translations.instances %>
           </th>
           <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">
@@ -136,16 +139,16 @@
               <div class="font-mono text-sm text-neutral-400 truncate">
                 <%= node.address %><span class="text-neutral-500">:<%= node.port %></span>
               </div>
-
-              <span class="
-                inline-flex items-center rounded-lg px-2 py-1 text-xs font-medium ring-1 ring-inset
-                <%= node.versionRelease 
-                  ? 'bg-emerald-600/10 text-emerald-400 ring-emerald-600/20' 
-                  : 'bg-red-600/10 text-red-400 ring-red-600/20' %>
-              ">
-                <%= node.versionRelease || 'unknown' %>
-              </span>
             </div>
+          </td>
+
+          <!-- Location -->
+          <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
+            <% let locName = 'unknown'; %>
+            <% locations.forEach(function(loc) { %>
+              <% if (loc.id === node.location) locName = loc.name; %>
+            <% }); %>
+            <%= locName %>
           </td>
 
           <!-- Instances -->
@@ -252,19 +255,6 @@
             placeholder="This is only for information purposes.">
         </div>
 
-        <!-- CPU -->
-        <div>
-          <label for="nodeProcessor" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.cpu %>:
-          </label>
-          <input id="nodeProcessor"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="This is only for information purposes.">
-        </div>
-
         <!-- IP -->
         <div>
           <label for="nodeAddress" class="text-neutral-400 text-sm block mb-1">
@@ -278,6 +268,22 @@
             placeholder="192.168.1.1 or my.hostnamehere.com">
         </div>
 
+        <!-- Location -->
+        <div>
+          <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
+            <%= req.translations.location %>:
+          </label>
+          <select id="nodeLocation"
+            class="rounded-xl text-white text-sm w-full px-4 py-2
+                   bg-neutral-600/20 border border-white/5
+                   placeholder:text-white/20 outline-none
+                   hover:bg-white/5 focus:border-white/20">
+            <% locations.forEach(function(loc) { %>
+              <option value="<%= loc.id %>"><%= loc.name %></option>
+            <% }); %>
+          </select>
+        </div>
+
         <!-- Port -->
         <div>
           <label for="nodePort" class="text-neutral-400 text-sm block mb-1">
@@ -289,22 +295,6 @@
                    placeholder:text-white/20 outline-none
                    hover:bg-white/5 focus:border-white/20"
             placeholder="3002">
-        </div>
-
-        <!-- Tags -->
-        <div class="md:col-span-2">
-          <label for="tagInput" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.tags %>:
-          </label>
-
-          <div id="tagContainer" class="flex flex-wrap gap-2 mb-2"></div>
-
-          <input id="tagInput"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="Add a tag and press Enter">
         </div>
 
         <!-- Button -->
@@ -432,96 +422,20 @@ function showNotification(message) {
   }, 2000);
 }
 
-  function setupBadgeInput(inputId, containerId, validator) {
-    const input = document.getElementById(inputId);
-    const container = document.getElementById(containerId);
-
-    function processInput() {
-        const value = input.value.trim();
-
-        const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-
-        let allValid = true;
-        tags.forEach(tag => {
-            if (tag !== '' && (!validator || validator(tag))) {
-                createBadge(tag, container, input);
-            } else {
-                allValid = false;
-            }
-        });
-
-        if (!allValid) {
-            alert('Invalid format. Ports should be like this: 8080:8080 [external:internal]. For example, if you wanted to assign 8080 to the internal port 2022, you could do: 8080:2022.');
-        }
-
-        input.value = '';
-    }
-
-    input.addEventListener('blur', function() {
-        processInput();
-    });
-
-    input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const value = input.value.trim();
-
-            const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-
-            let allValid = true;
-            tags.forEach(tag => {
-                if (tag !== '' && (!validator || validator(tag))) {
-                    createBadge(tag, container, input);
-                } else {
-                    allValid = false;
-                }
-            });
-
-            if (!allValid) {
-                alert('Invalid format. Ports should be like this: 8080:8080 [external:internal]. For example, if you wanted to assign 8080 to the internal port 2022, you could do: 8080:2022.');
-            }
-
-            input.value = '';
-        }
-    });
-
-
-    function createBadge(text, container, inputField) {
-    const badge = document.createElement('span');
-    badge.className = 'bg-white/5 text-neutral-300 text-xs font-medium mr-1 px-2.5 py-0.5 rounded-xl';
-    badge.textContent = text;
-
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'ml-2 text-neutral-600';
-    removeBtn.textContent = '×';
-    removeBtn.onclick = function() {
-      container.removeChild(badge);
-    };
-
-    badge.appendChild(removeBtn);
-    container.appendChild(badge);
-    inputField.value = '';
-  }
-  }
-
-  setupBadgeInput('tagInput', 'tagContainer');
-
   document.getElementById('createNodeBtn').addEventListener('click', function() {
     const name = document.getElementById('nodeName').value;
-    const tags = Array.from(document.getElementById('tagContainer').children).map(badge => badge.textContent.slice(0, -1).trim());
     const ram = document.getElementById('nodeRam').value;
     const disk = document.getElementById('nodeDisk').value;
-    const processor = document.getElementById('nodeProcessor').value;
     const address = document.getElementById('nodeAddress').value;
+    const location = document.getElementById('nodeLocation').value;
     const port = document.getElementById('nodePort').value;
 
     const nodeData = {
       name,
-      tags: tags.join(' - '),
       ram,
       disk,
-      processor,
       address,
+      location,
       port
     };
 
