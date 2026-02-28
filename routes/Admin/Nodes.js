@@ -106,44 +106,49 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
   const node = {
     id: uuidv4(),
     name: req.body.name,
-    tags: req.body.tags,
+    tags: req.body.tags || '',  // Optional: default if missing
     ram: req.body.ram,
     disk: req.body.disk,
     processor: req.body.processor,
     address: req.body.address,
     port: req.body.port,
-    // NEW: Add location (from form select value)
-    location: req.body.location,  // e.g., location ID
+    location: req.body.location || null,  // Optional: allow null if not selected
     apiKey: null,
     configureKey: configureKey,
     status: "Unconfigured",
   };
 
+  // Validation: Only require essentials; make tags/processor/location optional if desired
   if (
-  !req.body.name ||
-  !req.body.ram ||
-  !req.body.disk ||
-  !req.body.processor ||
-  !req.body.address ||
-  !req.body.port
-) {
-  return res.status(400).send("Form validation failure.");
+    !req.body.name ||
+    !req.body.ram ||
+    !req.body.disk ||
+    !req.body.processor ||
+    !req.body.address ||
+    !req.body.port
+    // Remove !req.body.location if you want it optional
+  ) {
+    return res.status(400).json({ error: "Form validation failure." });  // FIXED: JSON response
   }
 
-  await db.set(node.id + "_node", node);
+  try {
+    await db.set(node.id + "_node", node);
 
-  const nodes = (await db.get("nodes")) || [];
-  nodes.push(node.id);
-  await db.set("nodes", nodes);
+    const nodes = (await db.get("nodes")) || [];
+    nodes.push(node.id);
+    await db.set("nodes", nodes);
 
-  // Invalidate cache after creation
-  invalidateCache("nodes");
+    invalidateCache("nodes");
 
-  logAudit(req.user.userId, req.user.username, "node:create", req.ip);
-  res.status(201).json({
-    ...node,
-    configureKey: configureKey,
-  });
+    logAudit(req.user.userId, req.user.username, "node:create", req.ip);
+    res.status(201).json({
+      ...node,
+      configureKey: configureKey,
+    });
+  } catch (err) {
+    log.error("Error saving node:", err);
+    res.status(500).json({ error: "Internal server error during creation." });  // NEW: Handle DB errors as JSON
+  }
 });
 
 router.post("/nodes/delete", isAdmin, async (req, res) => {
