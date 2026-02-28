@@ -269,20 +269,21 @@
         </div>
 
         <!-- Location -->
-        <div>
-          <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.location %>:
-          </label>
-          <select id="nodeLocation"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20">
-            <% locations.forEach(function(loc) { %>
-              <option value="<%= loc.id %>"><%= loc.name %></option>
-            <% }); %>
-          </select>
-        </div>
+<div>
+  <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
+    Location:
+  </label>
+  <select id="nodeLocation"
+    class="rounded-xl text-white text-sm w-full px-4 py-2
+           bg-neutral-600/20 border border-white/5
+           placeholder:text-white/20 outline-none
+           hover:bg-white/5 focus:border-white/20">
+    <option value="">Select a location</option>
+    <% locations.forEach(function(loc) { %>
+      <option value="<%= loc.id %>"><%= loc.name %></option>
+    <% }); %>
+  </select>
+</div>
 
         <!-- Port -->
         <div>
@@ -435,8 +436,8 @@ function showNotification(message) {
       ram,
       disk,
       address,
-      location,
-      port
+      port,
+      location
     };
 
     fetch('/nodes/create', {
