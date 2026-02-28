@@ -1,6 +1,6 @@
 {
   "name": "ks-panel",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "KS Panel is an open-source web panel for managing game servers and applications built with Node.js, Express, and Docker.",
   "main": "index.js",
   "bin": {
