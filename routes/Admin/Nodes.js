@@ -67,7 +67,7 @@ router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
 
   try {
     const response = await axios.get(
-      `http://kspanel:${node.apiKey}@${node.address}:${node.port}/stats`,
+      `http://kspanel:\( {node.apiKey}@ \){node.address}:${node.port}/stats`,
       { timeout: 5000 }
     );
     stats = response.data;
@@ -95,10 +95,10 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
   const node = {
     id: uuidv4(),
     name: req.body.name,
-    tags: req.body.tags,
     ram: req.body.ram,
     disk: req.body.disk,
     processor: req.body.processor,
+    location: req.body.location,
     address: req.body.address,
     port: req.body.port,
     apiKey: null,
@@ -108,10 +108,10 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
 
   if (
     !req.body.name ||
-    !req.body.tags ||
     !req.body.ram ||
     !req.body.disk ||
     !req.body.processor ||
+    !req.body.location ||
     !req.body.address ||
     !req.body.port
   ) {
@@ -202,7 +202,7 @@ router.post("/nodes/delete", isAdmin, async (req, res) => {
 
         try {
           await axios.get(
-            `http://kspanel:${node.apiKey}@${node.address}:${node.port}/instances/purge/all`
+            `http://kspanel:\( {node.apiKey}@ \){node.address}:${node.port}/instances/purge/all`
           );
         } catch (apiError) {
           log.error("Error calling purge API:", apiError);
@@ -290,7 +290,7 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
     await db.set(id + "_node", node);
 
     // Construct the configuration command
-    const panelUrl = `${req.protocol}://${req.get("host")}`;
+    const panelUrl = `\( {req.protocol}:// \){req.get("host")}`;
     const configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
 
     // Return the configuration command
@@ -326,10 +326,10 @@ router.post("/admin/node/:id", isAdmin, async (req, res) => {
   const node = {
     id: id,
     name: req.body.name,
-    tags: req.body.tags,
     ram: req.body.ram,
     disk: req.body.disk,
     processor: req.body.processor,
+    location: req.body.location,
     address: req.body.address,
     port: req.body.port,
     apiKey: req.body.apiKey,
@@ -353,7 +353,7 @@ router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
         if (nodestatus) {
           try {
             const response = await axios.get(
-              `http://${node.address}:${node.port}/check/all`,
+              `http://\( {node.address}: \){node.port}/check/all`,
               {
                 auth: {
                   username: "kspanel",
