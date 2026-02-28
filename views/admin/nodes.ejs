@@ -352,12 +352,10 @@ document.getElementById('createButton')?.addEventListener('click', function () {
   if (!table || !form || !stats) return;
 
   if (table.classList.contains('hidden')) {
-    // Show table & stats, hide form
     stats.classList.remove('hidden');
     table.classList.remove('hidden');
     form.classList.add('hidden');
   } else {
-    // Show form, hide table & stats
     stats.classList.add('hidden');
     table.classList.add('hidden');
     form.classList.remove('hidden');
@@ -365,7 +363,7 @@ document.getElementById('createButton')?.addEventListener('click', function () {
 });
 
 // ────────────────────────────────────────────────
-// Create new node (FIXED: Robust error parsing)
+// Create new node
 // ────────────────────────────────────────────────
 document.getElementById('createNodeBtn')?.addEventListener('click', async function () {
   const btn = this;
@@ -373,36 +371,44 @@ document.getElementById('createNodeBtn')?.addEventListener('click', async functi
   btn.disabled = true;
   btn.innerHTML = 'Creating...';
 
-  // Inside the 'createNodeBtn' event listener, update the validation and data collection:
-try {
-  const name     = document.getElementById('nodeName')?.value?.trim()     || '';
-  const ram      = document.getElementById('nodeRam')?.value?.trim()      || '';
-  const disk     = document.getElementById('nodeDisk')?.value?.trim()     || '';
-  const processor= document.getElementById('nodeProcessor')?.value?.trim() || '';  // Still grab it, but optional
-  const address  = document.getElementById('nodeAddress')?.value?.trim()  || '';
-  const port     = document.getElementById('nodePort')?.value?.trim()     || '';
-  const location = document.getElementById('nodeLocation')?.value?.trim() || '';
+  try {
+    // ── Get form values ───────────────────────────────────────
+    const name      = document.getElementById('nodeName')?.value?.trim()     ?? '';
+    const ram       = document.getElementById('nodeRam')?.value?.trim()      ?? '';
+    const disk      = document.getElementById('nodeDisk')?.value?.trim()     ?? '';
+    const processor = document.getElementById('nodeProcessor')?.value?.trim() ?? '';
+    const address   = document.getElementById('nodeAddress')?.value?.trim()  ?? '';
+    const port      = document.getElementById('nodePort')?.value?.trim()     ?? '';
+    const location  = document.getElementById('nodeLocation')?.value?.trim() ?? '';
 
-  // FIXED: Remove !processor from validation (make optional)
-  if (!name || !ram || !disk || !address || !port) {  // Processor optional now
-    throw new Error('Please fill in all required fields');
-  }
+    // ── Client-side required fields validation ───────────────
+    if (!name || !ram || !disk || !address || !port) {
+      throw new Error('Please fill in all required fields');
+    }
 
-  const nodeData = {
-    name,
-    ram,
-    disk,
-    processor,  // Send it if filled, empty string if not
-    address,
-    port,
-    location,
-    // tags: document.getElementById('nodeTags')?.value?.trim() || '',  // Add if you have tags input
-  };
+    // Optional: more strict validation
+    if (isNaN(Number(ram)) || Number(ram) <= 0) {
+      throw new Error('RAM must be a positive number');
+    }
+    if (isNaN(Number(disk)) || Number(disk) <= 0) {
+      throw new Error('Disk must be a positive number');
+    }
+    if (isNaN(Number(port)) || Number(port) <= 0 || Number(port) > 65535) {
+      throw new Error('Port must be a number between 1 and 65535');
+    }
 
-  // Rest of the fetch code remains the same...
-} catch (error) {
-  // ...
-}
+    const nodeData = {
+      name,
+      ram,
+      disk,
+      processor,     // sent even if empty
+      address,
+      port,
+      location,      // sent even if empty
+      // tags: document.getElementById('nodeTags')?.value?.trim() ?? '',
+    };
+
+    console.log('Sending node data:', nodeData); // ← helpful for debugging
 
     const response = await fetch('/nodes/create', {
       method: 'POST',
@@ -412,29 +418,27 @@ try {
       body: JSON.stringify(nodeData),
     });
 
-    // FIXED: Read as text first, then try JSON
     let errorMsg = 'Failed to create node';
+
     if (!response.ok) {
       const text = await response.text();
       try {
-        const result = JSON.parse(text);  // Try parsing as JSON
+        const result = JSON.parse(text);
         errorMsg = result.error || text;
-      } catch (parseErr) {
-        errorMsg = text || errorMsg;  // Fallback to raw text if not JSON
+      } catch {
+        errorMsg = text || errorMsg;
       }
       throw new Error(errorMsg);
     }
 
-    // Success: Parse JSON response
+    // Success
     const result = await response.json();
     showNotification('Node created successfully!', 'success');
     window.location.href = '/admin/nodes?err=none';
 
   } catch (error) {
-    console.error('Create node error:', error);
+    console.error('Create node failed:', error);
     showNotification(error.message || 'Error creating node', 'error');
-    // Optional: Reset form fields on error
-    // document.getElementById('nodeForm').reset();
   } finally {
     btn.disabled = false;
     btn.innerHTML = originalText;
@@ -442,7 +446,7 @@ try {
 });
 
 // ────────────────────────────────────────────────
-// Delete node (unchanged, but add similar error handling if needed)
+// Delete node with force option for instances
 // ────────────────────────────────────────────────
 async function deletenode(nodeId) {
   if (!nodeId) return;
@@ -454,7 +458,6 @@ async function deletenode(nodeId) {
       body: JSON.stringify({ nodeId }),
     });
 
-    // Similar fix: Handle text/JSON
     let result;
     if (!response.ok) {
       const text = await response.text();
@@ -473,9 +476,9 @@ async function deletenode(nodeId) {
       return;
     }
 
-    if (result.error?.includes('instances')) {
+    if (result.error?.toLowerCase().includes('instance')) {
       const confirmed = confirm(
-        'There are still instances on this node. Delete all instances and the node?'
+        'There are still instances on this node.\nDelete all instances and the node?'
       );
 
       if (!confirmed) return;
@@ -486,7 +489,6 @@ async function deletenode(nodeId) {
         body: JSON.stringify({ nodeId }),
       });
 
-      // Reuse the same error handling logic here...
       const text = await response.text();
       try {
         result = JSON.parse(text);
@@ -501,7 +503,7 @@ async function deletenode(nodeId) {
         throw new Error(result.error || 'Failed to force delete');
       }
     } else {
-      throw new Error(result.error || 'Unknown error');
+      throw new Error(result.error || 'Unknown delete error');
     }
   } catch (err) {
     console.error('Delete failed:', err);
@@ -510,14 +512,14 @@ async function deletenode(nodeId) {
 }
 
 // ────────────────────────────────────────────────
-// Copy configure command to clipboard (unchanged)
+// Copy configure command to clipboard
 // ────────────────────────────────────────────────
 async function configure(nodeId) {
   if (!nodeId) return;
 
   try {
     const response = await fetch(`/admin/node/${nodeId}/configure-command`);
-    if (!response.ok) throw new Error('Failed to get configure command');
+    if (!response.ok) throw new Error('Failed to fetch configure command');
 
     const { configureCommand } = await response.json();
 
@@ -532,7 +534,7 @@ async function configure(nodeId) {
 }
 
 // ────────────────────────────────────────────────
-// Handle clicking on table row (ignore buttons/links)
+// Handle table row click (skip if clicked button or link)
 // ────────────────────────────────────────────────
 function handleRowClick(event, url) {
   const target = event.target;
@@ -543,7 +545,7 @@ function handleRowClick(event, url) {
 }
 
 // ────────────────────────────────────────────────
-// Radar check (unchanged)
+// Radar check (if still used)
 // ────────────────────────────────────────────────
 async function radarcheck() {
   try {
@@ -557,8 +559,11 @@ async function radarcheck() {
   }
 }
 
-// Initialize on load
+// ────────────────────────────────────────────────
+// Init
+// ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Any init code here
+  // You can call radarcheck() here if you want it on page load
+  // radarcheck();
 });
 </script>
