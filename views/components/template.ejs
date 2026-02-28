@@ -671,33 +671,36 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  fetch('/version')
-    .then(response => response.json())
-    .then(data => {
-      const icon = document.getElementById('update-icon');
-      const paths = icon.querySelectorAll('path');
+  function checkVersion() {
+    fetch('/api/v1/version')
+      .then(response => response.json())
+      .then(data => {
+        const icon = document.getElementById('update-icon');
+        const paths = icon.querySelectorAll('path');
 
-      if (data.status === 'outdated') {
-        // Old version: yellow color, click shows confirm with update button behavior
-        paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
-        icon.onclick = () => {
-          if (confirm(`Old version running: ${data.currentVersion}. Latest: ${data.latestVersion}. Update now?`)) {
-            window.open('https://github.com/kswarrior/ks-panel', '_blank');
-          }
-        };
-      } else {
-        // Latest version: green color, click shows message with version
-        paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
-        icon.onclick = () => alert(`Latest version running: ${data.currentVersion}`);
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching version status:', error);
-      // Fallback: gray color, no action
-      const paths = document.querySelectorAll('#update-icon path');
-      paths.forEach(path => path.setAttribute('stroke', '#808080'));
-    });
+        if (data.status === 'outdated') {
+          // Old version: yellow color, click shows confirm with update button behavior
+          paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
+          icon.onclick = () => {
+            if (confirm(`Old version running: ${data.currentVersion}. Latest: ${data.latestVersion}. Update now?`)) {
+              window.open('https://github.com/kswarrior/ks-panel', '_blank');
+            }
+          };
+        } else {
+          // Latest version: green color, click shows message with version
+          paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
+          icon.onclick = () => alert(`Latest version running: ${data.currentVersion}`);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching version status:', error);
+        // Fallback: gray color, no action
+        const paths = document.querySelectorAll('#update-icon path');
+        paths.forEach(path => path.setAttribute('stroke', '#808080'));
+      });
+  }
+
+  checkVersion(); // Initial check on load
+  setInterval(checkVersion, 25000); // Repeat every 25 seconds
 });
 </script>
-   </body>
-</html>
