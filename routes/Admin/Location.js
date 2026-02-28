@@ -98,6 +98,19 @@ router.post("/locations/delete", isAdmin, async (req, res) => {
     }
 
     const location = foundLocation;
+    const nodes = (await db.get("nodes")) || [];
+    let nodeCount = 0;
+
+    for (const nodeId of nodes) {
+      const node = await db.get(nodeId + "_node");
+      if (node && node.location === location.id) {
+        nodeCount++;
+      }
+    }
+
+    if (nodeCount > 0) {
+      return res.status(400).json({ error: "There are nodes in the location" });
+    }
 
     await db.delete(location.id + "_location");
     const remainingLocations = locations.filter((id) => id !== location.id);
