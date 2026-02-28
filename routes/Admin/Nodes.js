@@ -33,11 +33,11 @@ router.get("/admin/nodes", isAdmin, async (req, res) => {
   // Use optimized batch operation for node status checks
   let nodes = await checkMultipleNodesStatus(nodeIds);
 
-  // NEW: Fetch locations (assuming DB structure like nodes)
-  const locationsIds = (await db.get("locations")) || [];  // Array of location IDs
+  // Fetch locations from DB (mirroring nodes structure)
+  const locationIds = (await db.get("locations")) || [];
   const locations = [];
-  for (const locId of locationsIds) {
-    const loc = await db.get(locId + "_location");  // Full location object { id, name, ... }
+  for (const locId of locationIds) {
+    const loc = await db.get(locId + "_location");
     if (loc) {
       locations.push(loc);
     }
@@ -49,8 +49,7 @@ router.get("/admin/nodes", isAdmin, async (req, res) => {
     nodes,
     set,
     pagination: nodesResult.pagination,
-    // NEW: Pass locations to template
-    locations,
+    locations,  // NEW: Pass to template
   });
 });
 
@@ -121,17 +120,14 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
   };
 
   if (
-    !req.body.name ||
-    !req.body.tags ||
-    !req.body.ram ||
-    !req.body.disk ||
-    !req.body.processor ||
-    !req.body.address ||
-    !req.body.port
-    // OPTIONAL: Validate location if required
-    // || !req.body.location
-  ) {
-    return res.status(400).send("Form validation failure.");
+  !req.body.name ||
+  !req.body.ram ||
+  !req.body.disk ||
+  !req.body.processor ||
+  !req.body.address ||
+  !req.body.port
+) {
+  return res.status(400).send("Form validation failure.");
   }
 
   await db.set(node.id + "_node", node);
@@ -321,30 +317,26 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
 });
 
 router.get("/admin/node/:id", isAdmin, async (req, res) => {
-  const locationsIds = (await db.get("locations")) || [];
-const locations = [];
-for (const locId of locationsIds) {
-  const loc = await db.get(locId + "_location");
-  if (loc) locations.push(loc);
-}
-
-res.render("admin/node", {
-  req,
-  user: req.user,
-  node,
-  // NEW: Pass locations
-  locations,
-});
-  
   const { id } = req.params;
   const node = await db.get(id + "_node");
 
   if (!node || !id) return res.redirect("../nodes");
 
+  // Fetch locations (same as above)
+  const locationIds = (await db.get("locations")) || [];
+  const locations = [];
+  for (const locId of locationIds) {
+    const loc = await db.get(locId + "_location");
+    if (loc) {
+      locations.push(loc);
+    }
+  }
+
   res.render("admin/node", {
     req,
     user: req.user,
     node,
+    locations,  // NEW: Pass to template
   });
 });
 
