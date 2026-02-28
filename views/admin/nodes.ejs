@@ -373,30 +373,36 @@ document.getElementById('createNodeBtn')?.addEventListener('click', async functi
   btn.disabled = true;
   btn.innerHTML = 'Creating...';
 
-  try {
-    const name     = document.getElementById('nodeName')?.value?.trim()     || '';
-    const ram      = document.getElementById('nodeRam')?.value?.trim()      || '';
-    const disk     = document.getElementById('nodeDisk')?.value?.trim()     || '';
-    const processor= document.getElementById('nodeProcessor')?.value?.trim() || '';  // Assuming this ID exists
-    const address  = document.getElementById('nodeAddress')?.value?.trim()  || '';
-    const port     = document.getElementById('nodePort')?.value?.trim()     || '';
-    const location = document.getElementById('nodeLocation')?.value?.trim() || '';
+  // Inside the 'createNodeBtn' event listener, update the validation and data collection:
+try {
+  const name     = document.getElementById('nodeName')?.value?.trim()     || '';
+  const ram      = document.getElementById('nodeRam')?.value?.trim()      || '';
+  const disk     = document.getElementById('nodeDisk')?.value?.trim()     || '';
+  const processor= document.getElementById('nodeProcessor')?.value?.trim() || '';  // Still grab it, but optional
+  const address  = document.getElementById('nodeAddress')?.value?.trim()  || '';
+  const port     = document.getElementById('nodePort')?.value?.trim()     || '';
+  const location = document.getElementById('nodeLocation')?.value?.trim() || '';
 
-    // Client-side validation
-    if (!name || !ram || !disk || !processor || !address || !port) {
-      throw new Error('Please fill in all required fields');
-    }
+  // FIXED: Remove !processor from validation (make optional)
+  if (!name || !ram || !disk || !address || !port) {  // Processor optional now
+    throw new Error('Please fill in all required fields');
+  }
 
-    const nodeData = {
-      name,
-      ram,
-      disk,
-      processor,
-      address,
-      port,
-      location,
-      // tags: ... if you have a tags field
-    };
+  const nodeData = {
+    name,
+    ram,
+    disk,
+    processor,  // Send it if filled, empty string if not
+    address,
+    port,
+    location,
+    // tags: document.getElementById('nodeTags')?.value?.trim() || '',  // Add if you have tags input
+  };
+
+  // Rest of the fetch code remains the same...
+} catch (error) {
+  // ...
+}
 
     const response = await fetch('/nodes/create', {
       method: 'POST',
