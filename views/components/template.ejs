@@ -671,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
   function checkVersion() {
     fetch('/api/v1/version')
       .then(response => response.json())
@@ -700,7 +701,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  checkVersion(); // Initial check on load
-  setInterval(checkVersion, 25000); // Repeat every 25 seconds
+  // Run immediately
+  checkVersion();
+
+  // Run every 25 seconds
+  setInterval(checkVersion, 25000);
 });
 </script>
