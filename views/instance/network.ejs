@@ -11,27 +11,27 @@
     <%- include('../components/instance') %>
     <div class="px-4 sm:px-6 lg:px-8 overflow-x-auto">
    <table class="min-w-full mt-5 table-auto border-separate border border-white/5 shadow rounded-xl">
-         <thead class="text-white">
-            <tr>
-               <th class="px-6 py-3 text-left">Port</th>
-               <th class="px-6 py-3 text-left">Additional Values</th>
-            </tr>
-         </thead>
-         <tbody>
-           <% ports.forEach(function(port) { %>
-             <tr class="bg-transparent rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
-               <td class="px-6 py-4 whitespace-nowrap font-mono text-sm font-medium text-white border-none">
-                    <%= port.port %><span class="text-neutral-300">:<%= port.internal %></span>
-               </td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-300 border-none">
-                    <% if (port.primary == true) { %>
-                        <span class="bg-white/5 text-neutral-300 px-3 py-1.5 rounded-xl">Primary</span>
-                    <% } %>
-               </td>
-             </tr>
-           <% }); %>
-         </tbody>
-      </table>
-    </div>
+     <thead class="text-white">
+        <tr>
+           <th class="px-6 py-3 text-left">Port</th>
+           <th class="px-6 py-3 text-left">Additional Values</th>
+        </tr>
+     </thead>
+     <tbody>
+       <% ports.forEach(function(port) { %>
+         <tr class="bg-transparent rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
+           <td class="px-6 py-4 whitespace-nowrap font-mono text-sm font-medium text-white border-none">
+                <%= port.port %><span class="text-neutral-300">:<%= port.internal %></span>
+           </td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-300 border-none">
+                <% if (port.primary == true) { %>
+                    <span class="bg-white/5 text-neutral-300 px-3 py-1.5 rounded-xl">Primary</span>
+                <% } %>
+           </td>
+         </tr>
+       <% }); %>
+     </tbody>
+  </table>
+</div>
 </main>
 <%- include('../components/footer') %>
