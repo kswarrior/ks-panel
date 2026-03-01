@@ -1,18 +1,14 @@
 {
   "name": "Example Plugin",
   "version": "1.0.0",
-  "description": "The Description of the Example Plugin",
-  "author": "privt00",
-  "main": "index.js",
+  "author": "Your Name",
+  "description": "Example KS-Panel plugin",
+  "main": "main.js",
   "router": "example",
   "adminsidebar": {
-    "example url": "/example"
+    "example": "/admin/example"
   },
-  "sidebar": {
-    "Example": {
-      "url": "/example",
-      "search_data": "cloud",
-      "icon": "/public/example.svg"
-    }
-  }
+  "dependencies": ["express", "plugin:AnotherPlugin"],
+  "permissions": ["accessDB", "modifyRoutes"],
+  "hooks": ["userLogin", "serverCreate"]
 }
