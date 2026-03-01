@@ -19,9 +19,8 @@ router.get("/admin/localnode", isAdmin, async (req, res) => {
 });
 
 router.post("/admin/localnode/install", isAdmin, async (req, res) => {
-  const config = req.body.configuration || '';
   try {
-    const { output, code } = await localNodeExec.install(config);
+    const { output, code } = await localNodeExec.install();
     let finalOutput = output;
     finalOutput += `\n───────────────────────────────────────\nProcess finished with exit code ${code}\n`;
     if (code === 0) {
@@ -35,10 +34,27 @@ router.post("/admin/localnode/install", isAdmin, async (req, res) => {
   }
 });
 
+router.post("/admin/localnode/configure", isAdmin, async (req, res) => {
+  const config = req.body.configuration || '';
+  try {
+    const { output, code } = await localNodeExec.configure(config);
+    let finalOutput = output;
+    finalOutput += `\n───────────────────────────────────────\nProcess finished with exit code ${code}\n`;
+    if (code === 0) {
+      finalOutput += "Configuration completed successfully.\n";
+    } else {
+      finalOutput += "Configuration may have failed — check the log.\n";
+    }
+    res.json({ log: finalOutput });
+  } catch (err) {
+    res.status(500).json({ log: `Error during configuration: ${err.message}\n` });
+  }
+});
+
 router.post("/admin/localnode/start", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.start();
-    res.json({ log: output });
+    res.json({ log: output + `\nExit code: ${code}` });
   } catch (err) {
     res.status(500).json({ log: `Error starting: ${err.message}\n` });
   }
@@ -47,7 +63,7 @@ router.post("/admin/localnode/start", isAdmin, async (req, res) => {
 router.post("/admin/localnode/stop", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.stop();
-    res.json({ log: output });
+    res.json({ log: output + `\nExit code: ${code}` });
   } catch (err) {
     res.status(500).json({ log: `Error stopping: ${err.message}\n` });
   }
@@ -56,7 +72,7 @@ router.post("/admin/localnode/stop", isAdmin, async (req, res) => {
 router.post("/admin/localnode/restart", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.restart();
-    res.json({ log: output });
+    res.json({ log: output + `\nExit code: ${code}` });
   } catch (err) {
     res.status(500).json({ log: `Error restarting: ${err.message}\n` });
   }
