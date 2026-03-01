@@ -1,108 +1,73 @@
 <%- include('../components/template') %>
-<main id="content">
-   <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-8 pt-4">
-         <div class="sm:flex-auto">
-            <h1 class="text-base font-medium leading-6 text-white">
+<main id="content" class="min-h-screen bg-gradient-to-b from-neutral-900 to-black text-white">
+   <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8">
+         <div>
+            <h1 class="text-xl font-bold tracking-tight">
                <%= req.translations.localNode || 'Local Node' %>
             </h1>
-            <p class="mt-1 tracking-tight text-sm text-neutral-400">
+            <p class="mt-1 text-sm text-neutral-400">
                <%= req.translations.localNodeText || 'Install and run Wings locally on this panel machine' %>
             </p>
          </div>
-         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-         </div>
-      </div>
+      </header>
 
       <!-- Card with form & console -->
-      <div class="mt-8 px-4 sm:px-8 w-full">
-         <div class="bg-neutral-900/40 shadow ring-1 ring-white/10 rounded-xl p-6 lg:p-8 card w-full max-w-5xl mx-auto">
+      <div class="bg-neutral-900/50 backdrop-blur-sm shadow-xl ring-1 ring-white/10 rounded-2xl p-6">
+         <h2 class="text-lg font-semibold mb-6">
+            Configuration & Installation
+         </h2>
 
-            <h2 class="text-lg font-semibold text-white mb-4">
-               Configuration & Installation
-            </h2>
+         <div class="mb-6">
+            <label for="configuration" class="block text-sm font-medium text-neutral-300 mb-2">
+               Configuration Arguments (for configure step)
+            </label>
+            <input type="text" id="configuration" 
+                   placeholder="e.g. --panel http://localhost:3000 --key somekey" 
+                   class="w-full px-4 py-3 bg-neutral-800/80 border border-white/10 rounded-xl text-sm placeholder-neutral-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition duration-200">
+            <p class="mt-2 text-xs text-neutral-500">
+               Required for configuration; leave empty only if no args needed (may fail if required).
+            </p>
+         </div>
 
-            <div class="mb-6">
-               <label for="configuration" class="text-neutral-300 text-sm block mb-2">
-                  Configuration (optional flags / arguments for configure)
-               </label>
-               <input type="text" id="configuration" placeholder="e.g. --panel http://localhost:3000 --key somekey" 
-                      class="rounded-xl text-white text-sm w-full px-4 py-2.5 
-                             bg-neutral-800 border border-white/10
-                             placeholder:text-neutral-500 outline-none
-                             focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
-               <p class="mt-1.5 text-xs text-neutral-500">
-                  Leave empty for default installation without configure args
-               </p>
-            </div>
+         <!-- Buttons -->
+         <div class="flex flex-wrap gap-3 mb-8">
+            <button onclick="installWings()" type="button"
+                    class="flex-1 min-w-[120px] rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-md hover:shadow-indigo-500/30 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-900">
+               Install Wings
+            </button>
+            <button onclick="configureWings()" type="button"
+                    class="flex-1 min-w-[120px] rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-md hover:shadow-blue-500/30 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-neutral-900">
+               Import Configure
+            </button>
+            <button onclick="startWings()" type="button"
+                    class="flex-1 min-w-[120px] rounded-xl bg-green-600 hover:bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-md hover:shadow-green-500/30 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900">
+               Start
+            </button>
+            <button onclick="restartWings()" type="button"
+                    class="flex-1 min-w-[120px] rounded-xl bg-yellow-600 hover:bg-yellow-500 px-5 py-3 text-sm font-semibold text-white shadow-md hover:shadow-yellow-500/30 transition duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-neutral-900">
+               Restart
+            </button>
+            <button onclick="stopWings()" type="button"
+                    class="flex-1 min-w-[120px] rounded-xl bg-red-600 hover:bg-red-500 px-5 py-3 text-sm font-semibold text-white shadow-md hover:shadow-red-500/30 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-900">
+               Stop
+            </button>
+         </div>
 
-            <!-- Buttons -->
-            <div class="flex flex-wrap gap-3">
-               <!-- FIXED BUTTON VISIBILITY -->
-               <button onclick="installWings()" type="button"
-                       class="rounded-xl <%= theme['button-color'] || 'bg-indigo-600 hover:bg-indigo-500' %> 
-                              px-5 py-2.5 text-sm font-semibold
-                              text-white mix-blend-normal
-                              shadow-lg transition duration-200
-                              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Install Wings
-               </button>
-
-               <button onclick="startWings()" type="button"
-                       class="rounded-xl bg-green-600 hover:bg-green-500 
-                              px-5 py-2.5 text-sm font-semibold
-                              text-white mix-blend-normal
-                              shadow-lg transition duration-200
-                              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                  Start
-               </button>
-
-               <button onclick="restartWings()" type="button"
-                       class="rounded-xl bg-yellow-600 hover:bg-yellow-500 
-                              px-5 py-2.5 text-sm font-semibold
-                              text-white mix-blend-normal
-                              shadow-lg transition duration-200
-                              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                  Restart
-               </button>
-
-               <button onclick="stopWings()" type="button"
-                       class="rounded-xl bg-red-600 hover:bg-red-500 
-                              px-5 py-2.5 text-sm font-semibold
-                              text-white mix-blend-normal
-                              shadow-lg transition duration-200
-                              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                  Stop
-               </button>
-            </div>
-
-            <div class="mt-8">
-               <h3 class="text-base font-medium text-white mb-3">
-                  Console Output
-               </h3>
-
-               <!-- FIXED CONSOLE VISIBILITY -->
-               <pre id="console-log" 
-                    class="w-full h-96 overflow-auto 
-                           bg-black text-green-400 
-                           font-mono text-sm p-4 rounded-lg 
-                           border border-white/10 
-                           whitespace-pre-wrap leading-relaxed">
-               </pre>
-            </div>
-
+         <div>
+            <h3 class="text-base font-medium mb-3">
+               Console Output
+            </h3>
+            <pre id="console-log" 
+                 class="w-full h-80 overflow-auto bg-black/90 text-green-300 font-mono text-sm p-4 rounded-xl border border-white/10 whitespace-pre-wrap break-words">
+            </pre>
          </div>
       </div>
 
       <div id="notification" 
-           class="fixed bottom-6 right-6 
-                  bg-emerald-700 text-white 
-                  px-5 py-3 rounded-xl shadow-2xl 
-                  transform transition-all duration-300 
-                  translate-y-24 opacity-0 z-50">
+           class="fixed bottom-8 right-8 bg-emerald-700/90 text-white px-6 py-4 rounded-xl shadow-2xl transform transition-all duration-300 translate-y-24 opacity-0 z-50">
          Copied to clipboard!
       </div>
-
    </div>
 
    <script>
@@ -114,12 +79,8 @@
 
          fetch(endpoint, {
             method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-               configuration: document.getElementById('configuration').value.trim()
-            })  // Only for install; ignored for others
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ configuration: document.getElementById('configuration').value.trim() })
          })
          .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -135,20 +96,10 @@
          });
       }
 
-      function installWings() {
-         runAction('/admin/localnode/install', 'Starting installation');
-      }
-
-      function startWings() {
-         runAction('/admin/localnode/start', 'Starting local node');
-      }
-
-      function restartWings() {
-         runAction('/admin/localnode/restart', 'Restarting local node');
-      }
-
-      function stopWings() {
-         runAction('/admin/localnode/stop', 'Stopping local node');
-      }
+      function installWings() { runAction('/admin/localnode/install', 'Installing Wings'); }
+      function configureWings() { runAction('/admin/localnode/configure', 'Importing and running configuration'); }
+      function startWings() { runAction('/admin/localnode/start', 'Starting local node'); }
+      function restartWings() { runAction('/admin/localnode/restart', 'Restarting local node'); }
+      function stopWings() { runAction('/admin/localnode/stop', 'Stopping local node'); }
    </script>
 </main>
