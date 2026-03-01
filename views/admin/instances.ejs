@@ -22,6 +22,7 @@
           </button>
          </div>
        </div>
+
  <% if (req.query.err == "CREATED") { %>
       <div class="mt-6 w-full">
         <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
@@ -196,13 +197,13 @@
                         <input id="disk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="10240">
                     </div>
 
-                    <!-- Replaced old ports + primary with allocation select + container port -->
+                    <!-- Allocation selection -->
                     <div>
                         <label class="text-neutral-400 text-sm tracking-tight mb-2">Select Host Port (Allocation):</label>
                         <select id="allocationId" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" required>
                             <option value="">-- Select node first --</option>
                         </select>
-                        <small class="text-neutral-500 block mt-1">Choose an available IP:Port from the selected node</small>
+                        <small id="allocStatus" class="text-neutral-500 block mt-1">Choose an available IP:Port from the selected node</small>
                     </div>
 
                     <div>
@@ -226,6 +227,7 @@
     </div>
 </main>
 
+  <!-- Suspend modal remains unchanged -->
   <div id="suspendInfoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-neutral-800 text-white border border-white/5 rounded-xl p-8 max-w-xl w-full transform scale-95 transition-transform duration-300 shadow-lg">
             <h2 class="text-2xl font-semibold mb-2 text-neutral-200">Suspend Reason</h2>
@@ -236,11 +238,11 @@
         </div>
     </div>
 
+    <!-- Suspend modal scripts unchanged -->
     <script>
       function openSuspendInfoModal(message) {
           const modal = document.getElementById('suspendInfoModal');
           const modalMessage = document.getElementById('modalMessage');
-
           modalMessage.innerHTML = formatMessage(message);
           modal.classList.remove('opacity-0', 'pointer-events-none');
           modal.classList.add('opacity-100', 'pointer-events-auto');
@@ -253,122 +255,134 @@
       }
 
       function formatMessage(message) {
-          return `
-              <div class="text-sm text-gray-600">
-                  <p class="mt-1 text-neutral-300">${message}</p>
-              </div>
-          `;
+          return `<div class="text-sm text-gray-600"><p class="mt-1 text-neutral-300">${message}</p></div>`;
       }
-  </script>
+    </script>
 
-<script>
-  document.getElementById('image').addEventListener('change', function(event) {
-      var selectedOption = event.target.options[event.target.selectedIndex];
-      var variables = selectedOption.getAttribute('data-variables');
-      var secondCard = document.getElementById('secondCard');
-      var variablesForm = document.getElementById('variablesForm');
+    <!-- Image change → variables form (unchanged) -->
+    <script>
+      document.getElementById('image').addEventListener('change', function(event) {
+          var selectedOption = event.target.options[event.target.selectedIndex];
+          var variables = selectedOption.getAttribute('data-variables');
+          var secondCard = document.getElementById('secondCard');
+          var variablesForm = document.getElementById('variablesForm');
 
-      if (variables) {
-          secondCard.classList.remove('hidden');
-          variablesForm.innerHTML = '';
-          variables = JSON.parse(variables);
+          if (variables) {
+              secondCard.classList.remove('hidden');
+              variablesForm.innerHTML = '';
+              variables = JSON.parse(variables);
 
-          for (var key in variables) {
-              if (variables.hasOwnProperty(key)) {
-                  var variable = variables[key];
-                  var fieldHtml = '';
+              for (var key in variables) {
+                  if (variables.hasOwnProperty(key)) {
+                      var variable = variables[key];
+                      var fieldHtml = '';
 
-                  if (variable.type === 'text') {
-                      fieldHtml = `
-                          <div>
-                              <label class="text-neutral-400 text-sm tracking-tight mb-2">${key}:</label>
-                              <input type="text" name="${key}" value="${variable.default || ''}" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" ${variable.required ? 'required' : ''}>
-                          </div>
-                      `;
+                      if (variable.type === 'text') {
+                          fieldHtml = `
+                              <div>
+                                  <label class="text-neutral-400 text-sm tracking-tight mb-2">${key}:</label>
+                                  <input type="text" name="${key}" value="${variable.default || ''}" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" ${variable.required ? 'required' : ''}>
+                              </div>
+                          `;
+                      }
+
+                      variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
                   }
-
-                  variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
               }
+          } else {
+              secondCard.classList.add('hidden');
           }
-      } else {
-          secondCard.classList.add('hidden');
-      }
-  });
-</script>
-
-<script>
-  // ────────────────────────────────────────────────
-  // Load available allocations when node changes
-  // ────────────────────────────────────────────────
-  document.getElementById('node').addEventListener('change', async function() {
-    const nodeId = this.value;
-    const allocSelect = document.getElementById('allocationId');
-
-    allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
-
-    if (!nodeId) {
-      allocSelect.innerHTML = '<option value="">-- Select a node first --</option>';
-      return;
-    }
-
-    try {
-      const response = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
-      if (!response.ok) throw new Error('Failed to load ports');
-      
-      const allocations = await response.json();
-
-      allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
-
-      if (allocations.length === 0) {
-        allocSelect.innerHTML = '<option value="">No available ports on this node</option>';
-        return;
-      }
-
-      allocations.forEach(alloc => {
-        const option = document.createElement('option');
-        option.value = alloc.id;
-        option.textContent = alloc.label;
-        allocSelect.appendChild(option);
       });
-    } catch (err) {
-      console.error(err);
-      allocSelect.innerHTML = '<option value="">Error loading ports</option>';
-    }
-  });
-</script>
+    </script>
 
-<script>
-  document.getElementById('createButton').addEventListener('click', function() {
-    var table = document.getElementById('instanceTable');
-    var form = document.getElementById('instanceForm');
-    if (table.style.display !== 'none') {
-      table.style.display = 'none';
-      form.style.display = 'flex';
-    } else {
-      table.style.display = 'flex';
-      form.style.display = 'none';
-    }
+    <!-- IMPROVED: Allocation loading with better feedback -->
+    <script>
+      const nodeSelect = document.getElementById('node');
+      const allocSelect = document.getElementById('allocationId');
+      const statusText = document.getElementById('allocStatus');
 
-    const elem  = document.getElementById('image');
-    elem.selectedIndex = 0;
-    const event = new Event('change', {
-      bubbles: true,
-      cancelable: true
-    });
-    elem.dispatchEvent(event);
+      if (nodeSelect && allocSelect) {
+        nodeSelect.addEventListener('change', async function() {
+          const nodeId = this.value.trim();
+          
+          allocSelect.innerHTML = '<option value="">Loading...</option>';
+          statusText.textContent = 'Loading available ports...';
+          statusText.className = 'text-neutral-500 block mt-1';
 
-    // Reset allocation dropdown when form opens
-    document.getElementById('allocationId').innerHTML = '<option value="">-- Select node first --</option>';
-  });
+          if (!nodeId) {
+            allocSelect.innerHTML = '<option value="">-- Select a node first --</option>';
+            statusText.textContent = 'Choose an available IP:Port from the selected node';
+            return;
+          }
 
-  document.getElementById('image').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const cmd = selectedOption.getAttribute('data-cmd');
-    const env = JSON.parse(selectedOption.getAttribute('data-env') || '{}');
-  });
-</script>
+          try {
+            console.log(`Fetching allocations for node: ${nodeId}`);
+            const response = await fetch(`/admin/nodes/${nodeId}/available-allocations`, {
+              cache: 'no-cache' // prevent caching issues
+            });
 
-<script>
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Allocations response:', data);
+
+            allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
+
+            if (!Array.isArray(data) || data.length === 0) {
+              allocSelect.innerHTML = '<option value="">No available ports on this node</option>';
+              statusText.textContent = 'No free ports found. Add some in node settings.';
+              statusText.className = 'text-amber-400 block mt-1';
+              return;
+            }
+
+            data.forEach(alloc => {
+              const option = document.createElement('option');
+              option.value = alloc.id;
+              option.textContent = alloc.label;
+              allocSelect.appendChild(option);
+            });
+
+            statusText.textContent = `${data.length} available port${data.length !== 1 ? 's' : ''}`;
+            statusText.className = 'text-emerald-400 block mt-1';
+          } catch (err) {
+            console.error('Failed to load allocations:', err);
+            allocSelect.innerHTML = '<option value="">Error loading ports</option>';
+            statusText.textContent = 'Failed to load ports. Check console.';
+            statusText.className = 'text-red-400 block mt-1';
+          }
+        });
+      }
+    </script>
+
+    <!-- Form toggle + reset (unchanged + small improvement) -->
+    <script>
+      document.getElementById('createButton').addEventListener('click', function() {
+        var table = document.getElementById('instanceTable');
+        var form = document.getElementById('instanceForm');
+        if (table.style.display !== 'none') {
+          table.style.display = 'none';
+          form.style.display = 'flex';
+        } else {
+          table.style.display = 'flex';
+          form.style.display = 'none';
+        }
+
+        // Reset image and trigger change
+        const imageElem = document.getElementById('image');
+        imageElem.selectedIndex = 0;
+        imageElem.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // Reset allocation
+        allocSelect.innerHTML = '<option value="">-- Select node first --</option>';
+        statusText.textContent = 'Choose an available IP:Port from the selected node';
+        statusText.className = 'text-neutral-500 block mt-1';
+      });
+    </script>
+
+    <!-- Create instance logic (unchanged, but good to keep) -->
+    <script>
 document.getElementById('createNodeBtn').addEventListener('click', async function() {
     const createBtn = this;
     createBtn.textContent = 'Working on it...';
@@ -434,22 +448,21 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
         return;
     }
 
-    // Optional: auto-replace {{primaryPort}} if your images still use it
     if (configFileContent && configFileContent.includes('{{primaryPort}}')) {
         configFileContent = configFileContent.replace('{{primaryPort}}', containerPort.value);
     }
 
     const nodeData = {
-        name: name.value,
+        name: name.value.trim(),
         image: imageDropdown.value,
         imagename: selectedImage.getAttribute('data-imagename'),
         nodeId: document.getElementById('node').value,
         user: document.getElementById('user').value,
-        memory: memory.value,
-        cpu: cpu.value,
-        disk: disk.value,
+        memory: memory.value.trim(),
+        cpu: cpu.value.trim(),
+        disk: disk.value.trim(),
         allocationId: allocationId.value,
-        containerPort: containerPort.value,
+        containerPort: containerPort.value.trim(),
         configFilePath: configFilePath,
         configFileContent: configFileContent,
         variables: JSON.stringify(variables)
@@ -459,18 +472,10 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
 });
 
 function clearValidationErrors() {
-    const inputs = document.querySelectorAll('.input-error');
-    const messages = document.querySelectorAll('.error-message');
-    inputs.forEach(input => input.classList.remove('input-error'));
-    messages.forEach(msg => msg.remove());
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
 }
 
-function serializeParams(params) {
-    return Object.keys(params)
-        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
-        .join('&');
-}
-    
 function showError(element, message) {
     element.classList.add('input-error');
     const errorDiv = document.createElement('div');
@@ -489,6 +494,12 @@ function isPositiveIntegerCpu(value) {
     return Number.isInteger(num) && num > 0;
 }
 
+function serializeParams(params) {
+    return Object.keys(params)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
+        .join('&');
+}
+
 function sendData(nodeData, createBtn) {
     const baseUrl = '/instances/deploy';
     const queryParams = serializeParams(nodeData);
@@ -496,43 +507,25 @@ function sendData(nodeData, createBtn) {
 
     fetch(fullUrl, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     })
     .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('Failed to create instance');
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(text || 'Failed to create instance'); });
         }
+        return response.json();
     })
     .then(data => {
-	    window.location.href = '/admin/instances?err=CREATED';
-        console.log('Instance created:', data);
-        createBtn.textContent = 'Create';
-        createBtn.disabled = false;
+        window.location.href = '/admin/instances?err=CREATED';
     })
     .catch(error => {
-        console.error('Error creating instance:', error);
-        alert('Error! Instance creation failed. Check the console for more details.');
+        console.error('Instance creation failed:', error);
+        alert('Error: ' + (error.message || 'Failed to create instance. Check console.'));
+    })
+    .finally(() => {
         createBtn.textContent = 'Create';
         createBtn.disabled = false;
     });
 }
-
-function handleResponse(response) {
-    if (response.ok) {
-        return response.json();
-    }
-    throw new Error('Failed to create instance');
-}
-
-function handleError(error) {
-    console.error('Error creating instance:', error);
-    alert('Error! Check the console for more details.');
-    createBtn.textContent = 'Create';
-    createBtn.disabled = false;
-}
-</script>
+    </script>
 <%- include('../components/footer') %>
