@@ -1,35 +1,91 @@
 <%- include('../components/template') %>
 <main id="content">
+   <div class="bg-transparent">
+      <div class="sm:flex sm:items-center px-8 pt-4">
+         <div class="sm:flex-auto">
+            <h1 class="text-base font-medium leading-6 text-white">
+               <%= req.translations.localNode || 'Local Node' %>
+            </h1>
+            <p class="mt-1 tracking-tight text-sm text-neutral-500">
+               <%= req.translations.localNodeText || 'Install and run Wings locally on this panel machine' %>
+            </p>
+         </div>
+         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <!-- You can add extra buttons here later if needed -->
+         </div>
+      </div>
 
-## Configuration
+      <!-- Card with form & console -->
+      <div class="mt-8 px-4 sm:px-8 w-full">
+         <div class="bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-xl p-6 lg:p-8 card w-full max-w-5xl mx-auto">
 
-<input type="text" id="configuration" placeholder="Enter configuration" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <h2 class="text-lg font-semibold text-white mb-4">Configuration & Installation</h2>
 
-<button onclick="install()">Install Wings</button>
+            <div class="mb-6">
+               <label for="configuration" class="text-neutral-400 text-sm block mb-2">
+                  Configuration (optional flags / arguments)
+               </label>
+               <input type="text" id="configuration" placeholder="e.g. --force --verbose" 
+                      class="rounded-xl text-white text-sm w-full px-4 py-2.5 
+                             bg-neutral-700/30 border border-white/10
+                             placeholder:text-neutral-500 outline-none
+                             focus:border-white/30 transition">
+               <p class="mt-1.5 text-xs text-neutral-500">
+                  Leave empty for default installation
+               </p>
+            </div>
 
-## Console
+            <button onclick="installWings()" type="button"
+                    class="rounded-xl <%= theme['button-color'] || 'bg-indigo-600 hover:bg-indigo-500' %> 
+                           px-5 py-2.5 text-sm font-medium text-white shadow-lg transition">
+               Install Wings
+            </button>
 
-<pre id="console-log" style="width:100%; height:400px; overflow:auto; background:black; color:white; padding:10px;"></pre>
+            <div class="mt-8">
+               <h3 class="text-base font-medium text-white mb-3">Console Output</h3>
+               <pre id="console-log" 
+                    class="w-full h-96 overflow-auto bg-black text-green-400/90 font-mono text-sm p-4 rounded-lg border border-white/5 whitespace-pre-wrap">
+               </pre>
+            </div>
 
-<script>
-function install() {
-  const config = document.getElementById('configuration').value;
-  const consoleLog = document.getElementById('console-log');
-  consoleLog.innerText = 'Installing...\n';
+         </div>
+      </div>
 
-  fetch('/admin/localnode', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ configuration: config }),
-  })
-  .then(response => response.json())
-  .then(data => {
-    consoleLog.innerText = data.log;
-  })
-  .catch(error => {
-    consoleLog.innerText += `\nError: ${error.message}`;
-  });
-}
-</script>
+      <div id="notification" class="fixed bottom-6 right-6 bg-emerald-800/80 text-white px-5 py-3 rounded-xl shadow-2xl transform transition-all duration-300 translate-y-24 opacity-0 z-50">
+         Copied to clipboard!
+      </div>
+
+   </div>
+
+   <script>
+      function installWings() {
+         const configInput = document.getElementById('configuration');
+         const consoleLog = document.getElementById('console-log');
+
+         consoleLog.innerHTML = 'Starting installation...\n\n';
+         consoleLog.scrollTop = consoleLog.scrollHeight;
+
+         fetch('/admin/localnode', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               configuration: configInput.value.trim()
+            })
+         })
+         .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+         })
+         .then(data => {
+            consoleLog.innerHTML = data.log || 'No output received.';
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+         })
+         .catch(error => {
+            consoleLog.innerHTML += `\n\n[ERROR] ${error.message}`;
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+         });
+      }
+   </script>
+</main>
