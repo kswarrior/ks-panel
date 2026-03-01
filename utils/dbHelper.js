@@ -5,6 +5,7 @@
 
 const { db } = require("../handlers/db.js");
 const cache = require("./cache.js");
+const { v4: uuidv4 } = require('uuid'); // Added
 
 /**
  * Get multiple records from database in batch
@@ -93,10 +94,6 @@ function paginate(items, page = 1, pageSize = 20) {
 
 /**
  * Get paginated list of users
- * 
- * @param {number} page - Page number
- * @param {number} pageSize - Items per page
- * @returns {Promise<Object>} Paginated users with metadata
  */
 async function getPaginatedUsers(page = 1, pageSize = 20) {
   const users = (await db.get("users")) || [];
@@ -105,10 +102,6 @@ async function getPaginatedUsers(page = 1, pageSize = 20) {
 
 /**
  * Get paginated list of instances
- * 
- * @param {number} page - Page number
- * @param {number} pageSize - Items per page
- * @returns {Promise<Object>} Paginated instances with metadata
  */
 async function getPaginatedInstances(page = 1, pageSize = 20) {
   const instances = (await db.get("instances")) || [];
@@ -117,10 +110,6 @@ async function getPaginatedInstances(page = 1, pageSize = 20) {
 
 /**
  * Get paginated list of nodes
- * 
- * @param {number} page - Page number
- * @param {number} pageSize - Items per page
- * @returns {Promise<Object>} Paginated nodes with metadata
  */
 async function getPaginatedNodes(page = 1, pageSize = 20) {
   const nodes = (await db.get("nodes")) || [];
@@ -129,10 +118,6 @@ async function getPaginatedNodes(page = 1, pageSize = 20) {
 
 /**
  * Get paginated list of images
- * 
- * @param {number} page - Page number
- * @param {number} pageSize - Items per page
- * @returns {Promise<Object>} Paginated images with metadata
  */
 async function getPaginatedImages(page = 1, pageSize = 20) {
   const images = (await db.get("images")) || [];
@@ -141,10 +126,6 @@ async function getPaginatedImages(page = 1, pageSize = 20) {
 
 /**
  * Get paginated list of API keys
- * 
- * @param {number} page - Page number
- * @param {number} pageSize - Items per page
- * @returns {Promise<Object>} Paginated API keys with metadata
  */
 async function getPaginatedAPIKeys(page = 1, pageSize = 20) {
   const apiKeys = (await db.get("apiKeys")) || [];
@@ -153,9 +134,6 @@ async function getPaginatedAPIKeys(page = 1, pageSize = 20) {
 
 /**
  * Invalidate specific database cache entry
- * Call this after updating a record
- * 
- * @param {string} key - Database key to invalidate
  */
 function invalidateCache(key) {
   cache.delete(`db_${key}`);
@@ -163,8 +141,6 @@ function invalidateCache(key) {
 
 /**
  * Invalidate cache for a group of records
- * 
- * @param {Array<string>} keys - Keys to invalidate
  */
 function invalidateCacheGroup(keys) {
   if (Array.isArray(keys)) {
@@ -184,6 +160,49 @@ function clearDbCache() {
   });
 }
 
+/**
+ * Parse ports: '25565,25566,5085-5090' -> 
+ * [25565, 25566, 5085, 5086, 5087, 5088, 5089, 5090]
+ */
+function parsePorts(portsInput) {
+  const ports = [];
+  const parts = portsInput.split(',').map(p => p.trim());
+
+  for (let part of parts) {
+    if (part.includes('-')) {
+      const [start, end] = part.split('-').map(Number);
+
+      if (
+        isNaN(start) ||
+        isNaN(end) ||
+        start > end ||
+        start < 1024 ||
+        end > 65535
+      ) {
+        throw new Error('Invalid port range');
+      }
+
+      for (let p = start; p <= end; p++) {
+        ports.push(p);
+      }
+    } else {
+      const port = Number(part);
+
+      if (
+        isNaN(port) ||
+        port < 1024 ||
+        port > 65535
+      ) {
+        throw new Error('Invalid port');
+      }
+
+      ports.push(port);
+    }
+  }
+
+  return [...new Set(ports)]; // Dedupe
+}
+
 module.exports = {
   batchGet,
   paginate,
@@ -195,4 +214,5 @@ module.exports = {
   invalidateCache,
   invalidateCacheGroup,
   clearDbCache,
+  parsePorts, // Added
 };
