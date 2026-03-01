@@ -29,20 +29,43 @@ function collectOutput(child, callback) {
   });
 }
 
+// In exec/localnode.js → inside install function
 exports.install = async (config) => {
   return new Promise((resolve) => {
-    let cmd = '';
+    let output = '';
+    let child;
+
+    const collect = (data) => { output += data.toString(); };
+
     if (fs.existsSync(localNodeDir)) {
-      cmd = `npm install && npm run configure -- ${config}`;
-      const child = spawn(cmd, { shell: true, cwd: localNodeDir });
-      collectOutput(child, (output, code) => {
-        resolve({ output, code });
+      // Already cloned → just npm install + configure with user args
+      child = spawn('npm', ['install'], { cwd: localNodeDir, shell: true });
+      child.stdout.on('data', collect);
+      child.stderr.on('data', collect);
+      child.on('close', (code) => {
+        if (code !== 0) return resolve({ output, code });
+
+        // Now run configure with user-provided args
+        const configureArgs = config ? ['configure', ...config.trim().split(/\s+/)] : ['configure'];
+        child = spawn('npm', ['run', ...configureArgs], { cwd: localNodeDir, shell: true });
+        child.stdout.on('data', collect);
+        child.stderr.on('data', collect);
+        child.on('close', (code2) => resolve({ output, code: code2 }));
       });
     } else {
-      cmd = `git clone https://github.com/kswarrior/ks-wings localnode && cd localnode && npm install && npm run configure -- ${config}`;
-      const child = spawn(cmd, { shell: true, cwd: rootDir });
-      collectOutput(child, (output, code) => {
-        resolve({ output, code });
+      // Full clone + install + configure
+      const fullCommand = `git clone https://github.com/kswarrior/ks-wings localnode && cd localnode && npm install`;
+      child = spawn(fullCommand, { shell: true, cwd: rootDir });
+      child.stdout.on('data', collect);
+      child.stderr.on('data', collect);
+      child.on('close', (code) => {
+        if (code !== 0) return resolve({ output, code });
+
+        const configureArgs = config ? ['npm', 'run', 'configure', '--', ...config.trim().split(/\s+/)] : ['npm', 'run', 'configure'];
+        child = spawn(...configureArgs, { cwd: localNodeDir, shell: true });
+        child.stdout.on('data', collect);
+        child.stderr.on('data', collect);
+        child.on('close', (code2) => resolve({ output, code: code2 }));
       });
     }
   });
