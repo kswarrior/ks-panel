@@ -213,9 +213,21 @@ function loadRoutes(directory) {
 }
 loadRoutes(routesDir);
 
-// Plugin routes and views
+// ────────────────────────────────────────────────────────────────
+// ENHANCED PLUGIN SYSTEM (like Pterodactyl Blueprint but .kspp)
+// ────────────────────────────────────────────────────────────────
+
+// NEW: Load centralized event system for plugin hooks
+const events = require('./lib/plugin-events');
+
+// NEW: Pass events, app, and db to plugin manager for deep integration
 const pluginRoutes = require("./plugins/pluginManager.js");
+pluginRoutes.setAppAndDb(app, db);           // NEW: Inject app + db
+pluginRoutes.events = events;                 // NEW: Inject events emitter
+
 app.use("/", pluginRoutes);
+
+// Plugin views support (your original code - unchanged)
 const pluginDir = path.join(__dirname, "plugins");
 const PluginViewsDir = fs
   .readdirSync(pluginDir)
@@ -224,6 +236,11 @@ app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
 
 // Init
 init();
+
+// NEW: Example of using the event system (you can emit more events in routes/handlers)
+events.emit('panelReady', { config, port: config.port });
+
+// ────────────────────────────────────────────────────────────────
 
 app.set('trust proxy', 1);
 
