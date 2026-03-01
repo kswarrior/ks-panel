@@ -6,52 +6,70 @@
             <h1 class="text-base font-medium leading-6 text-white">
                <%= req.translations.localNode || 'Local Node' %>
             </h1>
-            <p class="mt-1 tracking-tight text-sm text-neutral-500">
+            <p class="mt-1 tracking-tight text-sm text-neutral-400">
                <%= req.translations.localNodeText || 'Install and run Wings locally on this panel machine' %>
             </p>
          </div>
          <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <!-- You can add extra buttons here later if needed -->
          </div>
       </div>
 
       <!-- Card with form & console -->
       <div class="mt-8 px-4 sm:px-8 w-full">
-         <div class="bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-xl p-6 lg:p-8 card w-full max-w-5xl mx-auto">
+         <div class="bg-neutral-900/40 shadow ring-1 ring-white/10 rounded-xl p-6 lg:p-8 card w-full max-w-5xl mx-auto">
 
-            <h2 class="text-lg font-semibold text-white mb-4">Configuration & Installation</h2>
+            <h2 class="text-lg font-semibold text-white mb-4">
+               Configuration & Installation
+            </h2>
 
             <div class="mb-6">
-               <label for="configuration" class="text-neutral-400 text-sm block mb-2">
+               <label for="configuration" class="text-neutral-300 text-sm block mb-2">
                   Configuration (optional flags / arguments)
                </label>
                <input type="text" id="configuration" placeholder="e.g. --force --verbose" 
                       class="rounded-xl text-white text-sm w-full px-4 py-2.5 
-                             bg-neutral-700/30 border border-white/10
+                             bg-neutral-800 border border-white/10
                              placeholder:text-neutral-500 outline-none
-                             focus:border-white/30 transition">
+                             focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                <p class="mt-1.5 text-xs text-neutral-500">
                   Leave empty for default installation
                </p>
             </div>
 
+            <!-- FIXED BUTTON VISIBILITY -->
             <button onclick="installWings()" type="button"
                     class="rounded-xl <%= theme['button-color'] || 'bg-indigo-600 hover:bg-indigo-500' %> 
-                           px-5 py-2.5 text-sm font-medium text-white shadow-lg transition">
+                           px-5 py-2.5 text-sm font-semibold
+                           text-white mix-blend-normal
+                           shadow-lg transition duration-200
+                           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                Install Wings
             </button>
 
             <div class="mt-8">
-               <h3 class="text-base font-medium text-white mb-3">Console Output</h3>
+               <h3 class="text-base font-medium text-white mb-3">
+                  Console Output
+               </h3>
+
+               <!-- FIXED CONSOLE VISIBILITY -->
                <pre id="console-log" 
-                    class="w-full h-96 overflow-auto bg-black text-green-400/90 font-mono text-sm p-4 rounded-lg border border-white/5 whitespace-pre-wrap">
+                    class="w-full h-96 overflow-auto 
+                           bg-black text-green-400 
+                           font-mono text-sm p-4 rounded-lg 
+                           border border-white/10 
+                           whitespace-pre-wrap leading-relaxed">
                </pre>
             </div>
 
          </div>
       </div>
 
-      <div id="notification" class="fixed bottom-6 right-6 bg-emerald-800/80 text-white px-5 py-3 rounded-xl shadow-2xl transform transition-all duration-300 translate-y-24 opacity-0 z-50">
+      <div id="notification" 
+           class="fixed bottom-6 right-6 
+                  bg-emerald-700 text-white 
+                  px-5 py-3 rounded-xl shadow-2xl 
+                  transform transition-all duration-300 
+                  translate-y-24 opacity-0 z-50">
          Copied to clipboard!
       </div>
 
