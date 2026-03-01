@@ -7,22 +7,20 @@
            <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.nodesText %></p>
          </div>
          <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-
           <div class="flex gap-2">
-
             <button onclick="radarcheck()" type="button" class="block rounded-xl bg-neutral-900/20 text-neutral-300 border border-neutral-400/20 px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2 flex gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
               Radar Scan
-          </button>
-           <button id="createButton" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
-            <%= req.translations.createNewNode %>
-          <button type="button"
-   onclick="window.location.href='/admin/localnode'"
-   class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
-   Local Node
-</button>
+            </button>
+            <button id="createButton" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
+              <%= req.translations.createNewNode %>
+            </button>
+            <button type="button"
+              onclick="window.location.href='/admin/localnode'"
+              class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
+              Local Node
+            </button>
           </div>
-
          </div>
        </div>
 
@@ -61,8 +59,8 @@
              </div>
           </div>
        </div>
-<% } %>
-    <% if (req.query.err == "EDITED") { %>
+      <% } %>
+      <% if (req.query.err == "EDITED") { %>
       <div class="mt-6 w-full">
         <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
           <div class="flex">
@@ -80,471 +78,608 @@
           </div>
        </div>	      
       <% } %>
-      <!-- Responsive Node Table -->
-<div class="px-4 sm:px-8 mt-8 w-full overflow-x-auto">
-  <div class="min-w-full bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg" id="nodeTable">
-    <table class="min-w-full text-sm text-left text-white border-collapse">
-      
-      <!-- Head -->
-      <thead class="border-b border-white/10 text-neutral-400">
-        <tr>
-          <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">
-            <%= req.translations.name %>
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-            <%= req.translations.connection %>
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-            <%= req.translations.location %>
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-            <%= req.translations.instances %>
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">
-            <%= req.translations.actions %>
-          </th>
-        </tr>
-      </thead>
 
-      <!-- Body -->
-      <tbody class="divide-y divide-white/5">
-        <% nodes.forEach(function(node) { %>
-        <tr class="hover:bg-white/[0.05] transition">
+      <!-- ================== NEW: ALLOCATIONS MANAGEMENT SECTION ================== -->
+      <div class="card mt-8 mx-8 bg-white/5 rounded-xl shadow-lg overflow-hidden">
+        <div class="card-header p-6 border-b border-white/10 flex justify-between items-center">
+          <h5 class="text-lg font-semibold text-white mb-0"><%= req.translations.manageAllocations || 'Manage IP Aliases & Ports' %></h5>
+          <button class="btn btn-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm" id="toggleAllocForm">
+            Add New Allocation
+          </button>
+        </div>
 
-          <!-- Name -->
-          <td class="py-4 pl-4 pr-3 text-sm sm:pl-6 min-w-[220px]">
-            <div class="flex items-center gap-3">
-              
-              <% if (node.status === "Online") { %>
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-              <% } else if (node.status === "Offline") { %>
-                <span class="relative flex h-2 w-2">
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-neutral-500"></span>
-                </span>
-              <% } else { %>
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                </span>
-              <% } %>
+        <div id="allocForm" class="p-6 hidden">
+          <form id="allocationForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="allocNode" class="text-neutral-400 text-sm block mb-2">Select Node</label>
+                <select class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none" id="allocNode" required>
+                  <option value="">-- Choose Node --</option>
+                  <% nodes.forEach(node => { %>
+                    <option value="<%= node.id %>"><%= node.name %> (<%= node.address %>:<%= node.port %>)</option>
+                  <% }); %>
+                </select>
+              </div>
 
-              <span class="font-medium text-white truncate">
-                <%= node.name %>
-              </span>
-            </div>
-          </td>
+              <div>
+                <label for="allocIp" class="text-neutral-400 text-sm block mb-2">IP / Host (optional)</label>
+                <input type="text" class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none" id="allocIp" placeholder="e.g. 192.168.1.100 (leave blank to use node address)">
+              </div>
 
-          <!-- Connection -->
-          <td class="px-3 py-4 text-sm min-w-[260px]">
-            <div class="flex items-center gap-3">
-              <div class="font-mono text-sm text-neutral-400 truncate">
-                <%= node.address %><span class="text-neutral-500">:<%= node.port %></span>
+              <div>
+                <label for="allocAlias" class="text-neutral-400 text-sm block mb-2">IP Alias / Label (optional)</label>
+                <input type="text" class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none" id="allocAlias" placeholder="e.g. Main Game IP">
+              </div>
+
+              <div class="md:col-span-2">
+                <label for="allocPorts" class="text-neutral-400 text-sm block mb-2">Ports (comma separated or ranges)</label>
+                <textarea class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none h-28" id="allocPorts" placeholder="Examples:\n25565\n25565,25566,5085\n25565-25575,27015-27030" required></textarea>
+                <p class="text-xs text-neutral-500 mt-2">Supports single ports, comma-separated lists, and ranges (e.g. 25565-25575)</p>
               </div>
             </div>
-          </td>
 
-          <!-- Location -->
-          <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
-            <% let locName = 'unknown'; %>
-            <% locations.forEach(function(loc) { %>
-              <% if (loc.id === node.location) locName = loc.name; %>
-            <% }); %>
-            <%= locName %>
-          </td>
-
-          <!-- Instances -->
-          <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
-            <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs inline-block">
-              <%= set[node.id] || 0 %>
+            <div class="mt-6 flex gap-4">
+              <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition" id="createAllocBtn">Add Allocations</button>
+              <button type="button" class="bg-neutral-700 hover:bg-neutral-600 text-white px-6 py-3 rounded-xl text-sm font-medium transition" id="cancelAllocBtn">Cancel</button>
             </div>
-          </td>
+          </form>
+        </div>
 
-          <!-- Actions -->
-          <td class="px-3 py-4 text-sm min-w-[260px]">
-            <div class="flex justify-end gap-2">
+        <!-- Preview table -->
+        <div class="p-6">
+          <h6 class="text-sm font-medium text-neutral-300 mb-4">Current Allocations (select node to preview)</h6>
+          <div id="allocTableContainer" class="text-sm text-neutral-400">
+            <p class="italic">Select a node above to view its allocated ports.</p>
+          </div>
+        </div>
+      </div>
 
-              <button
-                onclick="configure('<%= node.id %>')"
-                type="button"
-                class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
-              >
-                <%= req.translations.configure %>
-              </button>
+      <!-- Responsive Node Table -->
+      <div class="px-4 sm:px-8 mt-8 w-full overflow-x-auto">
+        <div class="min-w-full bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg" id="nodeTable">
+          <table class="min-w-full text-sm text-left text-white border-collapse">
+            
+            <!-- Head -->
+            <thead class="border-b border-white/10 text-neutral-400">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">
+                  <%= req.translations.name %>
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+                  <%= req.translations.connection %>
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+                  <%= req.translations.location %>
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
+                  <%= req.translations.instances %>
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">
+                  <%= req.translations.actions %>
+                </th>
+              </tr>
+            </thead>
 
-              <a href="/admin/node/<%= node.id %>">
-                <button
-                  type="button"
-                  class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
-                >
-                  <%= req.translations.edit %>
-                </button>
-              </a>
+            <!-- Body -->
+            <tbody class="divide-y divide-white/5">
+              <% nodes.forEach(function(node) { %>
+              <tr class="hover:bg-white/[0.05] transition">
 
-              <button
-                onclick="deletenode('<%= node.id %>')"
-                type="button"
-                class="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition"
-              >
-                <%= req.translations.remove %>
-              </button>
+                <!-- Name -->
+                <td class="py-4 pl-4 pr-3 text-sm sm:pl-6 min-w-[220px]">
+                  <div class="flex items-center gap-3">
+                    
+                    <% if (node.status === "Online") { %>
+                      <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                    <% } else if (node.status === "Offline") { %>
+                      <span class="relative flex h-2 w-2">
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-neutral-500"></span>
+                      </span>
+                    <% } else { %>
+                      <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                      </span>
+                    <% } %>
 
-            </div>
-          </td>
+                    <span class="font-medium text-white truncate">
+                      <%= node.name %>
+                    </span>
+                  </div>
+                </td>
 
-        </tr>
-        <% }); %>
-      </tbody>
+                <!-- Connection -->
+                <td class="px-3 py-4 text-sm min-w-[260px]">
+                  <div class="flex items-center gap-3">
+                    <div class="font-mono text-sm text-neutral-400 truncate">
+                      <%= node.address %><span class="text-neutral-500">:<%= node.port %></span>
+                    </div>
+                  </div>
+                </td>
 
-    </table>
-  </div>
-</div>
+                <!-- Location -->
+                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
+                  <% let locName = 'unknown'; %>
+                  <% locations.forEach(function(loc) { %>
+                    <% if (loc.id === node.location) locName = loc.name; %>
+                  <% }); %>
+                  <%= locName %>
+                </td>
+
+                <!-- Instances -->
+                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
+                  <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs inline-block">
+                    <%= set[node.id] || 0 %>
+                  </div>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-3 py-4 text-sm min-w-[260px]">
+                  <div class="flex justify-end gap-2">
+
+                    <button
+                      onclick="configure('<%= node.id %>')"
+                      type="button"
+                      class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
+                    >
+                      <%= req.translations.configure %>
+                    </button>
+
+                    <a href="/admin/node/<%= node.id %>">
+                      <button
+                        type="button"
+                        class="rounded-lg <%= theme['button-color'] %> px-3 py-1.5 text-xs font-medium shadow transition"
+                      >
+                        <%= req.translations.edit %>
+                      </button>
+                    </a>
+
+                    <button
+                      onclick="deletenode('<%= node.id %>')"
+                      type="button"
+                      class="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition"
+                    >
+                      <%= req.translations.remove %>
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+              <% }); %>
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+
       <%- include('../components/pagination', { pagination }) %>
+
       <div id="notification" class="fixed bottom-5 right-5 bg-white/5 text-white px-4 py-2 rounded-xl shadow-lg transform transition-all duration-300 translate-y-full opacity-0">
         Command copied to clipboard!
       </div>
-      </div>
+
+      <!-- Node Creation Form -->
       <div id="nodeForm" class="mt-6 px-4 sm:px-6 w-full hidden">
+        <div class="p-4 sm:p-6 lg:p-8 
+                    bg-transparent shadow-xl 
+                    border border-white/5 
+                    rounded-xl overflow-hidden 
+                    card 
+                    w-full max-w-4xl mx-auto">
+          <form>
+            <!-- Responsive Grid -->
+            <div style="margin-bottom:75px;" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-  <div class="p-4 sm:p-6 lg:p-8 
-              bg-transparent shadow-xl 
-              border border-white/5 
-              rounded-xl overflow-hidden 
-              card 
-              w-full max-w-4xl mx-auto">
+              <!-- Name -->
+              <div>
+                <label for="nodeName" class="text-neutral-400 text-sm block mb-1">
+                  <%= req.translations.name %>:
+                </label>
+                <input id="nodeName"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2
+                         bg-neutral-600/20 border border-white/5
+                         placeholder:text-white/20 outline-none
+                         hover:bg-white/5 focus:border-white/20"
+                  placeholder="My node">
+              </div>
 
-    <form>
+              <!-- RAM -->
+              <div>
+                <label for="nodeRam" class="text-neutral-400 text-sm block mb-1">
+                  <%= req.translations.ram %> (GB):
+                </label>
+                <input id="nodeRam"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2
+                         bg-neutral-600/20 border border-white/5
+                         placeholder:text-white/20 outline-none
+                         hover:bg-white/5 focus:border-white/20"
+                  placeholder="This is only for information purposes.">
+              </div>
 
-      <!-- Responsive Grid -->
-      <div style="margin-bottom:75px;" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Disk -->
+              <div>
+                <label for="nodeDisk" class="text-neutral-400 text-sm block mb-1">
+                  <%= req.translations.disk %> (GB):
+                </label>
+                <input id="nodeDisk"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2
+                         bg-neutral-600/20 border border-white/5
+                         placeholder:text-white/20 outline-none
+                         hover:bg-white/5 focus:border-white/20"
+                  placeholder="This is only for information purposes.">
+              </div>
 
-        <!-- Name -->
-        <div>
-          <label for="nodeName" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.name %>:
-          </label>
-          <input id="nodeName"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="My node">
+              <!-- IP -->
+              <div>
+                <label for="nodeAddress" class="text-neutral-400 text-sm block mb-1">
+                  <%= req.translations.addressIP %>:
+                </label>
+                <input id="nodeAddress"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2
+                         bg-neutral-600/20 border border-white/5
+                         placeholder:text-white/20 outline-none
+                         hover:bg-white/5 focus:border-white/20"
+                  placeholder="192.168.1.1 or my.hostnamehere.com">
+              </div>
+
+              <!-- Location -->
+              <div>
+                <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
+                  <%= req.translations.location %>:
+                </label>
+                <select id="nodeLocation"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2
+                         bg-neutral-600/20 border border-white/5
+                         placeholder:text-white/20 outline-none
+                         hover:bg-white/5 focus:border-white/20">
+                  <option value="">Select a location</option>
+                  <% locations.forEach(function(loc) { %>
+                    <option value="<%= loc.id %>"><%= loc.name %></option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <!-- Port -->
+              <div>
+                <label for="nodePort" class="text-neutral-400 text-sm block mb-1">
+                  <%= req.translations.deamonPort %>:
+                </label>
+                <input id="nodePort"
+                  class="rounded-xl text-white text-sm w-full px-4 py-2
+                         bg-neutral-600/20 border border-white/5
+                         placeholder:text-white/20 outline-none
+                         hover:bg-white/5 focus:border-white/20"
+                  placeholder="3002">
+              </div>
+
+              <!-- Button -->
+              <div class="md:col-span-2">
+                <button id="createNodeBtn"
+                  type="button"
+                  class="w-full rounded-xl <%= theme['button-color'] %> 
+                         px-4 py-2 text-sm font-medium shadow-lg
+                         transition hover:scale-[1.02] active:scale-95">
+                  <%= req.translations.create %>
+                </button>
+              </div>
+            </div>
+            <br>
+          </form>
         </div>
-
-        <!-- RAM -->
-        <div>
-          <label for="nodeRam" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.ram %> (GB):
-          </label>
-          <input id="nodeRam"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="This is only for information purposes.">
-        </div>
-
-        <!-- Disk -->
-        <div>
-          <label for="nodeDisk" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.disk %> (GB):
-          </label>
-          <input id="nodeDisk"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="This is only for information purposes.">
-        </div>
-
-        <!-- IP -->
-        <div>
-          <label for="nodeAddress" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.addressIP %>:
-          </label>
-          <input id="nodeAddress"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="192.168.1.1 or my.hostnamehere.com">
-        </div>
-
-        <!-- Location -->
-<div>
-  <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
-    <%= req.translations.location %>:
-  </label>
-  <select id="nodeLocation"
-    class="rounded-xl text-white text-sm w-full px-4 py-2
-           bg-neutral-600/20 border border-white/5
-           placeholder:text-white/20 outline-none
-           hover:bg-white/5 focus:border-white/20">
-    <option value="">Select a location</option>
-    <% locations.forEach(function(loc) { %>
-      <option value="<%= loc.id %>"><%= loc.name %></option>
-    <% }); %>
-  </select>
-</div>
-
-        <!-- Port -->
-        <div>
-          <label for="nodePort" class="text-neutral-400 text-sm block mb-1">
-            <%= req.translations.deamonPort %>:
-          </label>
-          <input id="nodePort"
-            class="rounded-xl text-white text-sm w-full px-4 py-2
-                   bg-neutral-600/20 border border-white/5
-                   placeholder:text-white/20 outline-none
-                   hover:bg-white/5 focus:border-white/20"
-            placeholder="3002">
-        </div>
-
-        <!-- Button -->
-        <div class="md:col-span-2">
-          <button id="createNodeBtn"
-            type="button"
-            class="w-full rounded-xl <%= theme['button-color'] %> 
-                   px-4 py-2 text-sm font-medium shadow-lg
-                   transition hover:scale-[1.02] active:scale-95">
-            <%= req.translations.create %>
-          </button>
-        </div>
-      <br>
       </div>
-     <br>
-    </form>
-  </div>
-</div>
       
+   </div>
+
+   <!-- ──────────────────────────────────────────────── -->
+   <!-- JavaScript (existing + new allocation handling)   -->
+   <!-- ──────────────────────────────────────────────── -->
+   <script>
+   // ────────────────────────────────────────────────
+   // Utility: Show floating notification
+   // ────────────────────────────────────────────────
+   function showNotification(message, type = 'success') {
+     const notification = document.getElementById('notification');
+     if (!notification) return;
+
+     notification.textContent = message;
+     notification.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl transform transition-all duration-300 z-50 ${
+       type === 'error' ? 'bg-red-600/90 text-white' : 'bg-green-600/90 text-white'
+     }`;
+
+     notification.classList.remove('opacity-0', 'translate-y-10');
+     notification.classList.add('opacity-100', 'translate-y-0');
+
+     setTimeout(() => {
+       notification.classList.remove('opacity-100', 'translate-y-0');
+       notification.classList.add('opacity-0', 'translate-y-10');
+       setTimeout(() => {
+         notification.className = 'opacity-0 translate-y-10'; // reset
+       }, 300);
+     }, 2800);
+   }
+
+   // ────────────────────────────────────────────────
+   // Toggle between table/stats view and create form
+   // ────────────────────────────────────────────────
+   document.getElementById('createButton')?.addEventListener('click', function () {
+     const table = document.getElementById('nodeTable');
+     const form = document.getElementById('nodeForm');
+     const stats = document.getElementById('stats');
+
+     if (!table || !form || !stats) return;
+
+     if (table.classList.contains('hidden')) {
+       stats.classList.remove('hidden');
+       table.classList.remove('hidden');
+       form.classList.add('hidden');
+     } else {
+       stats.classList.add('hidden');
+       table.classList.add('hidden');
+       form.classList.remove('hidden');
+     }
+   });
+
+   // ────────────────────────────────────────────────
+   // Allocation Form Handling
+   // ────────────────────────────────────────────────
+   document.getElementById('toggleAllocForm')?.addEventListener('click', () => {
+     document.getElementById('allocForm').classList.toggle('hidden');
+   });
+
+   document.getElementById('cancelAllocBtn')?.addEventListener('click', () => {
+     document.getElementById('allocForm').classList.add('hidden');
+   });
+
+   document.getElementById('allocationForm')?.addEventListener('submit', async (e) => {
+     e.preventDefault();
+
+     const nodeId = document.getElementById('allocNode').value;
+     if (!nodeId) {
+       showNotification('Please select a node', 'error');
+       return;
+     }
+
+     const data = {
+       ip: document.getElementById('allocIp').value.trim() || null,
+       alias: document.getElementById('allocAlias').value.trim() || null,
+       portsInput: document.getElementById('allocPorts').value.trim()
+     };
+
+     try {
+       const res = await fetch(`/admin/nodes/${nodeId}/allocations`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(data)
+       });
+
+       const result = await res.json();
+
+       if (res.ok) {
+         showNotification(`Successfully added ${result.allocations?.length || 0} port allocations`, 'success');
+         document.getElementById('allocationForm').reset();
+         // Optional: refresh preview table
+         document.getElementById('allocNode').dispatchEvent(new Event('change'));
+       } else {
+         showNotification(result.error || 'Failed to add allocations', 'error');
+       }
+     } catch (err) {
+       showNotification('Network error: ' + err.message, 'error');
+     }
+   });
+
+   // Load allocations preview when node is selected
+   document.getElementById('allocNode')?.addEventListener('change', async (e) => {
+     const nodeId = e.target.value;
+     const container = document.getElementById('allocTableContainer');
+
+     if (!nodeId) {
+       container.innerHTML = '<p class="italic">Select a node to view its allocated ports.</p>';
+       return;
+     }
+
+     try {
+       const res = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
+       if (!res.ok) throw new Error('Failed to load allocations');
+       const allocs = await res.json();
+
+       if (allocs.length === 0) {
+         container.innerHTML = '<p class="italic text-amber-400">No available ports allocated on this node yet.</p>';
+         return;
+       }
+
+       let html = '<div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="text-neutral-400"><th class="py-2 px-3 text-left">IP:Port</th><th class="py-2 px-3 text-left">Alias</th><th class="py-2 px-3 text-left">Status</th></tr></thead><tbody>';
+       allocs.forEach(a => {
+         html += `<tr class="border-t border-white/5"><td class="py-2 px-3 font-mono">${a.label}</td><td class="py-2 px-3">${a.alias || '-'}</td><td class="py-2 px-3">${a.assignedTo ? '<span class="text-rose-400">Used</span>' : '<span class="text-emerald-400">Available</span>'}</td></tr>`;
+       });
+       html += '</tbody></table></div>';
+       container.innerHTML = html;
+     } catch (err) {
+       container.innerHTML = '<p class="text-red-400">Could not load allocations</p>';
+     }
+   });
+
+   // ────────────────────────────────────────────────
+   // Create new node
+   // ────────────────────────────────────────────────
+   document.getElementById('createNodeBtn').addEventListener('click', async function() {
+     const btn = this;
+     const originalText = btn.innerHTML;
+     btn.disabled = true;
+     btn.innerHTML = 'Creating...';
+
+     try {
+       const name = document.getElementById('nodeName').value.trim();
+       const ram = document.getElementById('nodeRam').value.trim();
+       const disk = document.getElementById('nodeDisk').value.trim();
+       const address = document.getElementById('nodeAddress').value.trim();
+       const port = document.getElementById('nodePort').value.trim();
+       const location = document.getElementById('nodeLocation').value.trim();
+
+       if (!name || !ram || !disk || !address || !port) {
+         throw new Error('Please fill in all required fields');
+       }
+
+       const nodeData = {
+         name,
+         ram,
+         disk,
+         address,
+         port,
+         location
+       };
+
+       const response = await fetch('/nodes/create', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(nodeData)
+       });
+
+       let errorMsg = 'Failed to create node';
+       if (!response.ok) {
+         const text = await response.text();
+         try {
+           const result = JSON.parse(text);
+           errorMsg = result.error || text;
+         } catch {
+           errorMsg = text || errorMsg;
+         }
+         throw new Error(errorMsg);
+       }
+
+       showNotification('Node created successfully!', 'success');
+       window.location.href = '/admin/nodes?err=none';
+     } catch (error) {
+       showNotification(error.message || 'Error creating node', 'error');
+     } finally {
+       btn.disabled = false;
+       btn.innerHTML = originalText;
+     }
+   });
+
+   // ────────────────────────────────────────────────
+   // Delete node with force option for instances
+   // ────────────────────────────────────────────────
+   async function deletenode(nodeId) {
+     if (!nodeId) return;
+
+     try {
+       let response = await fetch('/nodes/delete', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ nodeId }),
+       });
+
+       let result;
+       if (!response.ok) {
+         const text = await response.text();
+         try {
+           result = JSON.parse(text);
+         } catch {
+           throw new Error(text || 'Failed to delete node');
+         }
+       } else {
+         result = await response.json();
+       }
+
+       if (response.ok) {
+         showNotification('Node successfully deleted', 'success');
+         window.location.reload();
+         return;
+       }
+
+       if (result.error?.toLowerCase().includes('instance')) {
+         const confirmed = confirm(
+           'There are still instances on this node.\nDelete all instances and the node?'
+         );
+
+         if (!confirmed) return;
+
+         response = await fetch('/nodes/delete?deleteinstances=true', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ nodeId }),
+         });
+
+         const text = await response.text();
+         try {
+           result = JSON.parse(text);
+         } catch {
+           throw new Error(text || 'Failed to force delete');
+         }
+
+         if (response.ok) {
+           showNotification('Node and all instances deleted', 'success');
+           window.location.reload();
+         } else {
+           throw new Error(result.error || 'Failed to force delete');
+         }
+       } else {
+         throw new Error(result.error || 'Unknown delete error');
+       }
+     } catch (err) {
+       console.error('Delete failed:', err);
+       showNotification(err.message || 'Failed to delete node', 'error');
+     }
+   }
+
+   // ────────────────────────────────────────────────
+   // Copy configure command to clipboard
+   // ────────────────────────────────────────────────
+   async function configure(nodeId) {
+     if (!nodeId) return;
+
+     try {
+       const response = await fetch(`/admin/node/${nodeId}/configure-command`);
+       if (!response.ok) throw new Error('Failed to fetch configure command');
+
+       const { configureCommand } = await response.json();
+
+       if (!configureCommand) throw new Error('No command received');
+
+       await navigator.clipboard.writeText(configureCommand);
+       showNotification('Configure command copied to clipboard!', 'success');
+     } catch (err) {
+       console.error(err);
+       showNotification('Failed to copy configure command', 'error');
+     }
+   }
+
+   // ────────────────────────────────────────────────
+   // Handle table row click (skip if clicked button or link)
+   // ────────────────────────────────────────────────
+   function handleRowClick(event, url) {
+     const target = event.target;
+     if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button, a')) {
+       return;
+     }
+     window.location.href = url;
+   }
+
+   // ────────────────────────────────────────────────
+   // Radar check
+   // ────────────────────────────────────────────────
+   async function radarcheck() {
+     try {
+       await fetch('/admin/nodes/radar/check', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+       });
+       showNotification('Radar check triggered', 'success');
+     } catch (err) {
+       console.error('Radar check failed:', err);
+     }
+   }
+
+   // ────────────────────────────────────────────────
+   // Init
+   // ────────────────────────────────────────────────
+   document.addEventListener('DOMContentLoaded', () => {
+     // Optional: auto-trigger radarcheck on load if desired
+     // radarcheck();
+   });
+   </script>
 </main>
-<script>
-// ────────────────────────────────────────────────
-// Utility: Show floating notification
-// ────────────────────────────────────────────────
-function showNotification(message, type = 'success') {
-  const notification = document.getElementById('notification');
-  if (!notification) return;
-
-  notification.textContent = message;
-  notification.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl transform transition-all duration-300 z-50 ${
-    type === 'error' ? 'bg-red-600/90 text-white' : 'bg-green-600/90 text-white'
-  }`;
-
-  notification.classList.remove('opacity-0', 'translate-y-10');
-  notification.classList.add('opacity-100', 'translate-y-0');
-
-  setTimeout(() => {
-    notification.classList.remove('opacity-100', 'translate-y-0');
-    notification.classList.add('opacity-0', 'translate-y-10');
-    setTimeout(() => {
-      notification.className = 'opacity-0 translate-y-10'; // reset
-    }, 300);
-  }, 2800);
-}
-
-// ────────────────────────────────────────────────
-// Toggle between table/stats view and create form
-// ────────────────────────────────────────────────
-document.getElementById('createButton')?.addEventListener('click', function () {
-  const table = document.getElementById('nodeTable');
-  const form = document.getElementById('nodeForm');
-  const stats = document.getElementById('stats');
-
-  if (!table || !form || !stats) return;
-
-  if (table.classList.contains('hidden')) {
-    stats.classList.remove('hidden');
-    table.classList.remove('hidden');
-    form.classList.add('hidden');
-  } else {
-    stats.classList.add('hidden');
-    table.classList.add('hidden');
-    form.classList.remove('hidden');
-  }
-});
-
-// ────────────────────────────────────────────────
-// Create new node
-// ────────────────────────────────────────────────
-  // ... (keep your existing functions: radarcheck, handleRowClick, deletenode, createButton toggle, configure, showNotification)
-
-  document.getElementById('createNodeBtn').addEventListener('click', async function() {
-    const btn = this;
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = 'Creating...';
-
-    try {
-      const name = document.getElementById('nodeName').value.trim();
-      const ram = document.getElementById('nodeRam').value.trim();
-      const disk = document.getElementById('nodeDisk').value.trim();
-      const address = document.getElementById('nodeAddress').value.trim();
-      const port = document.getElementById('nodePort').value.trim();
-      const location = document.getElementById('nodeLocation').value.trim();
-
-      if (!name || !ram || !disk || !address || !port) {
-        throw new Error('Please fill in all required fields');
-      }
-
-      const nodeData = {
-        name,
-        ram,
-        disk,
-        address,
-        port,
-        location  // Keep this
-      };
-
-      const response = await fetch('/nodes/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nodeData)
-      });
-
-      let errorMsg = 'Failed to create node';
-      if (!response.ok) {
-        const text = await response.text();
-        try {
-          const result = JSON.parse(text);
-          errorMsg = result.error || text;
-        } catch {
-          errorMsg = text || errorMsg;
-        }
-        throw new Error(errorMsg);
-      }
-
-      showNotification('Node created successfully!', 'success');
-      window.location.href = '/admin/nodes?err=none';
-    } catch (error) {
-      showNotification(error.message || 'Error creating node', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-    }
-  });
-
-// ────────────────────────────────────────────────
-// Delete node with force option for instances
-// ────────────────────────────────────────────────
-async function deletenode(nodeId) {
-  if (!nodeId) return;
-
-  try {
-    let response = await fetch('/nodes/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nodeId }),
-    });
-
-    let result;
-    if (!response.ok) {
-      const text = await response.text();
-      try {
-        result = JSON.parse(text);
-      } catch {
-        throw new Error(text || 'Failed to delete node');
-      }
-    } else {
-      result = await response.json();
-    }
-
-    if (response.ok) {
-      showNotification('Node successfully deleted', 'success');
-      window.location.reload();
-      return;
-    }
-
-    if (result.error?.toLowerCase().includes('instance')) {
-      const confirmed = confirm(
-        'There are still instances on this node.\nDelete all instances and the node?'
-      );
-
-      if (!confirmed) return;
-
-      response = await fetch('/nodes/delete?deleteinstances=true', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodeId }),
-      });
-
-      const text = await response.text();
-      try {
-        result = JSON.parse(text);
-      } catch {
-        throw new Error(text || 'Failed to force delete');
-      }
-
-      if (response.ok) {
-        showNotification('Node and all instances deleted', 'success');
-        window.location.reload();
-      } else {
-        throw new Error(result.error || 'Failed to force delete');
-      }
-    } else {
-      throw new Error(result.error || 'Unknown delete error');
-    }
-  } catch (err) {
-    console.error('Delete failed:', err);
-    showNotification(err.message || 'Failed to delete node', 'error');
-  }
-}
-
-// ────────────────────────────────────────────────
-// Copy configure command to clipboard
-// ────────────────────────────────────────────────
-async function configure(nodeId) {
-  if (!nodeId) return;
-
-  try {
-    const response = await fetch(`/admin/node/${nodeId}/configure-command`);
-    if (!response.ok) throw new Error('Failed to fetch configure command');
-
-    const { configureCommand } = await response.json();
-
-    if (!configureCommand) throw new Error('No command received');
-
-    await navigator.clipboard.writeText(configureCommand);
-    showNotification('Configure command copied to clipboard!', 'success');
-  } catch (err) {
-    console.error(err);
-    showNotification('Failed to copy configure command', 'error');
-  }
-}
-
-// ────────────────────────────────────────────────
-// Handle table row click (skip if clicked button or link)
-// ────────────────────────────────────────────────
-function handleRowClick(event, url) {
-  const target = event.target;
-  if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button, a')) {
-    return;
-  }
-  window.location.href = url;
-}
-
-// ────────────────────────────────────────────────
-// Radar check (if still used)
-// ────────────────────────────────────────────────
-async function radarcheck() {
-  try {
-    await fetch('/admin/nodes/radar/check', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    showNotification('Radar check triggered', 'success');
-  } catch (err) {
-    console.error('Radar check failed:', err);
-  }
-}
-
-// ────────────────────────────────────────────────
-// Init
-// ────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // You can call radarcheck() here if you want it on page load
-  // radarcheck();
-});
-</script>
