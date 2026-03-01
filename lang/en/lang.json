@@ -116,7 +116,7 @@
   "locations": "Locations",
   "location": "Location",
   "locationsText": "A list of all the locations set up on the KS Panel.",
-  "createNewlocation": "Create new location",
+  "createNewLocation": "Create new location",
   "node": "Node",
   "nodes": "Nodes",
   "nodesText": "A list of all the nodes set up on the KS Panel.",
