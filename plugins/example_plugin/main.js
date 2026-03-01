@@ -1,19 +1,15 @@
 module.exports = {
   register({ app, db, events, pluginManager }) {
-    console.log('Example plugin registered!');
-    // Use app, db, etc.
-    // Example hook
-    events.on('serverCreate', (data) => {
-      console.log('Server created:', data);
-      // e.g., db.insert({...});
+    console.log('Registered with access to app, db, events!');
+    events.on('panelStart', (data) => {
+      console.log('Panel started:', data);
     });
   },
   unregister({ app, db, events }) {
-    console.log('Example plugin unregistered!');
-    // Cleanup listeners, DB, etc.
-    events.removeAllListeners('serverCreate');
+    console.log('Unregistering...');
+    events.removeAllListeners();
   },
-  router: (req, res) => {
-    res.send('Hello from example plugin router!');
+  router: function(req, res) {
+    res.send('Plugin route!');
   }
 };
