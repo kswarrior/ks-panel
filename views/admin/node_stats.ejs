@@ -18,12 +18,12 @@
       <div class="bg-white/5 rounded-xl p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-white mb-2">Instances</h2>
         <p class="text-4xl font-bold text-white"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
-        <p class="text-sm text-neutral-400 mt-2">Online Instances: <%= stats.onlineContainersCount || 0 %></p>
+        <p class="text-sm text-neutral-400 mt-2">Online Instances: <%= stats.onlineContainersCount || 'N/A' %></p>
       </div>
 
       <div class="bg-white/5 rounded-xl p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-white mb-2">Uptime</h2>
-        <p class="text-4xl font-bold text-white"><%= stats.uptime || '0m' %></p>
+        <p class="text-4xl font-bold text-white"><%= stats.uptime || 'N/A' %></p>
           <p class="text-sm text-neutral-400 mt-2">
             Status: 
             <span class="<%= stats.uptime && status === 'Online' ? 'text-green-500' : 'text-red-500' %>">
@@ -34,12 +34,24 @@
       </div>
     </div>
 
-    <!-- RAM Stats Chart (only) -->
-    <div id="charts" class="grid grid-cols-1 md:grid-cols-1 gap-6 m-8">
+    <!-- Charts for RAM, CPU, Disk -->
+    <div id="charts" class="grid grid-cols-1 md:grid-cols-3 gap-6 m-8">
       <!-- RAM Usage Chart -->
       <div class="bg-white/5 rounded-xl p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-white mb-4">RAM Usage</h2>
         <canvas id="ramChart" class="w-full h-64"></canvas>
+      </div>
+
+      <!-- CPU Usage Chart -->
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-white mb-4">CPU Usage</h2>
+        <canvas id="cpuChart" class="w-full h-64"></canvas>
+      </div>
+
+      <!-- Disk Usage Chart -->
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-white mb-4">Disk Usage</h2>
+        <canvas id="diskChart" class="w-full h-64"></canvas>
       </div>
     </div>
 
@@ -189,6 +201,112 @@
         },
         y: {
           suggestedMax: ramMax,
+          beginAtZero: true,
+          ticks: {
+            color: '#FFFFFF'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        }
+      }
+    }
+  });
+
+  // ADD: CPU Chart
+  const cpuTimestamps = stats.length ? stats.map(stat => new Date(stat.timestamp).toLocaleTimeString()) : ['0:00', '0:00', '0:00']; 
+  const cpuData = stats.length ? stats.map(stat => stat.Cpu) : [0, 0, 0];  // Assuming stats.Cpu is percentage
+
+  const ctxCpu = document.getElementById('cpuChart').getContext('2d');
+  const cpuChart = new Chart(ctxCpu, {
+    type: 'line',
+    data: {
+      labels: cpuTimestamps,
+      datasets: [{
+        label: 'CPU Usage (%)',
+        data: cpuData,
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+      }]
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#FFFFFF'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#FFFFFF'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        y: {
+          suggestedMax: 100,
+          beginAtZero: true,
+          ticks: {
+            color: '#FFFFFF'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        }
+      }
+    }
+  });
+
+  // ADD: Disk Chart
+  const diskTimestamps = stats.length ? stats.map(stat => new Date(stat.timestamp).toLocaleTimeString()) : ['0:00', '0:00', '0:00']; 
+  const diskData = stats.length ? stats.map(stat => parseFloat(stat.Disk.replace(' GB', ''))) : [0, 0, 0];  // Assuming stats.Disk is 'X GB'
+
+  const ctxDisk = document.getElementById('diskChart').getContext('2d');
+  const diskChart = new Chart(ctxDisk, {
+    type: 'line',
+    data: {
+      labels: diskTimestamps,
+      datasets: [{
+        label: 'Disk Usage (GB)',
+        data: diskData,
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 1,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+      }]
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#FFFFFF'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#FFFFFF'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        y: {
+          suggestedMax: Math.max(...diskData, 1),
           beginAtZero: true,
           ticks: {
             color: '#FFFFFF'
