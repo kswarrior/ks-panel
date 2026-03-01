@@ -106,48 +106,37 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
   const node = {
     id: uuidv4(),
     name: req.body.name,
-    tags: req.body.tags || '',  // Optional: default if missing
     ram: req.body.ram,
     disk: req.body.disk,
-    processor: req.body.processor,
     address: req.body.address,
     port: req.body.port,
-    location: req.body.location || null,  // Optional: allow null if not selected
+    location: req.body.location || null,  // Keep as optional
     apiKey: null,
     configureKey: configureKey,
     status: "Unconfigured",
   };
 
-  // Validation: Only require essentials; make tags/processor/location optional if desired
   if (
     !req.body.name ||
     !req.body.ram ||
     !req.body.disk ||
-    !req.body.processor ||
     !req.body.address ||
     !req.body.port
-    // Remove !req.body.location if you want it optional
   ) {
-    return res.status(400).json({ error: "Form validation failure." });  // FIXED: JSON response
+    return res.status(400).json({ error: "Form validation failure: Missing required fields." });
   }
 
   try {
-    await db.set(node.id + "_node", node);
-
+    await db.set(`${node.id}_node`, node);
     const nodes = (await db.get("nodes")) || [];
     nodes.push(node.id);
     await db.set("nodes", nodes);
-
     invalidateCache("nodes");
-
     logAudit(req.user.userId, req.user.username, "node:create", req.ip);
-    res.status(201).json({
-      ...node,
-      configureKey: configureKey,
-    });
+    res.status(201).json({ ...node, configureKey });
   } catch (err) {
-    log.error("Error saving node:", err);
-    res.status(500).json({ error: "Internal server error during creation." });  // NEW: Handle DB errors as JSON
+    log.error("Error creating node:", err);
+    res.status(500).json({ error: "Database error during creation." });
   }
 });
 
@@ -321,28 +310,27 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/admin/node/:id", isAdmin, async (req, res) => {
+router.post("/admin/node/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
-  const node = await db.get(id + "_node");
+  const cnode = await db.get(id + "_node");
 
-  if (!node || !id) return res.redirect("../nodes");
+  if (!cnode || !id) return res.status(400).send();
 
-  // Fetch locations (same as above)
-  const locationIds = (await db.get("locations")) || [];
-  const locations = [];
-  for (const locId of locationIds) {
-    const loc = await db.get(locId + "_location");
-    if (loc) {
-      locations.push(loc);
-    }
-  }
+  const node = {
+    id: id,
+    name: req.body.name,
+    ram: req.body.ram,
+    disk: req.body.disk,
+    address: req.body.address,
+    port: req.body.port,
+    location: req.body.location || cnode.location,  // Keep existing if not provided
+    apiKey: req.body.apiKey,
+    status: "Unknown",
+  };
 
-  res.render("admin/node", {
-    req,
-    user: req.user,
-    node,
-    locations,  // NEW: Pass to template
-  });
+  await db.set(node.id + "_node", node);
+  const updatedNode = await checkNodeStatus(node);
+  res.status(201).send(updatedNode);
 });
 
 router.post("/admin/node/:id", isAdmin, async (req, res) => {
