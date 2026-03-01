@@ -194,12 +194,13 @@
    </div>
    <!-- End of files -->
    <!-- Floating Action Bar -->
-   <div id="floatingActionBar" class="fixed bottom-0 left-0 right-0 bg-neutral-600/20/70 backdrop-blur text-white py-4 px-6 transform tranneutral-y-full transition-transform duration-300 ease-in-out flex justify-between items-center">
-      <span id="selectedFilesCount">0 files selected</span>
-      <button id="massDeleteBtn" class="bg-red-500 hover:bg-red-600 text-white font-normal py-2 px-4 rounded-xl transition">
-      Delete Selected
-      </button>
-   </div>
+   <div id="floatingActionBar" 
+     class="fixed bottom-0 left-0 right-0 max-w-full mx-auto bg-neutral-600/70 backdrop-blur text-white py-4 px-6 transition-transform duration-300 ease-in-out flex justify-between items-center">
+    <span id="selectedFilesCount" class="truncate">0 files selected</span>
+    <button id="massDeleteBtn" class="bg-red-500 hover:bg-red-600 text-white font-normal py-2 px-4 rounded-xl transition whitespace-nowrap">
+        Delete Selected
+    </button>
+</div>
    <!-- Mass Delete Confirmation Modal -->
    <div id="massDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
       <div class="bg-white rounded-xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300">
