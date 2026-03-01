@@ -218,29 +218,26 @@ loadRoutes(routesDir);
 // ────────────────────────────────────────────────────────────────
 
 // NEW: Load centralized event system for plugin hooks
-const events = require('./lib/plugin-events');
+const events = require('./lib/plugin-events.js');
 
 // NEW: Pass events, app, and db to plugin manager for deep integration
 const pluginRoutes = require("./plugins/pluginManager.js");
-pluginRoutes.setAppAndDb(app, db);           // NEW: Inject app + db
-pluginRoutes.events = events;                 // NEW: Inject events emitter
+pluginRoutes.setAppAndDb(app, db);           // Inject app + db for plugins
+pluginRoutes.events = events;                 // Inject events for hooks
 
 app.use("/", pluginRoutes);
 
-// Plugin views support (your original code - unchanged)
+// Plugin views support (unchanged)
 const pluginDir = path.join(__dirname, "plugins");
 const PluginViewsDir = fs
   .readdirSync(pluginDir)
   .map((addonName) => path.join(pluginDir, addonName, "views"));
 app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
 
+// ────────────────────────────────────────────────────────────────
+
 // Init
 init();
-
-// NEW: Example of using the event system (you can emit more events in routes/handlers)
-events.emit('panelReady', { config, port: config.port });
-
-// ────────────────────────────────────────────────────────────────
 
 app.set('trust proxy', 1);
 
@@ -249,6 +246,9 @@ app.listen(config.port, () =>
   log.info(`KS Panel is listening on port ${config.port}`),
   log.debug('Server ready - routes loaded')  // ADD: as requested
 );
+
+// NEW: Emit a startup event for plugins to react
+events.emit('panelStart', { app, config });
 
 // 404 handler (MUST be last route)
 app.get('*', async function(req, res){
