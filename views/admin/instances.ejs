@@ -300,13 +300,7 @@
   // ────────────────────────────────────────────────
   // Load available allocations when node changes
   // ────────────────────────────────────────────────
-  
-</script>
-
-<script>
-  document.getElementById('createButton').addEventListener('click', function() {
-    var table = document.getElementById('instanceTable');
-    var form = document.getElementByI// Load available allocations when node changes
+  // Load available allocations when node changes
 document.getElementById('node')?.addEventListener('change', async (e) => {
   const nodeId = e.target.value;
   const allocSelect = document.getElementById('allocationId');
@@ -344,7 +338,13 @@ document.getElementById('node')?.addEventListener('change', async (e) => {
     console.error(err);
     allocSelect.innerHTML = '<option value="">Error loading ports</option>';
   }
-});d('instanceForm');
+});
+</script>
+
+<script>
+  document.getElementById('createButton').addEventListener('click', function() {
+    var table = document.getElementById('instanceTable');
+    var form = document.getElementById('instanceForm');
     if (table.style.display !== 'none') {
       table.style.display = 'none';
       form.style.display = 'flex';
