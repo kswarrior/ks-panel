@@ -24,7 +24,7 @@ router.post("/admin/localnode/install", isAdmin, async (req, res) => {
     let finalOutput = output;
     finalOutput += `\n───────────────────────────────────────\nProcess finished with exit code ${code}\n`;
     if (code === 0) {
-      finalOutput += "Installation completed successfully.\n";
+      finalOutput += "Installation completed successfully. Now run 'Import Configure' with your panel URL and key.\n";
     } else {
       finalOutput += "Installation may have failed — check the log.\n";
     }
@@ -41,9 +41,9 @@ router.post("/admin/localnode/configure", isAdmin, async (req, res) => {
     let finalOutput = output;
     finalOutput += `\n───────────────────────────────────────\nProcess finished with exit code ${code}\n`;
     if (code === 0) {
-      finalOutput += "Configuration completed successfully.\n";
+      finalOutput += "Configuration completed successfully. You can now start the node.\n";
     } else {
-      finalOutput += "Configuration may have failed — check the log.\n";
+      finalOutput += "Configuration may have failed — check the log (ensure --panel and --key are provided).\n";
     }
     res.json({ log: finalOutput });
   } catch (err) {
