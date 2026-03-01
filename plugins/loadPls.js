@@ -44,33 +44,35 @@ function loadPlugins(pluginDir) {
         return;
       }
 
-      // NEW: Validate new manifest fields (like Blueprint)
+      // NEW: Validate version (if present)
       if (!pluginConfig.version) {
-        console.warn(`Plugin ${pluginConfig.name} missing version in manifest.`);
+        console.warn(`Plugin ${pluginConfig.name} missing version in manifest. Assuming 1.0.0.`);
+        pluginConfig.version = '1.0.0'; // Default
       }
 
-      // NEW: Check dependencies (NPM or other plugins)
-      if (pluginConfig.dependencies) {
+      // NEW: Check dependencies (NPM or plugin: prefixed)
+      if (pluginConfig.dependencies && Array.isArray(pluginConfig.dependencies)) {
         pluginConfig.dependencies.forEach(dep => {
           if (dep.startsWith('plugin:')) {
             const depName = dep.slice(7);
             if (!pluginsJson[depName] || !pluginsJson[depName].enabled) {
-              console.warn(`Missing plugin dependency: ${depName} for ${pluginConfig.name}`);
+              console.error(`Missing plugin dependency: ${depName} for ${pluginConfig.name}. Disabling.`);
+              return; // Skip loading
             }
           } else {
             try {
-              require.resolve(dep); // Check if NPM module installed
+              require.resolve(dep); // Check installed
             } catch (e) {
-              console.warn(`Missing NPM dependency: ${dep} for ${pluginConfig.name}. Install it!`);
+              console.warn(`Missing NPM dependency: ${dep} for ${pluginConfig.name}. Will attempt install in manager.`);
             }
           }
         });
       }
 
-      // NEW: Check permissions (basic log; extend to restrict)
-      if (pluginConfig.permissions) {
+      // NEW: Log permissions (extend to enforce based on config)
+      if (pluginConfig.permissions && Array.isArray(pluginConfig.permissions)) {
         console.log(`Plugin ${pluginConfig.name} requires permissions: ${pluginConfig.permissions.join(', ')}`);
-        // TODO: Add actual permission checks based on config
+        // Example enforcement: if (pluginConfig.permissions.includes('highRisk') && !config.allowHighRisk) return;
       }
 
       plugins[folder] = {
