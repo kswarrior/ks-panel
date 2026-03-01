@@ -1,14 +1,14 @@
 {
-  "name": "Example Plugin",
+  "name": "example_plugin",
   "version": "1.0.0",
-  "author": "Your Name",
-  "description": "Example KS-Panel plugin",
+  "author": "Example",
+  "description": "Test plugin",
   "main": "main.js",
   "router": "example",
   "adminsidebar": {
     "example": "/admin/example"
   },
-  "dependencies": ["express", "plugin:AnotherPlugin"],
-  "permissions": ["accessDB", "modifyRoutes"],
-  "hooks": ["userLogin", "serverCreate"]
+  "dependencies": ["lodash", "plugin:another_plugin"],
+  "permissions": ["readDB", "modifyRoutes"],
+  "hooks": ["panelStart", "serverCreate"]
 }
