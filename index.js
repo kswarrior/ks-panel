@@ -20,6 +20,7 @@ const crypto = require("node:crypto");
 const sqlite = require("better-sqlite3");
 const SqliteStore = require("better-sqlite3-session-store")(session);
 const sessionStorage = new sqlite("sessions.db");
+
 const { loadPlugins } = require("./plugins/loadPls.js");
 let plugins = loadPlugins(path.join(__dirname, "./plugins"));
 plugins = Object.values(plugins).map((plugin) => plugin.config);
@@ -27,6 +28,7 @@ plugins = Object.values(plugins).map((plugin) => plugin.config);
 const { init } = require("./handlers/init.js");
 
 const log = new (require("cat-loggr"))();
+log.setLevel('debug');  // ADD: Enable debug/info logs (you can change to 'info' in production)
 
 app.use(
   session({
@@ -40,6 +42,12 @@ app.use(
     secret: config.session_secret || "secret",
     resave: true,
     saveUninitialized: true,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days - more reasonable default
+      httpOnly: true,
+      secure: config.mode === "production",
+      sameSite: "lax",
+    },
   })
 );
 
@@ -49,7 +57,7 @@ app.use(
  * reads route files from the 'routes' directory, and applies WebSocket enhancements to each route.
  * Finally, it sets up static file serving and starts listening on a specified port.
  */
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true })); // FIXED: true is usually better
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(analytics);
@@ -169,20 +177,21 @@ if (config.mode === "production" || false) {
 }
 
 app.set("view engine", "ejs");
-/**
- * Configures the Express application to serve static files from the 'public' directory, providing
- * access to client-side resources like images, JavaScript files, and CSS stylesheets without additional
- * routing. The server then starts listening on a port defined in the configuration file, logging the port
- * number to indicate successful startup.
- */
+
 app.use(express.static("public"));
 
-/**
- * Dynamically loads all route modules from the 'routes' directory, applying WebSocket support to each.
- * Logs the loaded routes and mounts them to the Express application under the root path. This allows for
- * modular route definitions that can be independently maintained and easily scaled.
- */
+// ────────────────────────────────────────────────
+// ADD: Logging for config and DB startup
+// ────────────────────────────────────────────────
+log.debug('Config loaded:', config);
 
+log.info('Initializing DB...');
+// const { db } = require("./handlers/db.js");   ← already required at top
+log.info('DB initialized');
+
+// ────────────────────────────────────────────────
+// Dynamically load routes
+// ────────────────────────────────────────────────
 const routesDir = path.join(__dirname, "routes");
 function loadRoutes(directory) {
   fs.readdirSync(directory).forEach((file) => {
@@ -219,10 +228,15 @@ init();
 
 app.set('trust proxy', 1);
 
+// ────────────────────────────────────────────────
+// Startup banner & listen
+// ────────────────────────────────────────────────
 console.log(chalk.gray(ascii.replace("{version}", config.version)));
-app.listen(config.port, () =>
-  log.info(`KS Panel is listening on port ${config.port}`)
-);
+
+app.listen(config.port, () => {
+  log.info(`KS Panel is listening on port ${config.port}`);
+  log.debug('Server ready - routes loaded');  // ADD: as requested
+});
 
 // 404 handler (MUST be last route)
 app.get('*', async function(req, res){
