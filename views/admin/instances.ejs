@@ -40,7 +40,7 @@
           </div>
        </div>
       <% } %>	  
- 
+
       <div style="display: block;" id="instanceTable" class="mt-6 w-full overflow-x-auto">
   <table class="min-w-full text-sm text-left text-white border-collapse">
 
@@ -195,14 +195,22 @@
                         <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (MiB):</label>
                         <input id="disk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="10240">
                     </div>
+
+                    <!-- Replaced old ports + primary with allocation select + container port -->
                     <div>
-                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.ports %>:</label>
-                        <input id="ports" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="25565:25565,8080:8080">
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2">Select Host Port (Allocation):</label>
+                        <select id="allocationId" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" required>
+                            <option value="">-- Select node first --</option>
+                        </select>
+                        <small class="text-neutral-500 block mt-1">Choose an available IP:Port from the selected node</small>
                     </div>
+
                     <div>
-                        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.primaryPort %>:</label>
-                        <input id="primary" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" placeholder="25565">
+                        <label class="text-neutral-400 text-sm tracking-tight mb-2">Container Internal Port:</label>
+                        <input id="containerPort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5" value="25565" placeholder="e.g. 25565" required>
+                        <small class="text-neutral-500 block mt-1">Port used inside the container (usually fixed per image)</small>
                     </div>
+
                 </div>
                 <div class="mt-4">
                     <button id="createNodeBtn" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
@@ -287,6 +295,48 @@
       }
   });
 </script>
+
+<script>
+  // ────────────────────────────────────────────────
+  // Load available allocations when node changes
+  // ────────────────────────────────────────────────
+  document.getElementById('node').addEventListener('change', async function() {
+    const nodeId = this.value;
+    const allocSelect = document.getElementById('allocationId');
+
+    allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
+
+    if (!nodeId) {
+      allocSelect.innerHTML = '<option value="">-- Select a node first --</option>';
+      return;
+    }
+
+    try {
+      const response = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
+      if (!response.ok) throw new Error('Failed to load ports');
+      
+      const allocations = await response.json();
+
+      allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
+
+      if (allocations.length === 0) {
+        allocSelect.innerHTML = '<option value="">No available ports on this node</option>';
+        return;
+      }
+
+      allocations.forEach(alloc => {
+        const option = document.createElement('option');
+        option.value = alloc.id;
+        option.textContent = alloc.label;
+        allocSelect.appendChild(option);
+      });
+    } catch (err) {
+      console.error(err);
+      allocSelect.innerHTML = '<option value="">Error loading ports</option>';
+    }
+  });
+</script>
+
 <script>
   document.getElementById('createButton').addEventListener('click', function() {
     var table = document.getElementById('instanceTable');
@@ -307,6 +357,8 @@
     });
     elem.dispatchEvent(event);
 
+    // Reset allocation dropdown when form opens
+    document.getElementById('allocationId').innerHTML = '<option value="">-- Select node first --</option>';
   });
 
   document.getElementById('image').addEventListener('change', function() {
@@ -315,6 +367,7 @@
     const env = JSON.parse(selectedOption.getAttribute('data-env') || '{}');
   });
 </script>
+
 <script>
 document.getElementById('createNodeBtn').addEventListener('click', async function() {
     const createBtn = this;
@@ -325,9 +378,9 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
     const memory = document.getElementById('memory');
     const cpu = document.getElementById('cpu');
     const disk = document.getElementById('disk');
-    const ports = document.getElementById('ports');
+    const allocationId = document.getElementById('allocationId');
+    const containerPort = document.getElementById('containerPort');
     const imageDropdown = document.getElementById('image');
-    const primaryPort = document.getElementById('primary');
     const selectedImage = imageDropdown.options[imageDropdown.selectedIndex];
     const configFilePath = selectedImage.getAttribute('data-configfilepath');
     let configFileContent = selectedImage.getAttribute('data-configfilecontent');
@@ -365,23 +418,25 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
         isValid = false;
     }
 
-    const portPattern = /^(\d+:\d+)(,\d+:\d+)*$/;
-    if (!ports.value.match(portPattern)) {
-        showError(ports, 'Ports must be in the format "port:port,port:port".');
+    if (!allocationId.value) {
+        showError(allocationId, 'Please select an available host port.');
         isValid = false;
     }
 
-    if (!primaryPort.value.match(/^\d+$/)) {
-        showError(primaryPort, 'Primary port must be a valid number.');
+    if (!containerPort.value.match(/^\d+$/) || parseInt(containerPort.value) < 1 || parseInt(containerPort.value) > 65535) {
+        showError(containerPort, 'Container port must be a number between 1 and 65535.');
         isValid = false;
-    } else {
-        configFileContent = configFileContent.replace('{{primaryPort}}', primaryPort.value);
     }
 
     if (!isValid) {
         createBtn.textContent = 'Create';
         createBtn.disabled = false;
         return;
+    }
+
+    // Optional: auto-replace {{primaryPort}} if your images still use it
+    if (configFileContent && configFileContent.includes('{{primaryPort}}')) {
+        configFileContent = configFileContent.replace('{{primaryPort}}', containerPort.value);
     }
 
     const nodeData = {
@@ -393,8 +448,8 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
         memory: memory.value,
         cpu: cpu.value,
         disk: disk.value,
-        ports: ports.value,
-        primary: primaryPort.value,
+        allocationId: allocationId.value,
+        containerPort: containerPort.value,
         configFilePath: configFilePath,
         configFileContent: configFileContent,
         variables: JSON.stringify(variables)
@@ -414,7 +469,7 @@ function serializeParams(params) {
     return Object.keys(params)
         .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
         .join('&');
-    }
+}
     
 function showError(element, message) {
     element.classList.add('input-error');
@@ -453,7 +508,7 @@ function sendData(nodeData, createBtn) {
         }
     })
     .then(data => {
-	window.location.href = '../admin/instances?err=CREATED'
+	    window.location.href = '/admin/instances?err=CREATED';
         console.log('Instance created:', data);
         createBtn.textContent = 'Create';
         createBtn.disabled = false;
