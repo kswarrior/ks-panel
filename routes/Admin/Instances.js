@@ -180,48 +180,65 @@ router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/instances/deploy", isAdmin, async (req, res) => {
-  const { image, imagename, memory, cpu, disk, ports, nodeId, name, user, primary, variables } = req.query;
-  if (!image || !memory || !cpu || !disk || !ports || !nodeId || !name || !user || !primary) {
-    return res.status(400).json({ error: "Missing parameters" });
+router.get('/instances/deploy', isAdmin, async (req, res) => {
+  const { image, imagename, memory, cpu, disk, allocationId, containerPort, nodeId, name, user, primary, variables } = req.query;
+  if (!image || !memory || !cpu || !disk || !allocationId || !containerPort || !nodeId || !name || !user || !primary) {
+    return res.status(400).json({ error: 'Missing parameters' });
   }
 
   try {
-    const Id = uuid().split("-")[0];
+    const Id = uuid().split('-')[0];
     const node = await db.get(`${nodeId}_node`);
-    if (!node) return res.status(400).json({ error: "Invalid node" });
+    if (!node) return res.status(400).json({ error: 'Invalid node' });
 
-    const requestData = await prepareRequestData(image, memory, cpu, disk, ports, name, node, Id, variables, imagename);
+    // Get and validate allocation
+    const allocationsKey = `${nodeId}_allocations`;
+    let allocations = (await db.get(allocationsKey)) || [];
+    const allocation = allocations.find(a => a.id === allocationId && !a.assignedTo);
+    if (!allocation) {
+      return res.status(400).json({ error: 'Invalid or unavailable allocation' });
+    }
+
+    // Temp: ports string for storage (can expand for multi)
+    const ports = `${containerPort}:${allocation.port}`;
+
+    const requestData = await prepareRequestData(image, memory, cpu, disk, ports, name, node, Id, variables, imagename, allocation); // Pass allocation
     const response = await axios(requestData);
+
+    // Assign allocation
+    allocation.assignedTo = Id;
+    await db.set(allocationsKey, allocations);
 
     await updateDatabaseWithNewInstance(response.data, user, node, image, memory, cpu, disk, ports, primary, name, Id, imagename);
 
     checkContainerState(Id, node.address, node.port, node.apiKey, user);
 
-    logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
+    invalidateNodeCache(nodeId);
+    logAudit(req.user.userId, req.user.username, 'instance:create', req.ip);
     res.status(201).json({
-      message: "Container creation initiated. State will be updated asynchronously.",
+      message: 'Container creation initiated. State will be updated asynchronously.',
       volumeId: Id,
-      state: "INSTALLING",
+      state: 'INSTALLING',
     });
   } catch (error) {
-    log.error("Error deploying instance:", error);
+    log.error('Error deploying instance:', error);
     res.status(500).json({
-      error: "Failed to create container",
-      details: error.response ? error.response.data : "No additional error info",
+      error: 'Failed to create container',
+      details: error.response ? error.response.data : 'No additional error info',
     });
   }
 });
 
-async function prepareRequestData(image, memory, cpu, disk, ports, name, node, Id, variables, imagename) {
-  const rawImages = await db.get("images");
-  const imageData = rawImages.find((i) => i.Name === imagename);
+// Modified: add allocation param, use for bindings (single for simplicity)
+async function prepareRequestData(image, memory, cpu, disk, ports, name, node, Id, variables, imagename, allocation) {
+  const rawImages = await db.get('images');
+  const imageData = rawImages.find(i => i.Name === imagename);
 
   const requestData = {
-    method: "post",
+    method: 'post',
     url: `http://${node.address}:${node.port}/instances/create`,
-    auth: { username: "kspanel", password: node.apiKey },
-    headers: { "Content-Type": "application/json" },
+    auth: { username: 'kspanel', password: node.apiKey },
+    headers: { 'Content-Type': 'application/json' },
     data: {
       Name: name,
       Id,
@@ -240,23 +257,21 @@ async function prepareRequestData(image, memory, cpu, disk, ports, name, node, I
     },
   };
 
-  if (ports) {
-    ports.split(",").forEach((portMapping) => {
-      const [containerPort, hostPort] = portMapping.split(":");
-      const tcpKey = `${containerPort}/tcp`;
-      const udpKey = `${containerPort}/udp`;
+  // Single mapping: containerPort to allocation.port on allocation.ip (tcp+udp)
+  const [containerPort, _] = ports.split(':'); // Ignore host from old ports
+  const tcpKey = `${containerPort}/tcp`;
+  const udpKey = `${containerPort}/udp`;
 
-      requestData.data.ExposedPorts[tcpKey] = {};
-      requestData.data.PortBindings[tcpKey] = [{ HostPort: hostPort }];
+  requestData.data.ExposedPorts[tcpKey] = {};
+  requestData.data.PortBindings[tcpKey] = [{ HostIp: allocation.ip, HostPort: allocation.port.toString() }];
 
-      requestData.data.ExposedPorts[udpKey] = {};
-      requestData.data.PortBindings[udpKey] = [{ HostPort: hostPort }];
-    });
-  }
+  requestData.data.ExposedPorts[udpKey] = {};
+  requestData.data.PortBindings[udpKey] = [{ HostIp: allocation.ip, HostPort: allocation.port.toString() }];
 
   return requestData;
 }
 
+// Update storage to include allocationId if needed (optional)
 async function updateDatabaseWithNewInstance(responseData, userId, node, image, memory, cpu, disk, ports, primary, name, Id, imagename) {
   const rawImages = await db.get("images");
   const imageData = rawImages.find((i) => i.Name === imagename);
