@@ -295,8 +295,10 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
     node.configureKey = configureKey;
     await db.set(id + "_node", node);
 
+    // FIXED: Correct panelUrl construction with proper template literal interpolation
+    const panelUrl = `${req.protocol}://${req.get('host')}`;  // e.g., "http://localhost:3000" or your domain
+
     // Construct the configuration command
-    const panelUrl = `\( {req.protocol}:// \){req.get("host")}`;
     const configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
 
     // Return the configuration command
