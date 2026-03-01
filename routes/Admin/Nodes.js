@@ -3,7 +3,7 @@ const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
-const { parsePorts } = require('../../utils/dbHelper.js'); // Adjust path if needed
+const { parsePorts } = require('../../utils/dbHelper.js'); // Adjust path if needed - add to dbHelper if not there
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin } = require("../../utils/isAdmin.js");
 const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
@@ -106,36 +106,57 @@ router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
 });
 
 router.post("/nodes/create", isAdmin, async (req, res) => {
-  const configureKey = uuidv4();
-  const node = {
-    id: uuidv4(),
-    name: req.body.name,
-    ram: req.body.ram,
-    disk: req.body.disk,
-    address: req.body.address,
-    port: req.body.port,
-    location: req.body.location || null,  // Keep as optional
-    apiKey: null,
-    configureKey: configureKey,
-    status: "Unconfigured",
-  };
+  const { name, ram, disk, address, port, location, allocIp, allocAlias, portsInput } = req.body; // NEW: allocation fields
 
   if (
-    !req.body.name ||
-    !req.body.ram ||
-    !req.body.disk ||
-    !req.body.address ||
-    !req.body.port
+    !name ||
+    !ram ||
+    !disk ||
+    !address ||
+    !port
   ) {
     return res.status(400).json({ error: "Form validation failure: Missing required fields." });
   }
 
+  const configureKey = uuidv4();
+  const nodeId = uuidv4(); // NEW: use full UUID
+
+  const node = {
+    id: nodeId,
+    name,
+    ram,
+    disk,
+    address,
+    port,
+    location: location || null,  // Keep as optional
+    apiKey: null,
+    configureKey,
+    status: "Unconfigured",
+  };
+
   try {
-    await db.set(`${node.id}_node`, node);
+    await db.set(`${nodeId}_node`, node);
     const nodes = (await db.get("nodes")) || [];
-    nodes.push(node.id);
+    nodes.push(nodeId);
     await db.set("nodes", nodes);
     invalidateCache("nodes");
+
+    // NEW: Handle initial allocations
+    if (portsInput && portsInput.trim()) {
+      const ports = parsePorts(portsInput);
+      if (ports.length > 0) {
+        const allocations = ports.map(p => ({
+          id: uuidv4(),
+          ip: allocIp?.trim() || address,
+          alias: allocAlias?.trim() || null,
+          port: p,
+          assignedTo: null,
+        }));
+
+        await db.set(`${nodeId}_allocations`, allocations);
+      }
+    }
+
     logAudit(req.user.userId, req.user.username, "node:create", req.ip);
     res.status(201).json({ ...node, configureKey });
   } catch (err) {
