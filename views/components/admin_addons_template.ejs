@@ -1,25 +1,66 @@
-<!doctype html>
-<html class="h-full w-full">
-   <head>
-      <title><%= name || 'KS Panel' %></title>
-      <link rel="icon" href="/assets/logo.webp" type="image/webp">
+<div class="mt-8 ml-8 mb-8">
+  <div>
+    <div class="block">
+      <nav class="flex">
+        <ul role="list" class="flex overflow-x-auto gap-x-2 text-sm font-normal leading-6 text-neutral-400">
 
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta content="<%= ogTitle %>" property="og:title">
-      <meta content="<%= ogDescription %>" property="og:description">
-      <link href="/assets/tailwind.css" rel="stylesheet">
-      <link href="/css/ks-panel.css" rel="stylesheet">
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-   </head>
-   <body 
-  style="
-    font-family: 'Public Sans';
-    background:
-      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-      url('/assets/background.webp');
-    background-position: center top;
-    background-repeat: repeat-y; /* repeats vertically */
-    background-size: 100% auto;  /* keeps full width */" >
+          <!-- Overview -->
+          <li class="transition">
+            <a href="/admin/plugins" class="nav-link2 py-2 px-3 transition border hover:bg-white/5 border-transparent hover:text-white hover:shadow rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mb-0.5 inline-flex mr-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6h16.5M3.75 12h16.5m-16.5 6h16.5" />
+              </svg>
+              Overview
+            </a>
+          </li>
+
+          <!-- Store -->
+          <li class="transition">
+            <a href="/admin/plugins/store" class="nav-link2 py-2 px-3 transition border hover:bg-white/5 border-transparent hover:text-white hover:shadow rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mb-0.5 inline-flex mr-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h19.5l-1.5 9h-16.5l-1.5-9zm0 0l1.5 9m16.5-9l-1.5 9m-13.5 6a1.5 1.5 0 1 1-3 0m16.5 0a1.5 1.5 0 1 1-3 0" />
+              </svg>
+              Store
+            </a>
+          </li>
+
+          <!-- Developer Guide -->
+          <li class="transition">
+            <a href="/admin/plugins/developer-guide" class="nav-link2 py-2 px-3 transition border hover:bg-white/5 border-transparent hover:text-white hover:shadow rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mb-0.5 inline-flex mr-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75v10.5m5.25-5.25h-10.5" />
+              </svg>
+              Developer Guide
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var currentPagePath = window.location.pathname;
+  var navLinks2 = document.querySelectorAll('.nav-link2');
+
+  navLinks2.forEach(function(link) {
+    var linkPath = new URL(link.getAttribute('href'), window.location.origin).pathname;
+
+    if (currentPagePath === linkPath) {
+      link.className = 'nav-link';
+      link.classList.add(
+        'text-white',
+        'font-medium',
+        'border',
+        'border-transparent',
+        'bg-white/10',
+        'py-2',
+        'px-3',
+        'rounded-xl',
+        'shadow-sm'
+      );
+    }
+  });
+});
+</script>
