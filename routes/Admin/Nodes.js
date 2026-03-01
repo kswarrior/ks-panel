@@ -77,8 +77,9 @@ router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
   let status = "Offline";
 
   try {
+    log.debug(`Fetching stats from wings: http://${node.address}:${node.port}/stats`);  // ADD: Debug
     const response = await axios.get(
-      `http://kspanel:\( {node.apiKey}@ \){node.address}:${node.port}/stats`,
+      `http://kspanel:${node.apiKey}@${node.address}:${node.port}/stats`,
       { timeout: 5000 }
     );
     stats = response.data;
@@ -86,10 +87,12 @@ router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
     if (stats && stats.uptime !== "0d 0h 0m") {
       status = "Online";
     }
-  } catch (error) {}
+  } catch (error) {
+    log.error(`Stats fetch failed for node ${id}: ${error.message}`);  // ADD: Detailed log
+    if (error.response) log.debug('Wings response:', error.response.data);  // ADD
+  }
 
-  let set = {};
-  set[id] = instanceCount;
+  let set = { [id]: instanceCount };
 
   res.render("admin/node_stats", {
     req,
@@ -208,7 +211,7 @@ router.post("/nodes/delete", isAdmin, async (req, res) => {
 
         try {
           await axios.get(
-            `http://kspanel:\( {node.apiKey}@ \){node.address}:${node.port}/instances/purge/all`
+            `http://kspanel:${node.apiKey}@${node.address}:${node.port}/instances/purge/all`
           );
         } catch (apiError) {
           log.error("Error calling purge API:", apiError);
@@ -315,48 +318,34 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
 router.post("/admin/node/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
   const cnode = await db.get(id + "_node");
+  if (!cnode || !id) return res.status(400).json({ error: "Node not found" });  // FIXED: JSON error
 
-  if (!cnode || !id) return res.status(400).send();
+  try {  // ADD: Try-catch for DB errors
+    const node = {
+      id: id,
+      name: req.body.name,
+      ram: req.body.ram,
+      disk: req.body.disk,
+      address: req.body.address,
+      port: req.body.port,
+      location: req.body.location || cnode.location,
+      apiKey: req.body.apiKey,
+      status: "Unknown",
+    };
 
-  const node = {
-    id: id,
-    name: req.body.name,
-    ram: req.body.ram,
-    disk: req.body.disk,
-    address: req.body.address,
-    port: req.body.port,
-    location: req.body.location || cnode.location,  // Keep existing if not provided
-    apiKey: req.body.apiKey,
-    status: "Unknown",
-  };
+    if (!req.body.name || !req.body.ram || !req.body.disk || !req.body.address || !req.body.port) {
+      return res.status(400).json({ error: "Missing required fields" });  // ADD: Validation
+    }
 
-  await db.set(node.id + "_node", node);
-  const updatedNode = await checkNodeStatus(node);
-  res.status(201).send(updatedNode);
-});
-
-router.post("/admin/node/:id", isAdmin, async (req, res) => {
-  const { id } = req.params;
-  const cnode = await db.get(id + "_node");
-
-  if (!cnode || !id) return res.status(400).send();
-
-  const node = {
-    id: id,
-    name: req.body.name,
-    ram: req.body.ram,
-    disk: req.body.disk,
-    processor: req.body.processor,
-    location: req.body.location,
-    address: req.body.address,
-    port: req.body.port,
-    apiKey: req.body.apiKey,
-    status: "Unknown",
-  };
-
-  await db.set(node.id + "_node", node);
-  const updatedNode = await checkNodeStatus(node);
-  res.status(201).send(updatedNode);
+    await db.set(node.id + "_node", node);
+    const updatedNode = await checkNodeStatus(node);
+    invalidateCache("nodes");  // ADD: Refresh cache
+    logAudit(req.user.userId, req.user.username, "node:update", req.ip);
+    res.status(200).json(updatedNode);  // FIXED: 200, JSON
+  } catch (err) {
+    log.error("Error updating node:", err);  // ADD: Log
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
@@ -371,7 +360,7 @@ router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
         if (nodestatus) {
           try {
             const response = await axios.get(
-              `http://\( {node.address}: \){node.port}/check/all`,
+              `http://${node.address}:${node.port}/check/all`,
               {
                 auth: {
                   username: "kspanel",
