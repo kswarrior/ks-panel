@@ -51,19 +51,20 @@
             <p class="mt-1 tracking-tight text-sm text-neutral-500">View, update and manage an instance on the KS Panel.</p>
          </div>
          <% let query = req.query.path ? '?path=' + req.query.path : ''; %>
-         <div class="mt-4 sm:ml-16 sm:mt-0 flex space-x-4">
-            <input type="text" id="searchInput2" placeholder="Search files..." class="px-3 py-2 bg-transparent border border-white/5 shadow-lg focus:scale-105 transition rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 focus:ring-neutral-600 mr-2 w-64">
-            <a href="/instance/<%= req.params.id %>/files/create<%= query %>" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Create File
-            </a>
-            <a href="/instance/<%= req.params.id %>/files/folder/create<%= query %>" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Create Folder
-            </a>
-            <button id="uploadBtn" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Upload File(s)
-            </button>
-            <input type="file" id="fileInput" multiple style="display: none;">
-         </div>
+         <div class="mt-4 sm:ml-16 sm:mt-0 flex flex-wrap gap-4">
+    <input type="text" id="searchInput2" placeholder="Search files..." 
+           class="px-3 py-2 bg-transparent border border-white/5 shadow-lg rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 focus:ring-neutral-600 flex-grow min-w-[200px]">
+    <a href="..." class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg">
+      Create File
+    </a>
+    <a href="..." class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg">
+      Create Folder
+    </a>
+    <button id="uploadBtn" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg">
+      Upload File(s)
+    </button>
+    <input type="file" id="fileInput" multiple style="display: none;">
+</div>
       </div>
    </div>
    <%- include('../components/instance') %>
@@ -195,8 +196,8 @@
    <!-- End of files -->
    <!-- Floating Action Bar -->
    <div id="floatingActionBar" 
-     class="fixed bottom-0 left-0 right-0 max-w-full mx-auto bg-neutral-600/70 backdrop-blur text-white py-4 px-6 transition-transform duration-300 ease-in-out flex justify-between items-center">
-    <span id="selectedFilesCount" class="truncate">0 files selected</span>
+     class="fixed bottom-0 left-0 right-0 px-4 sm:px-6 md:px-8 py-4 bg-neutral-600/70 backdrop-blur text-white flex justify-between items-center z-50">
+    <span id="selectedFilesCount" class="truncate max-w-[70%]">0 files selected</span>
     <button id="massDeleteBtn" class="bg-red-500 hover:bg-red-600 text-white font-normal py-2 px-4 rounded-xl transition whitespace-nowrap">
         Delete Selected
     </button>
