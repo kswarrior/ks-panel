@@ -70,6 +70,32 @@
   <input type="file" id="fileInput" multiple style="display: none;">
 </div>
       </div>
+      <script>
+      document.addEventListener('DOMContentLoaded', () => {
+  const toolsBtn = document.getElementById('toolsBtn');
+  const toolsDropdown = document.getElementById('toolsDropdown');
+  const uploadBtnDropdown = document.getElementById('uploadBtnDropdown');
+  const fileInput = document.getElementById('fileInput');
+
+  // Toggle dropdown on Tools click
+  toolsBtn.addEventListener('click', () => {
+    toolsDropdown.classList.toggle('hidden');
+  });
+
+  // Close dropdown if clicked outside
+  document.addEventListener('click', (e) => {
+    if (!toolsBtn.contains(e.target) && !toolsDropdown.contains(e.target)) {
+      toolsDropdown.classList.add('hidden');
+    }
+  });
+
+  // Reuse existing upload function
+  uploadBtnDropdown.addEventListener('click', () => {
+    fileInput.click();
+    toolsDropdown.classList.add('hidden'); // hide dropdown after click
+  });
+});
+</script>
    </div>
    <%- include('../components/instance') %>
    <div class="px-4 sm:px-6 lg:px-8">
