@@ -79,6 +79,61 @@
        </div>	      
       <% } %>
 
+      <!-- ================== NEW: ALLOCATIONS MANAGEMENT SECTION ================== -->
+      <div class="card mt-8 mx-8 bg-white/5 rounded-xl shadow-lg overflow-hidden">
+        <div class="card-header p-6 border-b border-white/10 flex justify-between items-center">
+          <h5 class="text-lg font-semibold text-white mb-0"><%= req.translations.manageAllocations || 'Manage IP Aliases & Ports' %></h5>
+          <button class="btn btn-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm" id="toggleAllocForm">
+            Add New Allocation
+          </button>
+        </div>
+
+        <div id="allocForm" class="p-6 hidden">
+          <form id="allocationForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="allocNode" class="text-neutral-400 text-sm block mb-2">Select Node</label>
+                <select class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none" id="allocNode" required>
+                  <option value="">-- Choose Node --</option>
+                  <% nodes.forEach(node => { %>
+                    <option value="<%= node.id %>"><%= node.name %> (<%= node.address %>:<%= node.port %>)</option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <div>
+                <label for="allocIp" class="text-neutral-400 text-sm block mb-2">IP / Host (optional)</label>
+                <input type="text" class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none" id="allocIp" placeholder="e.g. 192.168.1.100 (leave blank to use node address)">
+              </div>
+
+              <div>
+                <label for="allocAlias" class="text-neutral-400 text-sm block mb-2">IP Alias / Label (optional)</label>
+                <input type="text" class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none" id="allocAlias" placeholder="e.g. Main Game IP">
+              </div>
+
+              <div class="md:col-span-2">
+                <label for="allocPorts" class="text-neutral-400 text-sm block mb-2">Ports (comma separated or ranges)</label>
+                <textarea class="rounded-xl text-white text-sm w-full px-4 py-3 bg-neutral-700/30 border border-white/10 focus:border-white/30 outline-none h-28" id="allocPorts" placeholder="Examples:\n25565\n25565,25566,5085\n25565-25575,27015-27030" required></textarea>
+                <p class="text-xs text-neutral-500 mt-2">Supports single ports, comma-separated lists, and ranges (e.g. 25565-25575)</p>
+              </div>
+            </div>
+
+            <div class="mt-6 flex gap-4">
+              <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition" id="createAllocBtn">Add Allocations</button>
+              <button type="button" class="bg-neutral-700 hover:bg-neutral-600 text-white px-6 py-3 rounded-xl text-sm font-medium transition" id="cancelAllocBtn">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Preview table -->
+        <div class="p-6">
+          <h6 class="text-sm font-medium text-neutral-300 mb-4">Current Allocations (select node to preview)</h6>
+          <div id="allocTableContainer" class="text-sm text-neutral-400">
+            <p class="italic">Select a node above to view its allocated ports.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Responsive Node Table -->
       <div class="px-4 sm:px-8 mt-8 w-full overflow-x-auto">
         <div class="min-w-full bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg" id="nodeTable">
@@ -207,7 +262,7 @@
         Command copied to clipboard!
       </div>
 
-      <!-- Node Creation Form (now includes IP Alias & Ports) -->
+      <!-- Node Creation Form -->
       <div id="nodeForm" class="mt-6 px-4 sm:px-6 w-full hidden">
         <div class="p-4 sm:p-6 lg:p-8 
                     bg-transparent shadow-xl 
@@ -215,16 +270,16 @@
                     rounded-xl overflow-hidden 
                     card 
                     w-full max-w-4xl mx-auto">
-          <form id="createNodeForm">
-            <!-- Responsive Grid - extended for more fields -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form>
+            <!-- Responsive Grid -->
+            <div style="margin-bottom:75px;" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <!-- Name -->
               <div>
                 <label for="nodeName" class="text-neutral-400 text-sm block mb-1">
                   <%= req.translations.name %>:
                 </label>
-                <input id="nodeName" required
+                <input id="nodeName"
                   class="rounded-xl text-white text-sm w-full px-4 py-2
                          bg-neutral-600/20 border border-white/5
                          placeholder:text-white/20 outline-none
@@ -237,7 +292,7 @@
                 <label for="nodeRam" class="text-neutral-400 text-sm block mb-1">
                   <%= req.translations.ram %> (GB):
                 </label>
-                <input id="nodeRam" required
+                <input id="nodeRam"
                   class="rounded-xl text-white text-sm w-full px-4 py-2
                          bg-neutral-600/20 border border-white/5
                          placeholder:text-white/20 outline-none
@@ -250,7 +305,7 @@
                 <label for="nodeDisk" class="text-neutral-400 text-sm block mb-1">
                   <%= req.translations.disk %> (GB):
                 </label>
-                <input id="nodeDisk" required
+                <input id="nodeDisk"
                   class="rounded-xl text-white text-sm w-full px-4 py-2
                          bg-neutral-600/20 border border-white/5
                          placeholder:text-white/20 outline-none
@@ -258,12 +313,12 @@
                   placeholder="This is only for information purposes.">
               </div>
 
-              <!-- IP / Host (used as fallback for allocations) -->
+              <!-- IP -->
               <div>
                 <label for="nodeAddress" class="text-neutral-400 text-sm block mb-1">
                   <%= req.translations.addressIP %>:
                 </label>
-                <input id="nodeAddress" required
+                <input id="nodeAddress"
                   class="rounded-xl text-white text-sm w-full px-4 py-2
                          bg-neutral-600/20 border border-white/5
                          placeholder:text-white/20 outline-none
@@ -276,7 +331,7 @@
                 <label for="nodeLocation" class="text-neutral-400 text-sm block mb-1">
                   <%= req.translations.location %>:
                 </label>
-                <select id="nodeLocation" required
+                <select id="nodeLocation"
                   class="rounded-xl text-white text-sm w-full px-4 py-2
                          bg-neutral-600/20 border border-white/5
                          placeholder:text-white/20 outline-none
@@ -288,12 +343,12 @@
                 </select>
               </div>
 
-              <!-- Daemon Port -->
+              <!-- Port -->
               <div>
                 <label for="nodePort" class="text-neutral-400 text-sm block mb-1">
                   <%= req.translations.deamonPort %>:
                 </label>
-                <input id="nodePort" required
+                <input id="nodePort"
                   class="rounded-xl text-white text-sm w-full px-4 py-2
                          bg-neutral-600/20 border border-white/5
                          placeholder:text-white/20 outline-none
@@ -301,61 +356,16 @@
                   placeholder="3002">
               </div>
 
-              <!-- ────────────── NEW: Allocation Fields ────────────── -->
-              <div class="md:col-span-2 mt-4 border-t border-white/10 pt-6">
-                <h3 class="text-lg font-medium text-white mb-4">Initial IP Alias & Ports (Allocations)</h3>
-                <p class="text-sm text-neutral-400 mb-4">You can add ports here during node creation. You can add more later from the node edit page.</p>
-              </div>
-
-              <div>
-                <label for="allocIp" class="text-neutral-400 text-sm block mb-1">
-                  IP / Host for Allocations (optional)
-                </label>
-                <input id="allocIp"
-                  class="rounded-xl text-white text-sm w-full px-4 py-2
-                         bg-neutral-600/20 border border-white/5
-                         placeholder:text-white/20 outline-none
-                         hover:bg-white/5 focus:border-white/20"
-                  placeholder="Leave blank to use node address">
-              </div>
-
-              <div>
-                <label for="allocAlias" class="text-neutral-400 text-sm block mb-1">
-                  IP Alias / Label (optional)
-                </label>
-                <input id="allocAlias"
-                  class="rounded-xl text-white text-sm w-full px-4 py-2
-                         bg-neutral-600/20 border border-white/5
-                         placeholder:text-white/20 outline-none
-                         hover:bg-white/5 focus:border-white/20"
-                  placeholder="e.g. Game Server IP">
-              </div>
-
+              <!-- Button -->
               <div class="md:col-span-2">
-                <label for="allocPorts" class="text-neutral-400 text-sm block mb-1">
-                  Ports (comma separated or ranges)
-                </label>
-                <textarea id="allocPorts" rows="3"
-                  class="rounded-xl text-white text-sm w-full px-4 py-2
-                         bg-neutral-600/20 border border-white/5
-                         placeholder:text-white/20 outline-none
-                         hover:bg-white/5 focus:border-white/20"
-                  placeholder="Examples:\n25565\n25565,25566,5085\n25565-25575,27015-27030"></textarea>
-                <p class="text-xs text-neutral-500 mt-1">Supports single ports, lists, and ranges (e.g. 25565-25575)</p>
-              </div>
-              <!-- ──────────────────────────────────────────────── -->
-
-              <!-- Create Button -->
-              <div class="md:col-span-2 mt-6">
                 <button id="createNodeBtn"
                   type="button"
                   class="w-full rounded-xl <%= theme['button-color'] %> 
-                         px-4 py-3 text-sm font-medium shadow-lg
+                         px-4 py-2 text-sm font-medium shadow-lg
                          transition hover:scale-[1.02] active:scale-95">
                   <%= req.translations.create %>
                 </button>
               </div>
-
             </div>
             <br>
           </form>
@@ -364,6 +374,9 @@
       
    </div>
 
+   <!-- ──────────────────────────────────────────────── -->
+   <!-- JavaScript (existing + new allocation handling)   -->
+   <!-- ──────────────────────────────────────────────── -->
    <script>
    // ────────────────────────────────────────────────
    // Utility: Show floating notification
@@ -411,7 +424,86 @@
    });
 
    // ────────────────────────────────────────────────
-   // Create new node (now includes allocations)
+   // Allocation Form Handling
+   // ────────────────────────────────────────────────
+   document.getElementById('toggleAllocForm')?.addEventListener('click', () => {
+     document.getElementById('allocForm').classList.toggle('hidden');
+   });
+
+   document.getElementById('cancelAllocBtn')?.addEventListener('click', () => {
+     document.getElementById('allocForm').classList.add('hidden');
+   });
+
+   document.getElementById('allocationForm')?.addEventListener('submit', async (e) => {
+     e.preventDefault();
+
+     const nodeId = document.getElementById('allocNode').value;
+     if (!nodeId) {
+       showNotification('Please select a node', 'error');
+       return;
+     }
+
+     const data = {
+       ip: document.getElementById('allocIp').value.trim() || null,
+       alias: document.getElementById('allocAlias').value.trim() || null,
+       portsInput: document.getElementById('allocPorts').value.trim()
+     };
+
+     try {
+       const res = await fetch(`/admin/nodes/${nodeId}/allocations`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(data)
+       });
+
+       const result = await res.json();
+
+       if (res.ok) {
+         showNotification(`Successfully added ${result.allocations?.length || 0} port allocations`, 'success');
+         document.getElementById('allocationForm').reset();
+         // Optional: refresh preview table
+         document.getElementById('allocNode').dispatchEvent(new Event('change'));
+       } else {
+         showNotification(result.error || 'Failed to add allocations', 'error');
+       }
+     } catch (err) {
+       showNotification('Network error: ' + err.message, 'error');
+     }
+   });
+
+   // Load allocations preview when node is selected
+   document.getElementById('allocNode')?.addEventListener('change', async (e) => {
+     const nodeId = e.target.value;
+     const container = document.getElementById('allocTableContainer');
+
+     if (!nodeId) {
+       container.innerHTML = '<p class="italic">Select a node to view its allocated ports.</p>';
+       return;
+     }
+
+     try {
+       const res = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
+       if (!res.ok) throw new Error('Failed to load allocations');
+       const allocs = await res.json();
+
+       if (allocs.length === 0) {
+         container.innerHTML = '<p class="italic text-amber-400">No available ports allocated on this node yet.</p>';
+         return;
+       }
+
+       let html = '<div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="text-neutral-400"><th class="py-2 px-3 text-left">IP:Port</th><th class="py-2 px-3 text-left">Alias</th><th class="py-2 px-3 text-left">Status</th></tr></thead><tbody>';
+       allocs.forEach(a => {
+         html += `<tr class="border-t border-white/5"><td class="py-2 px-3 font-mono">${a.label}</td><td class="py-2 px-3">${a.alias || '-'}</td><td class="py-2 px-3">${a.assignedTo ? '<span class="text-rose-400">Used</span>' : '<span class="text-emerald-400">Available</span>'}</td></tr>`;
+       });
+       html += '</tbody></table></div>';
+       container.innerHTML = html;
+     } catch (err) {
+       container.innerHTML = '<p class="text-red-400">Could not load allocations</p>';
+     }
+   });
+
+   // ────────────────────────────────────────────────
+   // Create new node
    // ────────────────────────────────────────────────
    document.getElementById('createNodeBtn').addEventListener('click', async function() {
      const btn = this;
@@ -420,19 +512,15 @@
      btn.innerHTML = 'Creating...';
 
      try {
-       const name     = document.getElementById('nodeName').value.trim();
-       const ram      = document.getElementById('nodeRam').value.trim();
-       const disk     = document.getElementById('nodeDisk').value.trim();
-       const address  = document.getElementById('nodeAddress').value.trim();
-       const port     = document.getElementById('nodePort').value.trim();
+       const name = document.getElementById('nodeName').value.trim();
+       const ram = document.getElementById('nodeRam').value.trim();
+       const disk = document.getElementById('nodeDisk').value.trim();
+       const address = document.getElementById('nodeAddress').value.trim();
+       const port = document.getElementById('nodePort').value.trim();
        const location = document.getElementById('nodeLocation').value.trim();
 
-       const allocIp    = document.getElementById('allocIp').value.trim() || null;
-       const allocAlias = document.getElementById('allocAlias').value.trim() || null;
-       const allocPorts = document.getElementById('allocPorts').value.trim();
-
        if (!name || !ram || !disk || !address || !port) {
-         throw new Error('Please fill in all required node fields');
+         throw new Error('Please fill in all required fields');
        }
 
        const nodeData = {
@@ -441,11 +529,7 @@
          disk,
          address,
          port,
-         location,
-         // Allocation fields (backend should handle them)
-         allocIp,
-         allocAlias,
-         portsInput: allocPorts
+         location
        };
 
        const response = await fetch('/nodes/create', {
@@ -466,7 +550,7 @@
          throw new Error(errorMsg);
        }
 
-       showNotification('Node and initial allocations created successfully!', 'success');
+       showNotification('Node created successfully!', 'success');
        window.location.href = '/admin/nodes?err=none';
      } catch (error) {
        showNotification(error.message || 'Error creating node', 'error');
@@ -562,6 +646,17 @@
        console.error(err);
        showNotification('Failed to copy configure command', 'error');
      }
+   }
+
+   // ────────────────────────────────────────────────
+   // Handle table row click (skip if clicked button or link)
+   // ────────────────────────────────────────────────
+   function handleRowClick(event, url) {
+     const target = event.target;
+     if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button, a')) {
+       return;
+     }
+     window.location.href = url;
    }
 
    // ────────────────────────────────────────────────
