@@ -300,47 +300,51 @@
   // ────────────────────────────────────────────────
   // Load available allocations when node changes
   // ────────────────────────────────────────────────
-  document.getElementById('node').addEventListener('change', async function() {
-    const nodeId = this.value;
-    const allocSelect = document.getElementById('allocationId');
-
-    allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
-
-    if (!nodeId) {
-      allocSelect.innerHTML = '<option value="">-- Select a node first --</option>';
-      return;
-    }
-
-    try {
-      const response = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
-      if (!response.ok) throw new Error('Failed to load ports');
-      
-      const allocations = await response.json();
-
-      allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
-
-      if (allocations.length === 0) {
-        allocSelect.innerHTML = '<option value="">No available ports on this node</option>';
-        return;
-      }
-
-      allocations.forEach(alloc => {
-        const option = document.createElement('option');
-        option.value = alloc.id;
-        option.textContent = alloc.label;
-        allocSelect.appendChild(option);
-      });
-    } catch (err) {
-      console.error(err);
-      allocSelect.innerHTML = '<option value="">Error loading ports</option>';
-    }
-  });
+  
 </script>
 
 <script>
   document.getElementById('createButton').addEventListener('click', function() {
     var table = document.getElementById('instanceTable');
-    var form = document.getElementById('instanceForm');
+    var form = document.getElementByI// Load available allocations when node changes
+document.getElementById('node')?.addEventListener('change', async (e) => {
+  const nodeId = e.target.value;
+  const allocSelect = document.getElementById('allocationId');
+
+  if (!allocSelect) return;
+
+  allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
+
+  if (!nodeId) {
+    allocSelect.innerHTML = '<option value="">-- Select a node first --</option>';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
+    if (!response.ok) throw new Error('Failed to load ports');
+
+    const allocations = await response.json();
+
+    allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
+
+    if (!Array.isArray(allocations) || allocations.length === 0) {
+      allocSelect.innerHTML = '<option value="">No available ports on this node</option>';
+      return;
+    }
+
+    allocations.forEach(alloc => {
+      const option = document.createElement('option');
+      option.value = alloc.id;
+      option.textContent = alloc.label;
+      allocSelect.appendChild(option);
+    });
+
+  } catch (err) {
+    console.error(err);
+    allocSelect.innerHTML = '<option value="">Error loading ports</option>';
+  }
+});d('instanceForm');
     if (table.style.display !== 'none') {
       table.style.display = 'none';
       form.style.display = 'flex';
