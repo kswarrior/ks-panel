@@ -365,85 +365,62 @@ document.getElementById('createButton')?.addEventListener('click', function () {
 // ────────────────────────────────────────────────
 // Create new node
 // ────────────────────────────────────────────────
-document.getElementById('createNodeBtn')?.addEventListener('click', async function () {
-  const btn = this;
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = 'Creating...';
+  // ... (keep your existing functions: radarcheck, handleRowClick, deletenode, createButton toggle, configure, showNotification)
 
-  try {
-    // ── Get form values ───────────────────────────────────────
-    const name      = document.getElementById('nodeName')?.value?.trim()     ?? '';
-    const ram       = document.getElementById('nodeRam')?.value?.trim()      ?? '';
-    const disk      = document.getElementById('nodeDisk')?.value?.trim()     ?? '';
-    const processor = document.getElementById('nodeProcessor')?.value?.trim() ?? '';
-    const address   = document.getElementById('nodeAddress')?.value?.trim()  ?? '';
-    const port      = document.getElementById('nodePort')?.value?.trim()     ?? '';
-    const location  = document.getElementById('nodeLocation')?.value?.trim() ?? '';
+  document.getElementById('createNodeBtn').addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Creating...';
 
-    // ── Client-side required fields validation ───────────────
-    if (!name || !ram || !disk || !address || !port) {
-      throw new Error('Please fill in all required fields');
-    }
+    try {
+      const name = document.getElementById('nodeName').value.trim();
+      const ram = document.getElementById('nodeRam').value.trim();
+      const disk = document.getElementById('nodeDisk').value.trim();
+      const address = document.getElementById('nodeAddress').value.trim();
+      const port = document.getElementById('nodePort').value.trim();
+      const location = document.getElementById('nodeLocation').value.trim();
 
-    // Optional: more strict validation
-    if (isNaN(Number(ram)) || Number(ram) <= 0) {
-      throw new Error('RAM must be a positive number');
-    }
-    if (isNaN(Number(disk)) || Number(disk) <= 0) {
-      throw new Error('Disk must be a positive number');
-    }
-    if (isNaN(Number(port)) || Number(port) <= 0 || Number(port) > 65535) {
-      throw new Error('Port must be a number between 1 and 65535');
-    }
-
-    const nodeData = {
-      name,
-      ram,
-      disk,
-      processor,     // sent even if empty
-      address,
-      port,
-      location,      // sent even if empty
-      // tags: document.getElementById('nodeTags')?.value?.trim() ?? '',
-    };
-
-    console.log('Sending node data:', nodeData); // ← helpful for debugging
-
-    const response = await fetch('/nodes/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(nodeData),
-    });
-
-    let errorMsg = 'Failed to create node';
-
-    if (!response.ok) {
-      const text = await response.text();
-      try {
-        const result = JSON.parse(text);
-        errorMsg = result.error || text;
-      } catch {
-        errorMsg = text || errorMsg;
+      if (!name || !ram || !disk || !address || !port) {
+        throw new Error('Please fill in all required fields');
       }
-      throw new Error(errorMsg);
+
+      const nodeData = {
+        name,
+        ram,
+        disk,
+        address,
+        port,
+        location  // Keep this
+      };
+
+      const response = await fetch('/nodes/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nodeData)
+      });
+
+      let errorMsg = 'Failed to create node';
+      if (!response.ok) {
+        const text = await response.text();
+        try {
+          const result = JSON.parse(text);
+          errorMsg = result.error || text;
+        } catch {
+          errorMsg = text || errorMsg;
+        }
+        throw new Error(errorMsg);
+      }
+
+      showNotification('Node created successfully!', 'success');
+      window.location.href = '/admin/nodes?err=none';
+    } catch (error) {
+      showNotification(error.message || 'Error creating node', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
     }
-
-    // Success
-    const result = await response.json();
-    showNotification('Node created successfully!', 'success');
-    window.location.href = '/admin/nodes?err=none';
-
-  } catch (error) {
-    console.error('Create node failed:', error);
-    showNotification(error.message || 'Error creating node', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-  }
-});
+  });
 
 // ────────────────────────────────────────────────
 // Delete node with force option for instances
