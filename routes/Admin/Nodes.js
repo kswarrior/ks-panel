@@ -399,28 +399,4 @@ router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/localnode", isAdmin, async (req, res) => {
-  const { spawn } = require('child_process');
-  let log = '';
-  const child = spawn('npm', ['run', 'local:node'], { cwd: process.cwd() });
-
-  child.stdout.on('data', (data) => {
-    log += data.toString();
-  });
-
-  child.stderr.on('data', (data) => {
-    log += data.toString();
-  });
-
-  child.on('error', (error) => {
-    log += `Error: ${error.message}\n`;
-    res.status(500).json({ log });
-  });
-
-  child.on('close', (code) => {
-    log += `\nProcess exited with code ${code}`;
-    res.json({ log });
-  });
-});
-
 module.exports = router;
