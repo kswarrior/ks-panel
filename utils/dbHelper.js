@@ -1,3 +1,24 @@
+const { v4: uuidv4 } = require('uuid');
+
+function parsePorts(input) {
+  if (!input) return [];
+  const ports = [];
+  input.split(',').map(p => p.trim()).forEach(part => {
+    if (part.includes('-')) {
+      const [start, end] = part.split('-').map(Number);
+      if (!isNaN(start) && !isNaN(end) && start <= end && start >= 1024 && end <= 65535) {
+        for (let i = start; i <= end; i++) ports.push(i);
+      }
+    } else {
+      const num = Number(part);
+      if (!isNaN(num) && num >= 1024 && num <= 65535) ports.push(num);
+    }
+  });
+  return [...new Set(ports)]; // dedupe
+}
+
+
+
 /**
  * Database helper utilities for optimized queries
  * Provides batch operations, pagination, and caching
@@ -25,7 +46,7 @@ async function batchGet(keys, useCache = true) {
   // Check cache first if enabled
   if (useCache) {
     for (const key of keys) {
-      const cacheKey = `db_${key}`; // ← FIXED: backticks for template literal
+      const cacheKey = `db_${key}`;
       const cached = cache.get(cacheKey);
       if (cached !== undefined) {
         results.push(cached);
@@ -48,7 +69,7 @@ async function batchGet(keys, useCache = true) {
       const key = keysToFetch[i];
       const value = fetchedResults[i];
       if (value !== undefined) {
-        const cacheKey = `db_${key}`; // ← FIXED: backticks
+        const cacheKey = `db_${key}`;
         cache.set(cacheKey, value, 5 * 60 * 1000); // 5 minute TTL
         results.push(value);
       }
@@ -139,7 +160,7 @@ async function getPaginatedAPIKeys(page = 1, pageSize = 20) {
  * @param {string} key - Database key to invalidate
  */
 function invalidateCache(key) {
-  const cacheKey = `db_${key}`; // ← FIXED: backticks
+  const cacheKey = `db_${key}`;
   cache.delete(cacheKey);
 }
 
@@ -167,6 +188,8 @@ function clearDbCache() {
 }
 
 module.exports = {
+  parsePorts,
+  uuidv4,
   batchGet,
   paginate,
   getPaginatedUsers,
