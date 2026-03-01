@@ -6,10 +6,11 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Name:</label>  
 	 <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="My node" value="<%- node.name %>">  
 
-     <select id="nodeLocation" ...>
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Location:</label>  
+     <select id="nodeLocation" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
   <option value="">Select a location</option>
   <% locations.forEach(loc => { %>
-    <option value="<%= loc.id %>" <%= loc.id === node.location ? 'selected' : '' %>><%= loc.name %></option>  <!-- Changed node.locationId to node.location -->
+    <option value="<%= loc.id %>" <%= loc.id === node.location ? 'selected' : '' %>><%= loc.name %></option>
   <% }) %>
 </select>
 
@@ -18,9 +19,6 @@
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (GB):</label>  
 	 <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="40" value="<%- node.disk %>">  
-
-	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Location:</label>  
-	 <input id="nodeLocation" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="e.g. Frankfurt, Germany" value="<%- node.location || '' %>">  
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">IP Address:</label>  
 	 <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="192.168.1.1 or my.hostnamehere.com" value="<%- node.address %>">  
@@ -39,7 +37,7 @@
 <script>
   document.getElementById('saveNodeBtn').addEventListener('click', async function() {
     const name = document.getElementById('nodeName').value.trim();
-    const location = document.getElementById('nodeLocation').value.trim();  // Renamed from locationId
+    const location = document.getElementById('nodeLocation').value.trim();  // Keep
     const ram = document.getElementById('nodeRam').value.trim();
     const disk = document.getElementById('nodeDisk').value.trim();
     const address = document.getElementById('nodeAddress').value.trim();
@@ -47,13 +45,7 @@
     const apiKey = document.getElementById('nodeApiKey').value.trim();
 
     const nodeData = {
-      name,
-      location,  // Renamed
-      ram,
-      disk,
-      address,
-      port,
-      apiKey
+      name, location, ram, disk, address, port, apiKey
     };
 
     try {
@@ -64,13 +56,14 @@
       });
 
       if (!response.ok) {
-        throw new Error('Failed to edit node');
+        const errText = await response.text();
+        throw new Error(errText || 'Failed to edit node');
       }
 
       window.location.href = '../nodes?err=EDITED';
     } catch (error) {
       console.error('Error editing node:', error);
-      // Add showNotification if you have it here
+      alert(error.message);  // ADD: Show error to user
     }
   });
 </script>  
