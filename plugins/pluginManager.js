@@ -4,6 +4,7 @@ const path = require("path");
 const { exec } = require("child_process");
 const log = new (require("cat-loggr"))();
 const { isAdmin } = require("../utils/isAdmin");
+const AdmZip = require('adm-zip'); // NEW: For .kspp zips
 
 const router = express.Router();
 let pluginList = [];
@@ -13,6 +14,19 @@ const pluginsDir = path.join(__dirname, "../plugins");
 const pluginsJsonPath = path.join(pluginsDir, "plugins.json");
 
 let isLoadingPlugins = false;
+
+// NEW: Events (passed to plugins)
+let events; // Set from index.js: pluginRoutes.events = events;
+
+// NEW: App and DB for plugin access (set externally if needed)
+let appInstance;
+let dbInstance;
+
+// Setter for external injection (from index.js if needed)
+router.setAppAndDb = (app, db) => {
+  appInstance = app;
+  dbInstance = db;
+};
 
 async function readPluginsJson() {
   try {
@@ -68,6 +82,24 @@ async function validatePlugin(pluginPath, manifest) {
   const mainFilePath = path.join(pluginPath, manifest.main);
   if (!fs.existsSync(mainFilePath)) {
     errors.push(`Main file '${manifest.main}' not found in '${pluginPath}'.`);
+  }
+
+  // NEW: Check dependencies from manifest
+  if (manifest.dependencies) {
+    for (const dep of manifest.dependencies) {
+      if (!dep.startsWith('plugin:')) {
+        try {
+          require.resolve(dep);
+        } catch (e) {
+          log.warn(`Missing dep ${dep} for ${manifest.name}. Installing...`);
+          try {
+            await checkAndInstallModule(dep);
+          } catch (installErr) {
+            errors.push(`Failed to install dep ${dep}`);
+          }
+        }
+      }
+    }
   }
 
   try {
@@ -173,7 +205,8 @@ async function loadAndActivatePlugins() {
       try {
         pluginModule = require(path.join(pluginPath, manifest.main));
         if (typeof pluginModule.register === "function") {
-          pluginModule.register(global.pluginManager);
+          // NEW: Pass more context like Blueprint APIs (app, db, events)
+          pluginModule.register({ app: appInstance, db: dbInstance, events, pluginManager: global.pluginManager });
         }
 
         if (pluginModule.router && typeof pluginModule.router === "function") {
@@ -204,6 +237,69 @@ async function loadAndActivatePlugins() {
   }
 }
 
+// NEW: Install from .kspp (like Blueprint install)
+async function installFromKspp(ksppPath) {
+  const zip = new AdmZip(ksppPath);
+  const tempDir = path.join(pluginsDir, 'temp');
+  fs.mkdirSync(tempDir, { recursive: true });
+  zip.extractAllTo(tempDir, true);
+
+  const extractedDirs = fs.readdirSync(tempDir).filter(f => fs.statSync(path.join(tempDir, f)).isDirectory());
+  if (extractedDirs.length !== 1) throw new Error('KSPP must contain exactly one plugin folder');
+
+  const pluginFolder = extractedDirs[0];
+  const targetPath = path.join(pluginsDir, pluginFolder);
+  if (fs.existsSync(targetPath)) throw new Error(`Plugin ${pluginFolder} already exists`);
+
+  fs.renameSync(path.join(tempDir, pluginFolder), targetPath);
+  fs.rmSync(tempDir, { recursive: true });
+
+  // Add to plugins.json
+  const manifestPath = path.join(targetPath, 'manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const pluginsJson = await readPluginsJson();
+  pluginsJson[manifest.name] = { enabled: true };
+  await writePluginsJson(pluginsJson);
+
+  log.info(`Installed plugin: ${manifest.name}`);
+  await loadAndActivatePlugins(); // Reload
+}
+
+// NEW: Uninstall plugin
+async function uninstall(pluginName) {
+  const pluginPath = path.join(pluginsDir, pluginName);
+  if (!fs.existsSync(pluginPath)) throw new Error(`Plugin ${pluginName} not found`);
+
+  // Call unregister if exists
+  const manifestPath = path.join(pluginPath, 'manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const pluginModule = require(path.join(pluginPath, manifest.main));
+  if (typeof pluginModule.unregister === "function") {
+    pluginModule.unregister({ app: appInstance, db: dbInstance, events });
+  }
+
+  fs.rmSync(pluginPath, { recursive: true });
+
+  // Remove from plugins.json
+  const pluginsJson = await readPluginsJson();
+  delete pluginsJson[manifest.name];
+  await writePluginsJson(pluginsJson);
+
+  log.info(`Uninstalled plugin: ${manifest.name}`);
+  await loadAndActivatePlugins(); // Reload
+}
+
+// NEW: List plugins (for CLI)
+function listPlugins() {
+  return pluginList.map(p => p.name);
+}
+
+// Export new functions for CLI
+module.exports.installFromKspp = installFromKspp;
+module.exports.uninstall = uninstall;
+module.exports.listPlugins = listPlugins;
+
+// Existing routes...
 router.get("/admin/plugins", isAdmin, async (req, res) => {
   const pluginsJson = await readPluginsJson();
 
@@ -229,8 +325,20 @@ router.post("/admin/plugins/:name/toggle", isAdmin, async (req, res) => {
     const pluginsJson = await readPluginsJson();
 
     if (pluginsJson[name]) {
-      pluginsJson[name].enabled = !pluginsJson[name].enabled;
+      const newEnabled = !pluginsJson[name].enabled;
+      pluginsJson[name].enabled = newEnabled;
       await writePluginsJson(pluginsJson);
+
+      // NEW: If disabling, call unregister
+      if (!newEnabled) {
+        const pluginPath = path.join(pluginsDir, name); // Assume name == folder
+        const manifest = JSON.parse(fs.readFileSync(path.join(pluginPath, 'manifest.json'), 'utf8'));
+        const pluginModule = require(path.join(pluginPath, manifest.main));
+        if (typeof pluginModule.unregister === "function") {
+          pluginModule.unregister({ app: appInstance, db: dbInstance, events });
+        }
+      }
+
       await loadAndActivatePlugins();
     }
     res.send("OK");
