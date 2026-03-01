@@ -1,24 +1,107 @@
-<!doctype html>
-<html class="h-full">
+<!DOCTYPE html>
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= name %></title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
-  <meta name="description" content="404 Page Not Found">
-  <meta name="robots" content="noindex, nofollow">
+  <title><%= name %> - 404</title>
+  <link href="/css/ks-panel.css" rel="stylesheet">
+
+<style>
+/* ================= BODY ================= */
+body {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    url('/assets/background.webp') center/cover no-repeat;
+
+  color: var(--text);
+  font-family: var(--font-family);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  user-select: none;
+  margin: var(--margin-body);
+}
+
+/* ================= CARD ================= */
+.card {
+  padding: var(--card-padding);
+  width: 100%;
+  max-width: 500px;
+  backdrop-filter: blur(var(--backdrop-blur));
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--card-radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+.card h1 {
+  font-size: 90px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.card h2 {
+  font-size: var(--h2-size);
+  font-weight: 800;
+}
+
+.card p {
+  color: var(--muted);
+  font-size: var(--p-size);
+  margin-top: 8px;
+}
+
+/* ================= BUTTON ================= */
+.btn {
+  margin-top: 20px;
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  border: none;
+  background: var(--accent);
+  color: #000;
+  width: 100%;
+  font-weight: var(--btn-font-weight);
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--btn-shadow);
+}
+
+.btn:hover {
+  transform: scale(1.03);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 480px) {
+  .card {
+    padding: var(--card-padding-mobile);
+  }
+
+  .card h1 {
+    font-size: 70px;
+  }
+}
+</style>
 </head>
-<body style="font-family: 'IBM Plex Sans'" class="bg-[#181818] h-full">
-  <div class="flex items-center justify-center min-h-screen px-4 py-8">
-    <div class="text-center">
-      <h1 class="mb-4 text-7xl tracking-tight font-medium lg:text-9xl text-white">404</h1>
-      <p class="mb-4 text-3xl tracking-tight font-bold md:text-4xl text-white">Something's missing.</p>
-      <p class="mb-4 text-lg font-light text-neutral-500">Sorry, we can't find that page.</p>
-      <a href="../" class="inline-flex items-center text-white bg-white/5 hover:bg-white/10 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-xl text-sm px-5 py-2.5 text-center dark:focus:ring-primary-900 my-4 transition-all duration-300 ease-in-out">Back to <%= name %></a>
-    </div>   
+
+<body>
+
+<div class="card">
+  <div>
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>Sorry, the page you are looking for doesn’t exist or has been moved.</p>
   </div>
+
+  <div>
+    <button class="btn" onclick="window.location.href='/'">
+      Back to <%= name %>
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
