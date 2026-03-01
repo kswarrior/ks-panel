@@ -1,0 +1,35 @@
+<%- include('../components/template') %>
+<main id="content">
+
+## Configuration
+
+<input type="text" id="configuration" placeholder="Enter configuration" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+
+<button onclick="install()">Install Wings</button>
+
+## Console
+
+<pre id="console-log" style="width:100%; height:400px; overflow:auto; background:black; color:white; padding:10px;"></pre>
+
+<script>
+function install() {
+  const config = document.getElementById('configuration').value;
+  const consoleLog = document.getElementById('console-log');
+  consoleLog.innerText = 'Installing...\n';
+
+  fetch('/admin/localnode', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ configuration: config }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    consoleLog.innerText = data.log;
+  })
+  .catch(error => {
+    consoleLog.innerText += `\nError: ${error.message}`;
+  });
+}
+</script>
