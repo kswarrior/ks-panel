@@ -4,7 +4,7 @@ const path = require("path");
 const { exec } = require("child_process");
 const log = new (require("cat-loggr"))();
 const { isAdmin } = require("../utils/isAdmin");
-const AdmZip = require('adm-zip'); // NEW: For .kspp zips
+const AdmZip = require('adm-zip'); // NEW: For .kspp handling
 
 const router = express.Router();
 let pluginList = [];
@@ -15,14 +15,12 @@ const pluginsJsonPath = path.join(pluginsDir, "plugins.json");
 
 let isLoadingPlugins = false;
 
-// NEW: Events (passed to plugins)
-let events; // Set from index.js: pluginRoutes.events = events;
+// NEW: Injected from index.js
+let events = null; // For hooks
+let appInstance = null; // For app access
+let dbInstance = null; // For DB access
 
-// NEW: App and DB for plugin access (set externally if needed)
-let appInstance;
-let dbInstance;
-
-// Setter for external injection (from index.js if needed)
+// NEW: Setter for injections
 router.setAppAndDb = (app, db) => {
   appInstance = app;
   dbInstance = db;
@@ -84,8 +82,8 @@ async function validatePlugin(pluginPath, manifest) {
     errors.push(`Main file '${manifest.main}' not found in '${pluginPath}'.`);
   }
 
-  // NEW: Check dependencies from manifest
-  if (manifest.dependencies) {
+  // ENHANCED: Check dependencies from manifest (integrated with loadPls checks)
+  if (manifest.dependencies && Array.isArray(manifest.dependencies)) {
     for (const dep of manifest.dependencies) {
       if (!dep.startsWith('plugin:')) {
         try {
@@ -205,7 +203,7 @@ async function loadAndActivatePlugins() {
       try {
         pluginModule = require(path.join(pluginPath, manifest.main));
         if (typeof pluginModule.register === "function") {
-          // NEW: Pass more context like Blueprint APIs (app, db, events)
+          // ENHANCED: Pass app, db, events for Blueprint-like APIs
           pluginModule.register({ app: appInstance, db: dbInstance, events, pluginManager: global.pluginManager });
         }
 
@@ -237,7 +235,7 @@ async function loadAndActivatePlugins() {
   }
 }
 
-// NEW: Install from .kspp (like Blueprint install)
+// NEW: Install from .kspp zip
 async function installFromKspp(ksppPath) {
   const zip = new AdmZip(ksppPath);
   const tempDir = path.join(pluginsDir, 'temp');
@@ -252,7 +250,7 @@ async function installFromKspp(ksppPath) {
   if (fs.existsSync(targetPath)) throw new Error(`Plugin ${pluginFolder} already exists`);
 
   fs.renameSync(path.join(tempDir, pluginFolder), targetPath);
-  fs.rmSync(tempDir, { recursive: true });
+  fs.rmSync(tempDir, { recursive: true, force: true });
 
   // Add to plugins.json
   const manifestPath = path.join(targetPath, 'manifest.json');
@@ -262,7 +260,7 @@ async function installFromKspp(ksppPath) {
   await writePluginsJson(pluginsJson);
 
   log.info(`Installed plugin: ${manifest.name}`);
-  await loadAndActivatePlugins(); // Reload
+  await loadAndActivatePlugins(); // Hot-reload
 }
 
 // NEW: Uninstall plugin
@@ -278,7 +276,7 @@ async function uninstall(pluginName) {
     pluginModule.unregister({ app: appInstance, db: dbInstance, events });
   }
 
-  fs.rmSync(pluginPath, { recursive: true });
+  fs.rmSync(pluginPath, { recursive: true, force: true });
 
   // Remove from plugins.json
   const pluginsJson = await readPluginsJson();
@@ -286,20 +284,20 @@ async function uninstall(pluginName) {
   await writePluginsJson(pluginsJson);
 
   log.info(`Uninstalled plugin: ${manifest.name}`);
-  await loadAndActivatePlugins(); // Reload
+  await loadAndActivatePlugins(); // Hot-reload
 }
 
-// NEW: List plugins (for CLI)
+// NEW: List plugins for CLI
 function listPlugins() {
-  return pluginList.map(p => p.name);
+  return pluginList.map(p => `${p.name} v${p.version || 'unknown'} (enabled: ${pluginsJson[p.name]?.enabled})`);
 }
 
-// Export new functions for CLI
+// Export new functions
 module.exports.installFromKspp = installFromKspp;
 module.exports.uninstall = uninstall;
 module.exports.listPlugins = listPlugins;
 
-// Existing routes...
+// Existing admin routes...
 router.get("/admin/plugins", isAdmin, async (req, res) => {
   const pluginsJson = await readPluginsJson();
 
@@ -331,7 +329,7 @@ router.post("/admin/plugins/:name/toggle", isAdmin, async (req, res) => {
 
       // NEW: If disabling, call unregister
       if (!newEnabled) {
-        const pluginPath = path.join(pluginsDir, name); // Assume name == folder
+        const pluginPath = path.join(pluginsDir, name);
         const manifest = JSON.parse(fs.readFileSync(path.join(pluginPath, 'manifest.json'), 'utf8'));
         const pluginModule = require(path.join(pluginPath, manifest.main));
         if (typeof pluginModule.unregister === "function") {
