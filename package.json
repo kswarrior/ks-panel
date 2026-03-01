@@ -16,13 +16,14 @@
     "create:user": "node exec/createUser.js",
     "build:css": "npx @tailwindcss/cli -i ./public/tw.conf -o ./public/assets/tailwind.css --watch"
   },
-  "author": "ks-panel-team",
+  "author": "ks-panel",
   "license": "MIT",
   "dependencies": {
     "@keyv/sqlite": "^3.6.7",
     "@keyvhq/core": "^2.1.7",
     "@keyvhq/mysql": "^2.1.7",
     "@tailwindcss/cli": "^4.1.17",
+    "adm-zip": "^0.5.12",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.1.2",
@@ -34,6 +35,7 @@
     "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.7",
     "ejs": "^3.1.10",
+    "eventemitter3": "^5.0.1",
     "express": "^4.19.2",
     "express-basic-auth": "^1.2.1",
     "express-rate-limit": "^7.4.1",
