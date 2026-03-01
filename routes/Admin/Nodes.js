@@ -3,6 +3,7 @@ const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
+const { parsePorts } = require('../../utils/dbHelper.js'); // Adjust path if needed
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin } = require("../../utils/isAdmin.js");
 const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
@@ -397,6 +398,69 @@ router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
     console.error("Error during node check:", error.message);
     res.status(500).send("An error occurred while checking nodes.");
   }
+});
+
+// POST: Add allocations to a node (admin only)
+router.post('/admin/nodes/:id/allocations', isAdmin, async (req, res) => {
+  const { id } = req.params;
+  const node = await db.get(`${id}_node`);
+  if (!node) {
+    return res.status(404).json({ error: 'Node not found' });
+  }
+
+  const { ip, alias, portsInput } = req.body; // ip (string, optional fallback to node.address), alias (string, optional), portsInput (string)
+  if (!portsInput) {
+    return res.status(400).json({ error: 'Missing portsInput' });
+  }
+
+  try {
+    const ports = parsePorts(portsInput);
+    const allocationsKey = `${id}_allocations`;
+    let allocations = (await db.get(allocationsKey)) || [];
+
+    // Check for conflicts (existing ports on same ip)
+    const existingPorts = allocations
+      .filter(a => a.ip === (ip || node.address))
+      .map(a => a.port);
+    const conflicts = ports.filter(p => existingPorts.includes(p));
+    if (conflicts.length > 0) {
+      return res.status(409).json({ error: `Ports already allocated: ${conflicts.join(', ')}` });
+    }
+
+    // Create new allocations
+    const newAllocs = ports.map(port => ({
+      id: uuidv4(),
+      ip: ip || node.address, // Fallback to node's address
+      alias: alias || null,
+      port,
+      assignedTo: null,
+    }));
+    allocations = [...allocations, ...newAllocs];
+    await db.set(allocationsKey, allocations);
+
+    invalidateNodeCache(id); // Invalidate as per your cache system
+    logAudit(req.user.userId, req.user.username, 'node:allocation:add', req.ip);
+
+    res.status(201).json({ message: `${newAllocs.length} allocations added`, allocations: newAllocs });
+  } catch (err) {
+    log.error('Error adding allocations:', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// GET: List available allocations for a node (for select dropdown)
+router.get('/admin/nodes/:id/available-allocations', isAdmin, async (req, res) => {
+  const { id } = req.params;
+  const allocationsKey = `${id}_allocations`;
+  const allocations = (await db.get(allocationsKey)) || [];
+  const available = allocations
+    .filter(a => !a.assignedTo)
+    .map(a => ({
+      id: a.id,
+      label: `${a.ip}:${a.port}${a.alias ? ` (${a.alias})` : ''}`,
+    }));
+
+  res.json(available);
 });
 
 module.exports = router;
