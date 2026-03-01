@@ -45,8 +45,8 @@ exports.configure = async (config) => {
   }
   // Stop if running before configure
   await exports.stop();
-  const args = config ? ['run', 'configure', '--', ...config.trim().split(/\s+/)] : ['run', 'configure'];
-  return runCommand(`npm ${args.join(' ')}`);
+  const args = config ? config.trim().split(/\s+/) : [];
+  return runCommand(args.join(' '));
 };
 
 exports.start = async () => {
