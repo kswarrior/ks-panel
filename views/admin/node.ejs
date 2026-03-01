@@ -6,14 +6,18 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Name:</label>  
 	 <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="My node" value="<%- node.name %>">  
 
+     <select id="nodeLocation" ...>
+  <option value="">Select a location</option>
+  <% locations.forEach(loc => { %>
+    <option value="<%= loc.id %>" <%= loc.id === node.location ? 'selected' : '' %>><%= loc.name %></option>  <!-- Changed node.locationId to node.location -->
+  <% }) %>
+</select>
+
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">RAM (GB):</label>  
 	 <input id="nodeRam" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="8" value="<%- node.ram %>">  
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (GB):</label>  
 	 <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="40" value="<%- node.disk %>">  
-
-	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Processor:</label>  
-	 <input id="nodeProcessor" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="AMD EPYC 9454 - 16 Threads"  value="<%- node.processor %>">  
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Location:</label>  
 	 <input id="nodeLocation" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="e.g. Frankfurt, Germany" value="<%- node.location || '' %>">  
@@ -32,40 +36,43 @@
 	</form>  
 </div>  
 
-<script>  
-document.getElementById('saveNodeBtn').addEventListener('click', function() {  
-    const name = document.getElementById('nodeName').value;  
-    const ram = document.getElementById('nodeRam').value;  
-    const disk = document.getElementById('nodeDisk').value;  
-    const processor = document.getElementById('nodeProcessor').value;  
-    const location = document.getElementById('nodeLocation').value;  
-    const address = document.getElementById('nodeAddress').value;  
-    const port = document.getElementById('nodePort').value;  
-    const apiKey = document.getElementById('nodeApiKey').value;  
-  
-    const nodeData = {  
-        name, ram, disk, processor, location, address, port, apiKey  
-    };  
-  
-    fetch('/admin/node/<%- node.id %>', {  
-        method: 'POST',  
-        headers: {  
-            'Content-Type': 'application/json'  
-        },  
-        body: JSON.stringify(nodeData)  
-    })  
-    .then(response => {  
-        if (response.ok) {  
-            return response.json();  
-        }  
-        throw new Error('Failed to edit node');  
-    })  
-    .then(data => {  
-        console.log('Node edited:', data);  
-        window.location.href = '../nodes?err=EDITED'  
-    })  
-    .catch(error => console.error('Error editing node:', error));  
-});  
+<script>
+  document.getElementById('saveNodeBtn').addEventListener('click', async function() {
+    const name = document.getElementById('nodeName').value.trim();
+    const location = document.getElementById('nodeLocation').value.trim();  // Renamed from locationId
+    const ram = document.getElementById('nodeRam').value.trim();
+    const disk = document.getElementById('nodeDisk').value.trim();
+    const address = document.getElementById('nodeAddress').value.trim();
+    const port = document.getElementById('nodePort').value.trim();
+    const apiKey = document.getElementById('nodeApiKey').value.trim();
+
+    const nodeData = {
+      name,
+      location,  // Renamed
+      ram,
+      disk,
+      address,
+      port,
+      apiKey
+    };
+
+    try {
+      const response = await fetch('/admin/node/<%= node.id %>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nodeData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to edit node');
+      }
+
+      window.location.href = '../nodes?err=EDITED';
+    } catch (error) {
+      console.error('Error editing node:', error);
+      // Add showNotification if you have it here
+    }
+  });
 </script>  
 </main>  
 <%- include('../components/footer') %>
