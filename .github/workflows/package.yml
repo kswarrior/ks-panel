@@ -1,0 +1,61 @@
+name: Package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - panel/package.json
+  workflow_dispatch:
+
+jobs:
+  build-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js (LTS)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      # 3️⃣ Get version from package.json
+      - name: Get version from package.json
+        run: |
+          VERSION=$(jq -r .version panel/package.json)
+          echo "Version found: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # 4️⃣ Install dependencies
+      - name: Install dependencies
+        run: |
+          cd panel
+          npm install
+          cd ..
+
+      # 5️⃣ Zip only node_modules
+      - name: Zip node_modules
+        run: |
+          ZIP_NAME="package.zip"
+          zip -r "$ZIP_NAME" panel/node_modules
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      # 6️⃣ Ensure release exists
+      - name: Ensure release exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view "$VERSION" > /dev/null 2>&1; then
+            gh release create "$VERSION" -t "$VERSION" -n "Automated package build for version $VERSION"
+          fi
+
+      # 7️⃣ Upload zip to release
+      - name: Upload zip to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$VERSION" "$ZIP_NAME" --clobber
