@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write          # ← Add this
+  contents: write
 
 jobs:
   release:
@@ -26,31 +26,28 @@ jobs:
           echo "Version found: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Create zip of panel folder
+      - name: Create zip of repository
         run: |
-          ZIP_NAME="panel-v${{ env.VERSION }}.zip"          # nicer name with version
-          echo "Creating $ZIP_NAME"
+          ZIP_NAME="panel.zip"
+          echo "Creating zip file $ZIP_NAME"
           cd panel
-          zip -r "../$ZIP_NAME" . -x ".git/*" "**/.git/*"
+          zip -r "../$ZIP_NAME" . -x ".git/*"
           cd ..
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
-          ls -lh "$ZIP_NAME"                                # for debugging
 
       - name: Ensure release exists
+        run: |
+          if ! gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION not found, creating..."
+            gh release create "$VERSION" -t "$VERSION" -n "Automated release for version $VERSION"
+          else
+            echo "Release $VERSION already exists."
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if ! gh release view "${{ env.VERSION }}" >/dev/null 2>&1; then
-            echo "Creating release ${{ env.VERSION }}"
-            gh release create "${{ env.VERSION }}" \
-              --title "${{ env.VERSION }}" \
-              --notes "Automated release for version ${{ env.VERSION }}"
-          else
-            echo "Release ${{ env.VERSION }} already exists"
-          fi
 
       - name: Upload zip to release
+        run: |
+          gh release upload "$VERSION" "$ZIP_NAME" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload "\( {{ env.VERSION }}" " \){{ env.ZIP_NAME }}" --clobber
