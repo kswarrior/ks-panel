@@ -1,0 +1,49 @@
+name: Update Repo from Zip
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-main:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout main branch
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # 2️⃣ Install unzip
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip wget
+
+      # 3️⃣ Download zip from release
+      - name: Download kspanel.zip
+        run: |
+          wget -O kspanel.zip https://github.com/kswarrior/ks-panel-old/releases/download/1.2.0/kspanel.zip
+
+      # 4️⃣ Delete all files except .git
+      - name: Delete all files
+        run: |
+          shopt -s extglob
+          rm -rf !( .git )
+
+      # 5️⃣ Extract zip into repo
+      - name: Extract zip
+        run: unzip kspanel.zip -d .
+
+      # 6️⃣ Commit and push changes to main
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update repo from kspanel.zip"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 7️⃣ Cleanup zip
+      - name: Remove zip
+        run: rm kspanel.zip
