@@ -1,0 +1,42 @@
+:root {
+  /* Colors */
+  --bg: #000000;
+  --card: rgba(18,18,28,0.85);
+  --soft: #1c3b54;
+  --hover-card: rgba(40,40,55,0.95);
+  --text: #ffffff;
+  --muted: #aaaaaa;
+  --accent: #ffffff;
+  --accent-glow: rgba(255,255,255,0.4);
+  --border: rgba(255,255,255,0.12);
+
+  /* Border Radius */
+  --card-radius: 10px;
+  --btn-radius: 8px;
+  --input-radius: 8px;
+
+  /* Fonts & Text */
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --h2-size: 22px;
+  --p-size: 14px;
+  --label-size: 14px;
+  --link-size: 13px;
+  --btn-font-weight: 700;
+  --label-font-weight: 500;
+
+  /* Spacing */
+  --card-padding: 40px 36px;
+  --card-padding-mobile: 32px 24px;
+  --input-padding: 12px 14px;
+  --btn-padding: 12px 20px;
+  --gap: 20px;
+  --margin-body: 15px;
+
+  /* Shadows & Effects */
+  --card-shadow: 0 0 20px rgba(255,255,255,0.1);
+  --btn-shadow: 0 0 2px var(--accent-glow);
+  --backdrop-blur: 12px;
+
+  /* Transition */
+  --transition: 0.4s ease;
+}

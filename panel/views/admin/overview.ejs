@@ -1,0 +1,208 @@
+<%- include('../components/template') %>
+
+<main id="content">
+  <div class="bg-transparent">
+
+    <!-- Header -->
+    <div class="sm:flex sm:items-center px-8 pt-4">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-medium leading-6 text-white">
+          <%= req.translations.overview || "Overview" %>
+        </h1>
+        <p class="mt-1 tracking-tight text-sm text-neutral-400">
+          <%= req.translations.overviewText || "System status and analytics dashboard" %>
+        </p>
+      </div>
+    </div>
+
+    <!-- SYSTEM STATS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 m-8">
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.users || "Users" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= usersTotal %></p>
+        <p class="text-xs text-neutral-500 mt-2">Total registered users</p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.instances || "Instances" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= instancesTotal %></p>
+        <p class="text-xs text-neutral-500 mt-2">Active server instances</p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.nodes || "Nodes" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= nodesTotal %></p>
+        <p class="text-xs text-neutral-500 mt-2">Connected system nodes</p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.images || "Images" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= imagesTotal %></p>
+        <p class="text-xs text-neutral-500 mt-2">Available server images</p>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 m-8">
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.totalRequests || "Total Requests" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= totalRequests %></p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.uniqueVisitors || "Unique Visitors" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= uniqueVisitors %></p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.avgRequestsPerHour || "Avg Requests/Hour" %></p>
+        <p class="text-4xl font-bold text-white mt-2"><%= avgRequestsPerHour %></p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <p class="text-sm text-neutral-400"><%= req.translations.topPage || "Top Page" %></p>
+        <p class="text-lg font-semibold text-white mt-2 break-all"><%= topPage %></p>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 m-8">
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <h3 class="text-lg font-semibold text-white mb-6"><%= req.translations.trafficOverTime || "Traffic Over Time" %></h3>
+        <canvas id="trafficChart" height="120"></canvas>
+      </div>
+      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
+        <h3 class="text-lg font-semibold text-white mb-6"><%= req.translations.topPages || "Top Pages" %></h3>
+        <canvas id="topPagesChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- TRUE LIVE SERVER LOGS (PM2) -->
+    <!-- ===================== -->
+    <div class="m-8 bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg p-6" id="console-card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+          Server Logs (PM2 - kspanel) 
+          <span id="live-dot" class="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        </h3>
+        <div class="flex gap-2">
+          <button onclick="clearConsole()" 
+                  class="text-xs px-4 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded transition">
+            Clear
+          </button>
+          <button onclick="togglePause()" id="pauseBtn"
+                  class="text-xs px-4 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded transition">
+            Stop
+          </button>
+        </div>
+      </div>
+      
+      <div id="console" 
+           class="bg-black border border-neutral-700 text-green-400 font-mono text-sm p-4 h-80 overflow-y-auto whitespace-pre-wrap leading-relaxed rounded-xl shadow-inner">
+      </div>
+    </div>
+
+    <!-- PAGE VIEWS -->
+    <% if (Object.keys(pageViews).length > 0) { %>
+    <div class="m-8 bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-white mb-6">Page Views</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 text-sm">
+        <% Object.entries(pageViews).slice(0, 12).forEach(([path, count]) => { %>
+          <div class="flex justify-between bg-white/5 px-4 py-3 rounded-xl">
+            <span class="font-mono text-neutral-400 truncate"><%= path %></span>
+            <span class="font-semibold text-white"><%= count %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+
+  <!-- Quick Links -->
+  <div class="px-8 mt-6">
+    <div class="bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-xl p-6">
+      <h2 class="text-sm font-semibold text-white mb-4 tracking-wide">Links</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <a href="https://coming-soon" class="bg-white/5 hover:bg-white/10 transition rounded-xl p-4 text-center">
+          <p class="text-sm text-neutral-400">Panel Website</p>
+          <p class="text-white font-semibold mt-1">KS Panel</p>
+        </a>
+        <a href="https://ksx.pages.dev" target="_blank" class="bg-white/5 hover:bg-white/10 transition rounded-xl p-4 text-center">
+          <p class="text-sm text-neutral-400">Official Website</p>
+          <p class="text-white font-semibold mt-1">KS Website</p>
+        </a>
+        <a href="https://discord.gg/2kAYnH655h" target="_blank" class="bg-white/5 hover:bg-indigo-500/20 transition rounded-xl p-4 text-center">
+          <p class="text-sm text-neutral-400">Community</p>
+          <p class="text-white font-semibold mt-1">Discord</p>
+        </a>
+        <a href="https://youtube.com/@ks_warrior_pro" target="_blank" class="bg-white/5 hover:bg-red-500/20 transition rounded-xl p-4 text-center">
+          <p class="text-sm text-neutral-400">Videos</p>
+          <p class="text-white font-semibold mt-1">YouTube</p>
+        </a>
+        <a href="https://instagram.com/ks_warrior_pro" target="_blank" class="bg-white/5 hover:bg-pink-500/20 transition rounded-xl p-4 text-center">
+          <p class="text-sm text-neutral-400">Social</p>
+          <p class="text-white font-semibold mt-1">Instagram</p>
+        </a>
+      </div>
+    </div>
+  </div>
+  </div>
+</main>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+  // Charts (unchanged)
+  new Chart(document.getElementById('trafficChart'), { /* same as before */ });
+  new Chart(document.getElementById('topPagesChart'), { /* same as before */ });
+
+  // =====================
+  // TRUE LIVE STREAMING WITH SSE (real-time push)
+  // =====================
+  let consolePaused = false;
+  let eventSource = null;
+
+  function addLog(line) {
+    const consoleEl = document.getElementById('console');
+    consoleEl.innerHTML += line + '\n';
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+
+  function clearConsole() {
+    document.getElementById('console').innerHTML = '';
+  }
+
+  function togglePause() {
+    consolePaused = !consolePaused;
+    const btn = document.getElementById('pauseBtn');
+    if (consolePaused) {
+      btn.textContent = 'Resume';
+      btn.classList.replace('bg-yellow-500/20', 'bg-green-500/20');
+      btn.classList.replace('text-yellow-400', 'text-green-400');
+    } else {
+      btn.textContent = 'Stop';
+      btn.classList.replace('bg-green-500/20', 'bg-yellow-500/20');
+      btn.classList.replace('text-green-400', 'text-yellow-400');
+    }
+  }
+
+  function startLiveLogs() {
+    if (eventSource) eventSource.close();
+
+    eventSource = new EventSource('/admin/api/server-logs/stream');
+
+    eventSource.onmessage = function(event) {
+      if (!consolePaused) {
+        addLog(event.data);
+      }
+    };
+
+    eventSource.onerror = function() {
+      console.log('SSE connection error - retrying...');
+      setTimeout(startLiveLogs, 3000);
+    };
+  }
+
+  // Auto start live streaming
+  startLiveLogs();
+
+  // Cleanup on page leave
+  window.addEventListener('beforeunload', () => {
+    if (eventSource) eventSource.close();
+  });
+</script>

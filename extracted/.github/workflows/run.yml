@@ -1,0 +1,126 @@
+name: Run KS Panel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 3: Install cloudflared
+      - name: Download and install cloudflared
+        run: |
+          echo "Downloading cloudflared..."
+          curl -L -o cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/
+
+      # Step 4: Install cloudflared service with your token
+      - name: Install cloudflared service
+        run: |
+          sudo cloudflared service install eyJhIjoiZTJkZjY3MDI5ZWZlZTBmY2JhM2ExMjNjN2VmNTcxNTAiLCJ0IjoiMGQ2Yzk5YjQtMGUzZC00NzEyLWFmNDctNzM0MGU5YTEyOGE3IiwicyI6IlkyVTNOelV5WmpBdFl6SmpOeTAwTjJZMExUbGpNMk10T0dJelltRmtOREk1T1dOaCJ9
+
+      # FIXED TMATE INSTALL
+      - name: Install tmate from URL
+        run: |
+          curl -L https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-2.4.0-static-linux-amd64.tar.xz -o tmate.tar.xz
+          tar -xf tmate.tar.xz
+          chmod +x tmate-2.4.0-static-linux-amd64/tmate
+          sudo mv tmate-2.4.0-static-linux-amd64/tmate /usr/bin/tmate
+          tmate -V
+    
+      - name: Start vps-runtime
+        run: |
+          TMATE_SOCK=/tmp/tmate.sock
+
+          tmate -S $TMATE_SOCK new-session -d
+          tmate -S $TMATE_SOCK wait tmate-ready
+
+          echo "SSH connection:"
+          tmate -S $TMATE_SOCK display -p "#{tmate_ssh}"
+
+          echo "Web connection:"
+          tmate -S $TMATE_SOCK display -p "#{tmate_web}"
+
+          sleep 21600
+
+      - name: Delete ONLY non-running workflow runs
+        if: always()
+        env:
+          REPO: ${{ github.repository }}
+          SELF_RUN_ID: ${{ github.run_id }}
+          TOKEN: ${{ secrets.GH_PAT || github.token }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$TOKEN" ]; then
+            echo "ERROR: No token provided. Set secrets.GH_PAT or rely on github.token."
+            exit 1
+          fi
+
+          echo "Using token from secrets (hidden). This workflow ID = $SELF_RUN_ID"
+          PAGE=1
+          PER_PAGE=100
+
+          while :; do
+            echo "--- fetching page $PAGE"
+            RESP=$(curl -sS -H "Accept: application/vnd.github+json" \
+              -H "Authorization: token $TOKEN" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$REPO/actions/runs?per_page=$PER_PAGE&page=$PAGE")
+
+            COUNT=$(echo "$RESP" | jq '.workflow_runs | length')
+            if [ "$COUNT" -eq 0 ]; then
+              echo "No more runs on page $PAGE — exiting."
+              break
+            fi
+
+            echo "Found $COUNT runs on page $PAGE"
+
+            echo "$RESP" | jq -c '.workflow_runs[] | {id: .id, status: .status, name: .name}' | while read -r row; do
+              ID=$(echo "$row" | jq -r '.id')
+              STATUS=$(echo "$row" | jq -r '.status')
+              NAME=$(echo "$row" | jq -r '.name')
+
+              if [ "$ID" = "$SELF_RUN_ID" ]; then
+                echo "Skipping self run $ID ($NAME)"
+                continue
+              fi
+              if [ "$STATUS" = "in_progress" ] || [ "$STATUS" = "queued" ]; then
+                echo "Skipping active run $ID (status: $STATUS)"
+                continue
+              fi
+
+              echo "Attempting to delete run $ID (status: $STATUS, name: $NAME)..."
+
+              HTTP=$(curl -sS -o /dev/stderr -w "%{http_code}" -X DELETE \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: token $TOKEN" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "https://api.github.com/repos/$REPO/actions/runs/$ID" 2> /tmp/delete_resp)
+
+              if [ -s /tmp/delete_resp ]; then
+                echo "API response: $(cat /tmp/delete_resp)"
+              fi
+
+              if [ "$HTTP" = "204" ] || [ "$HTTP" = "202" ] || [ "$HTTP" = "200" ]; then
+                echo "Deleted run $ID successfully (HTTP $HTTP)"
+              else
+                echo "Failed to delete run $ID (HTTP $HTTP)."
+                if [ "$HTTP" = "403" ]; then
+                  echo "403 error — likely the token used does not have permission to delete this run."
+                fi
+              fi
+
+              sleep 1
+            done
+
+            PAGE=$((PAGE+1))
+          done
+
+          echo "Cleanup complete."

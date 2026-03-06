@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "version": "1.0",
+    "name": "",
+    "display_name": "",
+    "description": ""
+  },
+  "category": "",
+  "environment": {
+    "docker_image": "",
+    "install_script": ""
+  },
+  "variables": [],
+  "actions": []
+}
