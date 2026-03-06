@@ -14,35 +14,40 @@ jobs:
         with:
           ref: main
 
-      # 2️⃣ Install unzip & wget
-      - name: Install dependencies
+      # 2️⃣ Install dependencies
+      - name: Install unzip & wget
         run: sudo apt-get update && sudo apt-get install -y unzip wget
 
-      # 3️⃣ Download zip from release
+      # 3️⃣ Download kspanel.zip
       - name: Download kspanel.zip
         run: |
-          URL="https://github.com/kswarrior/ks-panel-old/releases/download/1.2.0/kspanel.zip"
-          echo "Downloading from $URL"
-          wget -O kspanel.zip "$URL"
-          ls -la  # verify the file exists
+          wget -O kspanel.zip https://github.com/kswarrior/ks-panel-old/releases/download/1.2.0/kspanel.zip
+          echo "Downloaded files:"
+          ls -la
+        shell: bash
 
       # 4️⃣ Delete all files except .git
-      - name: Delete all files
+      - name: Delete all files except .git
         run: |
+          echo "Deleting all files except .git"
           shopt -s extglob
           rm -rf !( .git )
+          ls -la
+        shell: bash
 
-      # 5️⃣ Extract zip into repo
-      - name: Extract zip
+      # 5️⃣ Extract zip
+      - name: Extract kspanel.zip
         run: |
-          if [ -f kspanel.zip ]; then
+          if [[ -f "kspanel.zip" ]]; then
             unzip kspanel.zip -d .
           else
             echo "kspanel.zip not found!"
             exit 1
           fi
+          ls -la
+        shell: bash
 
-      # 6️⃣ Commit & push changes to main
+      # 6️⃣ Commit & push changes
       - name: Commit & Push
         run: |
           git config user.name "github-actions[bot]"
@@ -52,7 +57,9 @@ jobs:
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
 
       # 7️⃣ Cleanup zip
       - name: Remove zip
         run: rm -f kspanel.zip
+        shell: bash
