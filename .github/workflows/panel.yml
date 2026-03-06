@@ -5,19 +5,20 @@ on:
     branches:
       - main
     paths:
-      - 'panel/**'   # ✅ Only run when panel folder changes
+      - 'panel/**'
   workflow_dispatch:
+
+permissions:
+  contents: write          # ← Add this
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 3. Get version from package.json
       - name: Get version from package.json
         id: version
         run: |
@@ -25,31 +26,31 @@ jobs:
           echo "Version found: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # 4. Create zip of panel folder only
-      - name: Create zip of repository
+      - name: Create zip of panel folder
         run: |
-          ZIP_NAME="panel.zip"
-          echo "Creating zip file $ZIP_NAME"
+          ZIP_NAME="panel-v${{ env.VERSION }}.zip"          # nicer name with version
+          echo "Creating $ZIP_NAME"
           cd panel
-          zip -r "../$ZIP_NAME" . -x ".git/*"
+          zip -r "../$ZIP_NAME" . -x ".git/*" "**/.git/*"
           cd ..
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          ls -lh "$ZIP_NAME"                                # for debugging
 
-      # 5. Create release if it doesn't exist
       - name: Ensure release exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! gh release view "$VERSION" > /dev/null 2>&1; then
-            echo "Release $VERSION not found, creating..."
-            gh release create "$VERSION" -t "$VERSION" -n "Automated release for version $VERSION"
+          if ! gh release view "${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "Creating release ${{ env.VERSION }}"
+            gh release create "${{ env.VERSION }}" \
+              --title "${{ env.VERSION }}" \
+              --notes "Automated release for version ${{ env.VERSION }}"
           else
-            echo "Release $VERSION already exists."
+            echo "Release ${{ env.VERSION }} already exists"
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6. Upload zip to the release
       - name: Upload zip to release
-        run: |
-          gh release upload "$VERSION" "$ZIP_NAME" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "\( {{ env.VERSION }}" " \){{ env.ZIP_NAME }}" --clobber
