@@ -1,0 +1,13 @@
+{
+  "baseUri": "http://localhost:8080",
+  "port": 8080,
+  "session_secret": "Random",
+  "domain": "localhost",
+  "mode": "production",
+  "version": "1.0.0",
+  "databaseURL": "postgres://ksuser:your_secure_password@localhost:5432/kspanel",
+  "databaseTable": "kspanel",
+  "saltRounds": 10,
+  "ogTitle": "KS Panel",
+  "ogDescription": "This is an instance of the KS Panel"
+}
