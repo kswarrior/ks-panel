@@ -339,7 +339,7 @@ version: '3.8'
 services:
   db:
     image: postgres:14
-    container_name: kspanel_postgres   # <-- container name
+    container_name: kspanel_postgres
     restart: always
     environment:
       POSTGRES_DB: kspanel
@@ -348,7 +348,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - $HOME/.kspanel/database/postgresql:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
 EOF
 
 echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Enter database password: \033[0m"
