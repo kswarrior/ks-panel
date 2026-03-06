@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # ✅ Allows push to the repository
+  contents: write      # required if workflow files are updated (optional here)
 
 jobs:
   update-main:
@@ -15,17 +15,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 3️⃣ Download kspanel.zip
+      # 2️⃣ Download kspanel.zip
       - name: Download kspanel.zip
         run: |
-          wget https://github.com/kswarrior/ks-panel-old/releases/download/1.2.0/kspanel.zip
+          wget https://github.com/kswarrior/ks-panel-old/releases/download/1.2.0/kspanel.zip -O kspanel.zip
 
-      # 5️⃣ Extract zip
+      # 3️⃣ Extract zip
       - name: Extract kspanel.zip
         run: |
-          unzip -o kspanel.zip    # overwrite existing files if any
-          
-      # 6️⃣ Commit & push changes
+          unzip -o kspanel.zip -d extracted
+
+      # 4️⃣ Copy files except .github/workflows
+      - name: Copy files
+        run: |
+          rsync -av --exclude='.github/workflows/*' extracted/ ./ 
+
+      # 5️⃣ Commit & push changes
       - name: Commit & Push
         run: |
           git config user.name "github-actions[bot]"
