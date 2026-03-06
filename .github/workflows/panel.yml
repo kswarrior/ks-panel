@@ -1,0 +1,55 @@
+name: Panel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'panel/**'   # ✅ Only run when panel folder changes
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 3. Get version from package.json
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(jq -r .version panel/package.json)
+          echo "Version found: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # 4. Create zip of panel folder only
+      - name: Create zip of repository
+        run: |
+          ZIP_NAME="panel.zip"
+          echo "Creating zip file $ZIP_NAME"
+          cd panel
+          zip -r "../$ZIP_NAME" . -x ".git/*"
+          cd ..
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      # 5. Create release if it doesn't exist
+      - name: Ensure release exists
+        run: |
+          if ! gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION not found, creating..."
+            gh release create "$VERSION" -t "$VERSION" -n "Automated release for version $VERSION"
+          else
+            echo "Release $VERSION already exists."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 6. Upload zip to the release
+      - name: Upload zip to release
+        run: |
+          gh release upload "$VERSION" "$ZIP_NAME" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
