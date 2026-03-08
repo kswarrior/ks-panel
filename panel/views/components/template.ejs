@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html class="h-full w-full">
    <!--
      
    HEAD SECTION
@@ -13,598 +13,59 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta content="<%= ogTitle %>" property="og:title">
       <meta content="<%= ogDescription %>" property="og:description">
-<style>
-         /* Base Styles */
-         .panel-body {
-            font-family: 'Public Sans', sans-serif;
-            background-color: #000000;
-            background-image: url('/assets/background.webp');
-            background-position: center top;
-            background-repeat: repeat-y;
-            background-size: 100% auto;
-            color: white;
-            margin: 0;
-            padding: 0;
-         }
-
-         /* Sidebar Styles */
-         .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            z-index: 50;
-            display: none;
-         }
-
-         .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden;
-         }
-
-         .sidebar-nav {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-         }
-
-         .user-info {
-            display: flex;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-         }
-
-         .user-avatar {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 9999px;
-            flex-shrink: 0;
-         }
-
-         .user-details {
-            min-width: 0;
-            flex: 1;
-            margin-left: 0.75rem;
-         }
-
-         .username {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: white;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-         }
-
-         .user-id {
-            font-size: 0.75rem;
-            color: rgba(209,213,219,1);
-         }
-
-         .nav-list {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            position: relative;
-            padding: 0;
-            list-style: none;
-         }
-
-         .active-background {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 2.5rem;
-            background: rgba(255,255,255,0.2);
-            border-radius: 0.75rem;
-            transition: all 0.3s ease-in-out;
-            opacity: 0;
-            transform: scale(0.95);
-            z-index: 10;
-         }
-
-         .nav-group {
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-         }
-
-         .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            margin-left: 0.5rem;
-            margin-right: 0.5rem;
-            border-radius: 0.75rem;
-            font-size: 0.875rem;
-            font-weight: normal;
-            color: rgba(209,213,219,1);
-            text-decoration: none;
-            position: relative;
-            z-index: 10;
-            transition: all 0.3s ease-in-out;
-         }
-
-         .nav-link:hover {
-            color: white;
-            background: rgba(255,255,255,0.1);
-         }
-
-         .nav-link.active {
-            color: white;
-            font-weight: 500;
-         }
-
-         .nav-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            flex-shrink: 0;
-            transition: transform 0.2s;
-            margin-right: 0.75rem;
-         }
-
-         .nav-link:hover .nav-icon {
-            transform: scale(1.1);
-         }
-
-         .nav-text {
-            flex: 1;
-            min-width: 0;
-         }
-
-         .admin-section {
-            margin-top: 1rem;
-         }
-
-         .section-title {
-            padding: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: rgba(209,213,219,1);
-         }
-
-         .logout-section {
-            border-top: 1px solid rgba(255,255,255,0.12);
-            margin-top: auto;
-         }
-
-         .logout-link {
-            display: flex;
-            align-items: center;
-            margin: -0.5rem;
-            border-radius: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: rgba(209,213,219,1);
-            text-decoration: none;
-            transition: all 0.3s ease-in-out;
-            position: relative;
-            z-index: 10;
-         }
-
-         .logout-link:hover {
-            color: white;
-            background: rgba(255,255,255,0.1);
-         }
-
-         /* Content Wrapper */
-         .content-wrapper {
-            min-height: 100vh;
-            transition: all 0.3s ease-in-out;
-            margin-left: 0;
-         }
-
-         /* Topbar Styles */
-         .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-            display: flex;
-            height: 4rem;
-            flex-shrink: 0;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            background: rgba(0,0,0,0.4);
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-            padding: 0 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-         }
-
-         .mobile-toggle-wrapper {
-            display: flex;
-            align-items: center;
-         }
-
-         .mobile-toggle-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: #1c3b54;
-            color: white;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-         }
-
-         .toggle-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            transition: transform 0.2s;
-         }
-
-         .mobile-toggle-button:hover .toggle-icon {
-            transform: scale(1.1);
-         }
-
-         .logo {
-            height: 1.5rem;
-            width: 1.5rem;
-            object-fit: contain;
-            border-radius: 0.25rem;
-         }
-
-         .panel-title {
-            color: white;
-            font-weight: 500;
-            font-size: 1rem;
-            margin-left: 0.25rem;
-         }
-
-         .desktop-header {
-            display: flex;
-            flex: 1;
-            align-items: center;
-            gap: 1rem;
-         }
-
-         .search-results {
-            position: absolute;
-            background: rgba(18,18,28,0.85);
-            width: 20rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            display: none;
-            margin-top: 4rem;
-            padding: 0.75rem;
-            left: 0;
-            z-index: 50;
-            border: 1px solid rgba(255,255,255,0.12);
-            color: white;
-         }
-
-         .status-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-         }
-
-         .status-icon {
-            cursor: pointer;
-            transition: all 0.2s;
-            transform: scale(1);
-            color: rgba(209,213,219,1);
-         }
-
-         .status-icon:hover {
-            transform: scale(1.1);
-            color: white;
-         }
-
-         .dropdown {
-            position: absolute;
-            right: 0;
-            margin-top: 0.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            z-index: 50;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(18,18,28,0.85);
-            color: white;
-            transform: scale(0.95);
-            opacity: 0;
-            transition: all 0.2s ease-out;
-         }
-
-         .dropdown.hidden {
-            display: none;
-         }
-
-         .dropdown.dropdown-visible {
-            display: block;
-            transform: scale(1);
-            opacity: 1;
-         }
-
-         .dropdown-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: white;
-            margin-bottom: 1rem;
-         }
-
-         .action-button {
-            width: 100%;
-            background: white;
-            color: black;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-         }
-
-         .action-button:hover {
-            transform: scale(1.05);
-         }
-
-         .ping-display {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-            cursor: default;
-         }
-
-         .ping-icon {
-            transition: all 0.3s;
-         }
-
-         .ping-value {
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin-top: 0.125rem;
-         }
-
-         .resource-fill {
-            transition: all 0.3s;
-         }
-
-         .resource-monitor:hover {
-            transform: scale(1.1);
-         }
-
-         .resource-section {
-            margin-bottom: 1rem;
-         }
-
-         .resource-label {
-            color: white;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-         }
-
-         .resource-info {
-            color: rgba(209,213,219,1);
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-         }
-
-         .progress-bar-wrapper {
-            width: 100%;
-            background: rgba(255,255,255,0.12);
-            height: 0.5rem;
-            border-radius: 9999px;
-            overflow: hidden;
-         }
-
-         .progress-bar {
-            height: 100%;
-            background: white;
-            border-radius: 9999px;
-            transition: all 0.3s;
-            width: 0%;
-         }
-
-         .user-dropdown {
-            position: relative;
-         }
-
-         .user-button {
-            margin: -0.375rem;
-            display: flex;
-            align-items: center;
-            padding: 0.375rem;
-            border: none;
-            background: none;
-            cursor: pointer;
-         }
-
-         .user-icon {
-            transition: transform 0.2s;
-            transform: scale(1);
-            color: white;
-         }
-
-         .user-button:hover .user-icon {
-            transform: scale(1.1);
-         }
-
-         .user-info-text {
-            display: flex;
-            align-items: center;
-            margin-left: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: white;
-         }
-
-         .user-id-text {
-            font-family: monospace;
-            font-size: 0.75rem;
-            color: rgba(209,213,219,1);
-            font-weight: normal;
-            margin-left: 0.25rem;
-         }
-
-         .dropdown-content {
-            padding: 1rem;
-         }
-
-         .language-section {
-            padding: 0.5rem;
-         }
-
-         .label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: white;
-            margin-bottom: 0.5rem;
-         }
-
-         .select-wrapper {
-            position: relative;
-         }
-
-         .select {
-            width: 100%;
-            background: #1c3b54;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            color: white;
-            outline: none;
-            transition: all 0.2s;
-            appearance: none;
-         }
-
-         .select:focus {
-            border-color: white;
-         }
-
-         /* Mobile Sidebar Styles */
-         @media (max-width: 1023px) {
-            .sidebar {
-               display: none;
-               position: fixed;
-               z-index: 50;
-               height: 100%;
-               width: 280px;
-               background: rgba(0, 0, 0, 0.6);
-               overflow-y: auto;
-               transform: translateX(-100%);
-               opacity: 0;
-               transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
-               backdrop-filter: blur(12px);
-            }
-
-            .sidebar.open {
-               display: flex;
-               transform: translateX(0);
-               opacity: 1;
-            }
-
-            .desktop-header,
-            .user-info-text {
-               display: none;
-            }
-
-            .mobile-toggle-wrapper {
-               display: flex;
-            }
-
-            .content-wrapper {
-               margin-left: 0;
-            }
-         }
-
-         @media (min-width: 1024px) {
-            .sidebar {
-               display: flex;
-               width: 16rem;
-               flex-direction: column;
-               background: rgba(0,0,0,0.4);
-               border-right: 1px solid rgba(255,255,255,0.12);
-               border-top-right-radius: 0.75rem;
-               padding: 1rem;
-               overflow-y: auto;
-            }
-
-            .mobile-toggle-wrapper {
-               display: none;
-            }
-
-            .desktop-header {
-               display: flex;
-            }
-
-            .user-info-text {
-               display: flex;
-            }
-
-            .content-wrapper {
-               margin-left: 16rem;
-            }
-         }
-
-         /* Animations */
-         @keyframes sidebarSlide {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-         }
-      </style>
+      <link href="/assets/tailwind.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+      <link href="/css/ks-panel.css" rel="stylesheet">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
    </head>
-   <body class="panel-body">
+   <body class="font-['Public_Sans'] bg-[#000000] bg-[url('/assets/background.webp')] bg-center-top bg-repeat-y bg-[length:100%_auto] text-white">
       <!--
      
       SIDEBAR (Desktop & Mobile Unified)
      
       -->
-      <div id="sidebar" class="sidebar">
-         <div class="sidebar-content">
-            <nav class="sidebar-nav">
+      <div id="sidebar" class="sidebar fixed inset-y-0 z-50 hidden lg:flex lg:w-64 flex-col backdrop-blur-md bg-black/40 border-r border-white/12 rounded-r-xl p-4 transition-all duration-300 ease-in-out group group-[.collapsed]:w-4 shadow-xl overflow-y-auto">
+         <div class="flex grow flex-col gap-y-6 overflow-hidden">
+            <nav class="flex flex-1 flex-col">
                <!--
                
       USER INFO SECTION
                
                -->
-               <div class="user-info">
-                  <img class="user-avatar" src="https://mc-heads.net/avatar/<%= user.username %>/64" alt="Profile">
-                  <div class="user-details">
-                     <p class="username"><%= user.username %></p>
-                     <p class="user-id"><%= user.userId.substring(0, 6) %></p>
+               <div class="flex items-center gap-x-3 py-4 border-b border-white/12 rounded-xl">
+                  <img class="w-8 h-8 rounded-full flex-shrink-0" src="https://mc-heads.net/avatar/<%= user.username %>/64" alt="Profile">
+                  <div class="group-[.collapsed]:hidden min-w-0 flex-1">
+                     <p class="text-sm font-medium text-white truncate"><%= user.username %></p>
+                     <p class="text-xs text-neutral-300"><%= user.userId.substring(0, 6) %></p>
                   </div>
                </div>
-               <ul role="list" class="nav-list">
-                  <div id="active-background" class="active-background"></div>
-                  <li class="nav-group">
-                     <a href="/instances" class="nav-link" searchdata="container instances servers" subterm="jegli:/server/servername">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M220,169.09l-92,53.65L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,169.09Z"/><path d="M220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09Z"/><path d="M28,86.91l96,56a8,8,0,0,0,8.06,0l96-56a8,8,0,0,0,0-13.82l-96-56a8,8,0,0,0-8.06,0l-96,56a8,8,0,0,0,0,13.82Z"/></svg>
-                        <span class="nav-text"><%= req.translations.instances %></span>
+               <ul role="list" class="flex flex-1 flex-col gap-y-2 mt-4 relative">
+                  <div id="active-background" class="absolute left-0 w-full h-10 bg-white/20 rounded-xl transition-all duration-300 ease-in-out opacity-0 scale-95 group-hover:opacity-100 z-10"></div>
+                  <li class="-mx-2 space-y-1">
+                     <a href="/instances" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10" searchdata="container instances servers" subterm="jegli:/server/servername">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M220,169.09l-92,53.65L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,169.09Z"/><path d="M220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09Z"/><path d="M28,86.91l96,56a8,8,0,0,0,8.06,0l96-56a8,8,0,0,0,0-13.82l-96-56a8,8,0,0,0-8.06,0l-96,56a8,8,0,0,0,0,13.82Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.instances %></span>
                      </a>
-                     <a href="/account" searchdata="account profile <%= user.username %>" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="nav-icon">
+                     <a href="/account" searchdata="account profile <%= user.username %>" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0">
                           <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
                         </svg>                                                           
-                        <span class="nav-text"><%= req.translations.account %></span>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.account %></span>
                      </a>
                      <% plugins.forEach(plugin => { %>
                         <% if (plugin.sidebar) { %>
                             <% Object.entries(plugin.sidebar).forEach(([key, value]) => { %>
-                                <a href="<%= value.url %>" searchdata="<%= value.search_data %>" class="nav-link">
+                                <a href="<%= value.url %>" searchdata="<%= value.search_data %>" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
                                     <% if (value.icon) { %>
-                                        <span class="svg-icon nav-icon" data-icon-url="<%= value.icon %>"></span>
+                                        <span class="svg-icon w-5 h-5 flex-shrink-0" data-icon-url="<%= value.icon %>"></span>
                                     <% } else { %>
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="nav-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
                                             <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
                                         </svg>
                                     <% } %>
-                                    <span class="nav-text"><%= key %></span>
+                                    <span class="flex-1 min-w-0"><%= key %></span>
                                 </a>
                             <% }); %>
                         <% } %>
@@ -638,62 +99,62 @@
                     
                   </li>
                   <% if (user.admin == true) { %>
-                  <li class="admin-section">
-                     <p class="section-title">Admin Panel</p>
+                  <li>
+                     <p class="px-2 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-300 group-[.collapsed]:hidden">Admin Panel</p>
                   </li>
-                  <li class="nav-group">
-                     <a href="/admin/overview" searchdata="admin overview control" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"/></svg>
-                        <span class="nav-text"><%= req.translations.overview %></span>
+                  <li class="-mx-2 space-y-1">
+                     <a href="/admin/overview" searchdata="admin overview control" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.overview %></span>
                      </a>
-                     <a href="/admin/settings" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/></svg>
-                        <span class="nav-text"><%= req.translations.settings %></span>
+                     <a href="/admin/settings" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.settings %></span>
                      </a>
-                     <a href="/admin/users" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="nav-icon">
+                     <a href="/admin/users" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0">
                           <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.569-1.175 6.002 6.002 0 0 1 11.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 0 1 7 18a9.953 9.953 0 0 1-5.385-1.572ZM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 0 0-1.588-3.755 4.502 4.502 0 0 1 5.874 2.636.818.818 0 0 1-.36.98A7.465 7.465 0 0 1 14.5 16Z" />
                         </svg>                               
-                        <span class="nav-text"><%= req.translations.users %></span>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.users %></span>
                      </a>
-                     <a href="/admin/instances" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm196,41.09-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM232,192H216V176a8,8,0,0,0-16,0v16H184a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V208h16a8,8,0,0,0,0-16Zm-92,23.76-12,7L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l16-9.33A8,8,0,1,0,140,215.76Z"/></svg>
-                        <span class="nav-text"><%= req.translations.instances %></span>
+                     <a href="/admin/instances" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm196,41.09-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM232,192H216V176a8,8,0,0,0-16,0v16H184a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V208h16a8,8,0,0,0,0-16Zm-92,23.76-12,7L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l16-9.33A8,8,0,1,0,140,215.76Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.instances %></span>
                      </a>
-                     <a href="/admin/templates/overview" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="nav-icon"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm0 6v3h6v-3h-6z"/></svg>
-                        <span class="nav-text"><%= req.translations.templates %></span>
+                     <a href="/admin/templates/overview" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm0 6v3h6v-3h-6z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.templates %></span>
                      </a>
-                     <a href="/admin/nodes" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
-                        <span class="nav-text"><%= req.translations.nodes %></span>
+                     <a href="/admin/nodes" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.nodes %></span>
                      </a>
-                     <a href="/admin/locations" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="nav-icon"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
-                        <span class="nav-text"><%= req.translations.location %></span>
+                     <a href="/admin/locations" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.location %></span>
                      </a>
-                     <a href="/admin/plugins/overview" searchdata="addons plugins admin" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M165.78,224H208a16,16,0,0,0,16-16V170.35A8,8,0,0,0,212.94,163a23.37,23.37,0,0,1-8.94,1.77c-13.23,0-24-11.1-24-24.73s10.77-24.73,24-24.73a23.37,23.37,0,0,1,8.94,1.77A8,8,0,0,0,224,109.65V72a16,16,0,0,0-16-16H171.78a35.36,35.36,0,0,0,.22-4,36,36,0,0,0-72,0,35.36,35.36,0,0,0,.22,4H64A16,16,0,0,0,48,72v32.22a35.36,35.36,0,0,0-4-.22,36,36,0,0,0,0,72,35.36,35.36,0,0,0,4-.22V208a16,16,0,0,0,16,16h42.22"/></svg>
-                        <span class="nav-text"><%= req.translations.plugins %></span>
+                     <a href="/admin/plugins/overview" searchdata="addons plugins admin" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M165.78,224H208a16,16,0,0,0,16-16V170.35A8,8,0,0,0,212.94,163a23.37,23.37,0,0,1-8.94,1.77c-13.23,0-24-11.1-24-24.73s10.77-24.73,24-24.73a23.37,23.37,0,0,1,8.94,1.77A8,8,0,0,0,224,109.65V72a16,16,0,0,0-16-16H171.78a35.36,35.36,0,0,0,.22-4,36,36,0,0,0-72,0,35.36,35.36,0,0,0,.22,4H64A16,16,0,0,0,48,72v32.22a35.36,35.36,0,0,0-4-.22,36,36,0,0,0,0,72,35.36,35.36,0,0,0,4-.22V208a16,16,0,0,0,16,16h42.22"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.plugins %></span>
                      </a>
-                     <a href="/admin/apikeys" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM180,92a16,16,0,1,1,16-16A16,16,0,0,1,180,92Z"/></svg>
-                        <span class="nav-text"><%= req.translations.APIKeys %></span>
+                     <a href="/admin/apikeys" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM180,92a16,16,0,1,1,16-16A16,16,0,0,1,180,92Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.APIKeys %></span>
                      </a>
-                     <a href="/admin/auditlogs" searchdata="audit logs admin" class="nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon"><rect width="256" height="256" fill="none"/><path d="M220.8,169.6A8,8,0,0,0,216,168h-8V64a32,32,0,0,0-32-32H40A32,32,0,0,0,8,64C8,77.61,18.05,85.54,19.2,86.4h0A7.89,7.89,0,0,0,24,88a8,8,0,0,0,4.87-14.33h0C28.83,73.62,24,69.74,24,64a16,16,0,0,1,32,0V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32C232,178.39,222,170.46,220.8,169.6ZM104,96h64a8,8,0,0,1,0,16H104a8,8,0,0,1,0-16Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,136Zm104,72H107.71A31.82,31.82,0,0,0,112,192a26.92,26.92,0,0,0-1.21-8h102a12.58,12.58,0,0,1,3.23,8A16,16,0,0,1,200,208Z"/></svg>
-                        <span class="nav-text"><%= req.translations.auditLogs %></span>
+                     <a href="/admin/auditlogs" searchdata="audit logs admin" class="transition-all duration-300 ease-in-out nav-link group flex items-center gap-x-3 py-3 px-4 mx-2 rounded-xl text-sm font-normal text-neutral-300 hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M220.8,169.6A8,8,0,0,0,216,168h-8V64a32,32,0,0,0-32-32H40A32,32,0,0,0,8,64C8,77.61,18.05,85.54,19.2,86.4h0A7.89,7.89,0,0,0,24,88a8,8,0,0,0,4.87-14.33h0C28.83,73.62,24,69.74,24,64a16,16,0,0,1,32,0V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32C232,178.39,222,170.46,220.8,169.6ZM104,96h64a8,8,0,0,1,0,16H104a8,8,0,0,1,0-16Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,136Zm104,72H107.71A31.82,31.82,0,0,0,112,192a26.92,26.92,0,0,0-1.21-8h102a12.58,12.58,0,0,1,3.23,8A16,16,0,0,1,200,208Z"/></svg>
+                        <span class="group-[.collapsed]:hidden flex-1 min-w-0"><%= req.translations.auditLogs %></span>
                      </a>
                   </li>
                   <% } %>
                </ul>
             </nav>
-            <li class="logout-section">
-               <a href="/auth/logout" class="logout-link">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="nav-icon">
+            <li class="border-t border-white/12 mt-auto">
+               <a href="/auth/logout" class="group -mx-2 flex items-center gap-x-3 rounded-xl px-6 py-3 text-sm font-medium text-neutral-300 transition-all duration-300 ease-in-out hover:text-white hover:bg-white/10 active:bg-white/20 relative z-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                   </svg>
-                  <span class="nav-text"><%= req.translations.signOut %></span>
+                  <span class="flex-1 min-w-0"><%= req.translations.signOut %></span>
                </a>
             </li>
          </div>
@@ -704,121 +165,121 @@
       MAIN CONTENT WRAPPER
      
       -->
-      <div id="colcont" class="content-wrapper">
+      <div id="colcont" class="lg:pl-64 transition-all duration-300 ease-in-out group-[.collapsed]:pl-4 min-h-screen">
          <!--
          
       HEADER / TOPBAR
          
          -->
-         <div class="topbar">
+         <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-x-4 backdrop-blur-md bg-black/40 border-b border-white/12 px-4 sm:px-6 lg:px-6 shadow-xl">
             <!-- Mobile Sidebar Toggle -->
-            <div class="mobile-toggle-wrapper">
-               <button id="mobile-sidebar-toggle" class="mobile-toggle-button">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toggle-icon">
+            <div class="flex lg:hidden items-center">
+               <button id="mobile-sidebar-toggle" class="flex items-center gap-x-2 px-3 py-2 rounded-lg border border-white/12 bg-[#1c3b54] text-white hover:bg-white/10 active:scale-95 transition-all duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 transition-transform duration-200 hover:scale-110">
                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
-                  <img class="logo" src="/assets/logo.webp" alt="Logo">
-                  <h1 class="panel-title"><%= name || 'KS Panel' %></h1>
+                  <img src="/assets/logo.webp" class="h-6 w-6 object-contain rounded" alt="Logo">
+                  <h1 class="text-white font-medium text-base ml-1"><%= name || 'KS Panel' %></h1>
                </button>
             </div>
 
             <!-- Desktop Logo & Search -->
-            <div class="desktop-header">
-               <img class="logo" src="/assets/logo.webp" alt="Logo">
-               <h1 class="panel-title"><%= name || 'KS Panel' %></h1>
-               <div id="searchResults" class="search-results"></div>
+            <div class="hidden lg:flex flex-1 items-center gap-x-4">
+               <img src="/assets/logo.webp" class="h-6 w-6 object-contain rounded flex-shrink-0" alt="Logo">
+               <h1 class="text-white font-medium text-lg"><%= name || 'KS Panel' %></h1>
+               <div id="searchResults" class="absolute bg-[rgba(18,18,28,0.85)] w-80 rounded-xl shadow-xl hidden mt-16 px-3 pb-3 left-0 z-50 border border-white/12 backdrop-blur-md text-white"></div>
             </div>
             <script src="/javascript/search/index.js"></script>
 
             <!-- Status Icons & User Menu -->
-            <div class="status-wrapper">
+            <div class="flex items-center gap-x-3">
                <!-- Update Manager -->
-               <div class="update-manager">
-                  <svg id="update-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="status-icon">
+               <div class="relative">
+                  <svg id="update-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer hover:scale-110 transition-all duration-200 text-neutral-300 hover:text-white">
                      <path d="M21 4v6h-6"/>
                      <path d="M3 20v-6h6"/>
                      <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
                   </svg>
-                  <div id="update-dropdown" class="dropdown hidden">
-                     <h2 class="dropdown-title">Update Manager</h2>
-                     <button id="action-button" class="action-button">Loading...</button>
+                  <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl p-4 shadow-xl z-50 border border-white/12 backdrop-blur-md bg-[rgba(18,18,28,0.85)] text-white">
+                     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
+                     <button id="action-button" class="w-full bg-white text-black py-2 rounded-lg font-bold shadow hover:scale-105 transition-all duration-200">Loading...</button>
                   </div>
                </div>
 
                <!-- Ping Display -->
-               <span id="pingDisplay" class="ping-display">
-                  <svg id="pingIcon" width="20" height="16" viewBox="0 0 24 20" xmlns="http://www.w3.org/2000/svg" class="ping-icon">
+               <span id="pingDisplay" class="flex flex-col items-center text-white cursor-default">
+                  <svg id="pingIcon" width="20" height="16" viewBox="0 0 24 20" xmlns="http://www.w3.org/2000/svg" class="transition-all duration-300">
                      <path id="pingLayer3" d="M2 6C7-1 17-1 22 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.2" />
                      <path id="pingLayer2" d="M5 10C9 5 15 5 19 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.2" />
                      <path id="pingLayer1" d="M8.5 14C10.5 12 13.5 12 15.5 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.2" />
                      <circle id="pingDot" cx="12" cy="18" r="1.8" fill="currentColor" opacity="0.2" />
                   </svg>
-                  <span class="ping-value">
+                  <span class="text-xs font-medium mt-0.5">
                      <span id="pingValue">--</span>
                   </span>
                </span>
 
                <!-- Resource Monitor -->
-               <div id="resource-link" class="resource-monitor">
-                  <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="status-icon">
+               <div id="resource-link" class="relative cursor-pointer hover:scale-110 transition-all duration-200">
+                  <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-300 hover:text-white">
                      <!-- RAM bar -->
                      <rect x="1" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                     <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" class="resource-fill" />
+                     <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" />
                      <!-- CPU bar -->
                      <rect x="8" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                     <rect id="cpu-fill" x="8" y="2" width="3" height="0" fill="#22c55e" class="resource-fill" />
+                     <rect id="cpu-fill" x="8" y="2" width="3" height="0" fill="#22c55e" />
                      <!-- Disk bar -->
                      <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                     <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" class="resource-fill" />
+                     <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
                   </svg>
-                  <div id="resource-dropdown" class="dropdown hidden">
-                     <h2 class="dropdown-title">Resource Monitor</h2>
-                     <div class="resource-section">
-                        <p class="resource-label">RAM</p>
-                        <p id="ram-used" class="resource-info"></p>
-                        <div class="progress-bar-wrapper">
-                           <div id="ram-bar" class="progress-bar"></div>
+                  <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-64 rounded-xl p-4 shadow-xl z-50 border border-white/12 backdrop-blur-md bg-[rgba(18,18,28,0.85)] text-white">
+                     <h2 class="text-lg font-semibold text-white mb-4">Resource Monitor</h2>
+                     <div class="mb-4 space-y-2">
+                        <p class="text-white font-medium">RAM</p>
+                        <p id="ram-used" class="text-neutral-300 text-sm"></p>
+                        <div class="w-full bg-white/12 h-2 rounded-full overflow-hidden">
+                           <div id="ram-bar" class="h-full bg-white rounded-full transition-all duration-300" style="width: 0%;"></div>
                         </div>
                      </div>
-                     <div class="resource-section">
-                        <p class="resource-label">CPU</p>
-                        <p id="cpu-percent" class="resource-info"></p>
-                        <div class="progress-bar-wrapper">
-                           <div id="cpu-bar" class="progress-bar"></div>
+                     <div class="mb-4 space-y-2">
+                        <p class="text-white font-medium">CPU</p>
+                        <p id="cpu-percent" class="text-neutral-300 text-sm"></p>
+                        <div class="w-full bg-white/12 h-2 rounded-full overflow-hidden">
+                           <div id="cpu-bar" class="h-full bg-white rounded-full transition-all duration-300" style="width: 0%;"></div>
                         </div>
                      </div>
-                     <div class="resource-section">
-                        <p class="resource-label">Disk</p>
-                        <p id="disk-used" class="resource-info"></p>
-                        <div class="progress-bar-wrapper">
-                           <div id="disk-bar" class="progress-bar"></div>
+                     <div class="space-y-2">
+                        <p class="text-white font-medium">Disk</p>
+                        <p id="disk-used" class="text-neutral-300 text-sm"></p>
+                        <div class="w-full bg-white/12 h-2 rounded-full overflow-hidden">
+                           <div id="disk-bar" class="h-full bg-white rounded-full transition-all duration-300" style="width: 0%;"></div>
                         </div>
                      </div>
                   </div>
                </div>
 
                <!-- User Dropdown -->
-               <div class="user-dropdown">
-                  <button type="button" id="user-menu-button" aria-expanded="false" aria-haspopup="true" class="user-button" onclick="toggleDropdown()">
-                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" class="user-icon">
+               <div class="relative">
+                  <button type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
+                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" class="hover:scale-110 transition-transform duration-200 text-white">
                         <circle cx="14" cy="14" r="11.5" stroke="currentColor" stroke-width="2.4"/>
                         <path d="M3 14H25" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
                         <path d="M14 2.5C10 7 10 21 14 25.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
                         <path d="M14 2.5C18 7 18 21 14 25.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
                      </svg>
-                     <span class="user-info-text" aria-hidden="true">
+                     <span class="hidden lg:flex lg:items-center ml-2 text-sm font-medium text-white" aria-hidden="true">
                         <%= user.username %>
-                        <span class="user-id-text">(<%= user.userId.substring(0, 6) %>)</span>
+                        <span class="font-mono text-xs text-neutral-300 font-normal ml-1">(<%= user.userId.substring(0, 6) %>)</span>
                      </span>
                   </button>
                   
                   <!-- Dropdown Menu with Language Selector -->
-                  <div id="dropdown-menu" class="dropdown hidden">
-                     <div class="dropdown-content">
-                        <div class="language-section">
-                          <label for="language-selector" class="label">Language</label>
-                          <div class="select-wrapper">
-                            <select id="language-selector" class="select" onchange="changeLanguage(this.value)">
+                  <div id="dropdown-menu" class="hidden absolute right-0 z-50 mt-2 w-56 rounded-xl shadow-xl ring-1 ring-white/12 transform opacity-0 scale-95 transition-all duration-200 ease-out border border-white/12 backdrop-blur-md bg-[rgba(18,18,28,0.85)] text-white">
+                     <div class="p-4">
+                        <div class="py-2 px-2">
+                          <label for="language-selector" class="block text-sm font-medium text-white mb-2">Language</label>
+                          <div class="relative">
+                            <select id="language-selector" class="w-full bg-[#1c3b54] border border-white/12 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white/40 transition-all duration-200 appearance-none" onchange="changeLanguage(this.value)">
                                <% languages.forEach(function(language) { %>
                                   <option value="<%= language %>" <%= (req.cookies.lang ? req.cookies.lang : 'en') === language ? 'selected' : '' %>>
                                     <%= req.translations[language] %>
@@ -840,7 +301,44 @@
       SCRIPTS
      
       -->
-      
+      <style>
+         .nav-link.active {
+            color: white;
+            font-weight: 500;
+         }
+
+         /* Mobile Sidebar Styles */
+         @media (max-width: 1023px) {
+            #sidebar {
+               display: none;
+               position: fixed;
+               z-index: 50;
+               height: 100%;
+               width: 280px;
+               backdrop-filter: blur(12px);
+               background: rgba(0, 0, 0, 0.6);
+               overflow-y: auto;
+               transform: translateX(-100%);
+               opacity: 0;
+               transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+            }
+
+            #sidebar.open {
+               display: flex;
+               transform: translateX(0);
+               opacity: 1;
+            }
+
+            #sidebar.open .group-[.collapsed\\:hidden] {
+               display: block !important;
+            }
+
+            @keyframes sidebarSlide {
+               from { transform: translateX(-100%); opacity: 0; }
+               to { transform: translateX(0); opacity: 1; }
+            }
+         }
+      </style>
 
       <script>
          document.addEventListener('DOMContentLoaded', function() {
@@ -879,7 +377,7 @@
               activeBackground.style.height = `${linkRect.height}px`;
               activeBackground.style.transform = `translateY(${topOffset}px)`;
               activeBackground.style.opacity = '1';
-              activeBackground.style.transform += ' scale(1)';
+              activeBackground.style.scale = '1';
           
               if (instant) {
                 void activeBackground.offsetWidth;
@@ -904,9 +402,10 @@
               });
           
               if (!foundActive) {
-                activeBackground.style.transform = 'translateY(0) scale(0.95)';
+                activeBackground.style.transform = 'translateY(0)';
                 activeBackground.style.height = '0px';
                 activeBackground.style.opacity = '0';
+                activeBackground.style.scale = '0.95';
               }
             }
           
@@ -963,7 +462,7 @@
 
             // Desktop: Always open
             if (window.innerWidth >= 1024) {
-               sidebar.classList.add('open'); // Use open class for desktop visibility
+               sidebar.classList.remove('collapsed');
             } else {
                // Mobile: Check cookie for collapsed state
                const sidebarState = getCookie('sidebar-collapsed');
@@ -996,9 +495,13 @@
             const dropdownMenu = document.getElementById('dropdown-menu');
             dropdownMenu.classList.toggle('hidden');
             if (!dropdownMenu.classList.contains('hidden')) {
-              dropdownMenu.classList.add('dropdown-visible');
+              setTimeout(() => {
+                dropdownMenu.style.transform = 'scale(1)';
+                dropdownMenu.style.opacity = '1';
+              }, 10);
             } else {
-              dropdownMenu.classList.remove('dropdown-visible');
+              dropdownMenu.style.transform = 'scale(0.95)';
+              dropdownMenu.style.opacity = '0';
             }
          }
 
@@ -1007,7 +510,8 @@
             const dropdownMenu = document.getElementById('dropdown-menu');
             if (!userMenuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
               dropdownMenu.classList.add('hidden');
-              dropdownMenu.classList.remove('dropdown-visible');
+              dropdownMenu.style.transform = 'scale(0.95)';
+              dropdownMenu.style.opacity = '0';
             }
          });
 
@@ -1083,11 +587,6 @@
             function toggleUpdateDropdown(e) {
                e.stopPropagation();
                dropdown.classList.toggle('hidden');
-               if (!dropdown.classList.contains('hidden')) {
-                 dropdown.classList.add('dropdown-visible');
-               } else {
-                 dropdown.classList.remove('dropdown-visible');
-               }
             }
 
             icon.addEventListener('click', toggleUpdateDropdown);
@@ -1095,7 +594,6 @@
             window.addEventListener('click', (e) => {
                if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
                  dropdown.classList.add('hidden');
-                 dropdown.classList.remove('dropdown-visible');
                }
             });
 
@@ -1147,6 +645,12 @@
             return '#22c55e'; // green  
          }  
          
+         function getColorClass(percent) {  
+            if (percent > 95) return 'bg-red-500';  
+            if (percent > 75) return 'bg-yellow-500';  
+            return 'bg-green-500';  
+         }  
+         
          document.addEventListener('DOMContentLoaded', async () => {  
             let resourceClickHandlerAdded = false;
             async function updateResourceData() {
@@ -1193,23 +697,17 @@
                       e.stopPropagation();
                       document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;  
                       document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;  
-                      document.getElementById('ram-bar').style.backgroundColor = getColor(data.ram.percent);  
+                      document.getElementById('ram-bar').className = `h-full rounded-full transition-all duration-300 ${getColorClass(data.ram.percent)}`;  
       
                       document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;  
                       document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;  
-                      document.getElementById('cpu-bar').style.backgroundColor = getColor(data.cpu.percent);  
+                      document.getElementById('cpu-bar').className = `h-full rounded-full transition-all duration-300 ${getColorClass(data.cpu.percent)}`;  
       
                       document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;  
                       document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;  
-                      document.getElementById('disk-bar').style.backgroundColor = getColor(data.disk.percent);  
+                      document.getElementById('disk-bar').className = `h-full rounded-full transition-all duration-300 ${getColorClass(data.disk.percent)}`;  
       
-                      const dropdown = document.getElementById('resource-dropdown');
-                      dropdown.classList.toggle('hidden');
-                      if (!dropdown.classList.contains('hidden')) {
-                        dropdown.classList.add('dropdown-visible');
-                      } else {
-                        dropdown.classList.remove('dropdown-visible');
-                      }
+                      document.getElementById('resource-dropdown').classList.toggle('hidden');  
                    });  
                    resourceClickHandlerAdded = true;
                  }  
