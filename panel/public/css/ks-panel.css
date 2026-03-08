@@ -3,9 +3,7 @@
 ========================================================= */
 
 :root {
-
   /* ================= COLORS ================= */
-
   --bg: #000000;
   --card: rgba(18,18,28,0.85);
   --hover-card: rgba(40,40,55,0.95);
@@ -20,14 +18,12 @@
   --border: rgba(255,255,255,0.12);
 
   /* Status Colors */
-
   --success: #22c55e;
   --warning: #eab308;
   --danger: #ef4444;
   --info: #38bdf8;
 
   /* ================= BODY BACKGROUND ================= */
-
   --body-bg-overlay: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45));
   --body-bg-image: url('/assets/background.webp');
   --body-bg-position: center top;
@@ -35,7 +31,6 @@
   --body-bg-size: 100% auto;
 
   /* ================= BORDER RADIUS ================= */
-
   --card-radius: 10px;
   --btn-radius: 8px;
   --input-radius: 8px;
@@ -43,7 +38,6 @@
   --badge-radius: 6px;
 
   /* ================= FONTS ================= */
-
   --font-family: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
   --h1-size: 26px;
@@ -61,7 +55,6 @@
   --table-font-size: 13px;
 
   /* ================= SPACING ================= */
-
   --card-padding: 40px 36px;
   --card-padding-mobile: 32px 24px;
 
@@ -78,7 +71,6 @@
   --margin-body: 15px;
 
   /* ================= TABLE ================= */
-
   --table-bg: rgba(18,18,28,0.65);
   --table-hover: rgba(255,255,255,0.04);
   --table-border: rgba(255,255,255,0.08);
@@ -86,14 +78,12 @@
   --table-head-text: #ffffff;
 
   /* ================= INPUT / FORM ================= */
-
   --input-bg: rgba(255,255,255,0.03);
   --input-border: rgba(255,255,255,0.12);
   --input-focus-border: rgba(255,255,255,0.4);
   --input-placeholder: rgba(255,255,255,0.35);
 
   /* ================= BUTTON ================= */
-
   --btn-bg: rgba(255,255,255,0.05);
   --btn-hover: rgba(255,255,255,0.1);
   --btn-text: #ffffff;
@@ -106,31 +96,25 @@
   --btn-danger-text: #ffffff;
 
   /* ================= BADGE ================= */
-
   --badge-bg: rgba(255,255,255,0.08);
   --badge-text: #ffffff;
 
   /* ================= PROGRESS BAR ================= */
-
   --progress-bg: rgba(255,255,255,0.08);
   --progress-success: #22c55e;
   --progress-warning: #eab308;
   --progress-danger: #ef4444;
 
   /* ================= SHADOWS ================= */
-
   --card-shadow: 0 0 20px rgba(255,255,255,0.1);
   --btn-shadow: 0 0 2px var(--accent-glow);
   --table-shadow: 0 4px 20px rgba(0,0,0,0.4);
 
   /* ================= EFFECTS ================= */
-
   --backdrop-blur: 12px;
 
   /* ================= TRANSITION ================= */
-
   --transition: 0.4s ease;
-
 }
 
 /* =========================================================
@@ -207,19 +191,25 @@ main.main {
   background: var(--hover-card);
 }
 
-.s-card {}
+.s-card {
+  grid-column: span 1;
+}
 
 .b-card {
   grid-column: span 2;
 }
 
-.card h1 { font-size: var(--h1-size); }
-.card h2 { font-size: var(--h2-size); }
-.card h3 { font-size: var(--h3-size); }
+.card-title {
+  font-size: var(--h3-size);
+  font-weight: var(--btn-font-weight);
+  color: var(--text);
+  margin: 0;
+}
 
-.card p {
-  font-size: var(--p-size);
-  color: var(--text-muted);
+.card-value {
+  font-size: var(--h2-size);
+  color: var(--text);
+  margin: 0;
 }
 
 /* =========================================================
@@ -236,6 +226,9 @@ main.main {
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--btn-shadow);
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .btn:hover {
@@ -279,9 +272,10 @@ main.main {
   gap: 6px;
 }
 
-.label {
+label {
   font-size: var(--label-size);
   font-weight: var(--label-font-weight);
+  color: var(--text);
 }
 
 .input,
@@ -330,17 +324,14 @@ textarea:focus {
   color: var(--table-head-text);
 }
 
-.table th,
-.table td {
-  padding: var(--table-padding);
-  border-bottom: 1px solid var(--table-border);
-}
-
 .table-row:hover {
   background: var(--table-hover);
 }
 
-.table-cell {}
+.table-cell {
+  padding: var(--table-padding);
+  border-bottom: 1px solid var(--table-border);
+}
 
 /* =========================================================
    BADGES
@@ -352,6 +343,7 @@ textarea:focus {
   background: var(--badge-bg);
   color: var(--badge-text);
   font-size: var(--small-size);
+  display: inline-block;
 }
 
 /* =========================================================
@@ -426,16 +418,17 @@ textarea:focus {
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 900px) {
-
+@media (max-width: 1024px) {
   .b-card {
     grid-column: span 1;
   }
 
+  .cards {
+    grid-template-columns: 1fr;
+  }
 }
 
-@media (max-width: 600px) {
-
+@media (max-width: 768px) {
   .card {
     padding: var(--card-padding-mobile);
   }
@@ -444,12 +437,13 @@ textarea:focus {
     padding: var(--card-padding-mobile);
   }
 
-}
-
-@media (max-width: 480px) {
-
   .section {
     padding: 20px;
   }
+}
 
+@media (max-width: 480px) {
+  .section {
+    padding: 15px;
+  }
 }
