@@ -1,0 +1,173 @@
+<%- include('../../components/template') %>
+<div class="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
+  <!-- Sidebar (copy-paste your existing admin sidebar from overview.ejs here or include it) -->
+  
+  <div class="ml-64 p-8">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-4xl font-bold mb-2 flex items-center gap-3">
+        🎨 Theme Customization
+        <span class="text-sm bg-green-600 text-white px-3 py-1 rounded-full">LIVE PREVIEW ENABLED</span>
+      </h1>
+      <p class="text-[var(--muted-text)] mb-8">Change anything and see it update instantly. Save to database when done.</p>
+<%- include('../../components/settings') %>
+      <form id="themeForm" action="/admin/theme/save" method="POST" class="space-y-12">
+        
+        <!-- ================== GLOBAL COLORS ================== -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-6 border-b border-[var(--border-color)] pb-4">🌈 Global Colors</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div>
+              <label class="block text-sm mb-1">Background</label>
+              <input type="color" name="--bg-color" value="<%= theme['--bg-color'] || '#0f172a' %>" class="w-full h-12 rounded-xl cursor-pointer">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Surface / Cards</label>
+              <input type="color" name="--surface-color" value="<%= theme['--surface-color'] || '#1e2937' %>" class="w-full h-12 rounded-xl cursor-pointer">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Text Color</label>
+              <input type="color" name="--text-color" value="<%= theme['--text-color'] || '#e2e8f0' %>" class="w-full h-12 rounded-xl cursor-pointer">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Muted Text</label>
+              <input type="color" name="--muted-text" value="<%= theme['--muted-text'] || '#94a3b8' %>" class="w-full h-12 rounded-xl cursor-pointer">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Border Color</label>
+              <input type="color" name="--border-color" value="<%= theme['--border-color'] || '#334155' %>" class="w-full h-12 rounded-xl cursor-pointer">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Primary / Accent</label>
+              <input type="color" name="--primary-color" value="<%= theme['--primary-color'] || '#3b82f6' %>" class="w-full h-12 rounded-xl cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+        <!-- ================== BUTTONS ================== -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-6">🔘 Buttons</h2>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label>Button Background</label>
+              <input type="color" name="--button-bg" value="<%= theme['--button-bg'] || '#3b82f6' %>">
+            </div>
+            <div>
+              <label>Button Text</label>
+              <input type="color" name="--button-text" value="<%= theme['--button-text'] || '#ffffff' %>">
+            </div>
+            <div>
+              <label>Button Hover</label>
+              <input type="color" name="--button-hover" value="<%= theme['--button-hover'] || '#2563eb' %>">
+            </div>
+            <div>
+              <label>Border Radius (rem)</label>
+              <input type="number" step="0.05" name="--button-radius" value="<%= parseFloat(theme['--button-radius']) || 0.5 %>" class="w-full">
+            </div>
+          </div>
+        </div>
+
+        <!-- ================== CARDS ================== -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-6">📦 Cards</h2>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label>Card Background</label>
+              <input type="color" name="--card-bg" value="<%= theme['--card-bg'] || '#1e2937' %>">
+            </div>
+            <div>
+              <label>Card Border</label>
+              <input type="color" name="--card-border" value="<%= theme['--card-border'] || '#334155' %>">
+            </div>
+            <div>
+              <label>Card Radius (rem)</label>
+              <input type="number" step="0.05" name="--card-radius" value="<%= parseFloat(theme['--card-radius']) || 0.75 %>" class="w-full">
+            </div>
+          </div>
+        </div>
+
+        <!-- ================== STATUS COLORS ================== -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-6">✅ Status Colors</h2>
+          <div class="grid grid-cols-4 gap-6">
+            <div><label>Success</label><input type="color" name="--success-color" value="<%= theme['--success-color'] || '#22c55e' %>"></div>
+            <div><label>Pending</label><input type="color" name="--pending-color" value="<%= theme['--pending-color'] || '#eab308' %>"></div>
+            <div><label>Error</label><input type="color" name="--error-color" value="<%= theme['--error-color'] || '#ef4444' %>"></div>
+            <div><label>Info</label><input type="color" name="--info-color" value="<%= theme['--info-color'] || '#06b6d4' %>"></div>
+          </div>
+        </div>
+
+        <!-- ================== TYPOGRAPHY & TEXT ================== -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-6">📝 Typography</h2>
+          <div class="grid grid-cols-3 gap-6">
+            <div><label>H1 Color</label><input type="color" name="--h1-color" value="<%= theme['--h1-color'] || '#e2e8f0' %>"></div>
+            <div><label>H2 Color</label><input type="color" name="--h2-color" value="<%= theme['--h2-color'] || '#e2e8f0' %>"></div>
+            <div><label>H3 Color</label><input type="color" name="--h3-color" value="<%= theme['--h3-color'] || '#e2e8f0' %>"></div>
+          </div>
+        </div>
+
+        <!-- ================== TABLE & INPUTS ================== -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-6">📋 Table & Inputs</h2>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label>Table Header BG</label>
+              <input type="color" name="--table-header-bg" value="<%= theme['--table-header-bg'] || '#334155' %>">
+            </div>
+            <div>
+              <label>Input Radius (rem)</label>
+              <input type="number" step="0.05" name="--input-radius" value="<%= parseFloat(theme['--input-radius']) || 0.375 %>" class="w-full">
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE PREVIEW AREA -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-semibold mb-4">👀 Live Preview</h2>
+          <div id="preview" class="p-8 rounded-2xl border border-[var(--border-color)] bg-[var(--surface-color)]">
+            <h1 class="text-4xl font-bold">This is H1 Heading</h1>
+            <h2 class="text-3xl">This is H2</h2>
+            <p>Normal paragraph text with muted color support.</p>
+            <button class="btn px-8 py-3 mt-4">Sample Button</button>
+            <div class="mt-6 flex gap-4">
+              <span class="success px-4 py-1 rounded">Success</span>
+              <span class="pending px-4 py-1 rounded">Pending</span>
+              <span class="error px-4 py-1 rounded">Error</span>
+            </div>
+            <table class="mt-6 w-full">
+              <thead><tr><th>Table Preview</th></tr></thead>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="submit" class="btn bg-green-600 hover:bg-green-700 text-white px-10 py-4 text-lg font-medium">
+            💾 Save Theme to Database
+          </button>
+          <button type="button" onclick="resetToDefault()" class="btn border border-[var(--border-color)] hover:bg-red-600">
+            Reset to Default
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// LIVE PREVIEW - updates instantly
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', () => {
+    document.documentElement.style.setProperty(input.name, input.value);
+  });
+});
+
+// Reset function
+function resetToDefault() {
+  if (confirm('Reset ALL theme values to default?')) {
+    document.getElementById('themeForm').reset();
+    location.reload(); // reload to apply defaults
+  }
+}
+</script>
+
+<%- include('../components/footer.ejs') %> <!-- Adjust include name if needed -->
