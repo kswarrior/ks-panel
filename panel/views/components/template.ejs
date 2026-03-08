@@ -18,1942 +18,53 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
    </head>
-   <body 
-  style="
-    font-family: 'Public Sans';
-    background:
-      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-      url('/assets/background.webp');
-    background-position: center top;
-    background-repeat: repeat-y; /* repeats vertically */
-    background-size: 100% auto;  /* keeps full width */" >
-      <!-- Todo : remove this style for tailwind css-->
-      <style>
-
-         /* ================= SIDEBAR CUSTOM CLASSES ================= */
-         .sidebar {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 224px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 50;
-            padding: var(--gap-small);
-            background: var(--card);
-            backdrop-filter: blur(var(--backdrop-blur));
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            transition: var(--transition);
-         }
-
-         .sidebar.collapsed {
-            width: 4rem;
-         }
-
-         .sidebar nav {
-            position: relative;
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-         }
-
-         .sidebar nav ul {
-            position: relative;
-            list-style: none;
-            padding: 0;
-            margin: var(--gap) 0 0 0;
-            display: flex;
-            flex-direction: column;
-            gap: var(--gap);
-         }
-
-         .nav-link {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: var(--gap-small);
-            padding: var(--input-padding);
-            margin: 0 var(--gap-small);
-            border-radius: var(--btn-radius);
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: var(--small-size);
-            font-weight: var(--label-font-weight);
-            transition: var(--transition);
-            border: 1px solid transparent;
-         }
-
-         .nav-link:hover {
-            background: var(--btn-hover);
-            color: var(--text);
-            border-color: var(--border);
-         }
-
-         .nav-link.active {
-            color: var(--text);
-            font-weight: var(--btn-font-weight);
-            background: var(--btn-bg);
-            border-color: var(--accent-glow);
-         }
-
-         .nav-link svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            flex-shrink: 0;
-         }
-
-         .nav-link span {
-            opacity: 1;
-            transition: var(--transition);
-         }
-
-         .sidebar.collapsed .nav-link span {
-            opacity: 0;
-            visibility: hidden;
-            width: 0;
-            overflow: hidden;
-         }
-
-         .active-background {
-            position: absolute;
-            left: var(--gap-small);
-            width: calc(100% - 2 * var(--gap-small));
-            height: 2.5rem;
-            background: var(--btn-hover);
-            border-radius: var(--btn-radius);
-            transition: var(--transition);
-            z-index: 0;
-         }
-
-         .user-info {
-            display: flex;
-            align-items: center;
-            gap: var(--gap-small);
-            padding: var(--input-padding);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-         }
-
-         .user-info img {
-            width: 1.5rem;
-            height: 1.5rem;
-            border-radius: 50%;
-         }
-
-         .user-info .username {
-            font-size: var(--small-size);
-            font-weight: var(--label-font-weight);
-            color: var(--text);
-            margin: 0;
-         }
-
-         .user-info .user-id {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin: 0;
-         }
-
-         .sidebar.collapsed .user-info .username,
-         .sidebar.collapsed .user-info .user-id {
-            display: none;
-         }
-
-         .admin-header {
-            padding: var(--gap) 2rem var(--gap-small) 2rem;
-            font-size: var(--small-size);
-            font-weight: var(--btn-font-weight);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text);
-         }
-
-         .sidebar.collapsed .admin-header {
-            display: none;
-         }
-
-         .logout-link {
-            margin-top: auto;
-            padding-top: var(--gap);
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: var(--gap-small);
-            padding: var(--btn-padding);
-            margin: 0 calc(-1 * var(--gap-small));
-            border-radius: var(--btn-radius);
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: var(--small-size);
-            font-weight: var(--label-font-weight);
-            transition: var(--transition);
-         }
-
-         .logout-link:hover {
-            background: var(--btn-hover);
-            color: var(--text);
-         }
-
-         /* ================= HEADER CUSTOM CLASSES ================= */
-         .header {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-            display: flex;
-            align-items: center;
-            height: 4rem;
-            padding: 0 var(--section-padding);
-            background: var(--card);
-            backdrop-filter: blur(var(--backdrop-blur));
-            border-bottom: 1px solid var(--border);
-            gap: var(--gap);
-         }
-
-         .header-content {
-            display: flex;
-            flex: 1;
-            align-items: center;
-            gap: var(--gap-large);
-         }
-
-         .logo-section {
-            display: flex;
-            align-items: center;
-            gap: var(--gap-small);
-            padding: var(--input-padding);
-            border-radius: var(--btn-radius);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text);
-            background: transparent;
-         }
-
-         .logo-section:hover {
-            transform: scale(1.05);
-         }
-
-         .logo-section img {
-            height: 1.5rem;
-            width: 1.5rem;
-            object-fit: contain;
-            border-radius: var(--badge-radius);
-         }
-
-         .logo-title {
-            font-size: var(--h3-size);
-            font-weight: var(--btn-font-weight);
-            color: var(--text);
-         }
-
-         .header-actions {
-            display: flex;
-            align-items: center;
-            gap: var(--gap-small);
-         }
-
-         .header-actions svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: var(--transition);
-         }
-
-         .header-actions svg:hover {
-            color: var(--text);
-         }
-
-         .user-menu {
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: var(--input-padding);
-            border-radius: var(--btn-radius);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            background: transparent;
-            color: var(--text);
-            transition: var(--transition);
-         }
-
-         .user-menu:hover {
-            border-color: var(--accent-glow);
-         }
-
-         .user-menu svg {
-            width: 1.75rem;
-            height: 1.75rem;
-         }
-
-         .user-info-text {
-            display: flex;
-            align-items: center;
-            gap: var(--gap-small);
-            margin-left: var(--gap-small);
-         }
-
-         .user-info-text .username {
-            font-size: var(--small-size);
-            font-weight: var(--label-font-weight);
-            color: var(--text);
-         }
-
-         .user-info-text .user-id {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-family: monospace;
-         }
-
-         .dropdown-menu {
-            position: absolute;
-            right: 0;
-            top: 100%;
-            z-index: 10;
-            margin-top: var(--gap-small);
-            width: 14rem;
-            background: var(--card);
-            border-radius: var(--card-radius);
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border);
-            padding-bottom: var(--gap-small);
-            opacity: 0;
-            transform: scale(0.95);
-            transition: var(--transition);
-         }
-
-         .dropdown-menu.show {
-            opacity: 1;
-            transform: scale(1);
-         }
-
-         .language-selector {
-            padding: var(--card-padding-mobile);
-         }
-
-         .language-selector label {
-            display: block;
-            font-size: var(--small-size);
-            font-weight: var(--label-font-weight);
-            color: var(--text);
-            margin-bottom: var(--gap-small);
-         }
-
-         .language-selector select {
-            width: 100%;
-            padding: var(--input-padding);
-            border-radius: var(--input-radius);
-            border: 1px solid var(--input-border);
-            background: var(--input-bg);
-            color: var(--text);
-            font-size: var(--small-size);
-         }
-
-         /* ================= MOBILE SIDEBAR ================= */
-         @media (max-width: 1024px) {
-            .sidebar {
-               display: none;
-               position: fixed;
-               z-index: 50;
-               height: 100%;
-               width: 225px;
-               backdrop-filter: blur(var(--backdrop-blur));
-               background: rgba(0, 0, 0, 0.4);
-               overflow-y: auto;
-
-               /* Original transform */
-               transform: translateX(-100%);
-
-               /* Added smooth animation */
-               opacity: 0;
-               transition: 
-                 transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-                 opacity 0.3s ease;
-            }
-
-            .sidebar.open {
-               display: flex;
-               transform: translateX(0);
-
-               /* Added fade in */
-               opacity: 1;
-               animation: sidebarSlide 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-            }
-
-            .sidebar.expanded {
-               width: 100%;
-            }
-         }
-
-         /* Animation */
-         @keyframes sidebarSlide {
-           from {
-             transform: translateX(-110%);
-             opacity: 0;
-           }
-           to {
-             transform: translateX(0);
-             opacity: 1;
-           }
-         }
-
-         /* ================= MAIN CONTENT ================= */
-         .main-content {
-            margin-left: 224px;
-            transition: var(--transition);
-         }
-
-         .main-content.collapsed {
-            margin-left: 4rem;
-         }
-
-         @media (max-width: 1024px) {
-            .main-content {
-               margin-left: 0;
-            }
-         }
-
-         /* ================= UTILITY ================= */
-         .hidden {
-            display: none !important;
-         }
-
-         .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-         }
-
-         .mt-auto {
-            margin-top: auto;
-         }
-
-         .pb-2 {
-            padding-bottom: 0.5rem;
-         }
-
-         .pt-6 {
-            padding-top: 1.5rem;
-         }
-
-         .pl-8 {
-            padding-left: 2rem;
-         }
-
-         .tracking-wide {
-            letter-spacing: 0.025em;
-         }
-
-         .uppercase {
-            text-transform: uppercase;
-         }
-
-         .font-semibold {
-            font-weight: 600;
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .md\:text-base {
-            font-size: 1rem;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .text-neutral-400 {
-            color: var(--text-muted);
-         }
-
-         .text-neutral-500 {
-            color: var(--text-muted);
-         }
-
-         .hover\:text-white:hover {
-            color: var(--text);
-         }
-
-         .gap-x-3 {
-            gap: var(--gap-small);
-         }
-
-         .gap-x-4 {
-            gap: var(--gap);
-         }
-
-         .py-1\.5 {
-            padding-top: 0.375rem;
-            padding-bottom: 0.375rem;
-         }
-
-         .py-4 {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-         }
-
-         .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-         }
-
-         .mx-4 {
-            margin-left: 1rem;
-            margin-right: 1rem;
-         }
-
-         .-mx-2 {
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-         }
-
-         .pl-6 {
-            padding-left: 1.5rem;
-         }
-
-         .rounded-xl {
-            border-radius: var(--card-radius);
-         }
-
-         .leading-6 {
-            line-height: 1.5rem;
-         }
-
-         .font-normal {
-            font-weight: normal;
-         }
-
-         .font-medium {
-            font-weight: 500;
-         }
-
-         .border-y {
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .border-t {
-            border-top: 1px solid var(--border);
-         }
-
-         .space-y-1 > :not([hidden]) ~ :not([hidden]) {
-            margin-top: 0.25rem;
-         }
-
-         .flex-1 {
-            flex: 1;
-         }
-
-         .grow {
-            flex-grow: 1;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .overflow-hidden {
-            overflow: hidden;
-         }
-
-         .rounded-r-3xl {
-            border-top-right-radius: 1.5rem;
-            border-bottom-right-radius: 1.5rem;
-         }
-
-         .rounded-l-lg {
-            border-top-left-radius: 0.5rem;
-            border-bottom-left-radius: 0.5rem;
-         }
-
-         .bg-transparent {
-            background: transparent;
-         }
-
-         .border {
-            border: 1px solid var(--border);
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .z-50 {
-            z-index: 50;
-         }
-
-         .lg\:fixed {
-            position: fixed;
-         }
-
-         .lg\:inset-y-0 {
-            top: 0;
-            bottom: 0;
-         }
-
-         .lg\:flex {
-            display: flex;
-         }
-
-         .lg\:w-56 {
-            width: 14rem;
-         }
-
-         .group {
-            /* Group hover styles can be added as needed */
-         }
-
-         .group-\[\.collapsed\]\:w-\[4\%\] {
-            /* Handled in .sidebar.collapsed */
-         }
-
-         .transition-all {
-            transition: all var(--transition);
-         }
-
-         .duration-300 {
-            transition-duration: 0.3s;
-         }
-
-         .ease-in-out {
-            transition-timing-function: ease-in-out;
-         }
-
-         .hidden {
-            display: none;
-         }
-
-         .lg\:block {
-            display: block;
-         }
-
-         .w-fit {
-            width: fit-content;
-         }
-
-         .p-2 {
-            padding: 0.5rem;
-         }
-
-         .mt-1 {
-            margin-top: 0.25rem;
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .hover\:scale-110:hover {
-            transform: scale(1.1);
-         }
-
-         .active\:scale-100:active {
-            transform: scale(1);
-         }
-
-         .duration-200 {
-            transition-duration: 0.2s;
-         }
-
-         .h-6 {
-            height: 1.5rem;
-         }
-
-         .w-6 {
-            width: 1.5rem;
-         }
-
-         .stroke-width-1\.5 {
-            stroke-width: 1.5;
-         }
-
-         .flex-col {
-            flex-direction: column;
-         }
-
-         .gap-y-5 {
-            gap: 1.25rem;
-         }
-
-         .p-2 {
-            padding: 0.5rem;
-         }
-
-         .rounded-r-3xl {
-            border-top-right-radius: 1.5rem;
-            border-bottom-right-radius: 1.5rem;
-         }
-
-         .rounded-l-lg {
-            border-top-left-radius: 0.5rem;
-            border-bottom-left-radius: 0.5rem;
-         }
-
-         .bg-transparent {
-            background: transparent;
-         }
-
-         .border {
-            border-width: 1px;
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .flex-1 {
-            flex: 1;
-         }
-
-         .-mx-2 {
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-         }
-
-         .space-y-1 > * + * {
-            margin-top: 0.25rem;
-         }
-
-         .absolute {
-            position: absolute;
-         }
-
-         .left-0 {
-            left: 0;
-         }
-
-         .w-full {
-            width: 100%;
-         }
-
-         .h-8 {
-            height: 2rem;
-         }
-
-         .bg-white\/5 {
-            background: rgba(255,255,255,0.05);
-         }
-
-         .rounded-2xl {
-            border-radius: 1rem;
-         }
-
-         .text-neutral-400 {
-            color: var(--text-muted);
-         }
-
-         .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-         }
-
-         .mx-4 {
-            margin-left: 1rem;
-            margin-right: 1rem;
-         }
-
-         .group {
-            /* for hover */
-         }
-
-         .gap-x-3 {
-            column-gap: 0.75rem;
-         }
-
-         .py-1\.5 {
-            padding-top: 0.375rem;
-            padding-bottom: 0.375rem;
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .leading-6 {
-            line-height: 1.5rem;
-         }
-
-         .font-normal {
-            font-weight: normal;
-         }
-
-         .w-5 {
-            width: 1.25rem;
-         }
-
-         .mt-0\.5 {
-            margin-top: 0.125rem;
-         }
-
-         .h-5 {
-            height: 1.25rem;
-         }
-
-         .group-\[\.collapsed\]\:mr-0 {
-            margin-right: 0;
-         }
-
-         .group-\[\.collapsed\]\:hidden {
-            display: none;
-         }
-
-         .mt-2 {
-            margin-top: 0.5rem;
-         }
-
-         .pl-8 {
-            padding-left: 2rem;
-         }
-
-         .pt-6 {
-            padding-top: 1.5rem;
-         }
-
-         .pb-2 {
-            padding-bottom: 0.5rem;
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .md\:text-base {
-            font-size: 1rem;
-         }
-
-         .font-semibold {
-            font-weight: 600;
-         }
-
-         .uppercase {
-            text-transform: uppercase;
-         }
-
-         .tracking-wide {
-            letter-spacing: 0.025em;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .group-\[\.collapsed\]\:hidden {
-            display: none;
-         }
-
-         .mt-auto {
-            margin-top: auto;
-         }
-
-         .border-t {
-            border-top-width: 1px;
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .-mx-2 {
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-         }
-
-         .gap-x-3 {
-            column-gap: 0.75rem;
-         }
-
-         .rounded-xl {
-            border-radius: 0.75rem;
-         }
-
-         .pl-6 {
-            padding-left: 1.5rem;
-         }
-
-         .py-4 {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .font-medium {
-            font-weight: 500;
-         }
-
-         .leading-6 {
-            line-height: 1.5rem;
-         }
-
-         .text-neutral-500 {
-            color: var(--text-muted);
-         }
-
-         .transition-all {
-            transition: all var(--transition);
-         }
-
-         .duration-300 {
-            transition-duration: 0.3s;
-         }
-
-         .ease-in-out {
-            transition-timing-function: ease-in-out;
-         }
-
-         .hover\:text-white:hover {
-            color: var(--text);
-         }
-
-         .group-\[\.collapsed\]\:mr-0 {
-            margin-right: 0;
-         }
-
-         .sticky {
-            position: sticky;
-         }
-
-         .backdrop-blur {
-            backdrop-filter: blur(var(--backdrop-blur));
-         }
-
-         .top-0 {
-            top: 0;
-         }
-
-         .z-40 {
-            z-index: 40;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .h-16 {
-            height: 4rem;
-         }
-
-         .shrink-0 {
-            flex-shrink: 0;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .gap-x-4 {
-            column-gap: 1rem;
-         }
-
-         .bg-transparent {
-            background: transparent;
-         }
-
-         .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-         }
-
-         .sm\:gap-x-6 {
-            column-gap: 1.5rem;
-         }
-
-         .sm\:px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-         }
-
-         .lg\:px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-         }
-
-         .hidden {
-            display: none;
-         }
-
-         .lg\:block {
-            display: block;
-         }
-
-         .w-fit {
-            width: fit-content;
-         }
-
-         .p-2 {
-            padding: 0.5rem;
-         }
-
-         .mt-1 {
-            margin-top: 0.25rem;
-         }
-
-         .rounded-xl {
-            border-radius: 0.75rem;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .border {
-            border-width: 1px;
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .hover\:scale-110:hover {
-            transform: scale(1.1);
-         }
-
-         .active\:scale-100:active {
-            transform: scale(1);
-         }
-
-         .duration-200 {
-            transition-duration: 0.2s;
-         }
-
-         .h-6 {
-            height: 1.5rem;
-         }
-
-         .w-6 {
-            width: 1.5rem;
-         }
-
-         .fill-none {
-            fill: none;
-         }
-
-         .viewBox-0-0-24-24 {
-            viewBox: "0 0 24 24";
-         }
-
-         .stroke-width-1\.5 {
-            stroke-width: 1.5;
-         }
-
-         .stroke-currentColor {
-            stroke: currentColor;
-         }
-
-         .aria-hidden-true[aria-hidden="true"] {
-            /* aria-hidden handled in JS */
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .flex-1 {
-            flex: 1;
-         }
-
-         .gap-x-4 {
-            column-gap: 1rem;
-         }
-
-         .self-stretch {
-            align-self: stretch;
-         }
-
-         .lg\:gap-x-6 {
-            column-gap: 1.5rem;
-         }
-
-         .relative {
-            position: relative;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .flex-1 {
-            flex: 1;
-         }
-
-         .flex-col {
-            flex-direction: column;
-         }
-
-         .ml-2 {
-            margin-left: 0.5rem;
-         }
-
-         .lg\\:-ml-2 {
-            margin-left: -0.5rem;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .w-fit {
-            width: fit-content;
-         }
-
-         .mt-3\.5 {
-            margin-top: 0.875rem;
-         }
-
-         .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-         }
-
-         .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-         }
-
-         .h-10 {
-            height: 2.5rem;
-         }
-
-         .rounded-xl {
-            border-radius: 0.75rem;
-         }
-
-         .border {
-            border-width: 1px;
-         }
-
-         .border-white\/5 {
-            border-color: rgba(255,255,255,0.05);
-         }
-
-         .cursor-pointer {
-            cursor: pointer;
-         }
-
-         .hover\:scale-105:hover {
-            transform: scale(1.05);
-         }
-
-         .active\:scale-100:active {
-            transform: scale(1);
-         }
-
-         .duration-200 {
-            transition-duration: 0.2s;
-         }
-
-         .bg-transparent {
-            background: transparent;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .inline-flex {
-            display: inline-flex;
-         }
-
-         .mr-2 {
-            margin-right: 0.5rem;
-         }
-
-         .transition-all {
-            transition: all var(--transition);
-         }
-
-         .duration-200 {
-            transition-duration: 0.2s;
-         }
-
-         .ease-in-out {
-            transition-timing-function: ease-in-out;
-         }
-
-         .group-hover\:scale-110:hover {
-            transform: scale(1.1);
-         }
-
-         .group-hover\:stroke-blue-400:hover {
-            stroke: #60a5fa;
-         }
-
-         .drop-shadow-sm {
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-         }
-
-         .w-5 {
-            width: 1.25rem;
-         }
-
-         .h-5 {
-            height: 1.25rem;
-         }
-
-         .mx-\[2px\] {
-            margin-left: 2px;
-            margin-right: 2px;
-         }
-
-         .h-6 {
-            height: 1.5rem;
-         }
-
-         .w-px {
-            width: 1px;
-         }
-
-         .bg-transparent {
-            background: transparent;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .justify-center {
-            justify-content: center;
-         }
-
-         .h-6 {
-            height: 1.5rem;
-         }
-
-         .w-6 {
-            width: 1.5rem;
-         }
-
-         .min-h-6 {
-            min-height: 1.5rem;
-         }
-
-         .min-w-6 {
-            min-width: 1.5rem;
-         }
-
-         .max-h-6 {
-            max-height: 1.5rem;
-         }
-
-         .max-w-6 {
-            max-width: 1.5rem;
-         }
-
-         .object-contain {
-            object-fit: contain;
-         }
-
-         .rounded {
-            border-radius: 0.25rem;
-         }
-
-         .mr-3 {
-            margin-right: 0.75rem;
-         }
-
-         .block {
-            display: block;
-         }
-
-         .shrink-0 {
-            flex-shrink: 0;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .font-medium {
-            font-weight: 500;
-         }
-
-         .tracking-tight {
-            letter-spacing: -0.025em;
-         }
-
-         .text-lg {
-            font-size: 1.125rem;
-         }
-
-         .group-\[\.collapsed\]\:hidden {
-            display: none;
-         }
-
-         .absolute {
-            position: absolute;
-         }
-
-         .bg-white {
-            background: #ffffff;
-         }
-
-         .w-\[12\.5rem\] {
-            width: 12.5rem;
-         }
-
-         .rounded-xl {
-            border-radius: 0.75rem;
-         }
-
-         .shadow-lg {
-            box-shadow: var(--card-shadow);
-         }
-
-         .hidden {
-            display: none;
-         }
-
-         .mt-20 {
-            margin-top: 5rem;
-         }
-
-         .px-2 {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-         }
-
-         .pb-2 {
-            padding-bottom: 0.5rem;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .gap-x-2 {
-            column-gap: 0.5rem;
-         }
-
-         .relative {
-            position: relative;
-         }
-
-         .cursor-pointer {
-            cursor: pointer;
-         }
-
-         .hidden {
-            display: none;
-         }
-
-         .absolute {
-            position: absolute;
-         }
-
-         .right-0 {
-            right: 0;
-         }
-
-         .mt-2 {
-            margin-top: 0.5rem;
-         }
-
-         .w-48 {
-            width: 12rem;
-         }
-
-         .bg-neutral-900 {
-            background: #111827;
-         }
-
-         .border {
-            border-width: 1px;
-         }
-
-         .border-white\/10 {
-            border-color: rgba(255,255,255,0.1);
-         }
-
-         .rounded-lg {
-            border-radius: 0.5rem;
-         }
-
-         .p-4 {
-            padding: 1rem;
-         }
-
-         .shadow-lg {
-            box-shadow: var(--card-shadow);
-         }
-
-         .text-lg {
-            font-size: 1.125rem;
-         }
-
-         .font-semibold {
-            font-weight: 600;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .mb-4 {
-            margin-bottom: 1rem;
-         }
-
-         .w-full {
-            width: 100%;
-         }
-
-         .bg-blue-500 {
-            background: #3b82f6;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-         }
-
-         .rounded {
-            border-radius: 0.25rem;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .flex-col {
-            flex-direction: column;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .bg-transparent {
-            background: transparent;
-         }
-
-         .w-fit {
-            width: fit-content;
-         }
-
-         .transition-all {
-            transition: all var(--transition);
-         }
-
-         .duration-300 {
-            transition-duration: 0.3s;
-         }
-
-         .width-20 {
-            width: 20px;
-         }
-
-         .height-16 {
-            height: 16px;
-         }
-
-         .viewBox-0-0-24-20 {
-            viewBox: "0 0 24 20";
-         }
-
-         .transition-all {
-            transition: all var(--transition);
-         }
-
-         .duration-300 {
-            transition-duration: 0.3s;
-         }
-
-         .opacity-0\.2 {
-            opacity: 0.2;
-         }
-
-         .stroke-currentColor {
-            stroke: currentColor;
-         }
-
-         .stroke-width-2\.2 {
-            stroke-width: 2.2;
-         }
-
-         .stroke-linecap-round {
-            stroke-linecap: round;
-         }
-
-         .mt-0\.5 {
-            margin-top: 0.125rem;
-         }
-
-         .font-medium {
-            font-weight: 500;
-         }
-
-         .font-size-8px {
-            font-size: 8px;
-         }
-
-         .relative {
-            position: relative;
-         }
-
-         .cursor-pointer {
-            cursor: pointer;
-         }
-
-         .viewBox-0-0-20-20 {
-            viewBox: "0 0 20 20";
-         }
-
-         .w-5 {
-            width: 1.25rem;
-         }
-
-         .h-5 {
-            height: 1.25rem;
-         }
-
-         .text-neutral-400 {
-            color: var(--text-muted);
-         }
-
-         .hidden {
-            display: none;
-         }
-
-         .absolute {
-            position: absolute;
-         }
-
-         .right-0 {
-            right: 0;
-         }
-
-         .mt-2 {
-            margin-top: 0.5rem;
-         }
-
-         .w-64 {
-            width: 16rem;
-         }
-
-         .bg-neutral-900 {
-            background: #111827;
-         }
-
-         .border {
-            border-width: 1px;
-         }
-
-         .border-white\/10 {
-            border-color: rgba(255,255,255,0.1);
-         }
-
-         .rounded-lg {
-            border-radius: 0.5rem;
-         }
-
-         .p-4 {
-            padding: 1rem;
-         }
-
-         .shadow-lg {
-            box-shadow: var(--card-shadow);
-         }
-
-         .text-lg {
-            font-size: 1.125rem;
-         }
-
-         .font-semibold {
-            font-weight: 600;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .mb-4 {
-            margin-bottom: 1rem;
-         }
-
-         .text-white {
-            color: var(--text);
-         }
-
-         .text-neutral-400 {
-            color: var(--text-muted);
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .w-full {
-            width: 100%;
-         }
-
-         .bg-neutral-700 {
-            background: #374151;
-         }
-
-         .h-4 {
-            height: 1rem;
-         }
-
-         .rounded {
-            border-radius: 0.25rem;
-         }
-
-         .mt-1 {
-            margin-top: 0.25rem;
-         }
-
-         .h-4 {
-            height: 1rem;
-         }
-
-         .rounded {
-            border-radius: 0.25rem;
-         }
-
-         .bg-green-500 {
-            background: #22c55e;
-         }
-
-         .style-width-0 {
-            width: 0;
-         }
-
-         .relative {
-            position: relative;
-         }
-
-         .-m-1\.5 {
-            margin: -0.375rem;
-         }
-
-         .flex {
-            display: flex;
-         }
-
-         .items-center {
-            align-items: center;
-         }
-
-         .p-1\.5 {
-            padding: 0.375rem;
-         }
-
-         .hidden {
-            display: none;
-         }
-
-         .absolute {
-            position: absolute;
-         }
-
-         .right-0 {
-            right: 0;
-         }
-
-         .z-10 {
-            z-index: 10;
-         }
-
-         .mt-2 {
-            margin-top: 0.5rem;
-         }
-
-         .w-56 {
-            width: 14rem;
-         }
-
-         .bg-white {
-            background: #ffffff;
-         }
-
-         .rounded-xl {
-            border-radius: 0.75rem;
-         }
-
-         .shadow-lg {
-            box-shadow: var(--card-shadow);
-         }
-
-         .ring-1 {
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
-         }
-
-         .ring-black {
-            --tw-ring-color: #000000;
-         }
-
-         .ring-opacity-5 {
-            --tw-ring-opacity: 0.05;
-         }
-
-         .focus\:outline-none:focus {
-            outline: none;
-         }
-
-         .pb-2 {
-            padding-bottom: 0.5rem;
-         }
-
-         .transform {
-            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-         }
-
-         .opacity-0 {
-            opacity: 0;
-         }
-
-         .scale-95 {
-            --tw-scale-x: 0.95;
-            --tw-scale-y: 0.95;
-         }
-
-         .transition-all {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
-         }
-
-         .duration-200 {
-            transition-duration: 200ms;
-         }
-
-         .ease-out {
-            transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-         }
-
-         .p-4 {
-            padding: 1rem;
-         }
-
-         .py-1 {
-            padding-top: 0.25rem;
-            padding-bottom: 0.25rem;
-         }
-
-         .px-1 {
-            padding-left: 0.25rem;
-            padding-right: 0.25rem;
-         }
-
-         .block {
-            display: block;
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .font-medium {
-            font-weight: 500;
-         }
-
-         .text-gray-700 {
-            color: #374151;
-         }
-
-         .mb-2 {
-            margin-bottom: 0.5rem;
-         }
-
-         .relative {
-            position: relative;
-         }
-
-         .appearance-none {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-         }
-
-         .w-full {
-            width: 100%;
-         }
-
-         .bg-white {
-            background: #ffffff;
-         }
-
-         .border {
-            border-width: 1px;
-         }
-
-         .border-gray-300 {
-            border-color: #d1d5db;
-         }
-
-         .rounded-md {
-            border-radius: 0.375rem;
-         }
-
-         .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-         }
-
-         .pl-2 {
-            padding-left: 0.5rem;
-         }
-
-         .pr-10 {
-            padding-right: 2.5rem;
-         }
-
-         .text-sm {
-            font-size: 0.875rem;
-         }
-
-         .leading-5 {
-            line-height: 1.25rem;
-         }
-
-         .focus\:outline-none:focus {
-            outline: none;
-         }
-
-         .focus\:ring-2:focus {
-            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-         }
-
-         .focus\:ring-gray-500:focus {
-            --tw-ring-opacity: 1;
-            --tw-ring-color: rgb(107 114 128 / var(--tw-ring-opacity));
-         }
-
-         .focus\:border-gray-500:focus {
-            border-color: #6b7280;
-         }
-
-         .flag-icon {
-            width: 20px;
-            height: 15px;
-            background-size: cover;
-            background-position: center;
-         }
-
-         .flag-icon-de { 
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDMiPjxwYXRoIGQ9Ik0wIDBoNXYxSDB6IiBmaWxsPSIjMDAwIi8+PHBhdGggZD0iTTAgMWg1djFIMHoiIGZpbGw9IiNEMDAiLz48cGF0aCBkPSJNMCAyaDV2MUgweiIgZmlsbD0iI0ZGQ0UwMCIvPjwvc3ZnPg=='); 
-         }
-
-         .flag-icon-en { 
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjM1IDY1MCI+PHBhdGggZmlsbD0iIzAxMjE2OSIgZD0iTTAgMGgxMjM1djY1MEgweiIvPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0wIDc1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgwem0wIDEyNWgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgweiIvPjxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik0wIDEwMGgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgwem0wIDEyNWgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHoiLz48cGF0aCBmaWxsPSIjRkZGIiBkPSJNMCAwaDQ5NHYzNTBIMHoiLz48ZyBmaWxsPSIjQzgxMDJFIj48cGF0aCBkPSJNMjIwIDAgMCA2MHYzNWwyMjAgNzVMMCA1OXY0NGwyMjAgOTR6Ii8+PHBhdGggZD0iTTI3NCAwdjE4MEgwdjQ0aDI3NHYxMjZoNDRWMjI0aDQ5NHYtNDRINTE4VjBoLTQ0djEyNkgwdjQ0aDQ3NFYweiIvPjwvZz48L3N2Zz4='); 
-         }
-
-         .flag-icon-nl { 
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5IDYiPjxwYXRoIGZpbGw9IiMyMTQ2OEIiIGQ9Ik0wIDBoOXYySDB6Ii8+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTAgMmg5djJIMHoiLz48cGF0aCBmaWxsPSIjQUUxQzI4IiBkPSJNMCA0aDl2MkgweiIvPjwvc3ZnPg=='); 
-         }
-
-         /* Additional responsive for main content */
-         @media (max-width: 1024px) {
-            .main-content {
-               margin-left: 0;
-            }
-
-            .lg\:pl-56 {
-               padding-left: 14rem;
-            }
-
-            .group-\[\.collapsed\]\:pl-\[4\.2rem\] {
-               padding-left: 4.2rem;
-            }
-
-            .group-\[\.sidebar-right\]\:pl-\[1\.2rem\] {
-               padding-left: 1.2rem;
-            }
-
-            .group-\[\.sidebar-right\]\:pr-\[14\.2rem\] {
-               padding-right: 14.2rem;
-            }
-         }
-
-      </style>
-
+   <body>
       <!--
      
       MOBILE TOGGLE SECTION
      
       -->
       <!-- Static sidebar for desktop -->
-      <div id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out hidden lg:fixed lg:inset-y-0 lg:z-50 p-2 lg:flex lg:w-56 lg:flex-col group group-[.collapsed]:w-[4%]">
-         <div id="pc-sidebar2" class="flex grow flex-col gap-y-5 overflow-hidden rounded-r-3xl rounded-l-lg bg-transparent border border-white/5">
-            <nav class="flex flex-1 flex-col">
+      <aside id="pc-sidebar" class="sidebar">
+         <div id="pc-sidebar2" class="sidebar-content">
+            <nav class="sidebar-nav">
                   <!--
      
       USER INFO SECTION
      
       -->
                   <div class="user-info">
-                  <img class="w-6 h-6 rounded-full"
+                  <img class="profile-img"
      src="https://mc-heads.net/avatar/<%= user.username %>/64"
      alt="Profile">
-                     <div class="group-[.collapsed]:hidden">
+                     <div class="user-details">
                        <p class="username"><%= user.username %></p>
                        <p class="user-id"><%= user.userId.substring(0, 6) %></p>
                      </div>
                   </div>
-               <ul role="list" class="flex flex-1 flex-col gap-y-7 mt-2">
+               <ul role="list" class="nav-list">
                   <li>
-                     <ul role="list" class="-mx-2 space-y-1">
-                        <div id="active-background" class="active-background"></div>
+                     <ul role="list" class="nav-items">
+                        <div id="active-background" class="active-indicator"></div>
                         <li>
-                           <a href="/instances" class="nav-link mt-1" searchdata="container instances servers" subterm="jegli:/server/servername">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M220,169.09l-92,53.65L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,169.09Z"/><path d="M220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09Z"/><path d="M28,86.91l96,56a8,8,0,0,0,8.06,0l96-56a8,8,0,0,0,0-13.82l-96-56a8,8,0,0,0-8.06,0l-96,56a8,8,0,0,0,0,13.82Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.instances %></span>
+                           <a href="/instances" class="nav-link" searchdata="container instances servers" subterm="jegli:/server/servername">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M220,169.09l-92,53.65L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,169.09Z"/><path d="M220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09Z"/><path d="M28,86.91l96,56a8,8,0,0,0,8.06,0l96-56a8,8,0,0,0,0-13.82l-96-56a8,8,0,0,0-8.06,0l-96,56a8,8,0,0,0,0,13.82Z"/></svg>
+                              <span><%= req.translations.instances %></span>
                            </a>
-                           <a href="/account" searchdata="account profile <%= user.username %>" class="nav-link mt-1">
-                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0">
+                           <a href="/account" searchdata="account profile <%= user.username %>" class="nav-link">
+                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                  <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
                                </svg>                                                           
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.account %></span>
+                              <span><%= req.translations.account %></span>
                            </a>
                            <% plugins.forEach(plugin => { %>
                               <% if (plugin.sidebar) { %>
                                   <% Object.entries(plugin.sidebar).forEach(([key, value]) => { %>
-                                      <a href="<%= value.url %>" searchdata="<%= value.search_data %>" class="nav-link mt-1">
+                                      <a href="<%= value.url %>" searchdata="<%= value.search_data %>" class="nav-link">
                                           <% if (value.icon) { %>
                                               <span class="svg-icon" data-icon-url="<%= value.icon %>"></span>
                                           <% } else { %>
-                                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 mt-0.5 h-5">
+                                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                   <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
                                               </svg>
                                           <% } %>
@@ -1997,127 +108,123 @@
   <span>Admin Panel</span>
 </p>
                         <li>
-                           <a href="/admin/overview" searchdata="admin overview control" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.overview %></span>
+                           <a href="/admin/overview" searchdata="admin overview control" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"/></svg>
+                              <span><%= req.translations.overview %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/settings" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.settings %></span>
+                           <a href="/admin/settings" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/></svg>
+                              <span><%= req.translations.settings %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/users" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0">
+                           <a href="/admin/users" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                  <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.569-1.175 6.002 6.002 0 0 1 11.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 0 1 7 18a9.953 9.953 0 0 1-5.385-1.572ZM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 0 0-1.588-3.755 4.502 4.502 0 0 1 5.874 2.636.818.818 0 0 1-.36.98A7.465 7.465 0 0 1 14.5 16Z" />
                                </svg>                               
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.users %></span>
+                              <span><%= req.translations.users %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/instances" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm196,41.09-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM232,192H216V176a8,8,0,0,0-16,0v16H184a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V208h16a8,8,0,0,0,0-16Zm-92,23.76-12,7L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l16-9.33A8,8,0,1,0,140,215.76Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.instances %></span>
+                           <a href="/admin/instances" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm196,41.09-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM232,192H216V176a8,8,0,0,0-16,0v16H184a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V208h16a8,8,0,0,0,0-16Zm-92,23.76-12,7L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l16-9.33A8,8,0,1,0,140,215.76Z"/></svg>
+                              <span><%= req.translations.instances %></span>
                            </a>
                         </li>
                        <li>
-                           <a href="/admin/templates/overview" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm0 6v3h6v-3h-6z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.templates %></span>
+                           <a href="/admin/templates/overview" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm0 6v3h6v-3h-6z"/></svg>
+                              <span><%= req.translations.templates %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/nodes" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.nodes %></span>
+                           <a href="/admin/nodes" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
+                              <span><%= req.translations.nodes %></span>
                            </a>
                         </li>
                        <li>
-                           <a href="/admin/locations" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.location %></span>
+                           <a href="/admin/locations" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                              <span><%= req.translations.location %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/plugins/overview" searchdata="addons plugins admin" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M165.78,224H208a16,16,0,0,0,16-16V170.35A8,8,0,0,0,212.94,163a23.37,23.37,0,0,1-8.94,1.77c-13.23,0-24-11.1-24-24.73s10.77-24.73,24-24.73a23.37,23.37,0,0,1,8.94,1.77A8,8,0,0,0,224,109.65V72a16,16,0,0,0-16-16H171.78a35.36,35.36,0,0,0,.22-4,36,36,0,0,0-72,0,35.36,35.36,0,0,0,.22,4H64A16,16,0,0,0,48,72v32.22a35.36,35.36,0,0,0-4-.22,36,36,0,0,0,0,72,35.36,35.36,0,0,0,4-.22V208a16,16,0,0,0,16,16h42.22"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.plugins %></span>
+                           <a href="/admin/plugins/overview" searchdata="addons plugins admin" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M165.78,224H208a16,16,0,0,0,16-16V170.35A8,8,0,0,0,212.94,163a23.37,23.37,0,0,1-8.94,1.77c-13.23,0-24-11.1-24-24.73s10.77-24.73,24-24.73a23.37,23.37,0,0,1,8.94,1.77A8,8,0,0,0,224,109.65V72a16,16,0,0,0-16-16H171.78a35.36,35.36,0,0,0,.22-4,36,36,0,0,0-72,0,35.36,35.36,0,0,0,.22,4H64A16,16,0,0,0,48,72v32.22a35.36,35.36,0,0,0-4-.22,36,36,0,0,0,0,72,35.36,35.36,0,0,0,4-.22V208a16,16,0,0,0,16,16h42.22"/></svg>
+                              <span><%= req.translations.plugins %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/apikeys" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM180,92a16,16,0,1,1,16-16A16,16,0,0,1,180,92Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.APIKeys %></span>
+                           <a href="/admin/apikeys" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM180,92a16,16,0,1,1,16-16A16,16,0,0,1,180,92Z"/></svg>
+                              <span><%= req.translations.APIKeys %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/auditlogs" searchdata="audit logs admin" class="nav-link mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0"><rect width="256" height="256" fill="none"/><path d="M220.8,169.6A8,8,0,0,0,216,168h-8V64a32,32,0,0,0-32-32H40A32,32,0,0,0,8,64C8,77.61,18.05,85.54,19.2,86.4h0A7.89,7.89,0,0,0,24,88a8,8,0,0,0,4.87-14.33h0C28.83,73.62,24,69.74,24,64a16,16,0,0,1,32,0V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32C232,178.39,222,170.46,220.8,169.6ZM104,96h64a8,8,0,0,1,0,16H104a8,8,0,0,1,0-16Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,136Zm104,72H107.71A31.82,31.82,0,0,0,112,192a26.92,26.92,0,0,0-1.21-8h102a12.58,12.58,0,0,1,3.23,8A16,16,0,0,1,200,208Z"/></svg>
-                              <span class="group-[.collapsed]:hidden"><%= req.translations.auditLogs %></span>
+                           <a href="/admin/auditlogs" searchdata="audit logs admin" class="nav-link">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><rect width="256" height="256" fill="none"/><path d="M220.8,169.6A8,8,0,0,0,216,168h-8V64a32,32,0,0,0-32-32H40A32,32,0,0,0,8,64C8,77.61,18.05,85.54,19.2,86.4h0A7.89,7.89,0,0,0,24,88a8,8,0,0,0,4.87-14.33h0C28.83,73.62,24,69.74,24,64a16,16,0,0,1,32,0V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32C232,178.39,222,170.46,220.8,169.6ZM104,96h64a8,8,0,0,1,0,16H104a8,8,0,0,1,0-16Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,136Zm104,72H107.71A31.82,31.82,0,0,0,112,192a26.92,26.92,0,0,0-1.21-8h102a12.58,12.58,0,0,1,3.23,8A16,16,0,0,1,200,208Z"/></svg>
+                              <span><%= req.translations.auditLogs %></span>
                            </a>
                         </li>
 
                         <% } %>
                      </ul>
                   </li>
-                  <li class="mt-auto border-t border-white/5">
-                     <a href="/auth/logout" class="logout-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 mt-0.5 h-5 group-[.collapsed]:mr-0">
+                  <li class="logout-section">
+                     <a href="/auth/logout" class="nav-link logout-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden"><%= req.translations.signOut %></span>
+                        <span><%= req.translations.signOut %></span>
                      </a>
                   </li>
                </ul>
             </nav>
          </div>
-      </div>
-      <div id="colcont" class="main-content lg:pl-56 group-[.collapsed]:pl-[4.2rem] group-[.sidebar-right]:pl-[1.2rem] group-[.sidebar-right]:pr-[14.2rem]">
-      <div class="header">
+      </aside>
+      <div id="colcont" class="main-content">
+      <header class="header">
          <!-- Desktop sidebar toggle is now completely hidden (always) -->
-         <div class="hidden">
-         <button type="button" id="sidebar-toggle" class="hidden lg:block w-fit p-2 mt-1 rounded-xl text-white border border-white/5 hover:scale-110 active:scale-100 duration-200">
+         <div>
+         <button type="button" id="sidebar-toggle">
             <span class="sr-only">Open sidebar</span>
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <svg class="menu-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
          </button>
       </div>
          <div class="header-content">
-            <div class="relative flex flex-1 flex-col">
-               <div id="mobile-sidebar-toggle"
-class="logo-section ml-2 lg:-ml-2">
+            <div class="logo-section" id="mobile-sidebar-toggle">
                 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 24 24"
      fill="none"
      stroke="white"
      stroke-width="2"
-     class="w-5 h-5 inline-flex mr-2 transition-all duration-200 ease-in-out
-            group-hover:scale-110 group-hover:stroke-blue-400
-            drop-shadow-sm">
+     class="menu-icon">
 
   <path stroke-linecap="round"
         stroke-linejoin="round"
         d="M4 6h16M4 12h16M4 18h16" />
 </svg>
-<div class="mx-[2px] h-6 w-px bg-transparent flex items-center justify-center">
+<div class="divider">
      
 </div>
                      <% if (logo == true) { %>
-         <img src="/assets/logo.webp" class="h-6 w-6 min-h-6 min-w-6 max-h-6 max-w-6 object-contain rounded mr-3 block shrink-0">
+         <img src="/assets/logo.webp" class="logo-img">
       <% }  else { %>
-         <img src="/assets/logo.webp" class="h-6 w-6 min-h-6 min-w-6 max-h-6 max-w-6 object-contain rounded mr-3 block shrink-0">
+         <img src="/assets/logo.webp" class="logo-img">
       <% } %>
-                  <h1 class="logo-title group-[.collapsed]:hidden"><%= name || 'KS Panel' %></h1>
+                  <h1 class="logo-title"><%= name || 'KS Panel' %></h1>
                </div>
-               <div id="searchResults" class="absolute bg-white w-[12.5rem] rounded-xl shadow-lg hidden mt-20 px-2 pb-2">
+               <div id="searchResults" class="search-results">
                </div>
             </div>
             <script src="/javascript/search/index.js"></script>
 <div class="header-actions">
-   <div class="relative cursor-pointer">
+   <div class="update-section">
    <svg id="update-icon"
      xmlns="http://www.w3.org/2000/svg"
      width="24"
@@ -2133,14 +240,14 @@ class="logo-section ml-2 lg:-ml-2">
   <path d="M3 20v-6h6"/>
   <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
 </svg>
-   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
-     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
-     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
+   <div id="update-dropdown" class="dropdown">
+     <h2 class="dropdown-title">Update Manager</h2>
+     <button id="action-button" class="btn btn-primary">Loading...</button>
    </div>
    </div>
    <!-- Ping Display -->
 <span id="pingDisplay"
-      class="flex flex-col items-center text-white bg-transparent w-fit">
+      class="ping-display">
 
   <!-- SVG WiFi Icon -->
   <svg id="pingIcon"
@@ -2148,7 +255,7 @@ class="logo-section ml-2 lg:-ml-2">
        height="16"
        viewBox="0 0 24 20"
        xmlns="http://www.w3.org/2000/svg"
-       class="transition-all duration-300">
+       class="ping-icon">
 
     <path id="pingLayer3"
           d="M2 6C7-1 17-1 22 6"
@@ -2180,14 +287,14 @@ class="logo-section ml-2 lg:-ml-2">
   </svg>
 
   <!-- Ping Number Below -->
-  <span style="font-size:8px;" class="mt-0.5 font-medium">
+  <span class="ping-value">
     <span id="pingValue">--</span>
   </span>
 
 </span>
    <!-- Resource Monitor -->
-   <div id="resource-link" class="relative cursor-pointer">
-      <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-400">
+   <div id="resource-link" class="resource-section">
+      <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="resource-icon">
         <!-- RAM bar -->
         <rect x="1" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
         <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" />
@@ -2199,27 +306,27 @@ class="logo-section ml-2 lg:-ml-2">
         <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
       </svg>
       <!-- Dropdown Menu -->
-      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
-        <h2 class="text-lg font-semibold text-white mb-4">Resource Monitor</h2>
-        <div class="mb-4">
-          <p class="text-white">RAM</p>
-          <p id="ram-used" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="ram-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+      <div id="resource-dropdown" class="dropdown">
+        <h2 class="dropdown-title">Resource Monitor</h2>
+        <div class="resource-item">
+          <p class="resource-label">RAM</p>
+          <p id="ram-used" class="resource-text"></p>
+          <div class="progress-bar">
+            <div id="ram-bar" class="progress-success" style="width: 0%;"></div>
           </div>
         </div>
-        <div class="mb-4">
-          <p class="text-white">CPU</p>
-          <p id="cpu-percent" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="cpu-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+        <div class="resource-item">
+          <p class="resource-label">CPU</p>
+          <p id="cpu-percent" class="resource-text"></p>
+          <div class="progress-bar">
+            <div id="cpu-bar" class="progress-success" style="width: 0%;"></div>
           </div>
         </div>
-        <div class="mb-4">
-          <p class="text-white">Disk</p>
-          <p id="disk-used" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="disk-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+        <div class="resource-item">
+          <p class="resource-label">Disk</p>
+          <p id="disk-used" class="resource-text"></p>
+          <div class="progress-bar">
+            <div id="disk-bar" class="progress-success" style="width: 0%;"></div>
           </div>
         </div>
       </div>
@@ -2230,17 +337,17 @@ class="logo-section ml-2 lg:-ml-2">
    DROPDOWN PROFILE
      
    -->
-   <div class="relative">
-     <button type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
+   <div class="user-menu-section">
+     <button type="button" class="user-menu-button" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="14" cy="14" r="11.5" stroke="#ffffff" stroke-width="2.4"/>
   <path d="M3 14H25" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
   <path d="M14 2.5C10 7 10 21 14 25.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
   <path d="M14 2.5C18 7 18 21 14 25.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
 </svg>
-       <span class="user-info-text hidden lg:flex lg:items-center ml-2.5 text-sm font-medium leading-6 text-white" aria-hidden="true">
+       <span class="user-info-text" aria-hidden="true">
          <%= user.username %>
-         <span class="font-mono text-xs text-zinc-300 font-normal ml-1">(<%= user.userId.substring(0, 6) %>)</span>
+         <span class="user-id-tag">(<%= user.userId.substring(0, 6) %>)</span>
        </span>
      </button>
      
@@ -2249,12 +356,12 @@ class="logo-section ml-2 lg:-ml-2">
      DROPDOWN MENU LANGUAGES SELECTOR
      
      -->
-     <div id="dropdown-menu" class="dropdown-menu hidden absolute right-0 z-10 mt-2 w-56 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none pb-2 transform opacity-0 scale-95 transition-all duration-200 ease-out">
+     <div id="dropdown-menu" class="dropdown">
        <div class="language-selector">
-         <div class="py-1 px-1">
-           <label for="language-selector" class="block text-sm font-medium text-gray-700 mb-2">Language</label>
-           <div class="relative">
-             <select id="language-selector" class="appearance-none w-full bg-white border border-gray-300 rounded-md py-2 pl-2 pr-10 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500" onchange="changeLanguage(this.value)">
+         <div class="form-group">
+           <label for="language-selector" class="label">Language</label>
+           <div class="input-wrapper">
+             <select id="language-selector" class="select" onchange="changeLanguage(this.value)">
                
                <% languages.forEach(function(language) { %>
                   <option value="<%= language %>" 
@@ -2271,48 +378,9 @@ class="logo-section ml-2 lg:-ml-2">
    </div>
  </div>
  
- <style>
-   .flag-icon {
-     width: 20px;
-     height: 15px;
-     background-size: cover;
-     background-position: center;
-   }
-   .flag-icon-de { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1IDMiPjxwYXRoIGQ9Ik0wIDBoNXYxSDB6IiBmaWxsPSIjMDAwIi8+PHBhdGggZD0iTTAgMWg1djFIMHoiIGZpbGw9IiNEMDAiLz48cGF0aCBkPSJNMCAyaDV2MUgweiIgZmlsbD0iI0ZGQ0UwMCIvPjwvc3ZnPg=='); }
-   .flag-icon-en { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjM1IDY1MCI+PHBhdGggZmlsbD0iIzAxMjE2OSIgZD0iTTAgMGgxMjM1djY1MEgweiIvPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0wIDc1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgwem0wIDEyNWgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgweiIvPjxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik0wIDEwMGgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgwem0wIDEyNWgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHoiLz48cGF0aCBmaWxsPSIjRkZGIiBkPSJNMCAwaDQ5NHYzNTBIMHoiLz48ZyBmaWxsPSIjQzgxMDJFIj48cGF0aCBkPSJNMjIwIDAgMCA2MHYzNWwyMjAgNzVMMCA1OXY0NGwyMjAgOTR6Ii8+PHBhdGggZD0iTTI3NCAwdjE4MEgwdjQ0aDI3NHYxMjZoNDRWMjI0aDQ5NHYtNDRINTE4VjBoLTQ0djEyNkgwdjQ0aDQ3NFYweiIvPjwvZz48L3N2Zz4='); }
-   .flag-icon-nl { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5IDYiPjxwYXRoIGZpbGw9IiMyMTQ2OEIiIGQ9Ik0wIDBoOXYySDB6Ii8+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTAgMmg5djJIMHoiLz48cGF0aCBmaWxsPSIjQUUxQzI4IiBkPSJNMCA0aDl2MkgweiIvPjwvc3ZnPg=='); }
- </style>
- 
- <script>
-   function toggleDropdown() {
-     const dropdownMenu = document.getElementById('dropdown-menu');
-     dropdownMenu.classList.toggle('hidden');
-     dropdownMenu.classList.toggle('show');
-     if (!dropdownMenu.classList.contains('hidden')) {
-       setTimeout(() => {
-         dropdownMenu.style.transform = 'scale(1)';
-         dropdownMenu.style.opacity = '1';
-       }, 10);
-     } else {
-       dropdownMenu.style.transform = 'scale(0.95)';
-       dropdownMenu.style.opacity = '0';
-     }
-   }
-
-   window.addEventListener('click', function(e) {
-     const userMenuButton = document.getElementById('user-menu-button');
-     const dropdownMenu = document.getElementById('dropdown-menu');
-     if (!userMenuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-       dropdownMenu.classList.add('hidden');
-       dropdownMenu.classList.remove('show');
-       dropdownMenu.style.transform = 'scale(0.95)';
-       dropdownMenu.style.opacity = '0';
-     }
-   });
- </script>
-           <script src="/javascript/language/index.js"></script>
+ <script src="/javascript/language/index.js"></script>
          </div>
-      </div>
+      </header>
       <script>
          document.addEventListener('DOMContentLoaded', function() {
            const navLinks = document.querySelectorAll('.nav-link');
@@ -2414,7 +482,7 @@ class="logo-section ml-2 lg:-ml-2">
             const mobileToggleButton = document.getElementById('mobile-sidebar-toggle');
 
             function setCookie(name, value, days) {
-               const date = new Date();
+               const date = new new Date();
                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                const expires = "expires=" + date.toUTCString();
                document.cookie = name + "=" + value + ";" + expires + ";path=/";
@@ -2620,9 +688,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }  
   
   function getColorClass(percent) {  
-    if (percent > 95) return 'bg-red-500';  
-    if (percent > 75) return 'bg-yellow-500';  
-    return 'bg-green-500';  
+    if (percent > 95) return 'progress-danger';  
+    if (percent > 75) return 'progress-warning';  
+    return 'progress-success';  
   }  
   
   document.addEventListener('DOMContentLoaded', async () => {  
@@ -2691,9 +759,34 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
       <!-- Main content area where pages will be injected -->
-      <main id="content" class="section">
+      <main id="content" class="main section">
          <!-- Page content goes here -->
       </main>
       </div>
-   </body>
-</html>
+      <script>
+   function toggleDropdown() {
+     const dropdownMenu = document.getElementById('dropdown-menu');
+     dropdownMenu.classList.toggle('hidden');
+     dropdownMenu.classList.toggle('show');
+     if (!dropdownMenu.classList.contains('hidden')) {
+       setTimeout(() => {
+         dropdownMenu.style.transform = 'scale(1)';
+         dropdownMenu.style.opacity = '1';
+       }, 10);
+     } else {
+       dropdownMenu.style.transform = 'scale(0.95)';
+       dropdownMenu.style.opacity = '0';
+     }
+   }
+
+   window.addEventListener('click', function(e) {
+     const userMenuButton = document.getElementById('user-menu-button');
+     const dropdownMenu = document.getElementById('dropdown-menu');
+     if (!userMenuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+       dropdownMenu.classList.add('hidden');
+       dropdownMenu.classList.remove('show');
+       dropdownMenu.style.transform = 'scale(0.95)';
+       dropdownMenu.style.opacity = '0';
+     }
+   });
+ </script>
