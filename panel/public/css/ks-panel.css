@@ -1,3 +1,7 @@
+/* =========================================================
+   KS PANEL GLOBAL THEME
+========================================================= */
+
 :root {
 
   /* ================= COLORS ================= */
@@ -126,5 +130,336 @@
   /* ================= TRANSITION ================= */
 
   --transition: 0.4s ease;
+}
+
+
+/* =========================================================
+   BASE
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: var(--margin-body);
+  font-family: var(--font-family);
+  color: var(--text);
+
+  background:
+    var(--body-bg-overlay),
+    var(--body-bg-image);
+
+  background-position: var(--body-bg-position);
+  background-repeat: var(--body-bg-repeat);
+  background-size: var(--body-bg-size);
+}
+
+.layout {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.section {
+  padding: var(--section-padding);
+}
+
+header.header {
+  margin-bottom: var(--gap-large);
+}
+
+main.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-large);
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: var(--gap);
+}
+
+.card {
+  background: var(--card);
+  backdrop-filter: blur(var(--backdrop-blur));
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-small);
+  transition: var(--transition);
+}
+
+.card:hover {
+  background: var(--hover-card);
+}
+
+.s-card {}
+
+.b-card {
+  grid-column: span 2;
+}
+
+.card h1 { font-size: var(--h1-size); }
+.card h2 { font-size: var(--h2-size); }
+.card h3 { font-size: var(--h3-size); }
+
+.card p {
+  font-size: var(--p-size);
+  color: var(--text-muted);
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn {
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-weight: var(--btn-font-weight);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--btn-shadow);
+}
+
+.btn:hover {
+  background: var(--btn-hover);
+}
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.btn-secondary {
+  background: var(--btn-bg);
+}
+
+.btn-danger {
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
+}
+
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.form-container {
+  background: var(--card);
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--backdrop-blur));
+  box-shadow: var(--card-shadow);
+}
+
+.form-grid {
+  display: grid;
+  gap: var(--gap);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: var(--label-size);
+  font-weight: var(--label-font-weight);
+}
+
+.input,
+select,
+textarea {
+  width: 100%;
+  padding: var(--input-padding);
+  border-radius: var(--input-radius);
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: var(--p-size);
+  transition: var(--transition);
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+}
+
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+.table-container {
+  overflow-x: auto;
+  background: var(--table-bg);
+  border-radius: var(--table-radius);
+  box-shadow: var(--table-shadow);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--table-font-size);
+}
+
+.table-head {
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
+}
+
+.table th,
+.table td {
+  padding: var(--table-padding);
+  border-bottom: 1px solid var(--table-border);
+}
+
+.table-row:hover {
+  background: var(--table-hover);
+}
+
+.table-cell {}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge {
+  padding: 4px 10px;
+  border-radius: var(--badge-radius);
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  font-size: var(--small-size);
+}
+
+
+/* =========================================================
+   STATUS DOT
+========================================================= */
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-success { background: var(--success); }
+.status-warning { background: var(--warning); }
+.status-danger { background: var(--danger); }
+.status-info { background: var(--info); }
+
+
+/* =========================================================
+   PROGRESS BAR
+========================================================= */
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--progress-bg);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+}
+
+.progress-success { background: var(--progress-success); }
+.progress-warning { background: var(--progress-warning); }
+.progress-danger { background: var(--progress-danger); }
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+.notification {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--card);
+  padding: 14px 18px;
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--backdrop-blur));
+  box-shadow: var(--card-shadow);
+  font-size: var(--p-size);
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+.link {
+  color: var(--accent);
+  font-size: var(--link-size);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.link:hover {
+  color: var(--accent-glow);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .b-card {
+    grid-column: span 1;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .card {
+    padding: var(--card-padding-mobile);
+  }
+
+  .form-container {
+    padding: var(--card-padding-mobile);
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .section {
+    padding: 20px;
+  }
 
 }
