@@ -1,157 +1,618 @@
 <%- include('../components/template') %>
-<main id="content" class="max-w-screen-2xl mx-auto">
-   <div class="bg-transparent px-4 md:px-6 lg:px-8">
+
+<style>
+/* ==================================================
+   CLEAN SEMANTIC STYLES - ZERO TAILWIND
+   Uses only the exact CSS variables provided
+   Responsive via media queries + var(--card-padding-mobile)
+   ================================================== */
+
+.page-content {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--margin-body);
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding: 0 16px;
+  }
+}
+
+.admin-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 640px) {
+  .admin-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.header-title h1 {
+  font-size: var(--h1-size);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.025em;
+}
+
+.header-subtitle {
+  margin-top: 4px;
+  font-size: var(--small-size);
+  color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  font-size: 14px;
+  font-weight: var(--btn-font-weight);
+  transition: var(--transition);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--btn-hover);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+  box-shadow: var(--btn-shadow);
+  font-weight: 700;
+}
+
+.btn-danger {
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
+  border: none;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-large);
+  margin-top: 32px;
+}
+
+@media (min-width: 768px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  transition: var(--transition);
+  backdrop-filter: blur(var(--backdrop-blur));
+}
+
+.stat-card:hover {
+  border-color: rgba(255,255,255,0.2);
+  background: var(--hover-card);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-value {
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 8px;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(16,185,129,0.1);
+  border-radius: var(--card-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.stat-info {
+  margin-top: 24px;
+  font-size: var(--small-size);
+  color: var(--text-muted);
+}
+
+.alert {
+  margin-top: 32px;
+  margin-inline: 4px;
+  background: rgba(16,185,129,0.3);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: var(--card-radius);
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.alert svg {
+  width: 24px;
+  height: 24px;
+  color: var(--success);
+  margin-top: 2px;
+}
+
+.alert-title {
+  font-weight: 500;
+  color: var(--success);
+}
+
+.alert-text {
+  font-size: 14px;
+  color: rgba(134,239,172,0.8);
+}
+
+.table-wrapper {
+  margin-top: 32px;
+  overflow-x: auto;
+  background: var(--table-bg);
+  border: 1px solid var(--table-border);
+  border-radius: var(--table-radius);
+  box-shadow: var(--table-shadow);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--table-font-size);
+  color: var(--text);
+}
+
+.data-table thead {
+  background: var(--table-head-bg);
+}
+
+.data-table th {
+  padding: 20px 16px;
+  font-weight: 600;
+  color: var(--table-head-text);
+  text-align: left;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.data-table th:first-child { padding-left: 32px; }
+.data-table th:last-child { padding-right: 32px; text-align: right; }
+
+.data-table td {
+  padding: 24px 16px;
+  vertical-align: middle;
+}
+
+.data-table tr {
+  transition: background 0.2s ease;
+}
+
+.data-table tr:hover {
+  background: var(--table-hover);
+}
+
+.status-dot {
+  position: relative;
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+}
+
+.status-dot.online::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--success);
+  border-radius: 50%;
+  animation: ping 2s infinite;
+  opacity: 0.75;
+}
+
+.status-dot.online span,
+.status-dot.warning span,
+.status-dot.offline span {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.status-dot.online span { background: var(--success); }
+.status-dot.offline span { background: #6b7280; }
+.status-dot.warning span { background: var(--warning); }
+
+.node-name {
+  font-weight: 600;
+  color: var(--text);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.connection-info {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.tunnel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.progress-track {
+  flex: 1;
+  height: 8px;
+  background: var(--progress-bg);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 700ms ease;
+  background: linear-gradient(to right, var(--progress-success), var(--warning), var(--danger));
+}
+
+.resource-value {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  width: 80px;
+  text-align: right;
+}
+
+.instance-badge {
+  display: inline-block;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  padding: 4px 16px;
+  border-radius: var(--badge-radius);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.action-group {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 12px;
+  border-radius: var(--btn-radius);
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+  border: none;
+}
+
+.btn-small:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: 9999px;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10000;
+  transition: all 0.3s ease;
+}
+
+.notification.show {
+  display: flex;
+}
+
+.notification.success { background: var(--success); color: white; }
+.notification.error { background: var(--danger); color: white; }
+
+.form-panel {
+  margin-top: 48px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: 48px;
+  backdrop-filter: blur(var(--backdrop-blur));
+}
+
+@media (max-width: 1024px) {
+  .form-panel {
+    padding: 32px;
+  }
+}
+
+.form-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+.section-title {
+  font-size: var(--h3-size);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: var(--label-font-weight);
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.input-field,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: var(--input-padding);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  color: var(--text);
+  font-size: 15px;
+  transition: var(--transition);
+}
+
+.input-field:focus,
+.form-select:focus {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+}
+
+.input-field::placeholder {
+  color: var(--input-placeholder);
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+
+.hidden { display: none !important; }
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+</style>
+
+<main id="content" class="page-content">
+   <div class="page-content">
       
       <!-- HEADER -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
-         <div>
-           <h1 class="text-2xl font-semibold text-white tracking-tight"><%= req.translations.nodes %></h1>
-           <p class="mt-1 text-sm text-neutral-400"><%= req.translations.nodesText %></p>
+      <header class="admin-header">
+         <div class="header-title">
+           <h1><%= req.translations.nodes %></h1>
+           <p class="header-subtitle"><%= req.translations.nodesText %></p>
          </div>
 
-         <div class="flex flex-wrap gap-3">
+         <div class="header-actions">
             <button onclick="radarcheck()" 
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-3xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all active:scale-95">
+                    class="btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
               Radar Scan
             </button>
             
             <button id="createButton" 
-                    class="px-6 py-2.5 rounded-3xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
+                    class="btn btn-primary">
               <%= req.translations.createNewNode %>
             </button>
 
             <button onclick="window.location.href='/admin/localnode'"
-                    class="px-6 py-2.5 rounded-3xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
+                    class="btn btn-primary">
               Local Node
             </button>
          </div>
-      </div>
+      </header>
 
       <!-- STATS -->
-      <div id="stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all hover:border-white/20 group">
-          <div class="flex items-center justify-between">
+      <div id="stats" class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-header">
             <div>
-              <p class="text-sm font-medium text-neutral-400">Total Nodes</p>
-              <p class="text-5xl font-semibold text-white mt-2"><%= nodes.length %></p>
+              <p class="text-sm font-medium" style="color:var(--text-muted)">Total Nodes</p>
+              <p class="stat-value"><%= nodes.length %></p>
             </div>
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-3xl">📡</div>
+            <div class="stat-icon">📡</div>
           </div>
-          <p class="mt-6 text-sm text-neutral-400">
-            Online: <span class="text-emerald-400 font-medium"><%= nodes.filter(node => node.status === 'Online').length %></span>
+          <p class="stat-info">
+            Online: <span style="color:var(--success);font-weight:500"><%= nodes.filter(node => node.status === 'Online').length %></span>
           </p>
         </div>
 
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all hover:border-white/20 group">
-          <div class="flex items-center justify-between">
+        <div class="stat-card">
+          <div class="stat-header">
             <div>
-              <p class="text-sm font-medium text-neutral-400">Server Count</p>
-              <p class="text-5xl font-semibold text-white mt-2"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
+              <p class="text-sm font-medium" style="color:var(--text-muted)">Server Count</p>
+              <p class="stat-value"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
             </div>
-            <div class="w-12 h-12 bg-blue-500/10 rounded-3xl flex items-center justify-center text-3xl">🖥️</div>
+            <div class="stat-icon" style="background:rgba(59,130,246,0.1)">🖥️</div>
           </div>
           <% if (nodes.length > 0) { %>
-            <p class="mt-6 text-sm text-neutral-400">
-              Avg. Density: <span class="font-mono"><%= (Object.values(set).reduce((a, b) => a + b, 0) / nodes.length).toFixed(2) %></span>
+            <p class="stat-info">
+              Avg. Density: <span style="font-family:monospace"><%= (Object.values(set).reduce((a, b) => a + b, 0) / nodes.length).toFixed(2) %></span>
             </p>
           <% } else { %>
-            <p class="mt-6 text-sm text-neutral-400">No nodes yet</p>
+            <p class="stat-info">No nodes yet</p>
           <% } %>
         </div>
       </div>
 
       <!-- SUCCESS BANNERS -->
       <% if (req.query.err == "none") { %>
-      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-3xl p-5 flex gap-4 items-start">
-        <div class="mt-0.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="alert">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
           </svg>
         </div>
         <div>
-          <p class="font-medium text-emerald-400">Success!</p>
-          <p class="text-sm text-emerald-300/80">The action was successfully completed.</p>
+          <p class="alert-title">Success!</p>
+          <p class="alert-text">The action was successfully completed.</p>
         </div>
       </div>
       <% } %>
 
       <% if (req.query.err == "EDITED") { %>
-      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-3xl p-5 flex gap-4 items-start">
-        <div class="mt-0.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="alert">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
           </svg>
         </div>
         <div>
-          <p class="font-medium text-emerald-400">Success!</p>
-          <p class="text-sm text-emerald-300/80">The node was edited successfully.</p>
+          <p class="alert-title">Success!</p>
+          <p class="alert-text">The node was edited successfully.</p>
         </div>
       </div>
       <% } %>
 
       <!-- TABLE CONTAINER -->
-      <div class="mt-8 overflow-x-auto rounded-3xl border border-white/10 bg-neutral-900/50 shadow-2xl" id="nodeTable">
-        <table class="min-w-full text-sm text-left text-white divide-y divide-white/10">
-          <thead class="bg-neutral-950/70">
+      <div class="table-wrapper" id="nodeTable">
+        <table class="data-table">
+          <thead>
             <tr>
-              <th class="py-5 pl-8 pr-4 font-semibold text-neutral-300">NODE</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300">CONNECTION</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300">TUNNEL</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300">LOCATION</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300 text-center">INSTANCES</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300">RAM</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300">CPU</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300">DISK</th>
-              <th class="py-5 px-4 font-semibold text-neutral-300 text-right">UPLOAD</th>
-              <th class="py-5 pr-8 pl-4 font-semibold text-neutral-300 text-right">ACTIONS</th>
+              <th>NODE</th>
+              <th>CONNECTION</th>
+              <th>TUNNEL</th>
+              <th>LOCATION</th>
+              <th style="text-align:center">INSTANCES</th>
+              <th>RAM</th>
+              <th>CPU</th>
+              <th>DISK</th>
+              <th style="text-align:right">UPLOAD</th>
+              <th style="text-align:right">ACTIONS</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white/5">
+          <tbody>
             <% nodes.forEach(function(node) { %>
-            <tr class="hover:bg-white/5 transition-colors group">
+            <tr class="table-row">
               <!-- Name -->
-              <td class="pl-8 py-6">
-                <div class="flex items-center gap-3">
+              <td style="padding-left:32px">
+                <div style="display:flex;align-items:center;gap:12px">
                   <% if (node.status === "Online") { %>
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    <span class="status-dot online">
+                      <span></span>
                     </span>
                   <% } else if (node.status === "Offline") { %>
-                    <span class="relative flex h-3 w-3">
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-neutral-500"></span>
+                    <span class="status-dot offline">
+                      <span></span>
                     </span>
                   <% } else { %>
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-amber-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    <span class="status-dot warning">
+                      <span></span>
                     </span>
                   <% } %>
-                  <span class="font-semibold text-white truncate max-w-[180px]"><%= node.name %></span>
+                  <span class="node-name"><%= node.name %></span>
                 </div>
               </td>
 
               <!-- Connection -->
-              <td class="px-4 py-6 font-mono text-xs text-neutral-400">
-                <%= node.address %><span class="text-neutral-500">:</span><%= node.port %>
-                <% if (node.behindProxy) { %><span class="ml-2 text-amber-400 text-[10px]">(proxy)</span><% } %>
+              <td>
+                <span class="connection-info"><%= node.address %><span style="color:#6b7280">:</span><%= node.port %></span>
+                <% if (node.behindProxy) { %><span style="margin-left:8px;color:#f59e0b;font-size:10px">(proxy)</span><% } %>
               </td>
 
               <!-- Tunnel -->
-              <td class="px-4 py-6">
+              <td>
                 <% if (node.useCloudflareTunnel) { %>
-                  <span class="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
-                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  <span class="tunnel-badge">
+                    <span style="width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 2s infinite"></span>
                     CF TUNNEL
                   </span>
                 <% } else { %>
-                  <span class="text-neutral-500 text-xs">—</span>
+                  <span style="color:#6b7280;font-size:13px">—</span>
                 <% } %>
               </td>
 
               <!-- Location -->
-              <td class="px-4 py-6 text-sm text-neutral-400">
+              <td style="color:var(--text-muted);font-size:14px">
                 <% let locName = 'unknown'; %>
                 <% locations.forEach(function(loc) { %>
                   <% if (loc.id === node.location) locName = loc.name; %>
@@ -160,69 +621,55 @@
               </td>
 
               <!-- Instances -->
-              <td class="px-4 py-6 text-center">
-                <span class="inline-block bg-neutral-800 px-4 py-1 rounded-3xl text-xs font-medium">
-                  <%= set[node.id] || 0 %>
-                </span>
+              <td style="text-align:center">
+                <span class="instance-badge"><%= set[node.id] || 0 %></span>
               </td>
 
               <!-- RAM -->
-              <td class="px-4 py-6">
-                <div class="flex items-center gap-3">
-                  <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                    <div id="ram-bar-<%= node.id %>" 
-                         class="h-full rounded-full transition-all duration-700"
-                         style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
+              <td>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div class="progress-track">
+                    <div id="ram-bar-<%= node.id %>" class="progress-fill" style="width:0%"></div>
                   </div>
-                  <span id="ram-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-20 text-right">--</span>
+                  <span id="ram-text-<%= node.id %>" class="resource-value">--</span>
                 </div>
               </td>
 
               <!-- CPU -->
-              <td class="px-4 py-6">
-                <div class="flex items-center gap-3">
-                  <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                    <div id="cpu-bar-<%= node.id %>" 
-                         class="h-full rounded-full transition-all duration-700"
-                         style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
+              <td>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div class="progress-track">
+                    <div id="cpu-bar-<%= node.id %>" class="progress-fill" style="width:0%"></div>
                   </div>
-                  <span id="cpu-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-12 text-right">0%</span>
+                  <span id="cpu-text-<%= node.id %>" class="resource-value">0%</span>
                 </div>
               </td>
 
               <!-- Disk -->
-              <td class="px-4 py-6">
-                <div class="flex items-center gap-3">
-                  <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                    <div id="disk-bar-<%= node.id %>" 
-                         class="h-full rounded-full transition-all duration-700"
-                         style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
+              <td>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div class="progress-track">
+                    <div id="disk-bar-<%= node.id %>" class="progress-fill" style="width:0%"></div>
                   </div>
-                  <span id="disk-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-20 text-right">--</span>
+                  <span id="disk-text-<%= node.id %>" class="resource-value">--</span>
                 </div>
               </td>
 
               <!-- Upload -->
-              <td class="px-4 py-6 text-right text-sm text-neutral-400 font-medium">
+              <td style="text-align:right;font-size:14px;color:var(--text-muted);font-weight:500">
                 <%= node.uploadSize || 500 %> MB
               </td>
 
               <!-- Actions -->
-              <td class="pr-8 py-6 text-right">
-                <div class="flex items-center gap-2 justify-end">
+              <td style="padding-right:32px;text-align:right">
+                <div class="action-group">
                   <button onclick="configure('<%= node.id %>')" 
-                          class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-all active:scale-95">
-                    CONFIGURE
-                  </button>
+                          class="btn-small">CONFIGURE</button>
                   <a href="/admin/node/<%= node.id %>">
-                    <button class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-all active:scale-95">
-                      EDIT
-                    </button>
+                    <button class="btn-small">EDIT</button>
                   </a>
                   <button onclick="deletenode('<%= node.id %>')" 
-                          class="px-4 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-3xl transition-all active:scale-95">
-                    DELETE
-                  </button>
+                          class="btn-small btn-danger">DELETE</button>
                 </div>
               </td>
             </tr>
@@ -234,168 +681,159 @@
       <%- include('../components/pagination', { pagination }) %>
 
       <!-- NOTIFICATION -->
-      <div id="notification" 
-           class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium">
+      <div id="notification" class="notification">
         <span id="notification-text"></span>
       </div>
 
       <!-- CREATE FORM -->
-      <div id="nodeForm" class="mt-12 hidden">
-        <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 lg:p-12">
-          <form id="createNodeForm">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-8">
+      <div id="nodeForm" class="form-panel hidden">
+        <form id="createNodeForm">
+          <div class="form-grid">
 
-              <!-- BASIC INFO -->
-              <div class="lg:col-span-2">
-                <div class="flex items-center gap-4 mb-6">
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                  <h3 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h3>
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                </div>
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
-                <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
-                <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
-                <input id="nodePort" required type="number" value="2022" class="input-field">
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
-                <input id="nodeSftpPort" type="number" value="2022" class="input-field">
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
-                <select id="nodeLocation" required class="input-field">
-                  <option value="">Select location...</option>
-                  <% locations.forEach(function(loc) { %>
-                    <option value="<%= loc.id %>"><%= loc.name %></option>
-                  <% }); %>
-                </select>
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">CATEGORY <span class="text-red-400">*</span></label>
-                <div class="flex gap-3">
-                  <select id="nodeCategory" required class="input-field flex-1"></select>
-                  <button type="button" onclick="addNewCategory()" 
-                          class="px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-3xl text-sm font-medium transition-all active:scale-95">
-                    + ADD
-                  </button>
-                </div>
-              </div>
-
-              <!-- RESOURCES -->
-              <div class="lg:col-span-2 pt-6">
-                <div class="flex items-center gap-4 mb-6">
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                  <h3 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h3>
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                </div>
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (MB) <span class="text-red-400">*</span></label>
-                <input id="nodeRam" required type="number" class="input-field" placeholder="32768">
-              </div>
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
-                <input id="nodeDisk" required type="number" class="input-field" placeholder="500">
-              </div>
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
-                <input id="nodeMemoryOver" type="number" value="0" class="input-field">
-              </div>
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
-                <input id="nodeDiskOver" type="number" value="0" class="input-field">
-              </div>
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
-                <input id="nodeUploadSize" type="number" value="500" class="input-field">
-              </div>
-
-              <!-- TUNNEL SECTION -->
-              <div class="lg:col-span-2 pt-6">
-                <div class="flex items-center gap-4 mb-6">
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                  <h3 class="text-lg font-semibold text-white tracking-wide">CLOUDFLARE TUNNEL &amp; PROXY</h3>
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-3">
-                <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white">
-                <label for="behindProxy" class="text-sm text-white">Behind Proxy (Nginx / Cloudflare)</label>
-              </div>
-              <div class="flex items-center gap-3">
-                <input id="useCloudflareTunnel" type="checkbox" class="w-5 h-5 accent-emerald-400" onchange="toggleTunnelField()">
-                <label for="useCloudflareTunnel" class="text-sm text-white">Use Cloudflare Tunnel (Recommended)</label>
-              </div>
-
-              <div id="tunnelHostnameGroup" class="lg:col-span-2 hidden">
-                <label class="text-xs font-medium text-neutral-400 block mb-2">TUNNEL PUBLIC HOSTNAME</label>
-                <input id="tunnelPublicHostname" type="text" class="input-field" placeholder="yournode.trycloudflare.com">
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-neutral-400 block mb-2">CONNECTION TYPE</label>
-                <select id="connectionType" class="input-field">
-                  <option value="Direct">Direct</option>
-                  <option value="Behind Proxy">Behind Proxy</option>
-                  <option value="Cloudflare Tunnel" selected>Cloudflare Tunnel</option>
-                  <option value="Ngrok">Ngrok</option>
-                </select>
-              </div>
-
-              <!-- ALLOCATIONS -->
-              <div class="lg:col-span-2 pt-8 border-t border-white/10">
-                <h3 class="text-lg font-semibold text-white mb-6">INITIAL ALLOCATIONS (PORTS)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS</label>
-                    <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
-                  </div>
-                  <div>
-                    <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
-                    <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
-                  </div>
-                  <div class="md:col-span-3">
-                    <label class="text-xs font-medium text-neutral-400 block mb-2">PORTS (COMMA OR RANGES)</label>
-                    <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SUBMIT -->
-              <div class="lg:col-span-2 mt-8">
-                <button id="createNodeBtn" type="button"
-                        class="w-full py-4 bg-white text-black font-semibold text-lg rounded-3xl hover:bg-neutral-100 active:scale-[0.985] transition-all shadow-xl">
-                  CREATE NODE
-                </button>
+            <!-- BASIC INFO -->
+            <div class="form-section" style="grid-column:1/-1">
+              <div class="section-header">
+                <div class="section-line"></div>
+                <h3 class="section-title">BASIC INFORMATION</h3>
+                <div class="section-line"></div>
               </div>
             </div>
-          </form>
-        </div>
+
+            <div class="form-group">
+              <label>NODE NAME <span style="color:var(--danger)">*</span></label>
+              <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
+            </div>
+
+            <div class="form-group">
+              <label>FQDN / IP OR TUNNEL HOSTNAME <span style="color:var(--danger)">*</span></label>
+              <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
+            </div>
+
+            <div class="form-group">
+              <label>DAEMON PORT <span style="color:var(--danger)">*</span></label>
+              <input id="nodePort" required type="number" value="2022" class="input-field">
+            </div>
+
+            <div class="form-group">
+              <label>SFTP PORT</label>
+              <input id="nodeSftpPort" type="number" value="2022" class="input-field">
+            </div>
+
+            <div class="form-group">
+              <label>LOCATION <span style="color:var(--danger)">*</span></label>
+              <select id="nodeLocation" required class="form-select">
+                <option value="">Select location...</option>
+                <% locations.forEach(function(loc) { %>
+                  <option value="<%= loc.id %>"><%= loc.name %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>CATEGORY <span style="color:var(--danger)">*</span></label>
+              <div style="display:flex;gap:12px">
+                <select id="nodeCategory" required class="form-select" style="flex:1"></select>
+                <button type="button" onclick="addNewCategory()" 
+                        class="btn" style="padding:0 24px">+ ADD</button>
+              </div>
+            </div>
+
+            <!-- RESOURCES -->
+            <div class="form-section" style="grid-column:1/-1">
+              <div class="section-header">
+                <div class="section-line"></div>
+                <h3 class="section-title">RESOURCE LIMITS</h3>
+                <div class="section-line"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>TOTAL RAM (MB) <span style="color:var(--danger)">*</span></label>
+              <input id="nodeRam" required type="number" class="input-field" placeholder="32768">
+            </div>
+            <div class="form-group">
+              <label>TOTAL DISK (GB) <span style="color:var(--danger)">*</span></label>
+              <input id="nodeDisk" required type="number" class="input-field" placeholder="500">
+            </div>
+            <div class="form-group">
+              <label>MEMORY OVERALLOCATE (%)</label>
+              <input id="nodeMemoryOver" type="number" value="0" class="input-field">
+            </div>
+            <div class="form-group">
+              <label>DISK OVERALLOCATE (%)</label>
+              <input id="nodeDiskOver" type="number" value="0" class="input-field">
+            </div>
+            <div class="form-group">
+              <label>MAX UPLOAD SIZE (MB)</label>
+              <input id="nodeUploadSize" type="number" value="500" class="input-field">
+            </div>
+
+            <!-- TUNNEL SECTION -->
+            <div class="form-section" style="grid-column:1/-1">
+              <div class="section-header">
+                <div class="section-line"></div>
+                <h3 class="section-title">CLOUDFLARE TUNNEL &amp; PROXY</h3>
+                <div class="section-line"></div>
+              </div>
+            </div>
+
+            <div class="checkbox-wrapper">
+              <input id="behindProxy" type="checkbox">
+              <label for="behindProxy">Behind Proxy (Nginx / Cloudflare)</label>
+            </div>
+            <div class="checkbox-wrapper">
+              <input id="useCloudflareTunnel" type="checkbox" onchange="toggleTunnelField()">
+              <label for="useCloudflareTunnel">Use Cloudflare Tunnel (Recommended)</label>
+            </div>
+
+            <div id="tunnelHostnameGroup" class="form-group hidden" style="grid-column:1/-1">
+              <label>TUNNEL PUBLIC HOSTNAME</label>
+              <input id="tunnelPublicHostname" type="text" class="input-field" placeholder="yournode.trycloudflare.com">
+            </div>
+
+            <div class="form-group">
+              <label>CONNECTION TYPE</label>
+              <select id="connectionType" class="form-select">
+                <option value="Direct">Direct</option>
+                <option value="Behind Proxy">Behind Proxy</option>
+                <option value="Cloudflare Tunnel" selected>Cloudflare Tunnel</option>
+                <option value="Ngrok">Ngrok</option>
+              </select>
+            </div>
+
+            <!-- ALLOCATIONS -->
+            <div class="form-section" style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:32px">
+              <h3 class="section-title" style="margin-bottom:24px">INITIAL ALLOCATIONS (PORTS)</h3>
+              <div style="display:grid;grid-template-columns:1fr;gap:24px">
+                <div class="form-group">
+                  <label>IP FOR ALLOCATIONS</label>
+                  <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
+                </div>
+                <div class="form-group">
+                  <label>IP ALIAS / LABEL</label>
+                  <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
+                </div>
+                <div class="form-group" style="grid-column:1/-1">
+                  <label>PORTS (COMMA OR RANGES)</label>
+                  <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- SUBMIT -->
+            <div style="grid-column:1/-1;margin-top:24px">
+              <button id="createNodeBtn" type="button"
+                      class="btn btn-primary" style="width:100%;padding:18px;font-size:18px">
+                CREATE NODE
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
    </div>
 
    <script>
-   // Enhanced input styling with light gray background + perfect border radius
-   document.querySelectorAll('.input-field').forEach(el => {
-     el.className = `w-full px-6 py-4 bg-neutral-700 border border-white/10 rounded-3xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
-   });
-
+   // Inputs are now styled via CSS variables (no dynamic Tailwind needed)
    function toggleTunnelField() {
      const group = document.getElementById('tunnelHostnameGroup');
      const checked = document.getElementById('useCloudflareTunnel').checked;
@@ -419,17 +857,12 @@
      const textEl = document.getElementById('notification-text');
      textEl.textContent = message;
      
-     notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium transition-all duration-300 ${
-       type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
-     }`;
-     notification.classList.remove('hidden');
-     notification.classList.add('flex');
-
+     notification.className = `notification ${type === 'error' ? 'error' : 'success'} show`;
+     
      setTimeout(() => {
        notification.classList.add('opacity-0', 'translate-y-2');
        setTimeout(() => {
-         notification.classList.add('hidden');
-         notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+         notification.classList.remove('show', 'opacity-0', 'translate-y-2');
        }, 300);
      }, 2800);
    }
@@ -454,10 +887,9 @@
          if (!val) return;
          const p = parseFloat(val.percent || val.used / val.total * 100);
          bar.style.width = `${p}%`;
-         bar.style.background = `linear-gradient(to right, ${getBarColor(p)}, ${getBarColor(p*1.2)})`;
          text.textContent = key === 'cpu' 
            ? `${val.percent}%` 
-           : `${val.used} / ${val.total} GB (${p.toFixed(0)}%)`;
+           : `${val.used} / \( {val.total} GB ( \){p.toFixed(0)}%)`;
        });
      } catch(e) {
        console.warn(`Resource update failed for ${nodeId}`);
