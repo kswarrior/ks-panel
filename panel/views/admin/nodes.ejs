@@ -1,4 +1,22 @@
 <%- include('../components/template') %>
+<style>
+.input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: #1c3b54;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  placeholder-color: rgba(255, 255, 255, 0.4);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+</style>
 <main id="content" class="max-w-screen-2xl mx-auto">
   <div class="bg-transparent px-4 md:px-6 lg:px-8">
     
@@ -393,11 +411,6 @@
   </div>
 
   <script>
-  // Enhanced input styling with specified background and radius using Tailwind arbitrary values
-  document.querySelectorAll('.input-field').forEach(el => {
-    el.className = `w-full px-6 py-4 bg-[#1c3b54] border border-white/10 rounded-[10px] text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
-  });
-
   function toggleTunnelField() {
     const group = document.getElementById('tunnelHostnameGroup');
     const checked = document.getElementById('useCloudflareTunnel').checked;
