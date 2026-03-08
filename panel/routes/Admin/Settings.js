@@ -39,6 +39,44 @@ async function fetchCommonSettings(req) {
   };
 }
 
+// ====================== NEW: THEME ROUTES ======================
+
+// Render Theme Customization Page
+router.get("/admin/settings/theme", isAdmin, async (req, res) => {
+  try {
+    const common = await fetchCommonSettings(req);
+    let theme = await db.get("theme");
+
+    // If no theme exists yet, start with empty (your theme.ejs has fallbacks)
+    if (!theme || typeof theme !== "object") {
+      theme = {};
+    }
+
+    res.render("admin/settings/theme", { ...common, theme });
+  } catch (error) {
+    log.error("Error fetching theme settings:", error);
+    res.status(500).send("Failed to load theme settings.");
+  }
+});
+
+// Save Theme to Database
+router.post("/admin/settings/theme/save", isAdmin, async (req, res) => {
+  try {
+    const themeData = req.body;
+
+    await db.set("theme", themeData);
+
+    logAudit(req.user.userId, req.user.username, "theme:edit", req.ip);
+
+    res.redirect("/admin/settings/theme?msg=ThemeSaveSuccess");
+  } catch (error) {
+    log.error("Error saving theme:", error);
+    res.redirect("/admin/settings/theme?err=ThemeSaveFailed");
+  }
+});
+
+// ====================== EXISTING ROUTES (unchanged) ======================
+
 router.get("/admin/settings", isAdmin, async (req, res) => {
   const settings = await fetchCommonSettings(req);
   res.render("admin/settings/appearance", settings);
@@ -126,7 +164,6 @@ router.post("/sendTestEmail", isAdmin, async (req, res) => {
   }
 });
 
-// Update logo handling to store it in settings
 router.post(
   "/admin/settings/change/logo",
   isAdmin,
@@ -138,8 +175,8 @@ router.post(
       const settings = (await db.get("settings")) || {};
 
       if (type === "image" && req.file) {
-        settings.logo = true; // Set logo to true in settings
-        await db.set("settings", settings); // Save settings with logo
+        settings.logo = true;
+        await db.set("settings", settings);
         res.redirect("/admin/settings");
       } else if (type === "none") {
         const logoPath = path.join(
@@ -151,8 +188,8 @@ router.post(
           "logo.png"
         );
         if (fs.existsSync(logoPath)) fs.unlinkSync(logoPath);
-        settings.logo = false; // Set logo to false in settings
-        await db.set("settings", settings); // Save settings without logo
+        settings.logo = false;
+        await db.set("settings", settings);
         logAudit(req.user.userId, req.user.username, "logo:edit", req.ip);
         res.redirect("/admin/settings");
       } else {
