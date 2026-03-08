@@ -11,18 +11,18 @@
 
          <div class="flex flex-wrap gap-3">
             <button onclick="radarcheck()" 
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-3xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all active:scale-95">
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
               Radar Scan
             </button>
             
             <button id="createButton" 
-                    class="px-6 py-2.5 rounded-3xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
+                    class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
               <%= req.translations.createNewNode %>
             </button>
 
             <button onclick="window.location.href='/admin/localnode'"
-                    class="px-6 py-2.5 rounded-3xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
+                    class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
               Local Node
             </button>
          </div>
@@ -30,26 +30,26 @@
 
       <!-- STATS -->
       <div id="stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all hover:border-white/20 group">
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 transition-all hover:border-white/20 group">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-neutral-400">Total Nodes</p>
               <p class="text-5xl font-semibold text-white mt-2"><%= nodes.length %></p>
             </div>
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-3xl">📡</div>
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center text-3xl">📡</div>
           </div>
           <p class="mt-6 text-sm text-neutral-400">
             Online: <span class="text-emerald-400 font-medium"><%= nodes.filter(node => node.status === 'Online').length %></span>
           </p>
         </div>
 
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all hover:border-white/20 group">
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 transition-all hover:border-white/20 group">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-neutral-400">Server Count</p>
               <p class="text-5xl font-semibold text-white mt-2"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
             </div>
-            <div class="w-12 h-12 bg-blue-500/10 rounded-3xl flex items-center justify-center text-3xl">🖥️</div>
+            <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-3xl">🖥️</div>
           </div>
           <% if (nodes.length > 0) { %>
             <p class="mt-6 text-sm text-neutral-400">
@@ -63,7 +63,7 @@
 
       <!-- SUCCESS BANNERS -->
       <% if (req.query.err == "none") { %>
-      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-3xl p-5 flex gap-4 items-start">
+      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-lg p-5 flex gap-4 items-start">
         <div class="mt-0.5">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
@@ -77,7 +77,7 @@
       <% } %>
 
       <% if (req.query.err == "EDITED") { %>
-      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-3xl p-5 flex gap-4 items-start">
+      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-lg p-5 flex gap-4 items-start">
         <div class="mt-0.5">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
@@ -91,7 +91,7 @@
       <% } %>
 
       <!-- TABLE CONTAINER -->
-      <div class="mt-8 overflow-x-auto rounded-3xl border border-white/10 bg-neutral-900/50 shadow-2xl" id="nodeTable">
+      <div class="mt-8 overflow-x-auto rounded-lg border border-white/10 bg-neutral-900/50 shadow-2xl" id="nodeTable">
         <table class="min-w-full text-sm text-left text-white divide-y divide-white/10">
           <thead class="bg-neutral-950/70">
             <tr>
@@ -161,7 +161,7 @@
 
               <!-- Instances -->
               <td class="px-4 py-6 text-center">
-                <span class="inline-block bg-neutral-800 px-4 py-1 rounded-3xl text-xs font-medium">
+                <span class="inline-block bg-neutral-800 px-4 py-1 rounded-[10px] text-xs font-medium">
                   <%= set[node.id] || 0 %>
                 </span>
               </td>
@@ -211,16 +211,16 @@
               <td class="pr-8 py-6 text-right">
                 <div class="flex items-center gap-2 justify-end">
                   <button onclick="configure('<%= node.id %>')" 
-                          class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-all active:scale-95">
+                          class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all active:scale-95">
                     CONFIGURE
                   </button>
                   <a href="/admin/node/<%= node.id %>">
-                    <button class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-all active:scale-95">
+                    <button class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all active:scale-95">
                       EDIT
                     </button>
                   </a>
                   <button onclick="deletenode('<%= node.id %>')" 
-                          class="px-4 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-3xl transition-all active:scale-95">
+                          class="px-4 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-[10px] transition-all active:scale-95">
                     DELETE
                   </button>
                 </div>
@@ -235,13 +235,13 @@
 
       <!-- NOTIFICATION -->
       <div id="notification" 
-           class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium">
+           class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium">
         <span id="notification-text"></span>
       </div>
 
       <!-- CREATE FORM -->
       <div id="nodeForm" class="mt-12 hidden">
-        <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 lg:p-12">
+        <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 lg:p-12">
           <form id="createNodeForm">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-8">
 
@@ -289,7 +289,7 @@
                 <div class="flex gap-3">
                   <select id="nodeCategory" required class="input-field flex-1"></select>
                   <button type="button" onclick="addNewCategory()" 
-                          class="px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-3xl text-sm font-medium transition-all active:scale-95">
+                          class="px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-sm font-medium transition-all active:scale-95">
                     + ADD
                   </button>
                 </div>
@@ -380,7 +380,7 @@
               <!-- SUBMIT -->
               <div class="lg:col-span-2 mt-8">
                 <button id="createNodeBtn" type="button"
-                        class="w-full py-4 bg-white text-black font-semibold text-lg rounded-3xl hover:bg-neutral-100 active:scale-[0.985] transition-all shadow-xl">
+                        class="w-full py-4 bg-white text-black font-semibold text-lg rounded-[10px] hover:bg-neutral-100 active:scale-[0.985] transition-all shadow-xl">
                   CREATE NODE
                 </button>
               </div>
@@ -391,9 +391,9 @@
    </div>
 
    <script>
-   // Enhanced input styling with light gray background + perfect border radius
+   // Enhanced input styling with specified background and radius using Tailwind arbitrary values
    document.querySelectorAll('.input-field').forEach(el => {
-     el.className = `w-full px-6 py-4 bg-neutral-700 border border-white/10 rounded-3xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
+     el.className = `w-full px-6 py-4 bg-[#1c3b54] border border-white/10 rounded-[10px] text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
    });
 
    function toggleTunnelField() {
@@ -419,7 +419,7 @@
      const textEl = document.getElementById('notification-text');
      textEl.textContent = message;
      
-     notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium transition-all duration-300 ${
+     notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
        type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
      }`;
      notification.classList.remove('hidden');
