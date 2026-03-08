@@ -5,7 +5,6 @@ PANEL_DIR="$HOME/.kspanel/panel"
 LAUNCHER_DIR="$HOME/.kspanel/launcher"
 DATABASE_DIR="$HOME/.kspanel/database"
 DOWNLOAD_URL="https://github.com/kswarrior/ks-panel/releases/latest/download"
-DATABASE_DIR="$HOME/.kspanel/database/postgresql"
 
 USE_DOCKER_DB=false
 if [ -f "$DATABASE_DIR/.env" ] && [ -f "$DATABASE_DIR/docker-compose.yml" ]; then
@@ -338,6 +337,7 @@ version: '3.8'
 
 services:
   db:
+    container_name: kspanel-db
     image: postgres:14
     restart: always
     environment:
@@ -347,7 +347,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ~/.kspanel/database/postgresql:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
 EOF
 
 echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Enter database password: \033[0m"
