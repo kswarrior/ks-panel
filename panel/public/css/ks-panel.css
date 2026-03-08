@@ -68,3 +68,7 @@ p {
   line-height: 1.6;
   margin: 6px 0;
 }
+
+article {
+  background-color: #000;
+}
