@@ -5,11 +5,11 @@ PANEL_DIR="$HOME/.kspanel/panel"
 LAUNCHER_DIR="$HOME/.kspanel/launcher"
 DATABASE_DIR="$HOME/.kspanel/database"
 DOWNLOAD_URL="https://github.com/kswarrior/ks-panel/releases/latest/download"
-DOCKER_DIR="$HOME/.kspanel/docker"
+DATABASE_DIR="$HOME/.kspanel/database/postgresql"
 
 USE_DOCKER_DB=false
-if [ -f "$DOCKER_DIR/.env" ] && [ -f "$DOCKER_DIR/docker-compose.yml" ]; then
-    if docker-compose -f "$DOCKER_DIR/docker-compose.yml" ps db | grep -q "Up"; then
+if [ -f "$DATABASE_DIR/.env" ] && [ -f "$DATABASE_DIR/docker-compose.yml" ]; then
+    if docker-compose -f "$DATABASE_DIR/docker-compose.yml" ps db | grep -q "Up"; then
         USE_DOCKER_DB=true
     fi
 fi
@@ -105,7 +105,7 @@ npm link >/dev/null 2>&1
 
 if [ "$USE_DOCKER_DB" = true ]; then
     echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Using Docker PostgreSQL...\033[0m"
-    DB_PASS=$(grep DB_PASS "$DOCKER_DIR/.env" | cut -d= -f2-)
+    DB_PASS=$(grep DB_PASS "$DATABASE_DIR/.env" | cut -d= -f2-)
     DB_USER="ksuser"
     DB_NAME="kspanel"
     DB_URL="postgres://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME"
@@ -259,7 +259,7 @@ npx pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
 
 if [ "$USE_DOCKER_DB" = true ]; then
     echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Stopping Docker DB...\033[0m"
-    docker-compose -f "$DOCKER_DIR/docker-compose.yml" down >/dev/null 2>&1 || true
+    docker-compose -f "$DATABASE_DIR/docker-compose.yml" down >/dev/null 2>&1 || true
 fi
 
 echo -e "\033[1;36m[KS Panel]\033[0m \033[1;31m» Removing all files...\033[0m"
@@ -328,9 +328,9 @@ fi
 
 echo -e "\033[1;36m[KS Panel]\033[0m \033[1;32m✔ Docker and Docker Compose are installed.\033[0m"
 
-mkdir -p "$DOCKER_DIR"
+mkdir -p "$DATABASE_DIR"
 
-cd "$DOCKER_DIR" || exit 1
+cd "$DATABASE_DIR" || exit 1
 
 # Write docker-compose.yml for database only
 cat > docker-compose.yml <<'EOF'
@@ -347,10 +347,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+      - ~/.kspanel/database/postgresql:/var/lib/postgresql/data
 EOF
 
 echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Enter database password: \033[0m"
@@ -387,7 +384,7 @@ echo ""
 echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» To connect panel:\033[0m"
 echo -e "  1. Run: kspanel install"
 echo ""
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Manage: cd $DOCKER_DIR && docker-compose logs -f db\033[0m"
+echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Manage: cd $DATABASE_DIR && docker-compose logs -f db\033[0m"
 echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Stop: docker-compose down\033[0m"
 
 ;;
