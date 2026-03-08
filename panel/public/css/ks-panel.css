@@ -40,3 +40,8 @@
   /* Transition */
   --transition: 0.4s ease;
 }
+
+
+button {
+  background-color: #000;
+}
