@@ -6,6 +6,21 @@ LAUNCHER_DIR="$HOME/.kspanel/launcher"
 DATABASE_DIR="$HOME/.kspanel/database"
 DOWNLOAD_URL="https://github.com/kswarrior/ks-panel/releases/latest/download"
 
+# === Stylish UI Colors & Symbols ===
+RESET="\033[0m"
+CYAN="\033[1;36m"
+BLUE="\033[1;34m"
+GREEN="\033[1;32m"
+RED="\033[1;31m"
+YELLOW="\033[1;33m"
+MAGENTA="\033[1;35m"
+WHITE="\033[1;37m"
+SUCCESS="${GREEN}[✓]${RESET}"
+ERROR="${RED}[✗]${RESET}"
+INFO="${CYAN}[i]${RESET}"
+ARROW="${BLUE}➤${RESET}"
+SEP="${BLUE}──────────────────────────────────────────────${RESET}"
+
 USE_DOCKER_DB=false
 if [ -f "$DATABASE_DIR/.env" ] && [ -f "$DATABASE_DIR/docker-compose.yml" ]; then
     if docker-compose -f "$DATABASE_DIR/docker-compose.yml" ps db | grep -q "Up"; then
@@ -17,104 +32,110 @@ case "$1" in
 
 install)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Initializing installation...\033[0m"
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║           KS Panel Installation             ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Initializing installation..."
+echo -e "${SEP}"
 
 # Check and install Node.js
 if ! command -v node >/dev/null 2>&1; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing Node.js...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing Node.js..."
     sudo apt update >/dev/null 2>&1
     sudo apt install -y nodejs npm >/dev/null 2>&1 || {
-        echo -e "\033[1;31m[✗] Node.js installation failed.\033[0m"
+        echo -e "${ERROR} Node.js installation failed."
         exit 1
     }
 fi
 
 # Check and install unzip
 if ! command -v unzip >/dev/null 2>&1; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing unzip...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing unzip..."
     sudo apt update >/dev/null 2>&1
     sudo apt install -y unzip >/dev/null 2>&1 || {
-        echo -e "\033[1;31m[✗] unzip installation failed.\033[0m"
+        echo -e "${ERROR} unzip installation failed."
         exit 1
     }
 fi
 
 # Check and install wget
 if ! command -v wget >/dev/null 2>&1; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing wget...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing wget..."
     sudo apt update >/dev/null 2>&1
     sudo apt install -y wget >/dev/null 2>&1 || {
-        echo -e "\033[1;31m[✗] wget installation failed.\033[0m"
+        echo -e "${ERROR} wget installation failed."
         exit 1
     }
 fi
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;32m✔ Node.js, unzip, and wget are installed.\033[0m"
+echo -e "${SUCCESS} Node.js, unzip, and wget are installed."
+echo -e "${SEP}"
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Setting up directories...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Setting up directories..."
 mkdir -p "$LAUNCHER_DIR" "$PANEL_DIR" "$DATABASE_DIR" || {
-echo -e "\033[1;31m[✗] Failed to create directories.\033[0m"
+echo -e "${ERROR} Failed to create directories."
 exit 1
 }
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Downloading launcher...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Downloading launcher..."
 cd "$LAUNCHER_DIR" || exit 1
 
 wget -q https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/launcher/index.js -O index.js || {
-echo -e "\033[1;31m[✗] Failed to download launcher.\033[0m"
+echo -e "${ERROR} Failed to download launcher."
 exit 1
 }
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Preparing database directories...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Preparing database directories..."
 cd "$DATABASE_DIR" || exit 1
 mkdir -p templates plugins
 
 cd plugins || exit 1
 wget -q https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/database/plugins/plugins.json -O plugins.json || {
-echo -e "\033[1;31m[✗] Failed to download plugins.json.\033[0m"
+echo -e "${ERROR} Failed to download plugins.json."
 exit 1
 }
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Downloading latest panel release...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Downloading latest panel release..."
 cd "$PANEL_DIR" || {
-echo -e "\033[1;31m[✗] Failed to access panel directory.\033[0m"
+echo -e "${ERROR} Failed to access panel directory."
 exit 1
 }
 
 wget -q "$DOWNLOAD_URL/panel.zip" -O panel.zip || {
-echo -e "\033[1;31m[✗] Failed to download panel release.\033[0m"
+echo -e "${ERROR} Failed to download panel release."
 exit 1
 }
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Extracting files...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Extracting files..."
 unzip -qq -o panel.zip || {
-echo -e "\033[1;31m[✗] Extraction failed.\033[0m"
+echo -e "${ERROR} Extraction failed."
 exit 1
 }
 
 rm -f panel.zip
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing dependencies...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing dependencies..."
 npm install --prefix "$PANEL_DIR" --production --no-audit --no-fund >/dev/null 2>&1 || {
-echo -e "\033[1;31m[✗] Dependency installation failed.\033[0m"
+echo -e "${ERROR} Dependency installation failed."
 exit 1
 }
 
 npm link >/dev/null 2>&1
 
 if [ "$USE_DOCKER_DB" = true ]; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Using Docker PostgreSQL...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Using Docker PostgreSQL..."
     DB_PASS=$(grep DB_PASS "$DATABASE_DIR/.env" | cut -d= -f2-)
     DB_USER="ksuser"
     DB_NAME="kspanel"
     DB_URL="postgres://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME"
 else
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing PostgreSQL...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing PostgreSQL..."
 
     if ! command -v psql >/dev/null 2>&1; then
     sudo apt update -y >/dev/null 2>&1
     sudo apt install -y postgresql postgresql-contrib >/dev/null 2>&1 || {
-        echo -e "\033[1;31m[✗] PostgreSQL installation failed.\033[0m"
+        echo -e "${ERROR} PostgreSQL installation failed."
         exit 1
     }
     fi
@@ -122,25 +143,25 @@ else
     sudo systemctl start postgresql >/dev/null 2>&1
     sudo systemctl enable postgresql >/dev/null 2>&1
 
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Generating secure database credentials...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Generating secure database credentials..."
 
-    echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Enter database password: \033[0m"
+    echo -ne "${CYAN}[KS Panel]${RESET} ${YELLOW}» Enter database password: ${RESET}"
     read -s DB_PASS
     echo ""
 
-    echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Confirm password: \033[0m"
+    echo -ne "${CYAN}[KS Panel]${RESET} ${YELLOW}» Confirm password: ${RESET}"
     read -s DB_PASS_CONFIRM
     echo ""
 
     if [ "$DB_PASS" != "$DB_PASS_CONFIRM" ]; then
-      echo -e "\033[1;31m[✗] Passwords do not match.\033[0m"
+      echo -e "${ERROR} Passwords do not match."
       exit 1
     fi
 
     DB_USER="ksuser"
     DB_NAME="kspanel"
 
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Configuring PostgreSQL database...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Configuring PostgreSQL database..."
 
     ROLE_SQL=$(cat <<'EOSQL'
 DO $$
@@ -169,14 +190,14 @@ EOSQL
     FULL_SQL=$(printf "${ROLE_SQL}\n${DB_SQL}\n${GRANT_SQL}\n" "$DB_USER" "$DB_USER" "$DB_PASS" "$DB_NAME" "$DB_NAME" "$DB_USER" "$DB_NAME" "$DB_USER")
 
     sudo -u postgres psql <<< "$FULL_SQL" || {
-        echo -e "\033[1;31m[✗] PostgreSQL configuration failed.\033[0m"
+        echo -e "${ERROR} PostgreSQL configuration failed."
         exit 1
     }
 
     DB_URL="postgres://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME"
 fi
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Updating panel configuration...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Updating panel configuration..."
 
 cd "$PANEL_DIR" || exit 1
 
@@ -184,31 +205,36 @@ if [ -f config.json ]; then
 sed -i "s|\"databaseURL\": \".*\"|\"databaseURL\": \"$DB_URL\"|g" config.json
 fi
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Creating environment file...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Creating environment file..."
 
 cat > .env <<ENDF
 DB_URL=$DB_URL
 SESSION_SECRET=$(openssl rand -base64 32)
 ENDF
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Seeding database...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Seeding database..."
 npm run seed >/dev/null 2>&1
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Creating admin user...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Creating admin user..."
 npm run create:user
 
 echo ""
-echo -e "\033[1;32m[✓] KS Panel installed successfully.\033[0m"
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Run panel using: kspanel start\033[0m"
-echo ""
+echo -e "${SUCCESS} KS Panel installed successfully."
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» Run panel using: ${GREEN}kspanel start${RESET}"
+echo -e "${SEP}"
 
 ;;
 
 update)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Updating panel...\033[0m"
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║              KS Panel Updater               ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Updating panel..."
+echo -e "${SEP}"
 cd "$PANEL_DIR" || {
-echo -e "\033[1;31m[✗] Panel directory not found\033[0m"
+echo -e "${ERROR} Panel directory not found"
 exit 1
 }
 
@@ -219,22 +245,22 @@ cp config.json "$backup_dir/" 2>/dev/null || true
 mv node_modules .node_modules 2>/dev/null || true
 rm -rf *
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Downloading latest release...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Downloading latest release..."
 wget -q "$DOWNLOAD_URL/panel.zip" -O panel.zip || {
-echo -e "\033[1;31m[✗] Failed to download panel release.\033[0m"
+echo -e "${ERROR} Failed to download panel release."
 exit 1
 }
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Extracting files...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Extracting files..."
 unzip -qq -o panel.zip || {
-echo -e "\033[1;31m[✗] Extraction failed.\033[0m"
+echo -e "${ERROR} Extraction failed."
 exit 1
 }
 rm -f panel.zip
 
 mv .node_modules node_modules 2>/dev/null || true
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing dependencies...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing dependencies..."
 npm install --prefix "$PANEL_DIR" --production --no-audit --no-fund >/dev/null 2>&1
 npm link >/dev/null 2>&1
 
@@ -242,26 +268,33 @@ cp "$backup_dir/.env" .env 2>/dev/null || true
 cp "$backup_dir/config.json" config.json 2>/dev/null || true
 rm -rf "$backup_dir"
 
-echo -e "\033[1;32m[✓] KS Panel updated successfully.\033[0m"
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Restarting service...\033[0m"
+echo -e "${SUCCESS} KS Panel updated successfully."
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» Restarting service..."
+echo -e "${SEP}"
 
 kspanel restart
 
-echo -e "\033[1;32m[✓] KS Panel restarted successfully.\033[0m"
+echo -e "${SUCCESS} KS Panel restarted successfully."
+echo -e "${SEP}"
 
 ;;
 
 uninstall)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Stopping service...\033[0m"
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║             KS Panel Uninstaller            ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Stopping service..."
 npx pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
 
 if [ "$USE_DOCKER_DB" = true ]; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Stopping Docker DB...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Stopping Docker DB..."
     docker-compose -f "$DATABASE_DIR/docker-compose.yml" down >/dev/null 2>&1 || true
 fi
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;31m» Removing all files...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Removing all files..."
+echo -e "${SEP}"
 
 rm -rf "$HOME/.kspanel"
 
@@ -273,42 +306,54 @@ if [ -f /usr/local/bin/kspanel ]; then
         else
             sudo rm -f /usr/local/bin/kspanel
         fi
-        echo -e "\033[1;32m[✓] Global binary removed.\033[0m"
+        echo -e "${SUCCESS} Global binary removed."
     else
-        echo -e "\033[1;33m[!] Run as root to remove /usr/local/bin/kspanel\033[0m"
+        echo -e "${YELLOW}[!] Run as root to remove /usr/local/bin/kspanel${RESET}"
     fi
 fi
 
 # Note: Database remains; manual cleanup needed for PostgreSQL
-echo -e "\033[1;32m[✓] KS Panel removed successfully.\033[0m"
+echo -e "${SUCCESS} KS Panel removed successfully."
+echo -e "${SEP}"
 
 ;;
 
 create:user)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Creating new user...\033[0m"
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║             Create New User                 ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Creating new user..."
+echo -e "${SEP}"
 
 cd "$PANEL_DIR" || {
-echo -e "\033[1;31m[✗] Panel directory not found\033[0m"
+echo -e "${ERROR} Panel directory not found"
 exit 1
 }
 
 npm run create:user
 
-echo -e "\033[1;32m[✓] User created successfully.\033[0m"
+echo -e "${SUCCESS} User created successfully."
+echo -e "${SEP}"
 
 ;;
 
 database)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Setting up Docker database only...\033[0m"
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║          KS Panel Docker Database           ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Setting up Docker database only..."
+echo -e "${SEP}"
 
 # Check and install Docker
 if ! command -v docker >/dev/null 2>&1; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing Docker...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing Docker..."
     sudo apt update >/dev/null 2>&1
     sudo apt install -y docker.io >/dev/null 2>&1 || {
-        echo -e "\033[1;31m[✗] Docker installation failed.\033[0m"
+        echo -e "${ERROR} Docker installation failed."
         exit 1
     }
     sudo systemctl start docker >/dev/null 2>&1
@@ -317,15 +362,16 @@ fi
 
 # Check and install Docker Compose
 if ! command -v docker-compose >/dev/null 2>&1; then
-    echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Installing Docker Compose...\033[0m"
+    echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Installing Docker Compose..."
     sudo apt update >/dev/null 2>&1
     sudo apt install -y docker-compose >/dev/null 2>&1 || {
-        echo -e "\033[1;31m[✗] Docker Compose installation failed.\033[0m"
+        echo -e "${ERROR} Docker Compose installation failed."
         exit 1
     }
 fi
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;32m✔ Docker and Docker Compose are installed.\033[0m"
+echo -e "${SUCCESS} Docker and Docker Compose are installed."
+echo -e "${SEP}"
 
 mkdir -p "$DATABASE_DIR"
 
@@ -353,16 +399,16 @@ volumes:
   postgres_data:
 EOF
 
-echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Enter database password: \033[0m"
+echo -ne "${CYAN}[KS Panel]${RESET} ${YELLOW}» Enter database password: ${RESET}"
 read -s DB_PASS
 echo ""
 
-echo -ne "\033[1;36m[KS Panel]\033[0m \033[1;34m» Confirm password: \033[0m"
+echo -ne "${CYAN}[KS Panel]${RESET} ${YELLOW}» Confirm password: ${RESET}"
 read -s DB_PASS_CONFIRM
 echo ""
 
 if [ "$DB_PASS" != "$DB_PASS_CONFIRM" ]; then
-  echo -e "\033[1;31m[✗] Passwords do not match.\033[0m"
+  echo -e "${ERROR} Passwords do not match."
   exit 1
 fi
 
@@ -371,74 +417,92 @@ cat > .env <<ENDF
 DB_PASS=$DB_PASS
 ENDF
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Starting database service...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Starting database service..."
 docker-compose up -d
 
 # Wait for DB to be ready
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Waiting for database to initialize...\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Waiting for database to initialize..."
 sleep 10
 
-echo -e "\033[1;32m[✓] KS Panel Database Docker setup completed.\033[0m"
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Database running on localhost:5432\033[0m"
+echo -e "${SUCCESS} KS Panel Database Docker setup completed."
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» Database running on localhost:5432"
 echo ""
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Connection String:\033[0m"
-echo -e "\033[1;37mpostgres://ksuser:${DB_PASS}@localhost:5432/kspanel\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» Connection String:"
+echo -e "${WHITE}postgres://ksuser:${DB_PASS}@localhost:5432/kspanel${RESET}"
 echo ""
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» To connect panel:\033[0m"
-echo -e "  1. Run: kspanel install"
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» To connect panel:"
+echo -e "  1. Run: ${GREEN}kspanel install${RESET}"
 echo ""
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Manage: cd $DATABASE_DIR && docker-compose logs -f db\033[0m"
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Stop: docker-compose down\033[0m"
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» Manage: cd $DATABASE_DIR && docker-compose logs -f db"
+echo -e "${CYAN}[KS Panel]${RESET} ${YELLOW}» Stop: docker-compose down"
+echo -e "${SEP}"
 
 ;;
 
 start)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;34m» Starting service...\033[0m"
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║               Starting KS Panel             ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Starting service..."
+echo -e "${SEP}"
 
 if [[ -f "$PANEL_DIR/index.js" ]]; then
 
 npx --yes pm2 start "$PANEL_DIR/index.js" --name "$APP_NAME" --cwd "$PANEL_DIR" >/dev/null 2>&1
 
 if [[ $? -eq 0 ]]; then
-echo -e "\033[1;32m[✓] KS Panel started successfully.\033[0m"
+echo -e "${SUCCESS} KS Panel started successfully."
 else
-echo -e "\033[1;31m[✗] Failed to start via pm2.\033[0m"
-echo -e "\033[1;37m[!] Manual: cd $PANEL_DIR && npx pm2 start index.js --name $APP_NAME\033[0m"
+echo -e "${ERROR} Failed to start via pm2."
+echo -e "${YELLOW}[!] Manual: cd $PANEL_DIR && npx pm2 start index.js --name $APP_NAME${RESET}"
 fi
 
 else
 
-echo -e "\033[1;31m[✗] Panel not installed. Run 'kspanel install'.\033[0m"
+echo -e "${ERROR} Panel not installed. Run 'kspanel install'."
 
 fi
+
+echo -e "${SEP}"
 
 ;;
 
 stop)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Stopping service...\033[0m"
-
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║                Stopping KS Panel            ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Stopping service..."
 npx pm2 stop "$APP_NAME" >/dev/null 2>&1
-
-echo -e "\033[1;32m[✓] KS Panel stopped successfully.\033[0m"
+echo -e "${SUCCESS} KS Panel stopped successfully."
+echo -e "${SEP}"
 
 ;;
 
 restart)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;33m» Restarting service...\033[0m"
-
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║               Restarting KS Panel           ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Restarting service..."
 npx pm2 restart "$APP_NAME" >/dev/null 2>&1
-
-echo -e "\033[1;32m[✓] KS Panel restarted successfully.\033[0m"
+echo -e "${SUCCESS} KS Panel restarted successfully."
+echo -e "${SEP}"
 
 ;;
 
 log)
 
-echo -e "\033[1;36m[KS Panel]\033[0m \033[1;35m» Showing logs...\033[0m"
-
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║                  KS Panel Logs              ║${RESET}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
+echo -e "${SEP}"
+echo -e "${CYAN}[KS Panel]${RESET} ${ARROW} Showing logs..."
+echo -e "${SEP}"
 npx pm2 log "$APP_NAME"
 
 ;;
@@ -457,18 +521,18 @@ RESET="\033[0m"
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${RESET}"
 echo -e "${CYAN}║                  [KS Panel]                 ║${RESET}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${RESET}"
-echo -e ""
+echo -e "${SEP}"
 echo -e "${YELLOW}Available Commands:${RESET}"
-echo -e "  ${GREEN}kspanel install${RESET}      ${WHITE}→ Install KS Panel${RESET}"
-echo -e "  ${GREEN}kspanel update${RESET}       ${WHITE}→ Update KS Panel${RESET}"
-echo -e "  ${GREEN}kspanel uninstall${RESET}    ${WHITE}→ Remove KS Panel${RESET}"
-echo -e "  ${GREEN}kspanel create:user${RESET}  ${WHITE}→ Create a new panel user${RESET}"
-echo -e "  ${GREEN}kspanel database${RESET}     ${WHITE}→ Setup Database with Docker${RESET}"
-echo -e "  ${GREEN}kspanel start${RESET}        ${WHITE}→ Start KS Panel${RESET}"
-echo -e "  ${GREEN}kspanel stop${RESET}         ${WHITE}→ Stop KS Panel${RESET}"
-echo -e "  ${GREEN}kspanel restart${RESET}      ${WHITE}→ Restart KS Panel${RESET}"
-echo -e "  ${GREEN}kspanel log${RESET}          ${WHITE}→ Show logs${RESET}"
-echo -e ""
+echo -e "  ${GREEN}kspanel install${RESET}      ${BLUE}➤${RESET} ${WHITE}Install KS Panel${RESET}"
+echo -e "  ${GREEN}kspanel update${RESET}       ${BLUE}➤${RESET} ${WHITE}Update KS Panel${RESET}"
+echo -e "  ${GREEN}kspanel uninstall${RESET}    ${BLUE}➤${RESET} ${WHITE}Remove KS Panel${RESET}"
+echo -e "  ${GREEN}kspanel create:user${RESET}  ${BLUE}➤${RESET} ${WHITE}Create a new panel user${RESET}"
+echo -e "  ${GREEN}kspanel database${RESET}     ${BLUE}➤${RESET} ${WHITE}Setup Database with Docker${RESET}"
+echo -e "  ${GREEN}kspanel start${RESET}        ${BLUE}➤${RESET} ${WHITE}Start KS Panel${RESET}"
+echo -e "  ${GREEN}kspanel stop${RESET}         ${BLUE}➤${RESET} ${WHITE}Stop KS Panel${RESET}"
+echo -e "  ${GREEN}kspanel restart${RESET}      ${BLUE}➤${RESET} ${WHITE}Restart KS Panel${RESET}"
+echo -e "  ${GREEN}kspanel log${RESET}          ${BLUE}➤${RESET} ${WHITE}Show logs${RESET}"
+echo -e "${SEP}"
 
 ;;
 
