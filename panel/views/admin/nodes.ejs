@@ -277,11 +277,6 @@
                 <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
               </div>
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Description</label>
-                <textarea id="nodeDescription" rows="2" class="input-field" placeholder="Primary game server node - Agartala"></textarea>
-              </div>
-
-              <div>
                 <label class="text-neutral-400 text-sm block mb-1">FQDN / IP or Tunnel Hostname <span class="text-red-400">*</span></label>
                 <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com or 103.XX.XX.XX">
               </div>
@@ -301,6 +296,18 @@
                     <option value="<%= loc.id %>"><%= loc.name %></option>
                   <% }); %>
                 </select>
+              </div>
+              <div>
+                <label class="text-neutral-400 text-sm block mb-1">Category <span class="text-red-400">*</span></label>
+                <div class="flex gap-2">
+                  <select id="nodeCategory" required class="input-field flex-1">
+                    <option value="">Select category...</option>
+                  </select>
+                  <button type="button" onclick="addNewCategory()" 
+                    class="px-5 py-3 bg-neutral-800/70 hover:bg-neutral-700 border border-white/10 rounded-2xl text-white text-sm font-medium transition flex items-center gap-1">
+                    <span class="text-lg leading-none">+</span> Add Category
+                  </button>
+                </div>
               </div>
 
               <!-- Resources -->
@@ -331,10 +338,6 @@
               <div>
                 <label class="text-neutral-400 text-sm block mb-1">Max Upload Size (MB)</label>
                 <input id="nodeUploadSize" type="number" value="500" class="input-field">
-              </div>
-              <div>
-                <label class="text-neutral-400 text-sm block mb-1">Max Servers</label>
-                <input id="nodeMaxServers" type="number" value="50" class="input-field">
               </div>
 
               <!-- Tunnel / Proxy -->
@@ -380,28 +383,8 @@
               </div>
 
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Server Files Directory</label>
-                <input id="serverFileDirectory" type="text" value="/var/lib/kswings/volumes" class="input-field">
-              </div>
-              <div>
                 <label class="text-neutral-400 text-sm block mb-1">Public IP (for allocations)</label>
                 <input id="publicIp" type="text" class="input-field" placeholder="Leave blank = use address">
-              </div>
-              <div class="flex items-center gap-3">
-                <input id="maintenanceMode" type="checkbox" class="w-5 h-5 accent-white">
-                <label for="maintenanceMode" class="text-white text-sm">Maintenance Mode</label>
-              </div>
-              <div>
-                <label class="text-neutral-400 text-sm block mb-1">Health Check URL</label>
-                <input id="healthCheckUrl" type="text" class="input-field" placeholder="https://node.example.com/health">
-              </div>
-              <div>
-                <label class="text-neutral-400 text-sm block mb-1">Tags (comma separated)</label>
-                <input id="tags" type="text" class="input-field" placeholder="gaming,production,high-ram">
-              </div>
-              <div>
-                <label class="text-neutral-400 text-sm block mb-1">Trusted Proxies (CIDR list)</label>
-                <input id="trustedProxies" type="text" class="input-field" placeholder="103.21.244.0/22,172.64.0.0/13">
               </div>
 
               <!-- Allocations (your original section) -->
@@ -446,6 +429,18 @@
      const group = document.getElementById('tunnelHostnameGroup');
      const checked = document.getElementById('useCloudflareTunnel').checked;
      group.classList.toggle('hidden', !checked);
+   }
+
+   function addNewCategory() {
+     const newCat = prompt('Enter new category name:');
+     if (newCat && newCat.trim()) {
+       const select = document.getElementById('nodeCategory');
+       const optionValue = newCat.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+       const option = new Option(newCat.trim(), optionValue);
+       select.add(option);
+       select.value = optionValue;
+       showNotification('Category added: ' + newCat, 'success');
+     }
    }
 
    function showNotification(message, type = 'success') {
@@ -517,11 +512,11 @@
      try {
        const data = {
          name: document.getElementById('nodeName').value.trim(),
-         description: document.getElementById('nodeDescription').value.trim(),
          address: document.getElementById('nodeAddress').value.trim(),
          port: document.getElementById('nodePort').value,
          sftpPort: document.getElementById('nodeSftpPort').value,
          location: document.getElementById('nodeLocation').value,
+         category: document.getElementById('nodeCategory').value,
          ram: document.getElementById('nodeRam').value,
          disk: document.getElementById('nodeDisk').value,
          memoryOverallocate: document.getElementById('nodeMemoryOver').value,
@@ -530,14 +525,8 @@
          behindProxy: document.getElementById('behindProxy').checked,
          useCloudflareTunnel: document.getElementById('useCloudflareTunnel').checked,
          tunnelPublicHostname: document.getElementById('tunnelPublicHostname').value.trim(),
-         serverFileDirectory: document.getElementById('serverFileDirectory').value.trim(),
          publicIp: document.getElementById('publicIp').value.trim(),
-         maintenanceMode: document.getElementById('maintenanceMode').checked,
          connectionType: document.getElementById('connectionType').value,
-         maxServers: document.getElementById('nodeMaxServers').value,
-         healthCheckUrl: document.getElementById('healthCheckUrl').value.trim(),
-         tags: document.getElementById('tags').value.trim(),
-         trustedProxies: document.getElementById('trustedProxies').value.trim(),
          allocIp: document.getElementById('allocIp').value.trim(),
          allocAlias: document.getElementById('allocAlias').value.trim(),
          portsInput: document.getElementById('allocPorts').value.trim()
@@ -565,8 +554,7 @@
    });
 
    // Existing functions (delete, configure, radar, resource update) - unchanged
-   async function deletenode(nodeId) { /* ... same as your original ... */ 
-     // (I kept your exact delete logic - just paste your original deletenode function here if you want, but it's already working)
+   async function deletenode(nodeId) { 
      if (!confirm('Delete this node?')) return;
      try {
        const res = await fetch('/nodes/delete', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nodeId}) });
