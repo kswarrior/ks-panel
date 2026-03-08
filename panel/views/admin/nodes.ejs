@@ -1,295 +1,281 @@
 <%- include('../components/template') %>
-<main id="content">
-   <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-8 pt-4">
-         <div class="sm:flex-auto">
-           <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.nodes %></h1>
-           <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.nodesText %></p>
+<main id="content" class="max-w-screen-2xl mx-auto">
+   <div class="bg-transparent px-4 md:px-6 lg:px-8">
+      
+      <!-- HEADER -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+         <div>
+           <h1 class="text-2xl font-semibold text-white tracking-tight"><%= req.translations.nodes %></h1>
+           <p class="mt-1 text-sm text-neutral-400"><%= req.translations.nodesText %></p>
          </div>
-         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <div class="flex gap-2">
-            <button onclick="radarcheck()" type="button" class="block rounded-xl bg-neutral-900/20 text-neutral-300 border border-neutral-400/20 px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2 flex gap-2">
+
+         <div class="flex flex-wrap gap-3">
+            <button onclick="radarcheck()" 
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
               Radar Scan
             </button>
-            <button id="createButton" type="button" class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
+            
+            <button id="createButton" 
+                    class="px-6 py-2.5 rounded-2xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
               <%= req.translations.createNewNode %>
             </button>
-            <button type="button"
-              onclick="window.location.href='/admin/localnode'"
-              class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
+
+            <button onclick="window.location.href='/admin/localnode'"
+                    class="px-6 py-2.5 rounded-2xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
               Local Node
             </button>
-          </div>
          </div>
-       </div>
+      </div>
 
-      <!-- Stats -->
-      <div id="stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 m-8">
-        <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-          <h2 class="text-lg font-semibold text-white mb-2">Total Nodes</h2>
-          <p class="text-4xl font-bold text-white"><%= nodes.length %></p>
-          <p class="text-sm text-neutral-400 mt-2">Online Nodes: <%= nodes.filter(node => node.status === 'Online').length %></p>
+      <!-- STATS -->
+      <div id="stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all hover:border-white/20 group">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-neutral-400">Total Nodes</p>
+              <p class="text-5xl font-semibold text-white mt-2"><%= nodes.length %></p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl">📡</div>
+          </div>
+          <p class="mt-6 text-sm text-neutral-400">
+            Online: <span class="text-emerald-400 font-medium"><%= nodes.filter(node => node.status === 'Online').length %></span>
+          </p>
         </div>
-        <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-          <h2 class="text-lg font-semibold text-white mb-2">Server Count</h2>
-          <p class="text-4xl font-bold text-white"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
+
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all hover:border-white/20 group">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-neutral-400">Server Count</p>
+              <p class="text-5xl font-semibold text-white mt-2"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
+            </div>
+            <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-3xl">🖥️</div>
+          </div>
           <% if (nodes.length > 0) { %>
-            <p class="text-sm text-neutral-400 mt-2">Average Node Density: <%= (Object.values(set).reduce((a, b) => a + b, 0) / nodes.length).toFixed(2) %></p>
+            <p class="mt-6 text-sm text-neutral-400">
+              Avg. Density: <span class="font-mono"><%= (Object.values(set).reduce((a, b) => a + b, 0) / nodes.length).toFixed(2) %></span>
+            </p>
           <% } else { %>
-            <p class="text-sm text-neutral-400 mt-2">No nodes available</p>
+            <p class="mt-6 text-sm text-neutral-400">No nodes yet</p>
           <% } %>
         </div>
       </div>
 
+      <!-- SUCCESS BANNERS -->
       <% if (req.query.err == "none") { %>
-      <div class="mt-6 w-full">
-        <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
-          <div class="flex">
-             <div class="flex-shrink-0 ml-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mt-2 text-emerald-400">
-                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-                </svg>                
-             </div>
-             <div class="ml-5">
-                <h3 class="text-sm font-medium text-emerald-400">Success!</h3>
-                <div class="text-sm text-emerald-400/50">
-                   <p>The action was successfully completed.</p>
-                </div>
-             </div>
-          </div>
-       </div>
+      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-3xl p-5 flex gap-4 items-start">
+        <div class="mt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
+          </svg>
+        </div>
+        <div>
+          <p class="font-medium text-emerald-400">Success!</p>
+          <p class="text-sm text-emerald-300/80">The action was successfully completed.</p>
+        </div>
+      </div>
       <% } %>
+
       <% if (req.query.err == "EDITED") { %>
-      <div class="mt-6 w-full">
-        <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
-          <div class="flex">
-             <div class="flex-shrink-0 ml-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mt-2 text-emerald-400">
-                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-                </svg>                
-             </div>
-             <div class="ml-5">
-                <h3 class="text-sm font-medium text-emerald-400">Success!</h3>
-                <div class="text-sm text-emerald-400/50">
-                   <p>The node was edited successfully.</p>
-                </div>
-             </div>
-          </div>
-       </div>	      
+      <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-3xl p-5 flex gap-4 items-start">
+        <div class="mt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
+          </svg>
+        </div>
+        <div>
+          <p class="font-medium text-emerald-400">Success!</p>
+          <p class="text-sm text-emerald-300/80">The node was edited successfully.</p>
+        </div>
+      </div>
       <% } %>
 
-      <!-- Responsive Node Table -->
-      <div class="px-4 sm:px-8 mt-8 w-full overflow-x-auto">
-        <div class="min-w-full bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg" id="nodeTable">
-          <table class="min-w-full text-sm text-left text-white border-collapse">
-            <!-- Head -->
-            <thead class="border-b border-white/10 text-neutral-400">
-              <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">
-                  <%= req.translations.name %>
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                  Connection
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                  Tunnel
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                  <%= req.translations.location %>
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                  Instances
-                </th>
-                <!-- New Resource Columns -->
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white min-w-[180px]">
-                  RAM
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white min-w-[140px]">
-                  CPU
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white min-w-[180px]">
-                  Disk
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">
-                  Upload
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">
-                  <%= req.translations.actions %>
-                </th>
-              </tr>
-            </thead>
-
-            <!-- Body -->
-            <tbody class="divide-y divide-white/5">
-              <% nodes.forEach(function(node) { %>
-              <tr class="hover:bg-white/[0.05] transition">
-
-                <!-- Name -->
-                <td class="py-4 pl-4 pr-3 text-sm sm:pl-6 min-w-[220px]">
-                  <div class="flex items-center gap-3">
-                    <% if (node.status === "Online") { %>
-                      <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
-                    <% } else if (node.status === "Offline") { %>
-                      <span class="relative flex h-2 w-2">
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-neutral-500"></span>
-                      </span>
-                    <% } else { %>
-                      <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                      </span>
-                    <% } %>
-                    <span class="font-medium text-white truncate">
-                      <%= node.name %>
+      <!-- TABLE CONTAINER -->
+      <div class="mt-8 overflow-x-auto rounded-3xl border border-white/10 bg-neutral-900/50 shadow-2xl" id="nodeTable">
+        <table class="min-w-full text-sm text-left text-white divide-y divide-white/10">
+          <thead class="bg-neutral-950/70">
+            <tr>
+              <th class="py-5 pl-8 pr-4 font-semibold text-neutral-300">NODE</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300">CONNECTION</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300">TUNNEL</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300">LOCATION</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300 text-center">INSTANCES</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300">RAM</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300">CPU</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300">DISK</th>
+              <th class="py-5 px-4 font-semibold text-neutral-300 text-right">UPLOAD</th>
+              <th class="py-5 pr-8 pl-4 font-semibold text-neutral-300 text-right">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <% nodes.forEach(function(node) { %>
+            <tr class="hover:bg-white/5 transition-colors group">
+              <!-- Name -->
+              <td class="pl-8 py-6">
+                <div class="flex items-center gap-3">
+                  <% if (node.status === "Online") { %>
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                     </span>
-                  </div>
-                </td>
-
-                <!-- Connection -->
-                <td class="px-3 py-4 text-sm min-w-[260px]">
-                  <div class="font-mono text-sm text-neutral-400 truncate">
-                    <%= node.address %><span class="text-neutral-500">:<%= node.port %></span>
-                    <% if (node.behindProxy) { %><span class="ml-2 text-amber-400 text-xs">(Proxy)</span><% } %>
-                  </div>
-                </td>
-
-                <!-- Tunnel -->
-                <td class="px-3 py-4 text-sm">
-                  <% if (node.useCloudflareTunnel) { %>
-                    <span class="inline-flex items-center gap-1 text-emerald-400 text-xs font-medium">
-                      <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                      CF Tunnel
+                  <% } else if (node.status === "Offline") { %>
+                    <span class="relative flex h-3 w-3">
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-neutral-500"></span>
                     </span>
                   <% } else { %>
-                    <span class="text-neutral-500 text-xs">—</span>
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-amber-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    </span>
                   <% } %>
-                </td>
+                  <span class="font-semibold text-white truncate max-w-[180px]"><%= node.name %></span>
+                </div>
+              </td>
 
-                <!-- Location -->
-                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
-                  <% let locName = 'unknown'; %>
-                  <% locations.forEach(function(loc) { %>
-                    <% if (loc.id === node.location) locName = loc.name; %>
-                  <% }); %>
-                  <%= locName %>
-                </td>
+              <!-- Connection -->
+              <td class="px-4 py-6 font-mono text-xs text-neutral-400">
+                <%= node.address %><span class="text-neutral-500">:</span><%= node.port %>
+                <% if (node.behindProxy) { %><span class="ml-2 text-amber-400 text-[10px]">(proxy)</span><% } %>
+              </td>
 
-                <!-- Instances -->
-                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[120px]">
-                  <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs inline-block">
-                    <%= set[node.id] || 0 %>
+              <!-- Tunnel -->
+              <td class="px-4 py-6">
+                <% if (node.useCloudflareTunnel) { %>
+                  <span class="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                    CF TUNNEL
+                  </span>
+                <% } else { %>
+                  <span class="text-neutral-500 text-xs">—</span>
+                <% } %>
+              </td>
+
+              <!-- Location -->
+              <td class="px-4 py-6 text-sm text-neutral-400">
+                <% let locName = 'unknown'; %>
+                <% locations.forEach(function(loc) { %>
+                  <% if (loc.id === node.location) locName = loc.name; %>
+                <% }); %>
+                <%= locName %>
+              </td>
+
+              <!-- Instances -->
+              <td class="px-4 py-6 text-center">
+                <span class="inline-block bg-neutral-800 px-4 py-1 rounded-2xl text-xs font-medium">
+                  <%= set[node.id] || 0 %>
+                </span>
+              </td>
+
+              <!-- RAM -->
+              <td class="px-4 py-6">
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
+                    <div id="ram-bar-<%= node.id %>" 
+                         class="h-full rounded-full transition-all duration-700"
+                         style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
                   </div>
-                </td>
+                  <span id="ram-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-20 text-right">--</span>
+                </div>
+              </td>
 
-                <!-- RAM -->
-                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[180px]">
-                  <div class="flex items-center gap-2">
-                    <div class="w-20 bg-neutral-700/60 h-2 rounded-full overflow-hidden">
-                      <div id="ram-bar-<%= node.id %>" 
-                           class="h-full rounded-full transition-all duration-500"
-                           style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
-                    </div>
-                    <span id="ram-text-<%= node.id %>" class="text-xs font-mono">-- / -- GB (0%)</span>
+              <!-- CPU -->
+              <td class="px-4 py-6">
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
+                    <div id="cpu-bar-<%= node.id %>" 
+                         class="h-full rounded-full transition-all duration-700"
+                         style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
                   </div>
-                </td>
+                  <span id="cpu-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-12 text-right">0%</span>
+                </div>
+              </td>
 
-                <!-- CPU -->
-                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[140px]">
-                  <div class="flex items-center gap-2">
-                    <div class="w-16 bg-neutral-700/60 h-2 rounded-full overflow-hidden">
-                      <div id="cpu-bar-<%= node.id %>" 
-                           class="h-full rounded-full transition-all duration-500"
-                           style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
-                    </div>
-                    <span id="cpu-text-<%= node.id %>" class="text-xs font-mono">0%</span>
+              <!-- Disk -->
+              <td class="px-4 py-6">
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
+                    <div id="disk-bar-<%= node.id %>" 
+                         class="h-full rounded-full transition-all duration-700"
+                         style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
                   </div>
-                </td>
+                  <span id="disk-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-20 text-right">--</span>
+                </div>
+              </td>
 
-                <!-- Disk -->
-                <td class="px-3 py-4 text-sm text-neutral-400 min-w-[180px]">
-                  <div class="flex items-center gap-2">
-                    <div class="w-20 bg-neutral-700/60 h-2 rounded-full overflow-hidden">
-                      <div id="disk-bar-<%= node.id %>" 
-                           class="h-full rounded-full transition-all duration-500"
-                           style="width: 0%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);"></div>
-                    </div>
-                    <span id="disk-text-<%= node.id %>" class="text-xs font-mono">-- / -- GB (0%)</span>
-                  </div>
-                </td>
+              <!-- Upload -->
+              <td class="px-4 py-6 text-right text-sm text-neutral-400 font-medium">
+                <%= node.uploadSize || 500 %> MB
+              </td>
 
-                <!-- Upload Size -->
-                <td class="px-3 py-4 text-sm text-neutral-400 text-right">
-                  <%= node.uploadSize || 500 %> MB
-                </td>
-
-                <!-- Actions -->
-                <td class="px-3 py-4 text-sm min-w-[260px]">
-                  <div class="flex justify-end gap-2">
-                    <button onclick="configure('<%= node.id %>')" 
-                            class="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-medium shadow transition">
-                      <%= req.translations.configure %>
+              <!-- Actions -->
+              <td class="pr-8 py-6 text-right">
+                <div class="flex items-center gap-2 justify-end">
+                  <button onclick="configure('<%= node.id %>')" 
+                          class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95">
+                    CONFIGURE
+                  </button>
+                  <a href="/admin/node/<%= node.id %>">
+                    <button class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95">
+                      EDIT
                     </button>
-                    <a href="/admin/node/<%= node.id %>">
-                      <button class="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-medium shadow transition">
-                        <%= req.translations.edit %>
-                      </button>
-                    </a>
-                    <button onclick="deletenode('<%= node.id %>')" 
-                            class="rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition">
-                      <%= req.translations.remove %>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </div>
+                  </a>
+                  <button onclick="deletenode('<%= node.id %>')" 
+                          class="px-4 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-2xl transition-all active:scale-95">
+                    DELETE
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
       </div>
 
       <%- include('../components/pagination', { pagination }) %>
 
-      <div id="notification" class="fixed bottom-5 right-5 bg-white/5 text-white px-4 py-2 rounded-xl shadow-lg transform transition-all duration-300 translate-y-full opacity-0">
-        Command copied to clipboard!
+      <!-- NOTIFICATION -->
+      <div id="notification" 
+           class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium">
+        <span id="notification-text"></span>
       </div>
 
-      <!-- ==================== FULL CREATE FORM (All Pterodactyl + Cloudflare Tunnel fields) ==================== -->
-      <div id="nodeForm" class="mt-6 px-4 sm:px-6 w-full hidden">
-        <div class="p-6 lg:p-8 bg-neutral-900/30 border border-white/10 rounded-2xl max-w-5xl mx-auto">
+      <!-- CREATE FORM -->
+      <div id="nodeForm" class="mt-12 hidden">
+        <div class="max-w-5xl mx-auto bg-neutral-900/70 border border-white/10 backdrop-blur-xl rounded-3xl p-8 lg:p-12">
           <form id="createNodeForm">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-8">
 
-              <!-- Basic Info -->
+              <!-- BASIC INFO -->
               <div class="lg:col-span-2">
-                <h3 class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
-                  <span class="w-3 h-px bg-white/30 flex-1"></span>
-                  Basic Information
-                  <span class="w-3 h-px bg-white/30 flex-1"></span>
-                </h3>
+                <div class="flex items-center gap-4 mb-6">
+                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                  <h3 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                </div>
               </div>
 
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Node Name <span class="text-red-400">*</span></label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
                 <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
               </div>
+
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">FQDN / IP or Tunnel Hostname <span class="text-red-400">*</span></label>
-                <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com or 103.XX.XX.XX">
+                <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
+                <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
               </div>
+
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Daemon Port <span class="text-red-400">*</span></label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
                 <input id="nodePort" required type="number" value="2022" class="input-field">
               </div>
+
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">SFTP Port</label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
                 <input id="nodeSftpPort" type="number" value="2022" class="input-field">
               </div>
+
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Location <span class="text-red-400">*</span></label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
                 <select id="nodeLocation" required class="input-field">
                   <option value="">Select location...</option>
                   <% locations.forEach(function(loc) { %>
@@ -297,74 +283,73 @@
                   <% }); %>
                 </select>
               </div>
+
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Category <span class="text-red-400">*</span></label>
-                <div class="flex gap-2">
-                  <select id="nodeCategory" required class="input-field flex-1">
-                    <option value="">Select category...</option>
-                  </select>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">CATEGORY <span class="text-red-400">*</span></label>
+                <div class="flex gap-3">
+                  <select id="nodeCategory" required class="input-field flex-1"></select>
                   <button type="button" onclick="addNewCategory()" 
-                    class="px-5 py-3 bg-neutral-800/70 hover:bg-neutral-700 border border-white/10 rounded-2xl text-white text-sm font-medium transition flex items-center gap-1">
-                    <span class="text-lg leading-none">+</span> Add Category
+                          class="px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-sm font-medium transition-all active:scale-95">
+                    + ADD
                   </button>
                 </div>
               </div>
 
-              <!-- Resources -->
-              <div class="lg:col-span-2 mt-8">
-                <h3 class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
-                  <span class="w-3 h-px bg-white/30 flex-1"></span>
-                  Resource Limits (Pterodactyl Style)
-                  <span class="w-3 h-px bg-white/30 flex-1"></span>
-                </h3>
+              <!-- RESOURCES -->
+              <div class="lg:col-span-2 pt-6">
+                <div class="flex items-center gap-4 mb-6">
+                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                  <h3 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                </div>
               </div>
 
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Total RAM (MB) <span class="text-red-400">*</span></label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (MB) <span class="text-red-400">*</span></label>
                 <input id="nodeRam" required type="number" class="input-field" placeholder="32768">
               </div>
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Total Disk (GB) <span class="text-red-400">*</span></label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
                 <input id="nodeDisk" required type="number" class="input-field" placeholder="500">
               </div>
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Memory Overallocate (%)</label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
                 <input id="nodeMemoryOver" type="number" value="0" class="input-field">
               </div>
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Disk Overallocate (%)</label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
                 <input id="nodeDiskOver" type="number" value="0" class="input-field">
               </div>
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Max Upload Size (MB)</label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
                 <input id="nodeUploadSize" type="number" value="500" class="input-field">
               </div>
 
-              <!-- Tunnel / Proxy -->
-              <div class="lg:col-span-2 mt-8">
-                <h3 class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
-                  <span class="w-3 h-px bg-white/30 flex-1"></span>
-                  Cloudflare Tunnel &amp; Proxy
-                  <span class="w-3 h-px bg-white/30 flex-1"></span>
-                </h3>
+              <!-- TUNNEL SECTION -->
+              <div class="lg:col-span-2 pt-6">
+                <div class="flex items-center gap-4 mb-6">
+                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                  <h3 class="text-lg font-semibold text-white tracking-wide">CLOUDFLARE TUNNEL &amp; PROXY</h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                </div>
               </div>
 
               <div class="flex items-center gap-3">
                 <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white">
-                <label for="behindProxy" class="text-white text-sm">Behind Proxy (Nginx / Cloudflare)</label>
+                <label for="behindProxy" class="text-sm text-white">Behind Proxy (Nginx / Cloudflare)</label>
               </div>
               <div class="flex items-center gap-3">
                 <input id="useCloudflareTunnel" type="checkbox" class="w-5 h-5 accent-emerald-400" onchange="toggleTunnelField()">
-                <label for="useCloudflareTunnel" class="text-white text-sm">Use Cloudflare Tunnel (Recommended)</label>
+                <label for="useCloudflareTunnel" class="text-sm text-white">Use Cloudflare Tunnel (Recommended)</label>
               </div>
 
               <div id="tunnelHostnameGroup" class="lg:col-span-2 hidden">
-                <label class="text-neutral-400 text-sm block mb-1">Tunnel Public Hostname</label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">TUNNEL PUBLIC HOSTNAME</label>
                 <input id="tunnelPublicHostname" type="text" class="input-field" placeholder="yournode.trycloudflare.com">
               </div>
 
               <div>
-                <label class="text-neutral-400 text-sm block mb-1">Connection Type</label>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">CONNECTION TYPE</label>
                 <select id="connectionType" class="input-field">
                   <option value="Direct">Direct</option>
                   <option value="Behind Proxy">Behind Proxy</option>
@@ -373,30 +358,30 @@
                 </select>
               </div>
 
-              <!-- Allocations (your original section) -->
-              <div class="lg:col-span-2 mt-10 border-t border-white/10 pt-8">
-                <h3 class="text-white text-lg font-semibold mb-4">Initial Allocations (Ports)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- ALLOCATIONS -->
+              <div class="lg:col-span-2 pt-8 border-t border-white/10">
+                <h3 class="text-lg font-semibold text-white mb-6">INITIAL ALLOCATIONS (PORTS)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label class="text-neutral-400 text-sm block mb-1">IP for allocations</label>
+                    <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS</label>
                     <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
                   </div>
                   <div>
-                    <label class="text-neutral-400 text-sm block mb-1">IP Alias / Label</label>
+                    <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
                     <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
                   </div>
                   <div class="md:col-span-3">
-                    <label class="text-neutral-400 text-sm block mb-1">Ports (comma or ranges)</label>
+                    <label class="text-xs font-medium text-neutral-400 block mb-2">PORTS (COMMA OR RANGES)</label>
                     <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
                   </div>
                 </div>
               </div>
 
-              <!-- Submit -->
+              <!-- SUBMIT -->
               <div class="lg:col-span-2 mt-8">
                 <button id="createNodeBtn" type="button"
-                  class="w-full py-3.5 rounded-2xl bg-white text-black font-semibold text-base tracking-wide hover:bg-neutral-100 transition">
-                  Create Node
+                        class="w-full py-4 bg-white text-black font-semibold text-lg rounded-3xl hover:bg-neutral-100 active:scale-[0.985] transition-all shadow-xl">
+                  CREATE NODE
                 </button>
               </div>
             </div>
@@ -406,9 +391,9 @@
    </div>
 
    <script>
-   // Input field styling
+   // Enhanced input styling
    document.querySelectorAll('.input-field').forEach(el => {
-     el.className = `rounded-2xl text-white text-sm w-full px-5 py-3 bg-neutral-800/50 border border-white/10 focus:border-white/30 outline-none placeholder:text-white/30`;
+     el.className = `w-full px-6 py-4 bg-neutral-800/60 border border-white/10 rounded-3xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
    });
 
    function toggleTunnelField() {
@@ -431,14 +416,21 @@
 
    function showNotification(message, type = 'success') {
      const notification = document.getElementById('notification');
-     notification.textContent = message;
-     notification.className = `fixed bottom-6 right-6 px-6 py-3 rounded-2xl shadow-2xl transform transition-all duration-300 z-50 ${
-       type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-500 text-white'
+     const textEl = document.getElementById('notification-text');
+     textEl.textContent = message;
+     
+     notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium transition-all duration-300 ${
+       type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
      }`;
-     notification.classList.remove('opacity-0', 'translate-y-10');
-     notification.classList.add('opacity-100', 'translate-y-0');
+     notification.classList.remove('hidden');
+     notification.classList.add('flex');
+
      setTimeout(() => {
-       notification.classList.add('opacity-0', 'translate-y-10');
+       notification.classList.add('opacity-0', 'translate-y-2');
+       setTimeout(() => {
+         notification.classList.add('hidden');
+         notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+       }, 300);
      }, 2800);
    }
 
@@ -472,7 +464,7 @@
      }
    }
 
-   // Toggle form
+   // Toggle form (unchanged logic)
    document.getElementById('createButton').addEventListener('click', () => {
      const table = document.getElementById('nodeTable');
      const form = document.getElementById('nodeForm');
@@ -488,7 +480,7 @@
      }
    });
 
-   // Create Node - ALL fields
+   // Create Node handler (unchanged logic)
    document.getElementById('createNodeBtn').addEventListener('click', async () => {
      const btn = document.getElementById('createNodeBtn');
      const orig = btn.innerHTML;
@@ -538,7 +530,7 @@
      }
    });
 
-   // Existing functions (delete, configure, radar, resource update) - unchanged
+   // Unchanged helper functions
    async function deletenode(nodeId) { 
      if (!confirm('Delete this node?')) return;
      try {
@@ -562,7 +554,7 @@
      showNotification('Radar check started', 'success');
    }
 
-   // Init
+   // Init resources
    document.addEventListener('DOMContentLoaded', () => {
      <% nodes.forEach(node => { %>
        updateNodeResources('<%= node.id %>');
