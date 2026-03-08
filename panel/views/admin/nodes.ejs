@@ -11,18 +11,18 @@
 
          <div class="flex flex-wrap gap-3">
             <button onclick="radarcheck()" 
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all active:scale-95">
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-3xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all active:scale-95">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
               Radar Scan
             </button>
             
             <button id="createButton" 
-                    class="px-6 py-2.5 rounded-2xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
+                    class="px-6 py-2.5 rounded-3xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
               <%= req.translations.createNewNode %>
             </button>
 
             <button onclick="window.location.href='/admin/localnode'"
-                    class="px-6 py-2.5 rounded-2xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
+                    class="px-6 py-2.5 rounded-3xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all active:scale-95">
               Local Node
             </button>
          </div>
@@ -36,7 +36,7 @@
               <p class="text-sm font-medium text-neutral-400">Total Nodes</p>
               <p class="text-5xl font-semibold text-white mt-2"><%= nodes.length %></p>
             </div>
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl">📡</div>
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-3xl">📡</div>
           </div>
           <p class="mt-6 text-sm text-neutral-400">
             Online: <span class="text-emerald-400 font-medium"><%= nodes.filter(node => node.status === 'Online').length %></span>
@@ -49,7 +49,7 @@
               <p class="text-sm font-medium text-neutral-400">Server Count</p>
               <p class="text-5xl font-semibold text-white mt-2"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
             </div>
-            <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-3xl">🖥️</div>
+            <div class="w-12 h-12 bg-blue-500/10 rounded-3xl flex items-center justify-center text-3xl">🖥️</div>
           </div>
           <% if (nodes.length > 0) { %>
             <p class="mt-6 text-sm text-neutral-400">
@@ -161,7 +161,7 @@
 
               <!-- Instances -->
               <td class="px-4 py-6 text-center">
-                <span class="inline-block bg-neutral-800 px-4 py-1 rounded-2xl text-xs font-medium">
+                <span class="inline-block bg-neutral-800 px-4 py-1 rounded-3xl text-xs font-medium">
                   <%= set[node.id] || 0 %>
                 </span>
               </td>
@@ -211,16 +211,16 @@
               <td class="pr-8 py-6 text-right">
                 <div class="flex items-center gap-2 justify-end">
                   <button onclick="configure('<%= node.id %>')" 
-                          class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95">
+                          class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-all active:scale-95">
                     CONFIGURE
                   </button>
                   <a href="/admin/node/<%= node.id %>">
-                    <button class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95">
+                    <button class="px-4 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-all active:scale-95">
                       EDIT
                     </button>
                   </a>
                   <button onclick="deletenode('<%= node.id %>')" 
-                          class="px-4 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-2xl transition-all active:scale-95">
+                          class="px-4 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-3xl transition-all active:scale-95">
                     DELETE
                   </button>
                 </div>
@@ -241,7 +241,7 @@
 
       <!-- CREATE FORM -->
       <div id="nodeForm" class="mt-12 hidden">
-        <div class="max-w-5xl mx-auto bg-neutral-900/70 border border-white/10 backdrop-blur-xl rounded-3xl p-8 lg:p-12">
+        <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 lg:p-12">
           <form id="createNodeForm">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-8">
 
@@ -289,7 +289,7 @@
                 <div class="flex gap-3">
                   <select id="nodeCategory" required class="input-field flex-1"></select>
                   <button type="button" onclick="addNewCategory()" 
-                          class="px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-sm font-medium transition-all active:scale-95">
+                          class="px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-3xl text-sm font-medium transition-all active:scale-95">
                     + ADD
                   </button>
                 </div>
@@ -391,9 +391,9 @@
    </div>
 
    <script>
-   // Enhanced input styling
+   // Enhanced input styling with light gray background + perfect border radius
    document.querySelectorAll('.input-field').forEach(el => {
-     el.className = `w-full px-6 py-4 bg-neutral-800/60 border border-white/10 rounded-3xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
+     el.className = `w-full px-6 py-4 bg-neutral-700 border border-white/10 rounded-3xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/10 transition-all duration-200`;
    });
 
    function toggleTunnelField() {
@@ -464,7 +464,7 @@
      }
    }
 
-   // Toggle form (unchanged logic)
+   // Toggle form
    document.getElementById('createButton').addEventListener('click', () => {
      const table = document.getElementById('nodeTable');
      const form = document.getElementById('nodeForm');
@@ -480,7 +480,7 @@
      }
    });
 
-   // Create Node handler (unchanged logic)
+   // Create Node handler
    document.getElementById('createNodeBtn').addEventListener('click', async () => {
      const btn = document.getElementById('createNodeBtn');
      const orig = btn.innerHTML;
