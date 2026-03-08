@@ -43,5 +43,7 @@
 
 
 button {
-  background-color: #000;
+  background-color: #fff;
+  color: #fff;
+  border-radius: 5px;
 }
