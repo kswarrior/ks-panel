@@ -236,7 +236,7 @@
     }, 2800);
   }
 
-  // Create Node handler
+  // Create Node handler - NOW POSTS TO THE CORRECT ADMIN ROUTE
   document.getElementById('createNodeBtn').addEventListener('click', async () => {
     const btn = document.getElementById('createNodeBtn');
     const orig = btn.innerHTML;
@@ -265,7 +265,7 @@
         portsInput: document.getElementById('allocPorts').value.trim()
       };
 
-      const res = await fetch('/nodes/create', {
+      const res = await fetch('/admin/nodes/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -277,7 +277,7 @@
       }
 
       showNotification('Node created successfully with Cloudflare Tunnel support!', 'success');
-      setTimeout(() => window.location.href = '/admin/nodes?err=none', 800);
+      setTimeout(() => window.location.href = '/admin/nodes/overview?err=none', 800);
     } catch (e) {
       showNotification(e.message, 'error');
     } finally {
