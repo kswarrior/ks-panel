@@ -12,7 +12,7 @@ const log = new (require("cat-loggr"))();
 
 // ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + Cloudflare Tunnel + All Extras) ====================
 
-router.get("/admin/nodes", isAdmin, async (req, res) => {
+router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
 
@@ -40,7 +40,7 @@ router.get("/admin/nodes", isAdmin, async (req, res) => {
     if (loc) locations.push(loc);
   }
 
-  res.render("admin/nodes", {
+  res.render("admin/nodes/overview", {
     req,
     user: req.user,
     nodes,
@@ -50,7 +50,7 @@ router.get("/admin/nodes", isAdmin, async (req, res) => {
   });
 });
 
-router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
+router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
   const { id } = req.params;
 
   let node = await db.get(id + "_node");
@@ -89,7 +89,7 @@ router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
 
   let set = { [id]: instanceCount };
 
-  res.render("admin/node_stats", {
+  res.render("admin/nodes/node_stats", {
     req,
     user: req.user,
     stats,
@@ -100,7 +100,7 @@ router.get("/admin/node/:id/stats", isAdmin, async (req, res) => {
 });
 
 // ==================== CREATE NODE - ALL FIELDS (Pterodactyl + Cloudflare Tunnel + Extras) ====================
-router.post("/nodes/create", isAdmin, async (req, res) => {
+router.post("/admin/nodes/create", isAdmin, async (req, res) => {
   const {
     name,
     description = "",
@@ -116,7 +116,7 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
     behindProxy = "false",
     useCloudflareTunnel = "false",
     tunnelPublicHostname = "",
-    serverFileDirectory = "/var/lib/skyport/volumes",
+    serverFileDirectory = "/var/lib/kswings/volumes",
     publicIp = "",
     maintenanceMode = "false",
     connectionType = "Direct",
@@ -197,7 +197,7 @@ router.post("/nodes/create", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/nodes/delete", isAdmin, async (req, res) => {
+router.post("/admin/nodes/delete", isAdmin, async (req, res) => {
   const { nodeId } = req.body;
   if (!nodeId) {
     return res.status(400).json({ error: "Missing nodeId" });
@@ -288,7 +288,7 @@ router.post("/nodes/delete", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/nodes/configure", async (req, res) => {
+router.post("/admin/nodes/configure", async (req, res) => {
   const { configureKey, accessKey } = req.query;
 
   if (!configureKey || !accessKey) {
@@ -324,7 +324,7 @@ router.post("/nodes/configure", async (req, res) => {
   }
 });
 
-router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
+router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -353,7 +353,7 @@ router.get("/admin/node/:id/configure-command", isAdmin, async (req, res) => {
 });
 
 // ==================== UPDATE NODE - FULLY SUPPORTS ALL NEW FIELDS (NO DATA LOSS) ====================
-router.post("/admin/node/:id", isAdmin, async (req, res) => {
+router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
   let node = await db.get(id + "_node");
   if (!node) return res.status(404).json({ error: "Node not found" });
@@ -394,7 +394,7 @@ router.post("/admin/node/:id", isAdmin, async (req, res) => {
   res.status(200).json(updatedNode);
 });
 
-router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
+router.post("/admin/nodes/overview/radar/check", isAdmin, async (req, res) => {
   try {
     const nodes = (await db.get("nodes")) || [];
     let instances = (await db.get("instances")) || [];
@@ -444,7 +444,7 @@ router.post("/admin/nodes/radar/check", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/admin/node/:id/resourceMonitor", isAdmin, async (req, res) => {
+router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) => {
   const { id } = req.params;
   const node = await db.get(id + "_node");
   if (!node) return res.status(404).json({ error: "Node not found" });
@@ -467,7 +467,7 @@ router.get("/admin/node/:id/resourceMonitor", isAdmin, async (req, res) => {
 });
 
 // POST: Add allocations to a node (admin only) - YOUR EXISTING LOGIC
-router.post('/admin/nodes/:id/allocations', isAdmin, async (req, res) => {
+router.post('/admin/nodes/overview/:id/allocations', isAdmin, async (req, res) => {
   const { id } = req.params;
   const node = await db.get(`${id}_node`);
   if (!node) {
@@ -513,7 +513,7 @@ router.post('/admin/nodes/:id/allocations', isAdmin, async (req, res) => {
 });
 
 // GET: List available allocations for a node (for select dropdown) - YOUR EXISTING LOGIC
-router.get('/admin/nodes/:id/available-allocations', isAdmin, async (req, res) => {
+router.get('/admin/nodes/overview/:id/available-allocations', isAdmin, async (req, res) => {
   const { id } = req.params;
   const allocationsKey = `${id}_allocations`;
   const allocations = (await db.get(allocationsKey)) || [];
