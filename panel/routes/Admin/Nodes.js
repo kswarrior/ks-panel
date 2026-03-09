@@ -89,7 +89,7 @@ router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
 
   let set = { [id]: instanceCount };
 
-  res.render("admin/nodes/node_stats", {
+  res.render("admin/nodes/stats", {
     req,
     user: req.user,
     stats,
