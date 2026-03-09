@@ -295,7 +295,7 @@
   async function deletenode(nodeId) { 
     if (!confirm('Delete this node?')) return;
     try {
-      const res = await fetch('/nodes/delete', { 
+      const res = await fetch('/admin/nodes/delete', { 
         method: 'POST', 
         headers: {'Content-Type':'application/json'}, 
         body: JSON.stringify({nodeId}) 
@@ -311,7 +311,7 @@
 
   async function configure(nodeId) {
     try {
-      const res = await fetch(`/admin/node/${nodeId}/configure-command`);
+      const res = await fetch(`/admin/nodes/node/${nodeId}/configure-command`);
       const { configureCommand } = await res.json();
       await navigator.clipboard.writeText(configureCommand);
       showNotification('Configure command copied!', 'success');
@@ -321,7 +321,7 @@
   }
 
   async function radarcheck() {
-    await fetch('/admin/nodes/radar/check', { method: 'POST' });
+    await fetch('/admin/nodes/overview/radar/check', { method: 'POST' });
     showNotification('Radar check started', 'success');
   }
 
