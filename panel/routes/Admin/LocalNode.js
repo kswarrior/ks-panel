@@ -6,7 +6,7 @@ const { isAdmin } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 const localNodeExec = require('../../exec/localnode');
 
-router.get("/admin/localnode", isAdmin, async (req, res) => {
+router.get("/admin/nodes/localnode", isAdmin, async (req, res) => {
   try {
     res.render("admin/localnode", {
       req,
@@ -18,7 +18,7 @@ router.get("/admin/localnode", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/localnode/install", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/install", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.install();
     let finalOutput = output;
@@ -34,7 +34,7 @@ router.post("/admin/localnode/install", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/localnode/configure", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/configure", isAdmin, async (req, res) => {
   const config = req.body.configuration || '';
   try {
     const { output, code } = await localNodeExec.configure(config);
@@ -51,7 +51,7 @@ router.post("/admin/localnode/configure", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/localnode/start", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/start", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.start();
     res.json({ log: output + `\nExit code: ${code}` });
@@ -60,7 +60,7 @@ router.post("/admin/localnode/start", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/localnode/stop", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/stop", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.stop();
     res.json({ log: output + `\nExit code: ${code}` });
@@ -69,7 +69,7 @@ router.post("/admin/localnode/stop", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/localnode/restart", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/restart", isAdmin, async (req, res) => {
   try {
     const { output, code } = await localNodeExec.restart();
     res.json({ log: output + `\nExit code: ${code}` });
