@@ -35,7 +35,7 @@
   /* Shadows & Effects */
   --card-shadow: 0 0 20px rgba(255,255,255,0.1);
   --btn-shadow: 0 0 2px var(--accent-glow);
-  --backdrop-blur: 12px;
+  --backdrop-blur: 18px;
 
   /* Transition */
   --transition: 0.4s ease;
