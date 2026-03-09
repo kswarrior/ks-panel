@@ -50,6 +50,22 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   });
 });
 
+// ==================== NEW: CREATE NODE PAGE (create.ejs) ====================
+router.get("/admin/nodes/create", isAdmin, async (req, res) => {
+  const locationIds = (await db.get("locations")) || [];
+  const locations = [];
+  for (const locId of locationIds) {
+    const loc = await db.get(locId + "_location");
+    if (loc) locations.push(loc);
+  }
+
+  res.render("admin/nodes/create", {
+    req,
+    user: req.user,
+    locations,
+  });
+});
+
 router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
   const { id } = req.params;
 
