@@ -50,11 +50,6 @@
                 class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
           ← Back to Nodes
         </button>
-        
-        <button onclick="window.location.href='/admin/nodes/localnode'"
-                class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
-          Local Node
-        </button>
       </div>
     </header>
 
@@ -136,7 +131,6 @@
   </div>
 
   <script>
-  // ============== Notification System (same as nodes.ejs & create.ejs) ==============
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const textEl = document.getElementById('notification-text');
@@ -157,11 +151,9 @@
     }, 2800);
   }
 
-  // ============== Status ==============
   function updateStatus(running, pid = null) {
     const indicator = document.getElementById('status-indicator');
     const text = document.getElementById('status-text');
-    
     if (running) {
       indicator.className = 'w-3 h-3 rounded-full bg-emerald-500 animate-pulse';
       text.textContent = `Running (PID: ${pid || 'Unknown'})`;
@@ -176,12 +168,9 @@
       const res = await fetch('/admin/nodes/localnode/status', { method: 'POST' });
       const data = await res.json();
       updateStatus(data.running, data.pid);
-    } catch (e) {
-      console.warn('Status check failed');
-    }
+    } catch (e) {}
   }
 
-  // ============== Console ==============
   let currentLog = "Ready. Click any action above to begin...\n";
 
   function appendLog(text) {
@@ -196,7 +185,6 @@
     document.getElementById('console-log').textContent = "Console cleared.\n";
   }
 
-  // ============== Actions ==============
   async function runAction(endpoint, actionName) {
     const configValue = document.getElementById('configuration').value.trim();
     appendLog(`Executing ${actionName}...`);
@@ -207,11 +195,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ configuration: configValue })
       });
-
       const data = await res.json();
       appendLog(data.log || 'No output received.');
-      
-      showNotification(`${actionName} completed`, 'success');
+      showNotification(`${actionName} completed`);
       setTimeout(checkStatus, 1500);
     } catch (err) {
       appendLog(`ERROR: ${err.message}`);
@@ -225,10 +211,9 @@
   function restartWings()    { runAction('/admin/nodes/localnode/restart', 'Restart Wings'); }
   function stopWings()       { runAction('/admin/nodes/localnode/stop', 'Stop Wings'); }
 
-  // ============== Init ==============
   document.addEventListener('DOMContentLoaded', () => {
     checkStatus();
-    setInterval(checkStatus, 10000); // auto refresh every 10s
+    setInterval(checkStatus, 10000);
   });
   </script>
 </main>
