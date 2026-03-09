@@ -159,39 +159,57 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
 
     const Id = uuid().split("-")[0];
 
-    // ─── Minimal payload to Wings ───
+    // Construct full Wings payload from template + resources + vars
+    const userVarsEnv = Object.entries(variables).map(([key, value]) => `${key}=${value}`);
+    const templatePorts = template.ports || ['25565/tcp'];  // Default if missing
+    const primaryTemplatePort = templatePorts[0];  // Use first as primary
     const wingsPayload = {
+      Id,  // Volume/container ID
       Name: name,
-      Id,
+      Image: template.environment.docker_image,  // From template
+      Cmd: template.startup ? template.startup.split(' ') : undefined,  // Startup command as array
+      Env: [
+        ...userVarsEnv,  // User variables as env
+        ...(template.environment ? Object.entries(template.environment.vars || {}).map(([k, v]) => `${k}=${v}`) : []),  // Static template env
+        `PRIMARY_PORT=${allocationPort}`  // Wings uses this
+      ],
+      ExposedPorts: templatePorts.reduce((acc, port) => { acc[port] = {}; return acc; }, {}),
+      Ports: templatePorts.reduce((acc, port) => { acc[port] = null; return acc; }, {}),  // For compatibility
+      PortBindings: templatePorts.reduce((acc, port, index) => {
+        acc[port] = [{ HostIp: allocationIp, HostPort: allocationPort + index }];  // Map sequentially if multiple
+        return acc;
+      }, {}),
+      Scripts: template.environment.install_script ? {
+        Install: [{ Uri: template.environment.install_script, Path: 'install.sh' }]  // Assume path
+      } : undefined,
       Memory: parseInt(memory),
       Cpu: parseInt(cpu),
-      Threads: threads ? parseInt(threads) : 1,
       Disk: parseInt(disk),
-      Allocation: {
-        IP: allocationIp,
-        Port: allocationPort.toString()
-      }
+      variables: JSON.stringify(variables)  // Wings expects stringified
     };
 
-    // Create container on Wings
+    // Remove undefined fields
+    Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
+
+    // Create container on Wings (fixed endpoint)
     const response = await axios.post(
-      `http://${node.address}:${node.port}/instances/create`,
+      `http://${node.address}:${node.port}/deploy`,  // Fixed: /deploy instead of /instances/create
       wingsPayload,
       {
         auth: { username: "kspanel", password: node.apiKey },
         headers: { "Content-Type": "application/json" },
-        timeout: 30000
+        timeout: 60000  // Increased for pull/script time
       }
     );
 
-    // ─── Save instance metadata ───
+    // Save instance metadata (unchanged, but use response.containerId)
     const instanceData = {
       Name: name,
       Id,
       Node: node,
       User: userId,
       InternalState: "INSTALLING",
-      ContainerId: response.data.containerId || Id,
+      ContainerId: response.data.containerId || Id,  // From Wings response
       VolumeId: Id,
       Memory: parseInt(memory),
       Cpu: parseInt(cpu),
@@ -214,7 +232,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
 
     await db.set(`${Id}_instance`, instanceData);
 
-    // ─── Save full template + variables to disk ───
+    // Save full template + variables to disk (unchanged)
     const instanceDir = path.join(INSTANCES_DIR, Id);
     if (!fs.existsSync(instanceDir)) {
       fs.mkdirSync(instanceDir, { recursive: true });
@@ -251,7 +269,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
     log.error("Deploy error:", err);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: err.response?.data || err.message
+      details: err.response?.data?.message || err.message  // Better logging
     });
   }
 });
