@@ -1,1 +1,289 @@
+<%- include('../../components/template') %>
+<style>
+.input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: #1c3b54;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  placeholder-color: rgba(255, 255, 255, 0.4);
+  outline: none;
+  transition: all 0.2s ease;
+}
 
+.input-field:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+</style>
+<main id="content" class="max-w-screen-2xl mx-auto">
+  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+      <div>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Node</h1>
+        <p class="mt-1 text-sm text-neutral-400">Configure a new server node with full resource limits and Cloudflare Tunnel support</p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button onclick="window.location.href='/admin/nodes'" 
+                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
+          ← Back to Nodes
+        </button>
+        
+        <button onclick="window.location.href='/admin/localnode'"
+                class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+          Local Node
+        </button>
+      </div>
+    </header>
+
+    <!-- Create Form Section -->
+    <section class="mt-12">
+      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
+        <form id="createNodeForm">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-x-10 lg:gap-y-8">
+
+            <!-- Basic Info Section -->
+            <div class="lg:col-span-2">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <h2 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h2>
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
+              <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
+              <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
+              <input id="nodePort" required type="number" value="3002" class="input-field">
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
+              <input id="nodeSftpPort" type="number" value="2022" class="input-field">
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
+              <select id="nodeLocation" required class="input-field">
+                <option value="">Select location...</option>
+                <% locations.forEach(function(loc) { %>
+                  <option value="<%= loc.id %>"><%= loc.name %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">CATEGORY <span class="text-red-400">*</span></label>
+              <div class="flex gap-3">
+                <select id="nodeCategory" required class="input-field flex-1"></select>
+                <button type="button" onclick="addNewCategory()" 
+                        class="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95 whitespace-nowrap">
+                  + ADD
+                </button>
+              </div>
+            </div>
+
+            <!-- Resources Section -->
+            <div class="lg:col-span-2 pt-6">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h2>
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (MB) <span class="text-red-400">*</span></label>
+              <input id="nodeRam" required type="number" class="input-field" placeholder="32768">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
+              <input id="nodeDisk" required type="number" class="input-field" placeholder="500">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
+              <input id="nodeMemoryOver" type="number" value="0" class="input-field">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
+              <input id="nodeDiskOver" type="number" value="0" class="input-field">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
+              <input id="nodeUploadSize" type="number" value="500" class="input-field">
+            </div>
+
+            <!-- Tunnel Section -->
+            <div class="lg:col-span-2 pt-6">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <h2 class="text-lg font-semibold text-white tracking-wide">CLOUDFLARE TUNNEL &amp; PROXY</h2>
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg">
+              <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white rounded">
+              <label for="behindProxy" class="text-sm text-white cursor-pointer select-none">Behind Proxy (Nginx / Cloudflare)</label>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg">
+              <input id="useCloudflareTunnel" type="checkbox" class="w-5 h-5 accent-emerald-400 rounded" onchange="toggleTunnelField()">
+              <label for="useCloudflareTunnel" class="text-sm text-white cursor-pointer select-none">Use Cloudflare Tunnel (Recommended)</label>
+            </div>
+
+            <div id="tunnelHostnameGroup" class="lg:col-span-2 hidden">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">TUNNEL PUBLIC HOSTNAME</label>
+              <input id="tunnelPublicHostname" type="text" class="input-field" placeholder="yournode.trycloudflare.com">
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">CONNECTION TYPE</label>
+              <select id="connectionType" class="input-field">
+                <option value="Direct">Direct</option>
+                <option value="Behind Proxy">Behind Proxy</option>
+                <option value="Cloudflare Tunnel" selected>Cloudflare Tunnel</option>
+                <option value="Ngrok">Ngrok</option>
+              </select>
+            </div>
+
+            <!-- Allocations Section -->
+            <div class="lg:col-span-2 pt-8 border-t border-white/10">
+              <h2 class="text-lg font-semibold text-white mb-6">INITIAL ALLOCATIONS (PORTS)</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS</label>
+                  <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
+                  <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
+                </div>
+                <div class="md:col-span-3">
+                  <label class="text-xs font-medium text-neutral-400 block mb-2">PORTS (COMMA OR RANGES)</label>
+                  <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="lg:col-span-2 mt-8">
+              <button id="createNodeBtn" type="button"
+                      class="w-full py-4 bg-white text-black font-semibold text-lg rounded-[10px] hover:bg-neutral-100 active:scale-[0.985] transition-all duration-200 shadow-xl">
+                CREATE NODE
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Notification -->
+    <div id="notification" 
+         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
+      <span id="notification-text"></span>
+    </div>
+  </div>
+
+  <script>
+  function toggleTunnelField() {
+    const group = document.getElementById('tunnelHostnameGroup');
+    const checked = document.getElementById('useCloudflareTunnel').checked;
+    group.classList.toggle('hidden', !checked);
+  }
+
+  function addNewCategory() {
+    const newCat = prompt('Enter new category name:');
+    if (newCat && newCat.trim()) {
+      const select = document.getElementById('nodeCategory');
+      const optionValue = newCat.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const option = new Option(newCat.trim(), optionValue);
+      select.add(option);
+      select.value = optionValue;
+      showNotification('Category added: ' + newCat, 'success');
+    }
+  }
+
+  function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const textEl = document.getElementById('notification-text');
+    textEl.textContent = message;
+    
+    notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+      type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
+    }`;
+    notification.classList.remove('hidden');
+    notification.classList.add('flex');
+
+    setTimeout(() => {
+      notification.classList.add('opacity-0', 'translate-y-2');
+      setTimeout(() => {
+        notification.classList.add('hidden');
+        notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+      }, 300);
+    }, 2800);
+  }
+
+  // Create Node handler
+  document.getElementById('createNodeBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('createNodeBtn');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Creating Node...';
+
+    try {
+      const data = {
+        name: document.getElementById('nodeName').value.trim(),
+        address: document.getElementById('nodeAddress').value.trim(),
+        port: document.getElementById('nodePort').value,
+        sftpPort: document.getElementById('nodeSftpPort').value,
+        location: document.getElementById('nodeLocation').value,
+        category: document.getElementById('nodeCategory').value,
+        ram: document.getElementById('nodeRam').value,
+        disk: document.getElementById('nodeDisk').value,
+        memoryOverallocate: document.getElementById('nodeMemoryOver').value,
+        diskOverallocate: document.getElementById('nodeDiskOver').value,
+        uploadSize: document.getElementById('nodeUploadSize').value,
+        behindProxy: document.getElementById('behindProxy').checked,
+        useCloudflareTunnel: document.getElementById('useCloudflareTunnel').checked,
+        tunnelPublicHostname: document.getElementById('tunnelPublicHostname').value.trim(),
+        connectionType: document.getElementById('connectionType').value,
+        allocIp: document.getElementById('allocIp').value.trim(),
+        allocAlias: document.getElementById('allocAlias').value.trim(),
+        portsInput: document.getElementById('allocPorts').value.trim()
+      };
+
+      const res = await fetch('/nodes/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to create node');
+      }
+
+      showNotification('Node created successfully with Cloudflare Tunnel support!', 'success');
+      setTimeout(() => window.location.href = '/admin/nodes?err=none', 800);
+    } catch (e) {
+      showNotification(e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  });
+  </script>
+</main>
