@@ -131,7 +131,7 @@
 
       async function checkStatus() {
          try {
-            const response = await fetch('/admin/localnode/status', { method: 'POST' });
+            const response = await fetch('/admin/nodes/localnode/status', { method: 'POST' });
             const data = await response.json();
             updateStatus(data.running, data.pid);
          } catch (err) {
@@ -165,11 +165,11 @@
          });
       }
 
-      function installWings() { runAction('/admin/localnode/install', 'Installing Wings'); }
-      function configureWings() { runAction('/admin/localnode/configure', 'Configuring Wings'); }
-      function startWings() { runAction('/admin/localnode/start', 'Starting Wings'); }
-      function restartWings() { runAction('/admin/localnode/restart', 'Restarting Wings'); }
-      function stopWings() { runAction('/admin/localnode/stop', 'Stopping Wings'); }
+      function installWings() { runAction('/admin/nodes/localnode/install', 'Installing Wings'); }
+      function configureWings() { runAction('/admin/nodes/localnode/configure', 'Configuring Wings'); }
+      function startWings() { runAction('/admin/nodes/localnode/start', 'Starting Wings'); }
+      function restartWings() { runAction('/admin/nodes/localnode/restart', 'Restarting Wings'); }
+      function stopWings() { runAction('/admin/nodes/localnode/stop', 'Stopping Wings'); }
 
       function clearConsole() {
          consoleLog.innerHTML = `[${new Date().toLocaleTimeString()}] Console cleared.\n`;
