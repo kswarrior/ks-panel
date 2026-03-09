@@ -329,7 +329,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
   <path d="M3 20v-6h6"/>
   <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
 </svg>
-   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
+   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 transition-all duration-200 hover:border-white/20 group shadow-sm">
      <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
      <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
    </div>
@@ -427,18 +427,15 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
      
    -->
    <div class="relative">
-     <button type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
+     <div type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="14" cy="14" r="11.5" stroke="#ffffff" stroke-width="2.4"/>
   <path d="M3 14H25" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
   <path d="M14 2.5C10 7 10 21 14 25.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
   <path d="M14 2.5C18 7 18 21 14 25.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
 </svg>
-       <span class="hidden lg:flex lg:items-center ml-2.5 text-sm font-medium leading-6 text-white" aria-hidden="true">
-         <%= user.username %>
-         <span class="font-mono text-xs text-zinc-300 font-normal ml-1">(<%= user.userId.substring(0, 6) %>)</span>
        </span>
-     </button>
+     </div>
      
      <!--
      
