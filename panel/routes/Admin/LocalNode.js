@@ -8,7 +8,7 @@ const localNodeExec = require('../../exec/localnode');
 
 router.get("/admin/nodes/localnode", isAdmin, async (req, res) => {
   try {
-    res.render("admin/localnode", {
+    res.render("admin/nodes/localnode", {
       req,
       user: req.user,
     });
