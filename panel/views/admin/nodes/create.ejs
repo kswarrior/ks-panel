@@ -24,7 +24,7 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Node</h1>
-        <p class="mt-1 text-sm text-neutral-400">Configure a new server node with full resource limits and Cloudflare Tunnel support</p>
+        <p class="mt-1 text-sm text-neutral-400">Configure a new server node with full resource limits and proxy support</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
@@ -85,17 +85,6 @@
               </select>
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">CATEGORY <span class="text-red-400">*</span></label>
-              <div class="flex gap-3">
-                <select id="nodeCategory" required class="input-field flex-1"></select>
-                <button type="button" onclick="addNewCategory()" 
-                        class="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95 whitespace-nowrap">
-                  + ADD
-                </button>
-              </div>
-            </div>
-
             <!-- Resources Section -->
             <div class="lg:col-span-2 pt-6">
               <div class="flex items-center gap-4 mb-6">
@@ -105,58 +94,68 @@
               </div>
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (MB) <span class="text-red-400">*</span></label>
-              <input id="nodeRam" required type="number" class="input-field" placeholder="32768">
+            <div class="lg:col-span-2">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">RESOURCE DETECTION MODE <span class="text-red-400">*</span></label>
+              <select id="resourceMode" class="input-field" onchange="toggleResourceFields()">
+                <option value="auto">Auto-detect (recommended, uses resource monitor after connection)</option>
+                <option value="manual">Manual</option>
+              </select>
             </div>
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
-              <input id="nodeDisk" required type="number" class="input-field" placeholder="500">
+
+            <div id="manualResources" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 lg:col-span-2">
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (GB) <span class="text-red-400">*</span></label>
+                <input id="nodeRam" type="number" class="input-field" placeholder="32">
+              </div>
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
+                <input id="nodeDisk" type="number" class="input-field" placeholder="500">
+              </div>
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
+                <input id="nodeMemoryOver" type="number" value="0" class="input-field">
+              </div>
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
+                <input id="nodeDiskOver" type="number" value="0" class="input-field">
+              </div>
             </div>
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
-              <input id="nodeMemoryOver" type="number" value="0" class="input-field">
-            </div>
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
-              <input id="nodeDiskOver" type="number" value="0" class="input-field">
-            </div>
+
             <div>
               <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
               <input id="nodeUploadSize" type="number" value="500" class="input-field">
             </div>
 
-            <!-- Tunnel Section -->
+            <!-- Proxy & Connection Section -->
             <div class="lg:col-span-2 pt-6">
               <div class="flex items-center gap-4 mb-6">
                 <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                <h2 class="text-lg font-semibold text-white tracking-wide">CLOUDFLARE TUNNEL &amp; PROXY</h2>
+                <h2 class="text-lg font-semibold text-white tracking-wide">PROXY & CONNECTION</h2>
                 <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
               </div>
             </div>
 
-            <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg">
-              <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white rounded">
-              <label for="behindProxy" class="text-sm text-white cursor-pointer select-none">Behind Proxy (Nginx / Cloudflare)</label>
-            </div>
-            <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg">
-              <input id="useCloudflareTunnel" type="checkbox" class="w-5 h-5 accent-emerald-400 rounded" onchange="toggleTunnelField()">
-              <label for="useCloudflareTunnel" class="text-sm text-white cursor-pointer select-none">Use Cloudflare Tunnel (Recommended)</label>
+            <div class="lg:col-span-1">
+              <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg">
+                <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white rounded">
+                <label for="behindProxy" class="text-sm text-white cursor-pointer select-none">Behind Proxy (Nginx / Cloudflare)</label>
+              </div>
             </div>
 
-            <div id="tunnelHostnameGroup" class="lg:col-span-2 hidden">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">TUNNEL PUBLIC HOSTNAME</label>
-              <input id="tunnelPublicHostname" type="text" class="input-field" placeholder="yournode.trycloudflare.com">
-            </div>
-
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">CONNECTION TYPE</label>
-              <select id="connectionType" class="input-field">
-                <option value="Direct">Direct</option>
-                <option value="Behind Proxy">Behind Proxy</option>
-                <option value="Cloudflare Tunnel" selected>Cloudflare Tunnel</option>
-                <option value="Ngrok">Ngrok</option>
-              </select>
+            <div class="lg:col-span-1">
+              <div class="p-3 bg-neutral-800/30 rounded-lg">
+                <label class="text-xs font-medium text-neutral-400 block mb-3">CONNECTION PROTOCOL <span class="text-red-400">*</span></label>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="radio" name="connectionProtocol" value="http" checked class="w-5 h-5 accent-white rounded">
+                    <span class="text-sm text-white select-none">Use HTTP Connection</span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="radio" name="connectionProtocol" value="https" class="w-5 h-5 accent-white rounded">
+                    <span class="text-sm text-white select-none">Use SSL Connection (Communicate Over SSL)</span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <!-- Allocations Section -->
@@ -198,21 +197,13 @@
   </div>
 
   <script>
-  function toggleTunnelField() {
-    const group = document.getElementById('tunnelHostnameGroup');
-    const checked = document.getElementById('useCloudflareTunnel').checked;
-    group.classList.toggle('hidden', !checked);
-  }
-
-  function addNewCategory() {
-    const newCat = prompt('Enter new category name:');
-    if (newCat && newCat.trim()) {
-      const select = document.getElementById('nodeCategory');
-      const optionValue = newCat.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const option = new Option(newCat.trim(), optionValue);
-      select.add(option);
-      select.value = optionValue;
-      showNotification('Category added: ' + newCat, 'success');
+  function toggleResourceFields() {
+    const mode = document.getElementById('resourceMode').value;
+    const manualDiv = document.getElementById('manualResources');
+    if (mode === 'auto') {
+      manualDiv.classList.add('hidden');
+    } else {
+      manualDiv.classList.remove('hidden');
     }
   }
 
@@ -236,7 +227,7 @@
     }, 2800);
   }
 
-  // Create Node handler - NOW POSTS TO THE CORRECT ADMIN ROUTE
+  // Create Node handler
   document.getElementById('createNodeBtn').addEventListener('click', async () => {
     const btn = document.getElementById('createNodeBtn');
     const orig = btn.innerHTML;
@@ -244,22 +235,33 @@
     btn.innerHTML = 'Creating Node...';
 
     try {
+      const resourceMode = document.getElementById('resourceMode').value;
+      let ram = document.getElementById('nodeRam').value;
+      let disk = document.getElementById('nodeDisk').value;
+
+      if (resourceMode === 'manual') {
+        if (!ram || !disk) {
+          throw new Error('RAM and Disk are required in Manual mode');
+        }
+      } else {
+        ram = 0; // Auto-detect flag
+        disk = 0;
+      }
+
       const data = {
         name: document.getElementById('nodeName').value.trim(),
         address: document.getElementById('nodeAddress').value.trim(),
         port: document.getElementById('nodePort').value,
         sftpPort: document.getElementById('nodeSftpPort').value,
         location: document.getElementById('nodeLocation').value,
-        category: document.getElementById('nodeCategory').value,
-        ram: document.getElementById('nodeRam').value,
-        disk: document.getElementById('nodeDisk').value,
+        resourceMode: resourceMode,
+        ram: ram,
+        disk: disk,
         memoryOverallocate: document.getElementById('nodeMemoryOver').value,
         diskOverallocate: document.getElementById('nodeDiskOver').value,
         uploadSize: document.getElementById('nodeUploadSize').value,
         behindProxy: document.getElementById('behindProxy').checked,
-        useCloudflareTunnel: document.getElementById('useCloudflareTunnel').checked,
-        tunnelPublicHostname: document.getElementById('tunnelPublicHostname').value.trim(),
-        connectionType: document.getElementById('connectionType').value,
+        connectionProtocol: document.querySelector('input[name="connectionProtocol"]:checked').value,
         allocIp: document.getElementById('allocIp').value.trim(),
         allocAlias: document.getElementById('allocAlias').value.trim(),
         portsInput: document.getElementById('allocPorts').value.trim()
@@ -276,7 +278,7 @@
         throw new Error(err.error || 'Failed to create node');
       }
 
-      showNotification('Node created successfully with Cloudflare Tunnel support!', 'success');
+      showNotification('Node created successfully!', 'success');
       setTimeout(() => window.location.href = '/admin/nodes/overview?err=none', 800);
     } catch (e) {
       showNotification(e.message, 'error');
