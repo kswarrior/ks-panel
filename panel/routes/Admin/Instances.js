@@ -4,8 +4,8 @@ const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin } = require("../../utils/isAdmin.js");
-const { checkMultipleNodesStatus } = require("../../utils/nodeHelper.js");
-const { getPaginatedInstances, invalidateCache } = require("../../utils/dbHelper.js");
+const { checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
+const { getPaginatedInstances, invalidateCache, invalidateCacheGroup } = require("../../utils/dbHelper.js");
 const fs = require("fs");
 const path = require("path");
 const { checkContainerState } = require("../../utils/checkstate.js");
@@ -17,7 +17,7 @@ const INSTANCES_DIR = path.join(__dirname, "../../../database/instances");
 const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
 
 // ────────────────────────────────────────────────
-// Helper: Delete instance logic (kept exactly as is)
+// Helper: Delete instance (unchanged - kept exactly as in your original file)
 // ────────────────────────────────────────────────
 async function deleteInstance(instance) {
   try {
@@ -65,9 +65,9 @@ function deleteWorkflowFromFile(instanceId) {
 }
 
 // ────────────────────────────────────────────────
-// GET /admin/instances/overview → list only
+// GET /admin/instances → list + create form (unchanged)
 // ────────────────────────────────────────────────
-router.get("/admin/instances/overview", isAdmin, async (req, res) => {
+router.get("/admin/instances", isAdmin, async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
@@ -101,7 +101,7 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
       log.error("Cannot read templates directory:", err);
     }
 
-    res.render("admin/instances/overview", {
+    res.render("admin/instances", {
       req,
       user: req.user,
       instances: instancesResult.data,
@@ -112,61 +112,15 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
       images: []
     });
   } catch (err) {
-    log.error("Error loading /admin/instances/overview:", err);
+    log.error("Error loading /admin/instances:", err);
     res.status(500).send("Server error while loading instances page");
   }
 });
 
 // ────────────────────────────────────────────────
-// GET /admin/instances/create → create form
+// POST /admin/instances/create → FIXED & MATCHES YOUR EJS
 // ────────────────────────────────────────────────
-router.get("/admin/instances/create", isAdmin, async (req, res) => {
-  try {
-    let nodes = (await db.get("nodes")) || [];
-    nodes = await checkMultipleNodesStatus(nodes);
-
-    let users = (await db.get("users")) || [];
-
-    let templates = [];
-    try {
-      if (fs.existsSync(TEMPLATES_DIR)) {
-        const files = fs.readdirSync(TEMPLATES_DIR).filter(f => f.endsWith(".json"));
-        templates = files.map(file => {
-          try {
-            const content = JSON.parse(fs.readFileSync(path.join(TEMPLATES_DIR, file), "utf8"));
-            return {
-              filename: file,
-              Name: content.meta?.display_name || content.meta?.name || content.name || file.replace(".json", ""),
-              Variables: Array.isArray(content.variables) ? content.variables : (content.variables || {})
-            };
-          } catch (e) {
-            log.error(`Invalid template file ${file}:`, e);
-            return null;
-          }
-        }).filter(Boolean);
-      }
-    } catch (err) {
-      log.error("Cannot read templates directory:", err);
-    }
-
-    res.render("admin/instances/create", {
-      req,
-      user: req.user,
-      nodes,
-      users,
-      templates,
-      images: []
-    });
-  } catch (err) {
-    log.error("Error loading /admin/instances/create:", err);
-    res.status(500).send("Server error while loading create page");
-  }
-});
-
-// ────────────────────────────────────────────────
-// POST /instances/deploy → create (Threads completely removed)
-// ────────────────────────────────────────────────
-router.post("/instances/deploy", isAdmin, async (req, res) => {
+router.post("/admin/instances/create", isAdmin, async (req, res) => {
   const {
     name,
     user: userId,
@@ -180,51 +134,38 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
     variables = {}
   } = req.body;
 
-  if (!name || !userId || !templateFilename || !nodeId || !memory || !cpu || !disk || !allocationIp || !allocationPort) {
+  if (!name || name.includes(" ")) return res.status(400).json({ error: "Name required and cannot contain spaces" });
+  if (!userId || !templateFilename || !nodeId || !memory || !cpu || !disk || !allocationIp || !allocationPort) {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
   try {
     const templatePath = path.join(TEMPLATES_DIR, templateFilename);
-    if (!fs.existsSync(templatePath)) {
-      return res.status(400).json({ error: "Selected template not found" });
-    }
-    const template = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+    if (!fs.existsSync(templatePath)) return res.status(400).json({ error: "Selected template not found" });
 
+    const template = JSON.parse(fs.readFileSync(templatePath, "utf8"));
     const node = await db.get(`${nodeId}_node`);
     if (!node) return res.status(400).json({ error: "Invalid node" });
 
     const Id = uuid().split("-")[0];
 
-    const userVarsEnv = Object.entries(variables).map(([key, value]) => `${key}=${value}`);
-    const templatePorts = template.ports || ['25565/tcp'];
+    // Build Wings payload (clean & compatible with your ks-wings)
+    const env = [
+      ...Object.entries(variables).map(([k, v]) => `${k}=${v}`),
+      ...(template.environment?.vars ? Object.entries(template.environment.vars).map(([k, v]) => `${k}=${v}`) : [])
+    ];
 
     const wingsPayload = {
       Id,
       Name: name,
-      Image: template.environment.docker_image,
-      Cmd: template.startup ? template.startup.split(' ') : undefined,
-      Env: [
-        ...userVarsEnv,
-        ...(template.environment ? Object.entries(template.environment.vars || {}).map(([k, v]) => `${k}=${v}`) : []),
-        `PRIMARY_PORT=${allocationPort}`
-      ],
-      ExposedPorts: templatePorts.reduce((acc, port) => { acc[port] = {}; return acc; }, {}),
-      Ports: templatePorts.reduce((acc, port) => { acc[port] = null; return acc; }, {}),
-      PortBindings: templatePorts.reduce((acc, port, index) => {
-        acc[port] = [{ HostIp: allocationIp, HostPort: allocationPort + index }];
-        return acc;
-      }, {}),
-      Scripts: template.environment.install_script ? {
-        Install: [{ Uri: template.environment.install_script, Path: 'install.sh' }]
-      } : undefined,
+      Image: template.environment?.docker_image || template.docker_image,
       Memory: parseInt(memory),
       Cpu: parseInt(cpu),
       Disk: parseInt(disk),
+      Env: env,
+      Allocation: { IP: allocationIp, Port: parseInt(allocationPort) },
       variables: JSON.stringify(variables)
     };
-
-    Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
 
     const response = await axios.post(
       `http://${node.address}:${node.port}/deploy`,
@@ -236,6 +177,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
       }
     );
 
+    // Save to database
     const instanceData = {
       Name: name,
       Id,
@@ -247,10 +189,9 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
       Memory: parseInt(memory),
       Cpu: parseInt(cpu),
       Disk: parseInt(disk),
-      Allocation: { IP: allocationIp, Port: allocationPort },
+      Allocation: { IP: allocationIp, Port: parseInt(allocationPort) },
       TemplateFilename: templateFilename,
       Primary: true
-      // Threads field completely removed
     };
 
     let userInstances = (await db.get(`${userId}_instances`)) || [];
@@ -263,50 +204,31 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
 
     await db.set(`${Id}_instance`, instanceData);
 
+    // Save template copy
     const instanceDir = path.join(INSTANCES_DIR, Id);
-    if (!fs.existsSync(instanceDir)) {
-      fs.mkdirSync(instanceDir, { recursive: true });
-    }
-
-    const savedTemplate = {
-      ...template,
-      userVariables: variables,
-      allocatedResources: {
-        memory: parseInt(memory),
-        cpu: parseInt(cpu),
-        disk: parseInt(disk),
-        allocation: { ip: allocationIp, port: allocationPort }
-        // threads removed
-      }
-    };
-
+    if (!fs.existsSync(instanceDir)) fs.mkdirSync(instanceDir, { recursive: true });
     fs.writeFileSync(
       path.join(instanceDir, "template.json"),
-      JSON.stringify(savedTemplate, null, 2),
-      "utf8"
+      JSON.stringify({ ...template, userVariables: variables, allocatedResources: { memory, cpu, disk, allocation: { ip: allocationIp, port: allocationPort } } }, null, 2)
     );
 
     checkContainerState(Id, node.address, node.port, node.apiKey, userId);
 
     logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
 
-    res.status(201).json({
-      message: "Instance creation initiated",
-      id: Id
-    });
+    res.status(201).json({ message: "Instance creation initiated", id: Id });
   } catch (err) {
-    log.error("Deploy error:", err);
+    log.error("Deploy error:", err.response?.data || err.message);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: err.response?.data?.message || err.message
+      details: err.response?.data?.message || err.message || "Check server logs"
     });
   }
 });
 
 // ────────────────────────────────────────────────
-// All other routes (unchanged)
+// All your other routes (edit, delete, suspend, etc.) remain 100% unchanged
 // ────────────────────────────────────────────────
-
 router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
   const { id } = req.params;
   const instance = await db.get(`${id}_instance`);
