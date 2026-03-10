@@ -63,82 +63,104 @@
     </div>
   </div>
 
-  <!-- Form -->
-  <div id="templateFormSection" class="hidden px-4 md:px-6 lg:px-8 pb-8">
-    <div class="mt-8 rounded-lg border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden">
-      <div class="p-6 border-b border-white/10 bg-neutral-950/70 flex justify-between items-center">
+  <!-- Optimized Form -->
+  <div id="templateFormSection" class="hidden px-4 md:px-6 lg:px-8 pb-12">
+    <div class="mt-8 rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden">
+      
+      <!-- Form Header -->
+      <div class="px-8 py-6 border-b border-white/10 bg-neutral-950/70 flex items-center justify-between">
         <h5 id="formTitle" class="text-2xl font-semibold text-white tracking-tight">Create New Template</h5>
         <div class="flex items-center gap-4">
-          <span class="text-sm text-neutral-400">Mode:</span>
-          <select id="modeSelect" class="bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-2 text-sm text-white focus:border-white/30 transition-all">
-            <option value="form">Form</option>
+          <span class="text-sm text-neutral-400">Editor Mode:</span>
+          <select id="modeSelect" 
+                  class="bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-2 text-sm text-white focus:border-white/30 transition-all">
+            <option value="form">Visual Form</option>
             <option value="json">Raw JSON</option>
           </select>
         </div>
       </div>
 
-      <form id="templateForm" class="p-6 space-y-8">
+      <form id="templateForm" class="p-8 space-y-10">
         <input type="hidden" id="hiddenFilename">
 
-        <!-- FORM MODE -->
-        <div id="formArea">
-          <!-- General -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-neutral-300 mb-2">Template Name <span class="text-red-400">*</span></label>
-              <input type="text" name="meta.name" required 
-                     class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-neutral-300 mb-2">Display Name</label>
-              <input type="text" name="meta.display_name" 
-                     class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-            <textarea name="meta.description" rows="3" 
-                      class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all"></textarea>
-          </div>
+        <!-- FORM MODE – Optimized Sections -->
+        <div id="formArea" class="space-y-10">
 
-          <!-- Category + Docker -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-neutral-300 mb-2">Category <span class="text-red-400">*</span></label>
-              <div class="flex gap-3">
-                <select name="category" required 
-                        class="flex-1 bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-                  <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
-                </select>
-                <button type="button" id="btnAddCategory" 
-                        class="px-6 py-3 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-                  + Add
-                </button>
+          <!-- Section 1: General -->
+          <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-2 h-2 rounded-full bg-white"></div>
+              <h4 class="font-semibold text-white text-lg tracking-tight">General Information</h4>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-neutral-300 mb-2">Template Name <span class="text-red-400">*</span></label>
+                <input type="text" name="meta.name" required 
+                       class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3.5 text-white focus:border-white/30 transition-all">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-300 mb-2">Display Name</label>
+                <input type="text" name="meta.display_name" 
+                       class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3.5 text-white focus:border-white/30 transition-all">
               </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-neutral-300 mb-2">Docker Image <span class="text-red-400">*</span></label>
-              <input type="text" name="environment.docker_image" required placeholder="itzg/minecraft-server:latest" 
-                     class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
+            <div class="mt-6">
+              <label class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
+              <textarea name="meta.description" rows="3" 
+                        class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3.5 text-white focus:border-white/30 transition-all"></textarea>
             </div>
           </div>
 
-          <!-- Variables -->
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <h3 class="text-lg font-semibold text-white tracking-tight">Variables</h3>
+          <!-- Section 2: Environment -->
+          <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+              <h4 class="font-semibold text-white text-lg tracking-tight">Environment</h4>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-neutral-300 mb-2">Category <span class="text-red-400">*</span></label>
+                <div class="flex gap-3">
+                  <select name="category" required 
+                          class="flex-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3.5 text-white focus:border-white/30 transition-all">
+                    <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
+                  </select>
+                  <button type="button" id="btnAddCategory" 
+                          class="px-6 py-3 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+                    + Add
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-300 mb-2">Docker Image <span class="text-red-400">*</span></label>
+                <input type="text" name="environment.docker_image" required placeholder="itzg/minecraft-server:latest" 
+                       class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3.5 text-white focus:border-white/30 transition-all">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Variables -->
+          <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
+                <h4 class="font-semibold text-white text-lg tracking-tight">Variables</h4>
+              </div>
               <button type="button" id="btnAddVar" 
                       class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-                + Add Custom Variable
+                + Add Variable
               </button>
             </div>
             <div id="variablesContainer" class="space-y-4"></div>
           </div>
 
-          <!-- Actions -->
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <h3 class="text-lg font-semibold text-white tracking-tight">Actions</h3>
+          <!-- Section 4: Actions -->
+          <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+                <h4 class="font-semibold text-white text-lg tracking-tight">Actions</h4>
+              </div>
               <button type="button" id="btnAddAction" 
                       class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
                 + Add Action
@@ -147,27 +169,35 @@
             <div id="actionsContainer" class="space-y-4"></div>
           </div>
 
-          <!-- Install Script -->
-          <div>
-            <label class="block text-sm font-medium text-neutral-300 mb-2">Install Script</label>
-            <textarea name="environment.install_script" rows="10" 
-                      class="w-full bg-neutral-900 border border-white/10 rounded-[10px] p-4 text-white font-mono focus:border-white/30 transition-all"></textarea>
+          <!-- Section 5: Install Script -->
+          <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-2 h-2 rounded-full bg-violet-400"></div>
+              <h4 class="font-semibold text-white text-lg tracking-tight">Install Script</h4>
+            </div>
+            <textarea name="environment.install_script" rows="12" 
+                      class="w-full bg-neutral-900 border border-white/10 rounded-[10px] p-5 font-mono text-white focus:border-white/30 transition-all resize-y"></textarea>
           </div>
+
         </div>
 
         <!-- JSON MODE -->
         <div id="jsonArea" class="hidden">
-          <textarea id="jsonEditor" class="w-full h-[75vh] bg-neutral-900 border border-white/10 rounded-[10px] p-5 font-mono text-white focus:border-white/30 transition-all"></textarea>
+          <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
+            <textarea id="jsonEditor" 
+                      class="w-full h-[70vh] bg-neutral-950 border border-white/10 rounded-[10px] p-6 font-mono text-white focus:border-white/30 transition-all"></textarea>
+          </div>
         </div>
       </form>
 
-      <div class="p-6 border-t border-white/10 bg-neutral-950/70 flex justify-end gap-4">
+      <!-- Footer -->
+      <div class="px-8 py-6 border-t border-white/10 bg-neutral-950/70 flex justify-end gap-4">
         <button id="btnCancelForm" 
-                class="px-6 py-2.5 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
+                class="px-8 py-3 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
           Cancel
         </button>
         <button id="btnSaveTemplate" 
-                class="px-8 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+                class="px-10 py-3 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
           Save Template
         </button>
       </div>
@@ -206,25 +236,32 @@ modeSelect.onchange = () => {
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
-  div.className = "grid grid-cols-1 md:grid-cols-12 gap-4 p-5 rounded-[10px] border border-white/10 bg-neutral-900/50 relative";
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
   div.innerHTML = `
-    <div class="md:col-span-2">
-      <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
-      <input type="text" name="variables[${idx}].id" value="${v.id||''}" required class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white font-mono focus:border-white/30 transition-all">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
+        <input type="text" name="variables[${idx}].id" value="${v.id||''}" required 
+               class="w-full mt-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3 text-white font-mono focus:border-white/30 transition-all">
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">Name</label>
+        <input type="text" name="variables[${idx}].name" value="${v.name||''}" required 
+               class="w-full mt-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3 text-white focus:border-white/30 transition-all">
+      </div>
+      <div class="md:col-span-4">
+        <label class="text-xs text-neutral-400">Description</label>
+        <input type="text" name="variables[${idx}].description" value="${v.description||''}" 
+               class="w-full mt-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3 text-white focus:border-white/30 transition-all">
+      </div>
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">Default Value</label>
+        <input type="text" name="variables[${idx}].default" value="${v.default||''}" 
+               class="w-full mt-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3 text-white focus:border-white/30 transition-all">
+      </div>
     </div>
-    <div class="md:col-span-2">
-      <label class="text-xs text-neutral-400">Name</label>
-      <input type="text" name="variables[${idx}].name" value="${v.name||''}" required class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-    </div>
-    <div class="md:col-span-4">
-      <label class="text-xs text-neutral-400">Description</label>
-      <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-    </div>
-    <div class="md:col-span-3">
-      <label class="text-xs text-neutral-400">Default Value</label>
-      <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="w-full bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-    </div>
-    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300">×</button>
+    <button type="button" onclick="this.closest('div').remove()" 
+            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
   document.getElementById("variablesContainer").appendChild(div);
 }
@@ -233,11 +270,20 @@ function addVariable(v = {}) {
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
-  div.className = "grid grid-cols-1 sm:grid-cols-5 gap-4 p-4 bg-neutral-900/50 rounded-[10px] border border-white/10 relative";
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative grid grid-cols-1 sm:grid-cols-5 gap-6";
   div.innerHTML = `
-    <input type="text" name="actions[${idx}].name" value="${a.name||''}" required placeholder="Name" class="bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white focus:border-white/30 transition-all">
-    <input type="text" name="actions[${idx}].command" value="${a.command||''}" required placeholder="Command" class="bg-neutral-900 border border-white/10 rounded-[10px] px-4 py-3 text-white sm:col-span-4 focus:border-white/30 transition-all">
-    <button type="button" onclick="this.closest('div').remove()" class="absolute top-4 right-4 text-red-400 text-2xl">×</button>
+    <div class="sm:col-span-1">
+      <label class="text-xs text-neutral-400">Action Name</label>
+      <input type="text" name="actions[${idx}].name" value="${a.name||''}" required placeholder="start" 
+             class="w-full mt-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3 text-white focus:border-white/30 transition-all">
+    </div>
+    <div class="sm:col-span-4">
+      <label class="text-xs text-neutral-400">Command</label>
+      <input type="text" name="actions[${idx}].command" value="${a.command||''}" required placeholder="docker start {{container_name}}" 
+             class="w-full mt-1 bg-neutral-900 border border-white/10 rounded-[10px] px-5 py-3 text-white focus:border-white/30 transition-all">
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" 
+            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
 }
