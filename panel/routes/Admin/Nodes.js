@@ -119,34 +119,42 @@ router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
 router.post("/admin/nodes/create", isAdmin, async (req, res) => {
   const {
     name,
-    description = "",
     address,
-    port = 8080,
-    sftpPort = 2022,
+    port,
+    sftpPort,
     location,
+    resourceMode,
     ram,
     disk,
     memoryOverallocate = 0,
     diskOverallocate = 0,
     uploadSize = 500,
-    behindProxy = "false",
-    useCloudflareTunnel = "false",
-    tunnelPublicHostname = "",
-    serverFileDirectory = "/var/lib/kswings/volumes",
-    publicIp = "",
-    maintenanceMode = "false",
-    connectionType = "Direct",
-    maxServers = 50,
-    healthCheckUrl = "",
-    tags = "",
-    trustedProxies = "",
+    behindProxy = false,
+    connectionProtocol = "http",
     allocIp,
     allocAlias,
     portsInput
   } = req.body;
 
-  if (!name || !address || !ram || !disk || !port) {
-    return res.status(400).json({ error: "Form validation failure: Name, Address (FQDN/IP), RAM, Disk and Port are required." });
+  if (!name || !address || !port) {
+    return res.status(400).json({ error: "Form validation failure: Name, Address (FQDN/IP), and Port are required." });
+  }
+
+  // Handle resourceMode: if auto, set ram/disk to 0 as flag; else use provided values
+  let finalRam = 0;
+  let finalDisk = 0;
+  if (resourceMode === 'manual') {
+    if (!ram || !disk) {
+      return res.status(400).json({ error: "RAM and Disk are required in Manual mode." });
+    }
+    finalRam = parseInt(ram);
+    finalDisk = parseInt(disk);
+  } else if (resourceMode === 'auto') {
+    // Auto-detect flag: will be populated later via resource monitor
+    finalRam = 0;
+    finalDisk = 0;
+  } else {
+    return res.status(400).json({ error: "Invalid resourceMode: must be 'auto' or 'manual'." });
   }
 
   const nodeId = uuidv4();
@@ -154,28 +162,28 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
 
   const node = {
     id: nodeId,
-    name,
-    description: description.trim(),
-    address,
+    name: name.trim(),
+    description: "",
+    address: address.trim(),
     port: parseInt(port),
-    sftpPort: parseInt(sftpPort),
+    sftpPort: parseInt(sftpPort || 2022),
     location: location || null,
-    ram: parseInt(ram),
-    disk: parseInt(disk),
+    ram: finalRam,
+    disk: finalDisk,
     memoryOverallocate: parseInt(memoryOverallocate),
     diskOverallocate: parseInt(diskOverallocate),
     uploadSize: parseInt(uploadSize),
-    behindProxy: behindProxy === "true" || behindProxy === true,
-    useCloudflareTunnel: useCloudflareTunnel === "true" || useCloudflareTunnel === true,
-    tunnelPublicHostname: tunnelPublicHostname.trim(),
-    serverFileDirectory: serverFileDirectory.trim(),
-    publicIp: publicIp.trim() || address,
-    maintenanceMode: maintenanceMode === "true" || maintenanceMode === true,
-    connectionType,
-    maxServers: parseInt(maxServers),
-    healthCheckUrl: healthCheckUrl.trim(),
-    tags: tags ? tags.split(",").map(t => t.trim()).filter(Boolean) : [],
-    trustedProxies: trustedProxies ? trustedProxies.split(",").map(t => t.trim()).filter(Boolean) : [],
+    behindProxy: behindProxy === true || behindProxy === "true",
+    connectionProtocol: connectionProtocol, // http or https for SSL communication
+    resourceMode: resourceMode, // auto or manual
+    serverFileDirectory: "/var/lib/kswings/volumes",
+    publicIp: address.trim(), // Default to address
+    maintenanceMode: false,
+    connectionType: "Direct", // Default
+    maxServers: 50, // Default
+    healthCheckUrl: "",
+    tags: [],
+    trustedProxies: behindProxy ? ["127.0.0.1"] : [], // Auto-add if behind proxy
     apiKey: null,
     configureKey,
     status: "Unconfigured",
@@ -195,7 +203,7 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
       if (ports.length > 0) {
         const allocations = ports.map(p => ({
           id: uuidv4(),
-          ip: allocIp?.trim() || address,
+          ip: allocIp?.trim() || address.trim(),
           alias: allocAlias?.trim() || null,
           port: p,
           assignedTo: null,
@@ -381,14 +389,14 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   if (req.body.port) node.port = parseInt(req.body.port);
   if (req.body.sftpPort) node.sftpPort = parseInt(req.body.sftpPort);
   if (req.body.location !== undefined) node.location = req.body.location || null;
-  if (req.body.ram) node.ram = parseInt(req.body.ram);
-  if (req.body.disk) node.disk = parseInt(req.body.disk);
+  if (req.body.ram !== undefined) node.ram = parseInt(req.body.ram);
+  if (req.body.disk !== undefined) node.disk = parseInt(req.body.disk);
   if (req.body.memoryOverallocate !== undefined) node.memoryOverallocate = parseInt(req.body.memoryOverallocate);
   if (req.body.diskOverallocate !== undefined) node.diskOverallocate = parseInt(req.body.diskOverallocate);
   if (req.body.uploadSize) node.uploadSize = parseInt(req.body.uploadSize);
   if (req.body.behindProxy !== undefined) node.behindProxy = req.body.behindProxy === "true" || req.body.behindProxy === true;
-  if (req.body.useCloudflareTunnel !== undefined) node.useCloudflareTunnel = req.body.useCloudflareTunnel === "true" || req.body.useCloudflareTunnel === true;
-  if (req.body.tunnelPublicHostname !== undefined) node.tunnelPublicHostname = req.body.tunnelPublicHostname.trim();
+  if (req.body.connectionProtocol !== undefined) node.connectionProtocol = req.body.connectionProtocol;
+  if (req.body.resourceMode !== undefined) node.resourceMode = req.body.resourceMode;
   if (req.body.serverFileDirectory) node.serverFileDirectory = req.body.serverFileDirectory.trim();
   if (req.body.publicIp !== undefined) node.publicIp = req.body.publicIp.trim() || node.address;
   if (req.body.maintenanceMode !== undefined) node.maintenanceMode = req.body.maintenanceMode === "true" || req.body.maintenanceMode === true;
@@ -399,8 +407,8 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   if (req.body.trustedProxies !== undefined) node.trustedProxies = req.body.trustedProxies ? req.body.trustedProxies.split(",").map(t => t.trim()).filter(Boolean) : [];
 
   // Basic validation for critical fields
-  if (!node.name || !node.address || !node.ram || !node.disk || !node.port) {
-    return res.status(400).json({ error: "Missing required fields (name, address, ram, disk, port)" });
+  if (!node.name || !node.address || !node.port) {
+    return res.status(400).json({ error: "Missing required fields (name, address, port)" });
   }
 
   await db.set(id + "_node", node);
@@ -466,18 +474,32 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
   if (!node) return res.status(404).json({ error: "Node not found" });
 
   try {
+    // Use connectionProtocol for protocol (http/https)
+    const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
     const response = await axios.get(
-      `http://${node.address}:${node.port}/resourceMonitor`,
+      `${protocol}://${node.address}:${node.port}/resourceMonitor`,
       {
         auth: {
           username: "kspanel",
           password: node.apiKey,
         },
         timeout: 5000,
+        // If behind proxy, add headers if needed
+        ...(node.behindProxy && { headers: { 'X-Forwarded-Proto': protocol } }),
       }
     );
+
+    // If resourceMode is auto and ram/disk are 0, update them with fetched values
+    if (node.resourceMode === 'auto' && node.ram === 0 && response.data) {
+      node.ram = Math.round(response.data.totalMemory / 1024); // Convert to GB
+      node.disk = Math.round(response.data.totalDisk / 1024 / 1024); // Convert to GB
+      await db.set(id + "_node", node);
+      invalidateNodeCache(id);
+    }
+
     res.json(response.data);
   } catch (error) {
+    log.error(`Resource monitor fetch failed for node ${id}: ${error.message}`);
     res.status(500).json({ error: "Failed to fetch resources" });
   }
 });
