@@ -1,127 +1,130 @@
 <%- include('../components/template') %>
 
-<main id="content">
-  <div class="bg-transparent">
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white">
+<main id="content" class="max-w-screen-2xl mx-auto">
+  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+      <div>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">
           <%= req.translations.APIKeys %>
         </h1>
-        <p class="mt-1 tracking-tight text-sm text-neutral-500">
+        <p class="mt-1 text-sm text-neutral-400">
           <%= req.translations.APIKeysText %>
         </p>
       </div>
-      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-        <button
-          id="createButton"
-          type="button"
-          class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"
-        >
+      <div class="flex flex-wrap gap-3">
+        <button id="createButton"
+                class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
           <%= req.translations.createNewAPIKey %>
         </button>
       </div>
-    </div>
+    </header>
 
+    <!-- Success Banner -->
     <% if (req.query.err === "CREATED") { %>
-      <div class="mt-6 w-full">
-        <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
-          <div class="flex">
-            <div class="flex-shrink-0 ml-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mt-2 text-emerald-400">
-                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="ml-5">
-              <h3 class="text-sm font-medium text-emerald-400">
-                <%= req.translations.created %>
-              </h3>
-              <div class="text-sm text-emerald-400/50">
-                <p><%= req.translations.apiKeySuccessCreated %></p>
-              </div>
-            </div>
-          </div>
+      <div class="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-900/10 px-6 py-5 flex items-start gap-4">
+        <div class="flex-shrink-0 mt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-emerald-400">
+            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-emerald-400 tracking-tight">
+            <%= req.translations.created %>
+          </h3>
+          <p class="text-emerald-400/70 text-sm mt-1">
+            <%= req.translations.apiKeySuccessCreated %>
+          </p>
         </div>
       </div>
     <% } %>
 
-    <div id="nodeTable" class="mt-6 w-full">
-      <table class="mt-6 w-full whitespace-nowrap text-left">
-        <colgroup>
-          <col class="w-full sm:w-4/12" />
-          <col class="lg:w-4/12" />
-          <col class="lg:w-2/12" />
-          <col class="lg:w-2/12" />
-        </colgroup>
-        <thead class="border-b border-white/5 text-sm leading-6 text-white">
-          <tr>
-            <th scope="col" class="py-2 pl-4 pr-8 font-medium sm:pl-8 lg:pl-8">
-              <%= req.translations.id %>
-            </th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium sm:table-cell">
-              <%= req.translations.key %>
-            </th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium md:table-cell lg:pr-20">
-              <%= req.translations.createdAt %>
-            </th>
-            <th scope="col" class="py-2 pl-0 pr-8 font-medium md:table-cell lg:pr-20">
-              <%= req.translations.actions %>
-            </th>
-          </tr>
-        </thead>
-        <tbody id="apiKeyBody" class="divide-y divide-white/5">
-          <% if (apiKeys.length === 0) { %>
-            <tr id="noKeysRow">
-              <td colspan="4" class="py-4 text-center text-neutral-400">
-                <%= req.translations.noApiKeysCreated %>
-              </td>
+    <!-- Table Card -->
+    <div id="nodeTable" class="mt-8">
+      <div class="overflow-x-auto rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl">
+        <table class="min-w-full divide-y divide-white/10 text-sm text-left text-white">
+          <thead class="bg-neutral-950/70">
+            <tr>
+              <th scope="col" class="py-4 pl-6 pr-8 font-medium text-neutral-300 text-xs uppercase tracking-wider">
+                <%= req.translations.id %>
+              </th>
+              <th scope="col" class="py-4 pl-0 pr-8 font-medium text-neutral-300 text-xs uppercase tracking-wider sm:table-cell">
+                <%= req.translations.key %>
+              </th>
+              <th scope="col" class="py-4 pl-0 pr-8 font-medium text-neutral-300 text-xs uppercase tracking-wider md:table-cell">
+                <%= req.translations.createdAt %>
+              </th>
+              <th scope="col" class="py-4 pl-0 pr-8 font-medium text-neutral-300 text-xs uppercase tracking-wider text-right md:table-cell">
+                <%= req.translations.actions %>
+              </th>
             </tr>
-          <% } %>
+          </thead>
+          <tbody id="apiKeyBody" class="divide-y divide-white/5">
+            <% if (apiKeys.length === 0) { %>
+              <tr id="noKeysRow">
+                <td colspan="4" class="py-16 text-center text-neutral-400">
+                  <%= req.translations.noApiKeysCreated %>
+                </td>
+              </tr>
+            <% } %>
 
-          <% apiKeys.forEach(function(key) { %>
-            <tr id="row-<%= key.id %>">
-              <td class="py-4 pl-4 pr-8 sm:pl-8 lg:pl-8">
-                <div class="truncate text-sm font-medium leading-6 text-white">
-                  <%= key.id %>
-                </div>
-              </td>
-              <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                <div class="rounded-xl font-mono bg-neutral-800/40 px-2 py-1 text-xs font-medium text-neutral-400 ring-1 ring-inset ring-white/10">
-                  <%= key.key %>
-                </div>
-              </td>
-              <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                <div class="rounded-xl bg-neutral-800/40 px-2 py-1 text-xs font-medium text-neutral-400 ring-1 ring-inset ring-white/10">
-                  <%= key.createdAt %>
-                </div>
-              </td>
-              <td class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20 flex gap-3">
-                <button
-                  type="button"
-                  class="removeButton block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition"
-                  data-keyid="<%= key.id %>"
-                >
-                  <%= req.translations.remove %>
-                </button>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
+            <% apiKeys.forEach(function(key) { %>
+              <tr id="row-<%= key.id %>" class="hover:bg-white/5 transition-colors duration-200">
+                <td class="py-4 pl-6 pr-8">
+                  <div class="font-medium text-white"><%= key.id %></div>
+                </td>
+                <td class="hidden py-4 pl-0 pr-8 sm:table-cell">
+                  <div class="rounded-xl font-mono bg-neutral-900/70 px-4 py-2 text-xs text-neutral-400 ring-1 ring-inset ring-white/10 break-all">
+                    <%= key.key %>
+                  </div>
+                </td>
+                <td class="hidden py-4 pl-0 pr-8 sm:table-cell">
+                  <div class="rounded-xl bg-neutral-900/70 px-4 py-2 text-xs text-neutral-400 ring-1 ring-inset ring-white/10">
+                    <%= key.createdAt %>
+                  </div>
+                </td>
+                <td class="py-4 pl-0 pr-8 text-right">
+                  <button type="button"
+                          class="removeButton px-5 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-[10px] transition-all duration-200 active:scale-95"
+                          data-keyid="<%= key.id %>">
+                    <%= req.translations.remove %>
+                  </button>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <%- include('../components/pagination', { pagination }) %>
 
-    <div id="nodeForm" class="mt-6 px-8 w-full hidden">
-      <form>
-        <button
-          id="createNodeBtn"
-          type="button"
-          class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"
-        >
-          <%= req.translations.clickToConfirmCreation %>
-        </button>
-      </form>
+    <!-- Create Form Card (hidden by default) -->
+    <div id="nodeForm" class="hidden mt-8">
+      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden">
+        <div class="p-8 text-center">
+          <div class="mx-auto w-16 h-16 flex items-center justify-center rounded-2xl bg-white/5 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10h3m-3 0v3m0-3V7m-6 4h3m-3 0v3m0-3V7m-3 4h3m-3 0v3m0-3V7" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white tracking-tight mb-2">Create New API Key</h3>
+          <p class="text-neutral-400 max-w-sm mx-auto">
+            This will instantly generate a new secure API key.<br>
+            Make sure to copy it immediately after creation.
+          </p>
+        </div>
+
+        <div class="p-8 border-t border-white/10 bg-neutral-950/70 flex justify-center">
+          <button id="createNodeBtn"
+                  class="px-10 py-3 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+            <%= req.translations.clickToConfirmCreation %>
+          </button>
+        </div>
+      </div>
     </div>
+
   </div>
 </main>
 
@@ -139,6 +142,7 @@
 
   createNodeBtn.addEventListener("click", async () => {
     createNodeBtn.disabled = true;
+    createNodeBtn.textContent = "Creating...";
 
     try {
       const response = await fetch("/apikeys/create", {
@@ -154,26 +158,25 @@
 
       const row = document.createElement("tr");
       row.id = "row-" + data.id;
+      row.className = "hover:bg-white/5 transition-colors duration-200";
       row.innerHTML = `
-        <td class="py-4 pl-4 pr-8 sm:pl-8 lg:pl-8">
-          <div class="truncate text-sm font-medium leading-6 text-white">${data.id}</div>
+        <td class="py-4 pl-6 pr-8">
+          <div class="font-medium text-white">${data.id}</div>
         </td>
-        <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-          <div class="rounded-xl font-mono bg-neutral-800/40 px-2 py-1 text-xs font-medium text-neutral-400 ring-1 ring-inset ring-white/10">
+        <td class="hidden py-4 pl-0 pr-8 sm:table-cell">
+          <div class="rounded-xl font-mono bg-neutral-900/70 px-4 py-2 text-xs text-neutral-400 ring-1 ring-inset ring-white/10 break-all">
             ${data.key}
           </div>
         </td>
-        <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-          <div class="rounded-xl bg-neutral-800/40 px-2 py-1 text-xs font-medium text-neutral-400 ring-1 ring-inset ring-white/10">
+        <td class="hidden py-4 pl-0 pr-8 sm:table-cell">
+          <div class="rounded-xl bg-neutral-900/70 px-4 py-2 text-xs text-neutral-400 ring-1 ring-inset ring-white/10">
             ${data.createdAt}
           </div>
         </td>
-        <td class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20 flex gap-3">
-          <button
-            type="button"
-            class="removeButton block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition"
-            data-keyid="${data.id}"
-          >
+        <td class="py-4 pl-0 pr-8 text-right">
+          <button type="button"
+                  class="removeButton px-5 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-[10px] transition-all duration-200 active:scale-95"
+                  data-keyid="${data.id}">
             <%= req.translations.remove %>
           </button>
         </td>
@@ -189,6 +192,7 @@
       alert('<%= req.translations.apiKeyErrorCreated %>');
     } finally {
       createNodeBtn.disabled = false;
+      createNodeBtn.textContent = '<%= req.translations.clickToConfirmCreation %>';
     }
   });
 
@@ -213,7 +217,7 @@
         if (apiKeyBody.children.length === 0) {
           apiKeyBody.innerHTML = `
             <tr id="noKeysRow">
-              <td colspan="4" class="py-4 text-center text-neutral-400">
+              <td colspan="4" class="py-16 text-center text-neutral-400">
                 <%= req.translations.noApiKeysCreated %>
               </td>
             </tr>
