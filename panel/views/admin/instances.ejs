@@ -347,7 +347,7 @@
     }
 
     try {
-      const response = await fetch(`/admin/nodes/${nodeId}/available-allocations`);
+      const response = await fetch(`/admin/nodes/overview/${nodeId}/available-allocations`);
       if (!response.ok) throw new Error('Failed to load ports');
 
       const allocations = await response.json();
