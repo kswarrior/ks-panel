@@ -72,11 +72,6 @@
                 </div>
 
                 <div>
-                    <label class="text-neutral-400 text-sm tracking-tight mb-2 block">Threads:</label>
-                    <input id="threads" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="1">
-                </div>
-
-                <div>
                     <label class="text-neutral-400 text-sm tracking-tight mb-2 block">Disk (MiB):</label>
                     <input id="disk" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="10240">
                 </div>
@@ -129,7 +124,6 @@
           }
 
           if (Array.isArray(variables)) {
-              // Your format: array of objects [{id, name, description, default}, ...]
               variables.forEach(function(variable) {
                   const id = variable.id || 'unknown';
                   const label = variable.name || id;
@@ -148,7 +142,6 @@
                   variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
               });
           } else {
-              // Fallback for old object format (if any template still uses it)
               for (var key in variables) {
                   if (variables.hasOwnProperty(key)) {
                       var variable = variables[key];
@@ -170,9 +163,6 @@
 </script>
 
 <script>
-  // ────────────────────────────────────────────────
-  // Load available allocations when node changes
-  // ────────────────────────────────────────────────
   document.getElementById('node')?.addEventListener('change', async (e) => {
     const nodeId = e.target.value;
     const allocSelect = document.getElementById('primary');
@@ -202,7 +192,7 @@
       allocations.forEach(alloc => {
         const display = alloc.label.replace(/ \(.+\)$/, '');
         const option = document.createElement('option');
-        option.value = display; // full IP:Port
+        option.value = display;
         option.textContent = display;
         allocSelect.appendChild(option);
       });
@@ -222,11 +212,9 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
     const name = document.getElementById('name');
     const memory = document.getElementById('memory');
     const cpu = document.getElementById('cpu');
-    const threads = document.getElementById('threads');
     const disk = document.getElementById('disk');
     const templateDropdown = document.getElementById('template');
     const primaryAlloc = document.getElementById('primary');
-    const selectedTemplate = templateDropdown.options[templateDropdown.selectedIndex];
     const variablesForm = document.getElementById('variablesForm');
     
     const inputs = variablesForm.querySelectorAll('div > input');
@@ -252,12 +240,7 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
     }
 
     if (!isPositiveIntegerCpu(cpu.value)) {
-        showError(cpu, 'CPU must be an integer greater than 0.');
-        isValid = false;
-    }
-
-    if (!isPositiveInteger(threads.value)) {
-        showError(threads, 'Threads must be an integer greater than 0.');
+        showError(cpu, 'CPU Threads must be an integer greater than 0.');
         isValid = false;
     }
 
@@ -277,7 +260,6 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
         return;
     }
 
-    // Split allocation into IP and Port
     const [allocationIp, allocationPort] = primaryAlloc.value.split(':');
 
     const deployData = {
@@ -287,7 +269,6 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
         nodeId: document.getElementById('node').value,
         memory: memory.value,
         cpu: cpu.value,
-        threads: threads.value,
         disk: disk.value,
         allocationIp: allocationIp,
         allocationPort: allocationPort,
@@ -324,14 +305,14 @@ function isPositiveIntegerCpu(value) {
 
 async function sendData(deployData, createBtn) {
     try {
-        const response = await fetch('/admin/instances/create', {
+        const response = await fetch('/instances/deploy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(deployData)
         });
 
         if (response.ok) {
-            window.location.href = '../admin/instances/overview?err=CREATED';
+            window.location.href = '../admin/instances?err=CREATED';
         } else {
             const errData = await response.json();
             throw errData;
