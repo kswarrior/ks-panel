@@ -308,6 +308,11 @@ select.input-field {
     }
   }
 
+  // Initialize the toggle on page load to ensure correct initial state
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleResourceFields();
+  });
+
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const textEl = document.getElementById('notification-text');
