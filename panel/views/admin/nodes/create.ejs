@@ -10,6 +10,7 @@
   placeholder-color: rgba(255, 255, 255, 0.4);
   outline: none;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .input-field:focus {
@@ -17,12 +18,53 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
-.short-input {
-  width: 6rem !important;
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 }
 
-.long-input {
-  width: 100% !important;
+@media (min-width: 1024px) {
+  .form-row.lg-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+
+  .form-row.lg-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.radio-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.proxy-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background-color: rgba(75, 85, 99, 0.3);
+  border-radius: 0.5rem;
+  gap: 0.75rem;
 }
 </style>
 <main id="content" class="max-w-screen-2xl mx-auto">
@@ -52,10 +94,10 @@
     <section class="mt-12">
       <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
         <form id="createNodeForm">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-x-10 lg:gap-y-8">
+          <div class="grid grid-cols-1 gap-6 lg:gap-x-10 lg:gap-y-8">
 
             <!-- Basic Info Section -->
-            <div class="lg:col-span-2">
+            <div class="col-span-1 lg:col-span-2">
               <div class="flex items-center gap-4 mb-6">
                 <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                 <h2 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h2>
@@ -63,40 +105,45 @@
               </div>
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
-              <input id="nodeName" required type="text" class="input-field long-input" placeholder="Main Node">
+            <div class="form-row">
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
+                <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
+              </div>
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
-              <input id="nodeAddress" required type="text" class="input-field long-input" placeholder="node1.example.com">
+            <div class="form-row">
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
+                <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
+              </div>
             </div>
 
-            <!-- Ports Wrapper -->
-            <div class="lg:col-span-2 flex flex-col lg:flex-row lg:justify-between lg:gap-8">
-              <div class="w-full lg:w-auto">
+            <div class="form-row lg-cols-2">
+              <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
-                <input id="nodePort" required type="number" value="3002" class="input-field short-input mx-auto lg:mx-0">
+                <input id="nodePort" required type="number" value="3002" class="input-field">
               </div>
-              <div class="w-full lg:w-auto">
+              <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
-                <input id="nodeSftpPort" type="number" value="2022" class="input-field short-input mx-auto lg:mx-0">
+                <input id="nodeSftpPort" type="number" value="2022" class="input-field">
               </div>
             </div>
 
-            <div class="lg:col-span-2">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
-              <select id="nodeLocation" required class="input-field long-input">
-                <option value="">Select location...</option>
-                <% locations.forEach(function(loc) { %>
-                  <option value="<%= loc.id %>"><%= loc.name %></option>
-                <% }); %>
-              </select>
+            <div class="form-row">
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
+                <select id="nodeLocation" required class="input-field">
+                  <option value="">Select location...</option>
+                  <% locations.forEach(function(loc) { %>
+                    <option value="<%= loc.id %>"><%= loc.name %></option>
+                  <% }); %>
+                </select>
+              </div>
             </div>
 
             <!-- Resources Section -->
-            <div class="lg:col-span-2 pt-6">
+            <div class="col-span-1 lg:col-span-2 pt-6">
               <div class="flex items-center gap-4 mb-6">
                 <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                 <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h2>
@@ -104,43 +151,44 @@
               </div>
             </div>
 
-            <div class="lg:col-span-2">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">RESOURCE DETECTION MODE <span class="text-red-400">*</span></label>
-              <select id="resourceMode" class="input-field long-input" onchange="toggleResourceFields()">
-                <option value="auto">Auto-detect (recommended, uses resource monitor after connection)</option>
-                <option value="manual">Manual</option>
-              </select>
+            <div class="form-row">
+              <div>
+                <label class="text-xs font-medium text-neutral-400 block mb-2">RESOURCE DETECTION MODE <span class="text-red-400">*</span></label>
+                <select id="resourceMode" class="input-field" onchange="toggleResourceFields()">
+                  <option value="auto">Auto-detect (recommended, uses resource monitor after connection)</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </div>
             </div>
 
-            <div id="manualResources" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 lg:col-span-2">
+            <div id="manualResources" class="hidden form-row lg-cols-4 col-span-1 lg:col-span-2">
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (GB) <span class="text-red-400">*</span></label>
-                <input id="nodeRam" type="number" class="input-field short-input mx-auto lg:mx-0" placeholder="32">
+                <input id="nodeRam" type="number" class="input-field" placeholder="32">
               </div>
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
-                <input id="nodeDisk" type="number" class="input-field short-input mx-auto lg:mx-0" placeholder="500">
+                <input id="nodeDisk" type="number" class="input-field" placeholder="500">
               </div>
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
-                <input id="nodeMemoryOver" type="number" value="0" class="input-field short-input mx-auto lg:mx-0">
+                <input id="nodeMemoryOver" type="number" value="0" class="input-field">
               </div>
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
-                <input id="nodeDiskOver" type="number" value="0" class="input-field short-input mx-auto lg:mx-0">
+                <input id="nodeDiskOver" type="number" value="0" class="input-field">
               </div>
             </div>
 
-            <!-- Upload Size Wrapper -->
-            <div class="lg:col-span-2 flex justify-center">
-              <div class="text-center">
+            <div class="form-row">
+              <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
-                <input id="nodeUploadSize" type="number" value="500" class="input-field short-input mx-auto">
+                <input id="nodeUploadSize" type="number" value="500" class="input-field">
               </div>
             </div>
 
             <!-- Proxy & Connection Section -->
-            <div class="lg:col-span-2 pt-6">
+            <div class="col-span-1 lg:col-span-2 pt-6">
               <div class="flex items-center gap-4 mb-6">
                 <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                 <h2 class="text-lg font-semibold text-white tracking-wide">PROXY & CONNECTION</h2>
@@ -148,23 +196,23 @@
               </div>
             </div>
 
-            <div class="lg:col-span-2">
-              <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg justify-center">
+            <div class="form-row">
+              <div class="proxy-checkbox">
                 <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white rounded">
                 <label for="behindProxy" class="text-sm text-white cursor-pointer select-none">Behind Proxy (Nginx / Cloudflare)</label>
               </div>
             </div>
 
-            <div class="lg:col-span-2">
+            <div class="form-row">
               <div class="p-3 bg-neutral-800/30 rounded-lg">
                 <label class="text-xs font-medium text-neutral-400 block mb-3 text-center">CONNECTION PROTOCOL <span class="text-red-400">*</span></label>
-                <div class="space-y-2">
-                  <label class="flex items-center justify-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
-                    <input type="radio" name="connectionProtocol" value="http" checked class="w-5 h-5 accent-white rounded">
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="connectionProtocol" value="http" checked class="w-5 h-5 accent-white rounded mr-2">
                     <span class="text-sm text-white select-none">Use HTTP Connection</span>
                   </label>
-                  <label class="flex items-center justify-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
-                    <input type="radio" name="connectionProtocol" value="https" class="w-5 h-5 accent-white rounded">
+                  <label class="radio-option">
+                    <input type="radio" name="connectionProtocol" value="https" class="w-5 h-5 accent-white rounded mr-2">
                     <span class="text-sm text-white select-none">Use SSL Connection (Communicate Over SSL)</span>
                   </label>
                 </div>
@@ -172,26 +220,28 @@
             </div>
 
             <!-- Allocations Section -->
-            <div class="lg:col-span-2 pt-8 border-t border-white/10">
+            <div class="col-span-1 lg:col-span-2 pt-8 border-t border-white/10">
               <h2 class="text-lg font-semibold text-white mb-6">INITIAL ALLOCATIONS (PORTS)</h2>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-row lg-cols-2">
                 <div>
                   <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS</label>
-                  <input id="allocIp" type="text" class="input-field long-input" placeholder="Leave blank = node address">
+                  <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
                 </div>
                 <div>
                   <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
-                  <input id="allocAlias" type="text" class="input-field long-input" placeholder="e.g. Game Servers">
+                  <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
                 </div>
-                <div class="md:col-span-2">
+              </div>
+              <div class="form-row">
+                <div>
                   <label class="text-xs font-medium text-neutral-400 block mb-2">PORTS (COMMA OR RANGES)</label>
-                  <textarea id="allocPorts" rows="3" class="input-field long-input" placeholder="25565,27015-27030"></textarea>
+                  <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
                 </div>
               </div>
             </div>
 
             <!-- Submit -->
-            <div class="lg:col-span-2 mt-8">
+            <div class="col-span-1 lg:col-span-2 mt-8">
               <button id="createNodeBtn" type="button"
                       class="w-full py-4 bg-white text-black font-semibold text-lg rounded-[10px] hover:bg-neutral-100 active:scale-[0.985] transition-all duration-200 shadow-xl">
                 CREATE NODE
