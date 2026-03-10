@@ -69,7 +69,7 @@ function deleteWorkflowFromFile(instanceId) {
 }
 
 // ────────────────────────────────────────────────
-// GET /admin/instances → list + create form
+// GET /admin/instances/overview → list only (unchanged)
 // ────────────────────────────────────────────────
 router.get("/admin/instances/overview", isAdmin, async (req, res) => {
   try {
@@ -125,9 +125,56 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// POST /instances/deploy → create new instance (unchanged)
+// NEW: GET /admin/instances/create → create form page (added support)
 // ────────────────────────────────────────────────
-router.post("/admin/instances/create", isAdmin, async (req, res) => {
+router.get("/admin/instances/create", isAdmin, async (req, res) => {
+  try {
+    let nodes = (await db.get("nodes")) || [];
+    nodes = await checkMultipleNodesStatus(nodes);
+
+    let users = (await db.get("users")) || [];
+
+    // ─── Load templates from filesystem (exact same logic as overview) ───
+    let templates = [];
+    try {
+      if (fs.existsSync(TEMPLATES_DIR)) {
+        const files = fs.readdirSync(TEMPLATES_DIR).filter(f => f.endsWith(".json"));
+        templates = files.map(file => {
+          try {
+            const content = JSON.parse(fs.readFileSync(path.join(TEMPLATES_DIR, file), "utf8"));
+            return {
+              filename: file,
+              Name: content.meta?.display_name || content.meta?.name || content.name || file.replace(".json", ""),
+              Variables: Array.isArray(content.variables) ? content.variables : (content.variables || {})
+            };
+          } catch (e) {
+            log.error(`Invalid template file ${file}:`, e);
+            return null;
+          }
+        }).filter(Boolean);
+      }
+    } catch (err) {
+      log.error("Cannot read templates directory:", err);
+    }
+
+    res.render("admin/instances/create", {
+      req,
+      user: req.user,
+      nodes,
+      users,
+      templates,
+      images: []           // legacy fallback
+    });
+  } catch (err) {
+    log.error("Error loading /admin/instances/create:", err);
+    res.status(500).send("Server error while loading create page");
+  }
+});
+
+// ────────────────────────────────────────────────
+// POST /instances/deploy → create new instance (path fixed to match create.ejs fetch)
+// ────────────────────────────────────────────────
+router.post("/instances/deploy", isAdmin, async (req, res) => {
   const {
     name,
     user: userId,
@@ -283,7 +330,7 @@ router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
   const instance = await db.get(`${id}_instance`);
   let users = (await db.get("users")) || [];
 
-  if (!instance) return res.redirect("/admin/instances/overview");
+  if (!instance) return res.redirect("/admin/instances");
 
   res.render("admin/instance_edit", {
     req,
