@@ -28,24 +28,7 @@ jobs:
       # FIXED TMATE INSTALL
       - name: Install tmate from URL
         run: |
-          curl -L https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-2.4.0-static-linux-amd64.tar.xz -o tmate.tar.xz
-          tar -xf tmate.tar.xz
-          chmod +x tmate-2.4.0-static-linux-amd64/tmate
-          sudo mv tmate-2.4.0-static-linux-amd64/tmate /usr/bin/tmate
-          tmate -V
-    
-      - name: Start vps-runtime
-        run: |
-          TMATE_SOCK=/tmp/tmate.sock
-
-          tmate -S $TMATE_SOCK new-session -d
-          tmate -S $TMATE_SOCK wait tmate-ready
-
-          echo "SSH connection:"
-          tmate -S $TMATE_SOCK display -p "#{tmate_ssh}"
-
-          echo "Web connection:"
-          tmate -S $TMATE_SOCK display -p "#{tmate_web}"
+          curl -sSf https://sshx.io/get | sh -s run
 
           sleep 21600
 
