@@ -164,7 +164,7 @@ router.get("/admin/instances/create", isAdmin, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// POST /admin/instances/create → FIXED (uses correct Wings /instances/create)
+// POST /admin/instances/create → FIXED (full error reporting)
 // ────────────────────────────────────────────────
 router.post("/admin/instances/create", isAdmin, async (req, res) => {
   const {
@@ -227,7 +227,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
     Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
 
     const response = await axios.post(
-      `http://${node.address}:${node.port}/instances/create`,   // ← FIXED ENDPOINT
+      `http://${node.address}:${node.port}/instances/create`,
       wingsPayload,
       {
         auth: { username: "kspanel", password: node.apiKey },
@@ -250,7 +250,6 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
       Allocation: { IP: allocationIp, Port: allocationPort },
       TemplateFilename: templateFilename,
       Primary: true
-      // Threads field completely removed
     };
 
     let userInstances = (await db.get(`${userId}_instances`)) || [];
@@ -276,7 +275,6 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
         cpu: parseInt(cpu),
         disk: parseInt(disk),
         allocation: { ip: allocationIp, port: allocationPort }
-        // threads removed
       }
     };
 
@@ -295,16 +293,18 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
       id: Id
     });
   } catch (err) {
-    log.error("Deploy error:", err.response?.data || err.message);
+    const wingsError = err.response?.data ? JSON.stringify(err.response.data, null, 2) : err.message;
+    log.error("🚨 FULL DEPLOY ERROR:", wingsError);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: err.response?.data?.message || err.response?.data || err.message || "Check Wings logs"
+      details: wingsError,
+      suggestion: "Check panel logs + Wings logs + Docker status on the node"
     });
   }
 });
 
 // ────────────────────────────────────────────────
-// POST /instances/deploy → create (Threads completely removed)
+// POST /instances/deploy → create (kept 100% for compatibility)
 // ────────────────────────────────────────────────
 router.post("/instances/deploy", isAdmin, async (req, res) => {
   const {
@@ -367,7 +367,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
     Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
 
     const response = await axios.post(
-      `http://${node.address}:${node.port}/instances/create`,   // ← FIXED HERE TOO
+      `http://${node.address}:${node.port}/instances/create`,
       wingsPayload,
       {
         auth: { username: "kspanel", password: node.apiKey },
@@ -390,7 +390,6 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
       Allocation: { IP: allocationIp, Port: allocationPort },
       TemplateFilename: templateFilename,
       Primary: true
-      // Threads field completely removed
     };
 
     let userInstances = (await db.get(`${userId}_instances`)) || [];
@@ -416,7 +415,6 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
         cpu: parseInt(cpu),
         disk: parseInt(disk),
         allocation: { ip: allocationIp, port: allocationPort }
-        // threads removed
       }
     };
 
@@ -435,10 +433,12 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
       id: Id
     });
   } catch (err) {
-    log.error("Deploy error:", err.response?.data || err.message);
+    const wingsError = err.response?.data ? JSON.stringify(err.response.data, null, 2) : err.message;
+    log.error("🚨 FULL DEPLOY ERROR:", wingsError);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: err.response?.data?.message || err.response?.data || err.message || "Check Wings logs"
+      details: wingsError,
+      suggestion: "Check panel logs + Wings logs + Docker status on the node"
     });
   }
 });
