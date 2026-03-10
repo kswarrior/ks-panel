@@ -71,7 +71,7 @@ function deleteWorkflowFromFile(instanceId) {
 // ────────────────────────────────────────────────
 // GET /admin/instances → list + create form
 // ────────────────────────────────────────────────
-router.get("/admin/instances", isAdmin, async (req, res) => {
+router.get("/admin/instances/overview", isAdmin, async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
@@ -108,7 +108,7 @@ router.get("/admin/instances", isAdmin, async (req, res) => {
       log.error("Cannot read templates directory:", err);
     }
 
-    res.render("admin/instances", {
+    res.render("admin/instances/overview", {
       req,
       user: req.user,
       instances: instancesResult.data,
@@ -119,7 +119,7 @@ router.get("/admin/instances", isAdmin, async (req, res) => {
       images: []           // legacy fallback – unchanged
     });
   } catch (err) {
-    log.error("Error loading /admin/instances:", err);
+    log.error("Error loading /admin/instances/overview:", err);
     res.status(500).send("Server error while loading instances page");
   }
 });
@@ -127,7 +127,7 @@ router.get("/admin/instances", isAdmin, async (req, res) => {
 // ────────────────────────────────────────────────
 // POST /instances/deploy → create new instance (unchanged)
 // ────────────────────────────────────────────────
-router.post("/instances/deploy", isAdmin, async (req, res) => {
+router.post("/admin/instances/create", isAdmin, async (req, res) => {
   const {
     name,
     user: userId,
@@ -283,7 +283,7 @@ router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
   const instance = await db.get(`${id}_instance`);
   let users = (await db.get("users")) || [];
 
-  if (!instance) return res.redirect("/admin/instances");
+  if (!instance) return res.redirect("/admin/instances/overview");
 
   res.render("admin/instance_edit", {
     req,
