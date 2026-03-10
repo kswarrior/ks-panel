@@ -5,8 +5,8 @@ const path = require('path');
 const log = new (require("cat-loggr"))();
 
 const baseDir = path.join(__dirname, '..', '..');
-const localNodeDir = path.join(baseDir, 'database', 'localnode'); // relative to current file
-const pidFile = path.join(baseDir, 'database', 'localnode.pid');   // relative PID
+const localNodeDir = path.join(baseDir, 'database', 'localnode');
+const pidFile = path.join(baseDir, 'database', 'localnode.pid');
 
 function isProcessRunning(pid) {
   try {
@@ -52,9 +52,49 @@ exports.configure = async (config) => {
   if (!fs.existsSync(localNodeDir)) {
     return { output: 'Local node not installed. Please install first.\n', code: 1 };
   }
+
+  // Parse --panel and --key from the pasted command string (e.g. "npm run configure -- --panel https://... --key 70c0...")
+  const panelMatch = config.match(/--panel\s+([^\s]+)/i);
+  const keyMatch = config.match(/--key\s+([^\s]+)/i);
+
+  const panelUrl = panelMatch ? panelMatch[1].trim() : null;
+  const configureKey = keyMatch ? keyMatch[1].trim() : null;
+
+  if (!panelUrl || !configureKey) {
+    return { output: 'Invalid configure command. Must contain --panel URL and --key value.\n', code: 1 };
+  }
+
   await exports.stop();
-  const args = config ? config.trim().split(/\s+/) : [];
-  return runCommand(args.join(' '));
+
+  const configPath = path.join(localNodeDir, 'config.json');
+  let nodeConfig;
+
+  try {
+    nodeConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (err) {
+    return { output: `Failed to read config.json: ${err.message}\n`, code: 1 };
+  }
+
+  // IMPORTANT FIX:
+  // The original wings configure.js tries to POST to /nodes/configure (which returns 404 on this panel).
+  // For local-node we manually apply the config using the provided configureKey as the permanent access key
+  // (the panel stores this exact key when you created the node, so we keep it instead of generating a new one).
+  nodeConfig.remote = panelUrl;
+  nodeConfig.key = configureKey;
+
+  try {
+    fs.writeFileSync(configPath, JSON.stringify(nodeConfig, null, 2));
+  } catch (err) {
+    return { output: `Failed to write config.json: ${err.message}\n`, code: 1 };
+  }
+
+  return {
+    output: `Local node configured successfully!\n` +
+            `Panel: ${panelUrl}\n` +
+            `Access Key: ${configureKey}\n` +
+            `You can now start the node.\n`,
+    code: 0
+  };
 };
 
 exports.start = async () => {
