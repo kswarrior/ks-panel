@@ -1,4 +1,3 @@
-
 // exec/localnode.js
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -32,7 +31,7 @@ function runCommand(command, cwd = localNodeDir, shell = true, liveOutput = fals
     }
 
     child.on('close', (code) => resolve({ output, code }));
-    child.on('error', (err) => resolve({ output: Error: ${err.message}\n, code: 1 }));
+    child.on('error', (err) => resolve({ output: `Error: ${err.message}\n`, code: 1 }));
   });
 }
 
@@ -82,7 +81,7 @@ exports.start = async () => {
 
     child.unref();
     fs.writeFileSync(pidFile, child.pid.toString());
-    resolve({ output: Started local node with PID ${child.pid}. Live logs shown above.\n, code: 0 });
+    resolve({ output: `Started local node with PID ${child.pid}. Live logs shown above.\n`, code: 0 });
   });
 };
 
@@ -103,10 +102,10 @@ exports.stop = async () => {
       }
       if (fs.existsSync(pidFile)) fs.unlinkSync(pidFile);
     }, 5000);
-    return { output: Sent stop signal to PID ${pid}. Waiting for graceful shutdown...\n, code: 0 };
+    return { output: `Sent stop signal to PID ${pid}. Waiting for graceful shutdown...\n`, code: 0 };
   } catch (err) {
     fs.unlinkSync(pidFile);
-    return { output: Failed to stop PID ${pid}: ${err.message}\n, code: 1 };
+    return { output: `Failed to stop PID ${pid}: ${err.message}\n`, code: 1 };
   }
 };
 
