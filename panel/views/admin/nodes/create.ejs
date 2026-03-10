@@ -16,6 +16,14 @@
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
+
+.short-input {
+  width: 6rem !important;
+}
+
+.long-input {
+  width: 100% !important;
+}
 </style>
 <main id="content" class="max-w-screen-2xl mx-auto">
   <div class="bg-transparent px-4 md:px-6 lg:px-8">
@@ -57,27 +65,29 @@
 
             <div>
               <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
-              <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
+              <input id="nodeName" required type="text" class="input-field long-input" placeholder="Main Node">
             </div>
 
             <div>
               <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
-              <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
+              <input id="nodeAddress" required type="text" class="input-field long-input" placeholder="node1.example.com">
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
-              <input id="nodePort" required type="number" value="3002" class="input-field">
+            <!-- Ports Wrapper -->
+            <div class="lg:col-span-2 flex flex-col lg:flex-row lg:justify-between lg:gap-8">
+              <div class="w-full lg:w-auto">
+                <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
+                <input id="nodePort" required type="number" value="3002" class="input-field short-input mx-auto lg:mx-0">
+              </div>
+              <div class="w-full lg:w-auto">
+                <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
+                <input id="nodeSftpPort" type="number" value="2022" class="input-field short-input mx-auto lg:mx-0">
+              </div>
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
-              <input id="nodeSftpPort" type="number" value="2022" class="input-field">
-            </div>
-
-            <div>
+            <div class="lg:col-span-2">
               <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
-              <select id="nodeLocation" required class="input-field">
+              <select id="nodeLocation" required class="input-field long-input">
                 <option value="">Select location...</option>
                 <% locations.forEach(function(loc) { %>
                   <option value="<%= loc.id %>"><%= loc.name %></option>
@@ -96,34 +106,37 @@
 
             <div class="lg:col-span-2">
               <label class="text-xs font-medium text-neutral-400 block mb-2">RESOURCE DETECTION MODE <span class="text-red-400">*</span></label>
-              <select id="resourceMode" class="input-field" onchange="toggleResourceFields()">
+              <select id="resourceMode" class="input-field long-input" onchange="toggleResourceFields()">
                 <option value="auto">Auto-detect (recommended, uses resource monitor after connection)</option>
                 <option value="manual">Manual</option>
               </select>
             </div>
 
-            <div id="manualResources" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 lg:col-span-2">
+            <div id="manualResources" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 lg:col-span-2">
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (GB) <span class="text-red-400">*</span></label>
-                <input id="nodeRam" type="number" class="input-field" placeholder="32">
+                <input id="nodeRam" type="number" class="input-field short-input mx-auto lg:mx-0" placeholder="32">
               </div>
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
-                <input id="nodeDisk" type="number" class="input-field" placeholder="500">
+                <input id="nodeDisk" type="number" class="input-field short-input mx-auto lg:mx-0" placeholder="500">
               </div>
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
-                <input id="nodeMemoryOver" type="number" value="0" class="input-field">
+                <input id="nodeMemoryOver" type="number" value="0" class="input-field short-input mx-auto lg:mx-0">
               </div>
               <div>
                 <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
-                <input id="nodeDiskOver" type="number" value="0" class="input-field">
+                <input id="nodeDiskOver" type="number" value="0" class="input-field short-input mx-auto lg:mx-0">
               </div>
             </div>
 
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
-              <input id="nodeUploadSize" type="number" value="500" class="input-field">
+            <!-- Upload Size Wrapper -->
+            <div class="lg:col-span-2 flex justify-center">
+              <div class="text-center">
+                <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
+                <input id="nodeUploadSize" type="number" value="500" class="input-field short-input mx-auto">
+              </div>
             </div>
 
             <!-- Proxy & Connection Section -->
@@ -135,22 +148,22 @@
               </div>
             </div>
 
-            <div class="lg:col-span-1">
-              <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg">
+            <div class="lg:col-span-2">
+              <div class="flex items-center gap-3 p-3 bg-neutral-800/30 rounded-lg justify-center">
                 <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white rounded">
                 <label for="behindProxy" class="text-sm text-white cursor-pointer select-none">Behind Proxy (Nginx / Cloudflare)</label>
               </div>
             </div>
 
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-2">
               <div class="p-3 bg-neutral-800/30 rounded-lg">
-                <label class="text-xs font-medium text-neutral-400 block mb-3">CONNECTION PROTOCOL <span class="text-red-400">*</span></label>
+                <label class="text-xs font-medium text-neutral-400 block mb-3 text-center">CONNECTION PROTOCOL <span class="text-red-400">*</span></label>
                 <div class="space-y-2">
-                  <label class="flex items-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
+                  <label class="flex items-center justify-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
                     <input type="radio" name="connectionProtocol" value="http" checked class="w-5 h-5 accent-white rounded">
                     <span class="text-sm text-white select-none">Use HTTP Connection</span>
                   </label>
-                  <label class="flex items-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
+                  <label class="flex items-center justify-center gap-2 p-2 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
                     <input type="radio" name="connectionProtocol" value="https" class="w-5 h-5 accent-white rounded">
                     <span class="text-sm text-white select-none">Use SSL Connection (Communicate Over SSL)</span>
                   </label>
@@ -161,18 +174,18 @@
             <!-- Allocations Section -->
             <div class="lg:col-span-2 pt-8 border-t border-white/10">
               <h2 class="text-lg font-semibold text-white mb-6">INITIAL ALLOCATIONS (PORTS)</h2>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS</label>
-                  <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
+                  <input id="allocIp" type="text" class="input-field long-input" placeholder="Leave blank = node address">
                 </div>
                 <div>
                   <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
-                  <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
+                  <input id="allocAlias" type="text" class="input-field long-input" placeholder="e.g. Game Servers">
                 </div>
-                <div class="md:col-span-3">
+                <div class="md:col-span-2">
                   <label class="text-xs font-medium text-neutral-400 block mb-2">PORTS (COMMA OR RANGES)</label>
-                  <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
+                  <textarea id="allocPorts" rows="3" class="input-field long-input" placeholder="25565,27015-27030"></textarea>
                 </div>
               </div>
             </div>
