@@ -164,8 +164,7 @@ router.get("/admin/instances/create", isAdmin, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// NEW POST /admin/instances/create → matches your fixed create.ejs
-// (exact same logic as /instances/deploy - no other code was changed/removed)
+// POST /admin/instances/create → FIXED (uses correct Wings /instances/create)
 // ────────────────────────────────────────────────
 router.post("/admin/instances/create", isAdmin, async (req, res) => {
   const {
@@ -203,7 +202,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
     const wingsPayload = {
       Id,
       Name: name,
-      Image: template.environment.docker_image,
+      Image: template.environment?.docker_image || template.docker_image || template.image,
       Cmd: template.startup ? template.startup.split(' ') : undefined,
       Env: [
         ...userVarsEnv,
@@ -216,7 +215,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
         acc[port] = [{ HostIp: allocationIp, HostPort: allocationPort + index }];
         return acc;
       }, {}),
-      Scripts: template.environment.install_script ? {
+      Scripts: template.environment?.install_script ? {
         Install: [{ Uri: template.environment.install_script, Path: 'install.sh' }]
       } : undefined,
       Memory: parseInt(memory),
@@ -228,7 +227,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
     Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
 
     const response = await axios.post(
-      `http://${node.address}:${node.port}/deploy`,
+      `http://${node.address}:${node.port}/instances/create`,   // ← FIXED ENDPOINT
       wingsPayload,
       {
         auth: { username: "kspanel", password: node.apiKey },
@@ -296,17 +295,16 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
       id: Id
     });
   } catch (err) {
-    log.error("Deploy error:", err);
+    log.error("Deploy error:", err.response?.data || err.message);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: err.response?.data?.message || err.message
+      details: err.response?.data?.message || err.response?.data || err.message || "Check Wings logs"
     });
   }
 });
 
 // ────────────────────────────────────────────────
 // POST /instances/deploy → create (Threads completely removed)
-// (kept 100% unchanged for backward compatibility)
 // ────────────────────────────────────────────────
 router.post("/instances/deploy", isAdmin, async (req, res) => {
   const {
@@ -344,7 +342,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
     const wingsPayload = {
       Id,
       Name: name,
-      Image: template.environment.docker_image,
+      Image: template.environment?.docker_image || template.docker_image || template.image,
       Cmd: template.startup ? template.startup.split(' ') : undefined,
       Env: [
         ...userVarsEnv,
@@ -357,7 +355,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
         acc[port] = [{ HostIp: allocationIp, HostPort: allocationPort + index }];
         return acc;
       }, {}),
-      Scripts: template.environment.install_script ? {
+      Scripts: template.environment?.install_script ? {
         Install: [{ Uri: template.environment.install_script, Path: 'install.sh' }]
       } : undefined,
       Memory: parseInt(memory),
@@ -369,7 +367,7 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
     Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
 
     const response = await axios.post(
-      `http://${node.address}:${node.port}/deploy`,
+      `http://${node.address}:${node.port}/instances/create`,   // ← FIXED HERE TOO
       wingsPayload,
       {
         auth: { username: "kspanel", password: node.apiKey },
@@ -437,10 +435,10 @@ router.post("/instances/deploy", isAdmin, async (req, res) => {
       id: Id
     });
   } catch (err) {
-    log.error("Deploy error:", err);
+    log.error("Deploy error:", err.response?.data || err.message);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: err.response?.data?.message || err.message
+      details: err.response?.data?.message || err.response?.data || err.message || "Check Wings logs"
     });
   }
 });
