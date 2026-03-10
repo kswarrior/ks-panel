@@ -324,14 +324,14 @@ function isPositiveIntegerCpu(value) {
 
 async function sendData(deployData, createBtn) {
     try {
-        const response = await fetch('/instances/deploy', {
+        const response = await fetch('/admin/instances/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(deployData)
         });
 
         if (response.ok) {
-            window.location.href = '../admin/instances?err=CREATED';
+            window.location.href = '../admin/instances/overview?err=CREATED';
         } else {
             const errData = await response.json();
             throw errData;
