@@ -1,145 +1,181 @@
 <%- include('../components/template') %>
 
-<main id="content">
-  <div class="bg-transparent">
-
+<main id="content" class="max-w-screen-2xl mx-auto">
+  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+    
     <!-- Header -->
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+      <div>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">
           <%= req.translations.overview || "Overview" %>
         </h1>
-        <p class="mt-1 tracking-tight text-sm text-neutral-400">
+        <p class="mt-1 text-sm text-neutral-400">
           <%= req.translations.overviewText || "System status and analytics dashboard" %>
         </p>
       </div>
-    </div>
+    </header>
 
     <!-- SYSTEM STATS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 m-8">
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.users || "Users" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= usersTotal %></p>
-        <p class="text-xs text-neutral-500 mt-2">Total registered users</p>
-      </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.instances || "Instances" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= instancesTotal %></p>
-        <p class="text-xs text-neutral-500 mt-2">Active server instances</p>
-      </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.nodes || "Nodes" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= nodesTotal %></p>
-        <p class="text-xs text-neutral-500 mt-2">Connected system nodes</p>
-      </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.images || "Images" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= imagesTotal %></p>
-        <p class="text-xs text-neutral-500 mt-2">Available server images</p>
-      </div>
-    </div>
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-neutral-400"><%= req.translations.users || "Users" %></p>
+            <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= usersTotal %></p>
+          </div>
+          <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-3xl">👥</div>
+        </div>
+        <p class="mt-6 text-sm text-neutral-400">Total registered users</p>
+      </article>
+
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-neutral-400"><%= req.translations.instances || "Instances" %></p>
+            <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= instancesTotal %></p>
+          </div>
+          <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-3xl">🖥️</div>
+        </div>
+        <p class="mt-6 text-sm text-neutral-400">Active server instances</p>
+      </article>
+
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-neutral-400"><%= req.translations.nodes || "Nodes" %></p>
+            <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= nodesTotal %></p>
+          </div>
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-3xl">📡</div>
+        </div>
+        <p class="mt-6 text-sm text-neutral-400">Connected system nodes</p>
+      </article>
+
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-neutral-400"><%= req.translations.images || "Images" %></p>
+            <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= imagesTotal %></p>
+          </div>
+          <div class="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center text-3xl">🖼️</div>
+        </div>
+        <p class="mt-6 text-sm text-neutral-400">Available server images</p>
+      </article>
+    </section>
 
     <!-- ANALYTICS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 m-8">
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.totalRequests || "Total Requests" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= totalRequests %></p>
-      </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.uniqueVisitors || "Unique Visitors" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= uniqueVisitors %></p>
-      </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.avgRequestsPerHour || "Avg Requests/Hour" %></p>
-        <p class="text-4xl font-bold text-white mt-2"><%= avgRequestsPerHour %></p>
-      </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <p class="text-sm text-neutral-400"><%= req.translations.topPage || "Top Page" %></p>
-        <p class="text-lg font-semibold text-white mt-2 break-all"><%= topPage %></p>
-      </div>
-    </div>
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div>
+          <p class="text-sm font-medium text-neutral-400"><%= req.translations.totalRequests || "Total Requests" %></p>
+          <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= totalRequests %></p>
+        </div>
+      </article>
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div>
+          <p class="text-sm font-medium text-neutral-400"><%= req.translations.uniqueVisitors || "Unique Visitors" %></p>
+          <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= uniqueVisitors %></p>
+        </div>
+      </article>
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div>
+          <p class="text-sm font-medium text-neutral-400"><%= req.translations.avgRequestsPerHour || "Avg Requests/Hour" %></p>
+          <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= avgRequestsPerHour %></p>
+        </div>
+      </article>
+      <article class="bg-neutral-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 group shadow-2xl">
+        <div>
+          <p class="text-sm font-medium text-neutral-400"><%= req.translations.topPage || "Top Page" %></p>
+          <p class="text-lg font-semibold text-white mt-3 break-all"><%= topPage %></p>
+        </div>
+      </article>
+    </section>
 
     <!-- CHARTS -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 m-8">
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <h3 class="text-lg font-semibold text-white mb-6"><%= req.translations.trafficOverTime || "Traffic Over Time" %></h3>
-        <canvas id="trafficChart" height="120"></canvas>
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-8">
+      <div class="bg-neutral-900/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/10">
+          <h3 class="text-lg font-semibold text-white tracking-tight"><%= req.translations.trafficOverTime || "Traffic Over Time" %></h3>
+        </div>
+        <div class="p-6">
+          <canvas id="trafficChart" height="120"></canvas>
+        </div>
       </div>
-      <div class="bg-white/5 rounded-xl p-6 shadow-lg">
-        <h3 class="text-lg font-semibold text-white mb-6"><%= req.translations.topPages || "Top Pages" %></h3>
-        <canvas id="topPagesChart" height="120"></canvas>
+      <div class="bg-neutral-900/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/10">
+          <h3 class="text-lg font-semibold text-white tracking-tight"><%= req.translations.topPages || "Top Pages" %></h3>
+        </div>
+        <div class="p-6">
+          <canvas id="topPagesChart" height="120"></canvas>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ===================== -->
     <!-- TRUE LIVE SERVER LOGS (PM2) -->
-    <!-- ===================== -->
-    <div class="m-8 bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg p-6" id="console-card">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-          Server Logs (PM2 - kspanel) 
+    <div class="mt-8 bg-neutral-900/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden" id="console-card">
+      <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-neutral-950/70">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2 tracking-tight">
+          Server Logs (PM2 - kspanel)
           <span id="live-dot" class="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
         </h3>
         <div class="flex gap-2">
           <button onclick="clearConsole()" 
-                  class="text-xs px-4 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded transition">
+                  class="text-xs px-4 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-[10px] transition-all duration-200 active:scale-95">
             Clear
           </button>
           <button onclick="togglePause()" id="pauseBtn"
-                  class="text-xs px-4 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded transition">
+                  class="text-xs px-4 py-1.5 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 rounded-[10px] transition-all duration-200 active:scale-95">
             Stop
           </button>
         </div>
       </div>
       
       <div id="console" 
-           class="bg-black border border-neutral-700 text-green-400 font-mono text-sm p-4 h-80 overflow-y-auto whitespace-pre-wrap leading-relaxed rounded-xl shadow-inner">
+           class="bg-black border border-neutral-700 text-green-400 font-mono text-sm p-6 h-80 overflow-y-auto whitespace-pre-wrap leading-relaxed rounded-b-2xl shadow-inner">
       </div>
     </div>
 
     <!-- PAGE VIEWS -->
     <% if (Object.keys(pageViews).length > 0) { %>
-    <div class="m-8 bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-white mb-6">Page Views</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 text-sm">
+    <div class="mt-8 bg-neutral-900/50 border border-white/10 rounded-2xl shadow-2xl p-6">
+      <h3 class="text-lg font-semibold text-white tracking-tight mb-6">Page Views</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <% Object.entries(pageViews).slice(0, 12).forEach(([path, count]) => { %>
-          <div class="flex justify-between bg-white/5 px-4 py-3 rounded-xl">
-            <span class="font-mono text-neutral-400 truncate"><%= path %></span>
-            <span class="font-semibold text-white"><%= count %></span>
+          <div class="flex justify-between items-center bg-neutral-900/60 px-5 py-4 rounded-2xl border border-white/10 hover:border-white/20 transition-all">
+            <span class="font-mono text-neutral-400 truncate text-sm"><%= path %></span>
+            <span class="font-semibold text-white text-sm"><%= count %></span>
           </div>
         <% }); %>
       </div>
     </div>
     <% } %>
 
-  <!-- Quick Links -->
-  <div class="px-8 mt-6">
-    <div class="bg-neutral-900/30 shadow ring-1 ring-white/5 rounded-xl p-6">
-      <h2 class="text-sm font-semibold text-white mb-4 tracking-wide">Links</h2>
+    <!-- Quick Links -->
+    <div class="mt-8 bg-neutral-900/50 border border-white/10 rounded-2xl shadow-2xl p-6">
+      <h2 class="text-sm font-semibold text-white mb-5 tracking-wide">Quick Links</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <a href="https://coming-soon" class="bg-white/5 hover:bg-white/10 transition rounded-xl p-4 text-center">
-          <p class="text-sm text-neutral-400">Panel Website</p>
-          <p class="text-white font-semibold mt-1">KS Panel</p>
+        <a href="https://coming-soon" class="group bg-neutral-900/60 hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all rounded-2xl p-6 text-center">
+          <p class="text-sm text-neutral-400 group-hover:text-white">Panel Website</p>
+          <p class="text-white font-semibold mt-2 text-lg">KS Panel</p>
         </a>
-        <a href="https://ksx.pages.dev" target="_blank" class="bg-white/5 hover:bg-white/10 transition rounded-xl p-4 text-center">
-          <p class="text-sm text-neutral-400">Official Website</p>
-          <p class="text-white font-semibold mt-1">KS Website</p>
+        <a href="https://ksx.pages.dev" target="_blank" class="group bg-neutral-900/60 hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all rounded-2xl p-6 text-center">
+          <p class="text-sm text-neutral-400 group-hover:text-white">Official Website</p>
+          <p class="text-white font-semibold mt-2 text-lg">KS Website</p>
         </a>
-        <a href="https://discord.gg/2kAYnH655h" target="_blank" class="bg-white/5 hover:bg-indigo-500/20 transition rounded-xl p-4 text-center">
-          <p class="text-sm text-neutral-400">Community</p>
-          <p class="text-white font-semibold mt-1">Discord</p>
+        <a href="https://discord.gg/2kAYnH655h" target="_blank" class="group bg-neutral-900/60 hover:bg-indigo-500/10 border border-white/10 hover:border-indigo-400/30 transition-all rounded-2xl p-6 text-center">
+          <p class="text-sm text-neutral-400 group-hover:text-white">Community</p>
+          <p class="text-white font-semibold mt-2 text-lg">Discord</p>
         </a>
-        <a href="https://youtube.com/@ks_warrior_pro" target="_blank" class="bg-white/5 hover:bg-red-500/20 transition rounded-xl p-4 text-center">
-          <p class="text-sm text-neutral-400">Videos</p>
-          <p class="text-white font-semibold mt-1">YouTube</p>
+        <a href="https://youtube.com/@ks_warrior_pro" target="_blank" class="group bg-neutral-900/60 hover:bg-red-500/10 border border-white/10 hover:border-red-400/30 transition-all rounded-2xl p-6 text-center">
+          <p class="text-sm text-neutral-400 group-hover:text-white">Videos</p>
+          <p class="text-white font-semibold mt-2 text-lg">YouTube</p>
         </a>
-        <a href="https://instagram.com/ks_warrior_pro" target="_blank" class="bg-white/5 hover:bg-pink-500/20 transition rounded-xl p-4 text-center">
-          <p class="text-sm text-neutral-400">Social</p>
-          <p class="text-white font-semibold mt-1">Instagram</p>
+        <a href="https://instagram.com/ks_warrior_pro" target="_blank" class="group bg-neutral-900/60 hover:bg-pink-500/10 border border-white/10 hover:border-pink-400/30 transition-all rounded-2xl p-6 text-center">
+          <p class="text-sm text-neutral-400 group-hover:text-white">Social</p>
+          <p class="text-white font-semibold mt-2 text-lg">Instagram</p>
         </a>
       </div>
     </div>
-  </div>
+
   </div>
 </main>
 
@@ -172,11 +208,11 @@
     const btn = document.getElementById('pauseBtn');
     if (consolePaused) {
       btn.textContent = 'Resume';
-      btn.classList.replace('bg-yellow-500/20', 'bg-green-500/20');
+      btn.classList.replace('bg-yellow-600/20', 'bg-green-600/20');
       btn.classList.replace('text-yellow-400', 'text-green-400');
     } else {
       btn.textContent = 'Stop';
-      btn.classList.replace('bg-green-500/20', 'bg-yellow-500/20');
+      btn.classList.replace('bg-green-600/20', 'bg-yellow-600/20');
       btn.classList.replace('text-green-400', 'text-yellow-400');
     }
   }
