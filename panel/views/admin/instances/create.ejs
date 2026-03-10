@@ -305,7 +305,7 @@ function isPositiveIntegerCpu(value) {
 
 async function sendData(deployData, createBtn) {
     try {
-        const response = await fetch('/instances/deploy', {
+        const response = await fetch('/instances/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(deployData)
