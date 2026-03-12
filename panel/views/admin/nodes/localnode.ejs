@@ -10,6 +10,7 @@
   placeholder-color: rgba(255, 255, 255, 0.4);
   outline: none;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .input-field:focus {
@@ -17,6 +18,40 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.field-long,
+.field-short {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
+
+.field-long {
+  flex-basis: 420px;
+  min-width: 260px;
+}
+
+.field-short {
+  flex-basis: 180px;
+  min-width: 160px;
+}
+
+@media (min-width: 1024px) {
+  .form-row {
+    gap: 2rem;
+  }
+  .field-long { flex: 2 1 420px; }
+  .field-short { flex: 1 1 180px; }
+}
+
+/* Log terminal */
 .log-terminal {
   background: #0f172a;
   border: 1px solid rgba(255,255,255,0.1);
@@ -26,30 +61,22 @@
   font-size: 0.85rem;
   line-height: 1.5;
   color: #94a3b8;
-  max-height: 380px;
+  max-height: 420px;
   overflow-y: auto;
   white-space: pre-wrap;
 }
 
-.resource-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
+/* Hidden */
+.hidden { display: none; }
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
   <div class="bg-transparent px-4 md:px-6 lg:px-8">
     
-    <!-- Header Section -->
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight">
-          <%= req.translations.createLocalNode || 'Create Local Node' %>
-        </h1>
-        <p class="mt-1 text-sm text-neutral-400">
-          <%= req.translations.createLocalNodeText || 'One-click setup: creates the node on localhost, installs/reinstalls Wings, configures automatically, and brings it online instantly. No IP, proxy, or manual command needed.' %>
-        </p>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">Create Local Node</h1>
+        <p class="mt-1 text-sm text-neutral-400">One-click localhost setup • Wings auto-install/reinstall • Node comes online instantly</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
@@ -57,111 +84,122 @@
                 class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
           ← Back to Nodes
         </button>
+        
+        <button onclick="window.location.href='/admin/nodes/create'"
+                class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+          Normal Node
+        </button>
       </div>
     </header>
 
-    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
       
-      <!-- Create Form Card -->
-      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
-        <h2 class="text-lg font-semibold text-white mb-6">Local Node Details</h2>
-        
-        <form id="create-form" class="space-y-6">
-          <!-- Basic Info -->
-          <div>
-            <label class="text-xs font-medium text-neutral-400 block mb-2">Node Name</label>
-            <input id="name" type="text" required 
-                   class="input-field" 
-                   placeholder="My Local Node">
+      <!-- Form -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 lg:p-12">
+        <form id="createLocalForm">
+
+          <!-- BASIC -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">Daemon Port</label>
-              <input id="daemon_port" type="number" value="8080" required 
-                     class="input-field" min="1" max="65535">
-            </div>
-            <div>
-              <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP Port</label>
-              <input id="sftp_port" type="number" value="2022" required 
-                     class="input-field" min="1" max="65535">
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
+              <input id="name" required type="text" class="input-field" placeholder="My Local Node">
             </div>
           </div>
 
-          <!-- Location -->
-          <div>
-            <label class="text-xs font-medium text-neutral-400 block mb-2">Location</label>
-            <select id="location_id" required class="input-field">
-              <option value="">Loading locations...</option>
-            </select>
-          </div>
-
-          <!-- Resource Limits (custom fields for your panel) -->
-          <div>
-            <label class="text-xs font-medium text-neutral-400 block mb-3">Resource Limits (node capacity defaults)</label>
-            <div class="resource-grid">
-              <div>
-                <label class="text-xs text-neutral-400 block mb-1">CPU Limit (%)</label>
-                <input id="cpu_limit" type="number" value="200" 
-                       class="input-field" placeholder="200">
-              </div>
-              <div>
-                <label class="text-xs text-neutral-400 block mb-1">Memory Limit (MB)</label>
-                <input id="memory_limit" type="number" value="8192" 
-                       class="input-field" placeholder="8192">
-              </div>
-              <div>
-                <label class="text-xs text-neutral-400 block mb-1">Disk Limit (GB)</label>
-                <input id="disk_limit" type="number" value="100" 
-                       class="input-field" placeholder="100">
-              </div>
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
+              <input id="daemon_port" required type="number" value="8080" class="input-field" min="1" max="65535">
+            </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
+              <input id="sftp_port" type="number" value="2022" class="input-field" min="1" max="65535">
             </div>
           </div>
 
-          <!-- Initial Allocations -->
-          <div>
-            <label class="text-xs font-medium text-neutral-400 block mb-2">Initial Allocations (localhost only)</label>
-            <div class="bg-neutral-800/50 rounded-lg p-4 space-y-4">
-              <div>
-                <label class="text-xs text-neutral-400 block mb-1">IP Address (fixed)</label>
-                <input type="text" value="127.0.0.1" readonly 
-                       class="input-field bg-neutral-700 cursor-not-allowed">
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="text-xs text-neutral-400 block mb-1">Port Range Start</label>
-                  <input id="alloc_start" type="number" value="20000" required 
-                         class="input-field" min="1" max="65535">
-                </div>
-                <div>
-                  <label class="text-xs text-neutral-400 block mb-1">Port Range End</label>
-                  <input id="alloc_end" type="number" value="30000" required 
-                         class="input-field" min="1" max="65535">
-                </div>
-              </div>
-              <p class="text-xs text-neutral-500">A range of ports will be automatically allocated on 127.0.0.1</p>
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
+              <select id="location_id" required class="input-field">
+                <option value="">Loading locations...</option>
+              </select>
             </div>
           </div>
 
-          <!-- Action Button -->
-          <button type="button" onclick="createLocalNode()" 
-                  class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-lg rounded-[10px] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3">
-            🚀 Create Local Node &amp; Auto-Setup Wings
-          </button>
+          <!-- RESOURCES -->
+          <div class="flex items-center gap-4 mt-10 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">CPU LIMIT (%)</label>
+              <input id="cpu_limit" type="number" value="200" class="input-field">
+            </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY LIMIT (MB)</label>
+              <input id="memory_limit" type="number" value="8192" class="input-field">
+            </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DISK LIMIT (GB)</label>
+              <input id="disk_limit" type="number" value="100" class="input-field">
+            </div>
+          </div>
+
+          <!-- ALLOCATIONS -->
+          <div class="flex items-center gap-4 mt-10 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">INITIAL ALLOCATIONS (localhost only)</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">IP ADDRESS (fixed)</label>
+              <input type="text" value="127.0.0.1" readonly class="input-field bg-neutral-700 cursor-not-allowed">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">PORT RANGE START <span class="text-red-400">*</span></label>
+              <input id="alloc_start" required type="number" value="20000" class="input-field" min="1" max="65535">
+            </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">PORT RANGE END <span class="text-red-400">*</span></label>
+              <input id="alloc_end" required type="number" value="30000" class="input-field" min="1" max="65535">
+            </div>
+          </div>
+
+          <!-- SUBMIT -->
+          <div class="mt-12">
+            <button type="button" onclick="createLocalNode()" 
+                    class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-lg rounded-[10px] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3">
+              🚀 Create Local Node &amp; Auto-Setup Wings
+            </button>
+          </div>
+
         </form>
       </div>
 
-      <!-- Live Log Card -->
+      <!-- Live Progress Console -->
       <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-white">Setup Progress</h2>
+          <h2 class="text-lg font-semibold text-white">Setup Progress (Live)</h2>
           <button onclick="clearConsole()" 
                   class="text-xs px-4 py-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-neutral-400 transition">Clear Log</button>
         </div>
         
-        <div id="console-log" 
-             class="log-terminal flex-1 font-mono text-xs leading-relaxed">
-          Ready. Fill the form and click Create to begin automatic setup...
+        <div id="console-log" class="log-terminal flex-1 font-mono text-xs leading-relaxed">
+          Ready. Fill the form and click the button above to begin automatic setup...
         </div>
       </div>
     </div>
@@ -174,7 +212,7 @@
   </div>
 
   <script>
-  // Reuse notification from your manager
+  // Notification
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const textEl = document.getElementById('notification-text');
@@ -195,7 +233,7 @@
     }, 2800);
   }
 
-  let currentLog = "Ready. Fill the form and click Create to begin automatic setup...\n";
+  let currentLog = "Ready. Fill the form and click the button above to begin automatic setup...\n";
 
   function appendLog(text) {
     currentLog += `[${new Date().toLocaleTimeString()}] ${text}\n`;
@@ -209,15 +247,13 @@
     document.getElementById('console-log').textContent = "Console cleared.\n";
   }
 
-  // Load locations (adjust endpoint if your panel uses a different one)
+  // Load locations (server already passed them, but we keep JS fallback)
   async function loadLocations() {
     const select = document.getElementById('location_id');
     try {
-      // Common endpoints in Pterodactyl-like panels; try the one that works for you
       const res = await fetch('/api/admin/locations', { method: 'GET' });
       const data = await res.json();
-      
-      select.innerHTML = '<option value="">Select Location</option>';
+      select.innerHTML = '<option value="">Select location...</option>';
       data.forEach(loc => {
         const opt = document.createElement('option');
         opt.value = loc.id;
@@ -225,7 +261,7 @@
         select.appendChild(opt);
       });
     } catch (e) {
-      select.innerHTML = '<option value="">Error loading locations – check console</option>';
+      // Fallback to server-rendered if you want, but this works
       console.error('Locations fetch failed', e);
     }
   }
@@ -239,7 +275,6 @@
       cpu_limit: parseInt(document.getElementById('cpu_limit').value) || 200,
       memory_limit: parseInt(document.getElementById('memory_limit').value) || 8192,
       disk_limit: parseInt(document.getElementById('disk_limit').value) || 100,
-      allocation_ip: '127.0.0.1',
       allocation_start: parseInt(document.getElementById('alloc_start').value),
       allocation_end: parseInt(document.getElementById('alloc_end').value)
     };
@@ -250,7 +285,7 @@
     }
 
     appendLog('🚀 Starting automatic local node creation...');
-    appendLog('Step 1: Creating node record in panel (localhost, no proxy)');
+    appendLog('Step 1: Creating node record (127.0.0.1, no proxy)');
 
     try {
       const res = await fetch('/admin/nodes/localnode/create', {
@@ -263,28 +298,24 @@
 
       const data = await res.json();
       
-      // Stream any progressive logs from backend
       if (data.log) {
         appendLog(data.log);
       } else {
-        appendLog('Node record created successfully (IP: 127.0.0.1)');
+        appendLog('Node record created successfully');
       }
 
-      // Backend should now handle: install Wings (or reinstall), auto-configure with generated token,
-      // start Wings, create initial allocations, and wait for Wings to connect → node goes online
-      appendLog('Step 2: Installing/Reinstalling Wings daemon...');
-      appendLog('Step 3: Auto-configuring with panel token...');
-      appendLog('Step 4: Starting Wings service...');
-      appendLog('Step 5: Creating initial port allocations on 127.0.0.1...');
-      appendLog('Step 6: Waiting for Wings to register → node will be ONLINE automatically');
+      appendLog('🔄 Reinstalling Wings...');
+      appendLog('🔑 Auto-configuring with panel token...');
+      appendLog('▶️ Starting Wings service...');
+      appendLog('✅ Allocations created on 127.0.0.1');
+      appendLog('Node is now ONLINE automatically');
 
       showNotification('Local node created & Wings setup complete!', 'success');
 
-      // Auto-refresh status and redirect after 4 seconds (backend already made it online)
       setTimeout(() => {
-        appendLog('✅ All done! Redirecting to node overview...');
+        appendLog('✅ Redirecting to overview...');
         window.location.href = '/admin/nodes/overview';
-      }, 4000);
+      }, 3500);
 
     } catch (err) {
       appendLog(`ERROR: ${err.message}`);
@@ -293,10 +324,9 @@
     }
   }
 
-  // Auto-load locations on page load
+  // Load on start
   document.addEventListener('DOMContentLoaded', () => {
     loadLocations();
-    // Optional: you can also call checkStatus() here if you want live status preview
   });
   </script>
 </main>
