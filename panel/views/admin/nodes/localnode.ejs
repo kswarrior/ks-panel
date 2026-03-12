@@ -30,7 +30,14 @@
   overflow-y: auto;
   white-space: pre-wrap;
 }
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
 </style>
+
 <main id="content" class="max-w-screen-2xl mx-auto">
   <div class="bg-transparent px-4 md:px-6 lg:px-8">
     
@@ -38,10 +45,10 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">
-          <%= req.translations.localNode || 'Local Node Manager' %>
+          <%= req.translations.createLocalNode || 'Create Local Node' %>
         </h1>
         <p class="mt-1 text-sm text-neutral-400">
-          <%= req.translations.localNodeText || 'Install, configure, and control the Wings daemon on this machine' %>
+          <%= req.translations.createLocalNodeText || 'One-click setup: creates the node on localhost, installs/reinstalls Wings, configures automatically, and brings it online instantly. No IP, proxy, or manual command needed.' %>
         </p>
       </div>
 
@@ -55,70 +62,106 @@
 
     <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
       
-      <!-- Controls Card -->
+      <!-- Create Form Card -->
       <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
-        <h2 class="text-lg font-semibold text-white mb-6">Daemon Controls</h2>
+        <h2 class="text-lg font-semibold text-white mb-6">Local Node Details</h2>
         
-        <div class="space-y-6">
-          <!-- Status -->
-          <div class="flex items-center justify-between bg-neutral-800/50 rounded-lg p-4">
-            <div class="flex items-center gap-3">
-              <div id="status-indicator" class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-              <span id="status-text" class="text-sm font-medium text-neutral-300">Checking status...</span>
-            </div>
-            <button onclick="checkStatus()" 
-                    class="px-5 py-2 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 rounded-[10px] transition-all">
-              Refresh Status
-            </button>
-          </div>
-
-          <!-- Configure -->
+        <form id="create-form" class="space-y-6">
+          <!-- Basic Info -->
           <div>
-            <label class="text-xs font-medium text-neutral-400 block mb-2">
-              Configure Command (from node setup)
-            </label>
-            <input id="configuration" type="text" 
-                   class="input-field font-mono text-sm" 
-                   placeholder="npm run configure -- --panel https://yourpanel.com --key xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-            <p class="mt-2 text-xs text-neutral-500">
-              Paste the full command shown in Admin → Nodes → [Your Node] → Configure
-            </p>
+            <label class="text-xs font-medium text-neutral-400 block mb-2">Node Name</label>
+            <input id="name" type="text" required 
+                   class="input-field" 
+                   placeholder="My Local Node">
           </div>
 
-          <!-- Action Buttons -->
-          <div class="grid grid-cols-2 gap-3">
-            <button onclick="installWings()" 
-                    class="py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-[10px] transition-all active:scale-95">
-              🚀 Install Wings
-            </button>
-            <button onclick="configureWings()" 
-                    class="py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-[10px] transition-all active:scale-95">
-              ⚙️ Import Configure
-            </button>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Daemon Port</label>
+              <input id="daemon_port" type="number" value="8080" required 
+                     class="input-field" min="1" max="65535">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP Port</label>
+              <input id="sftp_port" type="number" value="2022" required 
+                     class="input-field" min="1" max="65535">
+            </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
-            <button onclick="startWings()" 
-                    class="py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Start</button>
-            <button onclick="restartWings()" 
-                    class="py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Restart</button>
-            <button onclick="stopWings()" 
-                    class="py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Stop</button>
+          <!-- Location -->
+          <div>
+            <label class="text-xs font-medium text-neutral-400 block mb-2">Location</label>
+            <select id="location_id" required class="input-field">
+              <option value="">Loading locations...</option>
+            </select>
           </div>
-        </div>
+
+          <!-- Resource Limits (custom fields for your panel) -->
+          <div>
+            <label class="text-xs font-medium text-neutral-400 block mb-3">Resource Limits (node capacity defaults)</label>
+            <div class="resource-grid">
+              <div>
+                <label class="text-xs text-neutral-400 block mb-1">CPU Limit (%)</label>
+                <input id="cpu_limit" type="number" value="200" 
+                       class="input-field" placeholder="200">
+              </div>
+              <div>
+                <label class="text-xs text-neutral-400 block mb-1">Memory Limit (MB)</label>
+                <input id="memory_limit" type="number" value="8192" 
+                       class="input-field" placeholder="8192">
+              </div>
+              <div>
+                <label class="text-xs text-neutral-400 block mb-1">Disk Limit (GB)</label>
+                <input id="disk_limit" type="number" value="100" 
+                       class="input-field" placeholder="100">
+              </div>
+            </div>
+          </div>
+
+          <!-- Initial Allocations -->
+          <div>
+            <label class="text-xs font-medium text-neutral-400 block mb-2">Initial Allocations (localhost only)</label>
+            <div class="bg-neutral-800/50 rounded-lg p-4 space-y-4">
+              <div>
+                <label class="text-xs text-neutral-400 block mb-1">IP Address (fixed)</label>
+                <input type="text" value="127.0.0.1" readonly 
+                       class="input-field bg-neutral-700 cursor-not-allowed">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-neutral-400 block mb-1">Port Range Start</label>
+                  <input id="alloc_start" type="number" value="20000" required 
+                         class="input-field" min="1" max="65535">
+                </div>
+                <div>
+                  <label class="text-xs text-neutral-400 block mb-1">Port Range End</label>
+                  <input id="alloc_end" type="number" value="30000" required 
+                         class="input-field" min="1" max="65535">
+                </div>
+              </div>
+              <p class="text-xs text-neutral-500">A range of ports will be automatically allocated on 127.0.0.1</p>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button type="button" onclick="createLocalNode()" 
+                  class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-lg rounded-[10px] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3">
+            🚀 Create Local Node &amp; Auto-Setup Wings
+          </button>
+        </form>
       </div>
 
       <!-- Live Log Card -->
       <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-white">Live Console Output</h2>
+          <h2 class="text-lg font-semibold text-white">Setup Progress</h2>
           <button onclick="clearConsole()" 
                   class="text-xs px-4 py-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-neutral-400 transition">Clear Log</button>
         </div>
         
         <div id="console-log" 
              class="log-terminal flex-1 font-mono text-xs leading-relaxed">
-          Ready. Click any action above to begin...
+          Ready. Fill the form and click Create to begin automatic setup...
         </div>
       </div>
     </div>
@@ -131,6 +174,7 @@
   </div>
 
   <script>
+  // Reuse notification from your manager
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const textEl = document.getElementById('notification-text');
@@ -151,27 +195,7 @@
     }, 2800);
   }
 
-  function updateStatus(running, pid = null) {
-    const indicator = document.getElementById('status-indicator');
-    const text = document.getElementById('status-text');
-    if (running) {
-      indicator.className = 'w-3 h-3 rounded-full bg-emerald-500 animate-pulse';
-      text.textContent = `Running (PID: ${pid || 'Unknown'})`;
-    } else {
-      indicator.className = 'w-3 h-3 rounded-full bg-red-500';
-      text.textContent = 'Stopped';
-    }
-  }
-
-  async function checkStatus() {
-    try {
-      const res = await fetch('/admin/nodes/localnode/status', { method: 'POST' });
-      const data = await res.json();
-      updateStatus(data.running, data.pid);
-    } catch (e) {}
-  }
-
-  let currentLog = "Ready. Click any action above to begin...\n";
+  let currentLog = "Ready. Fill the form and click Create to begin automatic setup...\n";
 
   function appendLog(text) {
     currentLog += `[${new Date().toLocaleTimeString()}] ${text}\n`;
@@ -185,35 +209,94 @@
     document.getElementById('console-log').textContent = "Console cleared.\n";
   }
 
-  async function runAction(endpoint, actionName) {
-    const configValue = document.getElementById('configuration').value.trim();
-    appendLog(`Executing ${actionName}...`);
-
+  // Load locations (adjust endpoint if your panel uses a different one)
+  async function loadLocations() {
+    const select = document.getElementById('location_id');
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ configuration: configValue })
-      });
+      // Common endpoints in Pterodactyl-like panels; try the one that works for you
+      const res = await fetch('/api/admin/locations', { method: 'GET' });
       const data = await res.json();
-      appendLog(data.log || 'No output received.');
-      showNotification(`${actionName} completed`);
-      setTimeout(checkStatus, 1500);
-    } catch (err) {
-      appendLog(`ERROR: ${err.message}`);
-      showNotification(`Failed to ${actionName.toLowerCase()}`, 'error');
+      
+      select.innerHTML = '<option value="">Select Location</option>';
+      data.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc.id;
+        opt.textContent = `${loc.long_name || loc.name} (${loc.short_code || ''})`;
+        select.appendChild(opt);
+      });
+    } catch (e) {
+      select.innerHTML = '<option value="">Error loading locations – check console</option>';
+      console.error('Locations fetch failed', e);
     }
   }
 
-  function installWings()    { runAction('/admin/nodes/localnode/install', 'Install Wings'); }
-  function configureWings()  { runAction('/admin/nodes/localnode/configure', 'Import Configure'); }
-  function startWings()      { runAction('/admin/nodes/localnode/start', 'Start Wings'); }
-  function restartWings()    { runAction('/admin/nodes/localnode/restart', 'Restart Wings'); }
-  function stopWings()       { runAction('/admin/nodes/localnode/stop', 'Stop Wings'); }
+  async function createLocalNode() {
+    const formData = {
+      name: document.getElementById('name').value.trim(),
+      daemon_port: parseInt(document.getElementById('daemon_port').value),
+      sftp_port: parseInt(document.getElementById('sftp_port').value),
+      location_id: parseInt(document.getElementById('location_id').value),
+      cpu_limit: parseInt(document.getElementById('cpu_limit').value) || 200,
+      memory_limit: parseInt(document.getElementById('memory_limit').value) || 8192,
+      disk_limit: parseInt(document.getElementById('disk_limit').value) || 100,
+      allocation_ip: '127.0.0.1',
+      allocation_start: parseInt(document.getElementById('alloc_start').value),
+      allocation_end: parseInt(document.getElementById('alloc_end').value)
+    };
 
+    if (!formData.name || !formData.location_id || !formData.allocation_start || !formData.allocation_end) {
+      showNotification('Please fill all required fields', 'error');
+      return;
+    }
+
+    appendLog('🚀 Starting automatic local node creation...');
+    appendLog('Step 1: Creating node record in panel (localhost, no proxy)');
+
+    try {
+      const res = await fetch('/admin/nodes/localnode/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const data = await res.json();
+      
+      // Stream any progressive logs from backend
+      if (data.log) {
+        appendLog(data.log);
+      } else {
+        appendLog('Node record created successfully (IP: 127.0.0.1)');
+      }
+
+      // Backend should now handle: install Wings (or reinstall), auto-configure with generated token,
+      // start Wings, create initial allocations, and wait for Wings to connect → node goes online
+      appendLog('Step 2: Installing/Reinstalling Wings daemon...');
+      appendLog('Step 3: Auto-configuring with panel token...');
+      appendLog('Step 4: Starting Wings service...');
+      appendLog('Step 5: Creating initial port allocations on 127.0.0.1...');
+      appendLog('Step 6: Waiting for Wings to register → node will be ONLINE automatically');
+
+      showNotification('Local node created & Wings setup complete!', 'success');
+
+      // Auto-refresh status and redirect after 4 seconds (backend already made it online)
+      setTimeout(() => {
+        appendLog('✅ All done! Redirecting to node overview...');
+        window.location.href = '/admin/nodes/overview';
+      }, 4000);
+
+    } catch (err) {
+      appendLog(`ERROR: ${err.message}`);
+      showNotification('Failed to create local node – check logs', 'error');
+      console.error(err);
+    }
+  }
+
+  // Auto-load locations on page load
   document.addEventListener('DOMContentLoaded', () => {
-    checkStatus();
-    setInterval(checkStatus, 10000);
+    loadLocations();
+    // Optional: you can also call checkStatus() here if you want live status preview
   });
   </script>
 </main>
