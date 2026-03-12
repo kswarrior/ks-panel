@@ -26,111 +26,109 @@
       linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
       url('/assets/background.webp');
     background-position: center top;
-    background-repeat: repeat-y;
-    background-size: 100% auto;" >
-      <!-- Enhanced animations + optimized sidebar styles -->
+    background-repeat: repeat-y; /* repeats vertically */
+    background-size: 100% auto;  /* keeps full width */" >
+      <!-- Todo : remove this style for tailwind css-->
       <style>
+
          .sidebar nav ul {
             position: relative;
          }
          .nav-link {
             position: relative;
             z-index: 1;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-         }
-         .nav-link:hover {
-            transform: translateX(6px);
-            color: #e5e7eb;
          }
          .nav-link.active {
             color: white;
             font-weight: 500;
          }
-         /* Smooth sidebar collapse & mobile slide */
          @media (max-width: 1024px) {
-            .sidebar {
-               display: none;
-               position: fixed;
-               z-index: 50;
-               height: 100%;
-               width: 215px;
-               backdrop-filter: blur(var(--backdrop-blur));
-               background: rgba(0, 0, 0, 0.4);
-               overflow-y: auto;
-               transform: translateX(-110%);
-               opacity: 0;
-               transition: 
-                  transform 0.45s cubic-bezier(0.32, 0.72, 0, 1),
-                  opacity 0.35s ease;
-            }
-            .sidebar.open {
-               display: block;
-               transform: translateX(0);
-               opacity: 1;
-            }
-         }
-         /* Optimized desktop collapse */
-         .sidebar.collapsed {
-            width: 68px !important;
-         }
-         .sidebar.collapsed .lg\\:group-\\[\\.collapsed\\]\\:hidden {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-         }
 
-         /* Global UI animations */
-         @keyframes dropdownPop {
-            from {
-               opacity: 0;
-               transform: scale(0.85) translateY(-12px);
-            }
-            to {
-               opacity: 1;
-               transform: scale(1) translateY(0);
-            }
-         }
-         .dropdown {
-            animation: dropdownPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-         }
+  .sidebar {
+    display: none;
+    position: fixed;
+    z-index: 50;
+    height: 100%;
+    width: 215px;
+    backdrop-filter: blur(var(--backdrop-blur));
+    background: rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
 
-         @keyframes barRise {
-            from { height: 8%; }
-            to { height: var(--bar-height); }
-         }
+    /* Original transform */
+    transform: translateX(-100%);
 
-         /* Ping SVG smooth animation */
-         #pingIcon {
-            transition: filter 0.3s ease;
-         }
-         #pingLayer1, #pingLayer2, #pingLayer3, #pingDot {
-            transition: stroke 0.4s ease, opacity 0.4s ease, fill 0.4s ease;
-         }
-         #pingDot {
-            animation: pingPulse 1.8s infinite ease-in-out;
-         }
-         @keyframes pingPulse {
-            0%, 100% { transform: scale(1); opacity: 0.65; }
-            50% { transform: scale(1.18); opacity: 1; }
-         }
+    /* Added smooth animation */
+    opacity: 0;
+    transition: 
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.3s ease;
+  }
 
-         /* Resource history bars */
-         .history-bar {
-            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-         }
+  .sidebar.open {
+    display: block;
+    transform: translateX(0);
+
+    /* Added fade in */
+    opacity: 1;
+    animation: sidebarSlide 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .sidebar.expanded {
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 1024px) {
+   .group-[.collapsed]:hidden {
+      display: inline !important;
+   }
+   #pc-sidebar2 {
+      overflow: visible !important;
+   }
+   .sidebar.open {
+      width: 215px !important;   /* slightly wider for comfort */
+   }
+}
+
+/* Animation */
+@keyframes sidebarSlide {
+  from {
+    transform: translateX(-110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+#update-dropdown,
+#resource-dropdown,
+#dropdown-menu {
+    backdrop-filter: blur(var(--backdrop-blur));
+    background: rgba(0, 0, 0, 0.4);
+}
       </style>
 
+      <!--
+     
+      MOBILE TOGGLE SECTION
+     
+      -->
       <!-- Static sidebar for desktop -->
-      <div id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out hidden lg:fixed lg:inset-y-0 lg:z-50 p-2 lg:flex lg:w-56 lg:flex-col group group-[.collapsed]:w-[68px]">
+      <div id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out hidden lg:fixed lg:inset-y-0 lg:z-50 p-2 lg:flex lg:w-56 lg:flex-col group group-[.collapsed]:w-[4%]">
          <div id="pc-sidebar2" class="flex grow flex-col gap-y-5 overflow-hidden rounded-r-3xl rounded-l-lg bg-transparent border border-white/5">
             <nav class="flex flex-1 flex-col">
-                  <!-- USER INFO SECTION -->
+                  <!--
+     
+      USER INFO SECTION
+     
+      -->
                   <div class="flex items-center space-x-4 py-4 px-4 border-y border-white/5">
                   <img class="w-6 h-6 rounded-full"
      src="https://mc-heads.net/avatar/<%= user.username %>/64"
      alt="Profile">
-                     <div class="lg:group-[.collapsed]:hidden transition-all duration-300">
+                     <div class="lg:group-[.collapsed]:hidden">
                        <p class="text-sm font-medium text-white" style="color: #fff;"><%= user.username %></p>
                        <p class="text-xs text-neutral-500"><%= user.userId.substring(0, 6) %></p>
                      </div>
@@ -171,8 +169,18 @@
                               document.addEventListener("DOMContentLoaded", function() {
                                   document.querySelectorAll('.svg-icon').forEach(function(span) {
                                       const url = span.getAttribute('data-icon-url');
+                          
                                       fetch(url)
-                                          .then(response => response.text())
+                                          .then(response => {
+                                              if (!response.ok) {
+                                                  throw new Error('Network response was not ok');
+                                              } else if (response.status !== 200) {
+                                                  throw new Error(`Request failed with status ${response.status}`);
+                                              } else if (!response.text().includes('<svg')) {
+                                                 throw new Error('Response does not contain an SVG');
+                                              }
+                                              return response.text();
+                                          })
                                           .then(svgContent => {
                                               span.innerHTML = svgContent;
                                           })
@@ -182,6 +190,9 @@
                                   });
                               });
                           </script>
+                          
+                          
+                          
                         </li>
                         <% if (user.admin == true) { %>
                         <p class="pl-8 pt-6 pb-2 text-sm md:text-base font-semibold uppercase tracking-wide text-white lg:group-[.collapsed]:hidden">
@@ -267,6 +278,15 @@
       </div>
       <div id="colcont" class="lg:pl-56 group-[.collapsed]:pl-[4.2rem] group-[.sidebar-right]:pl-[1.2rem] group-[.sidebar-right]:pr-[14.2rem]">
       <div class="sticky backdrop-blur top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-transparent px-4 sm:gap-x-6 sm:px-4 lg:px-4">
+         <!-- Desktop sidebar toggle is now completely hidden (always) -->
+         <div class="hidden">
+         <button type="button" id="sidebar-toggle" class="hidden lg:block w-fit p-2 mt-1 rounded-xl text-white border border-white/5 hover:scale-110 active:scale-100 duration-200">
+            <span class="sr-only">Open sidebar</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+         </button>
+      </div>
          <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div class="relative flex flex-1 flex-col">
                <div id="mobile-sidebar-toggle"
@@ -276,12 +296,17 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
      fill="none"
      stroke="white"
      stroke-width="2"
-     class="w-5 h-5 inline-flex mr-2 transition-all duration-200 ease-in-out">
+     class="w-5 h-5 inline-flex mr-2 transition-all duration-200 ease-in-out
+            group-hover:scale-110 group-hover:stroke-blue-400
+            drop-shadow-sm">
 
   <path stroke-linecap="round"
         stroke-linejoin="round"
         d="M4 6h16M4 12h16M4 18h16" />
 </svg>
+<div class="mx-[2px] h-6 w-px bg-transparent flex items-center justify-center">
+     
+</div>
                      <% if (logo == true) { %>
          <img src="/assets/logo.webp" class="h-6 w-6 min-h-6 min-w-6 max-h-6 max-w-6 object-contain rounded mr-3 block shrink-0">
       <% }  else { %>
@@ -289,134 +314,125 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       <% } %>
                   <h1 class="text-white font-medium tracking-tight text-lg lg:group-[.collapsed]:hidden"><%= name || 'KS Panel' %></h1>
                </div>
-            </div>
-
-            <!-- UPDATE MANAGER - Enhanced with versions outside button -->
-            <div class="relative cursor-pointer">
-               <svg id="update-icon"
-                 xmlns="http://www.w3.org/2000/svg"
-                 width="24"
-                 height="24"
-                 viewBox="0 0 24 24"
-                 fill="none"
-                 stroke="#808080"
-                 stroke-width="2"
-                 stroke-linecap="round"
-                 stroke-linejoin="round">
-
-                <path d="M21 4v6h-6"/>
-                <path d="M3 20v-6h6"/>
-                <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
-              </svg>
-               <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl dropdown">
-                 <h2 class="text-lg font-semibold text-white mb-6">Update Manager</h2>
-                 
-                 <div class="grid grid-cols-2 gap-4 mb-6">
-                   <div class="bg-white/10 rounded-2xl p-4 text-center">
-                     <p class="text-xs text-neutral-400 tracking-widest">CURRENT</p>
-                     <p id="current-version" class="font-mono text-2xl font-semibold text-white mt-1">v1.0.0</p>
-                   </div>
-                   <div class="bg-white/10 rounded-2xl p-4 text-center">
-                     <p class="text-xs text-neutral-400 tracking-widest">LATEST</p>
-                     <p id="latest-version" class="font-mono text-2xl font-semibold text-white mt-1">v1.2.3</p>
-                   </div>
-                 </div>
-
-                 <button id="action-button" 
-                         class="w-full bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all text-white py-3.5 rounded-2xl font-medium text-sm tracking-wide">
-                   Update Now
-                 </button>
+               <div id="searchResults" class="absolute bg-white w-[12.5rem] rounded-xl shadow-lg hidden mt-20 px-2 pb-2">
                </div>
             </div>
+            <script src="/javascript/search/index.js"></script>
+<div class="flex items-center gap-x-2">
+   <div class="relative cursor-pointer">
+   <svg id="update-icon"
+     xmlns="http://www.w3.org/2000/svg"
+     width="24"
+     height="24"
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="#808080"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round">
 
-            <!-- PING - Enhanced smooth SVG -->
-            <span id="pingDisplay" class="flex flex-col items-center text-white bg-transparent w-fit">
-              <svg id="pingIcon"
-                   width="20"
-                   height="20"
-                   viewBox="0 0 24 20"
-                   xmlns="http://www.w3.org/2000/svg"
-                   class="transition-all duration-300">
+  <path d="M21 4v6h-6"/>
+  <path d="M3 20v-6h6"/>
+  <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
+</svg>
+   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
+     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
+     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
+   </div>
+   </div>
+   <!-- Ping Display -->
+<span id="pingDisplay"
+      class="flex flex-col items-center text-white bg-transparent w-fit">
 
-                <path id="pingLayer3"
-                      d="M2 6C7-1 17-1 22 6"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                      stroke-linecap="round"
-                      opacity="0.2" />
+  <!-- SVG WiFi Icon -->
+  <svg id="pingIcon"
+       width="20"
+       height="16"
+       viewBox="0 0 24 20"
+       xmlns="http://www.w3.org/2000/svg"
+       class="transition-all duration-300">
 
-                <path id="pingLayer2"
-                      d="M5 10C9 5 15 5 19 10"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                      stroke-linecap="round"
-                      opacity="0.2" />
+    <path id="pingLayer3"
+          d="M2 6C7-1 17-1 22 6"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          opacity="0.2" />
 
-                <path id="pingLayer1"
-                      d="M8.5 14C10.5 12 13.5 12 15.5 14"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                      stroke-linecap="round"
-                      opacity="0.2" />
+    <path id="pingLayer2"
+          d="M5 10C9 5 15 5 19 10"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          opacity="0.2" />
 
-                <circle id="pingDot"
-                        cx="12"
-                        cy="18"
-                        r="1.8"
-                        fill="currentColor"
-                        opacity="0.2" />
-              </svg>
+    <path id="pingLayer1"
+          d="M8.5 14C10.5 12 13.5 12 15.5 14"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          opacity="0.2" />
 
-              <span style="font-size:8px;" class="mt-0.5 font-medium">
-                <span id="pingValue">--</span>
-              </span>
-            </span>
+    <circle id="pingDot"
+            cx="12"
+            cy="18"
+            r="1.8"
+            fill="currentColor"
+            opacity="0.2" />
+  </svg>
 
-            <!-- RESOURCE MONITOR - 5-minute bar graphs -->
-            <div id="resource-link" class="relative cursor-pointer">
-               <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-400">
-                 <rect x="1" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                 <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" />
-                 <rect x="8" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                 <rect id="cpu-fill" x="8" y="2" width="3" height="0" fill="#22c55e" />
-                 <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                 <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
-               </svg>
+  <!-- Ping Number Below -->
+  <span style="font-size:8px;" class="mt-0.5 font-medium">
+    <span id="pingValue">--</span>
+  </span>
 
-               <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl dropdown">
-                 <h2 class="text-lg font-semibold text-white mb-6">Resource Monitor • Last 5 snapshots</h2>
-
-                 <!-- RAM -->
-                 <div class="mb-6">
-                   <div class="flex justify-between mb-1.5">
-                     <p class="text-white text-sm">RAM</p>
-                     <p id="ram-used" class="text-neutral-400 text-xs font-mono"></p>
-                   </div>
-                   <div id="ram-history" class="flex gap-1.5 h-24 items-end bg-neutral-800/60 rounded-2xl p-3"></div>
-                 </div>
-
-                 <!-- CPU -->
-                 <div class="mb-6">
-                   <div class="flex justify-between mb-1.5">
-                     <p class="text-white text-sm">CPU</p>
-                     <p id="cpu-percent" class="text-neutral-400 text-xs font-mono"></p>
-                   </div>
-                   <div id="cpu-history" class="flex gap-1.5 h-24 items-end bg-neutral-800/60 rounded-2xl p-3"></div>
-                 </div>
-
-                 <!-- Disk -->
-                 <div>
-                   <div class="flex justify-between mb-1.5">
-                     <p class="text-white text-sm">Disk</p>
-                     <p id="disk-used" class="text-neutral-400 text-xs font-mono"></p>
-                   </div>
-                   <div id="disk-history" class="flex gap-1.5 h-24 items-end bg-neutral-800/60 rounded-2xl p-3"></div>
-                 </div>
-               </div>
-            </div>
-
-            <!-- DROPDOWN PROFILE -->
-            <div class="relative">
+</span>
+   <!-- Resource Monitor -->
+   <div id="resource-link" class="relative cursor-pointer">
+      <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-400">
+        <!-- RAM bar -->
+        <rect x="1" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
+        <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" />
+        <!-- CPU bar -->
+        <rect x="8" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
+        <rect id="cpu-fill" x="8" y="2" width="3" height="0" fill="#22c55e" />
+        <!-- Disk bar -->
+        <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
+        <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
+      </svg>
+      <!-- Dropdown Menu -->
+      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
+        <h2 class="text-lg font-semibold text-white mb-4">Resource Monitor</h2>
+        <div class="mb-4">
+          <p class="text-white">RAM</p>
+          <p id="ram-used" class="text-neutral-400 text-sm"></p>
+          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
+            <div id="ram-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <p class="text-white">CPU</p>
+          <p id="cpu-percent" class="text-neutral-400 text-sm"></p>
+          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
+            <div id="cpu-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <p class="text-white">Disk</p>
+          <p id="disk-used" class="text-neutral-400 text-sm"></p>
+          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
+            <div id="disk-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+   </div>
+   <!--
+     
+                     
+   DROPDOWN PROFILE
+     
+   -->
+   <div class="relative">
      <div type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="14" cy="14" r="11.5" stroke="#ffffff" stroke-width="2.4"/>
@@ -427,7 +443,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
        </span>
      </div>
      
-     <!-- DROPDOWN MENU LANGUAGES SELECTOR -->
+     <!--
+     
+     DROPDOWN MENU LANGUAGES SELECTOR
+     
+     -->
      <div id="dropdown-menu" class="hidden absolute right-0 z-10 mt-2 w-56 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none pb-2 transform opacity-0 scale-95 transition-all duration-200 ease-out">
        <div class="p-4">
          <div class="py-1 px-1">
@@ -490,8 +510,6 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
            <script src="/javascript/language/index.js"></script>
          </div>
       </div>
-
-      <!-- SIDEBAR + ACTIVE LINK + MOBILE SCRIPTS -->
       <script>
          document.addEventListener('DOMContentLoaded', function() {
            const navLinks = document.querySelectorAll('.nav-link');
@@ -531,6 +549,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
              activeBackground.style.transform = `translateY(${topOffset}px)`;
          
              if (instant) {
+               // Force a reflow
                void activeBackground.offsetWidth;
                activeBackground.style.transition = 'transform 0.3s ease, height 0.3s ease';
              }
@@ -558,6 +577,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
              }
            }
          
+           // Appliquer immédiatement au chargement de la page
            updateActiveLink(window.location.pathname);
          
            function animatePageTransition(href) {
@@ -611,6 +631,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
    const isDesktop = window.innerWidth >= 1024;
 
    if (isDesktop) {
+      // Desktop: allow collapse (your original behavior)
       const sidebarState = getCookie('sidebar-collapsed');
       if (sidebarState === 'true') {
          sidebar.classList.add('collapsed');
@@ -620,11 +641,14 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
          colcont.classList.remove('colcont');
       }
    } else {
+      // MOBILE FIX: NEVER collapse + force full width
       sidebar.classList.remove('collapsed');
       colcont.classList.remove('colcont');
+      // Also clean the cookie so it doesn't come back
       setCookie('sidebar-collapsed', 'false', 7);
    }
 
+   // desktop toggle (still works on big screens)
    if (toggleButton) {
       toggleButton.addEventListener('click', () => {
          sidebar.classList.toggle('collapsed');
@@ -634,6 +658,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       });
    }
 
+   // === MOBILE: open/close sidebar ===
    if (mobileToggleButton) {
       mobileToggleButton.addEventListener('click', () => {
          sidebar.classList.toggle('open');
@@ -645,216 +670,226 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       });
    }
 
-   document.addEventListener('click', (e) => {
-      if (window.innerWidth < 1024 && 
-          sidebar.classList.contains('open') && 
-          !sidebar.contains(e.target) && 
-          !mobileToggleButton.contains(e.target)) {
-         sidebar.classList.remove('open');
-         mobileToggleButton.classList.remove('hidden');
-      }
-   });
+   // Close sidebar when clicking outside on mobile
+   if (mobileToggleButton) {
+      document.addEventListener('click', (e) => {
+         if (window.innerWidth < 1024 && 
+             sidebar.classList.contains('open') && 
+             !sidebar.contains(e.target) && 
+             !mobileToggleButton.contains(e.target)) {
+            sidebar.classList.remove('open');
+            mobileToggleButton.classList.remove('hidden');
+         }
+      });
+   }
 });
-      </script>         
+         </script>         
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-      <!-- PING - Enhanced smooth animation -->
-      <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const pingValue = document.getElementById('pingValue');
-        const layer1 = document.getElementById('pingLayer1');
-        const layer2 = document.getElementById('pingLayer2');
-        const layer3 = document.getElementById('pingLayer3');
-        const dot = document.getElementById('pingDot');
+  const pingValue = document.getElementById('pingValue');
 
-        function resetSignal() {
-          [layer1, layer2, layer3, dot].forEach(el => {
-            if (!el) return;
-            el.style.opacity = "0.2";
-            el.setAttribute("stroke", "#64748b");
-          });
-        }
+  const layer1 = document.getElementById('pingLayer1');
+  const layer2 = document.getElementById('pingLayer2');
+  const layer3 = document.getElementById('pingLayer3');
+  const dot = document.getElementById('pingDot');
 
-        function setSignalColor(elements, color) {
-          elements.forEach(el => {
-            if (!el) return;
-            el.style.opacity = "1";
-            el.setAttribute("stroke", color);
-          });
-        }
+  function resetSignal() {
+    [layer1, layer2, layer3, dot].forEach(el => {
+      if (!el) return;
+      el.style.opacity = "0.2";
+      el.setAttribute("stroke", "currentColor");
+      el.setAttribute("fill", "currentColor");
+      el.style.filter = "none";
+    });
+  }
 
-        async function measurePing() {
-          const startTime = performance.now();
-          try {
-            const response = await fetch('/ping', { cache: 'no-store' });
-            const latency = Math.round(performance.now() - startTime);
+  function setSignalColor(elements, color) {
+    elements.forEach(el => {
+      if (!el) return;
+      el.style.opacity = "1";
+      el.setAttribute("stroke", color);
+      el.setAttribute("fill", color);
+      el.style.filter = `drop-shadow(0 0 6px ${color})`;
+    });
+  }
 
-            pingValue.textContent = latency;
+  async function measurePing() {
+    const startTime = performance.now();
 
-            resetSignal();
+    try {
+      const response = await fetch('/ping', { cache: 'no-store' });
+      if (!response.ok) throw new Error('Ping failed');
 
-            if (latency < 80) {
-              setSignalColor([layer1, layer2, layer3, dot], "#22c55e");
-            } else if (latency < 160) {
-              setSignalColor([layer1, layer2, layer3], "#eab308");
-              setSignalColor([dot], "#eab308");
-            } else {
-              setSignalColor([layer1, layer2], "#ef4444");
-              setSignalColor([dot], "#ef4444");
-            }
-          } catch (error) {
-            pingValue.textContent = "--";
-            resetSignal();
-            setSignalColor([layer1, dot], "#ef4444");
+      const latency = Math.round(performance.now() - startTime);
+
+      pingValue.textContent = latency;
+
+      resetSignal();
+
+      if (latency < 100) {
+        setSignalColor([layer1, layer2, layer3, dot], "#22c55e"); // Green
+      } 
+      else if (latency < 200) {
+        setSignalColor([layer1, layer2, dot], "#eab308"); // Yellow
+      } 
+      else {
+        setSignalColor([layer1, dot], "#ef4444"); // Red
+      }
+
+    } catch (error) {
+      pingValue.textContent = "--";
+      resetSignal();
+      setSignalColor([layer1, dot], "#ef4444");
+    }
+  }
+
+  measurePing();
+  setInterval(measurePing, 2500);
+
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const icon = document.getElementById('update-icon');
+  const paths = icon.querySelectorAll('path');
+  const dropdown = document.getElementById('update-dropdown');
+  const actionButton = document.getElementById('action-button');
+
+  function toggleUpdateDropdown() {
+    dropdown.classList.toggle('hidden');
+  }
+
+  icon.addEventListener('click', toggleUpdateDropdown);
+
+  window.addEventListener('click', (e) => {
+    if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  function performAction() {
+    if (confirm('Are you sure? This may restart the server.')) {
+      fetch('/reinstall', { method: 'GET' })
+        .then(res => {
+          if (res.ok) {
+            alert('Reinstall started');
+          } else {
+            alert('Error starting reinstall');
           }
-        }
-
-        measurePing();
-        setInterval(measurePing, 2200);
-      });
-      </script>
-
-      <!-- UPDATE MANAGER - Versions outside button -->
-      <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const icon = document.getElementById('update-icon');
-        const paths = icon.querySelectorAll('path');
-        const dropdown = document.getElementById('update-dropdown');
-        const actionButton = document.getElementById('action-button');
-        const currentVerEl = document.getElementById('current-version');
-        const latestVerEl = document.getElementById('latest-version');
-
-        function toggleUpdateDropdown() {
-          dropdown.classList.toggle('hidden');
-        }
-
-        icon.addEventListener('click', toggleUpdateDropdown);
-
-        window.addEventListener('click', (e) => {
-          if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.classList.add('hidden');
-          }
+        })
+        .catch(error => {
+          alert('Error: ' + error.message);
         });
+    }
+  }
 
-        function performAction() {
-          if (confirm('Are you sure? This may restart services.')) {
-            fetch('/reinstall', { method: 'GET' })
-              .then(res => res.ok ? alert('Reinstall / Update started') : alert('Error'))
-              .catch(() => alert('Network error'));
-          }
+  actionButton.addEventListener('click', performAction);
+
+  function checkVersion() {
+    fetch('/version')
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'outdated') {
+          paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
+          actionButton.textContent = `Auto Update (v${data.currentVersion} -> v${data.latestVersion})`;
+        } else {
+          paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
+          actionButton.textContent = `Auto Reinstall (v${data.currentVersion})`;
         }
-
-        actionButton.addEventListener('click', performAction);
-
-        function checkVersion() {
-          fetch('/version')
-            .then(response => response.json())
-            .then(data => {
-              currentVerEl.textContent = `v${data.currentVersion}`;
-              latestVerEl.textContent = `v${data.latestVersion}`;
-
-              if (data.status === 'outdated') {
-                paths.forEach(p => p.setAttribute('stroke', '#FFC107'));
-                actionButton.textContent = 'Update Now';
-              } else {
-                paths.forEach(p => p.setAttribute('stroke', '#4CAF50'));
-                actionButton.textContent = 'Reinstall Now';
-              }
-            })
-            .catch(() => {
-              paths.forEach(p => p.setAttribute('stroke', '#808080'));
-              actionButton.textContent = 'Check Failed';
-            });
-        }
-
-        checkVersion();
-        setInterval(checkVersion, 4800);
+      })
+      .catch(error => {
+        console.error('Error fetching version status:', error);
+        paths.forEach(path => path.setAttribute('stroke', '#808080'));
+        actionButton.textContent = 'Error loading version';
       });
-      </script>
+  }
 
-      <!-- RESOURCE MONITOR - 5-minute bar graphs -->
-      <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-        let ramHistory = [];
-        let cpuHistory = [];
-        let diskHistory = [];
+  // Run immediately
+  checkVersion();
 
-        function getColor(percent) {
-          if (percent > 95) return '#ef4444';
-          if (percent > 75) return '#eab308';
-          return '#22c55e';
-        }
+  // Run every 5 seconds
+  setInterval(checkVersion, 5000);
+});
+</script>
+<script>  
+  function getColor(percent) {  
+    if (percent > 95) return '#ef4444'; // red  
+    if (percent > 75) return '#eab308'; // yellow  
+    return '#22c55e'; // green  
+  }  
+  
+  function getColorClass(percent) {  
+    if (percent > 95) return 'bg-red-500';  
+    if (percent > 75) return 'bg-yellow-500';  
+    return 'bg-green-500';  
+  }  
+  
+  document.addEventListener('DOMContentLoaded', async () => {  
 
-        function getColorClass(percent) {
-          if (percent > 95) return 'bg-red-500';
-          if (percent > 75) return 'bg-yellow-500';
-          return 'bg-green-500';
-        }
+    async function updateResourceData() {
+      try {  
+        const response = await fetch('/resourceMonitor');  
+        const data = await response.json();  
 
-        function renderHistory(containerId, history) {
-          const container = document.getElementById(containerId);
-          if (!container) return;
-          container.innerHTML = '';
+        const maxHeight = 16;  
 
-          const displayHistory = [...history];
-          while (displayHistory.length < 5) displayHistory.unshift(8);
+        // Update RAM icon  
+        let ramHeight = (data.ram.percent / 100) * maxHeight;  
+        let ramY = 2 + (maxHeight - ramHeight);  
+        const ramFill = document.getElementById('ram-fill');  
+        ramFill.setAttribute('y', ramY);  
+        ramFill.setAttribute('height', ramHeight);  
+        ramFill.setAttribute('fill', getColor(data.ram.percent));  
 
-          displayHistory.forEach((percent, i) => {
-            const bar = document.createElement('div');
-            bar.className = `history-bar flex-1 rounded-t-2xl ${getColorClass(percent)}`;
-            bar.style.height = `${percent}%`;
-            bar.style.animationDelay = `${i * 60}ms`;
-            container.appendChild(bar);
-          });
-        }
+        // Update CPU icon  
+        let cpuHeight = (data.cpu.percent / 100) * maxHeight;  
+        let cpuY = 2 + (maxHeight - cpuHeight);  
+        const cpuFill = document.getElementById('cpu-fill');  
+        cpuFill.setAttribute('y', cpuY);  
+        cpuFill.setAttribute('height', cpuHeight);  
+        cpuFill.setAttribute('fill', getColor(data.cpu.percent));  
 
-        async function updateResourceData() {
-          try {
-            const response = await fetch('/resourceMonitor');
-            const data = await response.json();
+        // Update Disk icon  
+        let diskHeight = (data.disk.percent / 100) * maxHeight;  
+        let diskY = 2 + (maxHeight - diskHeight);  
+        const diskFill = document.getElementById('disk-fill');  
+        diskFill.setAttribute('y', diskY);  
+        diskFill.setAttribute('height', diskHeight);  
+        diskFill.setAttribute('fill', getColor(data.disk.percent));  
 
-            const maxHeight = 16;
-            const ramFill = document.getElementById('ram-fill');
-            ramFill.setAttribute('height', (data.ram.percent / 100) * maxHeight);
-            ramFill.setAttribute('y', 2 + maxHeight - (data.ram.percent / 100) * maxHeight);
-            ramFill.setAttribute('fill', getColor(data.ram.percent));
+        // Add click event to show dropdown  
+        const link = document.getElementById('resource-link');  
+        link.addEventListener('click', () => {  
+          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;  
+          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;  
+          document.getElementById('ram-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('ram-bar').classList.add(getColorClass(data.ram.percent));  
 
-            const cpuFill = document.getElementById('cpu-fill');
-            cpuFill.setAttribute('height', (data.cpu.percent / 100) * maxHeight);
-            cpuFill.setAttribute('y', 2 + maxHeight - (data.cpu.percent / 100) * maxHeight);
-            cpuFill.setAttribute('fill', getColor(data.cpu.percent));
+          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;  
+          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;  
+          document.getElementById('cpu-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('cpu-bar').classList.add(getColorClass(data.cpu.percent));  
 
-            const diskFill = document.getElementById('disk-fill');
-            diskFill.setAttribute('height', (data.disk.percent / 100) * maxHeight);
-            diskFill.setAttribute('y', 2 + maxHeight - (data.disk.percent / 100) * maxHeight);
-            diskFill.setAttribute('fill', getColor(data.disk.percent));
+          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;  
+          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;  
+          document.getElementById('disk-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('disk-bar').classList.add(getColorClass(data.disk.percent));  
 
-            ramHistory.push(data.ram.percent);
-            cpuHistory.push(data.cpu.percent);
-            diskHistory.push(data.disk.percent);
+          document.getElementById('resource-dropdown').classList.toggle('hidden');  
+        });  
 
-            if (ramHistory.length > 5) ramHistory.shift();
-            if (cpuHistory.length > 5) cpuHistory.shift();
-            if (diskHistory.length > 5) diskHistory.shift();
+      } catch (error) {  
+        console.error('Error fetching resource data:', error);  
+      }
+    }
 
-            renderHistory('ram-history', ramHistory);
-            renderHistory('cpu-history', cpuHistory);
-            renderHistory('disk-history', diskHistory);
+    // Run immediately once
+    updateResourceData();
 
-          } catch (error) {
-            console.error('Resource fetch error:', error);
-          }
-        }
+    // Run every 2.5 seconds
+    setInterval(updateResourceData, 2500);
 
-        const resourceLink = document.getElementById('resource-link');
-        resourceLink.addEventListener('click', () => {
-          const dropdown = document.getElementById('resource-dropdown');
-          dropdown.classList.toggle('hidden');
-        });
-
-        updateResourceData();
-        setInterval(updateResourceData, 2400);
-      });
-      </script>
-
-   </body>
-</html>
+  });  
+</script>
