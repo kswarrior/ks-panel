@@ -105,6 +105,13 @@
             <button onclick="stopWings()" 
                     class="py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Stop</button>
           </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+            <button onclick="reinstallWings()" 
+                    class="py-3 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Reinstall</button>
+            <button onclick="viewLogs()" 
+                    class="py-3 bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-[10px] transition-all active:scale-95">PM2 Logs</button>
+          </div>
         </div>
       </div>
 
@@ -210,6 +217,8 @@
   function startWings()      { runAction('/admin/nodes/localnode/start', 'Start Wings'); }
   function restartWings()    { runAction('/admin/nodes/localnode/restart', 'Restart Wings'); }
   function stopWings()       { runAction('/admin/nodes/localnode/stop', 'Stop Wings'); }
+  function reinstallWings()  { runAction('/admin/nodes/localnode/reinstall', 'Reinstall Wings'); }
+  function viewLogs()        { runAction('/admin/nodes/localnode/logs', 'View PM2 Logs'); }
 
   document.addEventListener('DOMContentLoaded', () => {
     checkStatus();
