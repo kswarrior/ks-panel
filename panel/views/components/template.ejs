@@ -332,71 +332,59 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
      stroke-linejoin="round">
 
   <path d="M21 4v6h-6"/>
-<!-- Ping Display -->
-<span id="pingDisplay"
-      class="flex flex-col items-center text-white bg-transparent w-fit">
-
-  <!-- SVG WiFi Icon -->
-  <svg id="pingIcon"
-     width="24"
-     height="20"
-     viewBox="0 0 24 20"
-     xmlns="http://www.w3.org/2000/svg"
-     class="transition-all duration-400 ease-out">
-
-  <!-- Outermost arc – weakest / farthest signal -->
-  <path id="pingLayer3"
-        d="M 1.5 5.5  C 6.8 -0.8  17.2 -0.8  22.5 5.5"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.3"
-        stroke-linecap="round"
-        opacity="0.18" />
-
-  <!-- Middle arc -->
-  <path id="pingLayer2"
-        d="M 4.5 9.5  C 9.2 3.8  14.8 3.8  19.5 9.5"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.3"
-        stroke-linecap="round"
-        opacity="0.18" />
-
-  <!-- Innermost arc – strongest / closest -->
-  <path id="pingLayer1"
-        d="M 7.8 13.2  C 10.4 10.4  13.6 10.4  16.2 13.2"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.3"
-        stroke-linecap="round"
-        opacity="0.18" />
-
-  <!-- Bottom dot / connection point -->
-  <circle id="pingDot"
-          cx="12"
-          cy="17.8"
-          r="2.1"
-          fill="currentColor"
-          opacity="0.45" />
-
-</svg>
-
-  <!-- Ping Number Below -->
-  <span style="font-size:8px;" class="mt-0.5 font-medium">
-    <span id="pingValue">--</span>
-  </span>  <path d="M3 20v-6h6"/>
+  <path d="M3 20v-6h6"/>
   <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
 </svg>
-
    <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
      <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
      <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
    </div>
    </div>
+   <!-- Ping Display -->
+<span id="pingDisplay"
+      class="flex flex-col items-center text-white bg-transparent w-fit">
 
-   
+  <!-- SVG WiFi Icon -->
+  <svg id="pingIcon"
+       width="20"
+       height="16"
+       viewBox="0 0 24 20"
+       xmlns="http://www.w3.org/2000/svg"
+       class="transition-all duration-300">
 
-</span>
+    <path id="pingLayer3"
+          d="M2 6C7-1 17-1 22 6"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          opacity="0.2" />
+
+    <path id="pingLayer2"
+          d="M5 10C9 5 15 5 19 10"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          opacity="0.2" />
+
+    <path id="pingLayer1"
+          d="M8.5 14C10.5 12 13.5 12 15.5 14"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          opacity="0.2" />
+
+    <circle id="pingDot"
+            cx="12"
+            cy="18"
+            r="1.8"
+            fill="currentColor"
+            opacity="0.2" />
+  </svg>
+
+  <!-- Ping Number Below -->
+  <span style="font-size:8px;" class="mt-0.5 font-medium">
+    <span id="pingValue">--</span>
+  </span>
 
 </span>
    <!-- Resource Monitor -->
