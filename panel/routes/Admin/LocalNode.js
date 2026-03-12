@@ -78,4 +78,36 @@ router.post("/admin/nodes/localnode/restart", isAdmin, async (req, res) => {
   }
 });
 
+router.post("/admin/nodes/localnode/reinstall", isAdmin, async (req, res) => {
+  try {
+    const { output, code } = await localNodeExec.reinstall();
+    let finalOutput = output;
+    finalOutput += `\n───────────────────────────────────────\nProcess finished with exit code ${code}\n`;
+    if (code === 0) {
+      finalOutput += "Reinstallation completed successfully. You can now configure and start the node.\n";
+    } else {
+      finalOutput += "Reinstallation may have failed — check the log.\n";
+    }
+    res.json({ log: finalOutput });
+  } catch (err) {
+    res.status(500).json({ log: `Error during reinstallation: ${err.message}\n` });
+  }
+});
+
+router.post("/admin/nodes/localnode/logs", isAdmin, async (req, res) => {
+  try {
+    const { output, code } = await localNodeExec.logs();
+    let finalOutput = output;
+    finalOutput += `\n───────────────────────────────────────\nProcess finished with exit code ${code}\n`;
+    if (code === 0) {
+      finalOutput += "PM2 logs retrieved successfully.\n";
+    } else {
+      finalOutput += "No PM2 logs found or error occurred.\n";
+    }
+    res.json({ log: finalOutput });
+  } catch (err) {
+    res.status(500).json({ log: `Error retrieving logs: ${err.message}\n` });
+  }
+});
+
 module.exports = router;
