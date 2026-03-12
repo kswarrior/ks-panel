@@ -51,7 +51,6 @@
   .field-short { flex: 1 1 180px; }
 }
 
-/* Log terminal */
 .log-terminal {
   background: #0f172a;
   border: 1px solid rgba(255,255,255,0.1);
@@ -66,7 +65,6 @@
   white-space: pre-wrap;
 }
 
-/* Hidden */
 .hidden { display: none; }
 </style>
 
@@ -76,7 +74,7 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Create Local Node</h1>
-        <p class="mt-1 text-sm text-neutral-400">One-click localhost setup • Wings auto-install/reinstall • Node comes online instantly</p>
+        <p class="mt-1 text-sm text-neutral-400">One-click localhost setup • Auto-install/reinstall Wings • Node comes online instantly</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
@@ -125,14 +123,17 @@
 
           <div class="form-row">
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
-              <select id="location_id" required class="input-field">
-                <option value="">Loading locations...</option>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION (optional)</label>
+              <select id="location_id" class="input-field">
+                <option value="">No location / Skip</option>
+                <% locations.forEach(function(loc) { %>
+                <option value="<%= loc.id %>"><%= loc.name %></option>
+                <% }); %>
               </select>
             </div>
           </div>
 
-          <!-- RESOURCES -->
+          <!-- RESOURCES (always manual - no auto mode) -->
           <div class="flex items-center gap-4 mt-10 mb-6">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h2>
@@ -154,17 +155,21 @@
             </div>
           </div>
 
-          <!-- ALLOCATIONS -->
+          <!-- INITIAL ALLOCATIONS -->
           <div class="flex items-center gap-4 mt-10 mb-6">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">INITIAL ALLOCATIONS (localhost only)</h2>
+            <h2 class="text-lg font-semibold text-white tracking-wide">INITIAL ALLOCATIONS</h2>
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           </div>
 
           <div class="form-row">
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">IP ADDRESS (fixed)</label>
-              <input type="text" value="127.0.0.1" readonly class="input-field bg-neutral-700 cursor-not-allowed">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS <span class="text-neutral-500">(not fixed)</span></label>
+              <input id="alloc_ip" type="text" value="127.0.0.1" class="input-field">
+            </div>
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
+              <input id="alloc_alias" type="text" class="input-field" placeholder="e.g. Local Servers">
             </div>
           </div>
 
@@ -212,7 +217,6 @@
   </div>
 
   <script>
-  // Notification
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const textEl = document.getElementById('notification-text');
@@ -247,39 +251,22 @@
     document.getElementById('console-log').textContent = "Console cleared.\n";
   }
 
-  // Load locations (server already passed them, but we keep JS fallback)
-  async function loadLocations() {
-    const select = document.getElementById('location_id');
-    try {
-      const res = await fetch('/api/admin/locations', { method: 'GET' });
-      const data = await res.json();
-      select.innerHTML = '<option value="">Select location...</option>';
-      data.forEach(loc => {
-        const opt = document.createElement('option');
-        opt.value = loc.id;
-        opt.textContent = `${loc.long_name || loc.name} (${loc.short_code || ''})`;
-        select.appendChild(opt);
-      });
-    } catch (e) {
-      // Fallback to server-rendered if you want, but this works
-      console.error('Locations fetch failed', e);
-    }
-  }
-
   async function createLocalNode() {
     const formData = {
       name: document.getElementById('name').value.trim(),
       daemon_port: parseInt(document.getElementById('daemon_port').value),
       sftp_port: parseInt(document.getElementById('sftp_port').value),
-      location_id: parseInt(document.getElementById('location_id').value),
+      location_id: document.getElementById('location_id').value ? parseInt(document.getElementById('location_id').value) : null,
       cpu_limit: parseInt(document.getElementById('cpu_limit').value) || 200,
       memory_limit: parseInt(document.getElementById('memory_limit').value) || 8192,
       disk_limit: parseInt(document.getElementById('disk_limit').value) || 100,
+      allocation_ip: document.getElementById('alloc_ip').value.trim() || "127.0.0.1",
+      alloc_alias: document.getElementById('alloc_alias').value.trim(),
       allocation_start: parseInt(document.getElementById('alloc_start').value),
       allocation_end: parseInt(document.getElementById('alloc_end').value)
     };
 
-    if (!formData.name || !formData.location_id || !formData.allocation_start || !formData.allocation_end) {
+    if (!formData.name || !formData.allocation_start || !formData.allocation_end) {
       showNotification('Please fill all required fields', 'error');
       return;
     }
@@ -307,7 +294,7 @@
       appendLog('🔄 Reinstalling Wings...');
       appendLog('🔑 Auto-configuring with panel token...');
       appendLog('▶️ Starting Wings service...');
-      appendLog('✅ Allocations created on 127.0.0.1');
+      appendLog('✅ Allocations created');
       appendLog('Node is now ONLINE automatically');
 
       showNotification('Local node created & Wings setup complete!', 'success');
@@ -323,10 +310,5 @@
       console.error(err);
     }
   }
-
-  // Load on start
-  document.addEventListener('DOMContentLoaded', () => {
-    loadLocations();
-  });
   </script>
 </main>
