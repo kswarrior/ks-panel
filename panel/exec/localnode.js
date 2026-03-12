@@ -2,130 +2,152 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const log = new (require("cat-loggr"))();
 
 const baseDir = path.join(__dirname, '..', '..');
-const localNodeDir = path.join(baseDir, 'database', 'localnode'); // relative to current file
-const pidFile = path.join(baseDir, 'database', 'localnode.pid');   // relative PID
+const localNodeDir = path.join(baseDir, 'database', 'localnode');
 
-function isProcessRunning(pid) {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
+// We keep pidFile path for backward compatibility / manual checks, but we no longer rely on it for PM2 operations
+const pidFile = path.join(baseDir, 'database', 'localnode.pid');
 
-function runCommand(command, cwd = localNodeDir, shell = true, liveOutput = false) {
+function runCommand(cmd, options = {}) {
+  const defaultOpts = {
+    cwd: localNodeDir,
+    shell: true,
+  };
+
+  const finalOpts = { ...defaultOpts, ...options };
+
   return new Promise((resolve) => {
     let output = '';
-    const child = spawn(command, { cwd, shell });
+    const child = spawn(cmd, finalOpts);
 
-    if (liveOutput) {
-      child.stdout.on('data', (data) => process.stdout.write(data.toString()));
-      child.stderr.on('data', (data) => process.stderr.write(data.toString()));
-    } else {
-      child.stdout.on('data', (data) => { output += data.toString(); });
-      child.stderr.on('data', (data) => { output += data.toString(); });
-    }
+    child.stdout.on('data', (data) => {
+      output += data.toString();
+      // Optional: live output during long operations
+      // process.stdout.write(data);
+    });
 
-    child.on('close', (code) => resolve({ output, code }));
-    child.on('error', (err) => resolve({ output: `Error: ${err.message}\n`, code: 1 }));
+    child.stderr.on('data', (data) => {
+      output += data.toString();
+      // process.stderr.write(data);
+    });
+
+    child.on('close', (code) => {
+      resolve({ output, code: code ?? 1 });
+    });
+
+    child.on('error', (err) => {
+      resolve({ output: `Spawn error: ${err.message}\n`, code: 1 });
+    });
   });
 }
 
 exports.install = async () => {
   if (fs.existsSync(localNodeDir)) {
-    if (fs.existsSync(pidFile)) fs.unlinkSync(pidFile);
-    return runCommand('npm install');
-  } else {
-    fs.mkdirSync(path.join(baseDir, 'database'), { recursive: true });
-    return runCommand(
-      'git clone https://github.com/kswarrior/ks-wings localnode && cd localnode && npm install',
-      path.join(baseDir, 'database')
-    );
+    // already exists → just update dependencies
+    log.info('Local node directory exists → running npm install');
+    return runCommand('npm install --prefer-offline --no-audit --no-fund');
   }
+
+  log.info('Cloning ks-wings repository...');
+  fs.mkdirSync(path.join(baseDir, 'database'), { recursive: true });
+
+  const cloneCmd = 'git clone https://github.com/kswarrior/ks-wings localnode && cd localnode && npm install --prefer-offline --no-audit --no-fund';
+  return runCommand(cloneCmd, { cwd: path.join(baseDir, 'database') });
 };
 
 exports.configure = async (config) => {
   if (!fs.existsSync(localNodeDir)) {
     return { output: 'Local node not installed. Please install first.\n', code: 1 };
   }
+
+  // Stop before re-configuring (good practice)
   await exports.stop();
-  const args = config ? config.trim().split(/\s+/) : [];
-  return runCommand(args.join(' '));
+
+  if (!config || !config.trim()) {
+    return { output: 'No configuration command provided.\n', code: 1 };
+  }
+
+  log.info(`Running configure command: ${config}`);
+
+  // Usually something like: node configure.js --panel https://... --key ...
+  // or: npm run configure -- --panel ... --key ...
+  return runCommand(config.trim());
 };
 
 exports.start = async () => {
   if (!fs.existsSync(localNodeDir)) {
-    return { output: 'Local node not installed.\n', code: 1 };
+    return { output: 'Local node directory not found. Please install first.\n', code: 1 };
   }
-  if (fs.existsSync(pidFile)) {
-    const oldPid = parseInt(fs.readFileSync(pidFile, 'utf8'));
-    if (isProcessRunning(oldPid)) {
-      return { output: 'Local node already running (PID ' + oldPid + '). Use stop first.\n', code: 1 };
-    } else {
-      fs.unlinkSync(pidFile);
-    }
+
+  // We use PM2 name "localnode" consistently
+  const startCmd = 'npx pm2 start npm --name localnode -- start';
+
+  const result = await runCommand(startCmd);
+
+  if (result.code === 0) {
+    // Optional: save PM2 process list (survive reboot if pm2 startup is set)
+    await runCommand('npx pm2 save').catch(() => {});
+    return {
+      output: result.output + '\nLocal node started via PM2 (name: localnode)\n',
+      code: 0
+    };
   }
-  return new Promise((resolve) => {
-    const child = spawn('npm', ['run', 'start'], {
-      cwd: localNodeDir,
-      detached: true,
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
 
-    child.stdout.on('data', (data) => process.stdout.write(data.toString()));
-    child.stderr.on('data', (data) => process.stderr.write(data.toString()));
-
-    child.unref();
-    fs.writeFileSync(pidFile, child.pid.toString());
-    resolve({ output: `Started local node with PID ${child.pid}. Live logs shown above.\n`, code: 0 });
-  });
+  return {
+    output: result.output + '\nFailed to start via PM2.\n',
+    code: result.code
+  };
 };
 
 exports.stop = async () => {
-  if (!fs.existsSync(pidFile)) {
-    return { output: 'No running local node (no PID file).\n', code: 1 };
-  }
-  const pid = parseInt(fs.readFileSync(pidFile, 'utf8'));
-  if (!isProcessRunning(pid)) {
-    fs.unlinkSync(pidFile);
-    return { output: 'PID file existed but process not running. Cleaned up.\n', code: 0 };
-  }
-  try {
-    process.kill(pid, 'SIGTERM');
-    setTimeout(() => {
-      if (isProcessRunning(pid)) {
-        process.kill(pid, 'SIGKILL');
-      }
-      if (fs.existsSync(pidFile)) fs.unlinkSync(pidFile);
-    }, 5000);
-    return { output: `Sent stop signal to PID ${pid}. Waiting for graceful shutdown...\n`, code: 0 };
-  } catch (err) {
-    fs.unlinkSync(pidFile);
-    return { output: `Failed to stop PID ${pid}: ${err.message}\n`, code: 1 };
-  }
-};
+  const result = await runCommand('npx pm2 stop localnode || echo "Process not found or already stopped"');
 
-exports.restart = async () => {
-  const stopRes = await exports.stop();
-  if (stopRes.code !== 0) {
-    return { output: stopRes.output + ' Aborting restart.\n', code: 1 };
-  }
-  return exports.start();
-};
-
-exports.reinstall = async () => {
-  await exports.stop();
-  if (fs.existsSync(localNodeDir)) {
-    fs.rmSync(localNodeDir, { recursive: true, force: true });
-  }
+  // Also try to clean up old pid file if it exists
   if (fs.existsSync(pidFile)) {
     fs.unlinkSync(pidFile);
   }
+
+  return {
+    output: result.output.trim() || 'Stop command executed.\n',
+    code: result.code
+  };
+};
+
+exports.restart = async () => {
+  const result = await runCommand('npx pm2 restart localnode || echo "Process not found"');
+
+  if (result.code === 0) {
+    return {
+      output: result.output + '\nRestarted via PM2 (name: localnode)\n',
+      code: 0
+    };
+  }
+
+  return {
+    output: result.output + '\nRestart may have failed.\n',
+    code: result.code
+  };
+};
+
+exports.reinstall = async () => {
+  log.info('Reinstall requested → stopping + removing + reinstalling');
+
+  await exports.stop();
+
+  if (fs.existsSync(localNodeDir)) {
+    try {
+      fs.rmSync(localNodeDir, { recursive: true, force: true });
+      log.info('Removed localnode directory');
+    } catch (err) {
+      log.error('Failed to remove directory:', err);
+    }
+  }
+
+  // Also clean PM2 process entry
+  await runCommand('npx pm2 delete localnode || true').catch(() => {});
+
   return exports.install();
 };
 
@@ -133,40 +155,18 @@ exports.logs = async () => {
   if (!fs.existsSync(localNodeDir)) {
     return { output: 'Local node not installed.\n', code: 1 };
   }
-  const homeDir = os.homedir();
-  const pm2LogDir = path.join(homeDir, '.pm2', 'logs');
-  const pm2Name = 'localnode';
-  const outLogPath = path.join(pm2LogDir, `${pm2Name}-out.log`);
-  const errLogPath = path.join(pm2LogDir, `${pm2Name}-error.log`);
-  let output = `PM2 Logs for "${pm2Name}":\n\n`;
-  let code = 0;
-  if (fs.existsSync(outLogPath)) {
-    output += '=== STDOUT LOG (last 100 lines) ===\n';
-    try {
-      const content = fs.readFileSync(outLogPath, 'utf8');
-      const lines = content.split('\n').slice(-100).join('\n');
-      output += lines + '\n\n';
-    } catch (e) {
-      output += `Error reading out log: ${e.message}\n`;
-    }
-  } else {
-    output += 'No STDOUT log file found (pm2 may not be used or name mismatch).\n';
-    code = 1;
+
+  // Get last 300 lines (more generous than 100), raw format
+  const logsCmd = 'npx pm2 logs localnode --lines 300 --raw || echo "No logs available (process may never have started)"';
+
+  const result = await runCommand(logsCmd);
+
+  let output = `PM2 logs for process "localnode" (last 300 lines):\n\n`;
+  output += result.output;
+
+  if (result.code !== 0) {
+    output += `\n\nNote: command exited with code ${result.code} — process may not be running.\n`;
   }
-  if (fs.existsSync(errLogPath)) {
-    output += '=== STDERR LOG (last 100 lines) ===\n';
-    try {
-      const content = fs.readFileSync(errLogPath, 'utf8');
-      const lines = content.split('\n').slice(-100).join('\n');
-      output += lines + '\n';
-    } catch (e) {
-      output += `Error reading err log: ${e.message}\n`;
-    }
-  } else {
-    output += 'No STDERR log file found.\n';
-  }
-  if (code === 1 && !fs.existsSync(outLogPath) && !fs.existsSync(errLogPath)) {
-    output += '\nTip: If using PM2, ensure the process name is "localnode" or update the code.\n';
-  }
-  return { output, code };
+
+  return { output, code: result.code };
 };
