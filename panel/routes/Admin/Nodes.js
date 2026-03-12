@@ -10,19 +10,6 @@ const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = requi
 const { getPaginatedNodes, invalidateCache } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
-const util = require("util");
-const execPromise = util.promisify(require("child_process").exec);
-
-// ==================== LOCAL NODE AUTO-SETUP CONFIG ====================
-// CHANGE THESE TO MATCH YOUR ACTUAL WINGS INSTALLATION METHOD
-// (systemctl, pm2, or your custom npm scripts)
-const WINGS_DIR = process.env.WINGS_DIR || "/opt/wings"; 
-const INSTALL_CMD = `cd ${WINGS_DIR} && npm run install || echo "Install skipped"`;
-const REINSTALL_CMD = `cd ${WINGS_DIR} && npm run reinstall || bash -c 'echo "Force reinstalling Wings..." && wings reinstall'`;
-const START_CMD = `cd ${WINGS_DIR} && npm run start || systemctl start wings || pm2 start wings`;
-const STOP_CMD = `cd ${WINGS_DIR} && npm run stop || systemctl stop wings || pm2 stop wings`;
-const RESTART_CMD = `cd ${WINGS_DIR} && npm run restart || systemctl restart wings || pm2 restart wings`;
-
 // Cloudflare Configuration (use environment variables)
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_ZONE_ID = process.env.CLOUDFLARE_ZONE_ID;
@@ -32,7 +19,7 @@ if (!CLOUDFLARE_API_TOKEN || !CLOUDFLARE_ACCOUNT_ID) {
   log.warn("Cloudflare credentials not set. Tunnel support disabled.");
 }
 
-// ==================== FULLY ENHANCED NODES ROUTES ====================
+// ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + Cloudflare Tunnel + All Extras) ====================
 
 router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -72,7 +59,7 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   });
 });
 
-// ==================== NORMAL CREATE NODE PAGE ====================
+// ==================== NEW: CREATE NODE PAGE (create.ejs) ====================
 router.get("/admin/nodes/create", isAdmin, async (req, res) => {
   const locationIds = (await db.get("locations")) || [];
   const locations = [];
@@ -82,22 +69,6 @@ router.get("/admin/nodes/create", isAdmin, async (req, res) => {
   }
 
   res.render("admin/nodes/create", {
-    req,
-    user: req.user,
-    locations,
-  });
-});
-
-// ==================== NEW: LOCAL NODE CREATE PAGE (for your new EJS) ====================
-router.get("/admin/nodes/localnode/create", isAdmin, async (req, res) => {
-  const locationIds = (await db.get("locations")) || [];
-  const locations = [];
-  for (const locId of locationIds) {
-    const loc = await db.get(locId + "_location");
-    if (loc) locations.push(loc);
-  }
-
-  res.render("admin/nodes/localnode-create", {
     req,
     user: req.user,
     locations,
@@ -509,24 +480,23 @@ router.post("/admin/nodes/configure", async (req, res) => {
   }
 });
 
-// FIXED: Configure command NO LONGER changes every time (reuses existing key)
 router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) => {
   const { id } = req.params;
+
   try {
-    let node = await db.get(id + "_node");
+    const node = await db.get(id + "_node");
+
     if (!node) {
       return res.status(404).json({ error: "Node not found" });
     }
 
-    // Reuse existing configureKey if it already exists (exactly as you requested)
-    if (!node.configureKey) {
-      node.configureKey = uuidv4();
-      await db.set(id + "_node", node);
-    }
+    const configureKey = uuidv4();
+    node.configureKey = configureKey;
+    await db.set(id + "_node", node);
 
     const panelUrl = `${req.protocol}://${req.get('host')}`;
 
-    let configureCommand = `npm run configure -- --panel ${panelUrl} --key ${node.configureKey}`;
+    let configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
 
     // If Cloudflare Tunnel enabled, append tunnel setup
     if (node.useCloudflareTunnel && node.tunnelToken) {
@@ -740,188 +710,6 @@ router.get('/admin/nodes/overview/:id/available-allocations', isAdmin, async (re
     }));
 
   res.json(available);
-});
-
-// ==================== LOCAL NODE ONE-CLICK CREATE (127.0.0.1 + auto install/reinstall/configure/start) ====================
-router.post("/admin/nodes/localnode/create", isAdmin, async (req, res) => {
-  const {
-    name,
-    daemon_port: port,
-    sftp_port: sftpPort,
-    location_id: location,
-    memory_limit: ram,
-    disk_limit: disk,
-    allocation_start,
-    allocation_end
-  } = req.body;
-
-  if (!name || !port || !location || !allocation_start || !allocation_end) {
-    return res.status(400).json({ error: "Missing required fields (name, ports, location, allocation range)" });
-  }
-
-  const nodeId = uuidv4();
-  const configureKey = uuidv4();
-
-  const node = {
-    id: nodeId,
-    name: name.trim(),
-    description: "Auto-created Local Node (127.0.0.1)",
-    address: "127.0.0.1",
-    port: parseInt(port),
-    sftpPort: parseInt(sftpPort || 2022),
-    location: location,
-    ram: parseInt(ram) || 0,
-    disk: parseInt(disk) || 0,
-    memoryOverallocate: 0,
-    diskOverallocate: 0,
-    uploadSize: 500,
-    behindProxy: false,
-    connectionProtocol: "http",
-    resourceMode: "manual",
-    useCloudflareTunnel: false,
-    tunnelId: null,
-    tunnelToken: null,
-    tunnelPublicHostname: null,
-    serverFileDirectory: "/var/lib/kswings/volumes",
-    publicIp: "127.0.0.1",
-    maintenanceMode: false,
-    connectionType: "Direct",
-    maxServers: 50,
-    healthCheckUrl: "",
-    tags: [],
-    trustedProxies: [],
-    apiKey: null,
-    configureKey,
-    status: "Unconfigured",
-    createdAt: Date.now()
-  };
-
-  try {
-    await db.set(`${nodeId}_node`, node);
-    const nodes = (await db.get("nodes")) || [];
-    nodes.push(nodeId);
-    await db.set("nodes", nodes);
-    invalidateCache("nodes");
-
-    // Auto-create full allocation range on 127.0.0.1
-    const start = parseInt(allocation_start);
-    const end = parseInt(allocation_end);
-    const allocations = [];
-    for (let p = start; p <= end; p++) {
-      allocations.push({
-        id: uuidv4(),
-        ip: "127.0.0.1",
-        alias: null,
-        port: p,
-        assignedTo: null,
-      });
-    }
-    await db.set(`${nodeId}_allocations`, allocations);
-
-    let setupLog = `🚀 Local node "${name}" created on 127.0.0.1:${port}\n`;
-    setupLog += `📌 Allocations added: ${start}-${end} on 127.0.0.1\n`;
-
-    // AUTO SETUP: reinstall → configure → start
-    setupLog += "🔄 Reinstalling Wings (force reinstall)...\n";
-    try {
-      const { stdout: installOut } = await execPromise(REINSTALL_CMD);
-      setupLog += installOut + "\n";
-    } catch (e) {
-      setupLog += `Install warning: ${e.message}\n`;
-    }
-
-    setupLog += "🔑 Auto-configuring Wings with panel token...\n";
-    const panelUrl = `${req.protocol}://${req.get("host")}`;
-    const configureCmd = `cd ${WINGS_DIR} && npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
-    try {
-      const { stdout: configOut } = await execPromise(configureCmd);
-      setupLog += configOut + "\n";
-    } catch (e) {
-      setupLog += `Configure warning: ${e.message}\n`;
-    }
-
-    setupLog += "▶️ Starting Wings service...\n";
-    try {
-      const { stdout: startOut } = await execPromise(START_CMD);
-      setupLog += startOut + "\n";
-    } catch (e) {
-      setupLog += `Start warning: ${e.message}\n`;
-    }
-
-    // Mark node online (configure already ran and set apiKey)
-    node.status = "Online";
-    node.configureKey = null; // one-time use
-    await db.set(`${nodeId}_node`, node);
-    invalidateNodeCache(nodeId);
-
-    setupLog += "✅ Local node is now ONLINE and fully configured!\n";
-    logAudit(req.user.userId, req.user.username, "localnode:create", req.ip);
-
-    res.status(201).json({ success: true, nodeId, log: setupLog });
-  } catch (err) {
-    log.error("Local node creation error:", err);
-    res.status(500).json({ error: "Database or setup error", log: err.message });
-  }
-});
-
-// ==================== LOCAL NODE MANAGER ROUTES (for your existing manager EJS) ====================
-router.post("/admin/nodes/localnode/status", isAdmin, async (req, res) => {
-  try {
-    const { stdout } = await execPromise(`systemctl is-active --quiet wings && echo "running" || echo "stopped"`);
-    const running = stdout.trim() === "running";
-    const pid = running ? (await execPromise("pgrep wings || echo 0")).stdout.trim() : null;
-    res.json({ running, pid: pid || "Unknown" });
-  } catch (e) {
-    res.json({ running: false, pid: null });
-  }
-});
-
-router.post("/admin/nodes/localnode/install", isAdmin, async (req, res) => {
-  const { configuration } = req.body;
-  try {
-    const { stdout } = await execPromise(INSTALL_CMD);
-    res.json({ log: stdout || "Wings install triggered (check console)" });
-  } catch (e) {
-    res.json({ log: `ERROR: ${e.message}` });
-  }
-});
-
-router.post("/admin/nodes/localnode/configure", isAdmin, async (req, res) => {
-  const { configuration } = req.body;
-  try {
-    const cmd = configuration || `cd ${WINGS_DIR} && npm run configure -- --panel ${req.protocol}://${req.get("host")} --key auto`;
-    const { stdout } = await execPromise(cmd);
-    res.json({ log: stdout || "Configuration applied" });
-  } catch (e) {
-    res.json({ log: `ERROR: ${e.message}` });
-  }
-});
-
-router.post("/admin/nodes/localnode/start", isAdmin, async (req, res) => {
-  try {
-    const { stdout } = await execPromise(START_CMD);
-    res.json({ log: stdout || "Wings started" });
-  } catch (e) {
-    res.json({ log: `ERROR: ${e.message}` });
-  }
-});
-
-router.post("/admin/nodes/localnode/restart", isAdmin, async (req, res) => {
-  try {
-    const { stdout } = await execPromise(RESTART_CMD);
-    res.json({ log: stdout || "Wings restarted" });
-  } catch (e) {
-    res.json({ log: `ERROR: ${e.message}` });
-  }
-});
-
-router.post("/admin/nodes/localnode/stop", isAdmin, async (req, res) => {
-  try {
-    const { stdout } = await execPromise(STOP_CMD);
-    res.json({ log: stdout || "Wings stopped" });
-  } catch (e) {
-    res.json({ log: `ERROR: ${e.message}` });
-  }
 });
 
 module.exports = router;
