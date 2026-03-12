@@ -126,14 +126,11 @@
               <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION (optional)</label>
               <select id="location_id" class="input-field">
                 <option value="">No location / Skip</option>
-                <% locations.forEach(function(loc) { %>
-                <option value="<%= loc.id %>"><%= loc.name %></option>
-                <% }); %>
               </select>
             </div>
           </div>
 
-          <!-- RESOURCES (always manual - no auto mode) -->
+          <!-- RESOURCES (always visible - manual only) -->
           <div class="flex items-center gap-4 mt-10 mb-6">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h2>
@@ -164,7 +161,7 @@
 
           <div class="form-row">
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS <span class="text-neutral-500">(not fixed)</span></label>
+              <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS <span class="text-neutral-500">(editable)</span></label>
               <input id="alloc_ip" type="text" value="127.0.0.1" class="input-field">
             </div>
             <div class="field-long">
@@ -251,6 +248,26 @@
     document.getElementById('console-log').textContent = "Console cleared.\n";
   }
 
+  // Load locations via JS (no server variable needed → fixes "locations is not defined")
+  async function loadLocations() {
+    const select = document.getElementById('location_id');
+    try {
+      const res = await fetch('/api/admin/locations', { method: 'GET' });
+      const data = await res.json();
+      
+      select.innerHTML = '<option value="">No location / Skip</option>';
+      data.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc.id;
+        opt.textContent = `${loc.long_name || loc.name} (${loc.short_code || ''})`;
+        select.appendChild(opt);
+      });
+    } catch (e) {
+      console.error('Locations fetch failed', e);
+      select.innerHTML = '<option value="">No location / Skip (API error)</option>';
+    }
+  }
+
   async function createLocalNode() {
     const formData = {
       name: document.getElementById('name').value.trim(),
@@ -294,7 +311,7 @@
       appendLog('🔄 Reinstalling Wings...');
       appendLog('🔑 Auto-configuring with panel token...');
       appendLog('▶️ Starting Wings service...');
-      appendLog('✅ Allocations created');
+      appendLog('✅ Allocations created on ' + formData.allocation_ip);
       appendLog('Node is now ONLINE automatically');
 
       showNotification('Local node created & Wings setup complete!', 'success');
@@ -310,5 +327,10 @@
       console.error(err);
     }
   }
+
+  // Load everything on page open
+  document.addEventListener('DOMContentLoaded', () => {
+    loadLocations();
+  });
   </script>
 </main>
