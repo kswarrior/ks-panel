@@ -2,6 +2,7 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const log = new (require("cat-loggr"))();
 
 const baseDir = path.join(__dirname, '..', '..');
@@ -115,4 +116,57 @@ exports.restart = async () => {
     return { output: stopRes.output + ' Aborting restart.\n', code: 1 };
   }
   return exports.start();
+};
+
+exports.reinstall = async () => {
+  await exports.stop();
+  if (fs.existsSync(localNodeDir)) {
+    fs.rmSync(localNodeDir, { recursive: true, force: true });
+  }
+  if (fs.existsSync(pidFile)) {
+    fs.unlinkSync(pidFile);
+  }
+  return exports.install();
+};
+
+exports.logs = async () => {
+  if (!fs.existsSync(localNodeDir)) {
+    return { output: 'Local node not installed.\n', code: 1 };
+  }
+  const homeDir = os.homedir();
+  const pm2LogDir = path.join(homeDir, '.pm2', 'logs');
+  const pm2Name = 'localnode';
+  const outLogPath = path.join(pm2LogDir, `${pm2Name}-out.log`);
+  const errLogPath = path.join(pm2LogDir, `${pm2Name}-error.log`);
+  let output = `PM2 Logs for "${pm2Name}":\n\n`;
+  let code = 0;
+  if (fs.existsSync(outLogPath)) {
+    output += '=== STDOUT LOG (last 100 lines) ===\n';
+    try {
+      const content = fs.readFileSync(outLogPath, 'utf8');
+      const lines = content.split('\n').slice(-100).join('\n');
+      output += lines + '\n\n';
+    } catch (e) {
+      output += `Error reading out log: ${e.message}\n`;
+    }
+  } else {
+    output += 'No STDOUT log file found (pm2 may not be used or name mismatch).\n';
+    code = 1;
+  }
+  if (fs.existsSync(errLogPath)) {
+    output += '=== STDERR LOG (last 100 lines) ===\n';
+    try {
+      const content = fs.readFileSync(errLogPath, 'utf8');
+      const lines = content.split('\n').slice(-100).join('\n');
+      output += lines + '\n';
+    } catch (e) {
+      output += `Error reading err log: ${e.message}\n`;
+    }
+  } else {
+    output += 'No STDERR log file found.\n';
+  }
+  if (code === 1 && !fs.existsSync(outLogPath) && !fs.existsSync(errLogPath)) {
+    output += '\nTip: If using PM2, ensure the process name is "localnode" or update the code.\n';
+  }
+  return { output, code };
 };
