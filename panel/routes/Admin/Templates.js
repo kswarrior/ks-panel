@@ -43,6 +43,32 @@ router.get("/admin/templates/overview", isAdmin, (req, res) => {
   res.render("admin/templates/overview", { req, user: req.user, templates, categories });
 });
 
+// ====================== NEW ROUTES (added) ======================
+
+// Create page
+router.get("/admin/templates/create", isAdmin, (req, res) => {
+  const categories = readJson(CATEGORIES_FILE);
+  res.render("admin/templates/create", { req, user: req.user, categories });
+});
+
+// Edit page
+router.get("/admin/templates/edit/:filename", isAdmin, (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(TEMPLATES_DIR, filename);
+  if (!fs.existsSync(filePath)) return res.status(404).send("Not found");
+
+  let template;
+  try {
+    template = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (err) {
+    log.error(err);
+    return res.status(500).send("Invalid template data");
+  }
+
+  const categories = readJson(CATEGORIES_FILE);
+  res.render("admin/templates/edit", { req, user: req.user, template, categories, filename });
+});
+
 // Add category
 router.post("/admin/templates/category", isAdmin, (req, res) => {
   const { name } = req.body;
