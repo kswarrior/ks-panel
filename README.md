@@ -7,6 +7,10 @@
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/kswarrior/ks-panel/main/package/kspanel.sh)
 ```
+- 🗃️ Setup Database
+``` bash
+kspanel database
+```
 - 📥 Install Panel
 ```bash
 kspanel install
@@ -15,6 +19,7 @@ kspanel install
 ```bash
 kspanel start
 ```
+
 
 
 
