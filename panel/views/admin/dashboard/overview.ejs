@@ -16,15 +16,15 @@
   scrollbar-width: thin;
 }
 
-/* OPTIMISTIC SMOOTH BAR GRAPH - FIXED & ULTRA PREMIUM */
+/* OPTIMISTIC SMOOTH BAR GRAPH - SHADOW REMOVED + SUPER BOUNCY */
 .bar-graph {
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 58px;
+  height: 62px;
   background: rgba(255,255,255,0.05);
-  border-radius: 12px;
-  padding: 6px;
+  border-radius: 14px;
+  padding: 7px;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 }
@@ -33,9 +33,8 @@
   width: 5px;
   background: linear-gradient(to bottom, transparent, currentColor);
   border-radius: 9999px;
-  transition: height 650ms cubic-bezier(0.34, 1.56, 0.64, 1); /* super bouncy optimistic pop */
-  box-shadow: 0 0 10px currentColor;
-  opacity: 0.92;
+  transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35); /* EXTRA BOUNCY + OPTIMISTIC POP */
+  opacity: 0.95;
 }
 </style>
 
@@ -82,7 +81,7 @@
       </div>
     </div>
 
-    <!-- RESOURCES MONITOR - FIXED (NOW USING YOUR WORKING ENDPOINT) -->
+    <!-- RESOURCES MONITOR - FIXED + MORE OPTIMISTIC BARS -->
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
@@ -146,60 +145,58 @@
 </main>
 
 <script>
-  // ================ OPTIMISTIC SMOOTH BAR GRAPH (25 bars - bouncy premium feel) ================
+  // ================ ULTRA-OPTIMISTIC BOUNCY BAR GRAPH (25 bars) ================
   const NUM_BARS = 25;
 
-  function updateBarGraph(graphId, percent, gradientClass) {
+  function updateBarGraph(graphId, percent, colorClass) {
     const graph = document.getElementById(graphId);
-    const targetHeight = Math.max(6, Math.min(100, Math.round(percent || 0))) + '%';
+    const targetHeight = Math.max(8, Math.min(100, Math.round(percent || 0))) + '%';
 
     // Create bars only once
     if (graph.children.length === 0) {
       graph.innerHTML = '';
       for (let i = 0; i < NUM_BARS; i++) {
         const bar = document.createElement('div');
-        bar.className = `bar ${gradientClass}`;
-        bar.style.transitionDelay = `${i * 12}ms`; // staggered optimistic fill
+        bar.className = `bar ${colorClass}`;
+        bar.style.transitionDelay = `${i * 8}ms`; // faster staggered pop = more optimistic
         graph.appendChild(bar);
       }
     }
 
-    // Apply smooth bouncy height to all bars
+    // Bouncy height update
     Array.from(graph.children).forEach(bar => {
       bar.style.height = targetHeight;
     });
   }
 
-  // ================ RESOURCES MONITOR - FIXED (your working endpoint) ================
+  // ================ RESOURCES MONITOR (your working endpoint) ================
   async function fetchResources() {
     try {
-      const res = await fetch('/resourceMonitor');   // ← THIS WAS THE PROBLEM (not /api/v1/)
+      const res = await fetch('/resourceMonitor');
       const data = await res.json();
 
       // CPU
       const cpuPercent = Math.round(data.cpu.percent || 0);
       document.getElementById('cpu-text').textContent = cpuPercent + '%';
       document.getElementById('cpu-status').textContent = cpuPercent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
-      updateBarGraph('cpu-graph', cpuPercent, 'from-orange-400 to-red-500 text-orange-400');
+      updateBarGraph('cpu-graph', cpuPercent, 'text-orange-400');
 
       // RAM
       const ramPercent = Math.round(data.ram.percent || 0);
       document.getElementById('ram-text').textContent = ramPercent + '%';
       document.getElementById('ram-used').textContent = (data.ram.used || 0).toFixed(1) + ' GB';
       document.getElementById('ram-total').textContent = (data.ram.total || 0).toFixed(1) + ' GB';
-      updateBarGraph('ram-graph', ramPercent, 'from-blue-400 to-cyan-500 text-blue-400');
+      updateBarGraph('ram-graph', ramPercent, 'text-blue-400');
 
       // Disk
       const diskPercent = Math.round(data.disk.percent || 0);
       document.getElementById('disk-text').textContent = diskPercent + '%';
       document.getElementById('disk-used').textContent = (data.disk.used || 0).toFixed(1) + ' GB';
       document.getElementById('disk-total').textContent = (data.disk.total || 0).toFixed(1) + ' GB';
-      updateBarGraph('disk-graph', diskPercent, 'from-emerald-400 to-teal-500 text-emerald-400');
+      updateBarGraph('disk-graph', diskPercent, 'text-emerald-400');
 
     } catch (e) {
-      console.error("❌ Resource monitor failed → Check console", e);
-      // Optional: show user-friendly error
-      document.getElementById('cpu-status').innerHTML = '⚠️ API Error - Check console';
+      console.error("Resource monitor failed", e);
     }
   }
 
@@ -250,8 +247,8 @@
 
   // ================ INIT ================
   window.onload = () => {
-    fetchResources();                    // immediate first load
-    setInterval(fetchResources, 3200);   // smooth live updates
+    fetchResources();
+    setInterval(fetchResources, 2800);   // even snappier updates
     startStream();
   };
 
