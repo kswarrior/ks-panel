@@ -313,7 +313,8 @@ const fieldConfigs = {
 
 // ====================== RENDER DYNAMIC FIELDS ======================
 function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
-  const container = document.getElementById(`dynamic-${idx}`);
+  const sectionPrefix = prefix === "install_steps" ? "install_steps" : "actions";
+  const container = document.getElementById(`dynamic-${sectionPrefix}-${idx}`);
   if (!container) return;
   const config = fieldConfigs[type] || fieldConfigs.command;
   let html = "";
@@ -355,7 +356,7 @@ function addInstallStep(s = {}) {
         <label class="text-xs text-neutral-400">Step Name</label>
         <input type="text" name="install_steps[${idx}].name" value="${s.name || ""}" class="input-field mt-1">
       </div>
-      <div class="md:col-span-12 dynamic-fields" id="dynamic-${idx}"></div>
+      <div class="md:col-span-12 dynamic-fields" id="dynamic-install_steps-${idx}"></div>
     </div>
     <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
@@ -368,7 +369,7 @@ function addInstallStep(s = {}) {
     const newType = e.target.value;
     const stepIdx = parseInt(e.target.getAttribute("data-idx"));
     const currentData = {};
-    const dynContainer = document.getElementById(`dynamic-${stepIdx}`);
+    const dynContainer = document.getElementById(`dynamic-install_steps-${stepIdx}`);
     if (dynContainer) {
       dynContainer.querySelectorAll("input, textarea").forEach(inp => {
         const key = inp.name.split(".").pop();
@@ -401,7 +402,7 @@ function addAction(a = {}) {
           ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
         </select>
       </div>
-      <div class="md:col-span-12 dynamic-fields" id="dynamic-${idx}"></div>
+      <div class="md:col-span-12 dynamic-fields" id="dynamic-actions-${idx}"></div>
     </div>
     <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
@@ -414,7 +415,7 @@ function addAction(a = {}) {
     const newType = e.target.value;
     const stepIdx = parseInt(e.target.getAttribute("data-idx"));
     const currentData = {};
-    const dynContainer = document.getElementById(`dynamic-${stepIdx}`);
+    const dynContainer = document.getElementById(`dynamic-actions-${stepIdx}`);
     if (dynContainer) {
       dynContainer.querySelectorAll("input, textarea").forEach(inp => {
         const key = inp.name.split(".").pop();
