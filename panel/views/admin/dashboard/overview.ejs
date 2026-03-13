@@ -76,7 +76,6 @@
           🔄 Check for Update
         </button>
         
-        <!-- Dynamic button: "Reinstall" when up-to-date, "Update Now" when outdated -->
         <button onclick="performAction()" 
                 id="action-btn"
                 class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all">
@@ -106,7 +105,7 @@
       </div>
     </div>
 
-    <!-- RESOURCES MONITOR (3 cards only - Ping removed) -->
+    <!-- RESOURCES MONITOR -->
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
@@ -172,49 +171,60 @@
 </main>
 
 <script>
-  // ================ ULTRA-OPTIMISTIC BOUNCY BAR GRAPH ================
-  const NUM_BARS = 25;
-
+  // ================ DYNAMIC BAR GRAPH (auto-scales to container width) ================
   function updateBarGraph(graphId, percent, colorClass) {
     const graph = document.getElementById(graphId);
     const targetHeight = Math.max(8, Math.min(100, Math.round(percent || 0))) + '%';
 
+    // Create bars ONLY once (or after resize) – number depends on available space
     if (graph.children.length === 0) {
       graph.innerHTML = '';
-      for (let i = 0; i < NUM_BARS; i++) {
+      
+      const paddingTotal = 14;                    // 7px left + right
+      const availableWidth = graph.clientWidth - paddingTotal || 280; // fallback safe value
+      const barWidthWithGap = 5 + 2;
+      let numBars = Math.floor(availableWidth / barWidthWithGap);
+      numBars = Math.max(8, Math.min(50, numBars)); // sensible range for any screen size
+
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < numBars; i++) {
         const bar = document.createElement('div');
         bar.className = `bar ${colorClass}`;
         bar.style.transitionDelay = `${i * 8}ms`;
-        graph.appendChild(bar);
+        fragment.appendChild(bar);
       }
+      graph.appendChild(fragment);
     }
 
-    Array.from(graph.children).forEach(bar => {
-      bar.style.height = targetHeight;
-    });
+    // Update all bar heights in one pass
+    for (let i = 0; i < graph.children.length; i++) {
+      graph.children[i].style.height = targetHeight;
+    }
   }
 
-  // ================ RESOURCES MONITOR ================
+  // ================ RESOURCES MONITOR (optimised – fewer DOM reads) ================
+  let cpuEl, ramTextEl, ramUsedEl, ramTotalEl, diskTextEl, diskUsedEl, diskTotalEl, cpuStatusEl;
+
   async function fetchResources() {
     try {
       const res = await fetch('/resourceMonitor');
       const data = await res.json();
 
       const cpuPercent = Math.round(data.cpu.percent || 0);
-      document.getElementById('cpu-text').textContent = cpuPercent + '%';
-      document.getElementById('cpu-status').textContent = cpuPercent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
+      cpuEl.textContent = cpuPercent + '%';
+      cpuStatusEl.textContent = cpuPercent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
       updateBarGraph('cpu-graph', cpuPercent, 'text-orange-400');
 
       const ramPercent = Math.round(data.ram.percent || 0);
-      document.getElementById('ram-text').textContent = ramPercent + '%';
-      document.getElementById('ram-used').textContent = (data.ram.used || 0).toFixed(1) + ' GB';
-      document.getElementById('ram-total').textContent = (data.ram.total || 0).toFixed(1) + ' GB';
+      ramTextEl.textContent = ramPercent + '%';
+      ramUsedEl.textContent = (data.ram.used || 0).toFixed(1) + ' GB';
+      ramTotalEl.textContent = (data.ram.total || 0).toFixed(1) + ' GB';
       updateBarGraph('ram-graph', ramPercent, 'text-blue-400');
 
       const diskPercent = Math.round(data.disk.percent || 0);
-      document.getElementById('disk-text').textContent = diskPercent + '%';
-      document.getElementById('disk-used').textContent = (data.disk.used || 0).toFixed(1) + ' GB';
-      document.getElementById('disk-total').textContent = (data.disk.total || 0).toFixed(1) + ' GB';
+      diskTextEl.textContent = diskPercent + '%';
+      diskUsedEl.textContent = (data.disk.used || 0).toFixed(1) + ' GB';
+      diskTotalEl.textContent = (data.disk.total || 0).toFixed(1) + ' GB';
       updateBarGraph('disk-graph', diskPercent, 'text-emerald-400');
 
     } catch (e) {
@@ -223,14 +233,17 @@
   }
 
   function refreshResources() {
-    fetchResources();
+    const btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    fetchResources().finally(() => btn.disabled = false);
   }
 
-  // ================ VERSION CHECK + DYNAMIC ACTION BUTTON ================
+  // ================ VERSION CHECK + DYNAMIC ACTION BUTTON (optimised) ================
   let isOutdated = false;
 
   async function checkForUpdate() {
     const checkBtn = document.getElementById('check-btn');
+    const originalText = checkBtn.textContent;
     checkBtn.textContent = 'Checking...';
     checkBtn.disabled = true;
 
@@ -247,14 +260,12 @@
         isOutdated = true;
         badge.innerHTML = `Update available <span class="text-amber-400">v${data.latestVersion}</span>`;
         badge.className = 'px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-medium';
-        
         actionBtn.textContent = '🚀 Update Now';
         actionBtn.className = 'px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-[10px] text-sm font-medium transition-all';
       } else {
         isOutdated = false;
         badge.innerHTML = `✓ Up to date`;
         badge.className = 'px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium';
-        
         actionBtn.textContent = '🚀 Reinstall';
         actionBtn.className = 'px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all';
       }
@@ -265,11 +276,10 @@
       badge.className = 'px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 text-sm font-medium';
     }
 
-    checkBtn.textContent = '🔄 Check for Update';
+    checkBtn.textContent = originalText;
     checkBtn.disabled = false;
   }
 
-  // Unified action: Update when outdated, Reinstall when up-to-date
   async function performAction() {
     const action = isOutdated ? 'Update' : 'Reinstall';
     if (!confirm(`Start ${action}? This will run the update script and restart services.`)) return;
@@ -280,7 +290,7 @@
     btn.disabled = true;
 
     try {
-      await fetch('/reinstall');   // your version.js route handles both
+      await fetch('/reinstall');
       alert(`✅ ${action} started! Page will auto-reload in 8 seconds...`);
       setTimeout(() => location.reload(true), 8000);
     } catch (e) {
@@ -292,7 +302,7 @@
     btn.disabled = false;
   }
 
-  // ================ LIVE LOGS STREAM ================
+  // ================ LIVE LOGS STREAM (unchanged – already efficient) ================
   let eventSource = null;
   let isStreaming = true;
 
@@ -333,13 +343,39 @@
     document.getElementById('logs').innerHTML = 'Logs cleared.<br>';
   }
 
-  // ================ INIT ================
+  // ================ RESPONSIVE BAR GRAPHS (auto-recreate on resize) ================
+  function makeGraphsResponsive() {
+    const graphs = document.querySelectorAll('.bar-graph');
+    graphs.forEach(g => { g.innerHTML = ''; });
+    fetchResources(); // recreates bars with new widths
+  }
+
+  let resizeTimer;
+  function handleResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(makeGraphsResponsive, 150);
+  }
+
+  // ================ INIT (optimised – cache elements once) ================
   window.onload = () => {
+    // Cache DOM elements
+    cpuEl = document.getElementById('cpu-text');
+    ramTextEl = document.getElementById('ram-text');
+    ramUsedEl = document.getElementById('ram-used');
+    ramTotalEl = document.getElementById('ram-total');
+    diskTextEl = document.getElementById('disk-text');
+    diskUsedEl = document.getElementById('disk-used');
+    diskTotalEl = document.getElementById('disk-total');
+    cpuStatusEl = document.getElementById('cpu-status');
+
     fetchResources();
-    checkForUpdate();                    // auto-check version on load
+    checkForUpdate();
 
     setInterval(fetchResources, 2800);
     startStream();
+
+    // Auto-scale bars on window resize
+    window.addEventListener('resize', handleResize);
   };
 
   window.onbeforeunload = () => {
