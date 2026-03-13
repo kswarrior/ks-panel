@@ -47,7 +47,7 @@
           Dashboard
         </h1>
         <p class="mt-1 text-sm text-neutral-400">
-          Real-time CPU • RAM • Disk • Ping + Live logs
+          Real-time CPU • RAM • Disk + Live logs
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -59,7 +59,7 @@
       </div>
     </header>
 
-    <!-- VERSION CONTROL + UPDATE BUTTON (fixed endpoint from your version.js) -->
+    <!-- VERSION CONTROL + DYNAMIC ACTION BUTTON -->
     <div class="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex items-center justify-between">
       <div class="flex items-center gap-4">
         <div>
@@ -75,10 +75,12 @@
                 class="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-sm font-medium transition-all">
           🔄 Check for Update
         </button>
-        <button onclick="performReinstall()" 
-                id="reinstall-btn"
-                class="hidden px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all">
-          🚀 Reinstall / Update Now
+        
+        <!-- Dynamic button: "Reinstall" when up-to-date, "Update Now" when outdated -->
+        <button onclick="performAction()" 
+                id="action-btn"
+                class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all">
+          🚀 Reinstall
         </button>
       </div>
     </div>
@@ -104,7 +106,7 @@
       </div>
     </div>
 
-    <!-- RESOURCES MONITOR + PING GRAPH -->
+    <!-- RESOURCES MONITOR (3 cards only - Ping removed) -->
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
@@ -116,7 +118,7 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         <!-- CPU -->
         <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
@@ -163,19 +165,6 @@
           </div>
         </div>
 
-        <!-- PING GRAPH (faster updates) -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">🌐</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">Ping Latency</p>
-              <p id="ping-text" class="text-6xl font-bold text-lime-400">0 ms</p>
-            </div>
-          </div>
-          <div id="ping-graph" class="bar-graph"></div>
-          <p id="ping-status" class="text-xs text-neutral-500 mt-4">Normal</p>
-        </div>
-
       </div>
     </div>
 
@@ -184,7 +173,7 @@
 
 <script>
   // ================ ULTRA-OPTIMISTIC BOUNCY BAR GRAPH ================
-  const NUM_BARS = 35;
+  const NUM_BARS = 25;
 
   function updateBarGraph(graphId, percent, colorClass) {
     const graph = document.getElementById(graphId);
@@ -233,31 +222,12 @@
     }
   }
 
-  // ================ FASTER PING (updated every 1.2s + instant feel) ================
-  async function fetchPing() {
-    const start = performance.now();
-    try {
-      await fetch('/resourceMonitor', { method: 'HEAD', cache: 'no-store' });
-      const latency = Math.round(performance.now() - start);
-
-      document.getElementById('ping-text').textContent = latency + ' ms';
-      const percent = Math.min(100, Math.round((latency / 250) * 100)); // tighter scale for faster feel
-      updateBarGraph('ping-graph', percent, 'text-lime-400');
-
-      document.getElementById('ping-status').textContent = latency > 120 ? 'HIGH LATENCY ⚠️' : 'Normal';
-    } catch (e) {
-      document.getElementById('ping-text').textContent = '— ms';
-      document.getElementById('ping-status').textContent = 'Offline';
-    }
-  }
-
   function refreshResources() {
     fetchResources();
-    fetchPing();
   }
 
-  // ================ VERSION CHECK + REINSTALL (fixed endpoint from your version.js) ================
-  let latestVersionData = null;
+  // ================ VERSION CHECK + DYNAMIC ACTION BUTTON ================
+  let isOutdated = false;
 
   async function checkForUpdate() {
     const checkBtn = document.getElementById('check-btn');
@@ -265,28 +235,33 @@
     checkBtn.disabled = true;
 
     try {
-      const res = await fetch('/version');   // ← FIXED: matches router.get('/version')
+      const res = await fetch('/version');
       const data = await res.json();
-      latestVersionData = data;
 
       document.getElementById('current-version').textContent = `v${data.currentVersion}`;
 
       const badge = document.getElementById('version-badge');
-      const reinstallBtn = document.getElementById('reinstall-btn');
+      const actionBtn = document.getElementById('action-btn');
 
       if (data.status === 'outdated') {
+        isOutdated = true;
         badge.innerHTML = `Update available <span class="text-amber-400">v${data.latestVersion}</span>`;
         badge.className = 'px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-medium';
-        reinstallBtn.classList.remove('hidden');
+        
+        actionBtn.textContent = '🚀 Update Now';
+        actionBtn.className = 'px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-[10px] text-sm font-medium transition-all';
       } else {
+        isOutdated = false;
         badge.innerHTML = `✓ Up to date`;
         badge.className = 'px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium';
-        reinstallBtn.classList.add('hidden');
+        
+        actionBtn.textContent = '🚀 Reinstall';
+        actionBtn.className = 'px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all';
       }
     } catch (e) {
       console.error("Version check failed", e);
       const badge = document.getElementById('version-badge');
-      badge.innerHTML = '❌ Check failed (try again)';
+      badge.innerHTML = '❌ Check failed';
       badge.className = 'px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 text-sm font-medium';
     }
 
@@ -294,20 +269,22 @@
     checkBtn.disabled = false;
   }
 
-  async function performReinstall() {
-    if (!confirm('Start reinstall/update? This will run "npm run update" and restart services.')) return;
+  // Unified action: Update when outdated, Reinstall when up-to-date
+  async function performAction() {
+    const action = isOutdated ? 'Update' : 'Reinstall';
+    if (!confirm(`Start ${action}? This will run the update script and restart services.`)) return;
 
-    const btn = document.getElementById('reinstall-btn');
+    const btn = document.getElementById('action-btn');
     const originalText = btn.textContent;
-    btn.textContent = '🚀 Reinstalling...';
+    btn.textContent = `🚀 ${action}ing...`;
     btn.disabled = true;
 
     try {
-      await fetch('/reinstall');   // ← FIXED: matches router.get('/reinstall')
-      alert('✅ Reinstall started! Page will auto-reload in 8 seconds...');
+      await fetch('/reinstall');   // your version.js route handles both
+      alert(`✅ ${action} started! Page will auto-reload in 8 seconds...`);
       setTimeout(() => location.reload(true), 8000);
     } catch (e) {
-      alert('Reinstall trigger failed. Check console.');
+      alert(`${action} trigger failed. Check console.`);
       console.error(e);
     }
 
@@ -359,12 +336,9 @@
   // ================ INIT ================
   window.onload = () => {
     fetchResources();
-    fetchPing();
-    checkForUpdate();                    // auto-check version
+    checkForUpdate();                    // auto-check version on load
 
     setInterval(fetchResources, 2800);
-    setInterval(fetchPing, 1200);        // ← FASTER PING (1.2 seconds)
-
     startStream();
   };
 
