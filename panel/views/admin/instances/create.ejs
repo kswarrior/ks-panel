@@ -1,6 +1,5 @@
 <%- include('../../components/template') %>
-<main id="content">
-  <style>
+<style>
     .input-error {
       border: 2px solid rgb(255, 69, 69) !important;
     }
@@ -9,99 +8,204 @@
       font-size: 0.9rem;
       margin-top: 4px;
     }
-  </style>
 
-  <div class="bg-transparent">
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.instances %></h1>
-        <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.instancesText %></p>
+    .input-field {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background-color: #1c3b54;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: white;
+      placeholder-color: rgba(255, 255, 255, 0.4);
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .input-field:focus {
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .field-long,
+    .field-short {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-grow: 1;
+    }
+
+    .field-long {
+      flex-basis: 420px;
+      min-width: 260px;
+    }
+
+    .field-short {
+      flex-basis: 180px;
+      min-width: 160px;
+    }
+
+    @media (min-width: 1024px) {
+      .form-row {
+        gap: 2rem;
+      }
+
+      .field-long {
+        flex: 2 1 420px;
+      }
+
+      .field-short {
+        flex: 1 1 180px;
+      }
+    }
+
+    /* hidden */
+    .hidden {
+      display: none;
+    }
+</style>
+
+<main id="content" class="max-w-screen-2xl mx-auto">
+  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+    
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+      <div>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Instance</h1>
+        <p class="mt-1 text-sm text-neutral-400">Deploy a new server instance using a template with custom resources and port allocation</p>
       </div>
-      <div class="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
-        <a href="/admin/instances" class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
+
+      <div class="flex flex-wrap gap-3">
+        <button onclick="window.location.href='/admin/instances'" 
+                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
           ← Back to Instances
-        </a>
+        </button>
       </div>
-    </div>
+    </header>
 
-    <div id="instanceForm" class="flex flex-col lg:flex-row gap-6 mt-6 px-4 sm:px-8 w-full">
-      <div class="p-4 sm:p-6 lg:p-10 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden w-full lg:max-w-[800px] card">
-        <form>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block"><%= req.translations.name %>:</label>
-              <input id="name" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="My instance">
+    <section class="mt-12">
+      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
+        <form id="instanceForm">
+
+          <!-- BASIC -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.name %> <span class="text-red-400">*</span></label>
+              <input id="name" class="input-field" placeholder="My instance" required>
             </div>
+          </div>
 
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block"><%= req.translations.user %>:</label>
-              <select id="user" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 border border-white/5 transition-all">
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.user %> <span class="text-red-400">*</span></label>
+              <select id="user" class="input-field" required>
                 <% users.forEach(function(user) { %>
                   <option value="<%= user.userId %>" class="bg-neutral-800 text-white"><%= user.username %></option>
                 <% }); %>
               </select>
             </div>
 
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block">Template:</label>
-              <select id="template" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 border border-white/5 transition-all">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Template <span class="text-red-400">*</span></label>
+              <select id="template" class="input-field" required>
                 <option value="" class="bg-neutral-800 text-white">-- Select template --</option>
                 <% templates.forEach(function(template) { %>
                   <option value="<%= template.filename %>" class="bg-neutral-800 text-white" data-variables="<%= JSON.stringify(template.Variables || []) %>"><%= template.Name %></option>
                 <% }); %>
               </select>
             </div>
+          </div>
 
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block"><%= req.translations.node %>:</label>
-              <select id="node" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 border border-white/5 transition-all">
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.node %> <span class="text-red-400">*</span></label>
+              <select id="node" class="input-field" required>
                 <option value="" class="bg-neutral-800 text-white">-- Select node --</option>
                 <% nodes.forEach(function(node) { %>
                   <option value="<%= node.id %>" class="bg-neutral-800 text-white"><%= node.name %></option>
                 <% }); %>
               </select>
             </div>
+          </div>
 
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block"><%= req.translations.memory %> (MiB):</label>
-              <input id="memory" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="2048">
+          <!-- RESOURCES -->
+          <div class="flex items-center gap-4 mt-10 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCES</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.memory %> (MiB) <span class="text-red-400">*</span></label>
+              <input id="memory" class="input-field" placeholder="2048" required>
             </div>
 
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block"><%= req.translations.cpuThreads %>:</label>
-              <input id="cpu" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="1">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.cpuThreads %> <span class="text-red-400">*</span></label>
+              <input id="cpu" class="input-field" placeholder="1" required>
             </div>
 
-            <div>
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block">Disk (MiB):</label>
-              <input id="disk" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="10240">
-            </div>
-
-            <div class="sm:col-span-2">
-              <label class="text-neutral-400 text-sm tracking-tight mb-2 block">Select Host Port (Allocation) (IP:Port):</label>
-              <select id="primary" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-2 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 border border-white/5 transition-all" required>
-                <option value="" class="bg-neutral-800 text-white">-- Select node first --</option>
-              </select>
-              <small class="text-neutral-500 block">Choose an available IP:Port from the selected node</small>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Disk (MiB) <span class="text-red-400">*</span></label>
+              <input id="disk" class="input-field" placeholder="10240" required>
             </div>
           </div>
 
-          <div class="mt-8">
-            <button id="createNodeBtn" type="button" class="w-full sm:w-auto block rounded-xl bg-white text-black px-8 py-3 text-center text-sm font-bold shadow-lg hover:bg-neutral-200 active:scale-95 transition-all focus:outline focus:outline-2 focus:outline-offset-2">
+          <!-- ALLOCATION -->
+          <div class="flex items-center gap-4 mt-10 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">ALLOCATION (HOST PORT)</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Select Host Port (Allocation) (IP:Port) <span class="text-red-400">*</span></label>
+              <select id="primary" class="input-field" required>
+                <option value="" class="bg-neutral-800 text-white">-- Select node first --</option>
+              </select>
+              <small class="text-neutral-500 block mt-2">Choose an available IP:Port from the selected node</small>
+            </div>
+          </div>
+
+          <!-- TEMPLATE VARIABLES (dynamic) -->
+          <div id="secondCard" class="hidden mt-10">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">TEMPLATE VARIABLES</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+            <div id="variablesForm" class="space-y-6"></div>
+          </div>
+
+          <!-- SUBMIT -->
+          <div class="mt-10">
+            <button id="createInstancesBtn" type="button"
+                    class="w-full px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
               <%= req.translations.create %>
             </button>
           </div>
+
         </form>
       </div>
-
-      <div id="secondCard" class="p-4 sm:p-6 lg:p-10 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden w-full lg:max-w-[800px] card hidden">
-        <form id="variablesForm" class="space-y-4"></form>
-      </div>
-    </div>
+    </section>
   </div>
 </main>
 
-<!-- Template variables handler (unchanged - already good) -->
+<!-- Template variables handler (updated for new stylish input-field) -->
 <script>
   document.getElementById('template').addEventListener('change', function(event) {
       var selectedOption = event.target.options[event.target.selectedIndex];
@@ -123,10 +227,12 @@
                   const defaultVal = variable.default || '';
                   const desc = variable.description || '';
                   const fieldHtml = `
-                      <div>
-                          <label class="text-neutral-400 text-sm tracking-tight mb-2 block">${label}:</label>
-                          <input type="text" name="${id}" value="${defaultVal}" class="rounded-xl focus:ring-2 focus:ring-white/10 focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-white/5 px-4 py-2 bg-neutral-600/20 placeholder:text-white/20 border border-white/5 transition-all" placeholder="${desc}">
-                          ${desc ? `<small class="text-neutral-500 block mt-1">${desc}</small>` : ''}
+                      <div class="form-row">
+                          <div class="field-long">
+                              <label class="text-xs font-medium text-neutral-400 block mb-2">${label}:</label>
+                              <input type="text" name="${id}" value="${defaultVal}" class="input-field" placeholder="${desc}">
+                              ${desc ? `<small class="text-neutral-500 block mt-1">${desc}</small>` : ''}
+                          </div>
                       </div>`;
                   variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
               });
@@ -169,7 +275,7 @@
 
 <!-- FIXED + IMPROVED CREATE SCRIPT -->
 <script>
-document.getElementById('createNodeBtn').addEventListener('click', async function() {
+document.getElementById('createInstancesBtn').addEventListener('click', async function() {
     const btn = this;
     const originalText = btn.textContent;
     btn.textContent = 'Creating Instance...';
@@ -217,7 +323,7 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
 
 async function sendData(data, btn, originalText) {
   try {
-    const res = await fetch('/admin/instances/create', {  // ← THIS WAS THE BUG
+    const res = await fetch('/admin/instances/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
