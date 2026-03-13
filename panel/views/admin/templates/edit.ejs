@@ -1,34 +1,199 @@
 <%- include('../../components/template') %>
 
 <style>
-    .input-field {
-      width: 100%;
-      padding: 1rem 1.5rem;
-      background-color: #1c3b54;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      color: white;
-      placeholder-color: rgba(255, 255, 255, 0.4);
-      outline: none;
-      transition: all 0.2s ease;
-      box-sizing: border-box;
-    }
-    .input-field:focus {
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-    }
-    textarea.input-field {
-      resize: vertical;
-      min-height: 3rem;
-      font-family: ui-monospace, monospace;
-    }
-    select.input-field {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-      background-position: right 1rem center;
-      background-repeat: no-repeat;
-      background-size: 1.2em;
-    }
+.input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: #1c3b54;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  placeholder-color: rgba(255, 255, 255, 0.4);
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.input-field:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.field-long,
+.field-short {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.field-long { flex-basis: 420px; min-width: 260px; }
+.field-short { flex-basis: 180px; min-width: 160px; }
+
+/* ====================== MOBILE OPTIMIZATIONS ====================== */
+@media (max-width: 640px) {
+  .input-field {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .form-row {
+    gap: 0.75rem;
+  }
+  
+  .field-long,
+  .field-short {
+    flex-basis: 100% !important;
+  }
+  
+  .card-item {
+    padding: 1.1rem;
+    border-radius: 14px;
+  }
+  
+  .operation-item,
+  .option-item {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .remove-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+  
+  .section-header {
+    margin-bottom: 0.75rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .section-header h2 {
+    font-size: 1.05rem;
+  }
+  
+  button:not(.remove-btn) {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  #modeSelect {
+    position: static !important;
+    width: 100% !important;
+    margin: 1rem 0 0 0;
+    z-index: 0;
+  }
+  
+  .max-w-5xl {
+    padding: 1rem !important;
+  }
+  
+  header {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.4rem;
+  }
+  
+  .add-op-btn,
+  .add-option-btn {
+    width: 100%;
+  }
+}
+
+/* Larger phones / tablets */
+@media (max-width: 1024px) {
+  .form-row { gap: 1rem; }
+  .field-long, .field-short { flex-basis: 100% !important; }
+}
+
+/* Unified card style */
+.card-item {
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #1c3b54;
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.card-item:hover {
+  border-color: rgba(255,255,255,0.2);
+  background: #1f425e;
+}
+
+/* Remove buttons */
+.remove-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.remove-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: scale(1.1);
+}
+
+/* Sub-operation & option items */
+.operation-item,
+.option-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* hidden */
+.hidden {
+  display: none;
+}
+
+/* Notification on mobile */
+#notification {
+  max-width: 92vw;
+}
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
@@ -37,159 +202,155 @@
     <!-- Header -->
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight">Server Templates</h1>
-        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates with typed Install Steps &amp; Actions</p>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">Edit Template</h1>
+        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates</p>
       </div>
-      <div>
+
+      <div class="flex flex-wrap gap-3">
+        <button id="btnImportJson" 
+                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
+          Import JSON
+        </button>
         <a href="/admin/templates/overview" 
            class="px-6 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-          ← Overview
+          ← Back
         </a>
       </div>
     </header>
 
-    <!-- Form Section -->
-    <div id="templateFormSection" class="px-4 md:px-6 lg:px-8 pb-12 mt-12">
-      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden">
-        
-        <div class="px-8 py-6 border-b border-white/10 bg-neutral-950/70 flex items-center justify-between">
-          <h5 id="formTitle" class="text-2xl font-semibold text-white tracking-tight">Edit Template</h5>
-          <div class="flex items-center gap-4">
-            <span class="text-sm text-neutral-400">Editor Mode:</span>
-            <select id="modeSelect" class="input-field">
-              <option value="form">Visual Form</option>
-              <option value="json">Raw JSON</option>
-            </select>
-          </div>
-        </div>
+    <section class="mt-8 md:mt-12">
+      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 md:p-6 lg:p-12 shadow-sm">
+        <form id="templateForm" class="space-y-8 md:space-y-10">
 
-        <form id="templateForm" class="p-8 space-y-10">
+          <!-- GENERAL INFORMATION -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">GENERAL INFORMATION</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">TEMPLATE NAME <span class="text-red-400">*</span></label>
+              <input type="text" name="meta.name" required class="input-field">
+            </div>
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DISPLAY NAME</label>
+              <input type="text" name="meta.display_name" class="input-field">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DESCRIPTION</label>
+              <textarea name="meta.description" rows="3" class="input-field"></textarea>
+            </div>
+          </div>
+
+          <!-- ENVIRONMENT -->
+          <div class="section-header mt-8 md:mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">ENVIRONMENT</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">CATEGORY <span class="text-red-400">*</span></label>
+              <div class="flex gap-3">
+                <select name="category" required class="input-field">
+                  <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
+                </select>
+                <button type="button" id="btnAddCategory" 
+                        class="px-6 py-3 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+                  + Add
+                </button>
+              </div>
+            </div>
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">DOCKER IMAGE <span class="text-red-400">*</span></label>
+              <input type="text" name="environment.docker_image" required placeholder="itzg/minecraft-server:latest" class="input-field">
+            </div>
+          </div>
+
+          <!-- VARIABLES -->
+          <div class="section-header mt-8 md:mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">VARIABLES</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+            <button type="button" id="btnAddVar" 
+                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+              + Add Variable
+            </button>
+          </div>
+          <div id="variablesContainer" class="space-y-4"></div>
+
+          <!-- RUNTIME ACTIONS -->
+          <div class="section-header mt-8 md:mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+            <button type="button" id="btnAddAction" 
+                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+              + Add Action
+            </button>
+          </div>
+          <div id="actionsContainer" class="space-y-4"></div>
+
+          <!-- INSTALL STEPS -->
+          <div class="section-header mt-8 md:mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+            <button type="button" id="btnAddInstallStep" 
+                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+              + Add Install Step
+            </button>
+          </div>
+          <div id="installStepsContainer" class="space-y-4"></div>
+
+          <!-- JSON EDITOR -->
+          <div id="jsonArea" class="hidden mt-8 md:mt-10">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">RAW JSON EDITOR</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+            <textarea id="jsonEditor" class="input-field h-[55vh] md:h-[70vh]"></textarea>
+          </div>
+
+          <!-- SUBMIT -->
+          <div id="submitSection" class="mt-10 md:mt-12 pt-6 border-t border-white/10 flex gap-4">
+            <button id="btnCancelForm" 
+                    type="button"
+                    class="flex-1 px-8 py-3 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
+              Cancel
+            </button>
+            <button id="btnSaveTemplate" 
+                    type="button"
+                    class="flex-1 px-10 py-3 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+              Update Template
+            </button>
+          </div>
+
           <input type="hidden" id="hiddenFilename" value="<%= filename %>">
-
-          <!-- FORM MODE -->
-          <div id="formArea" class="space-y-10">
-            <!-- General -->
-            <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-2 h-2 rounded-full bg-white"></div>
-                <h4 class="font-semibold text-white text-lg tracking-tight">General Information</h4>
-              </div>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-300 mb-2">Template Name <span class="text-red-400">*</span></label>
-                  <input type="text" name="meta.name" required class="input-field">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-300 mb-2">Display Name</label>
-                  <input type="text" name="meta.display_name" class="input-field">
-                </div>
-              </div>
-              <div class="mt-6">
-                <label class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-                <textarea name="meta.description" rows="3" class="input-field"></textarea>
-              </div>
-            </div>
-
-            <!-- Environment -->
-            <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-                <h4 class="font-semibold text-white text-lg tracking-tight">Environment</h4>
-              </div>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-300 mb-2">Category <span class="text-red-400">*</span></label>
-                  <div class="flex gap-3">
-                    <select name="category" required class="input-field">
-                      <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
-                    </select>
-                    <button type="button" id="btnAddCategory" 
-                            class="px-6 py-3 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-                      + Add
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-300 mb-2">Docker Image <span class="text-red-400">*</span></label>
-                  <input type="text" name="environment.docker_image" required placeholder="itzg/minecraft-server:latest" class="input-field">
-                </div>
-              </div>
-            </div>
-
-            <!-- Variables -->
-            <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                  <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
-                  <h4 class="font-semibold text-white text-lg tracking-tight">Variables</h4>
-                </div>
-                <button type="button" id="btnAddVar" 
-                        class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-                  + Add Variable
-                </button>
-              </div>
-              <div id="variablesContainer" class="space-y-4"></div>
-            </div>
-
-            <!-- Runtime Actions -->
-            <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                  <div class="w-2 h-2 rounded-full bg-amber-400"></div>
-                  <h4 class="font-semibold text-white text-lg tracking-tight">Runtime Actions</h4>
-                </div>
-                <button type="button" id="btnAddAction" 
-                        class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-                  + Add Action
-                </button>
-              </div>
-              <div id="actionsContainer" class="space-y-4"></div>
-            </div>
-
-            <!-- Install Steps -->
-            <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                  <div class="w-2 h-2 rounded-full bg-violet-400"></div>
-                  <h4 class="font-semibold text-white text-lg tracking-tight">Install Steps <span class="text-emerald-400 text-xs">(Download, Git, Files, Unzip, etc.)</span></h4>
-                </div>
-                <button type="button" id="btnAddInstallStep" 
-                        class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-                  + Add Install Step
-                </button>
-              </div>
-              <div id="installStepsContainer" class="space-y-4"></div>
-            </div>
-          </div>
-
-          <!-- JSON MODE -->
-          <div id="jsonArea" class="hidden">
-            <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <textarea id="jsonEditor" class="input-field h-[70vh]"></textarea>
-            </div>
-          </div>
         </form>
-
-        <!-- Footer -->
-        <div class="px-8 py-6 border-t border-white/10 bg-neutral-950/70 flex justify-end gap-4">
-          <button id="btnCancelForm" 
-                  class="px-8 py-3 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
-            Cancel
-          </button>
-          <button id="btnSaveTemplate" 
-                  class="px-10 py-3 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
-            Update Template
-          </button>
-        </div>
       </div>
+    </section>
+
+    <!-- Notification -->
+    <div id="notification" 
+         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
+      <span id="notification-text"></span>
     </div>
-
-  </div>
-
-  <!-- Notification -->
-  <div id="notification" 
-       class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
-    <span id="notification-text"></span>
   </div>
 </main>
 
@@ -197,11 +358,30 @@
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0;
 
-// ====================== SHOW/HIDE & NOTIFICATION ======================
-function showForm(title) {
-  document.getElementById("formTitle").textContent = title;
-  document.getElementById("btnSaveTemplate").textContent = "Update Template";
+// ====================== REINDEX HELPERS ======================
+function reindexDynamicList(container, listType) {
+  const itemClass = listType === 'options' ? '.option-item' : '.operation-item';
+  const items = container.querySelectorAll(itemClass);
+  items.forEach((item, newIdx) => {
+    item.querySelectorAll('input[name], select[name], textarea[name]').forEach(field => {
+      if (field.name) {
+        const regex = new RegExp(`\\.${listType}\\[\\d+\\]`, 'g');
+        field.name = field.name.replace(regex, `.${listType}[${newIdx}]`);
+      }
+    });
+  });
 }
+
+function removeAndReindex(btn, listType) {
+  const itemClass = listType === 'options' ? '.option-item' : '.operation-item';
+  const item = btn.closest(itemClass);
+  if (!item) return;
+  const container = item.parentElement;
+  item.remove();
+  reindexDynamicList(container, listType);
+}
+
+// ====================== NOTIFICATION ======================
 function hideForm() {
   window.location.href = "/admin/templates/overview";
 }
@@ -223,49 +403,148 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH ======================
-const modeSelect = document.getElementById("modeSelect");
-const formArea = document.getElementById("formArea");
+// ====================== MODE SWITCH (now mobile-friendly) ======================
+const modeSelect = document.createElement("select");
+modeSelect.id = "modeSelect";
+modeSelect.className = "input-field";
+modeSelect.innerHTML = `<option value="form">Visual Form</option><option value="json">Raw JSON</option>`;
+document.querySelector(".max-w-5xl").insertBefore(modeSelect, document.querySelector(".max-w-5xl").firstChild);
+
+const formArea = document.getElementById("templateForm");
 const jsonArea = document.getElementById("jsonArea");
 const jsonEditor = document.getElementById("jsonEditor");
+const submitSection = document.getElementById("submitSection");
 
 modeSelect.onchange = () => {
   const isJson = modeSelect.value === "json";
-  formArea.classList.toggle("hidden", isJson);
-  jsonArea.classList.toggle("hidden", !isJson);
   if (isJson) {
+    formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "none");
+    jsonArea.classList.remove("hidden");
     try { jsonEditor.value = JSON.stringify(collectFormData(), null, 2); } catch(e) {}
+  } else {
+    formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "block");
+    jsonArea.classList.add("hidden");
   }
+  submitSection.style.display = "flex";
 };
+
+// ====================== VARIABLE TYPES ======================
+const variableTypes = [
+  { value: "string", label: "String" },
+  { value: "integer", label: "Integer" },
+  { value: "number", label: "Number" },
+  { value: "boolean", label: "Boolean" },
+  { value: "option", label: "Option (Dropdown)" }
+];
+
+// ====================== ADD OPTION ITEM ======================
+function addOptionItem(varIdx, optIdx, optData = {}) {
+  const container = document.getElementById(`options-list-${varIdx}`);
+  if (!container) return;
+
+  const div = document.createElement("div");
+  div.className = "option-item";
+  div.innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-xs font-medium text-neutral-400">Option #${optIdx + 1}</span>
+      <button type="button" onclick="removeAndReindex(this, 'options')" class="remove-btn">×</button>
+    </div>
+    <div class="form-row">
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">Value</label>
+        <input type="text" name="variables[${varIdx}].options[${optIdx}].value" value="${optData.value || ''}" class="input-field font-mono" placeholder="1">
+      </div>
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Display Name</label>
+        <input type="text" name="variables[${varIdx}].options[${optIdx}].label" value="${optData.label || ''}" class="input-field" placeholder="Easy Mode">
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+}
 
 // ====================== VARIABLES ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
-  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.className = "card-item";
   div.innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-      <div class="md:col-span-2">
+    <div class="form-row">
+      <div class="field-long">
         <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
         <input type="text" name="variables[${idx}].id" value="${v.id||''}" required class="input-field mt-1 font-mono">
       </div>
-      <div class="md:col-span-2">
+      <div class="field-long">
         <label class="text-xs text-neutral-400">Name</label>
         <input type="text" name="variables[${idx}].name" value="${v.name||''}" required class="input-field mt-1">
       </div>
-      <div class="md:col-span-4">
+    </div>
+
+    <div class="form-row mt-4">
+      <div class="field-long">
         <label class="text-xs text-neutral-400">Description</label>
-        <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field mt-1">
+        <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field">
       </div>
-      <div class="md:col-span-3">
-        <label class="text-xs text-neutral-400">Default Value</label>
-        <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field mt-1">
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">User Editable</label>
+        <select name="variables[${idx}].user_editable" class="input-field">
+          <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>True</option>
+          <option value="false" ${v.user_editable === "false" ? "selected" : ""}>False</option>
+        </select>
       </div>
     </div>
-    <button type="button" onclick="this.closest('div').remove()" 
-            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+
+    <div class="form-row mt-4">
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
+        <select name="variables[${idx}].type" class="input-field var-type-select" data-idx="${idx}">
+          ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+
+    <div id="default-section-${idx}" class="field-short mt-4">
+      <label class="text-xs text-neutral-400">Default Value</label>
+      <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
+    </div>
+
+    <div id="options-section-${idx}" class="mt-6 hidden">
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-xs text-neutral-400">Options</label>
+        <button type="button" class="add-option-btn px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Option</button>
+      </div>
+      <div id="options-list-${idx}" class="space-y-3"></div>
+    </div>
+
+    <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
   `;
   document.getElementById("variablesContainer").appendChild(div);
+
+  const typeSelect = div.querySelector(".var-type-select");
+  const defaultSection = document.getElementById(`default-section-${idx}`);
+  const optionsSection = document.getElementById(`options-section-${idx}`);
+  const optionsList = document.getElementById(`options-list-${idx}`);
+
+  function toggleFields() {
+    const isOption = typeSelect.value === "option";
+    defaultSection.classList.toggle("hidden", isOption);
+    optionsSection.classList.toggle("hidden", !isOption);
+  }
+
+  typeSelect.addEventListener("change", toggleFields);
+
+  div.querySelector(".add-option-btn").onclick = () => {
+    const optIdx = optionsList.children.length;
+    addOptionItem(idx, optIdx);
+  };
+
+  if (v.type === "option") {
+    optionsSection.classList.remove("hidden");
+    if (Array.isArray(v.options)) v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
+  } else {
+    defaultSection.classList.remove("hidden");
+  }
+  toggleFields();
 }
 
 // ====================== ITEM TYPES & FIELD CONFIGS ======================
@@ -280,21 +559,21 @@ const itemTypes = [
 ];
 
 const fieldConfigs = {
-  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 10, placeholder: "apt-get update && ..." }],
+  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "apt-get update && ..." }],
   download: [
     { key: "url", label: "URL", type: "text", placeholder: "https://..." },
-    { key: "filename", label: "Filename (-O)", type: "text", placeholder: "file.jar" },
+    { key: "filename", label: "Filename", type: "text", placeholder: "file.jar" },
     { key: "path", label: "Save Path", type: "text", placeholder: "/data" }
   ],
   git_clone: [
     { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/..." },
     { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
-    { key: "branch", label: "Branch (optional)", type: "text", placeholder: "main" }
+    { key: "branch", label: "Branch", type: "text", placeholder: "main" }
   ],
   create_file: [
     { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
     { key: "path", label: "Path", type: "text", placeholder: "/data" },
-    { key: "content", label: "File Content", type: "textarea", rows: 8, placeholder: "server:\n  port: 25565" }
+    { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "server:\n  port: 25565" }
   ],
   unzip: [
     { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
@@ -307,123 +586,124 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== RENDER DYNAMIC FIELDS ======================
-function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
-  const container = document.getElementById(`dynamic-${idx}`);
+// ====================== SUB-OPERATION ======================
+function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
+  const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
   const config = fieldConfigs[type] || fieldConfigs.command;
-  let html = "";
+  let html = `<div class="form-row">`;
   config.forEach(f => {
     const val = data[f.key] || "";
-    if (f.type === "textarea") {
-      html += `
-        <div class="mt-4">
-          <label class="text-xs text-neutral-400">${f.label}</label>
-          <textarea name="${prefix}[${idx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono">${val}</textarea>
-        </div>`;
-    } else {
-      html += `
-        <div class="mt-4">
-          <label class="text-xs text-neutral-400">${f.label}</label>
-          <input type="text" name="${prefix}[${idx}].${f.key}" value="${val}" class="input-field mt-1" placeholder="${f.placeholder}">
-        </div>`;
-    }
+    html += `
+      <div class="${f.type === 'textarea' ? 'field-long' : 'field-short'}">
+        <label class="text-xs text-neutral-400">${f.label}</label>
+        ${f.type === "textarea" ? 
+          `<textarea name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono" placeholder="${f.placeholder || ''}">${val}</textarea>` :
+          `<input type="text" name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" value="${val}" class="input-field mt-1" placeholder="${f.placeholder}">`
+        }
+      </div>`;
   });
+  html += `</div>`;
   container.innerHTML = html;
 }
 
-// ====================== INSTALL STEPS (FIXED - same robust logic as create) ======================
-function addInstallStep(s = {}) {
-  const idx = installIndex++;
-  const defaultType = s.type || (s.run_code ? "command" : "command");
+function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
+  const subIdx = parseInt(opsContainer.dataset.subCount || 0);
+  opsContainer.dataset.subCount = subIdx + 1;
+
   const div = document.createElement("div");
-  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.className = "operation-item";
   div.innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-      <div class="md:col-span-3">
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-xs font-medium text-neutral-400">Operation #${subIdx + 1}</span>
+      <button type="button" onclick="removeAndReindex(this, 'operations')" class="remove-btn">×</button>
+    </div>
+    <div class="form-row">
+      <div class="field-short">
         <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
-        <select name="install_steps[${idx}].type" class="input-field mt-1 install-type-select" data-idx="${idx}">
-          ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        <select name="${prefix}[${mainIdx}].operations[${subIdx}].type" class="input-field sub-type-select" data-main="${mainIdx}" data-sub="${subIdx}">
+          ${itemTypes.map(t => `<option value="${t.value}">${t.label}</option>`).join("")}
         </select>
       </div>
-      <div class="md:col-span-4">
-        <label class="text-xs text-neutral-400">Step Name</label>
-        <input type="text" name="install_steps[${idx}].name" value="${s.name || ""}" class="input-field mt-1">
-      </div>
-      <div class="md:col-span-12 dynamic-fields" id="dynamic-${idx}"></div>
+      <div class="field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
     </div>
-    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
-  document.getElementById("installStepsContainer").appendChild(div);
+  opsContainer.appendChild(div);
 
-  // FIXED: render after DOM insertion
-  setTimeout(() => {
-    renderDynamicFields(idx, defaultType, s, "install_steps");
-  }, 0);
+  const defaultType = subData.type || "command";
+  const select = div.querySelector(".sub-type-select");
+  select.value = defaultType;
+  renderSubDynamicFields(mainIdx, subIdx, defaultType, subData, prefix);
 
-  const select = div.querySelector(".install-type-select");
   select.addEventListener("change", (e) => {
-    const newType = e.target.value;
-    const currentData = {};
-    const dynContainer = document.getElementById(`dynamic-${idx}`);
-    if (dynContainer) {
-      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
-        const key = inp.name.split(".").pop();
-        currentData[key] = inp.value;
-      });
-    }
-    renderDynamicFields(idx, newType, currentData, "install_steps");
+    renderSubDynamicFields(mainIdx, subIdx, e.target.value, {}, prefix);
   });
 }
 
-// ====================== RUNTIME ACTIONS (same fix) ======================
+// ====================== ADD ACTION / INSTALL STEP ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
-  const defaultType = a.type || (a.run_code ? "command" : "command");
   const div = document.createElement("div");
-  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.className = "card-item";
   div.innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-      <div class="md:col-span-2">
+    <div class="form-row">
+      <div class="field-short">
         <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
-        <input type="text" name="actions[${idx}].id" value="${a.id || ""}" required class="input-field mt-1 font-mono">
+        <input type="text" name="actions[${idx}].id" value="${a.id || ''}" required class="input-field font-mono">
       </div>
-      <div class="md:col-span-3">
-        <label class="text-xs text-neutral-400">Name</label>
-        <input type="text" name="actions[${idx}].name" value="${a.name || ""}" class="input-field mt-1">
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Action Name</label>
+        <input type="text" name="actions[${idx}].name" value="${a.name || ''}" class="input-field">
       </div>
-      <div class="md:col-span-3">
-        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
-        <select name="actions[${idx}].type" class="input-field mt-1 action-type-select" data-idx="${idx}">
-          ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
-        </select>
-      </div>
-      <div class="md:col-span-12 dynamic-fields" id="dynamic-${idx}"></div>
     </div>
-    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-medium text-neutral-400">Operations</span>
+        <button type="button" class="add-op-btn px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Operation</button>
+      </div>
+      <div class="operations-list space-y-3" id="ops-actions-${idx}" data-sub-count="0"></div>
+    </div>
+    <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
 
-  setTimeout(() => {
-    renderDynamicFields(idx, defaultType, a, "actions");
-  }, 0);
+  const opsContainer = div.querySelector(`#ops-actions-${idx}`);
+  const ops = a.operations || [{ type: "command", run_code: "echo 'Action started'" }];
+  ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
 
-  const select = div.querySelector(".action-type-select");
-  select.addEventListener("change", (e) => {
-    const newType = e.target.value;
-    const currentData = {};
-    const dynContainer = document.getElementById(`dynamic-${idx}`);
-    if (dynContainer) {
-      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
-        const key = inp.name.split(".").pop();
-        currentData[key] = inp.value;
-      });
-    }
-    renderDynamicFields(idx, newType, currentData, "actions");
-  });
+  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
 }
 
-// ====================== COLLECT & FILL ======================
+function addInstallStep(s = {}) {
+  const idx = installIndex++;
+  const div = document.createElement("div");
+  div.className = "card-item";
+  div.innerHTML = `
+    <div class="form-row">
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Step Name</label>
+        <input type="text" name="install_steps[${idx}].name" value="${s.name || ''}" class="input-field">
+      </div>
+    </div>
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-medium text-neutral-400">Operations</span>
+        <button type="button" class="add-op-btn px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Operation</button>
+      </div>
+      <div class="operations-list space-y-3" id="ops-install-${idx}" data-sub-count="0"></div>
+    </div>
+    <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
+  `;
+  document.getElementById("installStepsContainer").appendChild(div);
+
+  const opsContainer = div.querySelector(`#ops-install-${idx}`);
+  const ops = s.operations || [{ type: "command", run_code: "echo 'Installing...'" }];
+  ops.forEach(op => addSubOperation(opsContainer, "install_steps", idx, op));
+
+  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
+}
+
+// ====================== COLLECT + FILL + DEFAULT ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -432,32 +712,66 @@ function collectFormData() {
     if (key.startsWith("meta.")) data.meta[key.split(".")[1]] = value;
     else if (key === "category") data.category = value;
     else if (key === "environment.docker_image") data.environment.docker_image = value;
+
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
         const i = parseInt(match[1]);
         if (!data.variables[i]) data.variables[i] = {};
-        data.variables[i][match[2]] = value;
+        if (key.includes(".options[")) {
+          const optMatch = key.match(/variables\[(\d+)\]\.options\[(\d+)\]\.(.+)/);
+          if (optMatch) {
+            const optI = parseInt(optMatch[2]);
+            if (!data.variables[i].options) data.variables[i].options = [];
+            if (!data.variables[i].options[optI]) data.variables[i].options[optI] = {};
+            data.variables[i].options[optI][optMatch[3]] = value;
+          }
+        } else {
+          data.variables[i][match[2]] = value;
+        }
       }
-    } else if (key.startsWith("actions[")) {
-      const match = key.match(/actions\[(\d+)\]\.(.+)/);
-      if (match) {
-        const i = parseInt(match[1]);
-        if (!data.actions[i]) data.actions[i] = {};
-        data.actions[i][match[2]] = value;
+    }
+    else if (key.startsWith("actions[")) {
+      const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
+      if (opMatch) {
+        const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
+        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
+        data.actions[i].operations[j][opMatch[3]] = value;
+      } else {
+        const simpleMatch = key.match(/actions\[(\d+)\]\.(.+)/);
+        if (simpleMatch) {
+          const i = parseInt(simpleMatch[1]);
+          if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+          data.actions[i][simpleMatch[2]] = value;
+        }
       }
-    } else if (key.startsWith("install_steps[")) {
-      const match = key.match(/install_steps\[(\d+)\]\.(.+)/);
-      if (match) {
-        const i = parseInt(match[1]);
-        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = {};
-        data.environment.install_steps[i][match[2]] = value;
+    }
+    else if (key.startsWith("install_steps[")) {
+      const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
+      if (opMatch) {
+        const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
+        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
+        if (!data.environment.install_steps[i].operations[j]) data.environment.install_steps[i].operations[j] = {};
+        data.environment.install_steps[i].operations[j][opMatch[3]] = value;
+      } else {
+        const simpleMatch = key.match(/install_steps\[(\d+)\]\.(.+)/);
+        if (simpleMatch) {
+          const i = parseInt(simpleMatch[1]);
+          if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
+          data.environment.install_steps[i][simpleMatch[2]] = value;
+        }
       }
     }
   }
+
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
+  data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
+  data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
+  data.variables.forEach(v => { if (v.options) v.options = v.options.filter(Boolean); });
+
   return data;
 }
 
@@ -521,28 +835,46 @@ document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
   if (!name?.trim()) return;
-  const res = await fetch("/admin/templates/category", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({name: name.trim()})
-  });
+  const res = await fetch("/admin/templates/category", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: name.trim()}) });
   if (res.ok) {
     const {categories} = await res.json();
     const select = document.querySelector('[name="category"]');
     select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
     select.value = name.trim();
     showNotification("Category added!", "success");
-  } else {
-    showNotification("Failed to add category", "error");
   }
 };
 
-// ====================== INIT EDIT PAGE ======================
+// ====================== IMPORT JSON ======================
+document.getElementById("btnImportJson").onclick = () => {
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = ".json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        // keep current filename for update
+        modeSelect.value = "json";
+        modeSelect.onchange();
+        jsonEditor.value = JSON.stringify(data, null, 2);
+        showNotification("JSON imported", "success");
+      } catch(e) {
+        showNotification("Invalid JSON file!", "error");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
+
+// ====================== INIT EDIT ======================
 const templateData = <%= JSON.stringify(template) %>;
 fillForm(templateData);
 modeSelect.value = "form";
 modeSelect.onchange();
-showForm(`Edit: ${templateData.meta?.name || templateData.meta?.display_name || 'Template'}`);
 </script>
 
 <%- include('../../components/footer') %>
