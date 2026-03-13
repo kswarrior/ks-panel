@@ -12,6 +12,7 @@
   outline: none;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  font-size: 1rem;
 }
 
 .input-field:focus {
@@ -39,12 +40,93 @@
 .field-long { flex-basis: 420px; min-width: 260px; }
 .field-short { flex-basis: 180px; min-width: 160px; }
 
+/* ====================== MOBILE OPTIMIZATIONS ====================== */
+@media (max-width: 640px) {
+  .input-field {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .form-row {
+    gap: 0.75rem;
+  }
+  
+  .field-long,
+  .field-short {
+    flex-basis: 100% !important;
+  }
+  
+  .card-item {
+    padding: 1.1rem;
+    border-radius: 14px;
+  }
+  
+  .operation-item,
+  .option-item {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .remove-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+  
+  .section-header {
+    margin-bottom: 0.75rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .section-header h2 {
+    font-size: 1.05rem;
+  }
+  
+  button:not(.remove-btn) {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  #modeSelect {
+    position: static !important;
+    width: 100% !important;
+    margin: 1rem 0 0 0;
+    z-index: 0;
+  }
+  
+  .max-w-5xl {
+    padding: 1rem !important;
+  }
+  
+  header {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.4rem;
+  }
+  
+  /* Make add buttons full-width on tiny screens */
+  .add-op-btn,
+  .add-option-btn {
+    width: 100%;
+  }
+}
+
+/* Larger phones / tablets */
 @media (max-width: 1024px) {
   .form-row { gap: 1rem; }
   .field-long, .field-short { flex-basis: 100% !important; }
 }
 
-/* Unified card style - ALL CARDS NOW IDENTICAL */
+/* Unified card style */
 .card-item {
   border: 1px solid rgba(255,255,255,0.1);
   background: #1c3b54;
@@ -59,7 +141,7 @@
   background: #1f425e;
 }
 
-/* Remove buttons - now works perfectly on cards AND sub-items */
+/* Remove buttons */
 .remove-btn {
   position: absolute;
   top: 1rem;
@@ -85,7 +167,7 @@
   transform: scale(1.1);
 }
 
-/* Sub-operation & option items - NOW CONSISTENT + POSITION RELATIVE FOR PROPER REMOVE BUTTON PLACEMENT */
+/* Sub-operation & option items */
 .operation-item,
 .option-item {
   background: rgba(255,255,255,0.05);
@@ -93,10 +175,10 @@
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 1rem;
-  position: relative; /* CRITICAL: makes × button position correctly inside each sub-item */
+  position: relative;
 }
 
-/* Section header + Add button in one clean line */
+/* Section header */
 .section-header {
   display: flex;
   align-items: center;
@@ -108,6 +190,11 @@
 .hidden {
   display: none;
 }
+
+/* Notification on mobile */
+#notification {
+  max-width: 92vw;
+}
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
@@ -117,7 +204,7 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Template</h1>
-        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates with typed Install Steps &amp; Actions</p>
+        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
@@ -127,14 +214,14 @@
         </button>
         <a href="/admin/templates/overview" 
            class="px-6 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-          ← Back to Overview
+          ← Back
         </a>
       </div>
     </header>
 
-    <section class="mt-12">
-      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
-        <form id="templateForm" class="space-y-10">
+    <section class="mt-8 md:mt-12">
+      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 md:p-6 lg:p-12 shadow-sm">
+        <form id="templateForm" class="space-y-8 md:space-y-10">
 
           <!-- GENERAL INFORMATION -->
           <div class="flex items-center gap-4 mb-6">
@@ -162,7 +249,7 @@
           </div>
 
           <!-- ENVIRONMENT -->
-          <div class="section-header mt-10">
+          <div class="section-header mt-8 md:mt-10">
             <div class="flex items-center gap-4">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
               <h2 class="text-lg font-semibold text-white tracking-wide">ENVIRONMENT</h2>
@@ -190,7 +277,7 @@
           </div>
 
           <!-- VARIABLES -->
-          <div class="section-header mt-10">
+          <div class="section-header mt-8 md:mt-10">
             <div class="flex items-center gap-4">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
               <h2 class="text-lg font-semibold text-white tracking-wide">VARIABLES</h2>
@@ -204,10 +291,10 @@
           <div id="variablesContainer" class="space-y-4"></div>
 
           <!-- RUNTIME ACTIONS -->
-          <div class="section-header mt-10">
+          <div class="section-header mt-8 md:mt-10">
             <div class="flex items-center gap-4">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS (Start/Stop/etc.)</h2>
+              <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS</h2>
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </div>
             <button type="button" id="btnAddAction" 
@@ -218,10 +305,10 @@
           <div id="actionsContainer" class="space-y-4"></div>
 
           <!-- INSTALL STEPS -->
-          <div class="section-header mt-10">
+          <div class="section-header mt-8 md:mt-10">
             <div class="flex items-center gap-4">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS (Download + Git + Command + etc.)</h2>
+              <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS</h2>
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </div>
             <button type="button" id="btnAddInstallStep" 
@@ -232,17 +319,17 @@
           <div id="installStepsContainer" class="space-y-4"></div>
 
           <!-- JSON EDITOR -->
-          <div id="jsonArea" class="hidden mt-10">
+          <div id="jsonArea" class="hidden mt-8 md:mt-10">
             <div class="flex items-center gap-4 mb-6">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
               <h2 class="text-lg font-semibold text-white tracking-wide">RAW JSON EDITOR</h2>
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </div>
-            <textarea id="jsonEditor" class="input-field h-[70vh]"></textarea>
+            <textarea id="jsonEditor" class="input-field h-[55vh] md:h-[70vh]"></textarea>
           </div>
 
           <!-- SUBMIT -->
-          <div id="submitSection" class="mt-12 pt-6 border-t border-white/10 flex gap-4">
+          <div id="submitSection" class="mt-10 md:mt-12 pt-6 border-t border-white/10 flex gap-4">
             <button id="btnCancelForm" 
                     type="button"
                     class="flex-1 px-8 py-3 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
@@ -272,7 +359,7 @@
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0;
 
-// ====================== REINDEX HELPERS (Deep fix for remove + add after delete) ======================
+// ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
   const itemClass = listType === 'options' ? '.option-item' : '.operation-item';
   const items = container.querySelectorAll(itemClass);
@@ -317,13 +404,12 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH ======================
+// ====================== MODE SWITCH (now mobile-friendly) ======================
 const modeSelect = document.createElement("select");
 modeSelect.id = "modeSelect";
 modeSelect.className = "input-field";
 modeSelect.innerHTML = `<option value="form">Visual Form</option><option value="json">Raw JSON</option>`;
-modeSelect.style.cssText = "position:absolute;top:20px;right:20px;z-index:10;width:180px;";
-document.querySelector(".max-w-5xl").appendChild(modeSelect);
+document.querySelector(".max-w-5xl").insertBefore(modeSelect, document.querySelector(".max-w-5xl").firstChild);
 
 const formArea = document.getElementById("templateForm");
 const jsonArea = document.getElementById("jsonArea");
@@ -352,7 +438,7 @@ const variableTypes = [
   { value: "option", label: "Option (Dropdown)" }
 ];
 
-// ====================== ADD OPTION ITEM (NOW EXACTLY LIKE OPERATIONS) ======================
+// ====================== ADD OPTION ITEM ======================
 function addOptionItem(varIdx, optIdx, optData = {}) {
   const container = document.getElementById(`options-list-${varIdx}`);
   if (!container) return;
@@ -409,7 +495,6 @@ function addVariable(v = {}) {
       </div>
     </div>
 
-    <!-- Type -->
     <div class="form-row mt-4">
       <div class="field-short">
         <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
@@ -419,16 +504,14 @@ function addVariable(v = {}) {
       </div>
     </div>
 
-    <!-- Default Value (HIDDEN when Type = Option) -->
     <div id="default-section-${idx}" class="field-short mt-4">
       <label class="text-xs text-neutral-400">Default Value</label>
       <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
     </div>
 
-    <!-- OPTIONS SECTION (only for Option type) -->
     <div id="options-section-${idx}" class="mt-6 hidden">
       <div class="flex items-center justify-between mb-3">
-        <label class="text-xs text-neutral-400">Options (Value : Display Name)</label>
+        <label class="text-xs text-neutral-400">Options</label>
         <button type="button" class="add-option-btn px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Option</button>
       </div>
       <div id="options-list-${idx}" class="space-y-3"></div>
@@ -445,13 +528,8 @@ function addVariable(v = {}) {
 
   function toggleFields() {
     const isOption = typeSelect.value === "option";
-    if (isOption) {
-      defaultSection.classList.add("hidden");
-      optionsSection.classList.remove("hidden");
-    } else {
-      defaultSection.classList.remove("hidden");
-      optionsSection.classList.add("hidden");
-    }
+    defaultSection.classList.toggle("hidden", isOption);
+    optionsSection.classList.toggle("hidden", !isOption);
   }
 
   typeSelect.addEventListener("change", toggleFields);
@@ -463,13 +541,10 @@ function addVariable(v = {}) {
 
   if (v.type === "option") {
     optionsSection.classList.remove("hidden");
-    if (Array.isArray(v.options)) {
-      v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
-    }
+    if (Array.isArray(v.options)) v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
   } else {
     defaultSection.classList.remove("hidden");
   }
-
   toggleFields();
 }
 
@@ -485,7 +560,7 @@ const itemTypes = [
 ];
 
 const fieldConfigs = {
-  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 8, placeholder: "apt-get update && ..." }],
+  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "apt-get update && ..." }],
   download: [
     { key: "url", label: "URL", type: "text", placeholder: "https://..." },
     { key: "filename", label: "Filename", type: "text", placeholder: "file.jar" },
@@ -499,7 +574,7 @@ const fieldConfigs = {
   create_file: [
     { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
     { key: "path", label: "Path", type: "text", placeholder: "/data" },
-    { key: "content", label: "Content", type: "textarea", rows: 8, placeholder: "server:\n  port: 25565" }
+    { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "server:\n  port: 25565" }
   ],
   unzip: [
     { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
@@ -512,7 +587,7 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== SUB-OPERATION (Operations of Action / Install Step) ======================
+// ====================== SUB-OPERATION ======================
 function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
@@ -629,7 +704,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT DATA ======================
+// ====================== COLLECT + FILL + DEFAULT (unchanged) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -644,7 +719,6 @@ function collectFormData() {
       if (match) {
         const i = parseInt(match[1]);
         if (!data.variables[i]) data.variables[i] = {};
-        
         if (key.includes(".options[")) {
           const optMatch = key.match(/variables\[(\d+)\]\.options\[(\d+)\]\.(.+)/);
           if (optMatch) {
@@ -695,18 +769,14 @@ function collectFormData() {
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
-
   data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
   data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
-
-  data.variables.forEach(v => {
-    if (v.options) v.options = v.options.filter(Boolean);
-  });
+  data.variables.forEach(v => { if (v.options) v.options = v.options.filter(Boolean); });
 
   return data;
 }
 
-function fillForm(data) {
+function fillForm(data) { /* same as before */ 
   document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
   document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
@@ -735,31 +805,20 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   [
-    { 
-      id: "start", 
-      name: "Start Server", 
-      operations: [
-        { type: "create_file", filename: "start.sh", path: "/data", content: "#!/bin/bash\necho Starting server..." },
-        { type: "command", run_code: "chmod +x /data/start.sh && /data/start.sh" }
-      ]
-    },
-    { 
-      id: "stop",  
-      name: "Stop Server",  
-      operations: [{ type: "command", run_code: "docker stop {{container_name}}" }]
-    }
+    { id: "start", name: "Start Server", operations: [
+      { type: "create_file", filename: "start.sh", path: "/data", content: "#!/bin/bash\necho Starting..." },
+      { type: "command", run_code: "chmod +x /data/start.sh && /data/start.sh" }
+    ]},
+    { id: "stop", name: "Stop Server", operations: [{ type: "command", run_code: "docker stop {{container_name}}" }]}
   ].forEach(addAction);
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
   [
-    { 
-      name: "Install Server Files", 
-      operations: [
-        { type: "download", url: "https://example.com/server.jar", filename: "server.jar", path: "/data" },
-        { type: "command", run_code: "echo 'Server downloaded'" }
-      ]
-    }
+    { name: "Install Server Files", operations: [
+      { type: "download", url: "https://example.com/server.jar", filename: "server.jar", path: "/data" },
+      { type: "command", run_code: "echo 'Server downloaded'" }
+    ]}
   ].forEach(addInstallStep);
 }
 
@@ -801,19 +860,13 @@ document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
   if (!name?.trim()) return;
-  const res = await fetch("/admin/templates/category", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({name: name.trim()})
-  });
+  const res = await fetch("/admin/templates/category", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: name.trim()}) });
   if (res.ok) {
     const {categories} = await res.json();
     const select = document.querySelector('[name="category"]');
     select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
     select.value = name.trim();
     showNotification("Category added!", "success");
-  } else {
-    showNotification("Failed to add category", "error");
   }
 };
 
@@ -832,7 +885,7 @@ document.getElementById("btnImportJson").onclick = () => {
         modeSelect.value = "json";
         modeSelect.onchange();
         jsonEditor.value = JSON.stringify(data, null, 2);
-        showNotification("JSON imported – switch to Raw JSON mode", "success");
+        showNotification("JSON imported", "success");
       } catch(e) {
         showNotification("Invalid JSON file!", "error");
       }
