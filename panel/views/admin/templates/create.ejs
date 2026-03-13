@@ -323,7 +323,7 @@ function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
       html += `
         <div class="mt-4">
           <label class="text-xs text-neutral-400">${f.label}</label>
-          <textarea name="${prefix}[${idx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono">${val}</textarea>
+          <textarea name="${prefix}[${idx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono" placeholder="${f.placeholder || ''}">${val}</textarea>
         </div>`;
     } else {
       html += `
@@ -336,10 +336,9 @@ function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
   container.innerHTML = html;
 }
 
-// ====================== INSTALL STEPS (FIXED - original logic restored + robust DOM handling) ======================
+// ====================== INSTALL STEPS (FIXED - direct render, no setTimeout race condition) ======================
 function addInstallStep(s = {}) {
   const idx = installIndex++;
-  // RESTORED ORIGINAL LOGIC (critical fix for legacy templates that have run_code but no "type")
   const defaultType = s.type || (s.run_code ? "command" : "command");
   
   const div = document.createElement("div");
@@ -362,12 +361,10 @@ function addInstallStep(s = {}) {
   `;
   document.getElementById("installStepsContainer").appendChild(div);
 
-  // FIXED: render AFTER DOM insertion (guarantees container exists)
-  setTimeout(() => {
-    renderDynamicFields(idx, defaultType, s, "install_steps");
-  }, 0);
+  // Render immediately after DOM insertion (guaranteed container exists - this fixes the previous timing issue)
+  renderDynamicFields(idx, defaultType, s, "install_steps");
 
-  // FIXED listener with safe container lookup
+  // Type change handler
   const select = div.querySelector(".install-type-select");
   select.addEventListener("change", (e) => {
     const newType = e.target.value;
@@ -383,7 +380,7 @@ function addInstallStep(s = {}) {
   });
 }
 
-// ====================== RUNTIME ACTIONS (same robust fix applied) ======================
+// ====================== RUNTIME ACTIONS (same direct-render fix applied) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const defaultType = a.type || (a.run_code ? "command" : "command");
@@ -411,9 +408,8 @@ function addAction(a = {}) {
   `;
   document.getElementById("actionsContainer").appendChild(div);
 
-  setTimeout(() => {
-    renderDynamicFields(idx, defaultType, a, "actions");
-  }, 0);
+  // Render immediately after DOM insertion
+  renderDynamicFields(idx, defaultType, a, "actions");
 
   const select = div.querySelector(".action-type-select");
   select.addEventListener("change", (e) => {
