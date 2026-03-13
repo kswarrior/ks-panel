@@ -53,10 +53,10 @@
          <% let query = req.query.path ? '?path=' + req.query.path : ''; %>
          <div class="mt-4 sm:ml-16 sm:mt-0 flex space-x-4">
             <input type="text" id="searchInput2" placeholder="Search files..." class="px-3 py-2 bg-transparent border border-white/5 shadow-lg focus:scale-105 transition rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 focus:ring-neutral-600 mr-2 w-64">
-            <a href="/instance/<%= req.params.id %>/files/create<%= query %>" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <a href="/instance/<%= req.params.id %>/files/create<%= query %>" class="block rounded-xl px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Create File
             </a>
-            <a href="/instance/<%= req.params.id %>/files/folder/create<%= query %>" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <a href="/instance/<%= req.params.id %>/files/folder/create<%= query %>" class="block rounded-xl px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Create Folder
             </a>
             <button id="uploadBtn" class="block rounded-xl <%= theme['button-color'] %> px-4 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
