@@ -32,7 +32,7 @@
   width: 5px;
   background: linear-gradient(to bottom, transparent, currentColor);
   border-radius: 9999px;
-  transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35); /* EXTRA OPTIMISTIC BOUNCE */
+  transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35);
   opacity: 0.95;
 }
 </style>
@@ -59,7 +59,7 @@
       </div>
     </header>
 
-    <!-- VERSION CONTROL + UPDATE BUTTON (using your version.js logic) -->
+    <!-- VERSION CONTROL + UPDATE BUTTON (fixed endpoint from your version.js) -->
     <div class="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex items-center justify-between">
       <div class="flex items-center gap-4">
         <div>
@@ -104,7 +104,7 @@
       </div>
     </div>
 
-    <!-- RESOURCES MONITOR + PING GRAPH (4-column layout) -->
+    <!-- RESOURCES MONITOR + PING GRAPH -->
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
@@ -163,7 +163,7 @@
           </div>
         </div>
 
-        <!-- PING GRAPH (new) -->
+        <!-- PING GRAPH (faster updates) -->
         <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
           <div class="flex items-center gap-4 mb-6">
             <div class="text-5xl">🌐</div>
@@ -184,7 +184,7 @@
 
 <script>
   // ================ ULTRA-OPTIMISTIC BOUNCY BAR GRAPH ================
-  const NUM_BARS = 25;
+  const NUM_BARS = 35;
 
   function updateBarGraph(graphId, percent, colorClass) {
     const graph = document.getElementById(graphId);
@@ -205,26 +205,23 @@
     });
   }
 
-  // ================ RESOURCES + PING (your working /resourceMonitor) ================
+  // ================ RESOURCES MONITOR ================
   async function fetchResources() {
     try {
       const res = await fetch('/resourceMonitor');
       const data = await res.json();
 
-      // CPU
       const cpuPercent = Math.round(data.cpu.percent || 0);
       document.getElementById('cpu-text').textContent = cpuPercent + '%';
       document.getElementById('cpu-status').textContent = cpuPercent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
       updateBarGraph('cpu-graph', cpuPercent, 'text-orange-400');
 
-      // RAM
       const ramPercent = Math.round(data.ram.percent || 0);
       document.getElementById('ram-text').textContent = ramPercent + '%';
       document.getElementById('ram-used').textContent = (data.ram.used || 0).toFixed(1) + ' GB';
       document.getElementById('ram-total').textContent = (data.ram.total || 0).toFixed(1) + ' GB';
       updateBarGraph('ram-graph', ramPercent, 'text-blue-400');
 
-      // Disk
       const diskPercent = Math.round(data.disk.percent || 0);
       document.getElementById('disk-text').textContent = diskPercent + '%';
       document.getElementById('disk-used').textContent = (data.disk.used || 0).toFixed(1) + ' GB';
@@ -236,7 +233,7 @@
     }
   }
 
-  // ================ REAL PING GRAPH (measures latency to your own server) ================
+  // ================ FASTER PING (updated every 1.2s + instant feel) ================
   async function fetchPing() {
     const start = performance.now();
     try {
@@ -244,10 +241,10 @@
       const latency = Math.round(performance.now() - start);
 
       document.getElementById('ping-text').textContent = latency + ' ms';
-      const percent = Math.min(100, Math.round((latency / 300) * 100)); // 300ms = full bar
+      const percent = Math.min(100, Math.round((latency / 250) * 100)); // tighter scale for faster feel
       updateBarGraph('ping-graph', percent, 'text-lime-400');
 
-      document.getElementById('ping-status').textContent = latency > 150 ? 'HIGH LATENCY ⚠️' : 'Normal';
+      document.getElementById('ping-status').textContent = latency > 120 ? 'HIGH LATENCY ⚠️' : 'Normal';
     } catch (e) {
       document.getElementById('ping-text').textContent = '— ms';
       document.getElementById('ping-status').textContent = 'Offline';
@@ -259,7 +256,7 @@
     fetchPing();
   }
 
-  // ================ VERSION CHECK + REINSTALL (using your version.js) ================
+  // ================ VERSION CHECK + REINSTALL (fixed endpoint from your version.js) ================
   let latestVersionData = null;
 
   async function checkForUpdate() {
@@ -268,12 +265,11 @@
     checkBtn.disabled = true;
 
     try {
-      const res = await fetch('/api/v1/version');   // ← from your version.js
+      const res = await fetch('/version');   // ← FIXED: matches router.get('/version')
       const data = await res.json();
       latestVersionData = data;
 
-      const current = document.getElementById('current-version');
-      current.textContent = `v${data.currentVersion}`;
+      document.getElementById('current-version').textContent = `v${data.currentVersion}`;
 
       const badge = document.getElementById('version-badge');
       const reinstallBtn = document.getElementById('reinstall-btn');
@@ -290,7 +286,7 @@
     } catch (e) {
       console.error("Version check failed", e);
       const badge = document.getElementById('version-badge');
-      badge.innerHTML = '❌ Check failed';
+      badge.innerHTML = '❌ Check failed (try again)';
       badge.className = 'px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 text-sm font-medium';
     }
 
@@ -307,7 +303,7 @@
     btn.disabled = true;
 
     try {
-      await fetch('/api/v1/reinstall');   // ← from your version.js
+      await fetch('/reinstall');   // ← FIXED: matches router.get('/reinstall')
       alert('✅ Reinstall started! Page will auto-reload in 8 seconds...');
       setTimeout(() => location.reload(true), 8000);
     } catch (e) {
@@ -364,10 +360,10 @@
   window.onload = () => {
     fetchResources();
     fetchPing();
-    checkForUpdate();                    // auto-check version on load
+    checkForUpdate();                    // auto-check version
 
     setInterval(fetchResources, 2800);
-    setInterval(fetchPing, 2800);
+    setInterval(fetchPing, 1200);        // ← FASTER PING (1.2 seconds)
 
     startStream();
   };
