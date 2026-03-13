@@ -41,7 +41,7 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Server Templates</h1>
-        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates with typed Install Steps &amp; Actions (download, git, files, unzip, etc.)</p>
+        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates with typed Install Steps &amp; Actions</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
@@ -203,7 +203,7 @@
               </div>
             </div>
 
-            <!-- Variables -->
+            <!-- Variables (FIXED - now fully working) -->
             <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
               <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -218,7 +218,7 @@
               <div id="variablesContainer" class="space-y-4"></div>
             </div>
 
-            <!-- Runtime Actions (typed) -->
+            <!-- Runtime Actions -->
             <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
               <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -233,7 +233,7 @@
               <div id="actionsContainer" class="space-y-4"></div>
             </div>
 
-            <!-- Install Steps (typed - exactly what you asked for) -->
+            <!-- Install Steps -->
             <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
               <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -284,51 +284,8 @@
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0;
 
-// Step types & field configs (exactly as requested + more for power)
-const itemTypes = [
-  { value: "command",   label: "Run Shell Command" },
-  { value: "download",  label: "Download File" },
-  { value: "git_clone", label: "Git Clone" },
-  { value: "create_file", label: "Create File" },
-  { value: "unzip",     label: "Unzip Archive" },
-  { value: "mkdir",     label: "Create Directory" },
-  { value: "chmod",     label: "Change Permissions" }
-];
-
-const fieldConfigs = {
-  command: [
-    { key: "run_code", label: "Shell Script", type: "textarea", rows: 10, placeholder: "apt-get update && apt-get install -y curl wget git\nwget https://example.com/file.zip -O file.zip" }
-  ],
-  download: [
-    { key: "url",      label: "URL",          type: "text", placeholder: "https://example.com/server.jar" },
-    { key: "filename", label: "Filename (-O)",type: "text", placeholder: "server.jar" },
-    { key: "path",     label: "Save Path",    type: "text", placeholder: "/data" }
-  ],
-  git_clone: [
-    { key: "repo",   label: "Repository URL", type: "text", placeholder: "https://github.com/user/repo.git" },
-    { key: "path",   label: "Clone Path",     type: "text", placeholder: "/app" },
-    { key: "branch", label: "Branch (optional)", type: "text", placeholder: "main" }
-  ],
-  create_file: [
-    { key: "filename", label: "Filename",     type: "text", placeholder: "config.yml" },
-    { key: "path",     label: "Path",         type: "text", placeholder: "/data" },
-    { key: "content",  label: "File Content", type: "textarea", rows: 8, placeholder: "server:\n  port: 25565" }
-  ],
-  unzip: [
-    { key: "source",      label: "Source Archive", type: "text", placeholder: "archive.zip" },
-    { key: "destination", label: "Extract To",     type: "text", placeholder: "/data" }
-  ],
-  mkdir: [
-    { key: "path", label: "Directory Path", type: "text", placeholder: "/data/backups" }
-  ],
-  chmod: [
-    { key: "target", label: "Target (file/folder)", type: "text", placeholder: "/data/server.jar" },
-    { key: "mode",   label: "Permissions (e.g. 755)", type: "text", placeholder: "755" }
-  ]
-};
-
-// ====================== SHOW/HIDE & NOTIFICATION ======================
-function showForm(title) { /* same as before */ 
+// ====================== SHOW/HIDE & NOTIFICATION (restored) ======================
+function showForm(title) {
   document.getElementById("formTitle").textContent = title;
   document.getElementById("btnSaveTemplate").textContent = title.includes("Edit") ? "Update Template" : "Save Template";
   document.getElementById("templateFormSection").classList.remove("hidden");
@@ -336,8 +293,24 @@ function showForm(title) { /* same as before */
 function hideForm() {
   document.getElementById("templateFormSection").classList.add("hidden");
 }
-function showNotification(message, type = 'success') { /* same */ 
-  /* ... unchanged ... */
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('notification');
+  const textEl = document.getElementById('notification-text');
+  textEl.textContent = message;
+  
+  notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+    type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
+  }`;
+  notification.classList.remove('hidden');
+  notification.classList.add('flex');
+
+  setTimeout(() => {
+    notification.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => {
+      notification.classList.add('hidden');
+      notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+    }, 300);
+  }, 2800);
 }
 
 // ====================== MODE SWITCH ======================
@@ -355,12 +328,76 @@ modeSelect.onchange = () => {
   }
 };
 
-// ====================== VARIABLES (unchanged) ======================
-function addVariable(v = {}) { /* same as previous version */ 
-  /* ... unchanged code ... */
+// ====================== VARIABLES (FULLY FIXED - working again) ======================
+function addVariable(v = {}) {
+  const idx = varIndex++;
+  const div = document.createElement("div");
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
+        <input type="text" name="variables[${idx}].id" value="${v.id||''}" required class="input-field mt-1 font-mono">
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">Name</label>
+        <input type="text" name="variables[${idx}].name" value="${v.name||''}" required class="input-field mt-1">
+      </div>
+      <div class="md:col-span-4">
+        <label class="text-xs text-neutral-400">Description</label>
+        <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field mt-1">
+      </div>
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">Default Value</label>
+        <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field mt-1">
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" 
+            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+  `;
+  document.getElementById("variablesContainer").appendChild(div);
 }
 
-// ====================== GENERIC DYNAMIC FIELDS RENDERER ======================
+// ====================== ITEM TYPES & FIELD CONFIGS (unchanged) ======================
+const itemTypes = [
+  { value: "command",   label: "Run Shell Command" },
+  { value: "download",  label: "Download File" },
+  { value: "git_clone", label: "Git Clone" },
+  { value: "create_file", label: "Create File" },
+  { value: "unzip",     label: "Unzip Archive" },
+  { value: "mkdir",     label: "Create Directory" },
+  { value: "chmod",     label: "Change Permissions" }
+];
+
+const fieldConfigs = {
+  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 10, placeholder: "apt-get update && ..." }],
+  download: [
+    { key: "url", label: "URL", type: "text", placeholder: "https://..." },
+    { key: "filename", label: "Filename (-O)", type: "text", placeholder: "file.jar" },
+    { key: "path", label: "Save Path", type: "text", placeholder: "/data" }
+  ],
+  git_clone: [
+    { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/..." },
+    { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
+    { key: "branch", label: "Branch (optional)", type: "text", placeholder: "main" }
+  ],
+  create_file: [
+    { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
+    { key: "path", label: "Path", type: "text", placeholder: "/data" },
+    { key: "content", label: "File Content", type: "textarea", rows: 8, placeholder: "server:\n  port: 25565" }
+  ],
+  unzip: [
+    { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
+    { key: "destination", label: "Extract To", type: "text", placeholder: "/data" }
+  ],
+  mkdir: [{ key: "path", label: "Directory Path", type: "text", placeholder: "/data/backups" }],
+  chmod: [
+    { key: "target", label: "Target", type: "text", placeholder: "/data/server.jar" },
+    { key: "mode", label: "Permissions", type: "text", placeholder: "755" }
+  ]
+};
+
+// ====================== RENDER DYNAMIC FIELDS ======================
 function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
   const container = document.getElementById(`dynamic-${idx}`);
   if (!container) return;
@@ -385,7 +422,7 @@ function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
   container.innerHTML = html;
 }
 
-// ====================== INSTALL STEPS (TYPED - exactly what you requested) ======================
+// ====================== INSTALL STEPS ======================
 function addInstallStep(s = {}) {
   const idx = installIndex++;
   const defaultType = s.type || (s.run_code ? "command" : "command");
@@ -408,10 +445,8 @@ function addInstallStep(s = {}) {
     <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
   document.getElementById("installStepsContainer").appendChild(div);
-
   renderDynamicFields(idx, defaultType, s, "install_steps");
 
-  // Type change handler (preserves matching field values)
   div.querySelector(".install-type-select").addEventListener("change", (e) => {
     const newType = e.target.value;
     const currentData = {};
@@ -423,7 +458,7 @@ function addInstallStep(s = {}) {
   });
 }
 
-// ====================== RUNTIME ACTIONS (TYPED - same power) ======================
+// ====================== RUNTIME ACTIONS ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const defaultType = a.type || (a.run_code ? "command" : "command");
@@ -450,7 +485,6 @@ function addAction(a = {}) {
     <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
-
   renderDynamicFields(idx, defaultType, a, "actions");
 
   div.querySelector(".action-type-select").addEventListener("change", (e) => {
@@ -464,7 +498,7 @@ function addAction(a = {}) {
   });
 }
 
-// ====================== COLLECT DATA (now supports all typed fields) ======================
+// ====================== COLLECT DATA ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -510,26 +544,17 @@ function fillForm(data) {
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
 
-  // Variables
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
   (data.variables || []).forEach(v => addVariable(v));
 
-  // Actions (typed)
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
-  (data.actions || []).forEach(a => {
-    if (a.run_code && !a.type) a.type = "command";
-    addAction(a);
-  });
+  (data.actions || []).forEach(a => addAction(a));
 
-  // Install Steps (typed)
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
-  (data.environment?.install_steps || []).forEach(s => {
-    if (s.run_code && !s.type) s.type = "command";
-    addInstallStep(s);
-  });
+  (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
 
   jsonEditor.value = JSON.stringify(data, null, 2);
 }
@@ -548,7 +573,6 @@ function loadDefaultForm() {
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
-  // Start empty - user adds typed steps (download, git, etc.)
 }
 
 // ====================== SAVE ======================
@@ -591,12 +615,51 @@ document.getElementById("btnNewTemplate").onclick = () => {
   showForm("Create New Template");
 };
 
-document.getElementById("btnImportJson").onclick = () => { /* same */ };
+document.getElementById("btnImportJson").onclick = () => {
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = ".json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        document.getElementById("hiddenFilename").value = "";
+        modeSelect.value = "json";
+        modeSelect.onchange();
+        jsonEditor.value = JSON.stringify(data, null, 2);
+        showForm("Import Template");
+      } catch(e) {
+        showNotification("Invalid JSON file!", "error");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
 
-document.getElementById("btnAddCategory").onclick = async () => { /* same */ };
+document.getElementById("btnAddCategory").onclick = async () => {
+  const name = prompt("New category name:");
+  if (!name?.trim()) return;
+  const res = await fetch("/admin/templates/category", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name.trim()})
+  });
+  if (res.ok) {
+    const {categories} = await res.json();
+    const select = document.querySelector('[name="category"]');
+    select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
+    select.value = name.trim();
+    showNotification("Category added!", "success");
+  } else {
+    showNotification("Failed to add category", "error");
+  }
+};
 
 document.getElementById("btnCancelForm").onclick = hideForm;
-document.getElementById("btnAddVar").onclick = () => addVariable();
+document.getElementById("btnAddVar").onclick = () => addVariable();   // ← now works
 document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 
@@ -617,7 +680,16 @@ document.querySelectorAll(".btnEdit").forEach(btn => {
 });
 
 document.querySelectorAll(".btnDelete").forEach(btn => {
-  btn.onclick = async () => { /* same */ };
+  btn.onclick = async () => {
+    if (!confirm("Delete this template permanently?")) return;
+    const res = await fetch(`/admin/templates/${btn.dataset.filename}`, {method: "DELETE"});
+    if (res.ok) {
+      showNotification("Template deleted", "success");
+      location.reload();
+    } else {
+      showNotification("Delete failed", "error");
+    }
+  };
 });
 </script>
 
