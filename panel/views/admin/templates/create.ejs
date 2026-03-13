@@ -36,24 +36,12 @@
   min-width: 0;
 }
 
-.field-long {
-  flex-basis: 420px;
-  min-width: 260px;
-}
-
-.field-short {
-  flex-basis: 180px;
-  min-width: 160px;
-}
+.field-long { flex-basis: 420px; min-width: 260px; }
+.field-short { flex-basis: 180px; min-width: 160px; }
 
 @media (max-width: 1024px) {
-  .form-row {
-    gap: 1rem;
-  }
-  .field-long,
-  .field-short {
-    flex-basis: 100% !important;
-  }
+  .form-row { gap: 1rem; }
+  .field-long, .field-short { flex-basis: 100% !important; }
 }
 
 /* Unified card style - ALL CARDS NOW IDENTICAL */
@@ -102,6 +90,14 @@
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* Section header + Add button in one clean line */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
@@ -202,10 +198,12 @@ select.input-field {
           </div>
 
           <!-- ENVIRONMENT -->
-          <div class="flex items-center gap-4 mt-10 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">ENVIRONMENT</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div class="section-header mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">ENVIRONMENT</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
           </div>
 
           <div class="form-row">
@@ -228,13 +226,12 @@ select.input-field {
           </div>
 
           <!-- VARIABLES -->
-          <div class="flex items-center gap-4 mt-10 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">VARIABLES</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-
-          <div class="flex justify-end mb-4">
+          <div class="section-header mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">VARIABLES</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
             <button type="button" id="btnAddVar" 
                     class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
               + Add Variable
@@ -243,13 +240,12 @@ select.input-field {
           <div id="variablesContainer" class="space-y-4"></div>
 
           <!-- RUNTIME ACTIONS -->
-          <div class="flex items-center gap-4 mt-10 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS (Start/Stop/etc.)</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-
-          <div class="flex justify-end mb-4">
+          <div class="section-header mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS (Start/Stop/etc.)</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
             <button type="button" id="btnAddAction" 
                     class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
               + Add Action
@@ -258,13 +254,12 @@ select.input-field {
           <div id="actionsContainer" class="space-y-4"></div>
 
           <!-- INSTALL STEPS -->
-          <div class="flex items-center gap-4 mt-10 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS (Download + Git + Command + etc.)</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-
-          <div class="flex justify-end mb-4">
+          <div class="section-header mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS (Download + Git + Command + etc.)</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
             <button type="button" id="btnAddInstallStep" 
                     class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
               + Add Install Step
@@ -282,8 +277,8 @@ select.input-field {
             <textarea id="jsonEditor" class="input-field h-[70vh]"></textarea>
           </div>
 
-          <!-- SUBMIT -->
-          <div class="mt-12 pt-6 border-t border-white/10 flex gap-4">
+          <!-- SUBMIT - ALWAYS VISIBLE -->
+          <div id="submitSection" class="mt-12 pt-6 border-t border-white/10 flex gap-4">
             <button id="btnCancelForm" 
                     type="button"
                     class="flex-1 px-8 py-3 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
@@ -335,7 +330,7 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH ======================
+// ====================== MODE SWITCH (Save button ALWAYS visible) ======================
 const modeSelect = document.createElement("select");
 modeSelect.id = "modeSelect";
 modeSelect.className = "input-field";
@@ -346,20 +341,22 @@ document.querySelector(".max-w-5xl").appendChild(modeSelect);
 const formArea = document.getElementById("templateForm");
 const jsonArea = document.getElementById("jsonArea");
 const jsonEditor = document.getElementById("jsonEditor");
+const submitSection = document.getElementById("submitSection");
 
 modeSelect.onchange = () => {
   const isJson = modeSelect.value === "json";
   if (isJson) {
-    formArea.querySelectorAll("div:not(#jsonArea)").forEach(el => el.style.display = "none");
+    formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "none");
     jsonArea.classList.remove("hidden");
     try { jsonEditor.value = JSON.stringify(collectFormData(), null, 2); } catch(e) {}
   } else {
-    formArea.querySelectorAll("div:not(#jsonArea)").forEach(el => el.style.display = "block");
+    formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "block");
     jsonArea.classList.add("hidden");
   }
+  submitSection.style.display = "flex"; // Always visible
 };
 
-// ====================== VARIABLES ======================
+// ====================== VARIABLES (with User Editable) ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -383,6 +380,13 @@ function addVariable(v = {}) {
       <div class="field-short">
         <label class="text-xs text-neutral-400">Default Value</label>
         <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
+      </div>
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">User Editable</label>
+        <select name="variables[${idx}].user_editable" class="input-field">
+          <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>True</option>
+          <option value="false" ${v.user_editable === "false" ? "selected" : ""}>False</option>
+        </select>
       </div>
     </div>
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
@@ -548,7 +552,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT DATA ======================
+// ====================== COLLECT DATA (User Editable is automatically included) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
