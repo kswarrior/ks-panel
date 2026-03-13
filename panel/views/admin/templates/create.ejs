@@ -336,10 +336,12 @@ function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
   container.innerHTML = html;
 }
 
-// ====================== INSTALL STEPS ======================
+// ====================== INSTALL STEPS (FIXED - original logic restored + robust DOM handling) ======================
 function addInstallStep(s = {}) {
   const idx = installIndex++;
-  const defaultType = s.type || "command";
+  // RESTORED ORIGINAL LOGIC (critical fix for legacy templates that have run_code but no "type")
+  const defaultType = s.type || (s.run_code ? "command" : "command");
+  
   const div = document.createElement("div");
   div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
   div.innerHTML = `
@@ -359,23 +361,32 @@ function addInstallStep(s = {}) {
     <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
   document.getElementById("installStepsContainer").appendChild(div);
-  renderDynamicFields(idx, defaultType, s, "install_steps");
 
-  div.querySelector(".install-type-select").addEventListener("change", (e) => {
+  // FIXED: render AFTER DOM insertion (guarantees container exists)
+  setTimeout(() => {
+    renderDynamicFields(idx, defaultType, s, "install_steps");
+  }, 0);
+
+  // FIXED listener with safe container lookup
+  const select = div.querySelector(".install-type-select");
+  select.addEventListener("change", (e) => {
     const newType = e.target.value;
     const currentData = {};
-    div.querySelectorAll(`#dynamic-${idx} input, #dynamic-${idx} textarea`).forEach(inp => {
-      const key = inp.name.split(".").pop();
-      currentData[key] = inp.value;
-    });
+    const dynContainer = document.getElementById(`dynamic-${idx}`);
+    if (dynContainer) {
+      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
+        const key = inp.name.split(".").pop();
+        currentData[key] = inp.value;
+      });
+    }
     renderDynamicFields(idx, newType, currentData, "install_steps");
   });
 }
 
-// ====================== RUNTIME ACTIONS ======================
+// ====================== RUNTIME ACTIONS (same robust fix applied) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
-  const defaultType = a.type || "command";
+  const defaultType = a.type || (a.run_code ? "command" : "command");
   const div = document.createElement("div");
   div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
   div.innerHTML = `
@@ -399,15 +410,22 @@ function addAction(a = {}) {
     <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
-  renderDynamicFields(idx, defaultType, a, "actions");
 
-  div.querySelector(".action-type-select").addEventListener("change", (e) => {
+  setTimeout(() => {
+    renderDynamicFields(idx, defaultType, a, "actions");
+  }, 0);
+
+  const select = div.querySelector(".action-type-select");
+  select.addEventListener("change", (e) => {
     const newType = e.target.value;
     const currentData = {};
-    div.querySelectorAll(`#dynamic-${idx} input, #dynamic-${idx} textarea`).forEach(inp => {
-      const key = inp.name.split(".").pop();
-      currentData[key] = inp.value;
-    });
+    const dynContainer = document.getElementById(`dynamic-${idx}`);
+    if (dynContainer) {
+      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
+        const key = inp.name.split(".").pop();
+        currentData[key] = inp.value;
+      });
+    }
     renderDynamicFields(idx, newType, currentData, "actions");
   });
 }
@@ -542,7 +560,7 @@ document.getElementById("btnAddCategory").onclick = async () => {
   }
 };
 
-// ====================== IMPORT JSON (only on create) ======================
+// ====================== IMPORT JSON ======================
 document.getElementById("btnImportJson").onclick = () => {
   const input = document.createElement("input");
   input.type = "file"; input.accept = ".json";
