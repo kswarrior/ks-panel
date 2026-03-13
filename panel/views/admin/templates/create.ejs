@@ -805,11 +805,10 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   [
-    { id: "start", name: "Start Server", operations: [
-      { type: "create_file", filename: "start.sh", path: "/data", content: "#!/bin/bash\necho Starting..." },
-      { type: "command", run_code: "chmod +x /data/start.sh && /data/start.sh" }
+    { id: "start", name: "Start", operations: [
+      { type: "command", run_code: "java -Xms4G -Xmx4G -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -jar server.jar --nogui" }
     ]},
-    { id: "stop", name: "Stop Server", operations: [{ type: "command", run_code: "docker stop {{container_name}}" }]}
+    { id: "stop", name: "Stop", operations: [{ type: "command", run_code: "stop" }]}
   ].forEach(addAction);
 
   document.getElementById("installStepsContainer").innerHTML = "";
