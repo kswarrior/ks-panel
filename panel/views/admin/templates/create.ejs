@@ -59,7 +59,7 @@
   background: #1f425e;
 }
 
-/* Remove buttons - optimized, clean & small */
+/* Remove buttons */
 .remove-btn {
   position: absolute;
   top: 1rem;
@@ -84,8 +84,9 @@
   transform: scale(1.1);
 }
 
-/* Sub-operation items inside cards */
-.operation-item {
+/* Sub-operation & option items */
+.operation-item,
+.option-item {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
@@ -99,45 +100,6 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
-}
-
-/* checkbox / radio */
-.proxy-checkbox,
-.radio-group {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.proxy-checkbox input[type="checkbox"] {
-  accent-color: #3b82f6;
-}
-
-.radio-group input[type="radio"] {
-  accent-color: #3b82f6;
-}
-
-.radio-option {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  gap: 0.75rem;
-}
-
-.radio-option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* select textarea */
-textarea.input-field,
-select.input-field {
-  resize: vertical;
-  min-height: 3rem;
 }
 
 /* hidden */
@@ -353,7 +315,7 @@ modeSelect.onchange = () => {
     formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "block");
     jsonArea.classList.add("hidden");
   }
-  submitSection.style.display = "flex"; // Always visible
+  submitSection.style.display = "flex";
 };
 
 // ====================== VARIABLE TYPES ======================
@@ -365,7 +327,30 @@ const variableTypes = [
   { value: "option", label: "Option (Dropdown)" }
 ];
 
-// ====================== VARIABLES (with Type + Options) ======================
+// ====================== ADD OPTION ITEM (only for Option type) ======================
+function addOptionItem(varIdx, optIdx, optData = {}) {
+  const container = document.getElementById(`options-list-${varIdx}`);
+  if (!container) return;
+
+  const div = document.createElement("div");
+  div.className = "option-item";
+  div.innerHTML = `
+    <div class="form-row">
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">Value</label>
+        <input type="text" name="variables[${varIdx}].options[${optIdx}].value" value="${optData.value || ''}" class="input-field font-mono" placeholder="1">
+      </div>
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Display Name</label>
+        <input type="text" name="variables[${varIdx}].options[${optIdx}].label" value="${optData.label || ''}" class="input-field" placeholder="Easy Mode">
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('.option-item').remove()" class="remove-btn">×</button>
+  `;
+  container.appendChild(div);
+}
+
+// ====================== VARIABLES (with Type + Dynamic Options for "option") ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -381,6 +366,7 @@ function addVariable(v = {}) {
         <input type="text" name="variables[${idx}].name" value="${v.name||''}" required class="input-field mt-1">
       </div>
     </div>
+
     <div class="form-row mt-4">
       <div class="field-long">
         <label class="text-xs text-neutral-400">Description</label>
@@ -398,24 +384,61 @@ function addVariable(v = {}) {
         </select>
       </div>
     </div>
+
     <div class="form-row mt-4">
       <div class="field-short">
         <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
-        <select name="variables[${idx}].type" class="input-field">
+        <select name="variables[${idx}].type" class="input-field var-type-select" data-idx="${idx}">
           ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
         </select>
       </div>
-      <div class="field-long">
-        <label class="text-xs text-neutral-400">Options (only for Option type)</label>
-        <textarea name="variables[${idx}].options" rows="2" class="input-field font-mono" placeholder="value1:Display Name 1&#10;value2:Display Name 2">${v.options || ""}</textarea>
-      </div>
     </div>
+
+    <!-- OPTIONS SECTION (only for Option type) -->
+    <div id="options-section-${idx}" class="mt-6 hidden">
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-xs text-neutral-400">Options (Value : Display Name)</label>
+        <button type="button" class="add-option-btn px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Option</button>
+      </div>
+      <div id="options-list-${idx}" class="space-y-3"></div>
+    </div>
+
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
   `;
   document.getElementById("variablesContainer").appendChild(div);
+
+  const typeSelect = div.querySelector(".var-type-select");
+  const optionsSection = document.getElementById(`options-section-${idx}`);
+  const optionsList = document.getElementById(`options-list-${idx}`);
+
+  // Show/hide options section based on type
+  function toggleOptionsSection() {
+    if (typeSelect.value === "option") {
+      optionsSection.classList.remove("hidden");
+    } else {
+      optionsSection.classList.add("hidden");
+    }
+  }
+  typeSelect.addEventListener("change", toggleOptionsSection);
+
+  // Add option button
+  div.querySelector(".add-option-btn").onclick = () => {
+    const optIdx = optionsList.children.length;
+    addOptionItem(idx, optIdx);
+  };
+
+  // Load existing options if any
+  if (v.type === "option" && Array.isArray(v.options)) {
+    optionsSection.classList.remove("hidden");
+    v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
+  } else if (v.type === "option") {
+    optionsSection.classList.remove("hidden");
+  }
+
+  toggleOptionsSection();
 }
 
-// ====================== ITEM TYPES & FIELD CONFIGS ======================
+// ====================== ITEM TYPES & FIELD CONFIGS (unchanged) ======================
 const itemTypes = [
   { value: "command",   label: "Run Shell Command" },
   { value: "download",  label: "Download File" },
@@ -454,7 +477,7 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== SUB-OPERATION RENDER ======================
+// ====================== SUB-OPERATION (unchanged) ======================
 function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
@@ -475,7 +498,6 @@ function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   container.innerHTML = html;
 }
 
-// ====================== ADD SUB-OPERATION ======================
 function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   const subIdx = parseInt(opsContainer.dataset.subCount || 0);
   opsContainer.dataset.subCount = subIdx + 1;
@@ -509,7 +531,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   });
 }
 
-// ====================== ADD ACTION ======================
+// ====================== ADD ACTION / INSTALL STEP (unchanged) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
@@ -543,7 +565,6 @@ function addAction(a = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
 }
 
-// ====================== ADD INSTALL STEP ======================
 function addInstallStep(s = {}) {
   const idx = installIndex++;
   const div = document.createElement("div");
@@ -573,7 +594,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT DATA ======================
+// ====================== COLLECT DATA (now supports options array) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -583,14 +604,29 @@ function collectFormData() {
     else if (key === "category") data.category = value;
     else if (key === "environment.docker_image") data.environment.docker_image = value;
 
+    // Variables
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
         const i = parseInt(match[1]);
         if (!data.variables[i]) data.variables[i] = {};
-        data.variables[i][match[2]] = value;
+        
+        // Special handling for options array
+        if (key.includes(".options[")) {
+          const optMatch = key.match(/variables\[(\d+)\]\.options\[(\d+)\]\.(.+)/);
+          if (optMatch) {
+            const optI = parseInt(optMatch[2]);
+            if (!data.variables[i].options) data.variables[i].options = [];
+            if (!data.variables[i].options[optI]) data.variables[i].options[optI] = {};
+            data.variables[i].options[optI][optMatch[3]] = value;
+          }
+        } else {
+          data.variables[i][match[2]] = value;
+        }
       }
     }
+
+    // Actions & Install steps (unchanged)
     else if (key.startsWith("actions[")) {
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
@@ -625,12 +661,18 @@ function collectFormData() {
     }
   }
 
+  // Clean arrays
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
 
   data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
   data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
+
+  // Clean options arrays for variables
+  data.variables.forEach(v => {
+    if (v.options) v.options = v.options.filter(Boolean);
+  });
 
   return data;
 }
