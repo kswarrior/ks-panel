@@ -16,15 +16,25 @@
   scrollbar-width: thin;
 }
 
-/* Resource icons */
-.resource-icon {
-  width: 40px;
-  height: 40px;
+/* OPTIMISTIC SMOOTH BAR GRAPH */
+.bar-graph {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 58px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 6px;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
-/* Dropdown */
-#resource-dropdown {
-  transition: all 0.3s ease;
+.bar-graph .bar {
+  width: 5px;
+  background: linear-gradient(to bottom, transparent, currentColor);
+  border-radius: 9999px;
+  transition: height 650ms cubic-bezier(0.34, 1.56, 0.64, 1); /* bouncy optimistic feel */
+  box-shadow: 0 0 8px currentColor;
 }
 </style>
 
@@ -50,7 +60,7 @@
       </div>
     </header>
 
-    <!-- LIVE PM2 LOGS - TOP (as you requested) -->
+    <!-- LIVE PM2 LOGS - TOP -->
     <div class="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Live PM2 Logs (kspanel)</h2>
@@ -71,103 +81,63 @@
       </div>
     </div>
 
-    <!-- RESOURCES MONITOR - BELOW LOGS (fixed version of your old code) -->
+    <!-- RESOURCES MONITOR - BELOW (OPTIMISTIC SMOOTH 25-BAR GRAPH) -->
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
-        <button onclick="manualRefresh()" 
+        <button onclick="refreshResources()" 
                 class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium">
           ↻ Refresh Now
         </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <!-- CPU Icon -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
-          <div class="flex justify-center mb-3">
-            <svg class="resource-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="7" y="2" width="6" height="16" rx="1" fill="#1e2937"/>
-              <rect id="cpu-fill" x="7" y="18" width="6" height="0" rx="1" fill="#22c55e"/>
-            </svg>
+        
+        <!-- CPU -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">⚡</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">CPU Usage</p>
+              <p id="cpu-text" class="text-6xl font-bold text-orange-400">0%</p>
+            </div>
           </div>
-          <p class="text-neutral-400 text-sm font-medium">CPU</p>
-          <p id="cpu-main-percent" class="text-4xl font-bold text-orange-400">0%</p>
+          <div id="cpu-graph" class="bar-graph"></div>
+          <p id="cpu-status" class="text-xs text-neutral-500 mt-4">Normal</p>
         </div>
 
-        <!-- RAM Icon -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
-          <div class="flex justify-center mb-3">
-            <svg class="resource-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="7" y="2" width="6" height="16" rx="1" fill="#1e2937"/>
-              <rect id="ram-fill" x="7" y="18" width="6" height="0" rx="1" fill="#22c55e"/>
-            </svg>
+        <!-- RAM -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">🧠</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">RAM Usage</p>
+              <p id="ram-text" class="text-6xl font-bold text-blue-400">0%</p>
+            </div>
           </div>
-          <p class="text-neutral-400 text-sm font-medium">RAM</p>
-          <p id="ram-main-percent" class="text-4xl font-bold text-blue-400">0%</p>
+          <div id="ram-graph" class="bar-graph"></div>
+          <div class="flex justify-between text-xs text-neutral-400 mt-6">
+            <span id="ram-used">0 GB</span>
+            <span id="ram-total">0 GB</span>
+          </div>
         </div>
 
-        <!-- Disk Icon -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
-          <div class="flex justify-center mb-3">
-            <svg class="resource-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="7" y="2" width="6" height="16" rx="1" fill="#1e2937"/>
-              <rect id="disk-fill" x="7" y="18" width="6" height="0" rx="1" fill="#22c55e"/>
-            </svg>
+        <!-- Disk -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">💾</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">Disk Usage</p>
+              <p id="disk-text" class="text-6xl font-bold text-emerald-400">0%</p>
+            </div>
           </div>
-          <p class="text-neutral-400 text-sm font-medium">Disk</p>
-          <p id="disk-main-percent" class="text-4xl font-bold text-emerald-400">0%</p>
+          <div id="disk-graph" class="bar-graph"></div>
+          <div class="flex justify-between text-xs text-neutral-400 mt-6">
+            <span id="disk-used">0 GB</span>
+            <span id="disk-total">0 GB</span>
+          </div>
         </div>
 
-      </div>
-
-      <!-- Details Button -->
-      <div class="mt-6 flex justify-center">
-        <button id="resource-link"
-                class="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-sm font-medium flex items-center gap-2">
-          📊 View Detailed Stats
-          <span class="text-xs">↓</span>
-        </button>
-      </div>
-
-      <!-- Dropdown (your old detailed view) -->
-      <div id="resource-dropdown" class="hidden mt-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-        <div class="space-y-8">
-
-          <!-- RAM -->
-          <div>
-            <div class="flex justify-between text-xs text-neutral-400 mb-2">
-              <span>RAM</span>
-              <span id="ram-used">0 / 0 GB (0%)</span>
-            </div>
-            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-              <div id="ram-bar" class="h-full bg-green-500 w-0 transition-all duration-300"></div>
-            </div>
-          </div>
-
-          <!-- CPU -->
-          <div>
-            <div class="flex justify-between text-xs text-neutral-400 mb-2">
-              <span>CPU</span>
-              <span id="cpu-percent">0%</span>
-            </div>
-            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-              <div id="cpu-bar" class="h-full bg-green-500 w-0 transition-all duration-300"></div>
-            </div>
-          </div>
-
-          <!-- Disk -->
-          <div>
-            <div class="flex justify-between text-xs text-neutral-400 mb-2">
-              <span>Disk</span>
-              <span id="disk-used">0 / 0 GB (0%)</span>
-            </div>
-            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-              <div id="disk-bar" class="h-full bg-green-500 w-0 transition-all duration-300"></div>
-            </div>
-          </div>
-
-        </div>
       </div>
     </div>
 
@@ -175,96 +145,68 @@
 </main>
 
 <script>
-  // ================ YOUR OLD RESOURCES MONITOR (FIXED + IMPROVED) ================
-  let latestData = null;
+  // ================ OPTIMISTIC SMOOTH BAR GRAPH (25 bars) ================
+  const NUM_BARS = 25;
 
-  function getColor(percent) {
-    if (percent > 95) return '#ef4444';
-    if (percent > 75) return '#eab308';
-    return '#22c55e';
-  }
+  function updateBarGraph(graphId, percent, gradientClass) {
+    const graph = document.getElementById(graphId);
+    const targetHeight = Math.max(4, Math.min(100, Math.round(percent))) + '%';
 
-  function getColorClass(percent) {
-    if (percent > 95) return 'bg-red-500';
-    if (percent > 75) return 'bg-yellow-500';
-    return 'bg-green-500';
-  }
-
-  async function updateResourceData() {
-    try {
-      const response = await fetch('/resourceMonitor');
-      const data = await response.json();
-      latestData = data;
-
-      const maxHeight = 16;
-
-      // CPU
-      let cpuHeight = (data.cpu.percent / 100) * maxHeight;
-      let cpuY = 2 + (maxHeight - cpuHeight);
-      const cpuFill = document.getElementById('cpu-fill');
-      cpuFill.setAttribute('y', cpuY);
-      cpuFill.setAttribute('height', cpuHeight);
-      cpuFill.setAttribute('fill', getColor(data.cpu.percent));
-      document.getElementById('cpu-main-percent').textContent = Math.round(data.cpu.percent) + '%';
-
-      // RAM
-      let ramHeight = (data.ram.percent / 100) * maxHeight;
-      let ramY = 2 + (maxHeight - ramHeight);
-      const ramFill = document.getElementById('ram-fill');
-      ramFill.setAttribute('y', ramY);
-      ramFill.setAttribute('height', ramHeight);
-      ramFill.setAttribute('fill', getColor(data.ram.percent));
-      document.getElementById('ram-main-percent').textContent = Math.round(data.ram.percent) + '%';
-
-      // Disk
-      let diskHeight = (data.disk.percent / 100) * maxHeight;
-      let diskY = 2 + (maxHeight - diskHeight);
-      const diskFill = document.getElementById('disk-fill');
-      diskFill.setAttribute('y', diskY);
-      diskFill.setAttribute('height', diskHeight);
-      diskFill.setAttribute('fill', getColor(data.disk.percent));
-      document.getElementById('disk-main-percent').textContent = Math.round(data.disk.percent) + '%';
-
-    } catch (error) {
-      console.error('Resource monitor failed:', error);
-    }
-  }
-
-  // ================ DROPDOWN LOGIC (fixed - only one listener) ================
-  function setupDropdown() {
-    const link = document.getElementById('resource-link');
-    const dropdown = document.getElementById('resource-dropdown');
-
-    link.addEventListener('click', () => {
-      if (!latestData) {
-        alert("Waiting for first data update...");
-        return;
+    // Create bars only once
+    if (graph.children.length === 0) {
+      graph.innerHTML = '';
+      for (let i = 0; i < NUM_BARS; i++) {
+        const bar = document.createElement('div');
+        bar.className = `bar ${gradientClass}`;
+        // Staggered optimistic delay
+        bar.style.transitionDelay = `${i * 14}ms`;
+        graph.appendChild(bar);
       }
+    }
 
-      // Update dropdown with latest data
-      document.getElementById('ram-used').textContent = 
-        `${latestData.ram.used.toFixed(1)} / ${latestData.ram.total.toFixed(1)} GB (${latestData.ram.percent.toFixed(0)}%)`;
-      document.getElementById('ram-bar').style.width = `${latestData.ram.percent}%`;
-      document.getElementById('ram-bar').className = `h-full transition-all duration-300 ${getColorClass(latestData.ram.percent)}`;
-
-      document.getElementById('cpu-percent').textContent = `${latestData.cpu.percent.toFixed(0)}%`;
-      document.getElementById('cpu-bar').style.width = `${latestData.cpu.percent}%`;
-      document.getElementById('cpu-bar').className = `h-full transition-all duration-300 ${getColorClass(latestData.cpu.percent)}`;
-
-      document.getElementById('disk-used').textContent = 
-        `${latestData.disk.used.toFixed(1)} / ${latestData.disk.total.toFixed(1)} GB (${latestData.disk.percent.toFixed(0)}%)`;
-      document.getElementById('disk-bar').style.width = `${latestData.disk.percent}%`;
-      document.getElementById('disk-bar').className = `h-full transition-all duration-300 ${getColorClass(latestData.disk.percent)}`;
-
-      dropdown.classList.toggle('hidden');
+    // Apply smooth bouncy transition to every bar
+    const bars = Array.from(graph.children);
+    bars.forEach((bar, i) => {
+      bar.style.height = targetHeight;
     });
   }
 
-  function manualRefresh() {
-    updateResourceData();
+  // ================ RESOURCES MONITOR (with /api/v1/resourceMonitor) ================
+  async function fetchResources() {
+    try {
+      const res = await fetch('/api/v1/resourceMonitor');
+      const data = await res.json();
+
+      // CPU
+      const cpuPercent = Math.round(data.cpu.percent);
+      document.getElementById('cpu-text').textContent = cpuPercent + '%';
+      document.getElementById('cpu-status').textContent = cpuPercent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
+      updateBarGraph('cpu-graph', cpuPercent, 'from-orange-400 to-red-500 text-orange-400');
+
+      // RAM
+      const ramPercent = Math.round(data.ram.percent);
+      document.getElementById('ram-text').textContent = ramPercent + '%';
+      document.getElementById('ram-used').textContent = data.ram.used.toFixed(1) + ' GB';
+      document.getElementById('ram-total').textContent = data.ram.total.toFixed(1) + ' GB';
+      updateBarGraph('ram-graph', ramPercent, 'from-blue-400 to-cyan-500 text-blue-400');
+
+      // Disk
+      const diskPercent = Math.round(data.disk.percent);
+      document.getElementById('disk-text').textContent = diskPercent + '%';
+      document.getElementById('disk-used').textContent = data.disk.used.toFixed(1) + ' GB';
+      document.getElementById('disk-total').textContent = data.disk.total.toFixed(1) + ' GB';
+      updateBarGraph('disk-graph', diskPercent, 'from-emerald-400 to-teal-500 text-emerald-400');
+
+    } catch (e) {
+      console.error("Resource monitor failed", e);
+    }
   }
 
-  // ================ LIVE PM2 LOGS STREAM (unchanged - works perfectly) ================
+  function refreshResources() {
+    fetchResources();
+  }
+
+  // ================ LIVE LOGS STREAM (unchanged) ================
   let eventSource = null;
   let isStreaming = true;
 
@@ -305,16 +247,12 @@
     document.getElementById('logs').innerHTML = 'Logs cleared.<br>';
   }
 
-  // ================ INIT (everything starts here) ================
-  document.addEventListener('DOMContentLoaded', async () => {
-    // Resources (your old code + fixes)
-    await updateResourceData();
-    setInterval(updateResourceData, 2500);
-    setupDropdown();                    // ← fixed: only once
-
-    // Live Logs
+  // ================ INIT ================
+  window.onload = () => {
+    fetchResources();
+    setInterval(fetchResources, 3200);   // slightly faster for smoother feel
     startStream();
-  });
+  };
 
   window.onbeforeunload = () => {
     if (eventSource) eventSource.close();
