@@ -1,6 +1,6 @@
 // panel/routes/Admin/Dashboard.js
 // Clean & minimal - ONLY resources monitor + live PM2 logs
-// Matches exactly the style of other Admin route files (Overview.js, etc.)
+// Matches exactly the style of other Admin route files
 
 const express = require("express");
 const router = express.Router();
