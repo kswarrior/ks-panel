@@ -41,7 +41,7 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Server Templates</h1>
-        <p class="mt-1 text-sm text-neutral-400">Manage egg-style server templates (Pterodactyl / PufferPanel like)</p>
+        <p class="mt-1 text-sm text-neutral-400">Manage powerful egg-style server templates (Pterodactyl / PufferPanel like) with full shell actions & multi-step installs</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
@@ -226,7 +226,7 @@
               <div id="variablesContainer" class="space-y-4"></div>
             </div>
 
-            <!-- Section 4: Actions -->
+            <!-- Section 4: Actions (now with ID + full shell run_code) -->
             <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
               <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -241,13 +241,19 @@
               <div id="actionsContainer" class="space-y-4"></div>
             </div>
 
-            <!-- Section 5: Install Script -->
+            <!-- Section 5: Install Steps (multiple powerful shell operations) -->
             <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-2 h-2 rounded-full bg-violet-400"></div>
-                <h4 class="font-semibold text-white text-lg tracking-tight">Install Script</h4>
+              <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-2 h-2 rounded-full bg-violet-400"></div>
+                  <h4 class="font-semibold text-white text-lg tracking-tight">Install Steps</h4>
+                </div>
+                <button type="button" id="btnAddInstallStep" 
+                        class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+                  + Add Install Step
+                </button>
               </div>
-              <textarea name="environment.install_script" rows="12" class="input-field"></textarea>
+              <div id="installStepsContainer" class="space-y-4"></div>
             </div>
           </div>
 
@@ -284,7 +290,7 @@
 
 <script>
 // ====================== CONFIG ======================
-let varIndex = 0, actionIndex = 0;
+let varIndex = 0, actionIndex = 0, installIndex = 0;
 
 // ====================== SHOW/HIDE ======================
 function showForm(title) {
@@ -364,19 +370,25 @@ function addVariable(v = {}) {
   document.getElementById("variablesContainer").appendChild(div);
 }
 
-// ====================== ACTIONS ======================
+// ====================== ACTIONS (id + name + full run_code shell) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
-  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative grid grid-cols-1 sm:grid-cols-5 gap-6";
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
   div.innerHTML = `
-    <div class="sm:col-span-1">
-      <label class="text-xs text-neutral-400">Action Name</label>
-      <input type="text" name="actions[${idx}].name" value="${a.name||''}" required placeholder="start" class="input-field mt-1">
-    </div>
-    <div class="sm:col-span-4">
-      <label class="text-xs text-neutral-400">Command</label>
-      <input type="text" name="actions[${idx}].command" value="${a.command||''}" required placeholder="docker start {{container_name}}" class="input-field mt-1">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
+        <input type="text" name="actions[${idx}].id" value="${a.id||''}" required class="input-field mt-1 font-mono">
+      </div>
+      <div class="md:col-span-4">
+        <label class="text-xs text-neutral-400">Name</label>
+        <input type="text" name="actions[${idx}].name" value="${a.name||''}" required class="input-field mt-1">
+      </div>
+      <div class="md:col-span-5">
+        <label class="text-xs text-neutral-400">Run Code (Shell Script)</label>
+        <textarea name="actions[${idx}].run_code" rows="6" class="input-field mt-1 font-mono">${a.run_code || a.command || ''}</textarea>
+      </div>
     </div>
     <button type="button" onclick="this.closest('div').remove()" 
             class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
@@ -384,15 +396,48 @@ function addAction(a = {}) {
   document.getElementById("actionsContainer").appendChild(div);
 }
 
-// ====================== COLLECT DATA ======================
+// ====================== INSTALL STEPS (multiple full-shell operations) ======================
+function addInstallStep(s = {}) {
+  const idx = installIndex++;
+  const div = document.createElement("div");
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.innerHTML = `
+    <div class="grid grid-cols-1 gap-6">
+      <div>
+        <label class="text-xs text-neutral-400">Step Name</label>
+        <input type="text" name="install_steps[${idx}].name" value="${s.name || ''}" class="input-field mt-1">
+      </div>
+      <div>
+        <label class="text-xs text-neutral-400">Run Code (Full Shell Script) <span class="text-rose-400">*</span></label>
+        <textarea name="install_steps[${idx}].run_code" rows="10" class="input-field mt-1 font-mono" placeholder="apt-get update &amp;&amp; apt-get install -y curl wget git&#10;wget https://example.com/file.zip&#10;git clone https://github.com/user/repo.git /app&#10;npm install&#10;unzip file.zip -d /data"> ${s.run_code || ''} </textarea>
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" 
+            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+  `;
+  document.getElementById("installStepsContainer").appendChild(div);
+}
+
+// ====================== COLLECT DATA (updated structure) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
-  const data = { meta: {}, environment: {}, variables: [], actions: [], category: "" };
+  const data = { 
+    meta: {}, 
+    environment: { install_steps: [] }, 
+    variables: [], 
+    actions: [], 
+    category: "" 
+  };
 
   for (let [key, value] of fd) {
     if (key.startsWith("meta.")) data.meta[key.split(".")[1]] = value;
-    else if (key.startsWith("environment.")) data.environment[key.split(".")[1]] = value;
     else if (key === "category") data.category = value;
+    else if (key.startsWith("environment.")) {
+      const subkey = key.split(".")[1];
+      if (subkey === "docker_image") {
+        data.environment.docker_image = value;
+      }
+    }
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
@@ -407,21 +452,28 @@ function collectFormData() {
         if (!data.actions[i]) data.actions[i] = {};
         data.actions[i][match[2]] = value;
       }
+    } else if (key.startsWith("install_steps[")) {
+      const match = key.match(/install_steps\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = {};
+        data.environment.install_steps[i][match[2]] = value;
+      }
     }
   }
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
+  data.environment.install_steps = data.environment.install_steps.filter(Boolean);
   return data;
 }
 
-// ====================== FILL FORM ======================
+// ====================== FILL FORM (updated) ======================
 function fillForm(data) {
   document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
   document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
-  document.querySelector('[name="environment.install_script"]').value = data.environment?.install_script || "";
 
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
@@ -429,7 +481,11 @@ function fillForm(data) {
 
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
-  (data.actions || []).forEach(addAction);
+  (data.actions || []).forEach(a => addAction(a));
+
+  document.getElementById("installStepsContainer").innerHTML = "";
+  installIndex = 0;
+  (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
 
   jsonEditor.value = JSON.stringify(data, null, 2);
 }
@@ -440,9 +496,15 @@ function loadDefaultForm() {
 
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
-  [{name:"start",command:"docker start {{container_name}}"},
-   {name:"stop",command:"docker stop {{container_name}}"},
-   {name:"restart",command:"docker restart {{container_name}}"}].forEach(addAction);
+  [
+    {id: "start", name: "Start Server", run_code: "docker start {{container_name}}"},
+    {id: "stop", name: "Stop Server", run_code: "docker stop {{container_name}}"},
+    {id: "restart", name: "Restart Server", run_code: "docker restart {{container_name}}"}
+  ].forEach(addAction);
+
+  document.getElementById("installStepsContainer").innerHTML = "";
+  installIndex = 0;
+  // Install steps start empty — user adds powerful shell operations as needed
 }
 
 // ====================== SAVE ======================
@@ -531,6 +593,7 @@ document.getElementById("btnAddCategory").onclick = async () => {
 document.getElementById("btnCancelForm").onclick = hideForm;
 document.getElementById("btnAddVar").onclick = () => addVariable();
 document.getElementById("btnAddAction").onclick = () => addAction();
+document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 
 // ====================== EDIT / DELETE ======================
 document.querySelectorAll(".btnEdit").forEach(btn => {
