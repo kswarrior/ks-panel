@@ -59,7 +59,7 @@
   background: #1f425e;
 }
 
-/* Remove buttons */
+/* Remove buttons - now works perfectly on cards AND sub-items */
 .remove-btn {
   position: absolute;
   top: 1rem;
@@ -77,6 +77,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 10;
 }
 
 .remove-btn:hover {
@@ -84,7 +85,7 @@
   transform: scale(1.1);
 }
 
-/* Sub-operation & option items */
+/* Sub-operation & option items - NOW CONSISTENT + POSITION RELATIVE FOR PROPER REMOVE BUTTON PLACEMENT */
 .operation-item,
 .option-item {
   background: rgba(255,255,255,0.05);
@@ -92,6 +93,7 @@
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 1rem;
+  position: relative; /* CRITICAL: makes × button position correctly inside each sub-item */
 }
 
 /* Section header + Add button in one clean line */
@@ -270,6 +272,29 @@
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0;
 
+// ====================== REINDEX HELPERS (Deep fix for remove + add after delete) ======================
+function reindexDynamicList(container, listType) {
+  const itemClass = listType === 'options' ? '.option-item' : '.operation-item';
+  const items = container.querySelectorAll(itemClass);
+  items.forEach((item, newIdx) => {
+    item.querySelectorAll('input[name], select[name], textarea[name]').forEach(field => {
+      if (field.name) {
+        const regex = new RegExp(`\\.${listType}\\[\\d+\\]`, 'g');
+        field.name = field.name.replace(regex, `.${listType}[${newIdx}]`);
+      }
+    });
+  });
+}
+
+function removeAndReindex(btn, listType) {
+  const itemClass = listType === 'options' ? '.option-item' : '.operation-item';
+  const item = btn.closest(itemClass);
+  if (!item) return;
+  const container = item.parentElement;
+  item.remove();
+  reindexDynamicList(container, listType);
+}
+
 // ====================== NOTIFICATION ======================
 function hideForm() {
   window.location.href = "/admin/templates/overview";
@@ -327,7 +352,7 @@ const variableTypes = [
   { value: "option", label: "Option (Dropdown)" }
 ];
 
-// ====================== ADD OPTION ITEM ======================
+// ====================== ADD OPTION ITEM (NOW EXACTLY LIKE OPERATIONS) ======================
 function addOptionItem(varIdx, optIdx, optData = {}) {
   const container = document.getElementById(`options-list-${varIdx}`);
   if (!container) return;
@@ -335,6 +360,10 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
   const div = document.createElement("div");
   div.className = "option-item";
   div.innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-xs font-medium text-neutral-400">Option #${optIdx + 1}</span>
+      <button type="button" onclick="removeAndReindex(this, 'options')" class="remove-btn">×</button>
+    </div>
     <div class="form-row">
       <div class="field-short">
         <label class="text-xs text-neutral-400">Value</label>
@@ -345,12 +374,11 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
         <input type="text" name="variables[${varIdx}].options[${optIdx}].label" value="${optData.label || ''}" class="input-field" placeholder="Easy Mode">
       </div>
     </div>
-    <button type="button" onclick="this.closest('.option-item').remove()" class="remove-btn">×</button>
   `;
   container.appendChild(div);
 }
 
-// ====================== VARIABLES (Default Value hidden when Type = Option) ======================
+// ====================== VARIABLES ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -415,7 +443,6 @@ function addVariable(v = {}) {
   const optionsSection = document.getElementById(`options-section-${idx}`);
   const optionsList = document.getElementById(`options-list-${idx}`);
 
-  // Toggle visibility
   function toggleFields() {
     const isOption = typeSelect.value === "option";
     if (isOption) {
@@ -429,13 +456,11 @@ function addVariable(v = {}) {
 
   typeSelect.addEventListener("change", toggleFields);
 
-  // Add option button
   div.querySelector(".add-option-btn").onclick = () => {
     const optIdx = optionsList.children.length;
     addOptionItem(idx, optIdx);
   };
 
-  // Load existing data
   if (v.type === "option") {
     optionsSection.classList.remove("hidden");
     if (Array.isArray(v.options)) {
@@ -487,7 +512,7 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== SUB-OPERATION ======================
+// ====================== SUB-OPERATION (Operations of Action / Install Step) ======================
 function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
@@ -517,7 +542,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   div.innerHTML = `
     <div class="flex justify-between items-center mb-3">
       <span class="text-xs font-medium text-neutral-400">Operation #${subIdx + 1}</span>
-      <button type="button" onclick="this.closest('.operation-item').remove()" class="remove-btn text-sm">×</button>
+      <button type="button" onclick="removeAndReindex(this, 'operations')" class="remove-btn">×</button>
     </div>
     <div class="form-row">
       <div class="field-short">
