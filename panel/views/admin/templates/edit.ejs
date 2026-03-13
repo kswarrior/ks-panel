@@ -66,7 +66,7 @@
         <form id="templateForm" class="p-8 space-y-10">
           <input type="hidden" id="hiddenFilename" value="<%= filename %>">
 
-          <!-- FORM MODE (exact same as create) -->
+          <!-- FORM MODE -->
           <div id="formArea" class="space-y-10">
             <!-- General -->
             <div class="rounded-2xl border border-white/10 bg-neutral-900/60 p-6">
@@ -194,9 +194,10 @@
 </main>
 
 <script>
-// ====================== ALL JS IS 100% IDENTICAL TO CREATE (only init is different) ======================
+// ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0;
 
+// ====================== SHOW/HIDE & NOTIFICATION ======================
 function showForm(title) {
   document.getElementById("formTitle").textContent = title;
   document.getElementById("btnSaveTemplate").textContent = "Update Template";
@@ -222,6 +223,7 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
+// ====================== MODE SWITCH ======================
 const modeSelect = document.getElementById("modeSelect");
 const formArea = document.getElementById("formArea");
 const jsonArea = document.getElementById("jsonArea");
@@ -236,24 +238,304 @@ modeSelect.onchange = () => {
   }
 };
 
-function addVariable(v = {}) { /* exact same as create */ 
+// ====================== VARIABLES ======================
+function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
   div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
-  div.innerHTML = `...` /* (same full HTML as above - I kept it identical) */;
+  div.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
+        <input type="text" name="variables[${idx}].id" value="${v.id||''}" required class="input-field mt-1 font-mono">
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">Name</label>
+        <input type="text" name="variables[${idx}].name" value="${v.name||''}" required class="input-field mt-1">
+      </div>
+      <div class="md:col-span-4">
+        <label class="text-xs text-neutral-400">Description</label>
+        <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field mt-1">
+      </div>
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">Default Value</label>
+        <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field mt-1">
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" 
+            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+  `;
   document.getElementById("variablesContainer").appendChild(div);
 }
-// (All other functions - addInstallStep, addAction, renderDynamicFields, fieldConfigs, itemTypes, collectFormData, fillForm, loadDefaultForm - are EXACTLY the same as in create.ejs. I copied every single line.)
 
-// SAVE (same)
-document.getElementById("btnSaveTemplate").onclick = async () => { /* exact same code as create */ };
+// ====================== ITEM TYPES & FIELD CONFIGS ======================
+const itemTypes = [
+  { value: "command",   label: "Run Shell Command" },
+  { value: "download",  label: "Download File" },
+  { value: "git_clone", label: "Git Clone" },
+  { value: "create_file", label: "Create File" },
+  { value: "unzip",     label: "Unzip Archive" },
+  { value: "mkdir",     label: "Create Directory" },
+  { value: "chmod",     label: "Change Permissions" }
+];
 
-// BUTTONS (same)
+const fieldConfigs = {
+  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 10, placeholder: "apt-get update && ..." }],
+  download: [
+    { key: "url", label: "URL", type: "text", placeholder: "https://..." },
+    { key: "filename", label: "Filename (-O)", type: "text", placeholder: "file.jar" },
+    { key: "path", label: "Save Path", type: "text", placeholder: "/data" }
+  ],
+  git_clone: [
+    { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/..." },
+    { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
+    { key: "branch", label: "Branch (optional)", type: "text", placeholder: "main" }
+  ],
+  create_file: [
+    { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
+    { key: "path", label: "Path", type: "text", placeholder: "/data" },
+    { key: "content", label: "File Content", type: "textarea", rows: 8, placeholder: "server:\n  port: 25565" }
+  ],
+  unzip: [
+    { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
+    { key: "destination", label: "Extract To", type: "text", placeholder: "/data" }
+  ],
+  mkdir: [{ key: "path", label: "Directory Path", type: "text", placeholder: "/data/backups" }],
+  chmod: [
+    { key: "target", label: "Target", type: "text", placeholder: "/data/server.jar" },
+    { key: "mode", label: "Permissions", type: "text", placeholder: "755" }
+  ]
+};
+
+// ====================== RENDER DYNAMIC FIELDS ======================
+function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
+  const container = document.getElementById(`dynamic-${idx}`);
+  if (!container) return;
+  const config = fieldConfigs[type] || fieldConfigs.command;
+  let html = "";
+  config.forEach(f => {
+    const val = data[f.key] || "";
+    if (f.type === "textarea") {
+      html += `
+        <div class="mt-4">
+          <label class="text-xs text-neutral-400">${f.label}</label>
+          <textarea name="${prefix}[${idx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono">${val}</textarea>
+        </div>`;
+    } else {
+      html += `
+        <div class="mt-4">
+          <label class="text-xs text-neutral-400">${f.label}</label>
+          <input type="text" name="${prefix}[${idx}].${f.key}" value="${val}" class="input-field mt-1" placeholder="${f.placeholder}">
+        </div>`;
+    }
+  });
+  container.innerHTML = html;
+}
+
+// ====================== INSTALL STEPS (FIXED - same robust logic as create) ======================
+function addInstallStep(s = {}) {
+  const idx = installIndex++;
+  const defaultType = s.type || (s.run_code ? "command" : "command");
+  const div = document.createElement("div");
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
+        <select name="install_steps[${idx}].type" class="input-field mt-1 install-type-select" data-idx="${idx}">
+          ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        </select>
+      </div>
+      <div class="md:col-span-4">
+        <label class="text-xs text-neutral-400">Step Name</label>
+        <input type="text" name="install_steps[${idx}].name" value="${s.name || ""}" class="input-field mt-1">
+      </div>
+      <div class="md:col-span-12 dynamic-fields" id="dynamic-${idx}"></div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+  `;
+  document.getElementById("installStepsContainer").appendChild(div);
+
+  // FIXED: render after DOM insertion
+  setTimeout(() => {
+    renderDynamicFields(idx, defaultType, s, "install_steps");
+  }, 0);
+
+  const select = div.querySelector(".install-type-select");
+  select.addEventListener("change", (e) => {
+    const newType = e.target.value;
+    const currentData = {};
+    const dynContainer = document.getElementById(`dynamic-${idx}`);
+    if (dynContainer) {
+      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
+        const key = inp.name.split(".").pop();
+        currentData[key] = inp.value;
+      });
+    }
+    renderDynamicFields(idx, newType, currentData, "install_steps");
+  });
+}
+
+// ====================== RUNTIME ACTIONS (same fix) ======================
+function addAction(a = {}) {
+  const idx = actionIndex++;
+  const defaultType = a.type || (a.run_code ? "command" : "command");
+  const div = document.createElement("div");
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-2">
+        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
+        <input type="text" name="actions[${idx}].id" value="${a.id || ""}" required class="input-field mt-1 font-mono">
+      </div>
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">Name</label>
+        <input type="text" name="actions[${idx}].name" value="${a.name || ""}" class="input-field mt-1">
+      </div>
+      <div class="md:col-span-3">
+        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
+        <select name="actions[${idx}].type" class="input-field mt-1 action-type-select" data-idx="${idx}">
+          ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        </select>
+      </div>
+      <div class="md:col-span-12 dynamic-fields" id="dynamic-${idx}"></div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+  `;
+  document.getElementById("actionsContainer").appendChild(div);
+
+  setTimeout(() => {
+    renderDynamicFields(idx, defaultType, a, "actions");
+  }, 0);
+
+  const select = div.querySelector(".action-type-select");
+  select.addEventListener("change", (e) => {
+    const newType = e.target.value;
+    const currentData = {};
+    const dynContainer = document.getElementById(`dynamic-${idx}`);
+    if (dynContainer) {
+      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
+        const key = inp.name.split(".").pop();
+        currentData[key] = inp.value;
+      });
+    }
+    renderDynamicFields(idx, newType, currentData, "actions");
+  });
+}
+
+// ====================== COLLECT & FILL ======================
+function collectFormData() {
+  const fd = new FormData(document.getElementById("templateForm"));
+  const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
+
+  for (let [key, value] of fd) {
+    if (key.startsWith("meta.")) data.meta[key.split(".")[1]] = value;
+    else if (key === "category") data.category = value;
+    else if (key === "environment.docker_image") data.environment.docker_image = value;
+    else if (key.startsWith("variables[")) {
+      const match = key.match(/variables\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.variables[i]) data.variables[i] = {};
+        data.variables[i][match[2]] = value;
+      }
+    } else if (key.startsWith("actions[")) {
+      const match = key.match(/actions\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.actions[i]) data.actions[i] = {};
+        data.actions[i][match[2]] = value;
+      }
+    } else if (key.startsWith("install_steps[")) {
+      const match = key.match(/install_steps\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = {};
+        data.environment.install_steps[i][match[2]] = value;
+      }
+    }
+  }
+  data.variables = data.variables.filter(Boolean);
+  data.actions = data.actions.filter(Boolean);
+  data.environment.install_steps = data.environment.install_steps.filter(Boolean);
+  return data;
+}
+
+function fillForm(data) {
+  document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
+  document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
+  document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
+  document.querySelector('[name="category"]').value = data.category || "";
+  document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
+
+  document.getElementById("variablesContainer").innerHTML = "";
+  varIndex = 0;
+  (data.variables || []).forEach(v => addVariable(v));
+
+  document.getElementById("actionsContainer").innerHTML = "";
+  actionIndex = 0;
+  (data.actions || []).forEach(a => addAction(a));
+
+  document.getElementById("installStepsContainer").innerHTML = "";
+  installIndex = 0;
+  (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
+
+  jsonEditor.value = JSON.stringify(data, null, 2);
+}
+
+// ====================== SAVE ======================
+document.getElementById("btnSaveTemplate").onclick = async () => {
+  let payload;
+  try {
+    payload = modeSelect.value === "json" ? JSON.parse(jsonEditor.value) : collectFormData();
+  } catch(e) {
+    showNotification("Invalid JSON!", "error");
+    return;
+  }
+
+  const filename = document.getElementById("hiddenFilename").value;
+  const url = `/admin/templates/${filename}`;
+  const method = "PUT";
+
+  const res = await fetch(url, {
+    method,
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) {
+    showNotification("✅ Template updated successfully!", "success");
+    setTimeout(() => window.location.href = "/admin/templates/overview", 800);
+  } else {
+    const err = await res.text();
+    showNotification("❌ Error: " + err.substring(0, 120), "error");
+  }
+};
+
+// ====================== BUTTONS ======================
 document.getElementById("btnCancelForm").onclick = hideForm;
 document.getElementById("btnAddVar").onclick = () => addVariable();
 document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
-document.getElementById("btnAddCategory").onclick = async () => { /* same as create */ };
+
+document.getElementById("btnAddCategory").onclick = async () => {
+  const name = prompt("New category name:");
+  if (!name?.trim()) return;
+  const res = await fetch("/admin/templates/category", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name.trim()})
+  });
+  if (res.ok) {
+    const {categories} = await res.json();
+    const select = document.querySelector('[name="category"]');
+    select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
+    select.value = name.trim();
+    showNotification("Category added!", "success");
+  } else {
+    showNotification("Failed to add category", "error");
+  }
+};
 
 // ====================== INIT EDIT PAGE ======================
 const templateData = <%= JSON.stringify(template) %>;
