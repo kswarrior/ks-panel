@@ -16,7 +16,7 @@
   scrollbar-width: thin;
 }
 
-/* OPTIMISTIC SMOOTH BAR GRAPH - SHADOW REMOVED + SUPER BOUNCY */
+/* OPTIMISTIC SMOOTH BAR GRAPH - NO SHADOW + SUPER BOUNCY */
 .bar-graph {
   display: flex;
   align-items: flex-end;
@@ -26,14 +26,13 @@
   border-radius: 14px;
   padding: 7px;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
 .bar-graph .bar {
   width: 5px;
   background: linear-gradient(to bottom, transparent, currentColor);
   border-radius: 9999px;
-  transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35); /* EXTRA BOUNCY + OPTIMISTIC POP */
+  transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35); /* EXTRA OPTIMISTIC BOUNCE */
   opacity: 0.95;
 }
 </style>
@@ -48,7 +47,7 @@
           Dashboard
         </h1>
         <p class="mt-1 text-sm text-neutral-400">
-          Real-time CPU • RAM • Disk + Live logs
+          Real-time CPU • RAM • Disk • Ping + Live logs
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -56,9 +55,33 @@
           <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
           LIVE
         </div>
-        <span class="bg-white/5 px-5 py-2 rounded-[10px] text-xs text-neutral-400">v<%= version %></span>
+        <span id="static-version" class="bg-white/5 px-5 py-2 rounded-[10px] text-xs text-neutral-400">v<%= version %></span>
       </div>
     </header>
+
+    <!-- VERSION CONTROL + UPDATE BUTTON (using your version.js logic) -->
+    <div class="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div>
+          <p class="text-xs text-neutral-400">Current Version</p>
+          <p id="current-version" class="text-xl font-bold text-white">v<%= version %></p>
+        </div>
+        <div id="version-badge" class="px-4 py-1.5 rounded-full text-sm font-medium"></div>
+      </div>
+      
+      <div class="flex gap-3">
+        <button onclick="checkForUpdate()" 
+                id="check-btn"
+                class="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-sm font-medium transition-all">
+          🔄 Check for Update
+        </button>
+        <button onclick="performReinstall()" 
+                id="reinstall-btn"
+                class="hidden px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all">
+          🚀 Reinstall / Update Now
+        </button>
+      </div>
+    </div>
 
     <!-- LIVE PM2 LOGS - TOP -->
     <div class="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
@@ -81,21 +104,19 @@
       </div>
     </div>
 
-    <!-- RESOURCES MONITOR - FIXED + MORE OPTIMISTIC BARS -->
+    <!-- RESOURCES MONITOR + PING GRAPH (4-column layout) -->
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
-        <button 
-  onclick="refreshResources()" 
-  class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-wait group"
-  id="refreshBtn"
->
-  <span class="inline-block transition-transform group-disabled:rotate-180 duration-700 ease-in-out">↻</span>
-  Refresh Now
-</button>
+        <button onclick="refreshResources()" 
+                class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-wait group"
+                id="refreshBtn">
+          <span class="inline-block transition-transform group-disabled:rotate-180 duration-700 ease-in-out">↻</span>
+          Refresh Now
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         <!-- CPU -->
         <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
@@ -142,6 +163,19 @@
           </div>
         </div>
 
+        <!-- PING GRAPH (new) -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">🌐</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">Ping Latency</p>
+              <p id="ping-text" class="text-6xl font-bold text-lime-400">0 ms</p>
+            </div>
+          </div>
+          <div id="ping-graph" class="bar-graph"></div>
+          <p id="ping-status" class="text-xs text-neutral-500 mt-4">Normal</p>
+        </div>
+
       </div>
     </div>
 
@@ -149,31 +183,29 @@
 </main>
 
 <script>
-  // ================ ULTRA-OPTIMISTIC BOUNCY BAR GRAPH (25 bars) ================
+  // ================ ULTRA-OPTIMISTIC BOUNCY BAR GRAPH ================
   const NUM_BARS = 25;
 
   function updateBarGraph(graphId, percent, colorClass) {
     const graph = document.getElementById(graphId);
     const targetHeight = Math.max(8, Math.min(100, Math.round(percent || 0))) + '%';
 
-    // Create bars only once
     if (graph.children.length === 0) {
       graph.innerHTML = '';
       for (let i = 0; i < NUM_BARS; i++) {
         const bar = document.createElement('div');
         bar.className = `bar ${colorClass}`;
-        bar.style.transitionDelay = `${i * 8}ms`; // faster staggered pop = more optimistic
+        bar.style.transitionDelay = `${i * 8}ms`;
         graph.appendChild(bar);
       }
     }
 
-    // Bouncy height update
     Array.from(graph.children).forEach(bar => {
       bar.style.height = targetHeight;
     });
   }
 
-  // ================ RESOURCES MONITOR (your working endpoint) ================
+  // ================ RESOURCES + PING (your working /resourceMonitor) ================
   async function fetchResources() {
     try {
       const res = await fetch('/resourceMonitor');
@@ -204,11 +236,90 @@
     }
   }
 
-  function refreshResources() {
-    fetchResources();
+  // ================ REAL PING GRAPH (measures latency to your own server) ================
+  async function fetchPing() {
+    const start = performance.now();
+    try {
+      await fetch('/resourceMonitor', { method: 'HEAD', cache: 'no-store' });
+      const latency = Math.round(performance.now() - start);
+
+      document.getElementById('ping-text').textContent = latency + ' ms';
+      const percent = Math.min(100, Math.round((latency / 300) * 100)); // 300ms = full bar
+      updateBarGraph('ping-graph', percent, 'text-lime-400');
+
+      document.getElementById('ping-status').textContent = latency > 150 ? 'HIGH LATENCY ⚠️' : 'Normal';
+    } catch (e) {
+      document.getElementById('ping-text').textContent = '— ms';
+      document.getElementById('ping-status').textContent = 'Offline';
+    }
   }
 
-  // ================ LIVE LOGS STREAM (unchanged) ================
+  function refreshResources() {
+    fetchResources();
+    fetchPing();
+  }
+
+  // ================ VERSION CHECK + REINSTALL (using your version.js) ================
+  let latestVersionData = null;
+
+  async function checkForUpdate() {
+    const checkBtn = document.getElementById('check-btn');
+    checkBtn.textContent = 'Checking...';
+    checkBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/v1/version');   // ← from your version.js
+      const data = await res.json();
+      latestVersionData = data;
+
+      const current = document.getElementById('current-version');
+      current.textContent = `v${data.currentVersion}`;
+
+      const badge = document.getElementById('version-badge');
+      const reinstallBtn = document.getElementById('reinstall-btn');
+
+      if (data.status === 'outdated') {
+        badge.innerHTML = `Update available <span class="text-amber-400">v${data.latestVersion}</span>`;
+        badge.className = 'px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-medium';
+        reinstallBtn.classList.remove('hidden');
+      } else {
+        badge.innerHTML = `✓ Up to date`;
+        badge.className = 'px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium';
+        reinstallBtn.classList.add('hidden');
+      }
+    } catch (e) {
+      console.error("Version check failed", e);
+      const badge = document.getElementById('version-badge');
+      badge.innerHTML = '❌ Check failed';
+      badge.className = 'px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 text-sm font-medium';
+    }
+
+    checkBtn.textContent = '🔄 Check for Update';
+    checkBtn.disabled = false;
+  }
+
+  async function performReinstall() {
+    if (!confirm('Start reinstall/update? This will run "npm run update" and restart services.')) return;
+
+    const btn = document.getElementById('reinstall-btn');
+    const originalText = btn.textContent;
+    btn.textContent = '🚀 Reinstalling...';
+    btn.disabled = true;
+
+    try {
+      await fetch('/api/v1/reinstall');   // ← from your version.js
+      alert('✅ Reinstall started! Page will auto-reload in 8 seconds...');
+      setTimeout(() => location.reload(true), 8000);
+    } catch (e) {
+      alert('Reinstall trigger failed. Check console.');
+      console.error(e);
+    }
+
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+
+  // ================ LIVE LOGS STREAM ================
   let eventSource = null;
   let isStreaming = true;
 
@@ -252,7 +363,12 @@
   // ================ INIT ================
   window.onload = () => {
     fetchResources();
-    setInterval(fetchResources, 2800);   // even snappier updates
+    fetchPing();
+    checkForUpdate();                    // auto-check version on load
+
+    setInterval(fetchResources, 2800);
+    setInterval(fetchPing, 2800);
+
     startStream();
   };
 
