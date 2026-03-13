@@ -45,10 +45,10 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-3xl font-semibold text-white tracking-tight">
-          System Monitor
+          Dashboard
         </h1>
         <p class="mt-1 text-sm text-neutral-400">
-          Real-time CPU • RAM • Disk + Live PM2 logs
+          Real-time CPU • RAM • Disk + Live logs
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -63,7 +63,7 @@
     <!-- LIVE PM2 LOGS - TOP -->
     <div class="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold text-white">Live PM2 Logs (kspanel)</h2>
+        <h2 class="text-2xl font-semibold text-white">KS Panel Log</h2>
         <div class="flex gap-3">
           <button onclick="clearLogs()" 
                   class="px-6 py-2.5 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium">
@@ -85,10 +85,14 @@
     <div class="mt-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
-        <button onclick="refreshResources()" 
-                class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium">
-          ↻ Refresh Now
-        </button>
+        <button 
+  onclick="refreshResources()" 
+  class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-wait group"
+  id="refreshBtn"
+>
+  <span class="inline-block transition-transform group-disabled:rotate-180 duration-700 ease-in-out">↻</span>
+  Refresh Now
+</button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
