@@ -176,7 +176,6 @@
 </main>
 
 <script>
-  // Cache elements
   let els = {};
 
   function updateStats(data) {
@@ -212,9 +211,7 @@
     fetchDatabaseStats().finally(() => btn.style.opacity = 1);
   }
 
-  // INIT
   window.onload = () => {
-    // Cache all elements
     els = {
       users: document.getElementById('users-text'),
       admins: document.getElementById('admins-text'),
@@ -232,7 +229,7 @@
       avg: document.getElementById('avg-text')
     };
 
-    fetchDatabaseStats();           // initial load
-    setInterval(fetchDatabaseStats, 15000); // auto refresh every 15s
+    fetchDatabaseStats();
+    setInterval(fetchDatabaseStats, 15000);
   };
 </script>
