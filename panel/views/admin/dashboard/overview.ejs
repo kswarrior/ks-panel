@@ -16,19 +16,23 @@
   scrollbar-width: thin;
 }
 
-/* Resource bars */
-.usage-bar {
-  height: 10px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 9999px;
-  overflow: hidden;
+/* Bar graph container */
+.bar-graph {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 52px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 4px;
+  transition: all 0.3s ease;
 }
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
   <div class="bg-transparent px-4 md:px-6 lg:px-8">
     
-    <!-- Header (exact same style as localnode.ejs) -->
+    <!-- Header (unchanged) -->
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-3xl font-semibold text-white tracking-tight">
@@ -47,74 +51,8 @@
       </div>
     </header>
 
-    <!-- RESOURCES MONITOR -->
-    <div class="mt-10">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
-        <button onclick="refreshResources()" 
-                class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium">
-          ↻ Refresh Now
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- CPU -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">⚡</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">CPU Usage</p>
-              <p id="cpu-text" class="text-6xl font-bold text-orange-400">0%</p>
-            </div>
-          </div>
-          <div class="usage-bar">
-            <div id="cpu-bar" class="h-full bg-gradient-to-r from-orange-400 to-red-500 transition-all duration-700" style="width: 0%"></div>
-          </div>
-          <p id="cpu-status" class="text-xs text-neutral-500 mt-4">Normal</p>
-        </div>
-
-        <!-- RAM -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">🧠</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">RAM Usage</p>
-              <p id="ram-text" class="text-6xl font-bold text-blue-400">0%</p>
-            </div>
-          </div>
-          <div class="usage-bar">
-            <div id="ram-bar" class="h-full bg-gradient-to-r from-blue-400 to-cyan-500 transition-all duration-700" style="width: 0%"></div>
-          </div>
-          <div class="flex justify-between text-xs text-neutral-400 mt-6">
-            <span id="ram-used">0 GB</span>
-            <span id="ram-total">0 GB</span>
-          </div>
-        </div>
-
-        <!-- Disk -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">💾</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">Disk Usage</p>
-              <p id="disk-text" class="text-6xl font-bold text-emerald-400">0%</p>
-            </div>
-          </div>
-          <div class="usage-bar">
-            <div id="disk-bar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-700" style="width: 0%"></div>
-          </div>
-          <div class="flex justify-between text-xs text-neutral-400 mt-6">
-            <span id="disk-used">0 GB</span>
-            <span id="disk-total">0 GB</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- LIVE PM2 LOGS (exact same terminal style as localnode.ejs) -->
-    <div class="mt-12 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
+    <!-- LIVE PM2 LOGS - NOW AT THE TOP -->
+    <div class="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-white">Live PM2 Logs (kspanel)</h2>
         <div class="flex gap-3">
@@ -134,34 +72,126 @@
       </div>
     </div>
 
+    <!-- RESOURCES MONITOR - NOW BELOW LOGS -->
+    <div class="mt-12">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
+        <button onclick="refreshResources()" 
+                class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium">
+          ↻ Refresh Now
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- CPU -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">⚡</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">CPU Usage</p>
+              <p id="cpu-text" class="text-6xl font-bold text-orange-400">0%</p>
+            </div>
+          </div>
+          
+          <!-- BAR GRAPH: 25 bars × 5px width + 2px gap -->
+          <div id="cpu-graph" class="bar-graph"></div>
+          
+          <p id="cpu-status" class="text-xs text-neutral-500 mt-4">Normal</p>
+        </div>
+
+        <!-- RAM -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">🧠</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">RAM Usage</p>
+              <p id="ram-text" class="text-6xl font-bold text-blue-400">0%</p>
+            </div>
+          </div>
+          
+          <!-- BAR GRAPH: 25 bars × 5px width + 2px gap -->
+          <div id="ram-graph" class="bar-graph"></div>
+          
+          <div class="flex justify-between text-xs text-neutral-400 mt-6">
+            <span id="ram-used">0 GB</span>
+            <span id="ram-total">0 GB</span>
+          </div>
+        </div>
+
+        <!-- Disk -->
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="text-5xl">💾</div>
+            <div>
+              <p class="text-neutral-400 text-sm font-medium">Disk Usage</p>
+              <p id="disk-text" class="text-6xl font-bold text-emerald-400">0%</p>
+            </div>
+          </div>
+          
+          <!-- BAR GRAPH: 25 bars × 5px width + 2px gap -->
+          <div id="disk-graph" class="bar-graph"></div>
+          
+          <div class="flex justify-between text-xs text-neutral-400 mt-6">
+            <span id="disk-used">0 GB</span>
+            <span id="disk-total">0 GB</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </main>
 
 <script>
-  // ================ RESOURCES MONITOR (uses your existing /api/v1/resourceMonitor) ================
+  // ================ BAR GRAPH HELPER (25 bars, 5px width, 2px gap) ================
+  const NUM_BARS = 25;
+
+  function updateBarGraph(graphId, percent, gradientClass) {
+    const graph = document.getElementById(graphId);
+    
+    // Create bars only once
+    if (graph.children.length === 0) {
+      graph.innerHTML = '';
+      for (let i = 0; i < NUM_BARS; i++) {
+        const bar = document.createElement('div');
+        bar.className = `w-[5px] rounded transition-all duration-700 ${gradientClass}`;
+        graph.appendChild(bar);
+      }
+    }
+    
+    const height = Math.max(0, Math.min(100, Math.round(percent))) + '%';
+    Array.from(graph.children).forEach(bar => {
+      bar.style.height = height;
+    });
+  }
+
+  // ================ RESOURCES MONITOR ================
   async function fetchResources() {
     try {
       const res = await fetch('/api/v1/resourceMonitor');
       const data = await res.json();
 
       // CPU
-      document.getElementById('cpu-text').textContent = Math.round(data.cpu.percent) + '%';
-      document.getElementById('cpu-bar').style.width = data.cpu.percent + '%';
-      document.getElementById('cpu-status').textContent = data.cpu.percent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
+      const cpuPercent = Math.round(data.cpu.percent);
+      document.getElementById('cpu-text').textContent = cpuPercent + '%';
+      document.getElementById('cpu-status').textContent = cpuPercent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
+      updateBarGraph('cpu-graph', cpuPercent, 'bg-gradient-to-b from-orange-400 to-red-500');
 
       // RAM
       const ramPercent = Math.round(data.ram.percent);
       document.getElementById('ram-text').textContent = ramPercent + '%';
-      document.getElementById('ram-bar').style.width = ramPercent + '%';
       document.getElementById('ram-used').textContent = data.ram.used.toFixed(1) + ' GB';
       document.getElementById('ram-total').textContent = data.ram.total.toFixed(1) + ' GB';
+      updateBarGraph('ram-graph', ramPercent, 'bg-gradient-to-b from-blue-400 to-cyan-500');
 
       // Disk
       const diskPercent = Math.round(data.disk.percent);
       document.getElementById('disk-text').textContent = diskPercent + '%';
-      document.getElementById('disk-bar').style.width = diskPercent + '%';
       document.getElementById('disk-used').textContent = data.disk.used.toFixed(1) + ' GB';
       document.getElementById('disk-total').textContent = data.disk.total.toFixed(1) + ' GB';
+      updateBarGraph('disk-graph', diskPercent, 'bg-gradient-to-b from-emerald-400 to-teal-500');
 
     } catch (e) {
       console.error("Resource monitor failed", e);
