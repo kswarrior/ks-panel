@@ -277,7 +277,7 @@ select.input-field {
             <textarea id="jsonEditor" class="input-field h-[70vh]"></textarea>
           </div>
 
-          <!-- SUBMIT - ALWAYS VISIBLE -->
+          <!-- SUBMIT -->
           <div id="submitSection" class="mt-12 pt-6 border-t border-white/10 flex gap-4">
             <button id="btnCancelForm" 
                     type="button"
@@ -330,7 +330,7 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH (Save button ALWAYS visible) ======================
+// ====================== MODE SWITCH ======================
 const modeSelect = document.createElement("select");
 modeSelect.id = "modeSelect";
 modeSelect.className = "input-field";
@@ -356,7 +356,16 @@ modeSelect.onchange = () => {
   submitSection.style.display = "flex"; // Always visible
 };
 
-// ====================== VARIABLES (with User Editable) ======================
+// ====================== VARIABLE TYPES ======================
+const variableTypes = [
+  { value: "string", label: "String" },
+  { value: "integer", label: "Integer" },
+  { value: "number", label: "Number" },
+  { value: "boolean", label: "Boolean" },
+  { value: "option", label: "Option (Dropdown)" }
+];
+
+// ====================== VARIABLES (with Type + Options) ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -387,6 +396,18 @@ function addVariable(v = {}) {
           <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>True</option>
           <option value="false" ${v.user_editable === "false" ? "selected" : ""}>False</option>
         </select>
+      </div>
+    </div>
+    <div class="form-row mt-4">
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
+        <select name="variables[${idx}].type" class="input-field">
+          ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Options (only for Option type)</label>
+        <textarea name="variables[${idx}].options" rows="2" class="input-field font-mono" placeholder="value1:Display Name 1&#10;value2:Display Name 2">${v.options || ""}</textarea>
       </div>
     </div>
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
@@ -552,7 +573,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT DATA (User Editable is automatically included) ======================
+// ====================== COLLECT DATA ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
