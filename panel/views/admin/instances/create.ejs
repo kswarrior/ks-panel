@@ -232,7 +232,7 @@ async function sendData(data, btn, originalText) {
     }
 
     if (res.ok) {
-      window.location.href = '/admin/instances?err=CREATED';
+      window.location.href = '/admin/instances/overview/?err=CREATED';
     } else {
       throw new Error(result.error || result.message || 'Unknown error');
     }
