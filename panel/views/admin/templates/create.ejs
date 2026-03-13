@@ -109,6 +109,16 @@ select.input-field {
 .hidden {
   display: none;
 }
+
+/* NEW: Sub-operation styling */
+.operation-item {
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
@@ -203,10 +213,10 @@ select.input-field {
           </div>
           <div id="variablesContainer" class="space-y-4"></div>
 
-          <!-- RUNTIME ACTIONS -->
+          <!-- RUNTIME ACTIONS - NOW SUPPORT MULTIPLE TYPES IN ONE -->
           <div class="flex items-center gap-4 mt-10 mb-6">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS</h2>
+            <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS (Start/Stop/etc.)</h2>
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           </div>
 
@@ -218,10 +228,10 @@ select.input-field {
           </div>
           <div id="actionsContainer" class="space-y-4"></div>
 
-          <!-- INSTALL STEPS -->
+          <!-- INSTALL STEPS - NOW SUPPORT MULTIPLE TYPES IN ONE -->
           <div class="flex items-center gap-4 mt-10 mb-6">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS</h2>
+            <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS (Download + Git + Command + etc.)</h2>
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           </div>
 
@@ -233,7 +243,7 @@ select.input-field {
           </div>
           <div id="installStepsContainer" class="space-y-4"></div>
 
-          <!-- JSON EDITOR (hidden by default) -->
+          <!-- JSON EDITOR -->
           <div id="jsonArea" class="hidden mt-10">
             <div class="flex items-center gap-4 mb-6">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
@@ -275,9 +285,6 @@ select.input-field {
 let varIndex = 0, actionIndex = 0, installIndex = 0;
 
 // ====================== SHOW/HIDE & NOTIFICATION ======================
-function showForm(title) {
-  // Title is now static in header
-}
 function hideForm() {
   window.location.href = "/admin/templates/overview";
 }
@@ -299,18 +306,12 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH (still functional) ======================
+// ====================== MODE SWITCH ======================
 const modeSelect = document.createElement("select");
 modeSelect.id = "modeSelect";
 modeSelect.className = "input-field";
-modeSelect.innerHTML = `
-  <option value="form">Visual Form</option>
-  <option value="json">Raw JSON</option>
-`;
-modeSelect.style.position = "absolute";
-modeSelect.style.top = "20px";
-modeSelect.style.right = "20px";
-modeSelect.style.zIndex = "10";
+modeSelect.innerHTML = `<option value="form">Visual Form</option><option value="json">Raw JSON</option>`;
+modeSelect.style.cssText = "position:absolute;top:20px;right:20px;z-index:10;width:180px;";
 document.querySelector(".max-w-5xl").appendChild(modeSelect);
 
 const formArea = document.getElementById("templateForm");
@@ -319,10 +320,13 @@ const jsonEditor = document.getElementById("jsonEditor");
 
 modeSelect.onchange = () => {
   const isJson = modeSelect.value === "json";
-  formArea.querySelectorAll("div:not(#jsonArea)").forEach(el => el.style.display = isJson ? "none" : "block");
-  jsonArea.classList.toggle("hidden", !isJson);
   if (isJson) {
+    formArea.querySelectorAll("div:not(#jsonArea)").forEach(el => el.style.display = "none");
+    jsonArea.classList.remove("hidden");
     try { jsonEditor.value = JSON.stringify(collectFormData(), null, 2); } catch(e) {}
+  } else {
+    formArea.querySelectorAll("div:not(#jsonArea)").forEach(el => el.style.display = "block");
+    jsonArea.classList.add("hidden");
   }
 };
 
@@ -352,8 +356,7 @@ function addVariable(v = {}) {
         <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
       </div>
     </div>
-    <button type="button" onclick="this.closest('div').remove()" 
-            class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300">×</button>
   `;
   document.getElementById("variablesContainer").appendChild(div);
 }
@@ -397,22 +400,20 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== RENDER DYNAMIC FIELDS ======================
-function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
-  const sectionPrefix = prefix === "install_steps" ? "install_steps" : "actions";
-  const container = document.getElementById(`dynamic-${sectionPrefix}-${idx}`);
+// ====================== RENDER SUB-OPERATION FIELDS (NEW MULTI SUPPORT) ======================
+function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
+  const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
   const config = fieldConfigs[type] || fieldConfigs.command;
   let html = `<div class="form-row">`;
-  config.forEach((f, i) => {
+  config.forEach(f => {
     const val = data[f.key] || "";
-    if (i % 2 === 0 && i > 0) html += `</div><div class="form-row">`;
     html += `
-      <div class="${f.type === 'textarea' ? 'field-long' : 'field-short'} mt-4">
+      <div class="${f.type === 'textarea' ? 'field-long' : 'field-short'}">
         <label class="text-xs text-neutral-400">${f.label}</label>
         ${f.type === "textarea" ? 
-          `<textarea name="${prefix}[${idx}].${f.key}" rows="${f.rows}" class="input-field font-mono" placeholder="${f.placeholder || ''}">${val}</textarea>` :
-          `<input type="text" name="${prefix}[${idx}].${f.key}" value="${val}" class="input-field" placeholder="${f.placeholder}">`
+          `<textarea name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono" placeholder="${f.placeholder || ''}">${val}</textarea>` :
+          `<input type="text" name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" value="${val}" class="input-field mt-1" placeholder="${f.placeholder}">`
         }
       </div>`;
   });
@@ -420,96 +421,108 @@ function renderDynamicFields(idx, type, data = {}, prefix = "install_steps") {
   container.innerHTML = html;
 }
 
-// ====================== INSTALL STEPS ======================
-function addInstallStep(s = {}) {
-  const idx = installIndex++;
-  const defaultType = s.type || (s.run_code ? "command" : "command");
-  
+// ====================== ADD SUB-OPERATION (NEW) ======================
+function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
+  const subIdx = parseInt(opsContainer.dataset.subCount || 0);
+  opsContainer.dataset.subCount = subIdx + 1;
+
   const div = document.createElement("div");
-  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.className = "operation-item";
   div.innerHTML = `
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-xs font-medium text-neutral-400">Operation #${subIdx + 1}</span>
+      <button type="button" onclick="this.closest('.operation-item').remove()" class="text-red-400 text-2xl leading-none">×</button>
+    </div>
     <div class="form-row">
       <div class="field-short">
         <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
-        <select name="install_steps[${idx}].type" class="input-field install-type-select" data-idx="${idx}">
-          ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        <select name="${prefix}[${mainIdx}].operations[${subIdx}].type" class="input-field sub-type-select" data-main="${mainIdx}" data-sub="${subIdx}">
+          ${itemTypes.map(t => `<option value="${t.value}">${t.label}</option>`).join("")}
         </select>
       </div>
-      <div class="field-long">
-        <label class="text-xs text-neutral-400">Step Name</label>
-        <input type="text" name="install_steps[${idx}].name" value="${s.name || ""}" class="input-field">
-      </div>
+      <div class="field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
     </div>
-    <div class="dynamic-fields mt-6" id="dynamic-install_steps-${idx}"></div>
-    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
   `;
-  document.getElementById("installStepsContainer").appendChild(div);
+  opsContainer.appendChild(div);
 
-  renderDynamicFields(idx, defaultType, s, "install_steps");
+  const defaultType = subData.type || "command";
+  const select = div.querySelector(".sub-type-select");
+  select.value = defaultType;
+  renderSubDynamicFields(mainIdx, subIdx, defaultType, subData, prefix);
 
-  const select = div.querySelector(".install-type-select");
   select.addEventListener("change", (e) => {
     const newType = e.target.value;
-    const stepIdx = parseInt(e.target.getAttribute("data-idx"));
-    const currentData = {};
-    const dynContainer = document.getElementById(`dynamic-install_steps-${stepIdx}`);
-    if (dynContainer) {
-      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
-        const key = inp.name.split(".").pop();
-        currentData[key] = inp.value;
-      });
-    }
-    renderDynamicFields(stepIdx, newType, currentData, "install_steps");
+    renderSubDynamicFields(mainIdx, subIdx, newType, {}, prefix);
   });
 }
 
-// ====================== RUNTIME ACTIONS ======================
+// ====================== RUNTIME ACTIONS (MULTI-TYPE SUPPORT) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
-  const defaultType = a.type || (a.run_code ? "command" : "command");
   const div = document.createElement("div");
   div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
   div.innerHTML = `
     <div class="form-row">
       <div class="field-short">
         <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
-        <input type="text" name="actions[${idx}].id" value="${a.id || ""}" required class="input-field font-mono">
+        <input type="text" name="actions[${idx}].id" value="${a.id || ''}" required class="input-field font-mono">
       </div>
       <div class="field-long">
-        <label class="text-xs text-neutral-400">Name</label>
-        <input type="text" name="actions[${idx}].name" value="${a.name || ""}" class="input-field">
-      </div>
-      <div class="field-short">
-        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
-        <select name="actions[${idx}].type" class="input-field action-type-select" data-idx="${idx}">
-          ${itemTypes.map(t => `<option value="${t.value}" ${defaultType === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
-        </select>
+        <label class="text-xs text-neutral-400">Action Name</label>
+        <input type="text" name="actions[${idx}].name" value="${a.name || ''}" class="input-field">
       </div>
     </div>
-    <div class="dynamic-fields mt-6" id="dynamic-actions-${idx}"></div>
-    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300 transition-colors">×</button>
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-medium text-neutral-400">Operations (you can add many types)</span>
+        <button type="button" class="add-op-btn px-5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-[8px]">+ Add Operation</button>
+      </div>
+      <div class="operations-list space-y-3" id="ops-actions-${idx}" data-sub-count="0"></div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
 
-  renderDynamicFields(idx, defaultType, a, "actions");
+  const opsContainer = div.querySelector(`#ops-actions-${idx}`);
+  const ops = a.operations || [{ type: "command", run_code: "echo 'Action started'" }];
 
-  const select = div.querySelector(".action-type-select");
-  select.addEventListener("change", (e) => {
-    const newType = e.target.value;
-    const stepIdx = parseInt(e.target.getAttribute("data-idx"));
-    const currentData = {};
-    const dynContainer = document.getElementById(`dynamic-actions-${stepIdx}`);
-    if (dynContainer) {
-      dynContainer.querySelectorAll("input, textarea").forEach(inp => {
-        const key = inp.name.split(".").pop();
-        currentData[key] = inp.value;
-      });
-    }
-    renderDynamicFields(stepIdx, newType, currentData, "actions");
-  });
+  ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
+
+  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
 }
 
-// ====================== COLLECT & FILL ======================
+// ====================== INSTALL STEPS (MULTI-TYPE SUPPORT) ======================
+function addInstallStep(s = {}) {
+  const idx = installIndex++;
+  const div = document.createElement("div");
+  div.className = "rounded-2xl border border-white/10 bg-neutral-900/60 p-6 relative";
+  div.innerHTML = `
+    <div class="form-row">
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Step Name</label>
+        <input type="text" name="install_steps[${idx}].name" value="${s.name || ''}" class="input-field">
+      </div>
+    </div>
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-medium text-neutral-400">Operations (you can add many types)</span>
+        <button type="button" class="add-op-btn px-5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-[8px]">+ Add Operation</button>
+      </div>
+      <div class="operations-list space-y-3" id="ops-install-${idx}" data-sub-count="0"></div>
+    </div>
+    <button type="button" onclick="this.closest('div').remove()" class="absolute top-6 right-6 text-3xl text-red-400 hover:text-red-300">×</button>
+  `;
+  document.getElementById("installStepsContainer").appendChild(div);
+
+  const opsContainer = div.querySelector(`#ops-install-${idx}`);
+  const ops = s.operations || [{ type: "command", run_code: "echo 'Installing...'" }];
+
+  ops.forEach(op => addSubOperation(opsContainer, "install_steps", idx, op));
+
+  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
+}
+
+// ====================== COLLECT FORM DATA (UPDATED FOR MULTI-OPS) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -518,6 +531,8 @@ function collectFormData() {
     if (key.startsWith("meta.")) data.meta[key.split(".")[1]] = value;
     else if (key === "category") data.category = value;
     else if (key === "environment.docker_image") data.environment.docker_image = value;
+
+    // Variables
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
@@ -525,28 +540,59 @@ function collectFormData() {
         if (!data.variables[i]) data.variables[i] = {};
         data.variables[i][match[2]] = value;
       }
-    } else if (key.startsWith("actions[")) {
-      const match = key.match(/actions\[(\d+)\]\.(.+)/);
-      if (match) {
-        const i = parseInt(match[1]);
-        if (!data.actions[i]) data.actions[i] = {};
-        data.actions[i][match[2]] = value;
+    }
+
+    // Actions with operations
+    else if (key.startsWith("actions[")) {
+      const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
+      if (opMatch) {
+        const i = parseInt(opMatch[1]);
+        const j = parseInt(opMatch[2]);
+        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
+        data.actions[i].operations[j][opMatch[3]] = value;
+      } else {
+        const simpleMatch = key.match(/actions\[(\d+)\]\.(.+)/);
+        if (simpleMatch) {
+          const i = parseInt(simpleMatch[1]);
+          if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+          data.actions[i][simpleMatch[2]] = value;
+        }
       }
-    } else if (key.startsWith("install_steps[")) {
-      const match = key.match(/install_steps\[(\d+)\]\.(.+)/);
-      if (match) {
-        const i = parseInt(match[1]);
-        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = {};
-        data.environment.install_steps[i][match[2]] = value;
+    }
+
+    // Install steps with operations
+    else if (key.startsWith("install_steps[")) {
+      const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
+      if (opMatch) {
+        const i = parseInt(opMatch[1]);
+        const j = parseInt(opMatch[2]);
+        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
+        if (!data.environment.install_steps[i].operations[j]) data.environment.install_steps[i].operations[j] = {};
+        data.environment.install_steps[i].operations[j][opMatch[3]] = value;
+      } else {
+        const simpleMatch = key.match(/install_steps\[(\d+)\]\.(.+)/);
+        if (simpleMatch) {
+          const i = parseInt(simpleMatch[1]);
+          if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
+          data.environment.install_steps[i][simpleMatch[2]] = value;
+        }
       }
     }
   }
+
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
+
+  // Clean empty operations
+  data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
+  data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
+
   return data;
 }
 
+// ====================== FILL FORM (UPDATED) ======================
 function fillForm(data) {
   document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
@@ -554,14 +600,17 @@ function fillForm(data) {
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
 
+  // Variables
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
   (data.variables || []).forEach(v => addVariable(v));
 
+  // Actions
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   (data.actions || []).forEach(a => addAction(a));
 
+  // Install Steps
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
   (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
@@ -576,13 +625,32 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   [
-    { id: "start", name: "Start Server", type: "command", run_code: "docker start {{container_name}}" },
-    { id: "stop",  name: "Stop Server",  type: "command", run_code: "docker stop {{container_name}}" },
-    { id: "restart", name: "Restart Server", type: "command", run_code: "docker restart {{container_name}}" }
+    { 
+      id: "start", 
+      name: "Start Server", 
+      operations: [
+        { type: "create_file", filename: "start.sh", path: "/data", content: "#!/bin/bash\necho Starting server..." },
+        { type: "command", run_code: "chmod +x /data/start.sh && /data/start.sh" }
+      ]
+    },
+    { 
+      id: "stop",  
+      name: "Stop Server",  
+      operations: [{ type: "command", run_code: "docker stop {{container_name}}" }]
+    }
   ].forEach(addAction);
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
+  [
+    { 
+      name: "Install Server Files", 
+      operations: [
+        { type: "download", url: "https://example.com/server.jar", filename: "server.jar", path: "/data" },
+        { type: "command", run_code: "echo 'Server downloaded'" }
+      ]
+    }
+  ].forEach(addInstallStep);
 }
 
 // ====================== SAVE ======================
