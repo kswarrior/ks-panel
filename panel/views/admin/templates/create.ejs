@@ -327,7 +327,7 @@ const variableTypes = [
   { value: "option", label: "Option (Dropdown)" }
 ];
 
-// ====================== ADD OPTION ITEM (only for Option type) ======================
+// ====================== ADD OPTION ITEM ======================
 function addOptionItem(varIdx, optIdx, optData = {}) {
   const container = document.getElementById(`options-list-${varIdx}`);
   if (!container) return;
@@ -350,7 +350,7 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
   container.appendChild(div);
 }
 
-// ====================== VARIABLES (with Type + Dynamic Options for "option") ======================
+// ====================== VARIABLES (Default Value hidden when Type = Option) ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -373,10 +373,6 @@ function addVariable(v = {}) {
         <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field">
       </div>
       <div class="field-short">
-        <label class="text-xs text-neutral-400">Default Value</label>
-        <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
-      </div>
-      <div class="field-short">
         <label class="text-xs text-neutral-400">User Editable</label>
         <select name="variables[${idx}].user_editable" class="input-field">
           <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>True</option>
@@ -385,6 +381,7 @@ function addVariable(v = {}) {
       </div>
     </div>
 
+    <!-- Type -->
     <div class="form-row mt-4">
       <div class="field-short">
         <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
@@ -392,6 +389,12 @@ function addVariable(v = {}) {
           ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
         </select>
       </div>
+    </div>
+
+    <!-- Default Value (HIDDEN when Type = Option) -->
+    <div id="default-section-${idx}" class="field-short mt-4">
+      <label class="text-xs text-neutral-400">Default Value</label>
+      <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
     </div>
 
     <!-- OPTIONS SECTION (only for Option type) -->
@@ -408,18 +411,23 @@ function addVariable(v = {}) {
   document.getElementById("variablesContainer").appendChild(div);
 
   const typeSelect = div.querySelector(".var-type-select");
+  const defaultSection = document.getElementById(`default-section-${idx}`);
   const optionsSection = document.getElementById(`options-section-${idx}`);
   const optionsList = document.getElementById(`options-list-${idx}`);
 
-  // Show/hide options section based on type
-  function toggleOptionsSection() {
-    if (typeSelect.value === "option") {
+  // Toggle visibility
+  function toggleFields() {
+    const isOption = typeSelect.value === "option";
+    if (isOption) {
+      defaultSection.classList.add("hidden");
       optionsSection.classList.remove("hidden");
     } else {
+      defaultSection.classList.remove("hidden");
       optionsSection.classList.add("hidden");
     }
   }
-  typeSelect.addEventListener("change", toggleOptionsSection);
+
+  typeSelect.addEventListener("change", toggleFields);
 
   // Add option button
   div.querySelector(".add-option-btn").onclick = () => {
@@ -427,18 +435,20 @@ function addVariable(v = {}) {
     addOptionItem(idx, optIdx);
   };
 
-  // Load existing options if any
-  if (v.type === "option" && Array.isArray(v.options)) {
+  // Load existing data
+  if (v.type === "option") {
     optionsSection.classList.remove("hidden");
-    v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
-  } else if (v.type === "option") {
-    optionsSection.classList.remove("hidden");
+    if (Array.isArray(v.options)) {
+      v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
+    }
+  } else {
+    defaultSection.classList.remove("hidden");
   }
 
-  toggleOptionsSection();
+  toggleFields();
 }
 
-// ====================== ITEM TYPES & FIELD CONFIGS (unchanged) ======================
+// ====================== ITEM TYPES & FIELD CONFIGS ======================
 const itemTypes = [
   { value: "command",   label: "Run Shell Command" },
   { value: "download",  label: "Download File" },
@@ -477,7 +487,7 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== SUB-OPERATION (unchanged) ======================
+// ====================== SUB-OPERATION ======================
 function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
@@ -531,7 +541,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   });
 }
 
-// ====================== ADD ACTION / INSTALL STEP (unchanged) ======================
+// ====================== ADD ACTION / INSTALL STEP ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
@@ -594,7 +604,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT DATA (now supports options array) ======================
+// ====================== COLLECT DATA ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -604,14 +614,12 @@ function collectFormData() {
     else if (key === "category") data.category = value;
     else if (key === "environment.docker_image") data.environment.docker_image = value;
 
-    // Variables
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
         const i = parseInt(match[1]);
         if (!data.variables[i]) data.variables[i] = {};
         
-        // Special handling for options array
         if (key.includes(".options[")) {
           const optMatch = key.match(/variables\[(\d+)\]\.options\[(\d+)\]\.(.+)/);
           if (optMatch) {
@@ -625,8 +633,6 @@ function collectFormData() {
         }
       }
     }
-
-    // Actions & Install steps (unchanged)
     else if (key.startsWith("actions[")) {
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
@@ -661,7 +667,6 @@ function collectFormData() {
     }
   }
 
-  // Clean arrays
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
@@ -669,7 +674,6 @@ function collectFormData() {
   data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
   data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
 
-  // Clean options arrays for variables
   data.variables.forEach(v => {
     if (v.options) v.options = v.options.filter(Boolean);
   });
