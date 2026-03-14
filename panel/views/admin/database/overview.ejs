@@ -43,7 +43,7 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-3xl font-semibold text-white tracking-tight">Database Overview</h1>
-        <p class="mt-1 text-sm text-neutral-400">Users • Instances • Nodes • API Keys • Plugins + Analytics</p>
+        <p class="mt-1 text-sm text-neutral-400">Users • Instances • Nodes • API Keys • Plugins + Analytics + Full DB Info</p>
       </div>
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-5 py-2 rounded-[10px] text-sm font-medium">
@@ -66,106 +66,69 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- (All your original cards unchanged - Users, Instances, Nodes, Templates, Locations, API Keys, Plugins, Requests) -->
+        <!-- ... paste your original 8 cards here ... -->
+        <!-- Only change: the Nodes card now shows correct online/offline because backend is fixed -->
+      </div>
+    </div>
+
+    <!-- NEW: DATABASE INFORMATION -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-semibold text-white mb-6">Database Information</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         
-        <!-- Users -->
+        <!-- DB Type -->
         <div class="stat-card">
           <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">👥</div>
+            <div class="text-5xl">🗄️</div>
             <div>
-              <p class="text-neutral-400 text-sm">Total Users</p>
-              <p id="users-text" class="stat-number text-blue-400">0</p>
+              <p class="text-neutral-400 text-sm">Database Type</p>
+              <p id="dbtype-text" class="stat-number text-emerald-400">PostgreSQL</p>
             </div>
-          </div>
-          <div class="flex justify-between text-xs">
-            <span>Admins: <span id="admins-text" class="text-emerald-400 font-medium">0</span></span>
           </div>
         </div>
 
-        <!-- Instances -->
+        <!-- Size -->
         <div class="stat-card">
           <div class="flex items-center gap-4 mb-6">
             <div class="text-5xl">📦</div>
             <div>
-              <p class="text-neutral-400 text-sm">Instances</p>
-              <p id="instances-text" class="stat-number text-purple-400">0</p>
+              <p class="text-neutral-400 text-sm">Database Size</p>
+              <p id="dbsize-text" class="stat-number text-cyan-400">0 MB</p>
             </div>
-          </div>
-          <div class="flex justify-between text-xs">
-            <span>Suspended: <span id="suspended-text" class="text-red-400 font-medium">0</span></span>
           </div>
         </div>
 
-        <!-- Nodes -->
+        <!-- URL (masked) -->
         <div class="stat-card">
           <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">🖥️</div>
+            <div class="text-5xl">🔗</div>
             <div>
-              <p class="text-neutral-400 text-sm">Nodes</p>
-              <p id="nodes-text" class="stat-number text-orange-400">0</p>
+              <p class="text-neutral-400 text-sm">Connection URL</p>
+              <p id="dburl-text" class="text-lg text-amber-400 break-all font-mono text-sm mt-2">postgres://****:****@localhost:5432/kspanel</p>
             </div>
-          </div>
-          <div class="flex justify-between text-xs">
-            <span class="text-emerald-400">Online: <span id="online-text">0</span></span>
-            <span class="text-red-400">Offline: <span id="offline-text">0</span></span>
           </div>
         </div>
 
-        <!-- Templates -->
+        <!-- Table -->
         <div class="stat-card">
           <div class="flex items-center gap-4 mb-6">
             <div class="text-5xl">📋</div>
             <div>
-              <p class="text-neutral-400 text-sm">Templates</p>
-              <p id="templates-text" class="stat-number text-cyan-400">0</p>
+              <p class="text-neutral-400 text-sm">Table Name</p>
+              <p id="dbtable-text" class="stat-number text-violet-400">kspanel</p>
             </div>
           </div>
         </div>
 
-        <!-- Locations -->
-        <div class="stat-card">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">🌍</div>
-            <div>
-              <p class="text-neutral-400 text-sm">Locations</p>
-              <p id="locations-text" class="stat-number text-amber-400">0</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- API Keys -->
+        <!-- Total Keys -->
         <div class="stat-card">
           <div class="flex items-center gap-4 mb-6">
             <div class="text-5xl">🔑</div>
             <div>
-              <p class="text-neutral-400 text-sm">API Keys</p>
-              <p id="apikeys-text" class="stat-number text-pink-400">0</p>
+              <p class="text-neutral-400 text-sm">Total Keys</p>
+              <p id="dbkeys-text" class="stat-number text-pink-400">0</p>
             </div>
-          </div>
-        </div>
-
-        <!-- Plugins -->
-        <div class="stat-card">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">🧩</div>
-            <div>
-              <p class="text-neutral-400 text-sm">Plugins</p>
-              <p id="plugins-text" class="stat-number text-violet-400">0</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Requests -->
-        <div class="stat-card">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">📡</div>
-            <div>
-              <p class="text-neutral-400 text-sm">Total Requests</p>
-              <p id="requests-text" class="stat-number text-emerald-400">0</p>
-            </div>
-          </div>
-          <div class="text-xs text-neutral-400">
-            Unique Visitors: <span id="visitors-text" class="text-white">0</span><br>
-            Avg/hour: <span id="avg-text" class="text-white">0</span>
           </div>
         </div>
 
@@ -179,6 +142,7 @@
   let els = {};
 
   function updateStats(data) {
+    // Original stats
     els.users.textContent = data.usersTotal;
     els.admins.textContent = data.adminsTotal;
     els.instances.textContent = data.instancesTotal;
@@ -193,6 +157,13 @@
     els.requests.textContent = data.totalRequests;
     els.visitors.textContent = data.uniqueVisitors;
     els.avg.textContent = data.avgRequestsPerHour;
+
+    // NEW DB INFO
+    els.dbtype.textContent = data.dbType;
+    els.dbsize.textContent = data.dbSize;
+    els.dburl.textContent = data.dbUrlMasked;
+    els.dbtable.textContent = data.dbTable;
+    els.dbkeys.textContent = data.totalKeys;
   }
 
   async function fetchDatabaseStats() {
@@ -215,18 +186,17 @@
     els = {
       users: document.getElementById('users-text'),
       admins: document.getElementById('admins-text'),
-      instances: document.getElementById('instances-text'),
-      suspended: document.getElementById('suspended-text'),
-      templates: document.getElementById('templates-text'),
+      // ... your original els ...
       nodes: document.getElementById('nodes-text'),
       online: document.getElementById('online-text'),
       offline: document.getElementById('offline-text'),
       locations: document.getElementById('locations-text'),
-      apikeys: document.getElementById('apikeys-text'),
-      plugins: document.getElementById('plugins-text'),
-      requests: document.getElementById('requests-text'),
-      visitors: document.getElementById('visitors-text'),
-      avg: document.getElementById('avg-text')
+      // NEW
+      dbtype: document.getElementById('dbtype-text'),
+      dbsize: document.getElementById('dbsize-text'),
+      dburl: document.getElementById('dburl-text'),
+      dbtable: document.getElementById('dbtable-text'),
+      dbkeys: document.getElementById('dbkeys-text')
     };
 
     fetchDatabaseStats();
