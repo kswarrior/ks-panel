@@ -1,580 +1,592 @@
 <%- include('../components/template') %>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"
+    integrity="sha512-2PRgAav8Os8vLcOAh1gSaDoNLe1fAyq8/G3QSdyjFFD+OqNjLeHE/8q4+S4MEZgPsuo+itHopj+hJvqS8XUQ8A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css"
+    integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/attach/attach.min.js"
+    integrity="sha512-43J76SR5UijcuJTzs73z8NpkyWon8a8EoV+dX6obqXW7O26Yb268H2vP6EiJjD7sWXqxS3G/YOqPyyLF9fmqgA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"
+    integrity="sha512-+wh8VA1djpWk3Dj9/IJDu6Ufi4vVQ0zxLv9Vmfo70AbmYFJm0z3NLnV98vdRKBdPDV4Kwpi7EZdr8mDY9L8JIA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 <style>
-    /* ==================== MODERN CONSOLE + BAR GRAPHS ==================== */
-    .log-terminal {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 14px;
-        padding: 1.25rem;
-        font-family: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", monospace;
-        font-size: 0.875rem;
-        line-height: 1.55;
-        color: #94a3b8;
-        overflow-y: auto;
-        white-space: pre-wrap;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(148,163,184,0.3) transparent;
-        flex: 1;
-        min-height: 320px;
+    canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        height: 100% !important;
     }
 
-    .log-terminal::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .bar-graph {
-        display: flex;
-        align-items: flex-end;
-        gap: 3px;
-        height: 68px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 14px;
-        padding: 9px 10px;
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    .bar-graph .bar {
-        width: 6px;
-        background: linear-gradient(to bottom, transparent, currentColor);
-        border-radius: 9999px;
-        transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35);
-        opacity: 0.92;
-    }
-
-    .status-dot {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    @media (max-width: 640px) {
-        .log-terminal {
-            min-height: 280px;
-            font-size: 0.8rem;
-        }
-        .bar-graph {
-            height: 56px;
-        }
+    .xterm-viewport {
+        overflow-y: hidden !important;
     }
 </style>
-
-<main id="content" class="max-w-screen-2xl mx-auto overflow-hidden">
-    <div class="bg-transparent px-4 md:px-6 lg:px-8">
-        
-        <!-- HEADER -->
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
-            <div>
-                <h1 class="text-3xl font-semibold text-white tracking-tight"><%= req.translations.manageInstance %></h1>
-                <p class="mt-1 text-sm text-neutral-400"><%= req.translations.manageInstanceText %></p>
+<main class="overflow-hidden" id="content">
+    <% if (false) { %>
+        <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
+            <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur z-50">
+                <div class="bg-white/5 backdrop-blur py-8 px-8 rounded-2xl shadow-lg w-1/2 h-48">
+                    <p class="text-white text-lg font-medium">Do you accept Minecraft's EULA?</p>
+                    <p class="text-sm text-neutral-400">By pressing this button you agree to the <a class="text-white" href="https://account.mojang.com/documents/minecraft_eula">Mojang EULA</a>.</p>
+                    <button 
+                    onclick="axios.post('/instance/<%= req.params.id %>/imagefeatures/eula')
+                        .then(response => {
+                            if (response.status === 200) {
+                                location.reload();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('There was an error!', error);
+                        });" 
+                    class="mt-8 bg-white text-sm font-sm text-gray-800 px-4 font-medium transition py-2 rounded-2xl hover:bg-gray-100">
+                    I agree
+                    </button>
+                </div>
             </div>
-            
-            <!-- POWER BUTTONS - TOUCH FRIENDLY -->
-            <div class="flex items-center gap-2.5">
-                <!-- Start -->
-                <button id="startButton"
-                    class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 transition-all text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 4.01V8" />
+        <% } %>
+    <% } %>
+    
+    <div class="bg-transparent">
+        <div class="sm:flex sm:items-center px-8 pt-4">
+            <div class="sm:flex-auto">
+                <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.manageInstance %></h1>
+                <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.manageInstanceText %></p>
+            </div>
+            <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex gap-2.5">
+                <button id="startButton" type="button"
+                    class="block rounded-xl bg-emerald-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-emerald-500 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="size-4 inline-flex mr-1 text-emerald-100 mb-0.5">
+                        <path fill-rule="evenodd"
+                            d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                            clip-rule="evenodd" />
                     </svg>
                     <%= req.translations.start %>
                 </button>
-
-                <!-- Restart -->
-                <button id="restartButton"
-                    class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 transition-all text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15" />
+                <button id="restartButton" type="button"
+                    class="block rounded-xl bg-white/20 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-white/25 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="size-4 inline-flex mr-1 text-zinc-200 mb-0.5">
+                        <path fill-rule="evenodd"
+                            d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z"
+                            clip-rule="evenodd" />
                     </svg>
                     <%= req.translations.restart %>
                 </button>
-
-                <!-- Stop -->
-                <button id="stopButton"
-                    class="flex items-center gap-2 bg-red-600 hover:bg-red-500 transition-all text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6h12v12" />
+                <button id="stopButton" type="button"
+                    class="block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="size-4 inline-flex mr-1 text-red-100 mb-0.5">
+                        <path fill-rule="evenodd"
+                            d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z"
+                            clip-rule="evenodd" />
                     </svg>
                     <%= req.translations.stop %>
                 </button>
             </div>
-        </header>
-
-        <!-- INSTANCE INFO - RESPONSIVE -->
-        <div class="mt-8">
-            <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <!-- Address -->
-                <div class="overflow-hidden rounded-2xl bg-white/5 px-5 py-6 flex items-center">
-                    <div class="flex-grow">
-                        <dt class="text-xs font-medium text-neutral-400"><%= req.translations.address %></dt>
-                        <dd class="mt-1 text-xl font-medium tracking-tighter text-white"><%= instance.Node.address %><span class="text-neutral-400">:<%= instance.Primary %></span></dd>
-                    </div>
-                    <div class="ml-4 w-9 h-9 flex items-center justify-center bg-white/10 rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="currentColor" viewBox="0 0 256 256"><path d="M240 120a8 8 0 01-8 8H200v32h8a16 16 0 0116 16v32a16 16 0 01-16 16H176a16 16 0 01-16-16V176a16 16 0 0116-16h8V128H72v32h8a16 16 0 0116 16v32a16 16 0 01-16 16H48a16 16 0 01-16-16V176a16 16 0 0116-16h8V128H24a8 8 0 010-16h96V88h-8A16 16 0 0196 72V40a16 16 0 0116-16h32a16 16 0 0116 16V72a16 16 0 01-16 16h-8v24h96a8 8 0 018 8z"/></svg>
-                    </div>
-                </div>
-
-                <!-- Image -->
-                <div class="overflow-hidden rounded-2xl bg-white/5 px-5 py-6 flex items-center">
-                    <div class="flex-grow">
-                        <dt class="text-xs font-medium text-neutral-400"><%= req.translations.image %></dt>
-                        <dd class="mt-1 text-xl font-medium tracking-tighter text-white"><%= instance.Image %></dd>
-                    </div>
-                    <div class="ml-4 w-9 h-9 flex items-center justify-center bg-white/10 rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="currentColor" viewBox="0 0 256 256"><path d="M243.31 136L144 36.69A15.86 15.86 0 00132.69 32H40a8 8 0 00-8 8v92.69A15.86 15.86 0 0036.69 144L136 243.31a16 16 0 0022.63 0l84.68-84.68a16 16 0 000-22.63zM84 96a12 12 0 1112-12 12 12 0 01-12 12z"/></svg>
-                    </div>
-                </div>
-
-                <!-- Node -->
-                <div class="overflow-hidden rounded-2xl bg-white/5 px-5 py-6 flex items-center">
-                    <div class="flex-grow">
-                        <dt class="text-xs font-medium text-neutral-400"><%= req.translations.node %></dt>
-                        <dd class="mt-1 text-xl font-medium tracking-tighter text-white"><%= instance.Node.name %> <span class="text-neutral-500">(<%= instance.Node.address %>)</span></dd>
-                    </div>
-                    <div class="ml-4 w-9 h-9 flex items-center justify-center bg-white/10 rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="currentColor" viewBox="0 0 256 256"><path d="M208 40H48A16 16 0 0032 56v48a16 16 0 0016 16H208a16 16 0 0016-16V56A16 16 0 00208 40z"/><path d="M208 136H48a16 16 0 00-16 16v48a16 16 0 0016 16H208a16 16 0 0016-16V152A16 16 0 00208 136z"/></svg>
-                    </div>
-                </div>
-
-                <!-- ID -->
-                <div class="overflow-hidden rounded-2xl bg-white/5 px-5 py-6 flex items-center">
-                    <div class="flex-grow">
-                        <dt class="text-xs font-medium text-neutral-400"><%= req.translations.identifier %></dt>
-                        <dd class="mt-1 text-xl font-medium tracking-tighter text-white"><%= req.params.id %></dd>
-                    </div>
-                    <div class="ml-4 w-9 h-9 flex items-center justify-center bg-white/10 rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="currentColor" viewBox="0 0 256 256"><path d="M116.25 112h31.5l-8 32h-31.5zM224 48v160a16 16 0 01-16 16H48a16 16 0 01-16-16V48a16 16 0 0116-16h160a16 16 0 0116 16z"/></svg>
-                    </div>
-                </div>
-            </dl>
         </div>
-
-        <!-- DAEMON DOWN ALERT -->
-        <div id="daemonIsDown" class="hidden mt-8 bg-red-900/20 border border-red-500/30 rounded-2xl p-5 flex items-center gap-4">
-            <div class="flex-shrink-0">
-                <svg class="animate-spin h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </div>
+    <%- include('../components/instance') %>
+    <div class="mt-8 ml-8 mb-4">
+        <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-4 mr-8">
+            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-5 shadow sm:p-6 flex items-center">
+                <div class="flex-grow">
+                    <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.address %></dt>
+                    <dd class="mt-1 text-lg font-medium tracking-tight text-white">
+                        <span>
+                            <%= instance.Node.address %><span class="text-neutral-400">:<%= instance.Primary %></span>
+                        </span>
+                    </dd>
+                </div>
+                <div class="ml-4 shadow border border-white/10 rounded-xl p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-6 w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-5 shadow sm:p-6 flex items-center">
+                <div class="flex-grow">
+                    <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.image %></dt>
+                    <dd class="mt-1 text-lg font-medium tracking-tight text-white">
+                        <span>
+                            <%= instance.Image %>
+                        </span>
+                    </dd>
+                </div>
+                <div class="ml-4 shadow border border-white/10 rounded-xl p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-6 w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63ZM84,96A12,12,0,1,1,96,84,12,12,0,0,1,84,96Z"/></svg>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-5 shadow sm:p-6 flex items-center">
+                <div class="flex-grow">
+                    <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.node %></dt>
+                    <dd class="mt-1 text-lg font-medium tracking-tight text-white">
+                        <%= instance.Node.name %> <span class="text-neutral-500">(<%= instance.Node.address %>)</span>
+                    </dd>
+                </div>
+                <div class="ml-4 shadow border border-white/10 rounded-xl p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-6 w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-5 shadow sm:p-6 flex items-center">
+                <div class="flex-grow">
+                    <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.identifier %></dt>
+                    <dd class="mt-1 text-lg font-medium tracking-tight text-white">
+                        <%= req.params.id %>
+                    </dd>
+                </div>
+                <div class="ml-4 shadow border border-white/10 rounded-xl p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-6 w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M116.25,112h31.5l-8,32h-31.5ZM224,48V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48Zm-16,56a8,8,0,0,0-8-8H168.25l7.51-30.06a8,8,0,0,0-15.52-3.88L151.75,96h-31.5l7.51-30.06a8,8,0,0,0-15.52-3.88L103.75,96H64a8,8,0,0,0,0,16H99.75l-8,32H56a8,8,0,0,0,0,16H87.75l-7.51,30.06a8,8,0,0,0,5.82,9.7,8.13,8.13,0,0,0,2,.24,8,8,0,0,0,7.75-6.06L104.25,160h31.5l-7.51,30.06a8,8,0,0,0,5.82,9.7A8.13,8.13,0,0,0,136,200a8,8,0,0,0,7.75-6.06L152.25,160H192a8,8,0,0,0,0-16H156.25l8-32H200A8,8,0,0,0,208,104Z"/></svg>
+                </div>
+            </div>
+        </dl>
+    </div>
+    <div class="rounded-xl bg-red-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8 hidden" id="daemonIsDown">
+        <div class="flex">
+            <div class="flex-shrink-0 ml-1.5">
+                <svg class="animate-spin mt-2 h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                    </circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
                 </svg>
             </div>
-            <div>
-                <h3 class="font-medium text-red-400"><%= req.translations.connectionFailure %></h3>
-                <p class="text-sm text-red-400/70"><%= req.translations.connectionFailureText %></p>
+            <div class="ml-5">
+                <h3 class="text-sm font-medium text-red-400"><%= req.translations.connectionFailure %></h3>
+                <div class="text-sm text-red-400/50">
+                    <p><%= req.translations.connectionFailureText %></p>
+                </div>
             </div>
         </div>
-
-        <!-- FULL-WIDTH LIVE CONSOLE (MOBILE FIRST) -->
-        <div class="mt-10 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 flex flex-col" style="height: 520px;">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                    <h2 class="text-2xl font-semibold text-white">Live Console</h2>
-                </div>
-                <button onclick="clearConsole()" 
-                        class="px-5 py-2 bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 rounded-2xl text-sm font-medium flex items-center gap-2">
-                    <span>🗑️</span> Clear
-                </button>
+    </div>
+    <div class="flex flex-col lg:flex-row px-8">
+        <!-- Left side: Console -->
+        <div class="w-full lg:w-2/3 lg:pr-5">
+            <div class="bg-[#101010]/50 rounded-t-xl p-4">
+                <div id="terminal" class="overflow-x-auto whitespace-pre-wrap"></div>
             </div>
-            
-            <div id="console-logs" class="log-terminal"></div>
-            
-            <!-- COMMAND INPUT -->
-            <div class="mt-4">
-                <input id="input" 
-                       type="text" 
-                       autocomplete="off"
-                       placeholder="<%= req.translations.SendACommand %>"
-                       class="w-full bg-[#0f172a] border border-white/10 focus:border-emerald-500 focus:ring-0 rounded-2xl px-6 py-4 text-white placeholder:text-neutral-500 text-sm transition-all">
-            </div>
+            <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>"
+                class="w-full px-4 py-3 bg-[#101010]/30 text-white rounded-b-xl text-sm border-t border-transparent focus:ring-2 focus:focus:ring-transparent focus:border-transparent placeholder:font-medium placeholder:text-neutral-500">
         </div>
-
-        <!-- RESOURCES MONITOR -->
-        <div class="mt-14">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-semibold text-white tracking-tight">Resources Monitor</h2>
+        
+        <!-- Right side: Stats Cards -->
+        <div class="w-full lg:w-1/3 mt-4 lg:mt-0 space-y-4">
+            <!-- Status Card -->
+            <div class="bg-white/5 rounded-xl px-4 py-5 shadow sm:p-6 h-24 relative overflow-hidden">
+                <canvas id="statusChart" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="relative z-10">
+                    <h2 class="text-sm font-medium text-neutral-400"><%= req.translations.status %></h2>
+                    <p id="status" class="mt-1 text-lg font-medium tracking-tight text-white">-</p>
+                </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <!-- STATUS -->
-                <div class="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8">
-                    <div class="flex items-center gap-5 mb-6">
-                        <div id="status-icon" class="text-6xl transition-all">⏹️</div>
-                        <div class="flex-1">
-                            <p class="text-neutral-400 text-sm font-medium">Status</p>
-                            <p id="status" class="text-6xl font-bold tracking-tighter text-red-500">Offline</p>
-                        </div>
-                    </div>
-                    <div id="status-dot" class="status-dot text-red-400">
-                        <div class="w-3 h-3 bg-red-400 rounded-full"></div>
-                        OFFLINE
-                    </div>
+            
+            <!-- RAM Usage Card -->
+            <div class="bg-white/5 rounded-xl px-4 py-5 shadow sm:p-6 h-24 relative overflow-hidden">
+                <canvas id="ramChart" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="relative z-10">
+                    <h2 class="text-sm font-medium text-neutral-400"><%= req.translations.ramUsage %></h2>
+                    <p id="ramUsage" class="mt-1 text-lg font-medium tracking-tight text-white"></p>
                 </div>
-
-                <!-- CPU -->
-                <div class="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8">
-                    <div class="flex items-center gap-5 mb-6">
-                        <div class="text-6xl">⚡</div>
-                        <div class="flex-1">
-                            <p class="text-neutral-400 text-sm font-medium">CPU Usage</p>
-                            <p id="cpu-text" class="text-6xl font-bold text-orange-400">0%</p>
-                        </div>
-                    </div>
-                    <div id="cpu-graph" class="bar-graph"></div>
-                    <p id="cpu-status" class="text-xs text-neutral-500 mt-6">Normal</p>
+            </div>
+            
+            <!-- CPU Usage Card -->
+            <div class="bg-white/5 rounded-xl px-4 py-5 shadow sm:p-6 h-24 relative overflow-hidden">
+                <canvas id="cpuChart" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="relative z-10">
+                    <h2 class="text-sm font-medium text-neutral-400"><%= req.translations.cpuUsage %></h2>
+                    <p id="cpuUsage" class="mt-1 text-lg font-medium tracking-tight text-white"></p>
                 </div>
-
-                <!-- RAM -->
-                <div class="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8">
-                    <div class="flex items-center gap-5 mb-6">
-                        <div class="text-6xl">🧠</div>
-                        <div class="flex-1">
-                            <p class="text-neutral-400 text-sm font-medium">RAM Usage</p>
-                            <p id="ram-text" class="text-6xl font-bold text-blue-400">0%</p>
-                        </div>
-                    </div>
-                    <div id="ram-graph" class="bar-graph"></div>
-                    <div class="flex justify-between text-xs text-neutral-400 mt-6">
-                        <span id="ram-used">0 MB</span>
-                        <span id="ram-total">0 MB</span>
-                    </div>
-                </div>
-
-                <!-- DISK -->
-                <div class="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8">
-                    <div class="flex items-center gap-5 mb-6">
-                        <div class="text-6xl">💾</div>
-                        <div class="flex-1">
-                            <p class="text-neutral-400 text-sm font-medium">Disk Usage</p>
-                            <p id="disk-text" class="text-6xl font-bold text-emerald-400">0%</p>
-                        </div>
-                    </div>
-                    <div id="disk-graph" class="bar-graph"></div>
-                    <div class="flex justify-between text-xs text-neutral-400 mt-6">
-                        <span id="disk-used">0 MB</span>
-                        <span id="disk-total">0 MB</span>
-                    </div>
+            </div>
+            
+            <!-- Disk Usage Card -->
+            <div class="bg-white/5 rounded-xl px-4 py-5 shadow sm:p-6 h-24 relative overflow-hidden">
+                <canvas id="diskChart" class="absolute inset-0 w-full h-full hidden"></canvas>
+                <div class="relative z-10">
+                    <h2 class="text-sm font-medium text-neutral-400"><%= req.translations.diskUsage %></h2>
+                    <p id="diskUsage" class="mt-1 text-lg font-medium tracking-tight text-white"></p>
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-<script>
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const instanceId = '<%= req.params.id %>';
-    const maxCommands = 12;
-    let commandHistory = [];
-    let currentCommandIndex = -1;
-    let ws;
-    let statsWs;
-    let eulaModalShown = false;
-
-    // ==================== BAR GRAPH (auto-responsive) ====================
-    function updateBarGraph(graphId, percent, colorClass) {
-        const graph = document.getElementById(graphId);
-        if (!graph) return;
-        
-        const targetHeight = Math.max(8, Math.min(100, Math.round(percent || 0))) + '%';
-
-        // Create bars on first call (or after resize)
-        if (graph.children.length === 0) {
-            graph.innerHTML = '';
-            const paddingTotal = 20;
-            const availableWidth = graph.clientWidth - paddingTotal || 240;
-            const barWidthWithGap = 9;
-            let numBars = Math.floor(availableWidth / barWidthWithGap);
-            numBars = Math.max(10, Math.min(45, numBars));
-
-            const fragment = document.createDocumentFragment();
-            for (let i = 0; i < numBars; i++) {
-                const bar = document.createElement('div');
-                bar.className = `bar ${colorClass}`;
-                bar.style.transitionDelay = `${i * 7}ms`;
-                fragment.appendChild(bar);
-            }
-            graph.appendChild(fragment);
-        }
-
-        Array.from(graph.children).forEach(bar => {
-            bar.style.height = targetHeight;
-        });
-    }
-
-    // ==================== CACHE ELEMENTS ====================
-    let cpuEl, ramTextEl, ramUsedEl, ramTotalEl, diskTextEl, diskUsedEl, diskTotalEl, 
-        cpuStatusEl, statusEl, statusIconEl, statusDotEl;
-
-    // ==================== CONSOLE WS ====================
-    function initWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
-        
-        ws.onopen = () => console.log('[Console] Connected');
-        
-        ws.onmessage = handleWebSocketMessage;
-        
-        ws.onclose = () => {
-            console.log('[Console] Closed – reconnecting...');
-            setTimeout(initWebSocket, 2200);
+    <script>
+        const baseTheme = {
+            foreground: '#c5c9d1',
+            background: 'rgba(0 0 0 / 0)',
+            selection: '#5DA5D533',
+            black: '#1E1E1D',
+            brightBlack: '#262625',
+            red: '#E54B4B',
+            green: '#9ECE58',
+            yellow: '#FAED70',
+            blue: '#396FE2',
+            magenta: '#BB80B3',
+            cyan: '#2DDAFD',
+            white: '#d0d0d0',
+            brightBlack: 'rgba(255, 255, 255, 0.2)',
+            brightRed: '#FF5370',
+            brightGreen: '#C3E88D',
+            brightYellow: '#FFCB6B',
+            brightBlue: '#82AAFF',
+            brightMagenta: '#C792EA',
+            brightCyan: '#89DDFF',
+            brightWhite: '#ffffff',
         };
-    }
-
-    function handleWebSocketMessage(msg) {
-        const logsDiv = document.getElementById('console-logs');
-        const lines = msg.data.split('\n');
-
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (!trimmed) return;
-
-            // EULA detection
-            if (trimmed.toLowerCase().includes('you need to agree to the eula') || 
-                trimmed.toLowerCase().includes('eula.txt')) {
-                showEulaModal();
-            }
-
-            // Reconnect notice
-            if (trimmed.includes("Working on")) {
-                logsDiv.innerHTML = '<div class="text-amber-300">[panel] reconnecting socket...</div>';
-                if (ws) ws.close();
-                return;
-            }
-
-            // Daemon down
-            if (trimmed.includes("KS Wings instance appears to be down")) {
-                document.getElementById('daemonIsDown').classList.remove('hidden');
-            } else {
-                document.getElementById('daemonIsDown').classList.add('hidden');
-            }
-
-            const lineEl = document.createElement('div');
-            lineEl.textContent = trimmed;
-            logsDiv.appendChild(lineEl);
-            logsDiv.scrollTop = logsDiv.scrollHeight;
-        });
-    }
-
-    function sendCommand() {
-        const input = document.getElementById('input');
-        const command = input.value.trim();
-        if (!command || !ws) return;
-
-        const logsDiv = document.getElementById('console-logs');
-        const cmdEl = document.createElement('div');
-        cmdEl.innerHTML = `<span class="text-amber-400">~ </span>${command}`;
-        logsDiv.appendChild(cmdEl);
-        logsDiv.scrollTop = logsDiv.scrollHeight;
-
-        ws.send(JSON.stringify({
-            event: 'cmd',
-            command: command,
-            containerId: instanceId
-        }));
-
-        if (commandHistory.length === maxCommands) commandHistory.shift();
-        commandHistory.push(command);
-        currentCommandIndex = commandHistory.length;
-
-        input.value = '';
-    }
-
-    function handleKeyUp(e) {
-        if (e.key === 'ArrowUp') {
-            if (currentCommandIndex > 0) {
-                currentCommandIndex--;
-                document.getElementById('input').value = commandHistory[currentCommandIndex];
-            }
-            e.preventDefault();
-        } else if (e.key === 'ArrowDown') {
-            if (currentCommandIndex < commandHistory.length - 1) {
-                currentCommandIndex++;
-                document.getElementById('input').value = commandHistory[currentCommandIndex];
-            } else {
-                currentCommandIndex = commandHistory.length;
-                document.getElementById('input').value = '';
-            }
-            e.preventDefault();
-        }
-    }
-
-    // ==================== STATS WS + UPDATES ====================
-    function initStatsWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
-
-        statsWs.onmessage = event => {
-            if (!isValidJson(event.data)) return;
-            const stats = JSON.parse(event.data);
-            if (stats.error) return;
-
-            updateStatus(stats);
-            updateCpuUsage(stats);
-            updateRamUsage(stats);
-            updateDiskUsage(stats);
-        };
-
-        statsWs.onclose = () => setTimeout(initStatsWebSocket, 2800);
-    }
-
-    function isValidJson(str) {
-        try { JSON.parse(str); return true; } catch { return false; }
-    }
-
-    function formatBytes(bytes) {
-        if (!bytes) return '0 MB';
-        const k = 1024;
-        const sizes = ['Bytes','KB','MB','GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
-
-    function updateStatus(stats) {
-        const ramRaw = (stats.memory_stats?.usage || 0) / 1024 / 1024;
-        if (ramRaw > 1) {
-            statusEl.textContent = 'Online';
-            statusEl.className = 'text-6xl font-bold tracking-tighter text-emerald-400';
-            statusIconEl.textContent = '🟢';
-            statusDotEl.innerHTML = `<div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div> LIVE`;
-            statusDotEl.className = 'status-dot text-emerald-400';
-        } else {
-            statusEl.textContent = 'Offline';
-            statusEl.className = 'text-6xl font-bold tracking-tighter text-red-400';
-            statusIconEl.textContent = '⏹️';
-            statusDotEl.innerHTML = `<div class="w-3 h-3 bg-red-400 rounded-full"></div> OFFLINE`;
-            statusDotEl.className = 'status-dot text-red-400';
-        }
-    }
-
-    function updateCpuUsage(stats) {
-        const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - (stats.precpu_stats?.cpu_usage.total_usage || 0);
-        const sysDelta = stats.cpu_stats.system_cpu_usage - (stats.precpu_stats?.system_cpu_usage || 0);
-        let percent = sysDelta ? ((cpuDelta / sysDelta) * 100) : 0;
-        if (isNaN(percent)) percent = 0;
-
-        cpuEl.textContent = Math.round(percent) + '%';
-        cpuStatusEl.textContent = percent > 85 ? 'HIGH LOAD ⚠️' : 'Normal';
-        updateBarGraph('cpu-graph', percent, 'text-orange-400');
-    }
-
-    function updateRamUsage(stats) {
-        const usage = stats.memory_stats?.usage || 0;
-        const limit = stats.memory_stats?.limit || <%= instance.Memory %> * 1024 * 1024;
-        const usageMB = usage / 1024 / 1024;
-        const limitMB = limit / 1024 / 1024;
-        const percent = limitMB ? Math.round((usageMB / limitMB) * 100) : 0;
-
-        ramTextEl.textContent = percent + '%';
-        ramUsedEl.textContent = formatBytes(usage);
-        ramTotalEl.textContent = formatBytes(limit);
-        updateBarGraph('ram-graph', percent, 'text-blue-400');
-    }
-
-    function updateDiskUsage(stats) {
-        const usedRaw = parseFloat(stats.volumeSize || 0);
-        const limitMiB = <%= instance.Disk || 0 %>;
         
-        if (limitMiB === 0) {
-            diskTextEl.textContent = `${formatBytes(usedRaw * 1024 * 1024)} / Unlimited`;
-            updateBarGraph('disk-graph', 0, 'text-emerald-400');
-        } else {
-            const percent = Math.round((usedRaw / limitMiB) * 100);
-            diskTextEl.textContent = `${percent}%`;
-            diskUsedEl.textContent = formatBytes(usedRaw * 1024 * 1024);
-            diskTotalEl.textContent = formatBytes(limitMiB * 1024 * 1024);
-            updateBarGraph('disk-graph', percent, 'text-emerald-400');
-        }
-    }
-
-    // ==================== EULA MODAL ====================
-    function showEulaModal() {
-        if (eulaModalShown) return;
-        eulaModalShown = true;
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const instanceId = '<%= req.params.id %>';
+        const maxCommands = 10;
+        let commandHistory = [];
+        let currentCommandIndex = -1;
+        let term;
+        let ws;
+        let eulaModalShown = false;
         
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur z-[9999]';
-        modal.innerHTML = `
-            <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-8 w-full max-w-md mx-4 text-center">
-                <p class="text-white text-xl font-medium">Minecraft EULA</p>
-                <p class="mt-3 text-neutral-400 text-sm">You must accept the Mojang EULA to continue.</p>
-                <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" class="text-emerald-400 underline mt-2 block">Read EULA</a>
-                <button onclick="acceptEula()" 
-                        class="mt-8 w-full bg-white text-gray-900 font-medium py-3.5 rounded-2xl hover:bg-gray-100">
-                    I Agree
-                </button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-
-    window.acceptEula = function() {
-        axios.post('/instance/<%= req.params.id %>/imagefeatures/eula')
-            .then(() => location.reload())
-            .catch(console.error);
-    };
-
-    // ==================== CLEAR CONSOLE ====================
-    window.clearConsole = function() {
-        const logs = document.getElementById('console-logs');
-        logs.innerHTML = '<div class="text-neutral-400">Console cleared.</div>';
-    };
-
-    // ==================== RESPONSIVE BAR GRAPHS ====================
-    function makeGraphsResponsive() {
-        const graphs = document.querySelectorAll('.bar-graph');
-        graphs.forEach(g => g.innerHTML = '');
-    }
-
-    let resizeTimer;
-    function handleResize() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(makeGraphsResponsive, 180);
-    }
-
-    // ==================== INIT ====================
-    document.addEventListener('DOMContentLoaded', () => {
-        // Cache DOM
-        cpuEl = document.getElementById('cpu-text');
-        ramTextEl = document.getElementById('ram-text');
-        ramUsedEl = document.getElementById('ram-used');
-        ramTotalEl = document.getElementById('ram-total');
-        diskTextEl = document.getElementById('disk-text');
-        diskUsedEl = document.getElementById('disk-used');
-        diskTotalEl = document.getElementById('disk-total');
-        cpuStatusEl = document.getElementById('cpu-status');
-        statusEl = document.getElementById('status');
-        statusIconEl = document.getElementById('status-icon');
-        statusDotEl = document.getElementById('status-dot');
-
-        // Setup console
-        initWebSocket();
-
-        // Command input
-        const inputEl = document.getElementById('input');
-        inputEl.addEventListener('keypress', e => { if (e.key === 'Enter') sendCommand(); });
-        inputEl.addEventListener('keydown', handleKeyUp);
-
-        // Power buttons
-        ['start','restart','stop'].forEach(act => {
-            document.getElementById(act + 'Button').addEventListener('click', () => {
-                if (ws) ws.send(JSON.stringify({ event: `power:${act}`, containerId: instanceId }));
+        function initWebSocket() {
+            const port = window.location.port ? `:${window.location.port}` : '';
+            ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
+            
+            ws.onopen = () => console.log('WebSocket connected!');
+            ws.onmessage = handleWebSocketMessage;
+            ws.onclose = () => {
+                console.log('WebSocket connection closed, attempting to reconnect...');
+                setTimeout(initWebSocket, 3000);
+            };
+            ws.onerror = (error) => {
+                console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
+                setTimeout(initWebSocket, 5000);
+            };
+        }
+        
+        function showEulaModal() {
+            if (eulaModalShown) return;
+            eulaModalShown = true;
+            
+            const modalHtml = `
+                <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur z-50" id="eulaModal">
+                    <div class="bg-white/5 backdrop-blur py-8 px-8 rounded-2xl shadow-lg w-1/2 h-48">
+                        <p class="text-white text-lg font-medium">Do you accept Minecraft's EULA?</p>
+                        <p class="text-sm text-neutral-400">By pressing this button you agree to the <a class="text-white" href="https://account.mojang.com/documents/minecraft_eula" target="_blank">Mojang EULA</a>.</p>
+                        <button 
+                        onclick="acceptEula()" 
+                        class="mt-8 bg-white text-sm font-sm text-gray-800 px-4 font-medium transition py-2 rounded-2xl hover:bg-gray-100">
+                        I agree
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        function acceptEula() {
+            axios.post('/instance/<%= req.params.id %>/imagefeatures/eula')
+                .then(response => {
+                    if (response.status === 200) {
+                        document.getElementById('eulaModal').remove();
+                        eulaModalShown = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+        }
+        
+        function handleWebSocketMessage(msg) {
+            const lines = msg.data.split('\n');
+            let isFirstLine = true;
+            let previousLineWasEmpty = false;
+        
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine === '' && previousLineWasEmpty) return;
+                
+                // Check for EULA message
+                if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
+                    (trimmedLine.toLowerCase().includes('eula.txt') || trimmedLine.toLowerCase().includes('dialog above'))) {
+                    showEulaModal();
+                }
+                
+                if (!isFirstLine && !previousLineWasEmpty) {
+                    term.write('\r\n');
+                }
+        
+                term.write('\x1b[0m' + trimmedLine);
+        
+                if (trimmedLine.includes("Working on")) {
+                    term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
+                    term.clear();
+                    ws.close();
+                }
+                
+                if (trimmedLine.includes("KS Wings instance appears to be down")) {
+                    ws.close();
+                    document.getElementById('daemonIsDown').classList.remove('hidden');
+                } else {
+                    document.getElementById('daemonIsDown').classList.add('hidden');
+                }
+        
+                isFirstLine = false;
+                previousLineWasEmpty = (trimmedLine === '');
             });
+        }
+        
+        function setupTerminal() {
+            term = new Terminal({
+                disableStdin: true,
+                allowProposedApi: true,
+                lineHeight: 1.35,
+                rows: 19,
+                cols: 100,
+                fontFamily: 'Menlo, monospace',
+                theme: baseTheme,
+                allowTransparency: true,
+                fontSize: 12,
+            });
+            term.open(document.getElementById('terminal'));
+        }
+        
+        function sendCommand() {
+            const inputElement = document.getElementById('input');
+            const command = inputElement.value.trim();
+            if (command && ws) {
+                term.write('\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
+                ws.send(JSON.stringify({
+                    event: 'cmd',
+                    command: command,
+                    containerId: instanceId
+                }));
+        
+                if (commandHistory.length === maxCommands) {
+                    commandHistory.shift();
+                }
+                commandHistory.push(command);
+                currentCommandIndex = commandHistory.length;
+        
+                inputElement.value = '';
+            }
+        }
+        
+        function handleKeyUp(event) {
+            if (event.key === 'ArrowUp') {
+                if (currentCommandIndex > 0) {
+                    currentCommandIndex--;
+                    document.getElementById('input').value = commandHistory[currentCommandIndex];
+                }
+                event.preventDefault();
+            } else if (event.key === 'ArrowDown') {
+                if (currentCommandIndex < commandHistory.length - 1) {
+                    currentCommandIndex++;
+                    document.getElementById('input').value = commandHistory[currentCommandIndex];
+                } else {
+                    currentCommandIndex = commandHistory.length;
+                    document.getElementById('input').value = '';
+                }
+                event.preventDefault();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            setupTerminal();
+            initWebSocket();
+        
+            const inputElement = document.getElementById('input');
+            inputElement.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    sendCommand();
+                }
+            });
+        
+            inputElement.addEventListener('keydown', handleKeyUp);
+        
+            ['start', 'stop', 'restart'].forEach(action => {
+                document.getElementById(`${action}Button`).addEventListener('click', function () {
+                    if (ws) {
+                        ws.send(JSON.stringify({
+                            event: `power:${action}`,
+                            containerId: instanceId
+                        }));
+
+                        
+                    }
+                });
+            });
+        
+            initStatsWebSocket();
         });
 
-        // Stats
-        initStatsWebSocket();
+        function isValidJson(str) {
+            try {
+              JSON.parse(str);
+            } catch (e) {
+              return false;
+            }
+            return true;
+        }
+        
+        function initStatsWebSocket() {
+            const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/${instanceId}`);
+            
+            statsWs.onmessage = event => {
+                if (isValidJson(event.data)) {
+                    const stats = JSON.parse(event.data);
+                    if (stats.error) {
+                        console.error('Error fetching stats:', stats.error);
+                        return;
+                    }
+        
+                    updateRamUsage(stats);
+                    updateCpuUsage(stats);
+                    updateDiskUsage(stats);
+                    updateStatus(stats);
+                } else {
+                    console.log('Received non-JSON data:', event.data);
+                }
+            };
 
-        // Resize handler
-        window.addEventListener('resize', handleResize);
-    });
+            statsWs.onclose = () => {
+                console.log('WebSocket Stats connection closed, attempting to reconnect...');
+                setTimeout(initStatsWebSocket, 3000);
+            };
+        }
+        
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+        
+        function createBackgroundChart(canvasId, type = 'line') {
+            return new Chart(document.getElementById(canvasId).getContext('2d'), {
+                type: type,
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    animation: false
+                }
+            });
+        }
+        
+        const statusChart = createBackgroundChart('statusChart');
+        const ramChart = createBackgroundChart('ramChart');
+        const cpuChart = createBackgroundChart('cpuChart');
+        const diskChart = createBackgroundChart('diskChart', 'doughnut');
+        
+        function updateRamUsage(stats) {
+            const ramStatsUsage = stats.memory_stats.usage || 0;
+            const ramStatsLimit = stats.memory_stats.limit || 0;
 
-    window.onbeforeunload = () => {
-        if (ws) ws.close();
-        if (statsWs) statsWs.close();
-    };
-</script>
+            const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
+            const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory %>;
+            const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
+            
+            document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
+        
+            if (ramStatsUsage > 0) {
+                updateChart(ramChart, ramUsagePercent);
+            }
+        }
+        
+        function updateCpuUsage(stats) {
+            const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+            const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+            let cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+        
+            if (isNaN(cpuUsagePercent)) {
+                cpuUsagePercent = 0;
+            }
+        
+            document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
+            
+            if (cpuUsagePercent > 0) {
+                updateChart(cpuChart, cpuUsagePercent);
+            }
+        }
+        
+        function updateDiskUsage(stats) {
+            const diskUsageRaw = parseFloat(stats.volumeSize);
+            const diskLimitMiB = <%= instance.Disk || 0 %>;
+            
+            if (diskLimitMiB === 0) {
+                // Unlimited disk
+                document.getElementById('diskUsage').textContent = `${formatBytes(diskUsageRaw * 1024 * 1024)} / Unlimited`;
+            } else {
+                const diskLimitRaw = diskLimitMiB; // Already in MiB
+                const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
+                document.getElementById('diskUsage').textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
+                
+                // Add visual warning if approaching limit
+                const diskElement = document.getElementById('diskUsage');
+                if (parseFloat(diskUsagePercent) >= 100) {
+                    diskElement.className = 'mt-1 text-lg font-medium tracking-tight text-red-500';
+                } else if (parseFloat(diskUsagePercent) >= 90) {
+                    diskElement.className = 'mt-1 text-lg font-medium tracking-tight text-yellow-500';
+                } else {
+                    diskElement.className = 'mt-1 text-lg font-medium tracking-tight text-white';
+                }
+            }
+        }
+        
+        function updateStatus(stats) {
+            const statusElement = document.getElementById('status');
+            const ramUsageRaw = stats.memory_stats.usage / 1024 / 1024 || 0;
+            
+            if (ramUsageRaw > 1) {
+                statusElement.textContent = 'Online';
+                statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-emerald-500';
+                updateStatusChart('rgba(16, 185, 129, 0.1)', 'rgba(16, 185, 129, 0.2)');
+            } else {
+                statusElement.textContent = 'Offline';
+                statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-red-500';
+                updateStatusChart('rgba(239, 68, 68, 0.1)', 'rgba(239, 68, 68, 0.2)');
+            }
+        }
+        
+        function updateChart(chart, value) {
+            chart.data.labels.push('');
+            chart.data.datasets[0].data.push(value);
+        
+            if (chart.data.labels.length > 20) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+        
+            chart.update();
+        }
+        
+        function updateStatusChart(backgroundColor, borderColor) {
+            statusChart.data.datasets[0].backgroundColor = backgroundColor;
+            statusChart.data.datasets[0].borderColor = borderColor;
+            statusChart.data.labels = [''];
+            statusChart.data.datasets[0].data = [100];
+            statusChart.update();
+        }
+        </script>
 <%- include('../components/footer') %>
