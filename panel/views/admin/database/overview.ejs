@@ -1,251 +1,278 @@
 <%- include('../../components/template') %>
 
 <style>
-.log-terminal {
-  background: #0f172a;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 1.25rem;
-  font-family: monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: #94a3b8;
-  max-height: 420px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  scrollbar-width: thin;
-}
-
+/* === NODES-STYLE CARDS (backdrop blur, premium feel) === */
 .stat-card {
   background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
-  padding: 1.75rem; /* slightly less padding on mobile */
-  transition: all 0.3s ease;
+  padding: 1.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-6px);
+  border-color: rgba(255,255,255,0.25);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
 }
 
 .stat-number {
-  font-size: 3rem; /* smaller on mobile, looks better */
+  font-size: 3.25rem;
   font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.025em;
 }
 
 @media (max-width: 640px) {
-  .stat-number { font-size: 2.5rem; }
+  .stat-number { font-size: 2.75rem; }
   .stat-card { padding: 1.25rem; }
+}
+
+/* Header button style (exact match to Nodes) */
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #a1a1aa;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  color: white;
+}
+
+/* Notification (exact copy from Nodes) */
+#notification {
+  transition: all 0.3s ease;
 }
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-8 py-6">
   
-  <!-- Header -->
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-6">
+  <!-- Header (styled exactly like Nodes) -->
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
     <div>
       <h1 class="text-3xl font-semibold text-white tracking-tight">Database Overview</h1>
       <p class="mt-1 text-sm text-neutral-400">Users • Instances • Nodes • API Keys • Plugins + Full Database Info</p>
     </div>
+
     <div class="flex items-center gap-3">
+      <!-- LIVE badge -->
       <div class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-5 py-2 rounded-[10px] text-sm font-medium">
         <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
         LIVE
       </div>
+
+      <!-- Refresh button (styled like Radar Scan) -->
+      <button onclick="refreshDatabase()" 
+              class="refresh-btn">
+        <span class="inline-block transition-transform">↻</span>
+        Refresh Now
+      </button>
+
       <span class="bg-white/5 px-5 py-2 rounded-[10px] text-xs text-neutral-400">v<%= version %></span>
     </div>
   </header>
 
-  <!-- DATABASE STATISTICS (ALL YOUR ORIGINAL 8 CARDS) -->
+  <!-- DATABASE STATISTICS (8 cards – exact Nodes article style) -->
   <div class="mt-10">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-semibold text-white">Database Statistics</h2>
-      <button onclick="refreshDatabase()" 
-              class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-all">
-        <span class="inline-block transition-transform">↻</span>
-        Refresh Now
-      </button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       
       <!-- Users -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">👥</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Total Users</p>
-            <p id="users-text" class="stat-number text-blue-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Total Users</p>
+            <p id="users-text" class="stat-number text-blue-400"><%= usersTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-4xl">👥</div>
         </div>
-        <div class="flex justify-between text-xs">
-          <span>Admins: <span id="admins-text" class="text-emerald-400 font-medium">0</span></span>
-        </div>
-      </div>
+        <p class="mt-6 text-sm text-neutral-400">
+          Admins: <span id="admins-text" class="text-emerald-400 font-medium"><%= adminsTotal %></span>
+        </p>
+      </article>
 
       <!-- Instances -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">📦</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Instances</p>
-            <p id="instances-text" class="stat-number text-purple-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Instances</p>
+            <p id="instances-text" class="stat-number text-purple-400"><%= instancesTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-4xl">📦</div>
         </div>
-        <div class="flex justify-between text-xs">
-          <span>Suspended: <span id="suspended-text" class="text-red-400 font-medium">0</span></span>
-        </div>
-      </div>
+        <p class="mt-6 text-sm text-neutral-400">
+          Suspended: <span id="suspended-text" class="text-red-400 font-medium"><%= suspendedTotal %></span>
+        </p>
+      </article>
 
       <!-- Nodes -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🖥️</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Nodes</p>
-            <p id="nodes-text" class="stat-number text-orange-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Nodes</p>
+            <p id="nodes-text" class="stat-number text-orange-400"><%= nodesTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center text-4xl">🖥️</div>
         </div>
-        <div class="flex justify-between text-xs">
-          <span class="text-emerald-400">Online: <span id="online-text">0</span></span>
-          <span class="text-red-400">Offline: <span id="offline-text">0</span></span>
-        </div>
-      </div>
+        <p class="mt-6 text-sm text-neutral-400 flex justify-between">
+          <span>Online: <span id="online-text" class="text-emerald-400 font-medium"><%= onlineNodes %></span></span>
+          <span>Offline: <span id="offline-text" class="text-red-400 font-medium"><%= offlineNodes %></span></span>
+        </p>
+      </article>
 
       <!-- Templates -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">📋</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Templates</p>
-            <p id="templates-text" class="stat-number text-cyan-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Templates</p>
+            <p id="templates-text" class="stat-number text-cyan-400"><%= templatesTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-4xl">📋</div>
         </div>
-      </div>
+      </article>
 
       <!-- Locations -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🌍</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Locations</p>
-            <p id="locations-text" class="stat-number text-amber-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Locations</p>
+            <p id="locations-text" class="stat-number text-amber-400"><%= locationsTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-4xl">🌍</div>
         </div>
-      </div>
+      </article>
 
       <!-- API Keys -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🔑</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">API Keys</p>
-            <p id="apikeys-text" class="stat-number text-pink-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">API Keys</p>
+            <p id="apikeys-text" class="stat-number text-pink-400"><%= apiKeysTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-pink-500/10 rounded-2xl flex items-center justify-center text-4xl">🔑</div>
         </div>
-      </div>
+      </article>
 
       <!-- Plugins -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🧩</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Plugins</p>
-            <p id="plugins-text" class="stat-number text-violet-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Plugins</p>
+            <p id="plugins-text" class="stat-number text-violet-400"><%= pluginsTotal %></p>
           </div>
+          <div class="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center text-4xl">🧩</div>
         </div>
-      </div>
+      </article>
 
       <!-- Requests -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">📡</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Total Requests</p>
-            <p id="requests-text" class="stat-number text-emerald-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Total Requests</p>
+            <p id="requests-text" class="stat-number text-emerald-400"><%= totalRequests %></p>
           </div>
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-4xl">📡</div>
         </div>
-        <div class="text-xs text-neutral-400">
-          Unique Visitors: <span id="visitors-text" class="text-white">0</span><br>
-          Avg/hour: <span id="avg-text" class="text-white">0</span>
+        <div class="mt-6 text-sm text-neutral-400">
+          Unique Visitors: <span id="visitors-text" class="text-white font-medium"><%= uniqueVisitors %></span><br>
+          Avg/hour: <span id="avg-text" class="text-white font-medium"><%= avgRequestsPerHour %></span>
         </div>
-      </div>
+      </article>
 
     </div>
   </div>
 
-  <!-- NEW: DATABASE INFORMATION (fully mobile optimized) -->
+  <!-- DATABASE INFORMATION (5 cards – same premium style) -->
   <div class="mt-12">
     <h2 class="text-2xl font-semibold text-white mb-6">Database Information</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-      
+
       <!-- DB Type -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🗄️</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Database Type</p>
-            <p id="dbtype-text" class="stat-number text-emerald-400">PostgreSQL</p>
+            <p class="text-sm font-medium text-neutral-400">Database Type</p>
+            <p id="dbtype-text" class="stat-number text-emerald-400"><%= dbType %></p>
           </div>
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-4xl">🗄️</div>
         </div>
-      </div>
+      </article>
 
       <!-- Size -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">📦</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Database Size</p>
-            <p id="dbsize-text" class="stat-number text-cyan-400">0 MB</p>
+            <p class="text-sm font-medium text-neutral-400">Database Size</p>
+            <p id="dbsize-text" class="stat-number text-cyan-400"><%= dbSize %></p>
           </div>
+          <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-4xl">📦</div>
         </div>
-      </div>
+      </article>
 
       <!-- URL -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🔗</div>
-          <div class="w-full">
-            <p class="text-neutral-400 text-sm">Connection URL</p>
-            <p id="dburl-text" class="mt-3 text-sm font-mono text-amber-400 break-all">postgres://****:****@localhost:5432/kspanel</p>
+      <article class="stat-card col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-1">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <p class="text-sm font-medium text-neutral-400">Connection URL</p>
+            <p id="dburl-text" class="mt-4 font-mono text-sm text-amber-400 break-all"><%= dbUrlMasked %></p>
           </div>
+          <div class="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-4xl ml-4">🔗</div>
         </div>
-      </div>
+      </article>
 
       <!-- Table -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">📋</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Table Name</p>
-            <p id="dbtable-text" class="stat-number text-violet-400">kspanel</p>
+            <p class="text-sm font-medium text-neutral-400">Table Name</p>
+            <p id="dbtable-text" class="stat-number text-violet-400"><%= dbTable %></p>
           </div>
+          <div class="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center text-4xl">📋</div>
         </div>
-      </div>
+      </article>
 
       <!-- Total Keys -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="text-5xl">🔑</div>
+      <article class="stat-card">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-neutral-400 text-sm">Total Keys</p>
-            <p id="dbkeys-text" class="stat-number text-pink-400">0</p>
+            <p class="text-sm font-medium text-neutral-400">Total Keys</p>
+            <p id="dbkeys-text" class="stat-number text-pink-400"><%= totalKeys %></p>
           </div>
+          <div class="w-12 h-12 bg-pink-500/10 rounded-2xl flex items-center justify-center text-4xl">🔑</div>
         </div>
-      </div>
+      </article>
 
     </div>
   </div>
 
 </main>
 
+<!-- Notification (exact Nodes style) -->
+<div id="notification" 
+     class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl text-sm font-medium z-50">
+  <span id="notification-text"></span>
+</div>
+
 <script>
   let els = {};
 
   function updateStats(data) {
-    // === ALL ORIGINAL STATS ===
+    // All original stats
     els.users.textContent = data.usersTotal;
     els.admins.textContent = data.adminsTotal;
     els.instances.textContent = data.instancesTotal;
@@ -261,7 +288,7 @@
     els.visitors.textContent = data.uniqueVisitors;
     els.avg.textContent = data.avgRequestsPerHour;
 
-    // === NEW DB INFO ===
+    // New DB info
     els.dbtype.textContent = data.dbType;
     els.dbsize.textContent = data.dbSize;
     els.dburl.textContent = data.dbUrlMasked;
@@ -274,15 +301,44 @@
       const res = await fetch('/admin/api/database/stats');
       const data = await res.json();
       updateStats(data);
+      return true;
     } catch (e) {
       console.error("Database stats failed", e);
+      return false;
     }
   }
 
-  function refreshDatabase() {
+  async function refreshDatabase() {
     const btn = event.currentTarget;
     btn.style.opacity = 0.6;
-    fetchDatabaseStats().finally(() => btn.style.opacity = 1);
+    const success = await fetchDatabaseStats();
+    btn.style.opacity = 1;
+
+    if (success) {
+      showNotification('Database statistics refreshed successfully!', 'success');
+    } else {
+      showNotification('Refresh failed – check console', 'error');
+    }
+  }
+
+  function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const textEl = document.getElementById('notification-text');
+    textEl.textContent = message;
+
+    notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-sm font-medium transition-all duration-300 ${
+      type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
+    }`;
+    notification.classList.remove('hidden');
+    notification.classList.add('flex');
+
+    setTimeout(() => {
+      notification.classList.add('opacity-0', 'translate-y-2');
+      setTimeout(() => {
+        notification.classList.add('hidden');
+        notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+      }, 300);
+    }, 2800);
   }
 
   window.onload = () => {
@@ -301,7 +357,7 @@
       requests: document.getElementById('requests-text'),
       visitors: document.getElementById('visitors-text'),
       avg: document.getElementById('avg-text'),
-      // NEW
+      // New DB
       dbtype: document.getElementById('dbtype-text'),
       dbsize: document.getElementById('dbsize-text'),
       dburl: document.getElementById('dburl-text'),
@@ -309,6 +365,7 @@
       dbkeys: document.getElementById('dbkeys-text')
     };
 
+    // Initial live fetch (will match server-rendered numbers)
     fetchDatabaseStats();
     setInterval(fetchDatabaseStats, 15000);
   };
