@@ -1,3 +1,10 @@
+// UPDATED: panel/routes/admin/instances.js (full file with new template support)
+// Changes:
+// - Extracts startup command from template.actions.start (for your Paper template)
+// - Sends InstallSteps: template.environment.install_steps to Wings
+// - Keeps legacy Scripts for backward compatibility
+// - Cmd now supports the long java command from actions
+
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
@@ -17,7 +24,7 @@ const INSTANCES_DIR = path.join(__dirname, "../../../database/instances");
 const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
 
 // ────────────────────────────────────────────────
-// Helper: Delete instance logic (kept exactly as is)
+// Helper: Delete instance logic (unchanged)
 // ────────────────────────────────────────────────
 async function deleteInstance(instance) {
   try {
@@ -65,7 +72,7 @@ function deleteWorkflowFromFile(instanceId) {
 }
 
 // ────────────────────────────────────────────────
-// GET /admin/instances/overview → list only
+// GET /admin/instances/overview → list only (unchanged)
 // ────────────────────────────────────────────────
 router.get("/admin/instances/overview", isAdmin, async (req, res) => {
   try {
@@ -118,7 +125,7 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// GET /admin/instances/create → create form
+// GET /admin/instances/create → create form (unchanged)
 // ────────────────────────────────────────────────
 router.get("/admin/instances/create", isAdmin, async (req, res) => {
   try {
@@ -164,7 +171,7 @@ router.get("/admin/instances/create", isAdmin, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// POST /admin/instances/create → FIXED (full error reporting)
+// POST /admin/instances/create → FULLY UPDATED FOR YOUR PAPER TEMPLATE
 // ────────────────────────────────────────────────
 router.post("/admin/instances/create", isAdmin, async (req, res) => {
   const {
@@ -199,11 +206,25 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
     const userVarsEnv = Object.entries(variables).map(([key, value]) => `${key}=${value}`);
     const templatePorts = template.ports || ['25565/tcp'];
 
+    // NEW: Support your template format
+    // 1. Extract startup command from actions.start (your java command)
+    // 2. Send InstallSteps so Wings can run download + create_file + command ops
+    let startupCmd = template.startup;
+    if (!startupCmd && template.actions && Array.isArray(template.actions)) {
+      const startAction = template.actions.find(a => a.id === "start");
+      if (startAction && Array.isArray(startAction.operations)) {
+        const commandOp = startAction.operations.find(op => op.type === "command");
+        if (commandOp && commandOp.run_code) {
+          startupCmd = commandOp.run_code;
+        }
+      }
+    }
+
     const wingsPayload = {
       Id,
       Name: name,
       Image: template.environment?.docker_image || template.docker_image || template.image,
-      Cmd: template.startup ? template.startup.split(' ') : undefined,
+      Cmd: startupCmd ? startupCmd.trim().split(/\s+/) : undefined,
       Env: [
         ...userVarsEnv,
         ...(template.environment ? Object.entries(template.environment.vars || {}).map(([k, v]) => `${k}=${v}`) : []),
@@ -218,6 +239,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
       Scripts: template.environment?.install_script ? {
         Install: [{ Uri: template.environment.install_script, Path: 'install.sh' }]
       } : undefined,
+      InstallSteps: Array.isArray(template.environment?.install_steps) ? template.environment.install_steps : undefined,
       Memory: parseInt(memory),
       Cpu: parseInt(cpu),
       Disk: parseInt(disk),
