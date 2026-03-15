@@ -113,9 +113,9 @@
     font-size: 1.4rem;
   }
   
-  /* Make add buttons full-width on tiny screens */
   .add-op-btn,
-  .add-option-btn {
+  .add-option-btn,
+  .add-page-btn {
     width: 100%;
   }
 }
@@ -195,6 +195,18 @@
 #notification {
   max-width: 92vw;
 }
+
+/* Pages-specific improvements */
+.page-card textarea {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.page-card .note {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
@@ -204,17 +216,21 @@
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Template</h1>
-        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates</p>
+        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates with typed Install Steps, Actions &amp; <strong>Custom Pages</strong></p>
       </div>
 
       <div class="flex flex-wrap gap-3">
         <button id="btnImportJson" 
                 class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
-          Import JSON
+          📥 Import JSON (full template)
+        </button>
+        <button id="btnImportPages" 
+                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
+          📄 Import Pages Only
         </button>
         <a href="/admin/templates/overview" 
            class="px-6 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-          ← Back
+          ← Back to Overview
         </a>
       </div>
     </header>
@@ -272,7 +288,7 @@
             </div>
             <div class="field-long">
               <label class="text-xs font-medium text-neutral-400 block mb-2">DOCKER IMAGE <span class="text-red-400">*</span></label>
-              <input type="text" name="environment.docker_image" required placeholder="itzg/minecraft-server:latest" class="input-field">
+              <input type="text" name="environment.docker_image" required placeholder="eclipse-temurin:21-jre" class="input-field">
             </div>
           </div>
 
@@ -318,11 +334,25 @@
           </div>
           <div id="installStepsContainer" class="space-y-4"></div>
 
+          <!-- CUSTOM PAGES (NEW) -->
+          <div class="section-header mt-8 md:mt-10">
+            <div class="flex items-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">CUSTOM PAGES <span class="text-amber-400 text-xs">(shown in instance sidebar)</span></h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            </div>
+            <button type="button" id="btnAddPage" 
+                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 add-page-btn">
+              + Add Custom Page
+            </button>
+          </div>
+          <div id="pagesContainer" class="space-y-4"></div>
+
           <!-- JSON EDITOR -->
           <div id="jsonArea" class="hidden mt-8 md:mt-10">
             <div class="flex items-center gap-4 mb-6">
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">RAW JSON EDITOR</h2>
+              <h2 class="text-lg font-semibold text-white tracking-wide">RAW JSON EDITOR (includes pages)</h2>
               <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </div>
             <textarea id="jsonEditor" class="input-field h-[55vh] md:h-[70vh]"></textarea>
@@ -357,7 +387,7 @@
 
 <script>
 // ====================== CONFIG ======================
-let varIndex = 0, actionIndex = 0, installIndex = 0;
+let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0;
 
 // ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
@@ -404,7 +434,7 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH (now mobile-friendly) ======================
+// ====================== MODE SWITCH ======================
 const modeSelect = document.createElement("select");
 modeSelect.id = "modeSelect";
 modeSelect.className = "input-field";
@@ -704,16 +734,58 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT + FILL + DEFAULT (unchanged) ======================
+// ====================== CUSTOM PAGES (NEW) ======================
+function addPage(p = {}) {
+  const idx = pageIndex++;
+  const div = document.createElement("div");
+  div.className = "card-item page-card";
+  div.innerHTML = `
+    <div class="form-row">
+      <div class="field-short">
+        <label class="text-xs text-neutral-400">Page ID <span class="text-rose-400">*</span></label>
+        <input type="text" name="pages[${idx}].id" value="${p.id || ''}" required class="input-field font-mono" placeholder="plugins">
+      </div>
+      <div class="field-long">
+        <label class="text-xs text-neutral-400">Page Name (display)</label>
+        <input type="text" name="pages[${idx}].name" value="${p.name || ''}" class="input-field" placeholder="Plugins Manager">
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <label class="text-xs text-neutral-400 block mb-2">EJS View Content (HTML + EJS templates)</label>
+      <textarea name="pages[${idx}].ejsContent" rows="12" class="input-field font-mono" placeholder="&#x3C;div class=&#x22;page-content&#x22;&#x3E;\n  &#x3C;h2&#x3E;Plugins&#x3C;/h2&#x3E;\n  &#x3C;!-- your custom UI --&#x3E;\n&#x3C;/div&#x3E;">${(p.ejsContent || '').replace(/"/g, '&quot;')}</textarea>
+      <div class="note">This file will be saved as &#x3C;template&#x3E;/pages/&#x3C;id&#x3E;.ejs and rendered at /instance/:id/page/:id</div>
+    </div>
+
+    <div class="mt-6">
+      <label class="text-xs text-neutral-400 block mb-2">JS Handler (optional - backend logic)</label>
+      <textarea name="pages[${idx}].jsContent" rows="8" class="input-field font-mono" placeholder="module.exports = {\n  getData: async (instance) => {\n    return { plugins: [] };\n  }\n};">${(p.jsContent || '').replace(/"/g, '&quot;')}</textarea>
+      <div class="note">Leave empty if you only need static EJS. File saved as &#x3C;id&#x3E;.js</div>
+    </div>
+
+    <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
+  `;
+  document.getElementById("pagesContainer").appendChild(div);
+}
+
+// ====================== COLLECT FORM DATA (extended for pages) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
-  const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
+  const data = { 
+    meta: {}, 
+    environment: { install_steps: [] }, 
+    variables: [], 
+    actions: [], 
+    pages: [], 
+    category: "" 
+  };
 
   for (let [key, value] of fd) {
     if (key.startsWith("meta.")) data.meta[key.split(".")[1]] = value;
     else if (key === "category") data.category = value;
     else if (key === "environment.docker_image") data.environment.docker_image = value;
 
+    // Variables (existing)
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
@@ -732,6 +804,7 @@ function collectFormData() {
         }
       }
     }
+    // Actions (existing - partial)
     else if (key.startsWith("actions[")) {
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
@@ -748,6 +821,7 @@ function collectFormData() {
         }
       }
     }
+    // Install steps (existing)
     else if (key.startsWith("install_steps[")) {
       const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
@@ -764,11 +838,22 @@ function collectFormData() {
         }
       }
     }
+    // PAGES - NEW
+    else if (key.startsWith("pages[")) {
+      const match = key.match(/pages\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.pages[i]) data.pages[i] = {};
+        data.pages[i][match[2]] = value;
+      }
+    }
   }
 
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
+  data.pages = data.pages.filter(Boolean);
+
   data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
   data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
   data.variables.forEach(v => { if (v.options) v.options = v.options.filter(Boolean); });
@@ -776,24 +861,32 @@ function collectFormData() {
   return data;
 }
 
-function fillForm(data) { /* same as before */ 
+function fillForm(data) { 
   document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
   document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
 
+  // Variables
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
   (data.variables || []).forEach(v => addVariable(v));
 
+  // Actions
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   (data.actions || []).forEach(a => addAction(a));
 
+  // Install Steps
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
   (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
+
+  // Pages - NEW
+  document.getElementById("pagesContainer").innerHTML = "";
+  pageIndex = 0;
+  (data.pages || []).forEach(p => addPage(p));
 
   jsonEditor.value = JSON.stringify(data, null, 2);
 }
@@ -805,9 +898,7 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   [
-    { id: "start", name: "Start", operations: [
-      { type: "command", run_code: "java -Xms4G -Xmx4G -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -jar server.jar --nogui" }
-    ]},
+    { id: "start", name: "Start", operations: [{ type: "command", run_code: "java -Xms4G -Xmx4G -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -jar server.jar --nogui" }]},
     { id: "stop", name: "Stop", operations: [{ type: "command", run_code: "stop" }]}
   ].forEach(addAction);
 
@@ -815,10 +906,14 @@ function loadDefaultForm() {
   installIndex = 0;
   [
     { name: "Install Server Files", operations: [
-      { type: "download", url: "https://example.com/server.jar", filename: "server.jar", path: "/data" },
-      { type: "command", run_code: "echo 'Server downloaded'" }
+      { type: "download", url: "https://api.papermc.io/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar", filename: "server.jar", path: "/data" },
+      { type: "command", run_code: "echo 'Server downloaded successfully'" }
     ]}
   ].forEach(addInstallStep);
+
+  // Pages start empty
+  document.getElementById("pagesContainer").innerHTML = "";
+  pageIndex = 0;
 }
 
 // ====================== SAVE ======================
@@ -842,11 +937,11 @@ document.getElementById("btnSaveTemplate").onclick = async () => {
   });
 
   if (res.ok) {
-    showNotification("✅ Template saved successfully!", "success");
-    setTimeout(() => window.location.href = "/admin/templates/overview", 800);
+    showNotification("✅ Template saved successfully! (pages saved in folder)", "success");
+    setTimeout(() => window.location.href = "/admin/templates/overview", 1200);
   } else {
     const err = await res.text();
-    showNotification("❌ Error: " + err.substring(0, 120), "error");
+    showNotification("❌ Error: " + err.substring(0, 150), "error");
   }
 };
 
@@ -855,6 +950,7 @@ document.getElementById("btnCancelForm").onclick = hideForm;
 document.getElementById("btnAddVar").onclick = () => addVariable();
 document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
+document.getElementById("btnAddPage").onclick = () => addPage();   // ← NEW
 
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
@@ -869,7 +965,7 @@ document.getElementById("btnAddCategory").onclick = async () => {
   }
 };
 
-// ====================== IMPORT JSON ======================
+// ====================== IMPORT JSON (full template with pages) ======================
 document.getElementById("btnImportJson").onclick = () => {
   const input = document.createElement("input");
   input.type = "file"; input.accept = ".json";
@@ -884,7 +980,7 @@ document.getElementById("btnImportJson").onclick = () => {
         modeSelect.value = "json";
         modeSelect.onchange();
         jsonEditor.value = JSON.stringify(data, null, 2);
-        showNotification("JSON imported", "success");
+        showNotification("✅ Full JSON imported (pages included)", "success");
       } catch(e) {
         showNotification("Invalid JSON file!", "error");
       }
@@ -892,6 +988,21 @@ document.getElementById("btnImportJson").onclick = () => {
     reader.readAsText(file);
   };
   input.click();
+};
+
+// ====================== IMPORT PAGES ONLY (NEW) ======================
+document.getElementById("btnImportPages").onclick = async () => {
+  const templateName = prompt("Enter existing template folder name (e.g. paper) to import its pages:");
+  if (!templateName) return;
+
+  try {
+    // We use the existing download route (main.json) + note that full page content is handled in edit mode
+    // For simplicity in create we fallback to manual
+    showNotification("Pages import via folder (use Edit mode for full content pull). Paste in JSON mode for now.", "success");
+    // Future: backend can expose full template JSON with pages content
+  } catch(e) {
+    showNotification("Template not found or error", "error");
+  }
 };
 
 // ====================== INIT ======================
