@@ -107,7 +107,7 @@
               <tr>
                 <td colspan="5" class="py-16 text-center text-neutral-500">
                   No templates created yet.<br>
-                  <span class="text-xs">Create your first one — add custom pages in the form!</span>
+                  <span class="text-xs">Create one and add custom pages in the form!</span>
                 </td>
               </tr>
             <% } else { %>
@@ -122,21 +122,19 @@
                     <%= t.environment?.docker_image || '—' %>
                   </td>
 
-                  <!-- Custom Pages Column -->
+                  <!-- CUSTOM PAGES COLUMN — FIXED FOR FLAT JSON -->
                   <td class="py-4 px-3 sm:px-4 sm:py-6">
-                    <% if (Array.isArray(t.pages) && t.pages.length > 0) { %>
+                    <% const pageList = Array.isArray(t.pages) ? t.pages : []; %>
+                    <% if (pageList.length > 0) { %>
                       <div class="flex flex-wrap gap-1.5">
-                        <% t.pages.forEach(page => { %>
-                          <span class="page-badge" title="<%= page.id %> <%= page.hasJs ? '(with JS handler)' : '' %>">
+                        <% pageList.forEach(page => { %>
+                          <span class="page-badge" title="<%= page.id %>">
                             <%= page.name || page.id %>
-                            <% if (page.hasJs) { %>
-                              <span class="ml-1.5 text-[9px] opacity-70 font-semibold">JS</span>
-                            <% } %>
                           </span>
                         <% }); %>
                       </div>
                       <div class="page-count mt-1.5">
-                        <%= t.pages.length %> custom page<%= t.pages.length === 1 ? '' : 's' %>
+                        <%= pageList.length %> custom page<%= pageList.length === 1 ? '' : 's' %>
                       </div>
                     <% } else { %>
                       <span class="no-pages">— no custom pages</span>
@@ -192,18 +190,13 @@ function showNotification(message, type = 'success') {
 
 document.querySelectorAll(".btnDelete").forEach(btn => {
   btn.onclick = async () => {
-    if (!confirm("Delete this template permanently?\n\nFolder, main.json and all custom pages will be removed.")) return;
-
-    try {
-      const res = await fetch(`/admin/templates/${btn.dataset.filename}`, { method: "DELETE" });
-      if (res.ok) {
-        showNotification("Template deleted successfully", "success");
-        setTimeout(() => location.reload(), 900);
-      } else {
-        showNotification("Delete failed – check server logs", "error");
-      }
-    } catch (err) {
-      showNotification("Network error during delete", "error");
+    if (!confirm("Delete this template permanently?\n\nAll pages will be removed.")) return;
+    const res = await fetch(`/admin/templates/${btn.dataset.filename}`, { method: "DELETE" });
+    if (res.ok) {
+      showNotification("Template deleted successfully", "success");
+      setTimeout(() => location.reload(), 900);
+    } else {
+      showNotification("Delete failed", "error");
     }
   };
 });
