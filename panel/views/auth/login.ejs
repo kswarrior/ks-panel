@@ -10,10 +10,6 @@
 /* ================= BODY ================= */
 body {
   /* Background image with dark overlay */
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
-    url('/assets/background.webp') center/cover no-repeat;
-
   color: var(--text);
   font-family: var(--font-family);
   display: flex;
@@ -22,6 +18,14 @@ body {
   height: 100dvh;
   user-select: none;
   margin: var(--margin-body);
+font-family: 'Public Sans';
+    background:
+      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+      url('https://cdn.discordapp.com/attachments/1315671132203913218/1482722679101456599/image0.gif?ex=69b7fc9a&is=69b6ab1a&hm=8b71dec0f5da4a2fe26d74e104ddb078812e39780e8efbbbdf94517f1a2bfc52&');
+    background-position: center top;
+    background-repeat: no-repeat;   /* ← change to no-repeat for most GIFs */
+    background-size: cover;         /* ← cover is usually better than 100% auto for full-screen feel */
+    background-attachment: fixed;
 }
 
 /* ================= CARD ================= */
