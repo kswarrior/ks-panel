@@ -10,144 +10,346 @@ const log = new (require("cat-loggr"))();
 
 const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
 
-if (!fs.existsSync(TEMPLATES_DIR)) fs.mkdirSync(TEMPLATES_DIR, { recursive: true });
+if (!fs.existsSync(TEMPLATES_DIR)) {
+  fs.mkdirSync(TEMPLATES_DIR, { recursive: true });
+}
 
 const CATEGORIES_FILE = path.join(TEMPLATES_DIR, "categories.json");
 
-// Initialize defaults
+// Initialize default categories
 if (!fs.existsSync(CATEGORIES_FILE)) {
-  fs.writeFileSync(CATEGORIES_FILE, JSON.stringify(["Minecraft", "Node.js", "Python", "Other"], null, 2));
+  fs.writeFileSync(
+    CATEGORIES_FILE,
+    JSON.stringify(["Minecraft", "Node.js", "Python", "Other"], null, 2),
+    "utf8"
+  );
 }
 
-// Helpers
-function readJson(file) { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return []; } }
-function writeJson(file, data) { fs.writeFileSync(file, JSON.stringify(data, null, 2)); }
+// ────────────────────────────────────────────────
+// Helper functions
+// ────────────────────────────────────────────────
 
-function getFilename(name) {
-  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") + ".json";
+function readJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (err) {
+    log.error(`Failed to parse JSON at ${filePath}`, err);
+    return null;
+  }
 }
 
-// ====================== ROUTES ======================
+function writeJson(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+}
 
-// List page
+function getDirName(name) {
+  if (!name || typeof name !== "string") return "";
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// Load template data including full page content for editing
+function loadTemplate(dirName) {
+  const dirPath = path.join(TEMPLATES_DIR, dirName);
+  const mainPath = path.join(dirPath, "main.json");
+
+  if (!fs.existsSync(mainPath)) return null;
+
+  const mainData = readJson(mainPath);
+  if (!mainData) return null;
+
+  const template = {
+    filename: dirName,   // folder name = identifier
+    ...mainData,
+    pages: []
+  };
+
+  const pagesDir = path.join(dirPath, "pages");
+  if (fs.existsSync(pagesDir)) {
+    const files = fs.readdirSync(pagesDir);
+    template.pages = files
+      .filter(f => f.endsWith(".ejs"))
+      .map(file => {
+        const id = file.replace(/\.ejs$/, "");
+        const ejsPath = path.join(pagesDir, file);
+        const jsPath = path.join(pagesDir, `${id}.js`);
+
+        return {
+          id,
+          name: id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, " "),
+          ejsContent: fs.existsSync(ejsPath) ? fs.readFileSync(ejsPath, "utf8") : "",
+          jsContent: fs.existsSync(jsPath) ? fs.readFileSync(jsPath, "utf8") : ""
+        };
+      });
+  }
+
+  return template;
+}
+
+// ────────────────────────────────────────────────
+// OVERVIEW ─ list all templates
+// ────────────────────────────────────────────────
+
 router.get("/admin/templates/overview", isAdmin, (req, res) => {
-  const categories = readJson(CATEGORIES_FILE);
-  const files = fs.readdirSync(TEMPLATES_DIR).filter(f => f.endsWith(".json") && f !== "categories.json");
+  const categories = readJson(CATEGORIES_FILE) || [];
 
-  const templates = files.map(file => {
-    const data = JSON.parse(fs.readFileSync(path.join(TEMPLATES_DIR, file)));
-    data.filename = file;
-    return data;
+  const dirs = fs.readdirSync(TEMPLATES_DIR).filter(entry => {
+    return fs.statSync(path.join(TEMPLATES_DIR, entry)).isDirectory();
   });
 
-  res.render("admin/templates/overview", { req, user: req.user, templates, categories });
+  const templates = dirs
+    .map(dir => loadTemplate(dir))
+    .filter(Boolean);
+
+  res.render("admin/templates/overview", {
+    req,
+    user: req.user,
+    templates,
+    categories
+  });
 });
 
-// ====================== NEW ROUTES (added) ======================
+// ────────────────────────────────────────────────
+// CREATE page
+// ────────────────────────────────────────────────
 
-// Create page
 router.get("/admin/templates/create", isAdmin, (req, res) => {
-  const categories = readJson(CATEGORIES_FILE);
+  const categories = readJson(CATEGORIES_FILE) || [];
   res.render("admin/templates/create", { req, user: req.user, categories });
 });
 
-// Edit page
-router.get("/admin/templates/edit/:filename", isAdmin, (req, res) => {
-  const { filename } = req.params;
-  const filePath = path.join(TEMPLATES_DIR, filename);
-  if (!fs.existsSync(filePath)) return res.status(404).send("Not found");
+// ────────────────────────────────────────────────
+// EDIT page ─ loads full content (main + pages/*.ejs & .js)
+// ────────────────────────────────────────────────
 
-  let template;
-  try {
-    template = JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch (err) {
-    log.error(err);
-    return res.status(500).send("Invalid template data");
+router.get("/admin/templates/edit/:dirName", isAdmin, (req, res) => {
+  const { dirName } = req.params;
+  const template = loadTemplate(dirName);
+
+  if (!template) {
+    return res.status(404).send("Template folder not found");
   }
 
-  const categories = readJson(CATEGORIES_FILE);
-  res.render("admin/templates/edit", { req, user: req.user, template, categories, filename });
+  const categories = readJson(CATEGORIES_FILE) || [];
+
+  res.render("admin/templates/edit", {
+    req,
+    user: req.user,
+    template,
+    categories,
+    filename: dirName   // folder name
+  });
 });
 
-// Add category
+// ────────────────────────────────────────────────
+// ADD / CREATE CATEGORY
+// ────────────────────────────────────────────────
+
 router.post("/admin/templates/category", isAdmin, (req, res) => {
   const { name } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: "Name required" });
 
-  const cats = readJson(CATEGORIES_FILE);
-  if (cats.includes(name.trim())) return res.status(400).json({ error: "Already exists" });
+  let cats = readJson(CATEGORIES_FILE) || [];
+  const trimmed = name.trim();
 
-  cats.push(name.trim());
+  if (cats.includes(trimmed)) {
+    return res.status(400).json({ error: "Category already exists" });
+  }
+
+  cats.push(trimmed);
   writeJson(CATEGORIES_FILE, cats);
+
   logAudit(req.user.userId, req.user.username, "template:category:add", req.ip);
+
   res.json({ success: true, categories: cats });
 });
 
-// Create template
+// ────────────────────────────────────────────────
+// CREATE new template (folder + main.json + pages files)
+// ────────────────────────────────────────────────
+
 router.post("/admin/templates", isAdmin, (req, res) => {
   try {
-    const template = req.body;
-    if (!template.meta?.name?.trim() || !template.category || !template.environment?.docker_image) {
-      return res.status(400).json({ error: "Missing required fields" });
+    const { meta, category, environment, variables = [], actions = [], pages = [] } = req.body;
+
+    if (!meta?.name?.trim() || !category || !environment?.docker_image) {
+      return res.status(400).json({ error: "Missing required fields: name, category, docker_image" });
     }
 
-    const filename = getFilename(template.meta.name);
-    const filePath = path.join(TEMPLATES_DIR, filename);
+    const dirName = getDirName(meta.name);
+    if (!dirName) {
+      return res.status(400).json({ error: "Invalid template name" });
+    }
 
-    if (fs.existsSync(filePath)) return res.status(409).json({ error: "Template already exists" });
+    const dirPath = path.join(TEMPLATES_DIR, dirName);
 
-    writeJson(filePath, template);
+    if (fs.existsSync(dirPath)) {
+      return res.status(409).json({ error: "Template folder already exists" });
+    }
+
+    fs.mkdirSync(dirPath, { recursive: true });
+    fs.mkdirSync(path.join(dirPath, "pages"), { recursive: true });
+
+    // Save main.json (without pages array)
+    writeJson(path.join(dirPath, "main.json"), {
+      meta,
+      category,
+      environment,
+      variables,
+      actions
+    });
+
+    // Save page files
+    pages.forEach(p => {
+      if (!p.id?.trim()) return;
+      const safeId = p.id.trim().replace(/[^a-z0-9_-]/gi, "");
+
+      if (p.ejsContent?.trim()) {
+        fs.writeFileSync(
+          path.join(dirPath, "pages", `${safeId}.ejs`),
+          p.ejsContent,
+          "utf8"
+        );
+      }
+
+      if (p.jsContent?.trim()) {
+        fs.writeFileSync(
+          path.join(dirPath, "pages", `${safeId}.js`),
+          p.jsContent,
+          "utf8"
+        );
+      }
+    });
+
     logAudit(req.user.userId, req.user.username, "template:create", req.ip);
-    res.json({ success: true, filename });
+
+    res.json({ success: true, filename: dirName });
   } catch (err) {
-    log.error(err);
-    res.status(500).json({ error: "Failed to create" });
+    log.error("Template creation failed", err);
+    res.status(500).json({ error: "Failed to create template" });
   }
 });
 
-// Update template
-router.put("/admin/templates/:filename", isAdmin, (req, res) => {
+// ────────────────────────────────────────────────
+// UPDATE template (rename folder if needed + rewrite pages)
+// ────────────────────────────────────────────────
+
+router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
   try {
-    const { filename } = req.params;
-    const filePath = path.join(TEMPLATES_DIR, filename);
-    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Not found" });
+    const oldDirName = req.params.dirName;
+    const oldDirPath = path.join(TEMPLATES_DIR, oldDirName);
 
-    const template = req.body;
-    if (!template.meta?.name?.trim()) return res.status(400).json({ error: "Name required" });
-
-    const newFilename = getFilename(template.meta.name);
-    writeJson(filePath, template);
-
-    if (newFilename !== filename) {
-      const newPath = path.join(TEMPLATES_DIR, newFilename);
-      if (fs.existsSync(newPath)) return res.status(409).json({ error: "Name already taken" });
-      fs.renameSync(filePath, newPath);
-      return res.json({ success: true, filename: newFilename });
+    if (!fs.existsSync(oldDirPath)) {
+      return res.status(404).json({ error: "Template not found" });
     }
 
+    const { meta, category, environment, variables = [], actions = [], pages = [] } = req.body;
+
+    if (!meta?.name?.trim()) {
+      return res.status(400).json({ error: "Template name is required" });
+    }
+
+    const newDirName = getDirName(meta.name);
+    let finalDirPath = oldDirPath;
+
+    // Rename folder if name changed
+    if (newDirName !== oldDirName) {
+      const newDirPath = path.join(TEMPLATES_DIR, newDirName);
+      if (fs.existsSync(newDirPath)) {
+        return res.status(409).json({ error: "New name already taken" });
+      }
+      fs.renameSync(oldDirPath, newDirPath);
+      finalDirPath = newDirPath;
+    }
+
+    const pagesDir = path.join(finalDirPath, "pages");
+    if (!fs.existsSync(pagesDir)) {
+      fs.mkdirSync(pagesDir, { recursive: true });
+    }
+
+    // Update main.json
+    writeJson(path.join(finalDirPath, "main.json"), {
+      meta,
+      category,
+      environment,
+      variables,
+      actions
+    });
+
+    // Clear old page files
+    if (fs.existsSync(pagesDir)) {
+      fs.readdirSync(pagesDir).forEach(file => {
+        fs.unlinkSync(path.join(pagesDir, file));
+      });
+    }
+
+    // Write new page files
+    pages.forEach(p => {
+      if (!p.id?.trim()) return;
+      const safeId = p.id.trim().replace(/[^a-z0-9_-]/gi, "");
+
+      if (p.ejsContent?.trim()) {
+        fs.writeFileSync(
+          path.join(pagesDir, `${safeId}.ejs`),
+          p.ejsContent,
+          "utf8"
+        );
+      }
+
+      if (p.jsContent?.trim()) {
+        fs.writeFileSync(
+          path.join(pagesDir, `${safeId}.js`),
+          p.jsContent,
+          "utf8"
+        );
+      }
+    });
+
     logAudit(req.user.userId, req.user.username, "template:update", req.ip);
-    res.json({ success: true, filename });
+
+    res.json({ success: true, filename: newDirName });
   } catch (err) {
-    log.error(err);
+    log.error("Template update failed", err);
     res.status(500).json({ error: "Update failed" });
   }
 });
 
-// Delete
-router.delete("/admin/templates/:filename", isAdmin, (req, res) => {
-  const filePath = path.join(TEMPLATES_DIR, req.params.filename);
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Not found" });
+// ────────────────────────────────────────────────
+// DELETE entire template folder
+// ────────────────────────────────────────────────
 
-  fs.unlinkSync(filePath);
-  logAudit(req.user.userId, req.user.username, "template:delete", req.ip);
-  res.json({ success: true });
+router.delete("/admin/templates/:dirName", isAdmin, (req, res) => {
+  const dirPath = path.join(TEMPLATES_DIR, req.params.dirName);
+
+  if (!fs.existsSync(dirPath)) {
+    return res.status(404).json({ error: "Not found" });
+  }
+
+  try {
+    fs.rmSync(dirPath, { recursive: true, force: true });
+    logAudit(req.user.userId, req.user.username, "template:delete", req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    log.error("Delete failed", err);
+    res.status(500).json({ error: "Failed to delete template" });
+  }
 });
 
-// Download
-router.get("/admin/templates/download/:filename", isAdmin, (req, res) => {
-  const filePath = path.join(TEMPLATES_DIR, req.params.filename);
-  if (fs.existsSync(filePath)) res.download(filePath);
-  else res.status(404).send("Not found");
+// ────────────────────────────────────────────────
+// DOWNLOAD main.json only (for backward compatibility / simple export)
+// ────────────────────────────────────────────────
+
+router.get("/admin/templates/download/:dirName", isAdmin, (req, res) => {
+  const mainPath = path.join(TEMPLATES_DIR, req.params.dirName, "main.json");
+
+  if (fs.existsSync(mainPath)) {
+    res.download(mainPath, `${req.params.dirName}-main.json`);
+  } else {
+    res.status(404).send("Not found");
+  }
 });
 
 module.exports = router;
