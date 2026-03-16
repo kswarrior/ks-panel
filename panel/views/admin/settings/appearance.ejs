@@ -132,52 +132,54 @@
           </button>
         </form>
 
+        <!-- Quick Default Backgrounds -->
         <div class="mt-6">
-  <label class="block text-sm text-neutral-400 mb-3">
-    Default background
-  </label>
-  <div class="grid grid-cols-2 gap-3">
-    <!-- Preset 1 -->
-    <form action="/admin/settings/change/background" method="POST">
-      <input type="hidden" name="type" value="preset">
-      <input type="hidden" name="preset" value="1">
-      <button type="submit"
-              class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
-        Black GIF
-      </button>
-    </form>
-
-    <!-- Preset 2 -->
-    <form action="/admin/settings/change/background" method="POST">
-      <input type="hidden" name="type" value="preset">
-      <input type="hidden" name="preset" value="2">
-      <button type="submit"
-              class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
-        Red GIF
-      </button>
-    </form>
-
-    <!-- Preset 3 -->
-    <form action="/admin/settings/change/background" method="POST">
-      <input type="hidden" name="type" value="preset">
-      <input type="hidden" name="preset" value="3">
-      <button type="submit"
-              class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
-        KS webp
-      </button>
-    </form>
-
-    <!-- Preset 4 -->
-    <form action="/admin/settings/change/background" method="POST">
-      <input type="hidden" name="type" value="preset">
-      <input type="hidden" name="preset" value="4">
-      <button type="submit"
-              class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
-        Black S GIF
-      </button>
-    </form>
-  </div>
-</div>
+          <label class="block text-sm text-neutral-400 mb-3">
+            Default background
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Preset 1 -->
+            <form action="/admin/settings/change/background" method="POST">
+              <input type="hidden" name="type" value="preset">
+              <input type="hidden" name="preset" value="1">
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                Black GIF
+              </button>
+            </form>
+            <!-- Preset 2 -->
+            <form action="/admin/settings/change/background" method="POST">
+              <input type="hidden" name="type" value="preset">
+              <input type="hidden" name="preset" value="2">
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                Red GIF
+              </button>
+            </form>
+            <!-- Preset 3 -->
+            <form action="/admin/settings/change/background" method="POST">
+              <input type="hidden" name="type" value="preset">
+              <input type="hidden" name="preset" value="3">
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                KS webp
+              </button>
+            </form>
+           <!-- Preset 4 -->
+            <form action="/admin/settings/change/background" method="POST">
+              <input type="hidden" name="type" value="preset">
+              <input type="hidden" name="preset" value="4">
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                Black S GIF
+              </button>
+            </form>
+          </div>
+        </div>
 
         <!-- Remove -->
         <form action="/admin/settings/change/background" method="POST" class="mt-6">
