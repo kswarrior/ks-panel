@@ -10,35 +10,22 @@
 /* ================= BODY ================= */
 body {
   color: var(--text);
-  font-family: 'Public Sans';   /* moved here, no need to repeat */
+  font-family: var(--font-family);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100dvh;
-  margin: var(--margin-body);
   user-select: none;
-  position: relative;           /* important for positioning the ::before */
-  overflow: hidden;             /* prevents unwanted scrollbars */
+  margin: var(--margin-body);
+font-family: 'Public Sans';
+    background:
+      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+      url('https://cdn.discordapp.com/attachments/1315671132203913218/1482722679101456599/image0.gif?ex=69b7fc9a&is=69b6ab1a&hm=8b71dec0f5da4a2fe26d74e104ddb078812e39780e8efbbbdf94517f1a2bfc52&');
+    background-position: center top;
+    background-repeat: no-repeat;   /* ← change to no-repeat for most GIFs */
+    background-size: cover;         /* ← cover is usually better than 100% auto for full-screen feel */
+    background-attachment: fixed;/* prevents unwanted scrollbars */
 }
-
-/* The actual background goes on a pseudo-element */
-body::before {
-  content: "";
-  position: fixed;              /* this creates the fixed effect */
-  inset: 0;                     /* top/right/bottom/left: 0 */
-  z-index: -1;                  /* behind your content */
-  pointer-events: none;
-
-  background:
-    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-    url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && (typeof pageType !== "undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) || "https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/background/default.gif" %>');
-
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: cover;
-  /* NO background-attachment: fixed needed here */
-}
-
 /* ================= CARD ================= */
 .card {
   padding: var(--card-padding);
