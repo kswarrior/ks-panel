@@ -198,7 +198,8 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
   }
 
   try {
-    const templatePath = path.join(TEMPLATES_DIR, templateFilename);
+    // ONLY CHANGE: now loads from folder/main.json (your new template structure)
+    const templatePath = path.join(TEMPLATES_DIR, templateFilename, "main.json");
     if (!fs.existsSync(templatePath)) {
       return res.status(400).json({ error: "Selected template not found" });
     }
