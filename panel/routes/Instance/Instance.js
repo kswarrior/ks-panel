@@ -65,8 +65,8 @@ router.get("/instance/:id", async (req, res) => {
     return res.render("instance/suspended", { req, user: req.user });
   }
 
-  if (instance.InternalState !== "READY") {
-    return res.redirect("/instances?err=NOTACTIVEYET");
+  if (instance.InternalState !== "READY" && instance.InternalState !== "STOPPED") {
+  return res.redirect("/instances?err=NOTACTIVEYET");
   }
 
   const config = require("../../config.json");
