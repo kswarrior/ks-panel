@@ -9,38 +9,17 @@
 <style>
 /* ================= BODY ================= */
 body {
-  color: var(--text);
-  font-family: 'Public Sans';   /* moved here, no need to repeat */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100dvh;
-  margin: var(--margin-body);
-  user-select: none;
-  position: relative;           /* important for positioning the ::before */
-  overflow: hidden;             /* prevents unwanted scrollbars */
-}
+font-family: 'Public Sans';
+    background:
+      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+      url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && (typeof pageType !== "undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) || "https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/background/default.gif" %>');
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100dvh;
+    background-attachment: fixed;
 
-/* The actual background goes on a pseudo-element */
-body::before {
-  content: "";
-  position: fixed;              /* this creates the fixed effect */
-  inset: 0;                     /* top/right/bottom/left: 0 */
-  z-index: -1;                  /* behind your content */
-  pointer-events: none;
-
-  background:
-  linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-  url('<%= 
-    theme?.backgrounds?.[pageType] ?? 
-    theme?.backgrounds?.dashboard ?? 
-    "https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/background/default.gif" 
-  %>');
-
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: cover;
-  /* NO background-attachment: fixed needed here */
+See
 }
 
 /* ================= CARD ================= */
