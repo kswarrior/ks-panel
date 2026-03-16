@@ -31,18 +31,9 @@ const upload = multer({
   },
 });
 
-// ====================== BACKGROUND CONFIG (NEW) ======================
+// ====================== BACKGROUND CONFIG ======================
 
-// Predefined backgrounds (downloaded locally on first use)
-const predefinedBackgrounds = [
-  { id: "pre1", name: "Predefined 1 (Cityscape)", url: "https://picsum.photos/id/1015/1920/1080" },
-  { id: "pre2", name: "Predefined 2 (Nature)", url: "https://picsum.photos/id/29/1920/1080" },
-  { id: "pre3", name: "Predefined 3 (Abstract)", url: "https://picsum.photos/id/201/1920/1080" },
-  { id: "pre4", name: "Predefined 4 (Space)", url: "https://picsum.photos/id/1016/1920/1080" },
-  { id: "pre5", name: "Predefined 5 (Landscape)", url: "https://picsum.photos/id/133/1920/1080" },
-];
-
-// Multer for custom background uploads
+// Multer for backgrounds (NOW SUPPORTS GIF, MP4, PNG, JPG, WEBP)
 const bgStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const bgPath = path.join(__dirname, "..", "..", "public", "assets", "backgrounds");
@@ -57,11 +48,12 @@ const bgStorage = multer.diskStorage({
 const bgUpload = multer({
   storage: bgStorage,
   fileFilter: (req, file, cb) => {
-    cb(null, file.mimetype.startsWith("image/") || new Error("Not an image!"));
+    const allowed = file.mimetype.startsWith("image/") || file.mimetype === "video/mp4";
+    cb(null, allowed || new Error("Only images and MP4 videos allowed"));
   },
 });
 
-// Download image from URL
+// Download any file (image or video)
 async function downloadImage(url, filePath) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
@@ -76,26 +68,6 @@ async function downloadImage(url, filePath) {
   });
 }
 
-// Resolve background key → public URL (downloads predefined if missing)
-async function ensureBackground(value) {
-  if (!value) return "";
-  const bgDir = path.join(__dirname, "..", "..", "public", "assets", "backgrounds");
-
-  if (value.startsWith("pre")) {
-    const pre = predefinedBackgrounds.find(p => p.id === value);
-    if (!pre) return "";
-    const fileName = `${value}.jpg`;
-    const filePath = path.join(bgDir, fileName);
-    if (!fs.existsSync(filePath)) {
-      await downloadImage(pre.url, filePath);
-    }
-    return `/assets/backgrounds/${fileName}`;
-  }
-
-  // Custom filename
-  return `/assets/backgrounds/${value}`;
-}
-
 async function fetchCommonSettings(req) {
   const settings = (await db.get("settings")) || {};
   return {
@@ -105,125 +77,74 @@ async function fetchCommonSettings(req) {
   };
 }
 
-// ====================== THEME ROUTES (FULL BACKGROUND SUPPORT) ======================
+// ====================== NEW BACKGROUND ROUTE (used by appearance.ejs) ======================
+router.post(
+  "/admin/settings/change/background",
+  isAdmin,
+  bgUpload.single("bg"),
+  async (req, res) => {
+    const { type, url, preset } = req.body;
 
-// Render Theme Customization Page
-router.get("/admin/settings/theme", isAdmin, async (req, res) => {
-  try {
-    const common = await fetchCommonSettings(req);
-    let theme = await db.get("theme") || {};
-
-    // Default structure
-    if (!theme.backgrounds || typeof theme.backgrounds !== "object") {
-      theme.backgrounds = { login: "", dashboard: "", admin: "", instances: "" };
-    }
-    if (!theme.customBackgrounds) theme.customBackgrounds = [];
-
-    res.render("admin/settings/theme", {
-      ...common,
-      theme,
-      predefinedBackgrounds,
-      pageType: "admin"
-    });
-  } catch (error) {
-    log.error("Error fetching theme settings:", error);
-    res.status(500).send("Failed to load theme settings.");
-  }
-});
-
-// Save Theme (processes background keys → real paths)
-router.post("/admin/settings/theme/save", isAdmin, async (req, res) => {
-  try {
-    let themeData = req.body;
-
-    if (themeData.backgrounds && typeof themeData.backgrounds === "object") {
-      for (let key in themeData.backgrounds) {
-        let val = themeData.backgrounds[key];
-        if (val) {
-          const resolved = await ensureBackground(val);
-          themeData.backgrounds[key] = resolved || "";
-        } else {
-          themeData.backgrounds[key] = "";
-        }
+    try {
+      let theme = (await db.get("theme")) || {};
+      if (!theme.backgrounds || typeof theme.backgrounds !== "object") {
+        theme.backgrounds = { login: "", dashboard: "", admin: "", instances: "" };
       }
+
+      const bgDir = path.join(__dirname, "..", "..", "public", "assets", "backgrounds");
+      fs.mkdirSync(bgDir, { recursive: true });
+
+      let backgroundPath = "";
+
+      if (type === "upload" && req.file) {
+        backgroundPath = `/assets/backgrounds/${req.file.filename}`;
+      } else if (type === "url" && url && url.startsWith("http")) {
+        const ext = path.extname(url.split("?")[0]) || ".gif";
+        const filename = `custom-${Date.now()}${ext}`;
+        const filePath = path.join(bgDir, filename);
+        await downloadImage(url, filePath);
+        backgroundPath = `/assets/backgrounds/${filename}`;
+      } else if (type === "preset") {
+        const presets = {
+          "1": "https://mir-s3-cdn-cf.behance.net/project_modules/disp/d6552119730059.563339f76cc0b.gif",
+          "2": "https://i.pinimg.com/originals/1d/68/cb/1d68cb9a8fc9af3b1c845c79c4875d24.gif"
+        };
+        const presetUrl = presets[preset];
+        if (!presetUrl) throw new Error("Invalid preset");
+
+        const filename = `default${preset}.gif`;
+        const filePath = path.join(bgDir, filename);
+        if (!fs.existsSync(filePath)) {
+          await downloadImage(presetUrl, filePath);
+        }
+        backgroundPath = `/assets/backgrounds/${filename}`;
+      } else if (type === "none") {
+        // Optional: delete old file
+        if (theme.backgrounds.dashboard) {
+          const oldPath = path.join(__dirname, "..", "..", "public", theme.backgrounds.dashboard);
+          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+        backgroundPath = "";
+      }
+
+      // Apply same background to ALL pages (simple & matches your current appearance.ejs)
+      theme.backgrounds.login = backgroundPath;
+      theme.backgrounds.dashboard = backgroundPath;
+      theme.backgrounds.admin = backgroundPath;
+      theme.backgrounds.instances = backgroundPath;
+
+      await db.set("theme", theme);
+      logAudit(req.user.userId, req.user.username, "background:edit", req.ip);
+
+      res.redirect("/admin/settings?msg=BackgroundUpdated");
+    } catch (err) {
+      log.error("Error processing background:", err);
+      res.redirect("/admin/settings?err=BackgroundFailed");
     }
-
-    await db.set("theme", themeData);
-    logAudit(req.user.userId, req.user.username, "theme:edit", req.ip);
-    res.redirect("/admin/settings/theme?msg=ThemeSaveSuccess");
-  } catch (error) {
-    log.error("Error saving theme:", error);
-    res.redirect("/admin/settings/theme?err=ThemeSaveFailed");
   }
-});
+);
 
-// Upload custom background
-router.post("/admin/settings/theme/background/upload", isAdmin, bgUpload.single("bg"), async (req, res) => {
-  try {
-    if (!req.file) throw new Error("No file uploaded");
-    let theme = await db.get("theme") || {};
-    if (!theme.customBackgrounds) theme.customBackgrounds = [];
-    theme.customBackgrounds.push(req.file.filename);
-    await db.set("theme", theme);
-    logAudit(req.user.userId, req.user.username, "background:upload", req.ip);
-    res.redirect("/admin/settings/theme?msg=BgUploadSuccess");
-  } catch (e) {
-    log.error("Background upload error:", e);
-    res.redirect("/admin/settings/theme?err=BgUploadFailed");
-  }
-});
-
-// Save background from URL (auto-download)
-router.post("/admin/settings/theme/background/url", isAdmin, async (req, res) => {
-  const { url } = req.body;
-  if (!url || !url.startsWith("http")) {
-    return res.redirect("/admin/settings/theme?err=InvalidUrl");
-  }
-
-  try {
-    let theme = await db.get("theme") || {};
-    if (!theme.customBackgrounds) theme.customBackgrounds = [];
-
-    const bgDir = path.join(__dirname, "..", "..", "public", "assets", "backgrounds");
-    fs.mkdirSync(bgDir, { recursive: true });
-    const filename = `custom-${Date.now()}.jpg`;
-    const filePath = path.join(bgDir, filename);
-
-    await downloadImage(url, filePath);
-
-    theme.customBackgrounds.push(filename);
-    await db.set("theme", theme);
-    logAudit(req.user.userId, req.user.username, "background:url", req.ip);
-    res.redirect("/admin/settings/theme?msg=BgUrlSuccess");
-  } catch (e) {
-    log.error("Background URL error:", e);
-    res.redirect("/admin/settings/theme?err=BgUrlFailed");
-  }
-});
-
-// Delete custom background
-router.post("/admin/settings/theme/background/delete", isAdmin, async (req, res) => {
-  const { filename } = req.body;
-  if (!filename) return res.status(400).send("No filename");
-
-  try {
-    let theme = await db.get("theme") || {};
-    const filePath = path.join(__dirname, "..", "..", "public", "assets", "backgrounds", filename);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
-    if (theme.customBackgrounds) {
-      theme.customBackgrounds = theme.customBackgrounds.filter(f => f !== filename);
-    }
-    await db.set("theme", theme);
-    logAudit(req.user.userId, req.user.username, "background:delete", req.ip);
-    res.redirect("/admin/settings/theme?msg=BgDeleteSuccess");
-  } catch (e) {
-    log.error("Background delete error:", e);
-    res.redirect("/admin/settings/theme?err=BgDeleteFailed");
-  }
-});
-
-// ====================== EXISTING ROUTES (UPDATED WITH pageType) ======================
+// ====================== EXISTING ROUTES (unchanged) ======================
 
 router.get("/admin/settings", isAdmin, async (req, res) => {
   const settingsData = await fetchCommonSettings(req);
