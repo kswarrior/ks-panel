@@ -89,17 +89,20 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
     let templates = [];
     try {
       if (fs.existsSync(TEMPLATES_DIR)) {
-        const files = fs.readdirSync(TEMPLATES_DIR).filter(f => f.endsWith(".json"));
-        templates = files.map(file => {
+        const dirs = fs.readdirSync(TEMPLATES_DIR)
+          .filter(f => fs.statSync(path.join(TEMPLATES_DIR, f)).isDirectory());
+
+        templates = dirs.map(dir => {
+          const mainPath = path.join(TEMPLATES_DIR, dir, "main.json");
           try {
-            const content = JSON.parse(fs.readFileSync(path.join(TEMPLATES_DIR, file), "utf8"));
+            const content = JSON.parse(fs.readFileSync(mainPath, "utf8"));
             return {
-              filename: file,
-              Name: content.meta?.display_name || content.meta?.name || content.name || file.replace(".json", ""),
+              filename: dir,
+              Name: content.meta?.display_name || content.meta?.name || content.name || dir,
               Variables: Array.isArray(content.variables) ? content.variables : (content.variables || {})
             };
           } catch (e) {
-            log.error(`Invalid template file ${file}:`, e);
+            log.error(`Invalid template folder ${dir}:`, e);
             return null;
           }
         }).filter(Boolean);
@@ -137,17 +140,20 @@ router.get("/admin/instances/create", isAdmin, async (req, res) => {
     let templates = [];
     try {
       if (fs.existsSync(TEMPLATES_DIR)) {
-        const files = fs.readdirSync(TEMPLATES_DIR).filter(f => f.endsWith(".json"));
-        templates = files.map(file => {
+        const dirs = fs.readdirSync(TEMPLATES_DIR)
+          .filter(f => fs.statSync(path.join(TEMPLATES_DIR, f)).isDirectory());
+
+        templates = dirs.map(dir => {
+          const mainPath = path.join(TEMPLATES_DIR, dir, "main.json");
           try {
-            const content = JSON.parse(fs.readFileSync(path.join(TEMPLATES_DIR, file), "utf8"));
+            const content = JSON.parse(fs.readFileSync(mainPath, "utf8"));
             return {
-              filename: file,
-              Name: content.meta?.display_name || content.meta?.name || content.name || file.replace(".json", ""),
+              filename: dir,
+              Name: content.meta?.display_name || content.meta?.name || content.name || dir,
               Variables: Array.isArray(content.variables) ? content.variables : (content.variables || {})
             };
           } catch (e) {
-            log.error(`Invalid template file ${file}:`, e);
+            log.error(`Invalid template folder ${dir}:`, e);
             return null;
           }
         }).filter(Boolean);
