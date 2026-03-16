@@ -12,7 +12,7 @@ const log = new (require("cat-loggr"))();
 router.post("/instance/:id/power", async (req, res) => {
   if (!req.user) return res.redirect("/");
   const { id } = req.params;
-  const { action } = req.body; // "start" or "stop"
+  const { action } = req.body;
 
   const instance = await db.get(`${id}_instance`);
   if (!instance || !id) return res.redirect("../instances");
@@ -36,14 +36,17 @@ router.post("/instance/:id/power", async (req, res) => {
       responseData = resp.data;
 
     } else if (action === "stop") {
-      // StopCommand is already stored in the DB by Deploy.js
       const stopCommand = instance.StopCommand || "stop";
-
       const resp = await axios.post(`${baseUrl}/runcode`, { command: stopCommand }, {
         auth: { username: "kspanel", password: node.apiKey },
       });
       responseData = resp.data;
 
+    } else if (action === "restart") {
+      const resp = await axios.post(`${baseUrl}/restart`, {}, {
+        auth: { username: "kspanel", password: node.apiKey },
+      });
+      responseData = resp.data;
     } else {
       return res.status(400).json({ error: "Invalid action" });
     }
