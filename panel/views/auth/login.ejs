@@ -30,8 +30,12 @@ body::before {
   pointer-events: none;
 
   background:
-    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-    url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && (typeof pageType !== "undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) || "https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/background/default.gif" %>');
+  linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+  url('<%= 
+    theme?.backgrounds?.[pageType] ?? 
+    theme?.backgrounds?.dashboard ?? 
+    "https://raw.githubusercontent.com/kswarrior/ks-panel/refs/heads/main/background/default.gif" 
+  %>');
 
   background-position: center top;
   background-repeat: no-repeat;
