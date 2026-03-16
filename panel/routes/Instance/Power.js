@@ -1,8 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
-const fs = require("fs");
-const path = require("path");
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
@@ -25,17 +23,6 @@ router.post("/instance/:id/power", async (req, res) => {
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended) return res.render("instance/suspended", { req, user: req.user });
 
-  // Load saved template.json
-  const instanceDir = path.join(__dirname, "../../../database/instances", instance.Id);
-  let template;
-  try {
-    const templatePath = path.join(instanceDir, "template.json");
-    template = JSON.parse(fs.readFileSync(templatePath, "utf8"));
-  } catch (e) {
-    log.error("template.json missing for instance", id);
-    return res.status(500).json({ error: "template.json not found" });
-  }
-
   const node = instance.Node;
   const baseUrl = `http://${node.address}:${node.port}/instances/${instance.ContainerId}`;
 
@@ -43,16 +30,14 @@ router.post("/instance/:id/power", async (req, res) => {
     let responseData;
 
     if (action === "start") {
-      // Docker start (Cmd already set at creation with your java command)
       const resp = await axios.post(`${baseUrl}/start`, {}, {
         auth: { username: "kspanel", password: node.apiKey },
       });
       responseData = resp.data;
 
     } else if (action === "stop") {
-      // Extract stop command from template.actions (your "stop")
-      const stopAction = template.actions?.find(a => a.id === "stop");
-      const stopCommand = stopAction?.operations?.[0]?.run_code || "stop";
+      // StopCommand is already stored in the DB by Deploy.js
+      const stopCommand = instance.StopCommand || "stop";
 
       const resp = await axios.post(`${baseUrl}/runcode`, { command: stopCommand }, {
         auth: { username: "kspanel", password: node.apiKey },
