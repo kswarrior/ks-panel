@@ -168,6 +168,18 @@ app.use(async (req, res, next) => {
   }
 });
 
+// ====================== GLOBAL BACKGROUND THEME LOADER ======================
+// Makes "theme" available on EVERY page (fixes "theme is not defined" error)
+app.use(async (req, res, next) => {
+  try {
+    res.locals.theme = (await db.get("theme")) || {};
+  } catch (err) {
+    log.error("Theme middleware error:", err);
+    res.locals.theme = {};
+  }
+  next();
+});
+
 if (config.mode === "production" || false) {
   app.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store");
