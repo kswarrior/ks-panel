@@ -108,7 +108,7 @@ router.post(
         const presets = {
           "1": "https://mir-s3-cdn-cf.behance.net/project_modules/disp/d6552119730059.563339f76cc0b.gif",
           "2": "https://i.pinimg.com/originals/1d/68/cb/1d68cb9a8fc9af3b1c845c79c4875d24.gif",
-          "3": "/public/assets/background/ks.webp"
+          "3": "/assets/background/ks.webp"
         };
         const presetUrl = presets[preset];
         if (!presetUrl) throw new Error("Invalid preset");
