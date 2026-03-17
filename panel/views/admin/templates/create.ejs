@@ -1,373 +1,491 @@
 <%- include('../../components/template') %>
 
 <style>
+/* ====================== BASE STYLES ====================== */
 .input-field {
   width: 100%;
-  padding: 1rem 1.5rem;
-  background-color: #1c3b54;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.5rem;
   color: white;
-  placeholder-color: rgba(255, 255, 255, 0.4);
   outline: none;
   transition: all 0.2s ease;
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .input-field:focus {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+select.input-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+}
+
+textarea.input-field {
+  min-height: 6rem;
+  resize: vertical;
 }
 
 .form-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.25rem;
+  gap: 1rem;
   width: 100%;
-  min-width: 0;
 }
 
 .field-long,
 .field-short {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex-grow: 1;
+  gap: 0.375rem;
+  flex: 1 1 100%;
   min-width: 0;
 }
 
-.field-long { flex-basis: 420px; min-width: 260px; }
-.field-short { flex-basis: 180px; min-width: 160px; }
-
-/* ====================== MOBILE OPTIMIZATIONS ====================== */
-@media (max-width: 640px) {
-  .input-field {
-    padding: 0.875rem 1rem;
-    font-size: 0.95rem;
-  }
-  
-  .form-row {
-    gap: 0.75rem;
-  }
-  
-  .field-long,
-  .field-short {
-    flex-basis: 100% !important;
-  }
-  
-  .card-item {
-    padding: 1.1rem;
-    border-radius: 14px;
-  }
-  
-  .operation-item,
-  .option-item {
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 0.75rem;
-  }
-  
-  .remove-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-  
-  .section-header {
-    margin-bottom: 0.75rem;
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-  }
-  
-  .section-header h2 {
-    font-size: 1.05rem;
-  }
-  
-  button:not(.remove-btn) {
-    min-height: 44px;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-  }
-  
-  #modeSelect {
-    position: static !important;
-    width: 100% !important;
-    margin: 1rem 0 0 0;
-    z-index: 0;
-  }
-  
-  .max-w-5xl {
-    padding: 1rem !important;
-  }
-  
-  header {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-  
-  h1 {
-    font-size: 1.4rem;
-  }
-  
-  .add-op-btn,
-  .add-option-btn,
-  .add-page-btn {
-    width: 100%;
-  }
-}
-
-/* Larger phones / tablets */
-@media (max-width: 1024px) {
-  .form-row { gap: 1rem; }
-  .field-long, .field-short { flex-basis: 100% !important; }
-}
-
-/* Unified card style */
+/* ====================== CARD STYLES (keep dark) ====================== */
 .card-item {
-  border: 1px solid rgba(255,255,255,0.1);
-  background: #1c3b54;
-  border-radius: 16px;
-  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(28, 59, 84, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
   position: relative;
   transition: all 0.2s ease;
 }
 
 .card-item:hover {
-  border-color: rgba(255,255,255,0.2);
-  background: #1f425e;
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(28, 59, 84, 0.75);
 }
 
-/* Remove buttons */
-.remove-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 18px;
-  line-height: 1;
+/* ====================== SECTION STYLES ====================== */
+.section-divider {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
 }
 
-.remove-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
-  transform: scale(1.1);
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
 }
 
-/* Sub-operation & option items */
-.operation-item,
-.option-item {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  position: relative;
+.section-divider h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-/* Section header */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-/* hidden */
+.section-header h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ====================== BUTTONS ====================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  min-height: 2.5rem;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary {
+  background: white;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.btn-accent {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+}
+
+.btn-accent:hover {
+  background: rgba(16, 185, 129, 1);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* ====================== REMOVE BUTTONS ====================== */
+.remove-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* ====================== SUB-ITEMS ====================== */
+.operation-item,
+.option-item {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.625rem;
+  padding: 1rem;
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+/* ====================== MODE SELECTOR ====================== */
+.mode-selector {
+  width: 100%;
+  max-width: 200px;
+  margin-bottom: 1.5rem;
+}
+
+/* ====================== MOBILE OPTIMIZATIONS ====================== */
+@media (max-width: 640px) {
+  .input-field {
+    padding: 0.75rem 0.875rem;
+    font-size: 1rem; /* Prevent zoom on iOS */
+  }
+  
+  .form-row {
+    gap: 0.875rem;
+  }
+  
+  .card-item {
+    padding: 1rem;
+    border-radius: 0.625rem;
+  }
+  
+  .section-divider {
+    margin: 1.5rem 0 1rem;
+    gap: 0.75rem;
+  }
+  
+  .section-divider h2 {
+    font-size: 0.75rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .section-header h2 {
+    font-size: 0.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+  
+  .remove-btn {
+    width: 2rem;
+    height: 2rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  
+  .operation-item,
+  .option-item {
+    padding: 0.875rem;
+  }
+  
+  header {
+    padding: 1rem 0;
+  }
+  
+  h1 {
+    font-size: 1.25rem;
+  }
+  
+  .mode-selector {
+    max-width: 100%;
+  }
+}
+
+/* ====================== TABLET ====================== */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .field-long {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 280px;
+  }
+  
+  .field-short {
+    flex: 1 1 calc(33.333% - 0.667rem);
+    min-width: 200px;
+  }
+}
+
+/* ====================== DESKTOP ====================== */
+@media (min-width: 1025px) {
+  .field-long {
+    flex: 2 1 420px;
+  }
+  
+  .field-short {
+    flex: 1 1 180px;
+    min-width: 160px;
+  }
+}
+
+/* ====================== UTILITIES ====================== */
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-/* Notification on mobile */
+.text-gradient {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ====================== NOTIFICATION ====================== */
 #notification {
-  max-width: 92vw;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  max-width: calc(100vw - 2rem);
 }
 
-/* Pages-specific improvements */
-.page-card textarea {
-  font-family: ui-monospace, monospace;
-  font-size: 0.9rem;
-  line-height: 1.5;
+@media (max-width: 640px) {
+  #notification {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
 }
-.page-card .note {
+
+/* ====================== JSON EDITOR ====================== */
+#jsonEditor {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ====================== PAGE CARD SPECIFIC ====================== */
+.page-card textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.note {
   font-size: 0.75rem;
-  color: #888;
-  margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 0.375rem;
+  line-height: 1.4;
 }
 </style>
 
-<main id="content" class="max-w-screen-2xl mx-auto">
-  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+<main id="content" class="min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
     <!-- Header -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
       <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Template</h1>
-        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates with typed Install Steps, Actions &amp; <strong>Custom Pages</strong></p>
+        <h1 class="text-xl sm:text-2xl font-semibold text-white tracking-tight">Create New Template</h1>
+        <p class="mt-1 text-sm text-neutral-400">Powerful templates with Install Steps, Actions & Custom Pages</p>
       </div>
 
-      <div class="flex flex-wrap gap-3">
-        <button id="btnImportJson" 
-                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
-          📥 Import JSON (full template)
+      <div class="flex flex-wrap gap-2">
+        <button id="btnImportJson" type="button" class="btn btn-secondary text-xs sm:text-sm">
+          <span>📥</span>
+          <span class="hidden sm:inline">Import JSON</span>
+          <span class="sm:hidden">Import</span>
         </button>
-        <button id="btnImportPages" 
-                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
-          📄 Import Pages Only
+        <button id="btnImportPages" type="button" class="btn btn-secondary text-xs sm:text-sm">
+          <span>📄</span>
+          <span class="hidden sm:inline">Import Pages</span>
+          <span class="sm:hidden">Pages</span>
         </button>
-        <a href="/admin/templates/overview" 
-           class="px-6 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-          ← Back to Overview
+        <a href="/admin/templates/overview" class="btn btn-secondary text-xs sm:text-sm">
+          ← Back
         </a>
       </div>
     </header>
 
-    <section class="mt-8 md:mt-12">
-      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 md:p-6 lg:p-12 shadow-sm">
-        <form id="templateForm" class="space-y-8 md:space-y-10">
+    <section class="mt-6 sm:mt-8">
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4 sm:p-6 lg:p-8">
+        
+        <!-- Mode Selector -->
+        <select id="modeSelect" class="input-field mode-selector">
+          <option value="form">Visual Form</option>
+          <option value="json">Raw JSON</option>
+        </select>
+
+        <form id="templateForm" class="space-y-6">
 
           <!-- GENERAL INFORMATION -->
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">GENERAL INFORMATION</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div class="section-divider">
+            <h2>General Information</h2>
           </div>
 
           <div class="form-row">
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">TEMPLATE NAME <span class="text-red-400">*</span></label>
-              <input type="text" name="meta.name" required class="input-field">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Template Name <span class="text-red-400">*</span></label>
+              <input type="text" name="meta.name" required class="input-field" placeholder="my-awesome-server">
             </div>
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DISPLAY NAME</label>
-              <input type="text" name="meta.display_name" class="input-field">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
+              <input type="text" name="meta.display_name" class="input-field" placeholder="My Awesome Server">
             </div>
           </div>
 
           <div class="form-row">
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DESCRIPTION</label>
-              <textarea name="meta.description" rows="3" class="input-field"></textarea>
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Description</label>
+              <textarea name="meta.description" rows="3" class="input-field" placeholder="Brief description of this template..."></textarea>
             </div>
           </div>
 
           <!-- ENVIRONMENT -->
-          <div class="section-header mt-8 md:mt-10">
-            <div class="flex items-center gap-4">
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">ENVIRONMENT</h2>
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            </div>
+          <div class="section-divider">
+            <h2>Environment</h2>
           </div>
 
           <div class="form-row">
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">CATEGORY <span class="text-red-400">*</span></label>
-              <div class="flex gap-3">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category <span class="text-red-400">*</span></label>
+              <div class="flex gap-2">
                 <select name="category" required class="input-field">
                   <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
                 </select>
-                <button type="button" id="btnAddCategory" 
-                        class="px-6 py-3 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+                <button type="button" id="btnAddCategory" class="btn btn-secondary whitespace-nowrap">
                   + Add
                 </button>
               </div>
             </div>
             <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DOCKER IMAGE <span class="text-red-400">*</span></label>
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label>
               <input type="text" name="environment.docker_image" required placeholder="eclipse-temurin:21-jre" class="input-field">
             </div>
           </div>
 
           <!-- VARIABLES -->
-          <div class="section-header mt-8 md:mt-10">
-            <div class="flex items-center gap-4">
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">VARIABLES</h2>
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            </div>
-            <button type="button" id="btnAddVar" 
-                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+          <div class="section-header">
+            <h2>Variables</h2>
+            <button type="button" id="btnAddVar" class="btn btn-accent text-xs">
               + Add Variable
             </button>
           </div>
-          <div id="variablesContainer" class="space-y-4"></div>
+          <div id="variablesContainer" class="space-y-3"></div>
 
           <!-- RUNTIME ACTIONS -->
-          <div class="section-header mt-8 md:mt-10">
-            <div class="flex items-center gap-4">
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">RUNTIME ACTIONS</h2>
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            </div>
-            <button type="button" id="btnAddAction" 
-                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
+          <div class="section-header">
+            <h2>Runtime Actions</h2>
+            <button type="button" id="btnAddAction" class="btn btn-accent text-xs">
               + Add Action
             </button>
           </div>
-          <div id="actionsContainer" class="space-y-4"></div>
+          <div id="actionsContainer" class="space-y-3"></div>
 
           <!-- INSTALL STEPS -->
-          <div class="section-header mt-8 md:mt-10">
-            <div class="flex items-center gap-4">
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">INSTALL STEPS</h2>
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            </div>
-            <button type="button" id="btnAddInstallStep" 
-                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95">
-              + Add Install Step
+          <div class="section-header">
+            <h2>Install Steps</h2>
+            <button type="button" id="btnAddInstallStep" class="btn btn-accent text-xs">
+              + Add Step
             </button>
           </div>
-          <div id="installStepsContainer" class="space-y-4"></div>
+          <div id="installStepsContainer" class="space-y-3"></div>
 
-          <!-- CUSTOM PAGES (NEW) -->
-          <div class="section-header mt-8 md:mt-10">
-            <div class="flex items-center gap-4">
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">CUSTOM PAGES <span class="text-amber-400 text-xs">(shown in instance sidebar)</span></h2>
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <!-- CUSTOM PAGES -->
+          <div class="section-header">
+            <div class="flex items-center gap-2">
+              <h2>Custom Pages</h2>
+              <span class="text-xs text-amber-400/80">(sidebar navigation)</span>
             </div>
-            <button type="button" id="btnAddPage" 
-                    class="px-5 py-2 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 add-page-btn">
-              + Add Custom Page
+            <button type="button" id="btnAddPage" class="btn btn-accent text-xs">
+              + Add Page
             </button>
           </div>
-          <div id="pagesContainer" class="space-y-4"></div>
+          <div id="pagesContainer" class="space-y-3"></div>
 
           <!-- JSON EDITOR -->
-          <div id="jsonArea" class="hidden mt-8 md:mt-10">
-            <div class="flex items-center gap-4 mb-6">
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-              <h2 class="text-lg font-semibold text-white tracking-wide">RAW JSON EDITOR (includes pages)</h2>
-              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div id="jsonArea" class="hidden">
+            <div class="section-divider">
+              <h2>JSON Editor</h2>
             </div>
-            <textarea id="jsonEditor" class="input-field h-[55vh] md:h-[70vh]"></textarea>
+            <textarea id="jsonEditor" class="input-field h-96" placeholder="{}"></textarea>
           </div>
 
           <!-- SUBMIT -->
-          <div id="submitSection" class="mt-10 md:mt-12 pt-6 border-t border-white/10 flex gap-4">
-            <button id="btnCancelForm" 
-                    type="button"
-                    class="flex-1 px-8 py-3 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium transition-all duration-200 active:scale-95">
+          <div id="submitSection" class="pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3">
+            <button id="btnCancelForm" type="button" class="btn btn-secondary flex-1">
               Cancel
             </button>
-            <button id="btnSaveTemplate" 
-                    type="button"
-                    class="flex-1 px-10 py-3 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+            <button id="btnSaveTemplate" type="button" class="btn btn-primary flex-1">
               Save Template
             </button>
           </div>
@@ -378,8 +496,7 @@
     </section>
 
     <!-- Notification -->
-    <div id="notification" 
-         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
+    <div id="notification" class="hidden items-center gap-3 px-4 py-3 rounded-lg shadow-2xl text-sm font-medium bg-emerald-600 text-white">
       <span id="notification-text"></span>
     </div>
   </div>
@@ -416,31 +533,29 @@ function removeAndReindex(btn, listType) {
 function hideForm() {
   window.location.href = "/admin/templates/overview";
 }
+
 function showNotification(message, type = 'success') {
   const notification = document.getElementById('notification');
   const textEl = document.getElementById('notification-text');
   textEl.textContent = message;
-  notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+  
+  notification.className = `fixed flex items-center gap-3 px-4 py-3 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
     type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
   }`;
+  
   notification.classList.remove('hidden');
-  notification.classList.add('flex');
+  
   setTimeout(() => {
     notification.classList.add('opacity-0', 'translate-y-2');
     setTimeout(() => {
       notification.classList.add('hidden');
-      notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+      notification.classList.remove('opacity-0', 'translate-y-2');
     }, 300);
   }, 2800);
 }
 
 // ====================== MODE SWITCH ======================
-const modeSelect = document.createElement("select");
-modeSelect.id = "modeSelect";
-modeSelect.className = "input-field";
-modeSelect.innerHTML = `<option value="form">Visual Form</option><option value="json">Raw JSON</option>`;
-document.querySelector(".max-w-5xl").insertBefore(modeSelect, document.querySelector(".max-w-5xl").firstChild);
-
+const modeSelect = document.getElementById("modeSelect");
 const formArea = document.getElementById("templateForm");
 const jsonArea = document.getElementById("jsonArea");
 const jsonEditor = document.getElementById("jsonEditor");
@@ -449,11 +564,21 @@ const submitSection = document.getElementById("submitSection");
 modeSelect.onchange = () => {
   const isJson = modeSelect.value === "json";
   if (isJson) {
-    formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "none");
+    Array.from(formArea.children).forEach(el => {
+      if (el.id !== 'jsonArea' && el.id !== 'submitSection') {
+        el.style.display = "none";
+      }
+    });
     jsonArea.classList.remove("hidden");
-    try { jsonEditor.value = JSON.stringify(collectFormData(), null, 2); } catch(e) {}
+    try { 
+      jsonEditor.value = JSON.stringify(collectFormData(), null, 2); 
+    } catch(e) {}
   } else {
-    formArea.querySelectorAll("div:not(#jsonArea):not(#submitSection)").forEach(el => el.style.display = "block");
+    Array.from(formArea.children).forEach(el => {
+      if (el.id !== 'jsonArea') {
+        el.style.display = "";
+      }
+    });
     jsonArea.classList.add("hidden");
   }
   submitSection.style.display = "flex";
@@ -476,18 +601,18 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
   const div = document.createElement("div");
   div.className = "option-item";
   div.innerHTML = `
-    <div class="flex justify-between items-center mb-3">
+    <div class="flex justify-between items-center mb-2">
       <span class="text-xs font-medium text-neutral-400">Option #${optIdx + 1}</span>
       <button type="button" onclick="removeAndReindex(this, 'options')" class="remove-btn">×</button>
     </div>
     <div class="form-row">
       <div class="field-short">
         <label class="text-xs text-neutral-400">Value</label>
-        <input type="text" name="variables[${varIdx}].options[${optIdx}].value" value="${optData.value || ''}" class="input-field font-mono" placeholder="1">
+        <input type="text" name="variables[${varIdx}].options[${optIdx}].value" value="${optData.value || ''}" class="input-field font-mono" placeholder="value">
       </div>
       <div class="field-long">
         <label class="text-xs text-neutral-400">Display Name</label>
-        <input type="text" name="variables[${varIdx}].options[${optIdx}].label" value="${optData.label || ''}" class="input-field" placeholder="Easy Mode">
+        <input type="text" name="variables[${varIdx}].options[${optIdx}].label" value="${optData.label || ''}" class="input-field" placeholder="Display Name">
       </div>
     </div>
   `;
@@ -502,49 +627,48 @@ function addVariable(v = {}) {
   div.innerHTML = `
     <div class="form-row">
       <div class="field-long">
-        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
-        <input type="text" name="variables[${idx}].id" value="${v.id||''}" required class="input-field mt-1 font-mono">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ID <span class="text-red-400">*</span></label>
+        <input type="text" name="variables[${idx}].id" value="${v.id||''}" required class="input-field font-mono" placeholder="variable_id">
       </div>
       <div class="field-long">
-        <label class="text-xs text-neutral-400">Name</label>
-        <input type="text" name="variables[${idx}].name" value="${v.name||''}" required class="input-field mt-1">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Name</label>
+        <input type="text" name="variables[${idx}].name" value="${v.name||''}" class="input-field" placeholder="Variable Name">
       </div>
     </div>
 
-    <div class="form-row mt-4">
+    <div class="form-row mt-3">
       <div class="field-long">
-        <label class="text-xs text-neutral-400">Description</label>
-        <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Description</label>
+        <input type="text" name="variables[${idx}].description" value="${v.description||''}" class="input-field" placeholder="Description shown to user">
       </div>
       <div class="field-short">
-        <label class="text-xs text-neutral-400">User Editable</label>
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">User Editable</label>
         <select name="variables[${idx}].user_editable" class="input-field">
-          <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>True</option>
-          <option value="false" ${v.user_editable === "false" ? "selected" : ""}>False</option>
+          <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>Yes</option>
+          <option value="false" ${v.user_editable === "false" ? "selected" : ""}>No</option>
         </select>
       </div>
     </div>
 
-    <div class="form-row mt-4">
+    <div class="form-row mt-3">
       <div class="field-short">
-        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type <span class="text-red-400">*</span></label>
         <select name="variables[${idx}].type" class="input-field var-type-select" data-idx="${idx}">
           ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
         </select>
       </div>
-    </div>
-
-    <div id="default-section-${idx}" class="field-short mt-4">
-      <label class="text-xs text-neutral-400">Default Value</label>
-      <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field">
-    </div>
-
-    <div id="options-section-${idx}" class="mt-6 hidden">
-      <div class="flex items-center justify-between mb-3">
-        <label class="text-xs text-neutral-400">Options</label>
-        <button type="button" class="add-option-btn px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Option</button>
+      <div id="default-section-${idx}" class="field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Default Value</label>
+        <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="input-field" placeholder="Default value">
       </div>
-      <div id="options-list-${idx}" class="space-y-3"></div>
+    </div>
+
+    <div id="options-section-${idx}" class="mt-4 hidden">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Options</label>
+        <button type="button" class="btn btn-accent text-xs py-1.5 px-3 add-option-btn">+ Add Option</button>
+      </div>
+      <div id="options-list-${idx}" class="space-y-2"></div>
     </div>
 
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
@@ -571,40 +695,40 @@ function addVariable(v = {}) {
 
   if (v.type === "option") {
     optionsSection.classList.remove("hidden");
-    if (Array.isArray(v.options)) v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
-  } else {
-    defaultSection.classList.remove("hidden");
+    if (Array.isArray(v.options)) {
+      v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
+    }
   }
   toggleFields();
 }
 
 // ====================== ITEM TYPES & FIELD CONFIGS ======================
 const itemTypes = [
-  { value: "command",   label: "Run Shell Command" },
-  { value: "download",  label: "Download File" },
+  { value: "command", label: "Run Shell Command" },
+  { value: "download", label: "Download File" },
   { value: "git_clone", label: "Git Clone" },
   { value: "create_file", label: "Create File" },
-  { value: "unzip",     label: "Unzip Archive" },
-  { value: "mkdir",     label: "Create Directory" },
-  { value: "chmod",     label: "Change Permissions" }
+  { value: "unzip", label: "Unzip Archive" },
+  { value: "mkdir", label: "Create Directory" },
+  { value: "chmod", label: "Change Permissions" }
 ];
 
 const fieldConfigs = {
-  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "apt-get update && ..." }],
+  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "#!/bin/bash\necho 'Hello World'" }],
   download: [
-    { key: "url", label: "URL", type: "text", placeholder: "https://..." },
-    { key: "filename", label: "Filename", type: "text", placeholder: "file.jar" },
+    { key: "url", label: "URL", type: "text", placeholder: "https://example.com/file.zip" },
+    { key: "filename", label: "Filename", type: "text", placeholder: "file.zip" },
     { key: "path", label: "Save Path", type: "text", placeholder: "/data" }
   ],
   git_clone: [
-    { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/..." },
+    { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/user/repo.git" },
     { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
     { key: "branch", label: "Branch", type: "text", placeholder: "main" }
   ],
   create_file: [
     { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
     { key: "path", label: "Path", type: "text", placeholder: "/data" },
-    { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "server:\n  port: 25565" }
+    { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "key: value" }
   ],
   unzip: [
     { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
@@ -622,14 +746,16 @@ function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
   const config = fieldConfigs[type] || fieldConfigs.command;
-  let html = `<div class="form-row">`;
+  
+  let html = `<div class="form-row mt-3">`;
   config.forEach(f => {
     const val = data[f.key] || "";
+    const isTextarea = f.type === "textarea";
     html += `
-      <div class="${f.type === 'textarea' ? 'field-long' : 'field-short'}">
-        <label class="text-xs text-neutral-400">${f.label}</label>
-        ${f.type === "textarea" ? 
-          `<textarea name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" rows="${f.rows}" class="input-field mt-1 font-mono" placeholder="${f.placeholder || ''}">${val}</textarea>` :
+      <div class="${isTextarea ? 'field-long' : 'field-short'}">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">${f.label}</label>
+        ${isTextarea ? 
+          `<textarea name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" rows="${f.rows}" class="input-field font-mono mt-1" placeholder="${f.placeholder || ''}">${val}</textarea>` :
           `<input type="text" name="${prefix}[${mainIdx}].operations[${subIdx}].${f.key}" value="${val}" class="input-field mt-1" placeholder="${f.placeholder}">`
         }
       </div>`;
@@ -645,15 +771,15 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   const div = document.createElement("div");
   div.className = "operation-item";
   div.innerHTML = `
-    <div class="flex justify-between items-center mb-3">
+    <div class="flex justify-between items-center mb-2">
       <span class="text-xs font-medium text-neutral-400">Operation #${subIdx + 1}</span>
       <button type="button" onclick="removeAndReindex(this, 'operations')" class="remove-btn">×</button>
     </div>
     <div class="form-row">
       <div class="field-short">
-        <label class="text-xs text-neutral-400">Type <span class="text-rose-400">*</span></label>
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type <span class="text-red-400">*</span></label>
         <select name="${prefix}[${mainIdx}].operations[${subIdx}].type" class="input-field sub-type-select" data-main="${mainIdx}" data-sub="${subIdx}">
-          ${itemTypes.map(t => `<option value="${t.value}">${t.label}</option>`).join("")}
+          ${itemTypes.map(t => `<option value="${t.value}" ${subData.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
         </select>
       </div>
       <div class="field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
@@ -679,20 +805,20 @@ function addAction(a = {}) {
   div.innerHTML = `
     <div class="form-row">
       <div class="field-short">
-        <label class="text-xs text-neutral-400">ID <span class="text-rose-400">*</span></label>
-        <input type="text" name="actions[${idx}].id" value="${a.id || ''}" required class="input-field font-mono">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ID <span class="text-red-400">*</span></label>
+        <input type="text" name="actions[${idx}].id" value="${a.id || ''}" required class="input-field font-mono" placeholder="action_id">
       </div>
       <div class="field-long">
-        <label class="text-xs text-neutral-400">Action Name</label>
-        <input type="text" name="actions[${idx}].name" value="${a.name || ''}" class="input-field">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Action Name</label>
+        <input type="text" name="actions[${idx}].name" value="${a.name || ''}" class="input-field" placeholder="Start Server">
       </div>
     </div>
-    <div class="mt-6">
-      <div class="flex items-center justify-between mb-4">
-        <span class="text-sm font-medium text-neutral-400">Operations</span>
-        <button type="button" class="add-op-btn px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Operation</button>
+    <div class="mt-4">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Operations</span>
+        <button type="button" class="btn btn-accent text-xs py-1.5 px-3 add-op-btn">+ Add Operation</button>
       </div>
-      <div class="operations-list space-y-3" id="ops-actions-${idx}" data-sub-count="0"></div>
+      <div class="operations-list space-y-2" id="ops-actions-${idx}" data-sub-count="0"></div>
     </div>
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
   `;
@@ -712,16 +838,16 @@ function addInstallStep(s = {}) {
   div.innerHTML = `
     <div class="form-row">
       <div class="field-long">
-        <label class="text-xs text-neutral-400">Step Name</label>
-        <input type="text" name="install_steps[${idx}].name" value="${s.name || ''}" class="input-field">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Step Name</label>
+        <input type="text" name="install_steps[${idx}].name" value="${s.name || ''}" class="input-field" placeholder="Download Server Files">
       </div>
     </div>
-    <div class="mt-6">
-      <div class="flex items-center justify-between mb-4">
-        <span class="text-sm font-medium text-neutral-400">Operations</span>
-        <button type="button" class="add-op-btn px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-[8px]">+ Add Operation</button>
+    <div class="mt-4">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Operations</span>
+        <button type="button" class="btn btn-accent text-xs py-1.5 px-3 add-op-btn">+ Add Operation</button>
       </div>
-      <div class="operations-list space-y-3" id="ops-install-${idx}" data-sub-count="0"></div>
+      <div class="operations-list space-y-2" id="ops-install-${idx}" data-sub-count="0"></div>
     </div>
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
   `;
@@ -734,7 +860,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== CUSTOM PAGES (NEW) ======================
+// ====================== CUSTOM PAGES ======================
 function addPage(p = {}) {
   const idx = pageIndex++;
   const div = document.createElement("div");
@@ -742,25 +868,25 @@ function addPage(p = {}) {
   div.innerHTML = `
     <div class="form-row">
       <div class="field-short">
-        <label class="text-xs text-neutral-400">Page ID <span class="text-rose-400">*</span></label>
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Page ID <span class="text-red-400">*</span></label>
         <input type="text" name="pages[${idx}].id" value="${p.id || ''}" required class="input-field font-mono" placeholder="plugins">
       </div>
       <div class="field-long">
-        <label class="text-xs text-neutral-400">Page Name (display)</label>
-        <input type="text" name="pages[${idx}].name" value="${p.name || ''}" class="input-field" placeholder="Plugins Manager">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
+        <input type="text" name="pages[${idx}].name" value="${p.name || ''}" class="input-field" placeholder="Plugin Manager">
       </div>
     </div>
 
-    <div class="mt-6">
-      <label class="text-xs text-neutral-400 block mb-2">EJS View Content (HTML + EJS templates)</label>
-      <textarea name="pages[${idx}].ejsContent" rows="12" class="input-field font-mono" placeholder="&#x3C;div class=&#x22;page-content&#x22;&#x3E;\n  &#x3C;h2&#x3E;Plugins&#x3C;/h2&#x3E;\n  &#x3C;!-- your custom UI --&#x3E;\n&#x3C;/div&#x3E;">${(p.ejsContent || '').replace(/"/g, '&quot;')}</textarea>
-      <div class="note">This file will be saved as &#x3C;template&#x3E;/pages/&#x3C;id&#x3E;.ejs and rendered at /instance/:id/page/:id</div>
+    <div class="mt-4">
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">EJS Content (HTML)</label>
+      <textarea name="pages[${idx}].ejsContent" rows="10" class="input-field font-mono" placeholder="<div class=&quot;page-content&quot;>&#10;  <h2>My Page</h2>&#10;</div>">${(p.ejsContent || '').replace(/"/g, '&quot;')}</textarea>
+      <p class="note">Saved as pages/&lt;id&gt;.ejs • Access via /instance/:id/page/:id</p>
     </div>
 
-    <div class="mt-6">
-      <label class="text-xs text-neutral-400 block mb-2">JS Handler (optional - backend logic)</label>
-      <textarea name="pages[${idx}].jsContent" rows="8" class="input-field font-mono" placeholder="module.exports = {\n  getData: async (instance) => {\n    return { plugins: [] };\n  }\n};">${(p.jsContent || '').replace(/"/g, '&quot;')}</textarea>
-      <div class="note">Leave empty if you only need static EJS. File saved as &#x3C;id&#x3E;.js</div>
+    <div class="mt-4">
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">JS Handler (Optional)</label>
+      <textarea name="pages[${idx}].jsContent" rows="6" class="input-field font-mono" placeholder="module.exports = {&#10;  getData: async (instance) => ({})&#10;};">${(p.jsContent || '').replace(/"/g, '&quot;')}</textarea>
+      <p class="note">Backend logic • Leave empty for static pages</p>
     </div>
 
     <button type="button" onclick="this.closest('.card-item').remove()" class="remove-btn">×</button>
@@ -768,7 +894,7 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA (extended for pages) ======================
+// ====================== COLLECT FORM DATA ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
@@ -781,11 +907,15 @@ function collectFormData() {
   };
 
   for (let [key, value] of fd) {
-    if (key.startsWith("meta.")) data.meta[key.split(".")[1]] = value;
-    else if (key === "category") data.category = value;
-    else if (key === "environment.docker_image") data.environment.docker_image = value;
-
-    // Variables (existing)
+    if (key.startsWith("meta.")) {
+      data.meta[key.split(".")[1]] = value;
+    }
+    else if (key === "category") {
+      data.category = value;
+    }
+    else if (key === "environment.docker_image") {
+      data.environment.docker_image = value;
+    }
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
@@ -804,7 +934,6 @@ function collectFormData() {
         }
       }
     }
-    // Actions (existing - partial)
     else if (key.startsWith("actions[")) {
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
@@ -821,7 +950,6 @@ function collectFormData() {
         }
       }
     }
-    // Install steps (existing)
     else if (key.startsWith("install_steps[")) {
       const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
@@ -838,7 +966,6 @@ function collectFormData() {
         }
       }
     }
-    // PAGES - NEW
     else if (key.startsWith("pages[")) {
       const match = key.match(/pages\[(\d+)\]\.(.+)/);
       if (match) {
@@ -849,14 +976,22 @@ function collectFormData() {
     }
   }
 
+  // Clean arrays
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
   data.pages = data.pages.filter(Boolean);
 
-  data.actions.forEach(a => { if (a.operations) a.operations = a.operations.filter(Boolean); });
-  data.environment.install_steps.forEach(s => { if (s.operations) s.operations = s.operations.filter(Boolean); });
-  data.variables.forEach(v => { if (v.options) v.options = v.options.filter(Boolean); });
+  // Clean nested arrays
+  data.actions.forEach(a => { 
+    if (a.operations) a.operations = a.operations.filter(Boolean); 
+  });
+  data.environment.install_steps.forEach(s => { 
+    if (s.operations) s.operations = s.operations.filter(Boolean); 
+  });
+  data.variables.forEach(v => { 
+    if (v.options) v.options = v.options.filter(Boolean); 
+  });
 
   return data;
 }
@@ -868,22 +1003,18 @@ function fillForm(data) {
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
 
-  // Variables
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
   (data.variables || []).forEach(v => addVariable(v));
 
-  // Actions
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   (data.actions || []).forEach(a => addAction(a));
 
-  // Install Steps
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
   (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
 
-  // Pages - NEW
   document.getElementById("pagesContainer").innerHTML = "";
   pageIndex = 0;
   (data.pages || []).forEach(p => addPage(p));
@@ -898,20 +1029,44 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   [
-    { id: "start", name: "Start", operations: [{ type: "command", run_code: "java -Xms4G -Xmx4G -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -jar server.jar --nogui" }]},
-    { id: "stop", name: "Stop", operations: [{ type: "command", run_code: "stop" }]}
+    { 
+      id: "start", 
+      name: "Start", 
+      operations: [{ 
+        type: "command", 
+        run_code: "java -Xms4G -Xmx4G -jar server.jar --nogui" 
+      }]
+    },
+    { 
+      id: "stop", 
+      name: "Stop", 
+      operations: [{ 
+        type: "command", 
+        run_code: "stop" 
+      }]
+    }
   ].forEach(addAction);
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
   [
-    { name: "Install Server Files", operations: [
-      { type: "download", url: "https://api.papermc.io/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar", filename: "server.jar", path: "/data" },
-      { type: "command", run_code: "echo 'Server downloaded successfully'" }
-    ]}
+    { 
+      name: "Install Server", 
+      operations: [
+        { 
+          type: "download", 
+          url: "https://example.com/server.jar", 
+          filename: "server.jar", 
+          path: "/data" 
+        },
+        { 
+          type: "command", 
+          run_code: "echo 'Installation complete'" 
+        }
+      ]
+    }
   ].forEach(addInstallStep);
 
-  // Pages start empty
   document.getElementById("pagesContainer").innerHTML = "";
   pageIndex = 0;
 }
@@ -922,7 +1077,7 @@ document.getElementById("btnSaveTemplate").onclick = async () => {
   try {
     payload = modeSelect.value === "json" ? JSON.parse(jsonEditor.value) : collectFormData();
   } catch(e) {
-    showNotification("Invalid JSON!", "error");
+    showNotification("Invalid JSON format!", "error");
     return;
   }
 
@@ -930,48 +1085,66 @@ document.getElementById("btnSaveTemplate").onclick = async () => {
   const url = filename ? `/admin/templates/${filename}` : "/admin/templates";
   const method = filename ? "PUT" : "POST";
 
-  const res = await fetch(url, {
-    method,
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(payload)
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
 
-  if (res.ok) {
-    showNotification("✅ Template saved successfully! (pages saved in folder)", "success");
-    setTimeout(() => window.location.href = "/admin/templates/overview", 1200);
-  } else {
-    const err = await res.text();
-    showNotification("❌ Error: " + err.substring(0, 150), "error");
+    if (res.ok) {
+      showNotification("Template saved successfully!", "success");
+      setTimeout(() => window.location.href = "/admin/templates/overview", 1200);
+    } else {
+      const err = await res.text();
+      showNotification("Error: " + err.substring(0, 100), "error");
+    }
+  } catch (err) {
+    showNotification("Network error!", "error");
   }
 };
 
-// ====================== BUTTONS ======================
+// ====================== BUTTON HANDLERS ======================
 document.getElementById("btnCancelForm").onclick = hideForm;
 document.getElementById("btnAddVar").onclick = () => addVariable();
 document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
-document.getElementById("btnAddPage").onclick = () => addPage();   // ← NEW
+document.getElementById("btnAddPage").onclick = () => addPage();
 
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
   if (!name?.trim()) return;
-  const res = await fetch("/admin/templates/category", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: name.trim()}) });
-  if (res.ok) {
-    const {categories} = await res.json();
-    const select = document.querySelector('[name="category"]');
-    select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
-    select.value = name.trim();
-    showNotification("Category added!", "success");
+  
+  try {
+    const res = await fetch("/admin/templates/category", { 
+      method: "POST", 
+      headers: {"Content-Type": "application/json"}, 
+      body: JSON.stringify({name: name.trim()}) 
+    });
+    
+    if (res.ok) {
+      const {categories} = await res.json();
+      const select = document.querySelector('[name="category"]');
+      select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
+      select.value = name.trim();
+      showNotification("Category added!", "success");
+    } else {
+      showNotification("Failed to add category", "error");
+    }
+  } catch (err) {
+    showNotification("Network error!", "error");
   }
 };
 
-// ====================== IMPORT JSON (full template with pages) ======================
+// ====================== IMPORT HANDLERS ======================
 document.getElementById("btnImportJson").onclick = () => {
   const input = document.createElement("input");
-  input.type = "file"; input.accept = ".json";
+  input.type = "file";
+  input.accept = ".json,application/json";
   input.onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
+    
     const reader = new FileReader();
     reader.onload = ev => {
       try {
@@ -980,7 +1153,7 @@ document.getElementById("btnImportJson").onclick = () => {
         modeSelect.value = "json";
         modeSelect.onchange();
         jsonEditor.value = JSON.stringify(data, null, 2);
-        showNotification("✅ Full JSON imported (pages included)", "success");
+        showNotification("JSON imported successfully!", "success");
       } catch(e) {
         showNotification("Invalid JSON file!", "error");
       }
@@ -990,19 +1163,8 @@ document.getElementById("btnImportJson").onclick = () => {
   input.click();
 };
 
-// ====================== IMPORT PAGES ONLY (NEW) ======================
-document.getElementById("btnImportPages").onclick = async () => {
-  const templateName = prompt("Enter existing template folder name (e.g. paper) to import its pages:");
-  if (!templateName) return;
-
-  try {
-    // We use the existing download route (main.json) + note that full page content is handled in edit mode
-    // For simplicity in create we fallback to manual
-    showNotification("Pages import via folder (use Edit mode for full content pull). Paste in JSON mode for now.", "success");
-    // Future: backend can expose full template JSON with pages content
-  } catch(e) {
-    showNotification("Template not found or error", "error");
-  }
+document.getElementById("btnImportPages").onclick = () => {
+  showNotification("Use Edit mode to import pages from existing templates", "success");
 };
 
 // ====================== INIT ======================
