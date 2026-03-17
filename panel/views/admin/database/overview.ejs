@@ -10,6 +10,9 @@
   padding: 1.75rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .stat-card:hover {
@@ -19,15 +22,12 @@
 }
 
 .stat-number {
-  font-size: 3.25rem;
+  font-size: clamp(2rem, 5vw, 3.25rem);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.025em;
-}
-
-@media (max-width: 640px) {
-  .stat-number { font-size: 2.75rem; }
-  .stat-card { padding: 1.25rem; }
+  margin-top: 0.5rem;
+  word-break: break-word;
 }
 
 /* Header button style (exact match to Nodes) */
@@ -43,6 +43,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .refresh-btn:hover {
@@ -55,142 +56,225 @@
 #notification {
   transition: all 0.3s ease;
 }
+
+/* Icon sizing */
+.stat-icon {
+  width: clamp(2.5rem, 6vw, 3rem);
+  height: clamp(2.5rem, 6vw, 3rem);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  flex-shrink: 0;
+}
+
+/* Card content spacing */
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .stat-card { 
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .refresh-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 120px;
+  }
+  
+  .live-badge {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .version-badge {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .stat-number {
+    font-size: 2.5rem;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1536px) {
+  .stat-card {
+    padding: 2rem;
+  }
+  
+  .stat-number {
+    font-size: 3.5rem;
+  }
+}
+
+/* Ensure text doesn't overflow */
+.truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.break-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 </style>
 
-<main id="content" class="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+<main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
   
   <!-- Header (styled exactly like Nodes) -->
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
-    <div>
-      <h1 class="text-3xl font-semibold text-white tracking-tight">Database Overview</h1>
-      <p class="mt-1 text-sm text-neutral-400">Users • Instances • Nodes • API Keys • Plugins + Full Database Info</p>
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight truncate">Database Overview</h1>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400 truncate">Users • Instances • Nodes • API Keys • Plugins + Full Database Info</p>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3 header-actions">
       <!-- LIVE badge -->
-      <div class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-5 py-2 rounded-[10px] text-sm font-medium">
-        <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-        LIVE
+      <div class="live-badge flex items-center justify-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 sm:px-5 py-2 rounded-[10px] text-xs sm:text-sm font-medium">
+        <div class="w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse flex-shrink-0"></div>
+        <span class="hidden sm:inline">LIVE</span>
+        <span class="sm:hidden">●</span>
       </div>
 
       <!-- Refresh button (styled like Radar Scan) -->
       <button onclick="refreshDatabase()" 
               class="refresh-btn">
         <span class="inline-block transition-transform">↻</span>
-        Refresh Now
+        <span class="hidden sm:inline">Refresh Now</span>
+        <span class="sm:hidden">Refresh</span>
       </button>
 
-      <span class="bg-white/5 px-5 py-2 rounded-[10px] text-xs text-neutral-400">v<%= version %></span>
+      <span class="version-badge bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap">v<%= version %></span>
     </div>
   </header>
 
   <!-- DATABASE STATISTICS (8 cards – exact Nodes article style) -->
-  <div class="mt-10">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-semibold text-white">Database Statistics</h2>
+  <div class="mt-6 sm:mt-10">
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-semibold text-white">Database Statistics</h2>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-6">
       
       <!-- Users -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Total Users</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Users</p>
             <p id="users-text" class="stat-number text-blue-400"><%= usersTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-4xl">👥</div>
+          <div class="stat-icon bg-blue-500/10 rounded-2xl flex items-center justify-center">👥</div>
         </div>
-        <p class="mt-6 text-sm text-neutral-400">
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">
           Admins: <span id="admins-text" class="text-emerald-400 font-medium"><%= adminsTotal %></span>
         </p>
       </article>
 
       <!-- Instances -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Instances</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Instances</p>
             <p id="instances-text" class="stat-number text-purple-400"><%= instancesTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-4xl">📦</div>
+          <div class="stat-icon bg-purple-500/10 rounded-2xl flex items-center justify-center">📦</div>
         </div>
-        <p class="mt-6 text-sm text-neutral-400">
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">
           Suspended: <span id="suspended-text" class="text-red-400 font-medium"><%= suspendedTotal %></span>
         </p>
       </article>
 
       <!-- Nodes -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Nodes</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Nodes</p>
             <p id="nodes-text" class="stat-number text-orange-400"><%= nodesTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center text-4xl">🖥️</div>
+          <div class="stat-icon bg-orange-500/10 rounded-2xl flex items-center justify-center">🖥️</div>
         </div>
-        <p class="mt-6 text-sm text-neutral-400 flex justify-between">
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex flex-col sm:flex-row sm:justify-between gap-1">
           <span>Online: <span id="online-text" class="text-emerald-400 font-medium"><%= onlineNodes %></span></span>
           <span>Offline: <span id="offline-text" class="text-red-400 font-medium"><%= offlineNodes %></span></span>
-        </p>
+        </div>
       </article>
 
       <!-- Templates -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Templates</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Templates</p>
             <p id="templates-text" class="stat-number text-cyan-400"><%= templatesTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-4xl">📋</div>
+          <div class="stat-icon bg-cyan-500/10 rounded-2xl flex items-center justify-center">📋</div>
         </div>
       </article>
 
       <!-- Locations -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Locations</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Locations</p>
             <p id="locations-text" class="stat-number text-amber-400"><%= locationsTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-4xl">🌍</div>
+          <div class="stat-icon bg-amber-500/10 rounded-2xl flex items-center justify-center">🌍</div>
         </div>
       </article>
 
       <!-- API Keys -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">API Keys</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">API Keys</p>
             <p id="apikeys-text" class="stat-number text-pink-400"><%= apiKeysTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-pink-500/10 rounded-2xl flex items-center justify-center text-4xl">🔑</div>
+          <div class="stat-icon bg-pink-500/10 rounded-2xl flex items-center justify-center">🔑</div>
         </div>
       </article>
 
       <!-- Plugins -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Plugins</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Plugins</p>
             <p id="plugins-text" class="stat-number text-violet-400"><%= pluginsTotal %></p>
           </div>
-          <div class="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center text-4xl">🧩</div>
+          <div class="stat-icon bg-violet-500/10 rounded-2xl flex items-center justify-center">🧩</div>
         </div>
       </article>
 
       <!-- Requests -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Total Requests</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Requests</p>
             <p id="requests-text" class="stat-number text-emerald-400"><%= totalRequests %></p>
           </div>
-          <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-4xl">📡</div>
+          <div class="stat-icon bg-emerald-500/10 rounded-2xl flex items-center justify-center">📡</div>
         </div>
-        <div class="mt-6 text-sm text-neutral-400">
-          Unique Visitors: <span id="visitors-text" class="text-white font-medium"><%= uniqueVisitors %></span><br>
-          Avg/hour: <span id="avg-text" class="text-white font-medium"><%= avgRequestsPerHour %></span>
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 space-y-1">
+          <div class="flex justify-between">
+            <span>Visitors:</span>
+            <span id="visitors-text" class="text-white font-medium"><%= uniqueVisitors %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Avg/hour:</span>
+            <span id="avg-text" class="text-white font-medium"><%= avgRequestsPerHour %></span>
+          </div>
         </div>
       </article>
 
@@ -198,62 +282,62 @@
   </div>
 
   <!-- DATABASE INFORMATION (5 cards – same premium style) -->
-  <div class="mt-12">
-    <h2 class="text-2xl font-semibold text-white mb-6">Database Information</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+  <div class="mt-8 sm:mt-12">
+    <h2 class="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">Database Information</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
 
       <!-- DB Type -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Database Type</p>
-            <p id="dbtype-text" class="stat-number text-emerald-400"><%= dbType %></p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Type</p>
+            <p id="dbtype-text" class="stat-number text-emerald-400 break-text"><%= dbType %></p>
           </div>
-          <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-4xl">🗄️</div>
+          <div class="stat-icon bg-emerald-500/10 rounded-2xl flex items-center justify-center">🗄️</div>
         </div>
       </article>
 
       <!-- Size -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Database Size</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Size</p>
             <p id="dbsize-text" class="stat-number text-cyan-400"><%= dbSize %></p>
           </div>
-          <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-4xl">📦</div>
+          <div class="stat-icon bg-cyan-500/10 rounded-2xl flex items-center justify-center">📦</div>
         </div>
       </article>
 
       <!-- URL -->
-      <article class="stat-card col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-1">
-        <div class="flex items-center justify-between">
-          <div class="flex-1">
-            <p class="text-sm font-medium text-neutral-400">Connection URL</p>
-            <p id="dburl-text" class="mt-4 font-mono text-sm text-amber-400 break-all"><%= dbUrlMasked %></p>
+      <article class="stat-card sm:col-span-2 lg:col-span-1 xl:col-span-1">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Connection URL</p>
+            <p id="dburl-text" class="mt-2 sm:mt-4 font-mono text-xs sm:text-sm text-amber-400 break-all leading-relaxed"><%= dbUrlMasked %></p>
           </div>
-          <div class="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-4xl ml-4">🔗</div>
+          <div class="stat-icon bg-amber-500/10 rounded-2xl flex items-center justify-center flex-shrink-0">🔗</div>
         </div>
       </article>
 
       <!-- Table -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Table Name</p>
-            <p id="dbtable-text" class="stat-number text-violet-400"><%= dbTable %></p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Table Name</p>
+            <p id="dbtable-text" class="stat-number text-violet-400 break-text"><%= dbTable %></p>
           </div>
-          <div class="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center text-4xl">📋</div>
+          <div class="stat-icon bg-violet-500/10 rounded-2xl flex items-center justify-center">📋</div>
         </div>
       </article>
 
       <!-- Total Keys -->
       <article class="stat-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Total Keys</p>
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Keys</p>
             <p id="dbkeys-text" class="stat-number text-pink-400"><%= totalKeys %></p>
           </div>
-          <div class="w-12 h-12 bg-pink-500/10 rounded-2xl flex items-center justify-center text-4xl">🔑</div>
+          <div class="stat-icon bg-pink-500/10 rounded-2xl flex items-center justify-center">🔑</div>
         </div>
       </article>
 
@@ -264,8 +348,8 @@
 
 <!-- Notification (exact Nodes style) -->
 <div id="notification" 
-     class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl text-sm font-medium z-50">
-  <span id="notification-text"></span>
+     class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)]">
+  <span id="notification-text" class="break-text"></span>
 </div>
 
 <script>
@@ -326,7 +410,7 @@
     const textEl = document.getElementById('notification-text');
     textEl.textContent = message;
 
-    notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-sm font-medium transition-all duration-300 ${
+    notification.className = `fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] transition-all duration-300 ${
       type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
     }`;
     notification.classList.remove('hidden');
