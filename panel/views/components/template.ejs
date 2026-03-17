@@ -33,6 +33,14 @@
          -moz-osx-font-smoothing: grayscale;
       }
 
+      /* Prevent body scroll when sidebar open on mobile */
+      body.sidebar-open {
+         overflow: hidden;
+         position: fixed;
+         width: 100%;
+         height: 100%;
+      }
+
       /* Reset all form elements to default browser styling */
       input, select, textarea, button {
          font-family: inherit;
@@ -46,20 +54,23 @@
          -moz-appearance: auto;
       }
 
-      /* Sidebar Base */
+      /* Sidebar Base - FIXED FOR MOBILE SCROLL */
       .sidebar {
          position: fixed;
          top: 0;
          left: 0;
          height: 100vh;
-         width: 16rem;
+         height: 100dvh; /* Dynamic viewport height for mobile */
+         width: 15rem;
          z-index: 50;
-         overflow-y: auto;
+         overflow-y: auto; /* Enable scrolling */
          overflow-x: hidden;
-         background: rgba(0, 0, 0, 0.4);
-         backdrop-filter: blur(12px);
-         -webkit-backdrop-filter: blur(12px);
-         border-right: 1px solid rgba(255, 255, 255, 0.05);
+         overscroll-behavior-y: contain; /* Prevent body scroll chaining [^4^] */
+         -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+         background: rgba(0, 0, 0, 0.85);
+         backdrop-filter: blur(16px);
+         -webkit-backdrop-filter: blur(16px);
+         border-right: 1px solid rgba(255, 255, 255, 0.1);
          transform: translateX(-100%);
          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
@@ -72,6 +83,9 @@
       @media (min-width: 1024px) {
          .sidebar {
             transform: translateX(0);
+            width: 16rem;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
             transition: width 0.3s ease;
          }
          
@@ -80,27 +94,47 @@
          }
          
          .sidebar.collapsed .nav-text,
-         .sidebar.collapsed .admin-label {
+         .sidebar.collapsed .admin-label,
+         .sidebar.collapsed .user-info {
             display: none;
+         }
+         
+         .sidebar.collapsed .user-section {
+            justify-content: center;
+            padding: 0.75rem;
          }
          
          .sidebar.collapsed .nav-link {
             justify-content: center;
             padding-left: 0;
             padding-right: 0;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+         }
+         
+         .sidebar.collapsed .logout-btn {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+         }
+         
+         .sidebar.collapsed .logout-btn .nav-text {
+            display: none;
          }
       }
 
       /* Mobile optimizations */
       @media (max-width: 1023px) {
          .sidebar {
-            width: 18rem;
+            width: 85vw; /* Better mobile width */
+            max-width: 20rem;
          }
          
          .sidebar-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
             z-index: 40;
             opacity: 0;
             visibility: hidden;
@@ -118,27 +152,28 @@
          display: flex;
          align-items: center;
          gap: 0.75rem;
-         padding: 0.5rem 1rem;
+         padding: 0.625rem 1rem;
          margin: 0.25rem 0.75rem;
          border-radius: 0.75rem;
-         color: rgba(255, 255, 255, 0.6);
+         color: rgba(255, 255, 255, 0.7);
          text-decoration: none;
          font-size: 0.875rem;
          font-weight: 400;
          transition: all 0.2s ease;
          position: relative;
          white-space: nowrap;
+         flex-shrink: 0;
       }
 
       .nav-link:hover {
-         color: rgba(255, 255, 255, 0.9);
-         background: rgba(255, 255, 255, 0.05);
+         color: rgba(255, 255, 255, 0.95);
+         background: rgba(255, 255, 255, 0.08);
       }
 
       .nav-link.active {
          color: white;
          font-weight: 500;
-         background: rgba(255, 255, 255, 0.1);
+         background: rgba(255, 255, 255, 0.15);
       }
 
       .nav-icon {
@@ -192,7 +227,7 @@
          }
       }
 
-      /* Mobile Menu Toggle */
+      /* Mobile Menu Toggle - FIXED: Only show on mobile */
       .menu-toggle {
          display: flex;
          align-items: center;
@@ -215,9 +250,21 @@
          transform: scale(0.98);
       }
 
+      /* FIXED: Hide mobile toggle on desktop */
       @media (min-width: 1024px) {
          .menu-toggle {
-            display: none;
+            display: none !important;
+         }
+      }
+
+      /* FIXED: Hide desktop brand on mobile */
+      .desktop-brand {
+         display: none;
+      }
+
+      @media (min-width: 1024px) {
+         .desktop-brand {
+            display: flex;
          }
       }
 
@@ -345,6 +392,7 @@
          border-radius: 0.75rem;
          background: rgba(255, 255, 255, 0.05);
          border: 1px solid rgba(255, 255, 255, 0.05);
+         flex-shrink: 0;
       }
 
       .user-avatar {
@@ -380,8 +428,9 @@
          text-transform: uppercase;
          letter-spacing: 0.05em;
          color: rgba(255, 255, 255, 0.4);
-         padding: 1.5rem 1.5rem 0.5rem;
+         padding: 1.25rem 1.5rem 0.5rem;
          margin-top: 0.5rem;
+         flex-shrink: 0;
       }
 
       /* Logout Button */
@@ -397,6 +446,7 @@
          font-size: 0.875rem;
          transition: all 0.2s ease;
          margin-top: auto;
+         flex-shrink: 0;
       }
 
       .logout-btn:hover {
@@ -482,12 +532,6 @@
          background: rgba(255, 255, 255, 0.3);
       }
 
-      /* Animation for active indicator */
-      @keyframes pulse-subtle {
-         0%, 100% { opacity: 1; }
-         50% { opacity: 0.8; }
-      }
-
       /* Focus visible for accessibility */
       .nav-link:focus-visible,
       .icon-btn:focus-visible,
@@ -501,7 +545,7 @@
       @supports (padding-top: env(safe-area-inset-top)) {
          .sidebar {
             padding-top: env(safe-area-inset-top);
-            height: calc(100vh - env(safe-area-inset-top));
+            height: calc(100dvh - env(safe-area-inset-top));
          }
          
          .header {
@@ -518,7 +562,7 @@
 
    <!-- Sidebar -->
    <aside class="sidebar" id="sidebar">
-      <nav style="display: flex; flex-direction: column; height: 100%;">
+      <nav style="display: flex; flex-direction: column; min-height: 100%;">
          
          <!-- User Info -->
          <div class="user-section">
@@ -530,7 +574,7 @@
          </div>
 
          <!-- Navigation -->
-         <div style="flex: 1; overflow-y: auto; padding: 0.5rem 0;">
+         <div style="flex: 1; overflow-y: auto; padding: 0.5rem 0; overscroll-behavior-y: contain;">
             <a href="/instances" class="nav-link <%= req.path === '/instances' ? 'active' : '' %>">
                <svg class="nav-icon" viewBox="0 0 256 256" fill="currentColor">
                   <path d="M220,169.09l-92,53.65L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,169.09Z"/>
@@ -665,6 +709,7 @@
       
       <!-- Header -->
       <header class="header">
+         <!-- FIXED: Mobile toggle only visible on mobile -->
          <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                <path d="M4 6h16M4 12h16M4 18h16"/>
@@ -675,7 +720,8 @@
             </div>
          </button>
 
-         <div class="brand hidden lg:flex">
+         <!-- FIXED: Desktop brand only visible on desktop -->
+         <div class="brand desktop-brand">
             <img src="/assets/logo.webp" class="brand-logo" alt="Logo">
             <span class="brand-name"><%= name || 'KS Panel' %></span>
          </div>
@@ -785,11 +831,13 @@
    </div>
 
    <script>
-      // Sidebar Toggle Logic
+      // Sidebar Toggle Logic - FIXED with body scroll lock
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
       const mainContainer = document.getElementById('mainContainer');
+      const body = document.body;
       let sidebarCollapsed = false;
+      let scrollY = 0;
 
       function toggleSidebar() {
          if (window.innerWidth >= 1024) {
@@ -799,17 +847,21 @@
             mainContainer.classList.toggle('sidebar-collapsed', sidebarCollapsed);
             localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
          } else {
-            // Mobile: open drawer
+            // Mobile: open drawer with body scroll lock [^6^]
+            scrollY = window.scrollY;
             sidebar.classList.add('open');
             overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            body.classList.add('sidebar-open');
+            body.style.top = `-${scrollY}px`;
          }
       }
 
       function closeSidebar() {
          sidebar.classList.remove('open');
          overlay.classList.remove('active');
-         document.body.style.overflow = '';
+         body.classList.remove('sidebar-open');
+         body.style.top = '';
+         window.scrollTo(0, scrollY);
       }
 
       // Restore desktop sidebar state
@@ -824,7 +876,9 @@
          if (window.innerWidth < 1024) {
             sidebar.classList.remove('collapsed');
             mainContainer.classList.remove('sidebar-collapsed');
-            closeSidebar();
+            if (sidebar.classList.contains('open')) {
+               closeSidebar();
+            }
          } else {
             sidebar.classList.toggle('collapsed', sidebarCollapsed);
             mainContainer.classList.toggle('sidebar-collapsed', sidebarCollapsed);
@@ -833,7 +887,6 @@
 
       // Dropdown Toggles
       function toggleDropdown(btnId, dropdownId) {
-         const btn = document.getElementById(btnId);
          const dropdown = document.getElementById(dropdownId);
          const isActive = dropdown.classList.contains('active');
          
@@ -885,7 +938,6 @@
                      }
                   })
                   .catch(() => {
-                     // Fallback icon on error
                      span.innerHTML = '<svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>';
                   });
             }
@@ -1048,5 +1100,3 @@
       });
    </script>
    <script src="/javascript/search/index.js"></script>
-</body>
-</html>
