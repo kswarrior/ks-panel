@@ -1,178 +1,378 @@
 <%- include('../../components/template') %>
 <style>
-.input-field {
+/* ====================== SCOPED STYLES - ONLY AFFECT #createNodeForm ====================== */
+
+#createNodeForm .nd-input {
   width: 100%;
-  padding: 1rem 1.5rem;
-  background-color: #1c3b54;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.5rem;
   color: white;
-  placeholder-color: rgba(255, 255, 255, 0.4);
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  font-family: inherit;
 }
 
-.input-field:focus {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+#createNodeForm .nd-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
-.form-row {
+#createNodeForm .nd-input:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+#createNodeForm select.nd-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+}
+
+#createNodeForm textarea.nd-input {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+#createNodeForm .nd-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
+  margin-bottom: 1rem;
 }
 
-.field-long,
-.field-short {
+#createNodeForm .nd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* Section styling */
+.nd-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+.nd-section-divider::before,
+.nd-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.nd-section-divider h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* Checkbox and radio styling */
+.nd-checkbox-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.nd-checkbox-wrap:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nd-checkbox-wrap input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  accent-color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.nd-radio-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  flex-grow: 1;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.field-long {
-  flex-basis: 420px;
-  min-width: 260px;
+.nd-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.field-short {
-  flex-basis: 180px;
-  min-width: 160px;
+.nd-radio-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nd-radio-option input[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* Hidden utility */
+.nd-hidden {
+  display: none !important;
+}
+
+/* ====================== MOBILE RESPONSIVE ====================== */
+@media (max-width: 640px) {
+  #createNodeForm .nd-input {
+    padding: 0.75rem 0.875rem;
+    font-size: 1rem;
+  }
+  
+  #createNodeForm .nd-row {
+    gap: 0.875rem;
+    margin-bottom: 0.875rem;
+  }
+  
+  .nd-section-divider {
+    margin: 1.75rem 0 1rem;
+    gap: 0.75rem;
+  }
+  
+  .nd-section-divider h2 {
+    font-size: 0.75rem;
+  }
+  
+  .nd-checkbox-wrap,
+  .nd-radio-group {
+    padding: 0.75rem;
+  }
+  
+  .nd-radio-option {
+    padding: 0.5rem;
+  }
+}
+
+/* ====================== TABLET & DESKTOP ====================== */
+@media (min-width: 641px) {
+  #createNodeForm .nd-field.nd-short {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 200px;
+  }
+  
+  #createNodeForm .nd-field.nd-long {
+    flex: 2 1 400px;
+    min-width: 280px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .form-row {
-    gap: 2rem;
+  #createNodeForm .nd-row {
+    gap: 1.5rem;
   }
-
-  .field-long {
-    flex: 2 1 420px;
-  }
-
-  .field-short {
+  
+  #createNodeForm .nd-field.nd-short {
     flex: 1 1 180px;
   }
+  
+  #createNodeForm .nd-field.nd-long {
+    flex: 2 1 420px;
+  }
 }
 
-/* checkbox / radio */
-.proxy-checkbox,
-.radio-group {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.proxy-checkbox input[type="checkbox"] {
-  accent-color: #3b82f6;
-}
-
-.radio-group input[type="radio"] {
-  accent-color: #3b82f6;
-}
-
-.radio-option {
-  display: flex;
+/* Notification scoped */
+#nd-notification {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  max-width: calc(100vw - 2rem);
+  display: none;
   align-items: center;
-  padding: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.05);
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
   border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+#nd-notification.nd-show {
+  display: flex;
+}
+
+@media (max-width: 640px) {
+  #nd-notification {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+
+/* Page header buttons */
+.nd-header-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  gap: 0.75rem;
+  min-height: 2.75rem;
+  text-decoration: none;
 }
 
-.radio-option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.nd-header-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.proxy-checkbox {
-  align-items: flex-start;
-  padding: 0.75rem;
-  background-color: rgba(75, 85, 99, 0.3);
-  border-radius: 0.5rem;
-  gap: 0.75rem;
+.nd-header-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-/* select textarea */
-textarea.input-field,
-select.input-field {
-  resize: vertical;
+.nd-header-btn-primary {
+  background: white;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.nd-header-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 640px) {
+  .nd-header-btn {
+    flex: 1;
+    min-height: 2.75rem;
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Submit button */
+.nd-submit-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.625rem;
+  background: white;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
   min-height: 3rem;
 }
 
-/* hidden */
-.hidden {
-  display: none;
+.nd-submit-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.nd-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .nd-submit-btn {
+    min-height: 3.25rem;
+    font-size: 1rem;
+  }
 }
 </style>
+
 <link href="/css/ks-panel.css" rel="stylesheet">
-<main id="content" class="max-w-screen-2xl mx-auto">
-  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+<main id="content" class="min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
       <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Node</h1>
-        <p class="mt-1 text-sm text-neutral-400">Configure a new server node with full resource limits and proxy support</p>
+        <h1 class="text-xl sm:text-2xl font-semibold text-white tracking-tight">Create New Node</h1>
+        <p class="mt-1 text-sm text-neutral-400">Configure a new server node with resource limits and proxy support</p>
       </div>
 
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap gap-2 sm:gap-3">
         <button onclick="window.location.href='/admin/nodes/overview'" 
-                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
-          ← Back to Nodes
+                class="nd-header-btn nd-header-btn-secondary">
+          <span>←</span>
+          <span class="hidden sm:inline">Back to Nodes</span>
+          <span class="sm:hidden">Back</span>
         </button>
         
         <button onclick="window.location.href='/admin/nodes/localnode'"
-                class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+                class="nd-header-btn nd-header-btn-primary">
           Local Node
         </button>
       </div>
     </header>
 
-    <section class="mt-12">
-      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
+    <section class="mt-6 sm:mt-8">
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4 sm:p-6 lg:p-8">
         <form id="createNodeForm">
 
           <!-- BASIC -->
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div class="nd-section-divider">
+            <h2>Basic Information</h2>
           </div>
 
-          <div class="form-row">
-            <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">NODE NAME <span class="text-red-400">*</span></label>
-              <input id="nodeName" required type="text" class="input-field" placeholder="Main Node">
+          <div class="nd-row">
+            <div class="nd-field nd-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Node Name <span class="text-red-400">*</span></label>
+              <input id="nodeName" required type="text" class="nd-input" placeholder="Main Node">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">FQDN / IP OR TUNNEL HOSTNAME <span class="text-red-400">*</span></label>
-              <input id="nodeAddress" required type="text" class="input-field" placeholder="node1.example.com">
+          <div class="nd-row">
+            <div class="nd-field nd-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">FQDN / IP or Tunnel Hostname <span class="text-red-400">*</span></label>
+              <input id="nodeAddress" required type="text" class="nd-input" placeholder="node1.example.com">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DAEMON PORT <span class="text-red-400">*</span></label>
-              <input id="nodePort" required type="number" value="3002" class="input-field">
+          <div class="nd-row">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Daemon Port <span class="text-red-400">*</span></label>
+              <input id="nodePort" required type="number" value="3002" class="nd-input">
             </div>
 
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">SFTP PORT</label>
-              <input id="nodeSftpPort" type="number" value="2022" class="input-field">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">SFTP Port</label>
+              <input id="nodeSftpPort" type="number" value="2022" class="nd-input">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">LOCATION <span class="text-red-400">*</span></label>
-              <select id="nodeLocation" required class="input-field">
+          <div class="nd-row">
+            <div class="nd-field nd-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Location <span class="text-red-400">*</span></label>
+              <select id="nodeLocation" required class="nd-input">
                 <option value="">Select location...</option>
                 <% locations.forEach(function(loc) { %>
                 <option value="<%= loc.id %>"><%= loc.name %></option>
@@ -182,224 +382,214 @@ select.input-field {
           </div>
 
           <!-- RESOURCES -->
-          <div class="flex items-center gap-4 mt-10 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCE LIMITS</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div class="nd-section-divider">
+            <h2>Resource Limits</h2>
           </div>
 
-          <div class="form-row">
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">RESOURCE DETECTION MODE <span class="text-red-400">*</span></label>
-              <select id="resourceMode" class="input-field" onchange="toggleResourceFields()">
+          <div class="nd-row">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Resource Detection <span class="text-red-400">*</span></label>
+              <select id="resourceMode" class="nd-input" onchange="toggleResourceFields()">
                 <option value="auto">Auto-detect</option>
                 <option value="manual">Manual</option>
               </select>
             </div>
           </div>
 
-          <div id="manualResources" class="form-row hidden">
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL RAM (GB) <span class="text-red-400">*</span></label>
-              <input id="nodeRam" type="number" class="input-field" placeholder="32">
+          <div id="manualResources" class="nd-row nd-hidden">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Total RAM (GB) <span class="text-red-400">*</span></label>
+              <input id="nodeRam" type="number" class="nd-input" placeholder="32">
             </div>
 
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">TOTAL DISK (GB) <span class="text-red-400">*</span></label>
-              <input id="nodeDisk" type="number" class="input-field" placeholder="500">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Total Disk (GB) <span class="text-red-400">*</span></label>
+              <input id="nodeDisk" type="number" class="nd-input" placeholder="500">
             </div>
 
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">MEMORY OVERALLOCATE (%)</label>
-              <input id="nodeMemoryOver" type="number" value="0" class="input-field">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Memory Overallocate (%)</label>
+              <input id="nodeMemoryOver" type="number" value="0" class="nd-input">
             </div>
 
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">DISK OVERALLOCATE (%)</label>
-              <input id="nodeDiskOver" type="number" value="0" class="input-field">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Disk Overallocate (%)</label>
+              <input id="nodeDiskOver" type="number" value="0" class="nd-input">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="field-short">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">MAX UPLOAD SIZE (MB)</label>
-              <input id="nodeUploadSize" type="number" value="500" class="input-field">
+          <div class="nd-row">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Max Upload Size (MB)</label>
+              <input id="nodeUploadSize" type="number" value="500" class="nd-input">
             </div>
           </div>
 
           <!-- PROXY -->
-          <div class="flex items-center gap-4 mt-10 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">PROXY & CONNECTION</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div class="nd-section-divider">
+            <h2>Proxy & Connection</h2>
           </div>
 
-          <div class="form-row">
-            <div class="field-short">
-              <div class="proxy-checkbox">
-                <input id="behindProxy" type="checkbox" class="w-5 h-5 accent-white rounded">
-                <label for="behindProxy" class="text-sm text-white cursor-pointer select-none">Behind Proxy (Nginx / Cloudflare)</label>
-              </div>
+          <div class="nd-row">
+            <div class="nd-field nd-short">
+              <label class="nd-checkbox-wrap">
+                <input id="behindProxy" type="checkbox">
+                <span class="text-sm text-white select-none">Behind Proxy (Nginx / Cloudflare)</span>
+              </label>
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="field-short">
-              <div class="p-3 bg-neutral-800/30 rounded-lg">
-                <label class="text-xs font-medium text-neutral-400 block mb-3 text-center">CONNECTION PROTOCOL <span class="text-red-400">*</span></label>
-                <div class="radio-group">
-                  <label class="radio-option">
-                    <input type="radio" name="connectionProtocol" value="http" checked class="w-5 h-5 accent-white rounded mr-2">
-                    <span class="text-sm text-white select-none">Use HTTP Connection</span>
-                  </label>
-                  <label class="radio-option">
-                    <input type="radio" name="connectionProtocol" value="https" class="w-5 h-5 accent-white rounded mr-2">
-                    <span class="text-sm text-white select-none">Use SSL Connection</span>
-                  </label>
-                </div>
+          <div class="nd-row">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2 text-center">Connection Protocol <span class="text-red-400">*</span></label>
+              <div class="nd-radio-group">
+                <label class="nd-radio-option">
+                  <input type="radio" name="connectionProtocol" value="http" checked>
+                  <span class="text-sm text-white select-none">Use HTTP Connection</span>
+                </label>
+                <label class="nd-radio-option">
+                  <input type="radio" name="connectionProtocol" value="https">
+                  <span class="text-sm text-white select-none">Use SSL Connection</span>
+                </label>
               </div>
             </div>
           </div>
 
           <!-- ALLOCATIONS -->
-          <div class="flex items-center gap-4 mt-12 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-            <h2 class="text-lg font-semibold text-white tracking-wide">INITIAL ALLOCATIONS (PORTS)</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div class="nd-section-divider">
+            <h2>Initial Allocations (Ports)</h2>
           </div>
 
-          <div class="form-row">
-            <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">IP FOR ALLOCATIONS</label>
-              <input id="allocIp" type="text" class="input-field" placeholder="Leave blank = node address">
+          <div class="nd-row">
+            <div class="nd-field nd-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">IP for Allocations</label>
+              <input id="allocIp" type="text" class="nd-input" placeholder="Leave blank = node address">
             </div>
 
-            <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">IP ALIAS / LABEL</label>
-              <input id="allocAlias" type="text" class="input-field" placeholder="e.g. Game Servers">
+            <div class="nd-field nd-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">IP Alias / Label</label>
+              <input id="allocAlias" type="text" class="nd-input" placeholder="e.g. Game Servers">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="field-long">
-              <label class="text-xs font-medium text-neutral-400 block mb-2">PORTS (COMMA OR RANGES)</label>
-              <textarea id="allocPorts" rows="3" class="input-field" placeholder="25565,27015-27030"></textarea>
+          <div class="nd-row">
+            <div class="nd-field nd-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Ports (comma or ranges)</label>
+              <textarea id="allocPorts" rows="3" class="nd-input" placeholder="25565,27015-27030"></textarea>
             </div>
           </div>
 
           <!-- SUBMIT -->
-          <div class="mt-10">
-  <button id="createNodeBtn" type="button"
-          class="w-full px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
-    CREATE NODE
-  </button>
-</div>
+          <div class="mt-8 sm:mt-10">
+            <button id="createNodeBtn" type="button" class="nd-submit-btn">
+              CREATE NODE
+            </button>
+          </div>
 
         </form>
       </div>
     </section>
 
-    <div id="notification" 
-         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
-      <span id="notification-text"></span>
-    </div>
   </div>
-
-  <script>
-  function toggleResourceFields() {
-    const mode = document.getElementById('resourceMode').value;
-    const manualDiv = document.getElementById('manualResources');
-    if (mode === 'auto') {
-      manualDiv.classList.add('hidden');
-    } else {
-      manualDiv.classList.remove('hidden');
-    }
-  }
-
-  // Initialize the toggle on page load to ensure correct initial state
-  document.addEventListener('DOMContentLoaded', function() {
-    toggleResourceFields();
-  });
-
-  function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    const textEl = document.getElementById('notification-text');
-    textEl.textContent = message;
-    
-    notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
-      type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
-    }`;
-    notification.classList.remove('hidden');
-    notification.classList.add('flex');
-
-    setTimeout(() => {
-      notification.classList.add('opacity-0', 'translate-y-2');
-      setTimeout(() => {
-        notification.classList.add('hidden');
-        notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
-      }, 300);
-    }, 2800);
-  }
-
-  // Create Node handler
-  document.getElementById('createNodeBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('createNodeBtn');
-    const orig = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = 'Creating Node...';
-
-    try {
-      const resourceMode = document.getElementById('resourceMode').value;
-      let ram = document.getElementById('nodeRam').value;
-      let disk = document.getElementById('nodeDisk').value;
-
-      if (resourceMode === 'manual') {
-        if (!ram || !disk) {
-          throw new Error('RAM and Disk are required in Manual mode');
-        }
-      } else {
-        ram = 0; // Auto-detect flag
-        disk = 0;
-      }
-
-      const data = {
-        name: document.getElementById('nodeName').value.trim(),
-        address: document.getElementById('nodeAddress').value.trim(),
-        port: document.getElementById('nodePort').value,
-        sftpPort: document.getElementById('nodeSftpPort').value,
-        location: document.getElementById('nodeLocation').value,
-        resourceMode: resourceMode,
-        ram: ram,
-        disk: disk,
-        memoryOverallocate: document.getElementById('nodeMemoryOver').value,
-        diskOverallocate: document.getElementById('nodeDiskOver').value,
-        uploadSize: document.getElementById('nodeUploadSize').value,
-        behindProxy: document.getElementById('behindProxy').checked,
-        connectionProtocol: document.querySelector('input[name="connectionProtocol"]:checked').value,
-        allocIp: document.getElementById('allocIp').value.trim(),
-        allocAlias: document.getElementById('allocAlias').value.trim(),
-        portsInput: document.getElementById('allocPorts').value.trim()
-      };
-
-      const res = await fetch('/admin/nodes/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to create node');
-      }
-
-      showNotification('Node created successfully!', 'success');
-      setTimeout(() => window.location.href = '/admin/nodes/overview?err=none', 800);
-    } catch (e) {
-      showNotification(e.message, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = orig;
-    }
-  });
-  </script>
 </main>
+
+<!-- Notification outside main -->
+<div id="nd-notification">
+  <span id="nd-notification-text"></span>
+</div>
+
+<script>
+function toggleResourceFields() {
+  const mode = document.getElementById('resourceMode').value;
+  const manualDiv = document.getElementById('manualResources');
+  if (mode === 'auto') {
+    manualDiv.classList.add('nd-hidden');
+  } else {
+    manualDiv.classList.remove('nd-hidden');
+  }
+}
+
+// Initialize the toggle on page load to ensure correct initial state
+document.addEventListener('DOMContentLoaded', function() {
+  toggleResourceFields();
+});
+
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('nd-notification');
+  const textEl = document.getElementById('nd-notification-text');
+  textEl.textContent = message;
+  
+  notification.className = 'fixed flex items-center gap-3 px-4 py-3 rounded-lg shadow-2xl text-sm font-medium z-[9999] transition-all duration-300 ' +
+    (type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white');
+  
+  notification.classList.add('nd-show');
+  
+  setTimeout(() => {
+    notification.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => {
+      notification.classList.remove('nd-show', 'opacity-0', 'translate-y-2');
+    }, 300);
+  }, 2800);
+}
+
+// Create Node handler
+document.getElementById('createNodeBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('createNodeBtn');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Creating Node...';
+
+  try {
+    const resourceMode = document.getElementById('resourceMode').value;
+    let ram = document.getElementById('nodeRam').value;
+    let disk = document.getElementById('nodeDisk').value;
+
+    if (resourceMode === 'manual') {
+      if (!ram || !disk) {
+        throw new Error('RAM and Disk are required in Manual mode');
+      }
+    } else {
+      ram = 0;
+      disk = 0;
+    }
+
+    const data = {
+      name: document.getElementById('nodeName').value.trim(),
+      address: document.getElementById('nodeAddress').value.trim(),
+      port: document.getElementById('nodePort').value,
+      sftpPort: document.getElementById('nodeSftpPort').value,
+      location: document.getElementById('nodeLocation').value,
+      resourceMode: resourceMode,
+      ram: ram,
+      disk: disk,
+      memoryOverallocate: document.getElementById('nodeMemoryOver').value,
+      diskOverallocate: document.getElementById('nodeDiskOver').value,
+      uploadSize: document.getElementById('nodeUploadSize').value,
+      behindProxy: document.getElementById('behindProxy').checked,
+      connectionProtocol: document.querySelector('input[name="connectionProtocol"]:checked').value,
+      allocIp: document.getElementById('allocIp').value.trim(),
+      allocAlias: document.getElementById('allocAlias').value.trim(),
+      portsInput: document.getElementById('allocPorts').value.trim()
+    };
+
+    const res = await fetch('/admin/nodes/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to create node');
+    }
+
+    showNotification('Node created successfully!', 'success');
+    setTimeout(() => window.location.href = '/admin/nodes/overview?err=none', 800);
+  } catch (e) {
+    showNotification(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+});
+</script>
