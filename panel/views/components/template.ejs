@@ -1,7 +1,17 @@
 <!doctype html>
 <html class="h-full w-full">
 <head>
-   <!-- ... your head ... -->
+   <title><%= name || 'KS Panel' %></title>
+   <link rel="icon" href="/assets/logo.webp" type="image/webp">
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <meta content="<%= ogTitle %>" property="og:title">
+   <meta content="<%= ogDescription %>" property="og:description">
+   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+   <link href="/css/ks-panel.css" rel="stylesheet">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
    
    <style>
       /* CRITICAL: Remove all whitespace gaps */
