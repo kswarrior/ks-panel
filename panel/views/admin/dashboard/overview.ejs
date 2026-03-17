@@ -5,15 +5,29 @@
   background: #0f172a;
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
-  padding: 1.25rem;
-  font-family: monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  padding: 1rem;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
   color: #94a3b8;
-  max-height: 420px;
+  max-height: 300px;
   overflow-y: auto;
   white-space: pre-wrap;
   scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.log-terminal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-terminal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.log-terminal::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
 }
 
 /* OPTIMISTIC SMOOTH BAR GRAPH - NO SHADOW + SUPER BOUNCY */
@@ -21,153 +35,212 @@
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 62px;
+  height: 48px;
   background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 7px;
+  border-radius: 12px;
+  padding: 6px;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
 }
 
 .bar-graph .bar {
-  width: 5px;
+  flex: 1;
+  min-width: 3px;
+  max-width: 8px;
   background: linear-gradient(to bottom, transparent, currentColor);
   border-radius: 9999px;
   transition: height 520ms cubic-bezier(0.25, 1.8, 0.45, 1.35);
   opacity: 0.95;
 }
+
+/* Mobile optimizations */
+@media (min-width: 640px) {
+  .log-terminal {
+    padding: 1.25rem;
+    font-size: 0.85rem;
+    max-height: 420px;
+  }
+  
+  .bar-graph {
+    height: 62px;
+    padding: 7px;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+button, .btn {
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Card hover effects */
+.resource-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+/* Glassmorphism enhancement */
+.glass-panel {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Animation for live indicator */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.live-indicator::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: inherit;
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
 </style>
 
-<main id="content" class="max-w-screen-2xl mx-auto">
-  <div class="bg-transparent px-4 md:px-6 lg:px-8">
-    
-    <!-- Header -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+<main id="content" class="w-full max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pb-8">
+  
+  <!-- Header -->
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-3 sm:gap-4 border-b border-white/10">
+    <div class="text-center sm:text-left">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
+        Dashboard
+      </h1>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400">
+        Real-time CPU • RAM • Disk + Live logs
+      </p>
+    </div>
+    <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
+      <div class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 sm:px-5 py-2 rounded-[10px] text-xs sm:text-sm font-medium relative">
+        <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse live-indicator relative"></div>
+        LIVE
+      </div>
+      <span id="static-version" class="bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400">v<%= version %></span>
+    </div>
+  </header>
+
+  <!-- VERSION CONTROL + DYNAMIC ACTION BUTTON -->
+  <div class="mt-4 sm:mt-6 glass-panel rounded-xl sm:rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3 sm:gap-4 text-center sm:text-left">
       <div>
-        <h1 class="text-3xl font-semibold text-white tracking-tight">
-          Dashboard
-        </h1>
-        <p class="mt-1 text-sm text-neutral-400">
-          Real-time CPU • RAM • Disk + Live logs
-        </p>
+        <p class="text-xs text-neutral-400">Current Version</p>
+        <p id="current-version" class="text-lg sm:text-xl font-bold text-white">v<%= version %></p>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-5 py-2 rounded-[10px] text-sm font-medium">
-          <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-          LIVE
-        </div>
-        <span id="static-version" class="bg-white/5 px-5 py-2 rounded-[10px] text-xs text-neutral-400">v<%= version %></span>
-      </div>
-    </header>
-
-    <!-- VERSION CONTROL + DYNAMIC ACTION BUTTON -->
-    <div class="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div>
-          <p class="text-xs text-neutral-400">Current Version</p>
-          <p id="current-version" class="text-xl font-bold text-white">v<%= version %></p>
-        </div>
-        <div id="version-badge" class="px-4 py-1.5 rounded-full text-sm font-medium"></div>
-      </div>
+      <div id="version-badge" class="px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium"></div>
+    </div>
+    
+    <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
+      <button onclick="checkForUpdate()" 
+              id="check-btn"
+              class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-xs sm:text-sm font-medium transition-all">
+        🔄 Check
+      </button>
       
-      <div class="flex gap-3">
-        <button onclick="checkForUpdate()" 
-                id="check-btn"
-                class="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-[10px] text-sm font-medium transition-all">
-          🔄 Check for Update
-        </button>
-        
-        <button onclick="performAction()" 
-                id="action-btn"
-                class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all">
-          🚀 Reinstall
-        </button>
-      </div>
+      <button onclick="performAction()" 
+              id="action-btn"
+              class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-xs sm:text-sm font-medium transition-all">
+        🚀 Reinstall
+      </button>
     </div>
-
-    <!-- LIVE PM2 LOGS - TOP -->
-    <div class="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold text-white">KS Panel Log</h2>
-        <div class="flex gap-3">
-          <button onclick="clearLogs()" 
-                  class="px-6 py-2.5 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-sm font-medium">
-            🗑️ Clear
-          </button>
-          <button onclick="toggleStream()" id="log-btn"
-                  class="px-6 py-2.5 bg-red-500 hover:bg-red-600 rounded-[10px] text-sm font-medium">
-            ⏹️ Stop Stream
-          </button>
-        </div>
-      </div>
-      
-      <div id="logs" class="log-terminal flex-1">
-        Connecting to PM2 logs...
-      </div>
-    </div>
-
-    <!-- RESOURCES MONITOR -->
-    <div class="mt-12">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold text-white">Resources Monitor</h2>
-        <button onclick="refreshResources()" 
-                class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-wait group"
-                id="refreshBtn">
-          <span class="inline-block transition-transform group-disabled:rotate-180 duration-700 ease-in-out">↻</span>
-          Refresh Now
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- CPU -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">⚡</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">CPU Usage</p>
-              <p id="cpu-text" class="text-6xl font-bold text-orange-400">0%</p>
-            </div>
-          </div>
-          <div id="cpu-graph" class="bar-graph"></div>
-          <p id="cpu-status" class="text-xs text-neutral-500 mt-4">Normal</p>
-        </div>
-
-        <!-- RAM -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">🧠</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">RAM Usage</p>
-              <p id="ram-text" class="text-6xl font-bold text-blue-400">0%</p>
-            </div>
-          </div>
-          <div id="ram-graph" class="bar-graph"></div>
-          <div class="flex justify-between text-xs text-neutral-400 mt-6">
-            <span id="ram-used">0 GB</span>
-            <span id="ram-total">0 GB</span>
-          </div>
-        </div>
-
-        <!-- Disk -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="text-5xl">💾</div>
-            <div>
-              <p class="text-neutral-400 text-sm font-medium">Disk Usage</p>
-              <p id="disk-text" class="text-6xl font-bold text-emerald-400">0%</p>
-            </div>
-          </div>
-          <div id="disk-graph" class="bar-graph"></div>
-          <div class="flex justify-between text-xs text-neutral-400 mt-6">
-            <span id="disk-used">0 GB</span>
-            <span id="disk-total">0 GB</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
   </div>
+
+  <!-- LIVE PM2 LOGS - TOP -->
+  <div class="mt-6 sm:mt-10 glass-panel rounded-lg sm:rounded-xl p-4 sm:p-6 lg:p-8 flex flex-col">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+      <h2 class="text-xl sm:text-2xl font-semibold text-white">KS Panel Log</h2>
+      <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
+        <button onclick="clearLogs()" 
+                class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 rounded-[10px] text-xs sm:text-sm font-medium">
+          🗑️ Clear
+        </button>
+        <button onclick="toggleStream()" id="log-btn"
+                class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 bg-red-500 hover:bg-red-600 rounded-[10px] text-xs sm:text-sm font-medium">
+          ⏹️ Stop
+        </button>
+      </div>
+    </div>
+    
+    <div id="logs" class="log-terminal flex-1">
+      Connecting to PM2 logs...
+    </div>
+  </div>
+
+  <!-- RESOURCES MONITOR -->
+  <div class="mt-8 sm:mt-12">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+      <h2 class="text-xl sm:text-2xl font-semibold text-white">Resources Monitor</h2>
+      <button onclick="refreshResources()" 
+              class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-xs sm:text-sm font-medium transition-all duration-200 disabled:opacity-70 disabled:cursor-wait group"
+              id="refreshBtn">
+        <span class="inline-block transition-transform group-disabled:rotate-180 duration-700 ease-in-out">↻</span>
+        Refresh Now
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      
+      <!-- CPU -->
+      <div class="resource-card glass-panel rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8">
+        <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div class="text-3xl sm:text-4xl lg:text-5xl">⚡</div>
+          <div>
+            <p class="text-neutral-400 text-xs sm:text-sm font-medium">CPU Usage</p>
+            <p id="cpu-text" class="text-4xl sm:text-5xl lg:text-6xl font-bold text-orange-400">0%</p>
+          </div>
+        </div>
+        <div id="cpu-graph" class="bar-graph"></div>
+        <p id="cpu-status" class="text-xs text-neutral-500 mt-3 sm:mt-4">Normal</p>
+      </div>
+
+      <!-- RAM -->
+      <div class="resource-card glass-panel rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8">
+        <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div class="text-3xl sm:text-4xl lg:text-5xl">🧠</div>
+          <div>
+            <p class="text-neutral-400 text-xs sm:text-sm font-medium">RAM Usage</p>
+            <p id="ram-text" class="text-4xl sm:text-5xl lg:text-6xl font-bold text-blue-400">0%</p>
+          </div>
+        </div>
+        <div id="ram-graph" class="bar-graph"></div>
+        <div class="flex justify-between text-xs text-neutral-400 mt-4 sm:mt-6">
+          <span id="ram-used">0 GB</span>
+          <span id="ram-total">0 GB</span>
+        </div>
+      </div>
+
+      <!-- Disk -->
+      <div class="resource-card glass-panel rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 md:col-span-2 lg:col-span-1">
+        <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div class="text-3xl sm:text-4xl lg:text-5xl">💾</div>
+          <div>
+            <p class="text-neutral-400 text-xs sm:text-sm font-medium">Disk Usage</p>
+            <p id="disk-text" class="text-4xl sm:text-5xl lg:text-6xl font-bold text-emerald-400">0%</p>
+          </div>
+        </div>
+        <div id="disk-graph" class="bar-graph"></div>
+        <div class="flex justify-between text-xs text-neutral-400 mt-4 sm:mt-6">
+          <span id="disk-used">0 GB</span>
+          <span id="disk-total">0 GB</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -180,11 +253,11 @@
     if (graph.children.length === 0) {
       graph.innerHTML = '';
       
-      const paddingTotal = 14;                    // 7px left + right
+      const paddingTotal = 12;                    // 6px left + right (mobile)
       const availableWidth = graph.clientWidth - paddingTotal || 280; // fallback safe value
       const barWidthWithGap = 5 + 2;
       let numBars = Math.floor(availableWidth / barWidthWithGap);
-      numBars = Math.max(8, Math.min(50, numBars)); // sensible range for any screen size
+      numBars = Math.max(6, Math.min(40, numBars)); // sensible range for any screen size
 
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < numBars; i++) {
@@ -258,22 +331,22 @@
 
       if (data.status === 'outdated') {
         isOutdated = true;
-        badge.innerHTML = `Update available <span class="text-amber-400">v${data.latestVersion}</span>`;
-        badge.className = 'px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-medium';
-        actionBtn.textContent = '🚀 Update Now';
-        actionBtn.className = 'px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-[10px] text-sm font-medium transition-all';
+        badge.innerHTML = `Update <span class="text-amber-400">v${data.latestVersion}</span>`;
+        badge.className = 'px-3 sm:px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-xs sm:text-sm font-medium';
+        actionBtn.textContent = '🚀 Update';
+        actionBtn.className = 'flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-[10px] text-xs sm:text-sm font-medium transition-all';
       } else {
         isOutdated = false;
         badge.innerHTML = `✓ Up to date`;
-        badge.className = 'px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium';
+        badge.className = 'px-3 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs sm:text-sm font-medium';
         actionBtn.textContent = '🚀 Reinstall';
-        actionBtn.className = 'px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-sm font-medium transition-all';
+        actionBtn.className = 'flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-amber-500 hover:bg-amber-600 rounded-[10px] text-xs sm:text-sm font-medium transition-all';
       }
     } catch (e) {
       console.error("Version check failed", e);
       const badge = document.getElementById('version-badge');
-      badge.innerHTML = '❌ Check failed';
-      badge.className = 'px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 text-sm font-medium';
+      badge.innerHTML = '❌ Failed';
+      badge.className = 'px-3 sm:px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 text-xs sm:text-sm font-medium';
     }
 
     checkBtn.textContent = originalText;
@@ -332,7 +405,7 @@
       btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
     } else {
       startStream();
-      btn.textContent = '⏹️ Stop Stream';
+      btn.textContent = '⏹️ Stop';
       btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
       btn.classList.add('bg-red-500', 'hover:bg-red-600');
     }
