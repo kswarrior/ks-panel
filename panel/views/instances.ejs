@@ -2,7 +2,7 @@
 <% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
 <main id="content">
   <div class="bg-transparent">
-    <div class="flex items-center justify-between px-8 pt-4">
+    <div class="flex items-center justify-between px-4 sm:px-8 pt-4 flex-wrap gap-4">
 
   <!-- Left Side -->
   <h1 class="text-base font-medium text-white">
@@ -44,7 +44,7 @@
 </div>
   </div>
   <% if (req.query.err == "NOTACTIVEYET") { %>
-    <div class="rounded-xl bg-amber-800/10 px-4 py-6 m-7">
+    <div class="rounded-xl bg-amber-800/10 px-4 py-6 m-4 sm:m-7">
       <div class="flex">
           <div class="flex-shrink-0 ml-1.5">
               <svg class="animate-spin mt-2 h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@
   <div class="px-4 sm:px-6 lg:px-8 mt-8">
     <% if (instances.length == 0) { %>
       <!-- No instances -->
-      <div id="noInstancesContainer" class="text-center mt-64">
+      <div id="noInstancesContainer" class="text-center mt-32 sm:mt-64 px-4">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
           class="mx-auto h-12 w-12 text-neutral-500">
           <path fill-rule="evenodd"
@@ -79,32 +79,102 @@
         <p class="mt-1 text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
       </div>
     <% } else { %>
-      <div class="overflow-hidden shadow ring-1 ring-white/5 rounded-lg">
-  <div class="w-full overflow-x-auto">
-        <table class="min-w-full divide-y divide-white/10">
-          <thead class="bg-white/5">
-            <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">Instance</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">RAM Usage</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">CPU Usage</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-white/5 bg-white/5">
-            <% instances.forEach(function (instance) { %>
-              <tr onclick="window.location.href = href='../instance/<%= instance.Id %>';" class="hover:bg-white/[0.05] cursor-pointer transition-colors" data-instance-id="<%= instance.Id %>">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
-                  <div class="flex items-center">
-                    <div class="rounded-xl bg-white/5 p-2 mr-3">
+      <!-- Mobile Card View / Desktop Table -->
+      <div class="instances-container">
+        <!-- Desktop Table Header (Hidden on Mobile) -->
+        <div class="hidden md:grid grid-cols-4 gap-4 px-6 py-3 bg-white/5 rounded-t-lg border-b border-white/10">
+          <div class="text-sm font-semibold text-white">Instance</div>
+          <div class="text-sm font-semibold text-white">Status</div>
+          <div class="text-sm font-semibold text-white">RAM Usage</div>
+          <div class="text-sm font-semibold text-white">CPU Usage</div>
+        </div>
+        
+        <!-- Cards Container -->
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-0">
+          <% instances.forEach(function (instance) { %>
+            <!-- Mobile Card / Desktop Row -->
+            <div 
+              onclick="window.location.href = '../instance/<%= instance.Id %>';"
+              class="instance-card md:contents cursor-pointer group"
+              data-instance-id="<%= instance.Id %>"
+            >
+              <!-- Mobile Card Layout -->
+              <div class="md:hidden bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/[0.08] transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/20">
+                <!-- Card Header -->
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="rounded-xl bg-white/10 p-2.5 group-hover:bg-white/20 transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
                         <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
                       </svg>
                     </div>
-                    <a href="../instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-300"><%= instance.Name %></a>
+                    <div>
+                      <h3 class="font-medium text-white text-sm"><%= instance.Name %></h3>
+                      <span class="text-xs text-neutral-400">Instance</span>
+                    </div>
                   </div>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
-                  <span data-status-bg class="bg-neutral-600/20 text-neutral-400 px-2.5 py-1 rounded-full text-xs font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors">
+                    <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                
+                <!-- Card Stats Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                  <!-- Status -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">Status</div>
+                    <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-2 py-1 rounded-full text-xs font-medium">
+                      <span data-status>
+                        <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <%= req.translations.loading %>
+                      </span>
+                    </span>
+                  </div>
+                  
+                  <!-- RAM -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">RAM Usage</div>
+                    <span data-ram-usage class="text-sm font-medium text-white">
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
+                    </span>
+                  </div>
+                  
+                  <!-- CPU -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">CPU Usage</div>
+                    <span data-cpu-usage class="text-sm font-medium text-white">
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Desktop Table Row (Hidden on Mobile) -->
+              <div class="hidden md:grid grid-cols-4 gap-4 px-6 py-4 bg-white/5 border-b border-white/5 hover:bg-white/[0.05] transition-colors items-center">
+                <!-- Instance Name -->
+                <div class="flex items-center">
+                  <div class="rounded-xl bg-white/5 p-2 mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                      <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
+                    </svg>
+                  </div>
+                  <a href="../instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-300 transition-colors"><%= instance.Name %></a>
+                </div>
+                
+                <!-- Status -->
+                <div>
+                  <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-2.5 py-1 rounded-full text-xs font-medium">
                     <span data-status>
                       <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -113,8 +183,10 @@
                       <%= req.translations.loading %>
                     </span>
                   </span>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-neutral-400">
+                </div>
+                
+                <!-- RAM -->
+                <div class="text-sm text-neutral-400">
                   <span data-ram-usage>
                     <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -122,8 +194,10 @@
                     </svg>
                     <%= req.translations.loading %>
                   </span>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-neutral-400">
+                </div>
+                
+                <!-- CPU -->
+                <div class="text-sm text-neutral-400">
                   <span data-cpu-usage>
                     <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -131,11 +205,10 @@
                     </svg>
                     <%= req.translations.loading %>
                   </span>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+                </div>
+              </div>
+            </div>
+          <% }); %>
         </div>
       </div>
     <% } %>
@@ -144,13 +217,48 @@
 <%- include('components/footer') %>
 
 <style>
+  /* Toggle Switch Styles */
   #instance-toggle:checked ~ .toggle-track {
     background-color: rgba(255, 255, 255, 0.2);
   }
   #instance-toggle:checked ~ .toggle-dot {
     transform: translateX(100%);
   }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .instance-card {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  /* Touch-friendly improvements */
+  @media (hover: none) and (pointer: coarse) {
+    .instance-card:active {
+      transform: scale(0.98);
+    }
+  }
+
+  /* Safe area support for notched phones */
+  @supports (padding: max(0px)) {
+    .px-4 {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+  }
 </style>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const toggleSwitch = document.getElementById('instance-toggle');
@@ -175,7 +283,6 @@
       const statusElement = instance.querySelector('[data-status]');
       const statusBg = instance.querySelector('[data-status-bg]');
       const ramUsageElement = instance.querySelector('[data-ram-usage]');
-      const ramLimitElement = instance.querySelector('[data-ram-limit]');
       const cpuUsageElement = instance.querySelector('[data-cpu-usage]');
 
       function formatBytes(bytes, decimals = 2) {
