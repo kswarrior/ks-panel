@@ -1,21 +1,26 @@
 <%- include('../components/template') %>
 
 <style>
-/* Base styles - preserving exact colors */
+/* ============================================
+   BASE STYLES - Preserving exact colors
+   ============================================ */
+
 .input-field {
   width: 100%;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   background-color: #1c3b54;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 12px;
   color: white;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px; /* Prevent iOS zoom */
+  line-height: 1.5;
 }
 
 .input-field:focus {
   border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 /* Smooth scrollbar */
@@ -37,14 +42,18 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Prevent iOS zoom */
+/* Prevent iOS zoom on all inputs */
 @supports (-webkit-touch-callout: none) {
   input, select, textarea {
     font-size: 16px;
   }
 }
 
-/* CRITICAL: View visibility - Mobile First */
+/* ============================================
+   VIEW VISIBILITY - Mobile First Approach
+   ============================================ */
+
+/* Default: Mobile view active */
 .view-mobile {
   display: block !important;
 }
@@ -53,8 +62,8 @@
   display: none !important;
 }
 
-/* Desktop breakpoint */
-@media (min-width: 640px) {
+/* Desktop breakpoint at 768px for better tablet support */
+@media (min-width: 768px) {
   .view-mobile {
     display: none !important;
   }
@@ -63,10 +72,19 @@
   }
 }
 
-/* Animations */
+/* ============================================
+   ANIMATIONS - Enhanced with easing
+   ============================================ */
+
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(-12px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 @keyframes fadeIn {
@@ -78,69 +96,196 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
 .animate-slide-in {
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .animate-spin {
   animation: spin 1s linear infinite;
 }
 
-/* Key display */
+/* ============================================
+   KEY DISPLAY - Monospace formatting
+   ============================================ */
+
 .key-display {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   letter-spacing: -0.025em;
   word-break: break-all;
+  line-height: 1.6;
 }
 
-/* Hidden utility */
+/* ============================================
+   HIDDEN UTILITY
+   ============================================ */
+
 .hidden-view {
   display: none !important;
 }
+
+/* ============================================
+   TOUCH OPTIMIZATIONS - Mobile specific
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets on mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .hover\:scale-\[1\.02\]:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ============================================
+   GLASSMORPHISM ENHANCEMENTS
+   ============================================ */
+
+.glass-panel {
+  background: rgba(23, 23, 23, 0.5); /* neutral-900/50 */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(24px)) {
+  .glass-panel {
+    background: rgba(23, 23, 23, 0.85);
+  }
+}
+
+/* ============================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================ */
+
+.text-responsive {
+  font-size: clamp(0.875rem, 0.8rem + 0.5vw, 1rem);
+}
+
+.heading-responsive {
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+}
+
+/* ============================================
+   MOBILE CARD ENHANCEMENTS
+   ============================================ */
+
+.mobile-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-card:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   DESKTOP TABLET ENHANCEMENTS
+   ============================================ */
+
+@media (min-width: 768px) {
+  .table-row-hover {
+    transition: background-color 0.15s ease;
+  }
+  
+  .table-row-hover:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   FOCUS VISIBLE FOR KEYBOARD NAVIGATION
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
 </style>
 
-<main id="content" class="min-h-screen pb-20">
-  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+<main id="content" class="min-h-screen pb-24 sm:pb-20 bg-gradient-to-b from-neutral-950 to-neutral-900">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
     
-    <!-- Header -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 sm:pb-8 border-b border-white/10">
-      <div class="space-y-1">
-        <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+    <!-- ============================================
+         HEADER SECTION - Enhanced responsive layout
+         ============================================ -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 pb-6 sm:pb-8 border-b border-white/10">
+      <div class="space-y-2 sm:space-y-1">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight heading-responsive">
           <%= req.translations.APIKeys %>
         </h1>
-        <p class="text-sm text-neutral-400 max-w-xl">
+        <p class="text-sm sm:text-base text-neutral-400 max-w-xl leading-relaxed">
           <%= req.translations.APIKeysText %>
         </p>
       </div>
       <div class="flex-shrink-0">
         <button id="createButton" type="button" 
-                class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-2.5 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 touch-target">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
           <span class="hidden sm:inline"><%= req.translations.createNewAPIKey %></span>
-          <span class="sm:hidden">Create Key</span>
+          <span class="sm:hidden whitespace-nowrap">Create Key</span>
         </button>
       </div>
     </header>
 
-    <!-- Success Banner -->
+    <!-- ============================================
+         SUCCESS BANNER - Enhanced visibility
+         ============================================ -->
     <% if (req.query.err === "CREATED") { %>
       <div class="mt-6 sm:mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 sm:px-6 py-4 flex items-start gap-3 shadow-lg backdrop-blur-sm animate-slide-in">
-        <div class="flex-shrink-0 mt-0.5">
+        <div class="flex-shrink-0 mt-0.50.5">
           <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="flex-1 min-w-0">
           <h3 class="text-base sm:text-lg font-semibold text-emerald-400"><%= req.translations.created %></h3>
-          <p class="text-sm text-emerald-300/80 mt-1"><%= req.translations.apiKeySuccessCreated %></p>
+          <p class="text-sm text-emerald-300/80 mt-1 leading-relaxed"><%= req.translations.apiKeySuccessCreated %></p>
         </div>
-        <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1">
+        <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1 rounded-lg transition-colors touch-target" aria-label="Dismiss notification">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -148,9 +293,11 @@
       </div>
     <% } %>
 
-    <!-- DESKTOP TABLE VIEW -->
+    <!-- ============================================
+         DESKTOP TABLE VIEW - Enhanced for 768px+
+         ============================================ -->
     <div id="desktopTable" class="view-desktop mt-6 sm:mt-8">
-      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl">
+      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl glass-panel">
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left text-white">
             <thead class="bg-neutral-950/80 border-b border-white/10">
@@ -165,38 +312,41 @@
               <% if (apiKeys.length === 0) { %>
                 <tr id="desktopEmpty">
                   <td colspan="4" class="py-16 text-center text-neutral-400">
-                    <div class="flex flex-col items-center gap-3">
-                      <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                    <div class="flex flex-col items-center gap-4">
+                      <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                        <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0  0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                         </svg>
                       </div>
-                      <p><%= req.translations.noApiKeysCreated %></p>
+                      <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+                      <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors">
+                        Create your first API key →
+                      </button>
                     </div>
                   </td>
                 </tr>
               <% } else { %>
                 <% apiKeys.forEach(function(key) { %>
-                  <tr id="desktop-row-<%= key.id %>" class="hover:bg-white/[0.03] transition-colors duration-200 group">
+                  <tr id="desktop-row-<%= key.id %>" class="table-row-hover group animate-fade-in">
                     <td class="py-4 px-4 sm:px-6">
-                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-neutral-400">
+                      <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
                         <%= key.id %>
                       </span>
                     </td>
                     <td class="py-4 px-4 sm:px-6">
-                      <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-2 text-xs text-neutral-300 border border-white/10 key-display">
+                      <div class="rounded-lg font-mono bg-neutral-800/50 px-4 py-3 text-xs text-neutral-300 border border-white/10 key-display shadow-inner">
                         <%= key.key %>
                       </div>
                     </td>
                     <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
-                      <span class="text-xs text-neutral-400"><%= key.createdAt %></span>
+                      <span class="text-xs text-neutral-400 font-medium"><%= key.createdAt %></span>
                     </td>
                     <td class="py-4 px-4 sm:px-6 text-right">
-                      <button type="button" class="delete-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all duration-200 active:scale-95" data-id="<%= key.id %>">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <button type="button" class="delete-btn inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all duration-200 active:scale-95 touch-target" data-id="<%= key.id %>">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
-                        <%= req.translations.remove %>
+                        <span class="hidden sm:inline"><%= req.translations.remove %></span>
                       </button>
                     </td>
                   </tr>
@@ -208,44 +358,58 @@
       </div>
     </div>
 
-    <!-- MOBILE CARDS VIEW -->
+    <!-- ============================================
+         MOBILE CARDS VIEW - Enhanced touch experience
+         ============================================ -->
     <div id="mobileCards" class="view-mobile mt-6">
-      <div id="mobileBody" class="space-y-3">
+      <div id="mobileBody" class="space-y-4">
         <% if (apiKeys.length === 0) { %>
-          <div id="mobileEmpty" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl">
-            <div class="flex flex-col items-center gap-3">
-              <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div id="mobileEmpty" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                 </svg>
               </div>
-              <p class="text-neutral-400 text-sm"><%= req.translations.noApiKeysCreated %></p>
+              <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+              <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2">
+                Create your first API key →
+              </button>
             </div>
           </div>
         <% } else { %>
           <% apiKeys.forEach(function(key) { %>
-            <div id="mobile-card-<%= key.id %>" class="rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl">
-              <!-- Header -->
+            <div id="mobile-card-<%= key.id %>" class="mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-fade-in">
+              <!-- Card Header -->
               <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+                  <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-base font-bold text-neutral-400">
                     #<%= key.id %>
                   </span>
                   <div>
-                    <p class="text-xs text-neutral-500">Created</p>
-                    <p class="text-sm text-neutral-300 font-medium"><%= key.createdAt %></p>
+                    <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">Created</p>
+                    <p class="text-sm text-neutral-200 font-semibold"><%= key.createdAt %></p>
                   </div>
                 </div>
-                <button type="button" class="delete-btn-mobile p-2.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors active:scale-95" data-id="<%= key.id %>" aria-label="Delete">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" class="delete-btn-mobile p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors active:scale-95 touch-target" data-id="<%= key.id %>" aria-label="Delete API key">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
                 </button>
               </div>
-              <!-- Key -->
-              <div class="p-4">
-                <p class="text-xs text-neutral-500 mb-2">API Key</p>
-                <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-3 text-xs text-neutral-300 border border-white/10 key-display select-all">
+              
+              <!-- Key Section -->
+              <div class="p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
+                  <button onclick="copyToClipboard('<%= key.key %>')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-2 py-1 rounded-lg hover:bg-emerald-500/10">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <div class="rounded-xl font-mono bg-neutral-800/50 px-4 py-4 text-sm text-neutral-200 border border-white/10 key-display select-all shadow-inner break-all">
                   <%= key.key %>
                 </div>
               </div>
@@ -255,27 +419,32 @@
       </div>
     </div>
 
+    <!-- ============================================
+         PAGINATION - Included component
+         ============================================ -->
     <%- include('../components/pagination', { pagination }) %>
 
-    <!-- CREATE FORM -->
+    <!-- ============================================
+         CREATE FORM - Enhanced modal experience
+         ============================================ -->
     <div id="createForm" class="hidden-view mt-6 sm:mt-8 w-full max-w-2xl mx-auto animate-slide-in">
-      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl">
+      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl glass-panel">
         <div class="p-6 sm:p-8 text-center border-b border-white/10 bg-white/[0.02]">
-          <div class="mx-auto w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl bg-white/5 mb-4 border border-white/10">
-            <svg class="w-7 h-7 sm:w-9 sm:h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+          <div class="mx-auto w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-2xl bg-white/5 mb-5 border border-white/10 shadow-lg">
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
-          <h3 class="text-lg sm:text-xl font-semibold text-white mb-2">Create New API Key</h3>
-          <p class="text-neutral-400 text-sm max-w-sm mx-auto">
+          <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">Create New API Key</h3>
+          <p class="text-neutral-400 text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
             This will generate a new secure API key. Copy it immediately as it won't be shown again.
           </p>
         </div>
         <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 bg-neutral-950/30">
-          <button id="cancelButton" type="button" class="w-full sm:w-auto order-2 sm:order-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/10 transition-all duration-200 active:scale-95">
+          <button id="cancelButton" type="button" class="w-full sm:w-auto order-2 sm:order-1 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/10 transition-all duration-200 active:scale-95 touch-target">
             Cancel
           </button>
-          <button id="confirmCreate" type="button" class="w-full sm:w-auto order-1 sm:order-2 px-8 py-3 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2">
+          <button id="confirmCreate" type="button" class="w-full sm:w-auto order-1 sm:order-2 px-8 py-3.5 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 touch-target">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -285,12 +454,14 @@
       </div>
     </div>
 
-    <!-- NOTIFICATION -->
-    <div id="notification" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 hidden items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium z-50 transition-all duration-300 transform translate-y-2 opacity-0 bg-emerald-500/90 text-white border border-emerald-400/50 backdrop-blur-xl">
+    <!-- ============================================
+         NOTIFICATION - Enhanced positioning
+         ============================================ -->
+    <div id="notification" class="fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-6 sm:right-6 hidden items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium z-50 transition-all duration-300 transform translate-y-2 opacity-0 bg-emerald-500/90 text-white border border-emerald-400/50 backdrop-blur-xl max-w-sm">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
-      <span id="notificationText">Success!</span>
+      <span id="notificationText" class="flex-1">Success!</span>
     </div>
 
   </div>
@@ -300,7 +471,9 @@
 (function() {
   'use strict';
 
-  // DOM Elements
+  // ============================================
+  // DOM ELEMENTS
+  // ============================================
   const els = {
     desktopTable: document.getElementById('desktopTable'),
     mobileCards: document.getElementById('mobileCards'),
@@ -314,19 +487,29 @@
     notificationText: document.getElementById('notificationText')
   };
 
-  // State
+  // ============================================
+  // STATE
+  // ============================================
   let isCreating = false;
+  const BREAKPOINT = 768; // Match CSS breakpoint
 
-  // Show notification
+  // ============================================
+  // NOTIFICATION SYSTEM
+  // ============================================
   function showNotification(message, type = 'success') {
     if (!els.notification || !els.notificationText) return;
     
     els.notificationText.textContent = message;
     
+    // Reset classes
+    els.notification.className = els.notification.className.replace(/bg-\w+-500\/90|border-\w+-400\/50/g, '');
+    
     if (type === 'error') {
-      els.notification.className = els.notification.className.replace('bg-emerald-500/90', 'bg-red-500/90').replace('border-emerald-400/50', 'border-red-400/50');
+      els.notification.classList.add('bg-red-500/90', 'border-red-400/50');
+    } else if (type === 'warning') {
+      els.notification.classList.add('bg-amber-500/90', 'border-amber-400/50');
     } else {
-      els.notification.className = els.notification.className.replace('bg-red-500/90', 'bg-emerald-500/90').replace('border-red-400/50', 'border-emerald-400/50');
+      els.notification.classList.add('bg-emerald-500/90', 'border-emerald-400/50');
     }
     
     els.notification.classList.remove('hidden');
@@ -336,6 +519,7 @@
       els.notification.classList.remove('translate-y-2', 'opacity-0');
     });
 
+    // Auto-hide after 3 seconds
     setTimeout(() => {
       els.notification.classList.add('translate-y-2', 'opacity-0');
       setTimeout(() => {
@@ -345,31 +529,85 @@
     }, 3000);
   }
 
-  // Toggle form visibility
-  function showForm(show) {
+  // ============================================
+  // CLIPBOARD UTILITY
+  // ============================================
+  window.copyToClipboard = async function(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      showNotification('API Key copied to clipboard!', 'success');
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        showNotification('API Key copied to clipboard!', 'success');
+      } catch (err) {
+        showNotification('Failed to copy to clipboard', 'error');
+      }
+      
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // ============================================
+  // VIEW TOGGLE SYSTEM
+  // ============================================
+  window.showForm = function(show) {
     if (show) {
       els.desktopTable?.classList.add('hidden-view');
       els.mobileCards?.classList.add('hidden-view');
       els.createForm?.classList.remove('hidden-view');
-      els.createForm?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // Smooth scroll to form
+      setTimeout(() => {
+        els.createForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      
+      // Focus management for accessibility
+      setTimeout(() => {
+        els.cancelButton?.focus();
+      }, 300);
     } else {
       els.createForm?.classList.add('hidden-view');
-      // Show appropriate view based on screen size
-      if (window.innerWidth >= 640) {
-        els.desktopTable?.classList.remove('hidden-view');
-        els.mobileCards?.classList.add('hidden-view');
-      } else {
-        els.desktopTable?.classList.add('hidden-view');
-        els.mobileCards?.classList.remove('hidden-view');
-      }
+      updateViewBasedOnScreenSize();
+    }
+  };
+
+  function updateViewBasedOnScreenSize() {
+    const isDesktop = window.innerWidth >= BREAKPOINT;
+    if (isDesktop) {
+      els.desktopTable?.classList.remove('hidden-view');
+      els.mobileCards?.classList.add('hidden-view');
+    } else {
+      els.desktopTable?.classList.add('hidden-view');
+      els.mobileCards?.classList.remove('hidden-view');
     }
   }
 
-  // Event listeners for toggle
-  els.createButton?.addEventListener('click', () => showForm(true));
-  els.cancelButton?.addEventListener('click', () => showForm(false));
+  // ============================================
+  // EVENT LISTENERS - Toggle form
+  // ============================================
+  els.createButton?.addEventListener('click', () => window.showForm(true));
+  els.cancelButton?.addEventListener('click', () => window.showForm(false));
 
-  // Create API Key
+  // Close form on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !els.createForm?.classList.contains('hidden-view')) {
+      window.showForm(false);
+    }
+  });
+
+  // ============================================
+  // CREATE API KEY
+  // ============================================
   els.confirmCreate?.addEventListener('click', async function() {
     if (isCreating) return;
     isCreating = true;
@@ -395,27 +633,27 @@
       // Create desktop row
       const desktopRow = document.createElement('tr');
       desktopRow.id = 'desktop-row-' + data.id;
-      desktopRow.className = 'hover:bg-white/[0.03] transition-colors duration-200 group animate-fade-in';
+      desktopRow.className = 'table-row-hover group animate-fade-in';
       desktopRow.innerHTML = `
         <td class="py-4 px-4 sm:px-6">
-          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-neutral-400">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
             ${data.id}
           </span>
         </td>
         <td class="py-4 px-4 sm:px-6">
-          <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-2 text-xs text-neutral-300 border border-white/10 key-display">
+          <div class="rounded-lg font-mono bg-neutral-800/50 px-4 py-3 text-xs text-neutral-300 border border-white/10 key-display shadow-inner">
             ${data.key}
           </div>
         </td>
         <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
-          <span class="text-xs text-neutral-400">${data.createdAt}</span>
+          <span class="text-xs text-neutral-400 font-medium">${data.createdAt}</span>
         </td>
         <td class="py-4 px-4 sm:px-6 text-right">
-          <button type="button" class="delete-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all duration-200 active:scale-95" data-id="${data.id}">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button type="button" class="delete-btn inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all duration-200 active:scale-95 touch-target" data-id="${data.id}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
             </svg>
-            <%= req.translations.remove %>
+            <span class="hidden sm:inline"><%= req.translations.remove %></span>
           </button>
         </td>
       `;
@@ -423,33 +661,41 @@
       // Create mobile card
       const mobileCard = document.createElement('div');
       mobileCard.id = 'mobile-card-' + data.id;
-      mobileCard.className = 'rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl animate-fade-in';
+      mobileCard.className = 'mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-fade-in';
       mobileCard.innerHTML = `
         <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+            <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-base font-bold text-neutral-400">
               #${data.id}
             </span>
             <div>
-              <p class="text-xs text-neutral-500">Created</p>
-              <p class="text-sm text-neutral-300 font-medium">${data.createdAt}</p>
+              <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">Created</p>
+              <p class="text-sm text-neutral-200 font-semibold">${data.createdAt}</p>
             </div>
           </div>
-          <button type="button" class="delete-btn-mobile p-2.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors active:scale-95" data-id="${data.id}" aria-label="Delete">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button type="button" class="delete-btn-mobile p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors active:scale-95 touch-target" data-id="${data.id}" aria-label="Delete API key">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
             </svg>
           </button>
         </div>
-        <div class="p-4">
-          <p class="text-xs text-neutral-500 mb-2">API Key</p>
-          <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-3 text-xs text-neutral-300 border border-white/10 key-display select-all">
+        <div class="p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
+            <button onclick="copyToClipboard('${data.key}')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-2 py-1 rounded-lg hover:bg-emerald-500/10">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <div class="rounded-xl font-mono bg-neutral-800/50 px-4 py-4 text-sm text-neutral-200 border border-white/10 key-display select-all shadow-inner break-all">
             ${data.key}
           </div>
         </div>
       `;
 
-      // Insert into DOM
+      // Insert into DOM with animation delay
       els.desktopBody?.insertBefore(desktopRow, els.desktopBody.firstChild);
       els.mobileBody?.insertBefore(mobileCard, els.mobileBody.firstChild);
 
@@ -458,7 +704,7 @@
       attachDeleteHandlerMobile(mobileCard.querySelector('.delete-btn-mobile'));
 
       // Show list and notification
-      showForm(false);
+      window.showForm(false);
       showNotification('API Key created successfully! Copy it now.', 'success');
 
     } catch (err) {
@@ -471,7 +717,9 @@
     }
   });
 
-  // Delete handler for desktop
+  // ============================================
+  // DELETE HANDLERS
+  // ============================================
   function attachDeleteHandler(btn) {
     if (!btn) return;
     
@@ -480,10 +728,11 @@
       const desktopRow = document.getElementById('desktop-row-' + id);
       const mobileCard = document.getElementById('mobile-card-' + id);
 
-      if (!confirm('Are you sure you want to delete this API key?')) return;
+      if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) return;
 
-      desktopRow?.classList.add('opacity-50');
-      mobileCard?.classList.add('opacity-50');
+      // Visual feedback
+      desktopRow?.classList.add('opacity-50', 'pointer-events-none');
+      mobileCard?.classList.add('opacity-50', 'pointer-events-none');
 
       try {
         const response = await fetch('/apikeys/delete', {
@@ -494,23 +743,30 @@
 
         if (!response.ok) throw new Error('Delete failed');
 
-        desktopRow?.remove();
-        mobileCard?.remove();
+        // Animate out
+        desktopRow?.classList.add('animate-fade-out');
+        mobileCard?.classList.add('animate-fade-out');
+        
+        setTimeout(() => {
+          desktopRow?.remove();
+          mobileCard?.remove();
+          checkEmptyStates();
+        }, 300);
 
-        // Check empty states
-        checkEmptyStates();
         showNotification('API Key deleted successfully', 'success');
 
       } catch (err) {
         console.error('Delete error:', err);
-        desktopRow?.classList.remove('opacity-50');
-        mobileCard?.classList.remove('opacity-50');
+        desktopRow?.classList.remove('opacity-50', 'pointer-events-none');
+        mobileCard?.classList.remove('opacity-50', 'pointer-events-none');
         showNotification('<%= req.translations.apiKeyErrorDelete %>', 'error');
       }
     });
   }
 
-  // Delete handler for mobile
+  });
+  }
+
   function attachDeleteHandlerMobile(btn) {
     if (!btn) return;
     
@@ -519,10 +775,10 @@
       const mobileCard = document.getElementById('mobile-card-' + id);
       const desktopRow = document.getElementById('desktop-row-' + id);
 
-      if (!confirm('Are you sure you want to delete this API key?')) return;
+      if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) return;
 
-      mobileCard?.classList.add('opacity-50');
-      desktopRow?.classList.add('opacity-50');
+      mobileCard?.classList.add('opacity-50', 'pointer-events-none');
+      desktopRow?.classList.add('opacity-50', 'pointer-events-none');
 
       try {
         const response = await fetch('/apikeys/delete', {
@@ -533,22 +789,29 @@
 
         if (!response.ok) throw new Error('Delete failed');
 
-        mobileCard?.remove();
-        desktopRow?.remove();
+        mobileCard?.classList.add('animate-fade-out');
+        desktopRow?.classList.add('animate-fade-out');
+        
+        setTimeout(() => {
+          mobileCard?.remove();
+          desktopRow?.remove();
+          checkEmptyStates();
+        }, 300);
 
-        checkEmptyStates();
         showNotification('API Key deleted successfully', 'success');
 
       } catch (err) {
         console.error('Delete error:', err);
-        mobileCard?.classList.remove('opacity-50');
-        desktopRow?.classList.remove('opacity-50');
+        mobileCard?.classList.remove('opacity-50', 'pointer-events-none');
+        desktopRow?.classList.remove('opacity-50', 'pointer-events-none');
         showNotification('<%= req.translations.apiKeyErrorDelete %>', 'error');
       }
     });
   }
 
-  // Check and show empty states
+  // ============================================
+  // EMPTY STATES MANAGEMENT
+  // ============================================
   function checkEmptyStates() {
     const desktopHasItems = els.desktopBody?.querySelectorAll('tr[id^="desktop-row-"]').length > 0;
     const mobileHasItems = els.mobileBody?.querySelectorAll('div[id^="mobile-card-"]').length > 0;
@@ -558,13 +821,16 @@
       emptyRow.id = 'desktopEmpty';
       emptyRow.innerHTML = `
         <td colspan="4" class="py-16 text-center text-neutral-400">
-          <div class="flex flex-col items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-              <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex flex-col items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+              <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
               </svg>
             </div>
-            <p><%= req.translations.noApiKeysCreated %></p>
+            <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+            <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors">
+              Create your first API key →
+            </button>
           </div>
         </td>
       `;
@@ -574,51 +840,59 @@
     if (!mobileHasItems && !document.getElementById('mobileEmpty')) {
       const emptyCard = document.createElement('div');
       emptyCard.id = 'mobileEmpty';
-      emptyCard.className = 'rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl';
+      emptyCard.className = 'rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in';
       emptyCard.innerHTML = `
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-            <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+            <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
             </svg>
           </div>
-          <p class="text-neutral-400 text-sm"><%= req.translations.noApiKeysCreated %></p>
+          <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+          <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2">
+            Create your first API key →
+          </button>
         </div>
       `;
       els.mobileBody?.appendChild(emptyCard);
     }
   }
 
+  // ============================================
+  // INITIALIZATION
+  // ============================================
+  
   // Attach handlers to existing elements
   document.querySelectorAll('.delete-btn').forEach(attachDeleteHandler);
   document.querySelectorAll('.delete-btn-mobile').forEach(attachDeleteHandlerMobile);
 
-  // Handle window resize properly
+  // Handle window resize with debounce
   let resizeTimeout;
   window.addEventListener('resize', function() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function() {
       // Only switch views if form is not visible
       if (els.createForm?.classList.contains('hidden-view')) {
-        if (window.innerWidth >= 640) {
-          els.desktopTable?.classList.remove('hidden-view');
-          els.mobileCards?.classList.add('hidden-view');
-        } else {
-          els.desktopTable?.classList.add('hidden-view');
-          els.mobileCards?.classList.remove('hidden-view');
-        }
+        updateViewBasedOnScreenSize();
       }
-    }, 100);
+    }, 150);
   });
 
   // Initial state check
-  if (window.innerWidth >= 640) {
-    els.desktopTable?.classList.remove('hidden-view');
-    els.mobileCards?.classList.add('hidden-view');
-  } else {
-    els.desktopTable?.classList.add('hidden-view');
-    els.mobileCards?.classList.remove('hidden-view');
-  }
+  updateViewBasedOnScreenSize();
+
+  // Add fade-out animation style dynamically
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.95); }
+    }
+    .animate-fade-out {
+      animation: fadeOut 0.3s ease forwards;
+    }
+  `;
+  document.head.appendChild(style);
 
 })();
 </script>
