@@ -2,31 +2,36 @@
 
 <main id="content" class="min-h-screen pb-10">
 
-  <div class="px-8 pt-6">
-    <h1 class="text-2xl font-semibold text-white tracking-tight">
+  <!-- Header Section - Responsive padding and text sizes -->
+  <div class="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+    <h1 class="text-xl sm:text-2xl font-semibold text-white tracking-tight">
       <%= req.translations.settings %>
     </h1>
-    <p class="mt-2 text-sm text-neutral-400">
+    <p class="mt-2 text-xs sm:text-sm text-neutral-400">
       <%= req.translations.changeSettings %>
     </p>
   </div>
 
   <%- include('../../components/settings') %>
 
-  <div class="mx-8 mt-8 bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-md">
+  <!-- Main Container - Responsive margins and padding -->
+  <div class="mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
 
-    <div class="px-6 py-4 border-b border-white/10">
-      <h2 class="text-lg font-semibold text-white">
+    <!-- Section Header -->
+    <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10">
+      <h2 class="text-base sm:text-lg font-semibold text-white">
         <%= req.translations.general %>
       </h2>
     </div>
 
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <!-- Responsive Grid Layout -->
+    <!-- Mobile: 1 column | Tablet: 2 columns | Desktop: 4 columns -->
+    <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
 
       <!-- Change Panel Name -->
-      <div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/5">
         <form action="/admin/settings/change/name" method="POST" class="space-y-4">
-          <label for="name" class="block text-sm text-neutral-400">
+          <label for="name" class="block text-xs sm:text-sm text-neutral-400">
             <%= req.translations.panelName %>
           </label>
           <input
@@ -36,27 +41,27 @@
             value="<%= name %>"
             placeholder="<%= name %>"
             required
-            class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <button
             type="submit"
-            class="w-full rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
+            class="w-full rounded-xl bg-white text-black px-4 py-2 text-xs sm:text-sm font-medium shadow-md transition focus:outline-none hover:bg-neutral-200">
             <%= req.translations.save %>
           </button>
         </form>
       </div>
 
       <!-- Change Logo -->
-      <div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/5">
         <form action="/admin/settings/change/logo" method="POST" enctype="multipart/form-data" class="space-y-4">
-          <label class="block text-sm text-neutral-400">
+          <label class="block text-xs sm:text-sm text-neutral-400">
             <%= req.translations.panelLogo %>
           </label>
 
           <div class="flex items-center gap-3">
             <input id="useImage" name="useImage" type="checkbox"
               class="w-4 h-4 bg-transparent border-white/10 rounded focus:ring-2 focus:ring-blue-500">
-            <label for="useImage" class="text-sm text-neutral-400">
+            <label for="useImage" class="text-xs sm:text-sm text-neutral-400">
               <%= req.translations.image %>
             </label>
           </div>
@@ -67,10 +72,10 @@
               name="logo"
               id="logo"
               accept="image/*"
-              class="block w-full text-sm text-neutral-400
+              class="block w-full text-xs sm:text-sm text-neutral-400
                      file:mr-4 file:py-2 file:px-4
                      file:rounded-xl file:border-0
-                     file:text-sm file:font-medium
+                     file:text-xs sm:file:text-sm file:font-medium
                      file:bg-white/5 file:text-neutral-300
                      hover:file:bg-white/10 transition"
             />
@@ -81,15 +86,15 @@
           <button
             id="logoButton"
             type="submit"
-            class="w-full rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
+            class="w-full rounded-xl bg-white text-black px-4 py-2 text-xs sm:text-sm font-medium shadow-md transition focus:outline-none hover:bg-neutral-200">
             <%= req.translations.removeLogo %>
           </button>
         </form>
       </div>
 
       <!-- Background Customization (FULL inline - no separate theme page) -->
-      <div>
-        <label class="block text-sm text-neutral-400 mb-3">
+      <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+        <label class="block text-xs sm:text-sm text-neutral-400 mb-3">
           Background
         </label>
 
@@ -100,51 +105,51 @@
             type="file"
             name="bg"
             accept="image/*,video/mp4"
-            class="block w-full text-sm text-neutral-400
+            class="block w-full text-xs sm:text-sm text-neutral-400
                    file:mr-4 file:py-2 file:px-4
                    file:rounded-xl file:border-0
-                   file:text-sm file:font-medium
+                   file:text-xs sm:file:text-sm file:font-medium
                    file:bg-white/5 file:text-neutral-300
                    hover:file:bg-white/10 transition"
           />
           <input type="hidden" name="type" value="upload">
           <button
             type="submit"
-            class="w-full rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
+            class="w-full rounded-xl bg-white text-black px-4 py-2 text-xs sm:text-sm font-medium shadow-md transition focus:outline-none hover:bg-neutral-200">
             Upload & Save
           </button>
         </form>
 
         <!-- URL Form -->
-        <form action="/admin/settings/change/background" method="POST" class="space-y-4 mt-6">
+        <form action="/admin/settings/change/background" method="POST" class="space-y-4 mt-4 sm:mt-6">
    
           <input
             type="text"
             name="url"
             placeholder="https://example.com/background.gif"
-            class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <input type="hidden" name="type" value="url">
           <button
             type="submit"
-            class="w-full rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
+            class="w-full rounded-xl bg-white text-black px-4 py-2 text-xs sm:text-sm font-medium shadow-md transition focus:outline-none hover:bg-neutral-200">
             Save from URL
           </button>
         </form>
 
         <!-- Quick Default Backgrounds -->
-        <div class="mt-6">
-          <label class="block text-sm text-neutral-400 mb-3">
+        <div class="mt-4 sm:mt-6">
+          <label class="block text-xs sm:text-sm text-neutral-400 mb-3">
             Default background
           </label>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-2 sm:gap-3">
             <!-- Preset 1 -->
             <form action="/admin/settings/change/background" method="POST">
               <input type="hidden" name="type" value="preset">
               <input type="hidden" name="preset" value="1">
               <button
                 type="submit"
-                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-xs sm:text-sm font-medium transition">
                 Black GIF
               </button>
             </form>
@@ -154,7 +159,7 @@
               <input type="hidden" name="preset" value="2">
               <button
                 type="submit"
-                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-xs sm:text-sm font-medium transition">
                 Red GIF
               </button>
             </form>
@@ -164,7 +169,7 @@
               <input type="hidden" name="preset" value="3">
               <button
                 type="submit"
-                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-xs sm:text-sm font-medium transition">
                 KS webp
               </button>
             </form>
@@ -174,7 +179,7 @@
               <input type="hidden" name="preset" value="4">
               <button
                 type="submit"
-                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-sm font-medium transition">
+                class="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white py-2 text-xs sm:text-sm font-medium transition">
                 Black S GIF
               </button>
             </form>
@@ -182,31 +187,31 @@
         </div>
 
         <!-- Remove -->
-        <form action="/admin/settings/change/background" method="POST" class="mt-6">
+        <form action="/admin/settings/change/background" method="POST" class="mt-4 sm:mt-6">
           <input type="hidden" name="type" value="none">
           <button
             type="submit"
-            class="w-full rounded-xl bg-red-600 hover:bg-red-700 text-white py-2 text-sm font-medium transition">
+            class="w-full rounded-xl bg-red-600 hover:bg-red-700 text-white py-2 text-xs sm:text-sm font-medium transition">
             Remove Background
           </button>
         </form>
       </div>
 
       <!-- Register & Force Verify -->
-      <div class="space-y-8">
+      <div class="space-y-6 sm:space-y-8 bg-white/5 rounded-xl p-4 border border-white/5">
 
         <!-- Toggle Register -->
         <form action="/admin/settings/toggle/register" method="POST" class="space-y-3">
           <div>
             <% if (settings.register === true) { %>
-              <span class="text-sm text-neutral-400">
+              <span class="text-xs sm:text-sm text-neutral-400">
                 <%= req.translations.registerPage %>
                 <span class="text-green-500 font-medium">
                   <%= req.translations.enabled %>
                 </span>
               </span>
             <% } else { %>
-              <span class="text-sm text-neutral-400">
+              <span class="text-xs sm:text-sm text-neutral-400">
                 <%= req.translations.registerPage %>
                 <span class="text-red-500 font-medium">
                   <%= req.translations.disabled %>
@@ -218,20 +223,20 @@
           <div class="flex">
             <% if (settings.register === true) { %>
               <button type="submit"
-                class="flex-1 rounded-l-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
+                class="flex-1 rounded-l-xl bg-white text-neutral-800 py-2 text-xs sm:text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.disable %>
               </button>
               <button disabled
-                class="flex-1 rounded-r-xl bg-green-600 text-white py-2 text-sm font-medium opacity-70">
+                class="flex-1 rounded-r-xl bg-green-600 text-white py-2 text-xs sm:text-sm font-medium opacity-70">
                 <%= req.translations.enable %>
               </button>
             <% } else { %>
               <button disabled
-                class="flex-1 rounded-l-xl bg-red-600 text-white py-2 text-sm font-medium opacity-70">
+                class="flex-1 rounded-l-xl bg-red-600 text-white py-2 text-xs sm:text-sm font-medium opacity-70">
                 <%= req.translations.disable %>
               </button>
               <button type="submit"
-                class="flex-1 rounded-r-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
+                class="flex-1 rounded-r-xl bg-white text-neutral-800 py-2 text-xs sm:text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.enable %>
               </button>
             <% } %>
@@ -242,14 +247,14 @@
         <form action="/admin/settings/toggle/force-verify" method="POST" class="space-y-3">
           <div>
             <% if (settings.forceVerify === true) { %>
-              <span class="text-sm text-neutral-400">
+              <span class="text-xs sm:text-sm text-neutral-400">
                 <%= req.translations.forceVerifyEmail %>
                 <span class="text-green-500 font-medium">
                   <%= req.translations.enabled %>
                 </span>
               </span>
             <% } else { %>
-              <span class="text-sm text-neutral-400">
+              <span class="text-xs sm:text-sm text-neutral-400">
                 <%= req.translations.forceVerifyEmail %>
                 <span class="text-red-500 font-medium">
                   <%= req.translations.disabled %>
@@ -261,20 +266,20 @@
           <div class="flex">
             <% if (settings.forceVerify === true) { %>
               <button type="submit"
-                class="flex-1 rounded-l-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
+                class="flex-1 rounded-l-xl bg-white text-neutral-800 py-2 text-xs sm:text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.disable %>
               </button>
               <button disabled
-                class="flex-1 rounded-r-xl bg-green-600 text-white py-2 text-sm font-medium opacity-70">
+                class="flex-1 rounded-r-xl bg-green-600 text-white py-2 text-xs sm:text-sm font-medium opacity-70">
                 <%= req.translations.enable %>
               </button>
             <% } else { %>
               <button disabled
-                class="flex-1 rounded-l-xl bg-red-600 text-white py-2 text-sm font-medium opacity-70">
+                class="flex-1 rounded-l-xl bg-red-600 text-white py-2 text-xs sm:text-sm font-medium opacity-70">
                 <%= req.translations.disable %>
               </button>
               <button type="submit"
-                class="flex-1 rounded-r-xl bg-white text-neutral-800 py-2 text-sm font-medium hover:bg-neutral-200 transition">
+                class="flex-1 rounded-r-xl bg-white text-neutral-800 py-2 text-xs sm:text-sm font-medium hover:bg-neutral-200 transition">
                 <%= req.translations.enable %>
               </button>
             <% } %>
