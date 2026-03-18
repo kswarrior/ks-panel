@@ -61,7 +61,7 @@
 /* Cards - scoped to template form only */
 #templateForm .tf-card {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(28, 59, 84, 0.6);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border-radius: 0.75rem;
   padding: 1.25rem;
@@ -71,7 +71,7 @@
 
 #templateForm .tf-card:hover {
   border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(28, 59, 84, 0.75);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Section headers */
@@ -139,7 +139,7 @@
 #templateForm .tf-btn-secondary {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  color: white;
 }
 
 #templateForm .tf-btn-secondary:hover {
@@ -148,13 +148,14 @@
 }
 
 #templateForm .tf-btn-primary {
-  background: white;
-  color: #0f172a;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 #templateForm .tf-btn-primary:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 #templateForm .tf-btn-accent {
@@ -193,8 +194,8 @@
 
 /* Sub-items */
 #templateForm .tf-sub-item {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.625rem;
   padding: 1rem;
   position: relative;
@@ -1090,24 +1091,6 @@ function loadDefaultForm() {
 
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
-  [
-    { 
-      id: "start", 
-      name: "Start", 
-      operations: [{ 
-        type: "command", 
-        run_code: "java -Xms4G -Xmx4G -jar server.jar --nogui" 
-      }]
-    },
-    { 
-      id: "stop", 
-      name: "Stop", 
-      operations: [{ 
-        type: "command", 
-        run_code: "stop" 
-      }]
-    }
-  ].forEach(addAction);
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
