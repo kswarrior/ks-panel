@@ -12,9 +12,11 @@
 }
 
 ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
@@ -94,20 +96,21 @@
 }
 
 /* ============================================
-   GLASSMORPHISM - Exact preservation
+   GLASSMORPHISM - Maximum blur everywhere
    ============================================ */
 
 .glass-panel {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
 }
 
-@supports not (backdrop-filter: blur(12px)) {
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(24px)) {
   .glass-panel {
-    background: rgba(30, 30, 30, 0.95);
+    background: rgba(30, 30, 30, 0.85);
   }
 }
 
@@ -127,11 +130,17 @@
 }
 
 /* ============================================
-   MOBILE CARDS
+   MOBILE CARDS - Full glass effect
    ============================================ */
 
 .mobile-audit-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1rem;
 }
 
 .status-badge {
@@ -143,22 +152,35 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================
-   DESKTOP TABLE
+   DESKTOP TABLE - Full glass effect
    ============================================ */
+
+.table-container {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+}
 
 .table-row-hover {
   transition: background-color 0.15s ease;
 }
 
 .table-row-hover:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
 }
 
 /* ============================================
-   FILTER BAR - Responsive
+   FILTER BAR - Glass effect
    ============================================ */
 
 .filter-bar {
@@ -225,11 +247,26 @@ select {
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 12px;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 select option {
-  background-color: #1f2937;
+  background-color: rgba(30, 30, 30, 0.95);
   color: white;
+  backdrop-filter: blur(24px);
 }
 
 /* ============================================
@@ -257,9 +294,50 @@ select option {
     padding: 0 0.75rem;
   }
 }
+
+/* ============================================
+   EMPTY STATE - Glass effect
+   ============================================ */
+
+.empty-state {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+}
+
+/* ============================================
+   BUTTONS - Glass effect
+   ============================================ */
+
+.glass-button {
+  background: rgba(37, 99, 235, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.glass-button:hover {
+  background: rgba(29, 78, 216, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* ============================================
+   AVATAR - Glass effect
+   ============================================ */
+
+.glass-avatar {
+  background: rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
 </style>
 
-<main id="content" class="min-h-screen pb-10 bg-gradient-to-b from-neutral-950 to-neutral-900">
+<main id="content" class="min-h-screen pb-10">
 
   <!-- ============================================
        HEADER SECTION
@@ -274,7 +352,7 @@ select option {
   </div>
 
   <!-- ============================================
-       FILTERS SECTION
+       FILTERS SECTION - Full glass
        ============================================ -->
   <div class="px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
     <div class="glass-panel p-4 sm:p-6 shadow-lg">
@@ -285,8 +363,7 @@ select option {
           <label for="actionFilter" class="text-sm text-neutral-300 whitespace-nowrap">
             <%= req.translations.filterByAction || 'Filter by Action:' %>
           </label>
-          <select id="actionFilter"
-            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition touch-target">
+          <select id="actionFilter" class="touch-target">
             <option value="" <%= !filters.actionFilter ? 'selected' : '' %>>
               <%= req.translations.allActions || 'All Actions' %>
             </option>
@@ -303,8 +380,7 @@ select option {
           <label for="dateRange" class="text-sm text-neutral-300 whitespace-nowrap">
             <%= req.translations.dateRange || 'Date Range:' %>
           </label>
-          <select id="dateRange"
-            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition touch-target">
+          <select id="dateRange" class="touch-target">
             <option value="2" <%= filters.dateRange == 2 ? 'selected' : '' %>>
               <%= req.translations.last2Days || 'Last 2 Days' %>
             </option>
@@ -323,14 +399,14 @@ select option {
         <!-- Sort Controls -->
         <div class="filter-group flex items-center gap-2">
           <button id="sortAsc" aria-label="Sort ascending"
-            class="pagination-btn rounded-xl bg-blue-600 px-4 py-2.5 text-sm text-white hover:bg-blue-700 transition shadow-md touch-target flex items-center justify-center gap-1">
+            class="glass-button rounded-xl px-4 py-2.5 text-sm text-white shadow-md touch-target flex items-center justify-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
             </svg>
             <span class="hidden sm:inline"><%= req.translations.oldestFirst || 'Oldest' %></span>
           </button>
           <button id="sortDesc" aria-label="Sort descending"
-            class="pagination-btn rounded-xl bg-blue-600 px-4 py-2.5 text-sm text-white hover:bg-blue-700 transition shadow-md touch-target flex items-center justify-center gap-1">
+            class="glass-button rounded-xl px-4 py-2.5 text-sm text-white shadow-md touch-target flex items-center justify-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path>
             </svg>
@@ -343,15 +419,15 @@ select option {
   </div>
 
   <!-- ============================================
-       DESKTOP TABLE VIEW
+       DESKTOP TABLE VIEW - Full glass
        ============================================ -->
   <div class="view-desktop px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
     <% if (audits && audits.length > 0) { %>
-      <div class="glass-panel overflow-hidden shadow-lg animate-fade-in">
+      <div class="table-container shadow-lg animate-fade-in">
         <div class="overflow-x-auto">
           <table id="auditTableDesktop" class="min-w-full divide-y divide-white/10">
             
-            <thead class="bg-white/5">
+            <thead class="bg-white/5 backdrop-blur-xl">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider">
                   <%= req.translations.user %>
@@ -376,8 +452,8 @@ select option {
                     data-userid="<%= audit.userId %>">
 
                   <td class="px-6 py-4 text-sm text-white font-medium">
-                    <div class="flex items-center gap-2">
-                      <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs font-bold">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full glass-avatar flex items-center justify-center text-blue-400 text-sm font-bold">
                         <% if (audit.username) { %>
                           <%= audit.username.charAt(0).toUpperCase() %>
                         <% } else { %>
@@ -397,7 +473,7 @@ select option {
                   </td>
 
                   <td class="px-6 py-4">
-                    <span class="status-badge bg-white/10 text-neutral-300 border border-white/10">
+                    <span class="status-badge">
                       <%= audit.action %>
                     </span>
                   </td>
@@ -423,9 +499,9 @@ select option {
         </div>
       </div>
     <% } else { %>
-      <div class="glass-panel p-12 text-center animate-fade-in">
+      <div class="empty-state animate-fade-in">
         <div class="flex flex-col items-center gap-4">
-          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 backdrop-blur-xl">
             <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
             </svg>
@@ -437,13 +513,13 @@ select option {
   </div>
 
   <!-- ============================================
-       MOBILE CARDS VIEW
+       MOBILE CARDS VIEW - Full glass blur
        ============================================ -->
   <div class="view-mobile px-4 mt-6">
     <% if (audits && audits.length > 0) { %>
-      <div id="auditBodyMobile" class="space-y-3">
+      <div id="auditBodyMobile" class="space-y-4">
         <% audits.forEach(function(audit) { %>
-          <div class="mobile-audit-card glass-panel p-4 animate-fade-in" 
+          <div class="mobile-audit-card animate-fade-in" 
                data-timestamp="<%= new Date(audit.timestamp).getTime() %>"
                data-action="<%= audit.action %>"
                data-userid="<%= audit.userId %>">
@@ -451,7 +527,7 @@ select option {
             <!-- Card Header -->
             <div class="flex items-start justify-between mb-3">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm font-bold flex-shrink-0">
+                <div class="w-12 h-12 rounded-full glass-avatar flex items-center justify-center text-blue-400 text-base font-bold flex-shrink-0">
                   <% if (audit.username) { %>
                     <%= audit.username.charAt(0).toUpperCase() %>
                   <% } else { %>
@@ -466,23 +542,23 @@ select option {
                       <%= audit.username %>
                     <% } %>
                   </p>
-                  <p class="text-xs text-neutral-500">ID: <%= audit.userId %></p>
+                  <p class="text-xs text-neutral-400">ID: <%= audit.userId %></p>
                 </div>
               </div>
-              <span class="status-badge bg-white/10 text-neutral-300 border border-white/10 text-xs">
+              <span class="status-badge">
                 <%= audit.action %>
               </span>
             </div>
 
             <!-- Card Details -->
-            <div class="space-y-2 pt-3 border-t border-white/10">
+            <div class="space-y-3 pt-3 border-t border-white/10">
               <div class="flex items-center justify-between">
-                <span class="text-xs text-neutral-500 uppercase tracking-wide"><%= req.translations.addressIP %></span>
-                <span class="text-sm text-neutral-300 font-mono"><%= audit.ip %></span>
+                <span class="text-xs texttext-xs text-neutral-400 uppercase tracking-wide font-medium"><%= req.translations.addressIP %></span>
+                <span class="text-sm text-neutral-200 font-mono bg-white/5 px-2 py-1 rounded backdrop-blur-sm"><%= audit.ip %></span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-xs text-neutral-500 uppercase tracking-wide"><%= req.translations.timestamp %></span>
-                <span class="text-sm text-neutral-300 flex items-center gap-1">
+                <span class="text-xs text-neutral-400 uppercase tracking-wide font-medium"><%= req.translations.timestamp %></span>
+                <span class="text-sm text-neutral-200 flex items-center gap-1">
                   <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
@@ -495,9 +571,9 @@ select option {
         <% }); %>
       </div>
     <% } else { %>
-      <div class="glass-panel p-8 text-center animate-fade-in">
+      <div class="empty-state animate-fade-in">
         <div class="flex flex-col items-center gap-4">
-          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 backdrop-blur-xl">
             <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
             </svg>
@@ -530,7 +606,7 @@ select option {
   'use strict';
 
   // DOM ELEMENTS
-  const els = {
+  var els = {
     actionFilter: document.getElementById('actionFilter'),
     dateRange: document.getElementById('dateRange'),
     sortAsc: document.getElementById('sortAsc'),
@@ -542,7 +618,7 @@ select option {
   // NAVIGATION WITH FILTERS
   function navigateWithFilters(page) {
     page = page || 1;
-    const params = new URLSearchParams();
+    var params = new URLSearchParams();
     params.set('page', page);
 
     if (els.actionFilter && els.actionFilter.value)
@@ -558,10 +634,10 @@ select option {
   function sortTable(ascending) {
     // Sort desktop rows
     if (els.auditBodyDesktop) {
-      const rows = Array.from(els.auditBodyDesktop.querySelectorAll('tr'));
+      var rows = Array.from(els.auditBodyDesktop.querySelectorAll('tr'));
       rows.sort(function(a, b) {
-        const tA = parseInt(a.dataset.timestamp);
-        const tB = parseInt(b.dataset.timestamp);
+        var tA = parseInt(a.dataset.timestamp);
+        var tB = parseInt(b.dataset.timestamp);
         return ascending ? tA - tB : tB - tA;
       });
       rows.forEach(function(row) {
@@ -571,10 +647,10 @@ select option {
 
     // Sort mobile cards
     if (els.auditBodyMobile) {
-      const cards = Array.from(els.auditBodyMobile.querySelectorAll('.mobile-audit-card'));
+      var cards = Array.from(els.auditBodyMobile.querySelectorAll('.mobile-audit-card'));
       cards.sort(function(a, b) {
-        const tA = parseInt(a.dataset.timestamp);
-        const tB = parseInt(b.dataset.timestamp);
+        var tA = parseInt(a.dataset.timestamp);
+        var tB = parseInt(b.dataset.timestamp);
         return ascending ? tA - tB : tB - tA;
       });
       cards.forEach(function(card) {
@@ -612,7 +688,7 @@ select option {
   window.navigateWithFilters = navigateWithFilters;
 
   // DEBOUNCED RESIZE HANDLER
-  let resizeTimeout;
+  var resizeTimeout;
   window.addEventListener('resize', function() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function() {
