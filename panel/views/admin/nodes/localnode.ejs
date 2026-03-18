@@ -30,101 +30,156 @@
   overflow-y: auto;
   white-space: pre-wrap;
 }
+
+/* Mobile-first responsive enhancements */
+@media (max-width: 640px) {
+  .log-terminal {
+    max-height: 250px;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .input-field {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Desktop enhancements */
+@media (min-width: 1280px) {
+  .log-terminal {
+    max-height: 450px;
+  }
+}
 </style>
-<main id="content" class="max-w-screen-2xl mx-auto">
-  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+<main id="content" class="max-w-screen-2xl mx-auto min-h-screen">
+  <div class="bg-transparent px-3 sm:px-4 md:px-6 lg:px-8 pb-8">
     
     <!-- Header Section -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
-      <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-3 sm:gap-4 border-b border-white/10">
+      <div class="space-y-1">
+        <h1 class="text-xl sm:text-2xl font-semibold text-white tracking-tight">
           <%= req.translations.localNode || 'Local Node Manager' %>
         </h1>
-        <p class="mt-1 text-sm text-neutral-400">
+        <p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">
           <%= req.translations.localNodeText || 'Install, configure, and control the Wings daemon on this machine' %>
         </p>
       </div>
 
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap gap-2 sm:gap-3">
         <button onclick="window.location.href='/admin/nodes/overview'" 
-                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
-          ← Back to Nodes
+                class="flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-xs sm:text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md">
+          <span class="hidden sm:inline">←</span>
+          <span>Back to Nodes</span>
         </button>
       </div>
     </header>
 
-    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="mt-4 sm:mt-6 lg:mt-8 grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
       
       <!-- Controls Card -->
-      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8">
-        <h2 class="text-lg font-semibold text-white mb-6">Daemon Controls</h2>
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 sm:p-6 lg:p-8 shadow-xl">
+        <h2 class="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          Daemon Controls
+        </h2>
         
-        <div class="space-y-6">
+        <div class="space-y-4 sm:space-y-6">
           <!-- Status -->
-          <div class="flex items-center justify-between bg-neutral-800/50 rounded-lg p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-neutral-800/50 rounded-lg p-3 sm:p-4 gap-3 sm:gap-4">
             <div class="flex items-center gap-3">
-              <div id="status-indicator" class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-              <span id="status-text" class="text-sm font-medium text-neutral-300">Checking status...</span>
+              <div id="status-indicator" class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse flex-shrink-0"></div>
+              <span id="status-text" class="text-xs sm:text-sm font-medium text-neutral-300">Checking status...</span>
             </div>
             <button onclick="checkStatus()" 
-                    class="px-5 py-2 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 rounded-[10px] transition-all">
+                    class="w-full sm:w-auto px-4 sm:px-5 py-2 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 rounded-[10px] transition-all active:scale-95 hover:shadow-lg">
               Refresh Status
             </button>
           </div>
 
           <!-- Configure -->
-          <div>
-            <label class="text-xs font-medium text-neutral-400 block mb-2">
+          <div class="space-y-2">
+            <label class="text-xs font-medium text-neutral-400 block">
               Configure Command (from node setup)
             </label>
             <input id="configuration" type="text" 
-                   class="input-field font-mono text-sm" 
+                   class="input-field font-mono text-xs sm:text-sm" 
                    placeholder="npm run configure -- --panel https://yourpanel.com --key xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-            <p class="mt-2 text-xs text-neutral-500">
+            <p class="text-xs text-neutral-500 leading-relaxed">
               Paste the full command shown in Admin → Nodes → [Your Node] → Configure
             </p>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="grid grid-cols-2 gap-3">
+          <!-- Primary Action Buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button onclick="installWings()" 
-                    class="py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-[10px] transition-all active:scale-95">
-              🚀 Install Wings
+                    class="group relative py-3 sm:py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-[10px] transition-all active:scale-95 shadow-lg hover:shadow-emerald-500/25 overflow-hidden">
+              <span class="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
+                <span class="text-lg">🚀</span>
+                <span>Install Wings</span>
+              </span>
+              <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
             <button onclick="configureWings()" 
-                    class="py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-[10px] transition-all active:scale-95">
-              ⚙️ Import Configure
+                    class="group relative py-3 sm:py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-[10px] transition-all active:scale-95 shadow-lg hover:shadow-blue-500/25 overflow-hidden">
+              <span class="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
+                <span class="text-lg">⚙️</span>
+                <span>Import Configure</span>
+              </span>
+              <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
           </div>
 
-          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
+          <!-- Control Buttons -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-4 border-t border-white/10">
             <button onclick="startWings()" 
-                    class="py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Start</button>
+                    class="py-2.5 sm:py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span class="text-sm">▶</span>
+              <span>Start</span>
+            </button>
             <button onclick="restartWings()" 
-                    class="py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Restart</button>
+                    class="py-2.5 sm:py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span class="text-sm">↻</span>
+              <span>Restart</span>
+            </button>
             <button onclick="stopWings()" 
-                    class="py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Stop</button>
+                    class="py-2.5 sm:py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span class="text-sm">■</span>
+              <span>Stop</span>
+            </button>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+          <!-- Secondary Actions -->
+          <div class="grid grid-cols-2 gap-2 sm:gap-3 pt-4 border-t border-white/10">
             <button onclick="reinstallWings()" 
-                    class="py-3 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-[10px] transition-all active:scale-95">Reinstall</button>
+                    class="py-2.5 sm:py-3 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex items-center justify-center gap-2">
+              <span>↺</span>
+              <span>Reinstall</span>
+            </button>
             <button onclick="viewLogs()" 
-                    class="py-3 bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-[10px] transition-all active:scale-95">PM2 Logs</button>
+                    class="py-2.5 sm:py-3 bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex items-center justify-center gap-2">
+              <span>📋</span>
+              <span>PM2 Logs</span>
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Live Log Card -->
-      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-8 flex flex-col">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-white">Live Console Output</h2>
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 sm:p-6 lg:p-8 flex flex-col shadow-xl min-h-[300px] sm:min-h-[400px]">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Live Console Output
+          </h2>
           <button onclick="clearConsole()" 
-                  class="text-xs px-4 py-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-neutral-400 transition">Clear Log</button>
+                  class="text-xs px-3 sm:px-4 py-1.5 sm:py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-neutral-400 transition hover:text-white shadow-sm">
+            Clear Log
+          </button>
         </div>
         
         <div id="console-log" 
-             class="log-terminal flex-1 font-mono text-xs leading-relaxed">
+             class="log-terminal flex-1 font-mono text-xs leading-relaxed shadow-inner">
           Ready. Click any action above to begin...
         </div>
       </div>
@@ -133,7 +188,7 @@
 
   <!-- Notification -->
   <div id="notification" 
-       class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
+       class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[90vw] sm:max-w-md transition-all duration-300 transform translate-y-0">
     <span id="notification-text"></span>
   </div>
 
@@ -143,7 +198,7 @@
     const textEl = document.getElementById('notification-text');
     textEl.textContent = message;
     
-    notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+    notification.className = `fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[90vw] sm:max-w-md transition-all duration-300 ${
       type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
     }`;
     notification.classList.remove('hidden');
@@ -162,10 +217,10 @@
     const indicator = document.getElementById('status-indicator');
     const text = document.getElementById('status-text');
     if (running) {
-      indicator.className = 'w-3 h-3 rounded-full bg-emerald-500 animate-pulse';
+      indicator.className = 'w-3 h-3 rounded-full bg-emerald-500 animate-pulse flex-shrink-0';
       text.textContent = `Running (PID: ${pid || 'Unknown'})`;
     } else {
-      indicator.className = 'w-3 h-3 rounded-full bg-red-500';
+      indicator.className = 'w-3 h-3 rounded-full bg-red-500 flex-shrink-0';
       text.textContent = 'Stopped';
     }
   }
