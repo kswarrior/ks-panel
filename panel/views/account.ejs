@@ -1,102 +1,418 @@
 <%- include('components/template') %>
 
-<main id="content">
-   <div class="px-4 sm:px-6 lg:px-8">
-      <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
-         <div class="p-3 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden sm:p-6 lg:p-10 card w-full">
-            <div class="lg:flex lg:items-center lg:justify-between">
-               <div class="min-w-0 flex-1">
-                  <h2 class="text-md font-medium tracking-tight">
-                     <span class="text-white flex flex-row"><%= req.translations.updateAccount %></span>
-                     <span id="statusBg"
-                        class="bg-neutral-600/20 hidden text-neutral-400 text-sm ml-1.5 font-medium me-2 px-2.5 py-1 rounded-full">
-                        <span id="status"><%= user.username %></span>
-                     </span>
-                  </h2>
-                  <form id="change-username-form" action="/change-username" method="POST" class="mt-5">
-                     <div class="flex flex-col sm:flex-row justify-between">
-                        <div class="w-full sm:w-1/2 sm:mr-4 mb-4 sm:mb-0">
-                           <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.username %>:</label>
-                           <input id="username" type="text" name="username" 
-                           class="rounded-xl focus:ring-transparent focus:border-transparent text-sm mt-1 mb-0 w-full items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder-neutral-400 text-white border border-black/10" 
-                           placeholder="<%= user.username %>" />
-                           <span id="username-feedback" class="mt-2 border border-neutral-600/30 text-neutral-400 text-xs font-medium me-2 px-2.5 py-1 rounded-full"><%= req.translations.checking %></span>
+<main id="content" class="min-h-screen pb-20">
+   <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+      <dl class="grid grid-cols-1 gap-5 sm:gap-6 lg:gap-8 max-w-7xl mx-auto">
+         
+         <!-- Account Settings Card -->
+         <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/5 bg-neutral-900/40 backdrop-blur-xl shadow-2xl">
+            
+            <!-- Card Header -->
+            <div class="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-4 border-b border-white/5">
+               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                     <div class="p-2 rounded-xl bg-white/5 border border-white/10">
+                        <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                     </div>
+                     <div>
+                        <h2 class="text-lg sm:text-xl font-semibold text-white tracking-tight"><%= req.translations.updateAccount %></h2>
+                        <span id="statusBg" class="hidden inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-600/30 text-neutral-400 border border-white/5 mt-1">
+                           <span id="status" class="truncate max-w-[150px]"><%= user.username %></span>
+                        </span>
+                     </div>
+                  </div>
+                  
+                  <!-- 2FA Status Badge -->
+                  <div class="flex items-center gap-2">
+                     <% if (user.twoFAEnabled === true) { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                           <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                           </svg>
+                           2FA <%= req.translations.enabled2FA %>
+                        </span>
+                     <% } else { %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                           <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                           </svg>
+                           2FA <%= req.translations.disabled2FA %>
+                        </span>
+                     <% } %>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-4 sm:p-6 lg:p-8 space-y-8 sm:space-y-10">
+               
+               <!-- Username & Email Section -->
+               <div class="space-y-6">
+                  <div class="flex items-center gap-2 mb-4">
+                     <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                     <span class="text-xs font-medium text-neutral-500 uppercase tracking-wider"><%= req.translations.profileInfo || 'Profile Information' %></span>
+                     <div class="h-px flex-1 bg-gradient-to-l from-white/10 to-transparent"></div>
+                  </div>
+
+                  <form id="change-username-form" action="/change-username" method="POST" class="space-y-4">
+                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                        
+                        <!-- Username Field -->
+                        <div class="space-y-2">
+                           <label class="block text-sm font-medium text-neutral-300 ml-1"><%= req.translations.username %></label>
+                           <div class="relative group">
+                              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                 <svg class="h-5 w-5 text-neutral-500 group-focus-within:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                 </svg>
+                              </div>
+                              <input 
+                                 id="username" 
+                                 type="text" 
+                                 name="username" 
+                                 class="block w-full pl-10 pr-4 py-3 sm:py-3.5 bg-neutral-600/10 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white/10 focus:border-white/20 transition-all duration-200 text-sm sm:text-base hover:bg-neutral-600/20"
+                                 placeholder="<%= user.username %>" 
+                                 autocomplete="username"
+                              />
+                              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                 <span id="username-feedback" class="hidden items-center px-2 py-1 rounded-lg text-xs font-medium bg-neutral-800/80 text-neutral-400 border border-white/5 backdrop-blur-sm">
+                                    <%= req.translations.checking %>
+                                 </span>
+                              </div>
+                           </div>
+                           <p class="text-xs text-neutral-500 ml-1"><%= req.translations.usernameHint || 'Choose a unique username for your account' %></p>
                         </div>
-                        <div class="w-full sm:w-1/2">
-                           <label class="text-neutral-400 text-sm tracking-tight mt-4 sm:mt-0"><%= req.translations.email %>:</label>
-                           <input id="email" type="email" name="email" value="" class="text-white rounded-xl focus:ring-transparent focus:border-transparent text-sm mt-1 mb-0 w-full items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 border border-black/10" placeholder="<%= user.email %>" disabled />
+
+                        <!-- Email Field -->
+                        <div class="space-y-2">
+                           <label class="block text-sm font-medium text-neutral-300 ml-1"><%= req.translations.email %></label>
+                           <div class="relative">
+                              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                 <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                                 </svg>
+                              </div>
+                              <input 
+                                 id="email" 
+                                 type="email" 
+                                 name="email" 
+                                 value="" 
+                                 class="block w-full pl-10 pr-4 py-3 sm:py-3.5 bg-neutral-600/5 border border-white/5 rounded-xl text-white/60 placeholder-white/30 cursor-not-allowed text-sm sm:text-base"
+                                 placeholder="<%= user.email %>" 
+                                 disabled 
+                              />
+                              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                 <svg class="h-4 w-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                 </svg>
+                              </div>
+                           </div>
+                           <p class="text-xs text-neutral-500 ml-1"><%= req.translations.emailLocked || 'Email cannot be changed' %></p>
                         </div>
                      </div>
-                     <button type="submit" id="change-username-btn" class="mt-4 block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2" disabled><%= req.translations.updateUsername %></button>
-                  </form>
 
-                  <form id="change-password-form" action="/change-password" method="POST" class="mt-5">
-                     <label class="text-neutral-400 text-sm tracking-tight mb-3"><%= req.translations.currentPassword %>:</label>
-                     <div id="current-password-feedback" class="border border-neutral-600/30 text-neutral-400 text-xs ml-1.5 font-medium me-2 px-2.5 py-1 rounded-full"><%= req.translations.checking %></div>
-                     <input id="currentPassword" type="password" name="currentPassword" class="rounded-xl focus:ring-transparent focus:border-transparent text-sm mt-1 mb-0 w-full items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder-neutral-400 text-white border border-black/10" placeholder="<%= req.translations.currentPasswordHide %>" />
-                     <label class="block text-neutral-400 text-sm tracking-tight mt-4"><%= req.translations.newPassword %>:</label>
-                     <input id="newPassword" type="password" name="newPassword" class="rounded-xl focus:ring-transparent focus:border-transparent text-sm mt-1 mb-0 w-full items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder-neutral-400 text-white border border-black/10" placeholder="<%= req.translations.newPasswordHide %>" disabled />
-                     <button type="submit" class="mt-4 block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"><%= req.translations.update_password %></button>
+                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+                        <div class="flex items-center gap-2 text-xs text-neutral-500">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                           </svg>
+                           <span><%= req.translations.usernameChangeNote || 'You can change your username once every 30 days' %></span>
+                        </div>
+                        <button 
+                           type="submit" 
+                           id="change-username-btn" 
+                           class="w-full sm:w-auto px-6 py-2.5 bg-white text-black font-semibold rounded-xl shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm sm:text-base"
+                           disabled
+                        >
+                           <%= req.translations.updateUsername %>
+                        </button>
+                     </div>
                   </form>
-                 <% if (user.twoFAEnabled !== true) { %>
-                  <button onclick="window.location.href = '/enable-2fa';" class="mt-4 block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"><%= req.translations.enabled2FA %></button>      
-                 <% } else { %>
-                 <form action="/disable-2fa" method="POST">
-                  <button class="mt-4 block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"><%= req.translations.disable2FA %></button>
-                 </form>
-                 <% } %>
                </div>
+
+               <!-- Divider -->
+               <div class="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+               <!-- Password Section -->
+               <div class="space-y-6">
+                  <div class="flex items-center gap-2 mb-4">
+                     <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                     <span class="text-xs font-medium text-neutral-500 uppercase tracking-wider"><%= req.translations.security || 'Security' %></span>
+                     <div class="h-px flex-1 bg-gradient-to-l from-white/10 to-transparent"></div>
+                  </div>
+
+                  <form id="change-password-form" action="/change-password" method="POST" class="space-y-5">
+                     
+                     <!-- Current Password -->
+                     <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                           <label class="block text-sm font-medium text-neutral-300 ml-1"><%= req.translations.currentPassword %></label>
+                           <span id="current-password-feedback" class="hidden items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-800/80 text-neutral-400 border border-white/5 backdrop-blur-sm transition-all duration-300">
+                              <%= req.translations.checking %>
+                           </span>
+                        </div>
+                        <div class="relative group">
+                           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg class="h-5 w-5 text-neutral-500 group-focus-within:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                              </svg>
+                           </div>
+                           <input 
+                              id="currentPassword" 
+                              type="password" 
+                              name="currentPassword" 
+                              class="block w-full pl-10 pr-12 py-3 sm:py-3.5 bg-neutral-600/10 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white/10 focus:border-white/20 transition-all duration-200 text-sm sm:text-base hover:bg-neutral-600/20"
+                              placeholder="<%= req.translations.currentPasswordHide %>" 
+                              autocomplete="current-password"
+                           />
+                           <button 
+                              type="button" 
+                              onclick="togglePassword('currentPassword', this)"
+                              class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-white/70 transition-colors focus:outline-none"
+                           >
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                              </svg>
+                           </button>
+                        </div>
+                     </div>
+
+                     <!-- New Password -->
+                     <div class="space-y-2">
+                        <label class="block text-sm font-medium text-neutral-300 ml-1"><%= req.translations.newPassword %></label>
+                        <div class="relative group">
+                           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg class="h-5 w-5 text-neutral-500 group-focus-within:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                              </svg>
+                           </div>
+                           <input 
+                              id="newPassword" 
+                              type="password" 
+                              name="newPassword" 
+                              class="block w-full pl-10 pr-12 py-3 sm:py-3.5 bg-neutral-600/10 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white/10 focus:border-white/20 transition-all duration-200 text-sm sm:text-base hover:bg-neutral-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                              placeholder="<%= req.translations.newPasswordHide %>" 
+                              disabled 
+                              autocomplete="new-password"
+                           />
+                           <button 
+                              type="button" 
+                              onclick="togglePassword('newPassword', this)"
+                              class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-white/70 transition-colors focus:outline-none disabled:opacity-30"
+                              disabled
+                           >
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                              </svg>
+                           </button>
+                        </div>
+                        
+                        <!-- Password Strength Indicator -->
+                        <div id="password-strength" class="hidden space-y-1">
+                           <div class="flex gap-1 h-1">
+                              <div class="flex-1 rounded-full bg-neutral-700 transition-colors duration-300" id="strength-1"></div>
+                              <div class="flex-1 rounded-full bg-neutral-700 transition-colors duration-300" id="strength-2"></div>
+                              <div class="flex-1 rounded-full bg-neutral-700 transition-colors duration-300" id="strength-3"></div>
+                              <div class="flex-1 rounded-full bg-neutral-700 transition-colors duration-300" id="strength-4"></div>
+                           </div>
+                           <p class="text-xs text-neutral-500" id="strength-text"><%= req.translations.passwordStrength || 'Enter a strong password' %></p>
+                        </div>
+                     </div>
+
+                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+                        <div class="flex items-center gap-2 text-xs text-neutral-500">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                           </svg>
+                           <span><%= req.translations.passwordRequirements || 'Min 8 chars, uppercase, number & symbol' %></span>
+                        </div>
+                        <button 
+                           type="submit" 
+                           class="w-full sm:w-auto px-6 py-2.5 bg-white text-black font-semibold rounded-xl shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm sm:text-base"
+                           disabled
+                        >
+                           <%= req.translations.update_password %>
+                        </button>
+                     </div>
+                  </form>
+               </div>
+
+               <!-- Divider -->
+               <div class="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+               <!-- 2FA Section -->
+               <div class="space-y-4">
+                  <div class="flex items-center gap-2 mb-4">
+                     <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                     <span class="text-xs font-medium text-neutral-500 uppercase tracking-wider"><%= req.translations.twoFactorAuth || 'Two-Factor Authentication' %></span>
+                     <div class="h-px flex-1 bg-gradient-to-l from-white/10 to-transparent"></div>
+                  </div>
+
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-neutral-600/10 border border-white/5">
+                     <div class="flex items-start gap-3">
+                        <div class="p-2 rounded-lg bg-white/5 border border-white/10 mt-0.5">
+                           <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                           </svg>
+                        </div>
+                        <div>
+                           <h3 class="text-sm font-medium text-white"><%= req.translations.twoFactorAuth || 'Two-Factor Authentication' %></h3>
+                           <p class="text-xs text-neutral-400 mt-1 max-w-md">
+                              <% if (user.twoFAEnabled !== true) { %>
+                                 <%= req.translations.enable2FADesc || 'Add an extra layer of security to your account' %>
+                              <% } else { %>
+                                 <%= req.translations.disable2FADesc || 'Your account is protected with 2FA' %>
+                              <% } %>
+                           </p>
+                        </div>
+                     </div>
+                     
+                     <% if (user.twoFAEnabled !== true) { %>
+                        <button 
+                           onclick="window.location.href = '/enable-2fa'" 
+                           class="w-full sm:w-auto px-5 py-2.5 bg-emerald-500/10 text-emerald-400 font-medium rounded-xl border border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
+                        >
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                           </svg>
+                           <%= req.translations.enabled2FA %>
+                        </button>
+                     <% } else { %>
+                        <form action="/disable-2fa" method="POST" class="w-full sm:w-auto">
+                           <button 
+                              type="submit"
+                              class="w-full sm:w-auto px-5 py-2.5 bg-red-500/10 text-red-400 font-medium rounded-xl border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
+                           >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                              </svg>
+                              <%= req.translations.disable2FA %>
+                           </button>
+                        </form>
+                     <% } %>
+                  </div>
+               </div>
+
             </div>
          </div>
       </dl>
    </div>
 </main>
 
+<!-- Password Toggle Helper -->
+<script>
+   function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+      input.setAttribute('type', type);
+      
+      // Update icon
+      btn.innerHTML = type === 'password' 
+         ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`
+         : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>`;
+   }
+</script>
 
 <style>
+   /* Smooth transitions for feedback elements */
    #username-feedback, #current-password-feedback {
-   transition: opacity 0.3s ease-in-out;
-   display: inline-block; /* Display as inline block */
-   min-width: fit-content; /* Set minimum width to fit the content */
-   max-width: 100%; /* Set maximum width to 100% of the parent container */
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   }
+   
+   /* Custom scrollbar for webkit */
+   ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+   }
+   
+   ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+   }
+   
+   ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+   }
+   
+   ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+   }
+   
+   /* Focus visible for accessibility */
+   input:focus-visible, button:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.3);
+      outline-offset: 2px;
+   }
+   
+   /* Prevent zoom on iOS inputs */
+   @supports (-webkit-touch-callout: none) {
+      input, select, textarea {
+         font-size: 16px;
+      }
+   }
+   
+   /* Loading animation optimization */
+   .animate-spin {
+      animation: spin 1s linear infinite;
+   }
+   
+   @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+   }
+   
+   /* Glassmorphism enhancement */
+   .backdrop-blur-xl {
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
    }
 </style>
+
 <script>
    document.addEventListener('DOMContentLoaded', () => {
        const currentPasswordInput = document.getElementById('currentPassword');
        const newPasswordInput = document.getElementById('newPassword');
        const currentPasswordFeedback = document.getElementById('current-password-feedback');
+       const newPasswordToggleBtn = document.querySelector('#change-password-form button[onclick*="newPassword"]');
        let currentPasswordValue = '';
        let currentPasswordTimeoutId;
        let controller;
        let isLoading = true;
    
        function showLoadingAnimation() {
+           currentPasswordFeedback.classList.remove('hidden');
+           currentPasswordFeedback.classList.add('inline-flex');
            currentPasswordFeedback.innerHTML = `
-           <span id="current-password-status">
-                  <svg class="animate-spin h-3 w-3  inline-flex mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg> <span id="current-password-feedback-message"><%= req.translations.checking %></span>
-               </span>
+               <svg class="animate-spin h-3 w-3 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+               </svg>
+               <span>${document.querySelector('[data-checking]')?.textContent || '<%= req.translations.checking %>'}</span>
            `;
        }
    
        function clearPasswordFeedback() {
-           currentPasswordFeedback.innerHTML = ''; // Clear feedback message
-           currentPasswordFeedback.style.display = 'none'; // Hide the feedback div
-           newPasswordInput.disabled = true; // Disable new password input
-           newPasswordInput.value = ''; // Clear the new password input
+           currentPasswordFeedback.classList.add('hidden');
+           currentPasswordFeedback.classList.remove('inline-flex');
+           currentPasswordFeedback.innerHTML = '';
+           newPasswordInput.disabled = true;
+           newPasswordInput.value = '';
+           if (newPasswordToggleBtn) newPasswordToggleBtn.disabled = true;
+           
+           // Reset password strength
+           document.getElementById('password-strength')?.classList.add('hidden');
        }
    
-       // Call clearPasswordFeedback function to remove feedback for password when the page loads
        clearPasswordFeedback();
    
        currentPasswordInput.addEventListener('input', () => {
-           // Disable the new password input when the current password changes
            newPasswordInput.disabled = true;
-           newPasswordInput.value = ''; // Clear the new password input
-           // Store the new current password value
+           newPasswordInput.value = '';
+           if (newPasswordToggleBtn) newPasswordToggleBtn.disabled = true;
            currentPasswordValue = currentPasswordInput.value;
        });
    
@@ -108,66 +424,80 @@
            }
    
            if (controller) {
-               controller.abort(); // Abort previous request if it exists
+               controller.abort();
            }
    
-           controller = new AbortController(); // Create a new AbortController
-           const signal = controller.signal; // Get the signal from the controller
+           controller = new AbortController();
+           const signal = controller.signal;
    
            currentPasswordTimeoutId = setTimeout(async () => {
                const currentPassword = currentPasswordValue;
    
-               // Check if the current password is blank
                if (currentPassword.trim() === '') {
                    clearPasswordFeedback();
-                   isLoading = false; // Set isLoading to false if the input is blank
+                   isLoading = false;
                    return;
                }
    
                try {
-                   // Show loading animation
-   
                    const response = await fetch('/validate-password', {
                        method: 'POST',
                        headers: {
                            'Content-Type': 'application/json'
                        },
                        body: JSON.stringify({ currentPassword }),
-                       signal // Pass the signal to the request
+                       signal
                    });
    
                    if (response.ok) {
                        const data = await response.json();
+                       currentPasswordFeedback.classList.remove('hidden');
+                       currentPasswordFeedback.classList.add('inline-flex');
+                       
                        if (data.valid) {
-                           currentPasswordFeedback.innerHTML = `<span id="current-password-status"><%= req.translations.correctPassword %></span>`;
+                           currentPasswordFeedback.className = 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-all duration-300';
+                           currentPasswordFeedback.innerHTML = `
+                               <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                               </svg>
+                               <%= req.translations.correctPassword %>
+                           `;
                        } else {
-                           currentPasswordFeedback.innerHTML = `<span id="current-current-status"><%= req.translations.incorrectPassword %></span>`;
+                           currentPasswordFeedback.className = 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20 transition-all duration-300';
+                           currentPasswordFeedback.innerHTML = `
+                               <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                               </svg>
+                               <%= req.translations.incorrectPassword %>
+                           `;
                        }
                        
-                       // Enable or disable the new password input based on validation result
                        newPasswordInput.disabled = !data.valid;
-                       currentPasswordFeedback.style.display = 'inline-block'; // Show the feedback div
+                       if (newPasswordToggleBtn) newPasswordToggleBtn.disabled = !data.valid;
                        isLoading = false;
                    } else {
                        const errorMessage = await response.text();
-                       currentPasswordFeedback.innerText = `<%= req.translations.updatingUsernameError %>`;
-                       currentPasswordFeedback.style.color = 'red';
-                       currentPasswordFeedback.style.display = 'inline-block'; // Show the feedback div
+                       currentPasswordFeedback.className = 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20';
+                       currentPasswordFeedback.innerHTML = `<%= req.translations.updatingUsernameError %>`;
+                       currentPasswordFeedback.classList.remove('hidden');
+                       currentPasswordFeedback.classList.add('inline-flex');
                    }
                } catch (error) {
-                   console.error('Error validating password:', error);
-                   currentPasswordFeedback.innerText = `<%= req.translations.validadingpasswordError %>`;
-                   currentPasswordFeedback.style.color = 'red';
-                   currentPasswordFeedback.style.display = 'inline-block'; // Show the feedback div
+                   if (error.name !== 'AbortError') {
+                       console.error('Error validating password:', error);
+                       currentPasswordFeedback.className = 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20';
+                       currentPasswordFeedback.innerHTML = `<%= req.translations.validadingpasswordError %>`;
+                       currentPasswordFeedback.classList.remove('hidden');
+                       currentPasswordFeedback.classList.add('inline-flex');
+                   }
                }
-           }, 500); // Adjust delay time as needed
+           }, 500);
        });
    
-       // Trigger initial check when the page is loaded
        if (currentPasswordInput.value.trim() !== '') {
-           checkCurrentPassword();
+           // Trigger check if pre-filled
        } else {
-           isLoading = false; // Set isLoading to false if the input is blank initially
+           isLoading = false;
        }
    });
 </script>
@@ -177,27 +507,60 @@
        const currentPasswordInput = document.getElementById('currentPassword');
        const newPasswordInput = document.getElementById('newPassword');
        const changePasswordBtn = document.querySelector('#change-password-form button[type="submit"]');
+       const strengthContainer = document.getElementById('password-strength');
    
-       // Function to check if the "Change Password" button should be enabled or disabled
        function toggleChangePasswordButton() {
-           if (currentPasswordInput.value.trim() !== '' && newPasswordInput.value.trim() !== '') {
+           const current = currentPasswordInput.value.trim();
+           const newPass = newPasswordInput.value.trim();
+           
+           if (current !== '' && newPass !== '' && newPass.length >= 8) {
                changePasswordBtn.disabled = false;
            } else {
                changePasswordBtn.disabled = true;
            }
+           
+           // Update strength indicator
+           if (newPass.length > 0) {
+               strengthContainer.classList.remove('hidden');
+               updatePasswordStrength(newPass);
+           } else {
+               strengthContainer.classList.add('hidden');
+           }
+       }
+       
+       function updatePasswordStrength(password) {
+           let strength = 0;
+           if (password.length >= 8) strength++;
+           if (/[A-Z]/.test(password)) strength++;
+           if (/[0-9]/.test(password)) strength++;
+           if (/[^A-Za-z0-9]/.test(password)) strength++;
+           
+           const bars = [
+               document.getElementById('strength-1'),
+               document.getElementById('strength-2'),
+               document.getElementById('strength-3'),
+               document.getElementById('strength-4')
+           ];
+           
+           const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
+           const texts = [
+               '<%= req.translations.weak || "Weak" %>',
+               '<%= req.translations.fair || "Fair" %>',
+               '<%= req.translations.good || "Good" %>',
+               '<%= req.translations.strong || "Strong" %>'
+           ];
+           
+           bars.forEach((bar, index) => {
+               bar.className = `flex-1 rounded-full transition-colors duration-300 ${index < strength ? colors[strength - 1] : 'bg-neutral-700'}`;
+           });
+           
+           document.getElementById('strength-text').textContent = texts[strength - 1] || '<%= req.translations.passwordStrength || "Enter a strong password" %>';
+           document.getElementById('strength-text').className = `text-xs ${strength > 0 ? 'text-' + ['red', 'orange', 'yellow', 'emerald'][strength - 1] + '-400' : 'text-neutral-500'}`;
        }
    
-       // Event listener for input on current password field
-       currentPasswordInput.addEventListener('input', () => {
-           toggleChangePasswordButton();
-       });
+       currentPasswordInput.addEventListener('input', toggleChangePasswordButton);
+       newPasswordInput.addEventListener('input', toggleChangePasswordButton);
    
-       // Event listener for input on new password field
-       newPasswordInput.addEventListener('input', () => {
-           toggleChangePasswordButton();
-       });
-   
-       // Trigger initial check when the page is loaded
        toggleChangePasswordButton();
    });
 </script>
@@ -208,92 +571,118 @@
       const changeUsernameBtn = document.getElementById('change-username-btn');
       const usernameFeedback = document.getElementById('username-feedback');
       let isLoading = false;
+      let timeoutId;
+      let controller;
    
-      // Function to display loading animation
       function showLoadingAnimation() {
+         usernameFeedback.classList.remove('hidden');
+         usernameFeedback.classList.add('inline-flex');
          usernameFeedback.innerHTML = `
-            <span id="username-status">
-               <svg class="animate-spin h-3 w-3  inline-flex mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-               </svg> <span id="username-feedback-message"><%= req.translations.checking %></span>
-            </span>
+            <svg class="animate-spin h-3 w-3 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span><%= req.translations.checking %></span>
          `;
       }
    
-      // Function to check if a username exists
-      let timeoutId; // Variable to store the timeout ID for debouncing
-   
       async function checkUsername() {
-         const username = usernameInput.value.trim().toLowerCase(); // Convert input to lowercase
+         const username = usernameInput.value.trim().toLowerCase();
    
-         // Hide feedback elements if username is empty
          if (username === '') {
-            usernameFeedback.style.display = 'none';
+            usernameFeedback.classList.add('hidden');
+            usernameFeedback.classList.remove('inline-flex');
             changeUsernameBtn.disabled = true;
             return;
-         } else {
-            usernameFeedback.style.display = 'inline-block';
+         }
+         
+         // Don't check if same as current
+         if (username === '<%= user.username %>'.toLowerCase()) {
+            usernameFeedback.className = 'hidden items-center px-2 py-1 rounded-lg text-xs font-medium bg-neutral-800/80 text-neutral-400 border border-white/5 backdrop-blur-sm';
+            usernameFeedback.classList.add('hidden');
+            changeUsernameBtn.disabled = true;
+            return;
          }
    
-         // Clear previous timeout to prevent multiple requests
          clearTimeout(timeoutId);
    
-         // Show loading animation if not already loading
          if (!isLoading) {
             showLoadingAnimation();
             isLoading = true;
          }
+         
+         if (controller) controller.abort();
+         controller = new AbortController();
    
-         // Set timeout to wait for user to finish typing
          timeoutId = setTimeout(async () => {
-            // Check if username already exists
-            const response = await fetch(`/check-username?username=${encodeURIComponent(username)}`);
-            const data = await response.json();
+            try {
+               const response = await fetch(`/check-username?username=${encodeURIComponent(username)}`, {
+                  signal: controller.signal
+               });
+               const data = await response.json();
    
-            // Update UI based on response
-            if (data.exists) {
-               usernameFeedback.innerHTML = `<span id="username-status"><%= req.translations.usernameTaken %></span>`;
-               changeUsernameBtn.disabled = true;
-            } else {
-               usernameFeedback.innerHTML = `<span id="username-status"><%= req.translations.usernameIsNotTaken %></span>`;
-               changeUsernameBtn.disabled = false;
+               usernameFeedback.classList.remove('hidden');
+               usernameFeedback.classList.add('inline-flex');
+               
+               if (data.exists) {
+                  usernameFeedback.className = 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20 backdrop-blur-sm transition-all duration-300';
+                  usernameFeedback.innerHTML = `
+                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                     </svg>
+                     <%= req.translations.usernameTaken %>
+                  `;
+                  changeUsernameBtn.disabled = true;
+               } else {
+                  usernameFeedback.className = 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-sm transition-all duration-300';
+                  usernameFeedback.innerHTML = `
+                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                     </svg>
+                     <%= req.translations.usernameIsNotTaken %>
+                  `;
+                  changeUsernameBtn.disabled = false;
+               }
+               isLoading = false;
+            } catch (error) {
+               if (error.name !== 'AbortError') {
+                  console.error('Error checking username:', error);
+               }
             }
-            isLoading = false;
-         }, 500); // Adjust delay time as needed
+         }, 500);
       }
    
-      // Event listener for input on username field with debouncing
-      usernameInput.addEventListener('input', () => {
-         clearTimeout(timeoutId); // Clear previous timeout
-         timeoutId = setTimeout(checkUsername, 500); // Set new timeout with debouncing delay
-      });
+      usernameInput.addEventListener('input', checkUsername);
    
-      // Event listener for form submission to prevent default behavior
       document.getElementById('change-username-form').addEventListener('submit', (event) => {
          event.preventDefault();
       });
    
-      // Clear feedback elements and disable button when username input is cleared
       usernameInput.addEventListener('change', () => {
          if (usernameInput.value.trim() === '') {
-            usernameFeedback.style.display = 'none';
-            usernameFeedbackMessage.innerText = '';
+            usernameFeedback.classList.add('hidden');
+            usernameFeedback.classList.remove('inline-flex');
             changeUsernameBtn.disabled = true;
          }
       });
    
-      // Trigger initial check when the page is loaded
-      checkUsername();
+      // Initial check
+      if (usernameInput.value.trim() !== '' && usernameInput.value.trim().toLowerCase() !== '<%= user.username %>'.toLowerCase()) {
+         checkUsername();
+      }
    
       async function handleUsernameUpdate(event) {
          event.preventDefault();
    
-         const currentUsername = '<%= user.username %>'; // Get current username from server-side template
-         const newUsername = usernameInput.value.trim(); // Get new username from input field
+         const currentUsername = '<%= user.username %>';
+         const newUsername = usernameInput.value.trim();
+         
+         if (newUsername.toLowerCase() === currentUsername.toLowerCase()) {
+            alert('<%= req.translations.sameUsername || "Please enter a different username" %>');
+            return;
+         }
    
          try {
-            // Send a POST request to the server to update the username
             const response = await fetch('/update-username', {
                method: 'POST',
                headers: {
@@ -303,12 +692,9 @@
             });
    
             if (response.ok) {
-               // Username updated successfully
                alert('<%= req.translations.usernameUpdatedSuccess %>');
                window.location.href = '/login?err=UpdatedCredentials';
-               // Optionally, you can redirect the user to another page or update the UI
             } else {
-               // Error updating username
                const errorMessage = await response.text();
                alert(errorMessage);
             }
@@ -318,7 +704,6 @@
          }
       }
    
-      // Add event listener to the form for submit event
       document.getElementById('change-username-form').addEventListener('submit', handleUsernameUpdate);
    });
 </script>
