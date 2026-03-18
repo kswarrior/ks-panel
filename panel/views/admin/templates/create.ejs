@@ -486,6 +486,13 @@
             </div>
           </div>
 
+          <div class="tf-row">
+            <div class="tf-field-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Start Code <span class="text-red-400">*</span></label>
+              <input type="text" name="environment.start_code" required placeholder="java -Xms4G -Xmx4G -jar server.jar --nogui" class="tf-input">
+            </div>
+          </div>
+
           <!-- VARIABLES -->
           <div class="tf-section-header">
             <h2>Variables</h2>
@@ -495,9 +502,9 @@
           </div>
           <div id="variablesContainer" class="space-y-3"></div>
 
-          <!-- RUNTIME ACTIONS -->
+          <!-- CUSTOM ACTIONS -->
           <div class="tf-section-header">
-            <h2>Runtime Actions</h2>
+            <h2>Custom Actions</h2>
             <button type="button" id="btnAddAction" class="tf-btn tf-btn-accent text-xs">
               + Add Action
             </button>
@@ -967,6 +974,9 @@ function collectFormData() {
     else if (key === "environment.docker_image") {
       data.environment.docker_image = value;
     }
+    else if (key === "environment.start_code") {
+      data.environment.start_code = value;
+    }
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
@@ -1053,6 +1063,7 @@ function fillForm(data) {
   document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
+  document.querySelector('[name="environment.start_code"]').value = data.environment?.start_code || "";
 
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
@@ -1120,6 +1131,8 @@ function loadDefaultForm() {
 
   document.getElementById("pagesContainer").innerHTML = "";
   pageIndex = 0;
+
+  document.querySelector('[name="environment.start_code"]').value = "java -Xms4G -Xmx4G -jar server.jar --nogui";
 }
 
 // ====================== SAVE ======================
