@@ -1,14 +1,8 @@
 <!doctype html>
 <html class="h-full w-full">
-   <!--
-     
-   HEAD SECTION
-     
-   -->
    <head>
       <title><%= name || 'KS Panel' %></title>
       <link rel="icon" href="/assets/logo.webp" type="image/webp">
-
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <meta content="<%= ogTitle %>" property="og:title">
@@ -19,7 +13,6 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
       
-      <!-- Optimistic UI Enhancements -->
       <style>
          :root {
             --glass-bg: rgba(20, 20, 25, 0.65);
@@ -31,6 +24,12 @@
             --accent-danger: #ef4444;
             --optimistic-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
          }
 
          * {
@@ -49,7 +48,7 @@
             overflow-x: hidden;
          }
 
-         /* Optimistic Glassmorphism Base */
+         /* Enhanced Glassmorphism with better sizing */
          .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(20px) saturate(180%);
@@ -57,13 +56,14 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--optimistic-shadow), 
                         inset 0 1px 0 var(--glass-highlight);
+            border-radius: 1rem;
          }
 
          .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            border-radius: 1rem;
             transition: all 0.3s var(--spring-easing);
          }
 
@@ -73,11 +73,10 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
          }
 
-         /* Optimistic Animations */
          @keyframes optimistic-slide-up {
             from {
                opacity: 0;
-               transform: translateY(20px) scale(0.95);
+               transform: translateY(1.25rem) scale(0.95);
             }
             to {
                opacity: 1;
@@ -97,7 +96,7 @@
 
          @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-0.3125rem); }
          }
 
          .animate-optimistic {
@@ -108,14 +107,14 @@
             animation: optimistic-fade-in 0.4s ease-out forwards;
          }
 
-         /* Mobile-First Responsive Optimizations */
+         /* Refined Mobile-First Responsive Scale */
          @media (max-width: 1024px) {
             .sidebar {
                display: none;
                position: fixed;
                z-index: 50;
                height: 100%;
-               width: 215px;
+               width: 16rem;
                backdrop-filter: blur(30px) saturate(200%);
                -webkit-backdrop-filter: blur(30px) saturate(200%);
                background: rgba(15, 15, 20, 0.85);
@@ -133,25 +132,22 @@
                opacity: 1;
             }
 
-            /* Mobile-optimized content area */
             #colcont {
                padding-left: 0 !important;
                padding-right: 0 !important;
                transition: padding 0.3s ease;
             }
 
-            /* Mobile glass cards */
             .glass-card {
-               border-radius: 20px;
-               margin: 0 12px 16px 12px;
+               border-radius: 1.25rem;
+               margin: 0 0.75rem 1rem 0.75rem;
                background: rgba(255, 255, 255, 0.05);
             }
 
-            /* Touch-friendly interactions */
             .nav-link {
-               padding: 14px 20px;
-               margin: 4px 12px;
-               border-radius: 12px;
+               padding: 0.875rem 1.25rem;
+               margin: 0.25rem 0.75rem;
+               border-radius: 0.75rem;
                transition: all 0.2s ease;
             }
 
@@ -160,14 +156,13 @@
                background: rgba(255, 255, 255, 0.1);
             }
 
-            /* Mobile header optimization */
             #mobile-sidebar-toggle {
                backdrop-filter: blur(20px);
                background: rgba(0, 0, 0, 0.4);
                border: 1px solid rgba(255, 255, 255, 0.1);
-               border-radius: 16px;
-               padding: 10px 16px;
-               margin: 8px;
+               border-radius: 1rem;
+               padding: 0.625rem 1rem;
+               margin: 0.5rem;
                transition: all 0.3s var(--spring-easing);
             }
 
@@ -176,7 +171,6 @@
                background: rgba(0, 0, 0, 0.6);
             }
 
-            /* Bottom sheet style for mobile dropdowns */
             #update-dropdown,
             #resource-dropdown,
             #dropdown-menu {
@@ -186,7 +180,7 @@
                right: 0;
                top: auto;
                width: 100%;
-               border-radius: 24px 24px 0 0;
+               border-radius: 1.5rem 1.5rem 0 0;
                backdrop-filter: blur(30px);
                background: rgba(20, 20, 25, 0.95);
                border: 1px solid rgba(255, 255, 255, 0.1);
@@ -203,22 +197,20 @@
                transform: translateY(0);
             }
 
-            /* Mobile-optimized resource bars */
             #resource-dropdown .bg-neutral-700 {
                background: rgba(255, 255, 255, 0.1);
-               border-radius: 12px;
-               height: 8px;
+               border-radius: 0.75rem;
+               height: 0.5rem;
             }
 
             #resource-dropdown .h-4 {
-               height: 8px;
-               border-radius: 12px;
+               height: 0.5rem;
+               border-radius: 0.75rem;
                transition: width 0.6s var(--spring-easing);
             }
          }
 
          @media (min-width: 1025px) {
-            /* Desktop enhancements */
             .sidebar {
                background: rgba(0, 0, 0, 0.3);
                backdrop-filter: blur(20px) saturate(150%);
@@ -226,10 +218,9 @@
             }
 
             .glass-card {
-               border-radius: 20px;
+               border-radius: 1.25rem;
             }
 
-            /* Hover states for desktop */
             .nav-link {
                position: relative;
                overflow: hidden;
@@ -249,7 +240,6 @@
             }
          }
 
-         /* Optimistic loading states */
          .skeleton {
             background: linear-gradient(90deg, 
                rgba(255,255,255,0.05) 25%, 
@@ -257,7 +247,7 @@
                rgba(255,255,255,0.05) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
-            border-radius: 8px;
+            border-radius: 0.5rem;
          }
 
          @keyframes shimmer {
@@ -265,18 +255,16 @@
             100% { background-position: -200% 0; }
          }
 
-         /* Active state indicator with optimistic animation */
          #active-background {
             background: linear-gradient(135deg, 
                rgba(59, 130, 246, 0.3) 0%, 
                rgba(147, 51, 234, 0.2) 100%);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            border-radius: 12px;
+            border-radius: 0.75rem;
             transition: all 0.4s var(--spring-easing);
          }
 
-         /* Resource monitor optimistic styling */
          #resource-icon {
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
             transition: transform 0.3s var(--spring-easing);
@@ -286,17 +274,15 @@
             transform: scale(1.1);
          }
 
-         /* Ping indicator with optimistic colors */
          #pingDisplay {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            padding: 6px 10px;
-            border-radius: 12px;
+            padding: 0.375rem 0.625rem;
+            border-radius: 0.75rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
          }
 
-         /* Update icon with optimistic pulse */
          #update-icon {
             transition: transform 0.5s var(--spring-easing);
          }
@@ -305,10 +291,9 @@
             transform: rotate(180deg);
          }
 
-         /* Scrollbar styling */
          ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 0.375rem;
+            height: 0.375rem;
          }
 
          ::-webkit-scrollbar-track {
@@ -317,14 +302,13 @@
 
          ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.15);
-            border-radius: 3px;
+            border-radius: 0.1875rem;
          }
 
          ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.25);
          }
 
-         /* Focus states for accessibility */
          button:focus-visible,
          a:focus-visible,
          select:focus-visible {
@@ -332,7 +316,6 @@
             outline-offset: 2px;
          }
 
-         /* Reduced motion support */
          @media (prefers-reduced-motion: reduce) {
             * {
                animation-duration: 0.01ms !important;
@@ -343,39 +326,30 @@
       </style>
    </head>
    <body>
-      <!--
-     
-      MOBILE TOGGLE SECTION
-     
-      -->
-      <!-- Static sidebar for desktop -->
-      <div id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out hidden lg:fixed lg:inset-y-0 lg:z-50 p-2 lg:flex lg:w-56 lg:flex-col group group-[.collapsed]:w-[4%]">
-         <div id="pc-sidebar2" class="flex grow flex-col gap-y-5 overflow-hidden rounded-r-3xl rounded-l-lg bg-transparent border border-white/5">
+      <!-- Desktop Sidebar - Enhanced sizing -->
+      <div id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out hidden lg:fixed lg:inset-y-0 lg:z-50 p-3 lg:flex lg:w-60 lg:flex-col group group-[.collapsed]:w-14">
+         <div id="pc-sidebar2" class="flex grow flex-col gap-y-6 overflow-hidden rounded-r-2xl rounded-l-lg bg-transparent border border-white/5">
             <nav class="flex flex-1 flex-col">
-                  <!--
-     
-      USER INFO SECTION
-     
-      -->
-                  <div class="flex items-center space-x-4 py-4 px-4 border-y border-white/5 glass-card mx-2 mt-2">
-                  <img class="w-8 h-8 rounded-full ring-2 ring-white/20"
+               <!-- User Info Section - Improved spacing -->
+               <div class="flex items-center space-x-3 py-5 px-4 border-y border-white/5 glass-card mx-3 mt-3">
+                  <img class="w-9 h-9 rounded-full ring-2 ring-white/20"
      src="https://mc-heads.net/avatar/<%= user.username %>/64"
      alt="Profile">
-                     <div class="lg:group-[.collapsed]:hidden">
-                       <p class="text-sm font-medium text-white" style="color: #fff;"><%= user.username %></p>
-                       <p class="text-xs text-neutral-400 font-mono"><%= user.userId.substring(0, 6) %></p>
-                     </div>
+                  <div class="lg:group-[.collapsed]:hidden">
+                    <p class="text-sm font-medium text-white" style="color: #fff;"><%= user.username %></p>
+                    <p class="text-xs text-neutral-400 font-mono mt-0.5"><%= user.userId.substring(0, 6) %></p>
                   </div>
-               <ul role="list" class="flex flex-1 flex-col gap-y-7 mt-2">
+               </div>
+               <ul role="list" class="flex flex-1 flex-col gap-y-6 mt-3">
                   <li>
                      <ul role="list" class="-mx-2 space-y-1">
-                        <div id="active-background" class="absolute left-0 w-full h-8 rounded-2xl transition-all duration-300 ease-in-out opacity-0"></div>
+                        <div id="active-background" class="absolute left-0 w-full h-10 rounded-2xl transition-all duration-300 ease-in-out opacity-0"></div>
                         <li>
-                           <a href="/instances" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5" searchdata="container instances servers" subterm="jegli:/server/servername">
+                           <a href="/instances" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5" searchdata="container instances servers" subterm="jegli:/server/servername">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M220,169.09l-92,53.65L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,169.09Z"/><path d="M220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09Z"/><path d="M28,86.91l96,56a8,8,0,0,0,8.06,0l96-56a8,8,0,0,0,0-13.82l-96-56a8,8,0,0,0-8.06,0l-96,56a8,8,0,0,0,0,13.82Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.instances %></span>
                            </a>
-                           <a href="/account" searchdata="account profile <%= user.username %>" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/account" searchdata="account profile <%= user.username %>" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110">
                                  <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
                                </svg>                                                           
@@ -384,7 +358,7 @@
                            <% plugins.forEach(plugin => { %>
                               <% if (plugin.sidebar) { %>
                                   <% Object.entries(plugin.sidebar).forEach(([key, value]) => { %>
-                                      <a href="<%= value.url %>" searchdata="<%= value.search_data %>" class="transition nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                                      <a href="<%= value.url %>" searchdata="<%= value.search_data %>" class="transition nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                                           <% if (value.icon) { %>
                                               <span class="svg-icon" data-icon-url="<%= value.icon %>"></span>
                                           <% } else { %>
@@ -428,17 +402,17 @@
                           
                         </li>
                         <% if (user.admin == true) { %>
-                        <p class="pl-8 pt-6 pb-2 text-xs font-bold uppercase tracking-wider text-white/60 lg:group-[.collapsed]:hidden">
+                        <p class="pl-8 pt-8 pb-3 text-xs font-bold uppercase tracking-wider text-white/60 lg:group-[.collapsed]:hidden">
   <span>Admin Panel</span>
 </p>
                         <li>
-                           <a href="/admin/dashboard/overview" searchdata="admin overview control" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/dashboard/overview" searchdata="admin overview control" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden">Dashboard</span>
                            </a>
                         </li>
                        <li>
-                           <a href="/admin/database/overview" searchdata="admin overview control" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/database/overview" searchdata="admin overview control" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110">
   <rect width="256" height="256" fill="none"/>
   <path d="M128,40c-44.18,0-80,14.33-80,32s35.82,32,80,32,80-14.33,80-32S172.18,40,128,40Z"/>
@@ -450,13 +424,13 @@
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/settings" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/settings" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.settings %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/users" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/users" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110">
                                  <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.569-1.175 6.002 6.002 0 0 1 11.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 0 1 7 18a9.953 9.953 0 0 1-5.385-1.572ZM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 0 0-1.588-3.755 4.502 4.502 0 0 1 5.874 2.636.818.818 0 0 1-.36.98A7.465 7.465 0 0 1 14.5 16Z" />
                                </svg>                               
@@ -464,43 +438,43 @@
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/instances/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/instances/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm196,41.09-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM232,192H216V176a8,8,0,0,0-16,0v16H184a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V208h16a8,8,0,0,0,0-16Zm-92,23.76-12,7L36,169.09A8,8,0,0,0,28,182.91l96,56a8,8,0,0,0,8.06,0l16-9.33A8,8,0,1,0,140,215.76Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.instances %></span>
                            </a>
                         </li>
                        <li>
-                           <a href="/admin/templates/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/templates/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 transition-transform group-hover:scale-110"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm0 6v3h6v-3h-6z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.templates %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/nodes/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/nodes/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.nodes %></span>
                            </a>
                         </li>
                        <li>
-                           <a href="/admin/locations" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/locations" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 transition-transform group-hover:scale-110"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.location %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/plugins/overview" searchdata="addons plugins admin" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/plugins/overview" searchdata="addons plugins admin" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M165.78,224H208a16,16,0,0,0,16-16V170.35A8,8,0,0,0,212.94,163a23.37,23.37,0,0,1-8.94,1.77c-13.23,0-24-11.1-24-24.73s10.77-24.73,24-24.73a23.37,23.37,0,0,1,8.94,1.77A8,8,0,0,0,224,109.65V72a16,16,0,0,0-16-16H171.78a35.36,35.36,0,0,0,.22-4,36,36,0,0,0-72,0,35.36,35.36,0,0,0,.22,4H64A16,16,0,0,0,48,72v32.22a35.36,35.36,0,0,0-4-.22,36,36,0,0,0,0,72,35.36,35.36,0,0,0,4-.22V208a16,16,0,0,0,16,16h42.22"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.plugins %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/apikeys" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/apikeys" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM180,92a16,16,0,1,1,16-16A16,16,0,0,1,180,92Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.APIKeys %></span>
                            </a>
                         </li>
                         <li>
-                           <a href="/admin/auditlogs" searchdata="audit logs admin" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-2 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
+                           <a href="/admin/auditlogs" searchdata="audit logs admin" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-3 group flex gap-x-3 py-2.5 rounded-xl text-sm leading-6 font-normal hover:text-white hover:bg-white/5">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:scale-110"><rect width="256" height="256" fill="none"/><path d="M220.8,169.6A8,8,0,0,0,216,168h-8V64a32,32,0,0,0-32-32H40A32,32,0,0,0,8,64C8,77.61,18.05,85.54,19.2,86.4h0A7.89,7.89,0,0,0,24,88a8,8,0,0,0,4.87-14.33h0C28.83,73.62,24,69.74,24,64a16,16,0,0,1,32,0V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32C232,178.39,222,170.46,220.8,169.6ZM104,96h64a8,8,0,0,1,0,16H104a8,8,0,0,1,0-16Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,136Zm104,72H107.71A31.82,31.82,0,0,0,112,192a26.92,26.92,0,0,0-1.21-8h102a12.58,12.58,0,0,1,3.23,8A16,16,0,0,1,200,208Z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.auditLogs %></span>
                            </a>
@@ -510,7 +484,7 @@
                      </ul>
                   </li>
                   <li class="mt-auto border-t border-white/5">
-                     <a href="/auth/logout" class="group -mx-2 flex gap-x-3 rounded-xl pl-6 py-4 text-sm font-medium leading-6 text-neutral-500 transition-all duration-300 ease-in-out hover:text-red-400 hover:bg-red-500/10">
+                     <a href="/auth/logout" class="group -mx-2 flex gap-x-3 rounded-xl pl-6 pr-4 py-4 text-sm font-medium leading-6 text-neutral-500 transition-all duration-300 ease-in-out hover:text-red-400 hover:bg-red-500/10">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 group-[.collapsed]:mr-0 transition-transform group-hover:translate-x-1">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                         </svg>
@@ -521,9 +495,14 @@
             </nav>
          </div>
       </div>
-      <div id="colcont" class="lg:pl-56 group-[.collapsed]:pl-[4.2rem] group-[.sidebar-right]:pl-[1.2rem] group-[.sidebar-right]:pr-[14.2rem] transition-all duration-300">
-      <div class="sticky backdrop-blur-xl top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-black/20 px-4 sm:gap-x-6 sm:px-4 lg:px-4 border-b border-white/5">
-         <!-- Desktop sidebar toggle is now completely hidden (always) -->
+      
+      <!-- Main Content Area - Refined spacing -->
+      <div id="colcont" class="lg:pl-60 group-[.collapsed]:pl-14 group-[.sidebar-right]:pl-4 group-[.sidebar-right]:pr-60 transition-all duration-300">
+      
+      <!-- Header - Optimized sizing -->
+      <div class="sticky backdrop-blur-xl top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-black/20 px-4 sm:gap-x-6 sm:px-6 lg:px-8 border-b border-white/5">
+         
+         <!-- Hidden desktop toggle -->
          <div class="hidden">
          <button type="button" id="sidebar-toggle" class="hidden lg:block w-fit p-2 mt-1 rounded-xl text-white border border-white/5 hover:scale-110 active:scale-100 duration-200">
             <span class="sr-only">Open sidebar</span>
@@ -532,16 +511,19 @@
             </svg>
          </button>
       </div>
+         
          <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div class="relative flex flex-1 flex-col">
+               
+               <!-- Mobile Toggle - Better proportions -->
                <div id="mobile-sidebar-toggle"
-class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl border border-white/5 cursor-pointer hover:scale-105 active:scale-100 duration-200 bg-transparent text-white glass-panel">
+class="ml-2 lg:-ml-2 flex items-center w-fit mt-3 px-4 py-2.5 h-11 rounded-xl border border-white/5 cursor-pointer hover:scale-105 active:scale-100 duration-200 bg-transparent text-white glass-panel">
                 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 24 24"
      fill="none"
      stroke="white"
      stroke-width="2"
-     class="w-5 h-5 inline-flex mr-2 transition-all duration-200 ease-in-out
+     class="w-5 h-5 inline-flex mr-3 transition-all duration-200 ease-in-out
             group-hover:scale-110 group-hover:stroke-blue-400
             drop-shadow-sm">
 
@@ -549,26 +531,33 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         stroke-linejoin="round"
         d="M4 6h16M4 12h16M4 18h16" />
 </svg>
-<div class="mx-[2px] h-6 w-px bg-transparent flex items-center justify-center">
+<div class="mx-1.5 h-5 w-px bg-transparent flex items-center justify-center">
      
 </div>
                      <% if (logo == true) { %>
-         <img src="/assets/logo.webp" class="h-6 w-6 min-h-6 min-w-6 max-h-6 max-w-6 object-contain rounded mr-3 block shrink-0 ring-2 ring-white/20">
+         <img src="/assets/logo.webp" class="h-7 w-7 min-h-7 min-w-7 max-h-7 max-w-7 object-contain rounded mr-3 block shrink-0 ring-2 ring-white/20">
       <% }  else { %>
-         <img src="/assets/logo.webp" class="h-6 w-6 min-h-6 min-w-6 max-h-6 max-w-6 object-contain rounded mr-3 block shrink-0 ring-2 ring-white/20">
+         <img src="/assets/logo.webp" class="h-7 w-7 min-h-7 min-w-7 max-h-7 max-w-7 object-contain rounded mr-3 block shrink-0 ring-2 ring-white/20">
       <% } %>
                   <h1 class="text-white font-semibold tracking-tight text-lg lg:group-[.collapsed]:hidden bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent"><%= name || 'KS Panel' %></h1>
                </div>
-               <div id="searchResults" class="absolute bg-neutral-900/95 backdrop-blur-xl w-[12.5rem] rounded-2xl shadow-2xl hidden mt-20 px-2 pb-2 border border-white/10 animate-optimistic">
+               
+               <!-- Search Results - Better width -->
+               <div id="searchResults" class="absolute bg-neutral-900/95 backdrop-blur-xl w-56 rounded-2xl shadow-2xl hidden mt-20 px-3 pb-3 border border-white/10 animate-optimistic">
                </div>
             </div>
+            
             <script src="/javascript/search/index.js"></script>
-<div class="flex items-center gap-x-3">
+            
+            <!-- Right side icons - Improved spacing -->
+            <div class="flex items-center gap-x-4">
+               
+   <!-- Update Icon -->
    <div class="relative cursor-pointer group">
    <svg id="update-icon"
      xmlns="http://www.w3.org/2000/svg"
-     width="24"
-     height="24"
+     width="22"
+     height="22"
      viewBox="0 0 24 24"
      fill="none"
      stroke="#808080"
@@ -581,19 +570,19 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
   <path d="M3 20v-6h6"/>
   <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
 </svg>
-   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-64 glass-panel rounded-2xl p-6 shadow-2xl z-50">
-     <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+   <div id="update-dropdown" class="hidden absolute right-0 mt-3 w-72 glass-panel rounded-2xl p-6 shadow-2xl z-50">
+     <h2 class="text-lg font-semibold text-white mb-5 flex items-center gap-2.5">
        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
        Update Manager
      </h2>
-     <button id="action-button" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-2.5 rounded-xl font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25">Loading...</button>
+     <button id="action-button" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25">Loading...</button>
    </div>
    </div>
-   <!-- Ping Display -->
-<span id="pingDisplay"
-      class="flex flex-col items-center text-white glass-panel px-3 py-1.5 rounded-xl cursor-pointer hover:bg-white/10 transition-all duration-300">
+   
+   <!-- Ping Display - Refined -->
+   <span id="pingDisplay"
+      class="flex flex-col items-center text-white glass-panel px-3 py-2 rounded-xl cursor-pointer hover:bg-white/10 transition-all duration-300">
 
-  <!-- SVG WiFi Icon -->
   <svg id="pingIcon"
        width="20"
        height="16"
@@ -630,35 +619,32 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
             opacity="0.2" />
   </svg>
 
-  <!-- Ping Number Below -->
-  <span style="font-size:9px;" class="mt-1 font-bold tabular-nums">
+  <span style="font-size:0.5625rem;" class="mt-1.5 font-bold tabular-nums">
     <span id="pingValue">--</span>ms
   </span>
 
 </span>
+   
    <!-- Resource Monitor -->
-   <div id="resource-link" class="relative cursor-pointer group glass-panel p-2 rounded-xl hover:bg-white/10 transition-all duration-300">
+   <div id="resource-link" class="relative cursor-pointer group glass-panel p-2.5 rounded-xl hover:bg-white/10 transition-all duration-300">
       <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors">
-        <!-- RAM bar -->
         <rect x="1" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5" rx="1"/>
         <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" rx="1"/>
-        <!-- CPU bar -->
         <rect x="8" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5" rx="1"/>
         <rect id="cpu-fill" x="8" y="2" width="3" height="0" fill="#22c55e" rx="1"/>
-        <!-- Disk bar -->
         <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5" rx="1"/>
         <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" rx="1"/>
       </svg>
-      <!-- Dropdown Menu -->
-      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-72 glass-panel rounded-2xl p-5 shadow-2xl z-50">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+      
+      <div id="resource-dropdown" class="hidden absolute right-0 mt-3 w-80 glass-panel rounded-2xl p-6 shadow-2xl z-50">
+        <h2 class="text-lg font-semibold text-white mb-5 flex items-center gap-2.5">
           <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
           Resource Monitor
         </h2>
-        <div class="mb-4">
-          <div class="flex justify-between items-center mb-1">
+        <div class="mb-5">
+          <div class="flex justify-between items-center mb-2">
             <p class="text-white text-sm font-medium">RAM</p>
             <p id="ram-used" class="text-neutral-400 text-xs font-mono">--</p>
           </div>
@@ -666,8 +652,8 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
             <div id="ram-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
           </div>
         </div>
-        <div class="mb-4">
-          <div class="flex justify-between items-center mb-1">
+        <div class="mb-5">
+          <div class="flex justify-between items-center mb-2">
             <p class="text-white text-sm font-medium">CPU</p>
             <p id="cpu-percent" class="text-neutral-400 text-xs font-mono">--</p>
           </div>
@@ -676,7 +662,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
           </div>
         </div>
         <div class="mb-2">
-          <div class="flex justify-between items-center mb-1">
+          <div class="flex justify-between items-center mb-2">
             <p class="text-white text-sm font-medium">Disk</p>
             <p id="disk-used" class="text-neutral-400 text-xs font-mono">--</p>
           </div>
@@ -686,15 +672,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         </div>
       </div>
    </div>
-   <!--
-     
-                     
-   DROPDOWN PROFILE
-     
-   -->
+   
+   <!-- Profile Dropdown -->
    <div class="relative">
-     <div type="button" class="-m-1.5 flex items-center p-1.5 glass-panel rounded-full hover:bg-white/10 transition-all duration-300 cursor-pointer" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
-      <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-white">
+     <div type="button" class="-m-1.5 flex items-center p-2 glass-panel rounded-full hover:bg-white/10 transition-all duration-300 cursor-pointer" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-white">
   <circle cx="14" cy="14" r="11.5" stroke="currentColor" stroke-width="2"/>
   <path d="M3 14H25" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
   <path d="M14 2.5C10 7 10 21 14 25.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -703,13 +685,8 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
        </span>
      </div>
      
-     <!--
-     
-     DROPDOWN MENU LANGUAGES SELECTOR
-     
-     -->
-     <div id="dropdown-menu" class="hidden absolute right-0 z-10 mt-2 w-64 glass-panel rounded-2xl shadow-2xl pb-2 transform opacity-0 scale-95 transition-all duration-200 ease-out">
-       <div class="p-4">
+     <div id="dropdown-menu" class="hidden absolute right-0 z-10 mt-3 w-72 glass-panel rounded-2xl shadow-2xl pb-3 transform opacity-0 scale-95 transition-all duration-200 ease-out">
+       <div class="p-5">
          <div class="py-1 px-1">
            <label for="language-selector" class="block text-sm font-medium text-white mb-3 flex items-center gap-2">
              <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -718,7 +695,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
              Language
            </label>
            <div class="relative">
-             <select id="language-selector" class="appearance-none w-full bg-black/30 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-sm leading-5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 cursor-pointer hover:bg-black/40" onchange="changeLanguage(this.value)">
+             <select id="language-selector" class="appearance-none w-full bg-black/30 border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-sm leading-5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 cursor-pointer hover:bg-black/40" onchange="changeLanguage(this.value)">
                
                <% languages.forEach(function(language) { %>
                   <option value="<%= language %>" class="bg-neutral-900 text-white"
@@ -742,8 +719,8 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
  
  <style>
    .flag-icon {
-     width: 20px;
-     height: 15px;
+     width: 1.25rem;
+     height: 0.9375rem;
      background-size: cover;
      background-position: center;
    }
@@ -751,6 +728,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
    .flag-icon-en { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjM1IDY1MCI+PHBhdGggZmlsbD0iIzAxMjE2OSIgZD0iTTAgMGgxMjM1djY1MEgweiIvPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0wIDc1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgwem0wIDEyNWgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgweiIvPjxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik0wIDEwMGgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHptMCAxMjVoMTIzNXYyNUgwem0wIDEyNWgxMjM1djI1SDB6bTAgMTI1aDEyMzV2MjVIMHoiLz48cGF0aCBmaWxsPSIjRkZGIiBkPSJNMCAwaDQ5NHYzNTBIMHoiLz48ZyBmaWxsPSIjQzgxMDJFIj48cGF0aCBkPSJNMjIwIDAgMCA2MHYzNWwyMjAgNzVMMCA1OXY0NGwyMjAgOTR6Ii8+PHBhdGggZD0iTTI3NCAwdjE4MEgwdjQ0aDI3NHYxMjZoNDRWMjI0aDQ5NHYtNDRINTE4VjBoLTQ0djEyNkgwdjQ0aDQ3NFYweiIvPjwvZz48L3N2Zz4='); }
    .flag-icon-nl { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5IDYiPjxwYXRoIGZpbGw9IiMyMTQ2OEIiIGQ9Ik0wIDBoOXYySDB6Ii8+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTAgMmg5djJIMHoiLz48cGF0aCBmaWxsPSIjQUUxQzI4IiBkPSJNMCA0aDl2MkgweiIvPjwvc3ZnPg=='); }
  </style>
+
  
  <script>
    function toggleDropdown() {
