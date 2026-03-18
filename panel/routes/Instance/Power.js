@@ -1,60 +1,55 @@
 const express = require("express");
-const axios = require("axios");
-const { db } = require("../../handlers/db.js");
+const router = express.Router();
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
 } = require("../../utils/authHelper");
 
-const router = express.Router();
-const log = new (require("cat-loggr"))();
-
 router.post("/instance/:id/power", async (req, res) => {
   if (!req.user) return res.redirect("/");
   const { id } = req.params;
-  const { action } = req.body;
+  const instance = await db.get(id + "_instance");
 
-  const instance = await db.get(`${id}_instance`);
   if (!instance || !id) return res.redirect("../instances");
 
-  const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
-  if (!isAuthorized) return res.status(403).send("Unauthorized");
+  const isAuthorized = await isUserAuthorizedForContainer(
+    req.user.userId,
+    instance.Id
+  );
+  if (!isAuthorized) {
+    return res.status(403).send("Unauthorized access to this instance.");
+  }
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-  if (suspended) return res.render("instance/suspended", { req, user: req.user });
-
-  const node = instance.Node;
-  const baseUrl = `http://${node.address}:${node.port}/instances/${instance.ContainerId}`;
+  if (suspended === true) {
+    return res.render("instance/suspended", { req, user: req.user });
+  }
 
   try {
-    let responseData;
-
-    if (action === "start") {
-      const resp = await axios.post(`${baseUrl}/start`, {}, {
-        auth: { username: "kspanel", password: node.apiKey },
-      });
-      responseData = resp.data;
-
-    } else if (action === "stop") {
-      const stopCommand = instance.StopCommand || "stop";
-      const resp = await axios.post(`${baseUrl}/runcode`, { command: stopCommand }, {
-        auth: { username: "kspanel", password: node.apiKey },
-      });
-      responseData = resp.data;
-
-    } else if (action === "restart") {
-      const resp = await axios.post(`${baseUrl}/restart`, {}, {
-        auth: { username: "kspanel", password: node.apiKey },
-      });
-      responseData = resp.data;
-    } else {
-      return res.status(400).json({ error: "Invalid action" });
-    }
-
-    res.json(responseData);
+    const response = await fetch(
+      `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.ContainerId}/stop`,
+      {
+        method: "POST",
+        auth: {
+          username: "kspanel",
+          password: instance.Node.apiKey,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          command: instance.StopCommand,
+        }),
+      }
+    );
+    const data = await response.json();
+    res.send(data);
   } catch (error) {
-    log.error("Power error:", error.response?.data || error.message);
-    res.status(500).json({ error: "Node communication failed" });
+    const errorMessage =
+      error.response && error.response.data
+        ? error.response.data.message
+        : "Connection to node failed.";
+    res.status(500).send(errorMessage);
   }
 });
 
