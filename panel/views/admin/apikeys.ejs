@@ -1,7 +1,7 @@
 <%- include('../components/template') %>
 
 <style>
-/* Base styles - preserving your exact colors */
+/* Base styles - preserving exact colors */
 .input-field {
   width: 100%;
   padding: 1rem 1.5rem;
@@ -44,21 +44,22 @@
   }
 }
 
-/* View visibility controls */
-.mobile-view {
-  display: block;
+/* CRITICAL: View visibility - Mobile First */
+.view-mobile {
+  display: block !important;
 }
 
-.desktop-view {
-  display: none;
+.view-desktop {
+  display: none !important;
 }
 
+/* Desktop breakpoint */
 @media (min-width: 640px) {
-  .mobile-view {
-    display: none;
+  .view-mobile {
+    display: none !important;
   }
-  .desktop-view {
-    display: block;
+  .view-desktop {
+    display: block !important;
   }
 }
 
@@ -73,9 +74,8 @@
   to { opacity: 1; }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .animate-slide-in {
@@ -86,34 +86,27 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-.animate-pulse-slow {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
-/* Glassmorphism enhancement */
-.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glass-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Key display styling */
+/* Key display */
 .key-display {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   letter-spacing: -0.025em;
+  word-break: break-all;
+}
+
+/* Hidden utility */
+.hidden-view {
+  display: none !important;
 }
 </style>
 
 <main id="content" class="min-h-screen pb-20">
   <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     
-    <!-- Header Section -->
+    <!-- Header -->
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 sm:pb-8 border-b border-white/10">
       <div class="space-y-1">
         <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
@@ -124,8 +117,8 @@
         </p>
       </div>
       <div class="flex-shrink-0">
-        <button id="createButton"
-                class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200">
+        <button id="createButton" type="button" 
+                class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
@@ -137,21 +130,17 @@
 
     <!-- Success Banner -->
     <% if (req.query.err === "CREATED") { %>
-      <div class="mt-6 sm:mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 sm:px-6 py-4 sm:py-5 flex items-start gap-3 sm:gap-4 shadow-lg backdrop-blur-sm animate-slide-in">
+      <div class="mt-6 sm:mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 sm:px-6 py-4 flex items-start gap-3 shadow-lg backdrop-blur-sm animate-slide-in">
         <div class="flex-shrink-0 mt-0.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400">
-            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <h3 class="text-base sm:text-lg font-semibold text-emerald-400 tracking-tight">
-            <%= req.translations.created %>
-          </h3>
-          <p class="text-emerald-300/80 text-sm mt-1">
-            <%= req.translations.apiKeySuccessCreated %>
-          </p>
+          <h3 class="text-base sm:text-lg font-semibold text-emerald-400"><%= req.translations.created %></h3>
+          <p class="text-sm text-emerald-300/80 mt-1"><%= req.translations.apiKeySuccessCreated %></p>
         </div>
-        <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 transition-colors p-1">
+        <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -159,84 +148,71 @@
       </div>
     <% } %>
 
-    <!-- DESKTOP VIEW - Table -->
-    <div id="nodeTable" class="mt-6 sm:mt-8 desktop-view">
-      <div class="overflow-x-auto rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl backdrop-blur-xl">
-        <table class="min-w-full divide-y divide-white/10 text-sm text-left text-white">
-          <thead class="bg-neutral-950/80">
-            <tr>
-              <th scope="col" class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider">
-                <%= req.translations.id %>
-              </th>
-              <th scope="col" class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider">
-                <%= req.translations.key %>
-              </th>
-              <th scope="col" class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider hidden md:table-cell">
-                <%= req.translations.createdAt %>
-              </th>
-              <th scope="col" class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider text-right">
-                <%= req.translations.actions %>
-              </th>
-            </tr>
-          </thead>
-          <tbody id="apiKeyBodyDesktop" class="divide-y divide-white/5">
-            <% if (apiKeys.length === 0) { %>
-              <tr id="noKeysRowDesktop">
-                <td colspan="4" class="py-16 text-center text-neutral-400">
-                  <div class="flex flex-col items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                      <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                      </svg>
-                    </div>
-                    <%= req.translations.noApiKeysCreated %>
-                  </div>
-                </td>
+    <!-- DESKTOP TABLE VIEW -->
+    <div id="desktopTable" class="view-desktop mt-6 sm:mt-8">
+      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-white">
+            <thead class="bg-neutral-950/80 border-b border-white/10">
+              <tr>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider w-20">ID</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider">Key</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider hidden md:table-cell w-40">Created</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider text-right w-32">Actions</th>
               </tr>
-            <% } %>
-
-            <% apiKeys.forEach(function(key) { %>
-              <tr id="row-desktop-<%= key.id %>" class="hover:bg-white/[0.03] transition-colors duration-200 group">
-                <td class="py-4 px-4 sm:py-5 sm:px-6">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-                      <span class="text-xs font-bold text-neutral-400">#</span>
+            </thead>
+            <tbody id="desktopBody" class="divide-y divide-white/5">
+              <% if (apiKeys.length === 0) { %>
+                <tr id="desktopEmpty">
+                  <td colspan="4" class="py-16 text-center text-neutral-400">
+                    <div class="flex flex-col items-center gap-3">
+                      <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                      </div>
+                      <p><%= req.translations.noApiKeysCreated %></p>
                     </div>
-                    <span class="font-medium text-white"><%= key.id %></span>
-                  </div>
-                </td>
-                <td class="py-4 px-4 sm:py-5 sm:px-6">
-                  <div class="rounded-xl font-mono bg-neutral-800/50 px-3 py-2 text-xs text-neutral-300 border border-white/10 break-all key-display">
-                    <%= key.key %>
-                  </div>
-                </td>
-                <td class="py-4 px-4 sm:py-5 sm:px-6 hidden md:table-cell">
-                  <div class="rounded-xl bg-neutral-800/50 px-3 py-2 text-xs text-neutral-400 border border-white/10 inline-block">
-                    <%= key.createdAt %>
-                  </div>
-                </td>
-                <td class="py-4 px-4 sm:py-5 sm:px-6 text-right">
-                  <button type="button"
-                          class="removeButton px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 hover:border-red-500/30 transition-all duration-200 active:scale-95 flex items-center gap-1.5 ml-auto"
-                          data-keyid="<%= key.id %>">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                    <%= req.translations.remove %>
-                  </button>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              <% } else { %>
+                <% apiKeys.forEach(function(key) { %>
+                  <tr id="desktop-row-<%= key.id %>" class="hover:bg-white/[0.03] transition-colors duration-200 group">
+                    <td class="py-4 px-4 sm:px-6">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-neutral-400">
+                        <%= key.id %>
+                      </span>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6">
+                      <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-2 text-xs text-neutral-300 border border-white/10 key-display">
+                        <%= key.key %>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
+                      <span class="text-xs text-neutral-400"><%= key.createdAt %></span>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6 text-right">
+                      <button type="button" class="delete-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all duration-200 active:scale-95" data-id="<%= key.id %>">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <%= req.translations.remove %>
+                      </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- MOBILE VIEW - Cards -->
-    <div id="nodeCards" class="mt-6 mobile-view">
-      <div id="apiKeyBodyMobile" class="space-y-3">
+    <!-- MOBILE CARDS VIEW -->
+    <div id="mobileCards" class="view-mobile mt-6">
+      <div id="mobileBody" class="space-y-3">
         <% if (apiKeys.length === 0) { %>
-          <div id="noKeysRowMobile" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl">
+          <div id="mobileEmpty" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl">
             <div class="flex flex-col items-center gap-3">
               <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
                 <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,69 +222,60 @@
               <p class="text-neutral-400 text-sm"><%= req.translations.noApiKeysCreated %></p>
             </div>
           </div>
-        <% } %>
-
-        <% apiKeys.forEach(function(key) { %>
-          <div id="row-mobile-<%= key.id %>" class="rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl hover:border-white/20 transition-all duration-300">
-            <!-- Card Header -->
-            <div class="p-4 border-b border-white/5 bg-white/[0.02]">
-              <div class="flex items-center justify-between">
+        <% } else { %>
+          <% apiKeys.forEach(function(key) { %>
+            <div id="mobile-card-<%= key.id %>" class="rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl">
+              <!-- Header -->
+              <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                    <span class="text-sm font-bold text-neutral-400">#<%= key.id %></span>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-xs text-neutral-500 mb-0.5"><%= req.translations.createdAt %></p>
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+                    #<%= key.id %>
+                  </span>
+                  <div>
+                    <p class="text-xs text-neutral-500">Created</p>
                     <p class="text-sm text-neutral-300 font-medium"><%= key.createdAt %></p>
                   </div>
                 </div>
-                <button type="button"
-                        class="removeButtonMobile p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors active:scale-95"
-                        data-keyid="<%= key.id %>"
-                        aria-label="<%= req.translations.remove %>">
+                <button type="button" class="delete-btn-mobile p-2.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors active:scale-95" data-id="<%= key.id %>" aria-label="Delete">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
                 </button>
               </div>
-            </div>
-            
-            <!-- Key Display -->
-            <div class="p-4">
-              <p class="text-xs text-neutral-500 mb-2"><%= req.translations.key %></p>
-              <div class="rounded-xl font-mono bg-neutral-800/50 px-3 py-3 text-xs text-neutral-300 border border-white/10 break-all key-display select-all">
-                <%= key.key %>
+              <!-- Key -->
+              <div class="p-4">
+                <p class="text-xs text-neutral-500 mb-2">API Key</p>
+                <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-3 text-xs text-neutral-300 border border-white/10 key-display select-all">
+                  <%= key.key %>
+                </div>
               </div>
             </div>
-          </div>
-        <% }); %>
+          <% }); %>
+        <% } %>
       </div>
     </div>
 
     <%- include('../components/pagination', { pagination }) %>
 
-    <!-- Create Form Card (hidden by default) -->
-    <div id="nodeForm" class="hidden mt-6 sm:mt-8 w-full max-w-2xl mx-auto animate-slide-in">
+    <!-- CREATE FORM -->
+    <div id="createForm" class="hidden-view mt-6 sm:mt-8 w-full max-w-2xl mx-auto animate-slide-in">
       <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl">
         <div class="p-6 sm:p-8 text-center border-b border-white/10 bg-white/[0.02]">
-          <div class="mx-auto w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl bg-white/5 mb-4 sm:mb-6 border border-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-9 sm:h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          <div class="mx-auto w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl bg-white/5 mb-4 border border-white/10">
+            <svg class="w-7 h-7 sm:w-9 sm:h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
-          <h3 class="text-lg sm:text-xl font-semibold text-white tracking-tight mb-2">Create New API Key</h3>
+          <h3 class="text-lg sm:text-xl font-semibold text-white mb-2">Create New API Key</h3>
           <p class="text-neutral-400 text-sm max-w-sm mx-auto">
-            This will instantly generate a new secure API key. Make sure to copy it immediately after creation.
+            This will generate a new secure API key. Copy it immediately as it won't be shown again.
           </p>
         </div>
-
-        <div class="p-6 sm:p-8 bg-neutral-950/50 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button id="cancelBtn"
-                  class="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/10 transition-all duration-200 active:scale-95 order-2 sm:order-1">
+        <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 bg-neutral-950/30">
+          <button id="cancelButton" type="button" class="w-full sm:w-auto order-2 sm:order-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/10 transition-all duration-200 active:scale-95">
             Cancel
           </button>
-          <button id="createNodeBtn"
-                  class="w-full sm:w-auto px-8 py-3 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 order-1 sm:order-2">
+          <button id="confirmCreate" type="button" class="w-full sm:w-auto order-1 sm:order-2 px-8 py-3 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -318,139 +285,133 @@
       </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div id="notification" 
-         class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 hidden items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium z-50 transition-all duration-300 transform translate-y-2 opacity-0 bg-white/10 backdrop-blur-xl border border-white/20 text-white">
-      <span id="notification-icon">
-        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-      </span>
-      <span id="notification-text">Notification</span>
+    <!-- NOTIFICATION -->
+    <div id="notification" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 hidden items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium z-50 transition-all duration-300 transform translate-y-2 opacity-0 bg-emerald-500/90 text-white border border-emerald-400/50 backdrop-blur-xl">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span id="notificationText">Success!</span>
     </div>
 
   </div>
 </main>
 
 <script>
+(function() {
+  'use strict';
+
   // DOM Elements
-  const table = document.getElementById("nodeTable");
-  const cards = document.getElementById("nodeCards");
-  const form = document.getElementById("nodeForm");
-  const createButton = document.getElementById("createButton");
-  const createNodeBtn = document.getElementById("createNodeBtn");
-  const cancelBtn = document.getElementById("cancelBtn");
-  const apiKeyBodyDesktop = document.getElementById("apiKeyBodyDesktop");
-  const apiKeyBodyMobile = document.getElementById("apiKeyBodyMobile");
+  const els = {
+    desktopTable: document.getElementById('desktopTable'),
+    mobileCards: document.getElementById('mobileCards'),
+    desktopBody: document.getElementById('desktopBody'),
+    mobileBody: document.getElementById('mobileBody'),
+    createForm: document.getElementById('createForm'),
+    createButton: document.getElementById('createButton'),
+    cancelButton: document.getElementById('cancelButton'),
+    confirmCreate: document.getElementById('confirmCreate'),
+    notification: document.getElementById('notification'),
+    notificationText: document.getElementById('notificationText')
+  };
+
+  // State
+  let isCreating = false;
+
+  // Show notification
+  function showNotification(message, type = 'success') {
+    if (!els.notification || !els.notificationText) return;
+    
+    els.notificationText.textContent = message;
+    
+    if (type === 'error') {
+      els.notification.className = els.notification.className.replace('bg-emerald-500/90', 'bg-red-500/90').replace('border-emerald-400/50', 'border-red-400/50');
+    } else {
+      els.notification.className = els.notification.className.replace('bg-red-500/90', 'bg-emerald-500/90').replace('border-red-400/50', 'border-emerald-400/50');
+    }
+    
+    els.notification.classList.remove('hidden');
+    els.notification.classList.add('flex');
+    
+    requestAnimationFrame(() => {
+      els.notification.classList.remove('translate-y-2', 'opacity-0');
+    });
+
+    setTimeout(() => {
+      els.notification.classList.add('translate-y-2', 'opacity-0');
+      setTimeout(() => {
+        els.notification.classList.add('hidden');
+        els.notification.classList.remove('flex');
+      }, 300);
+    }, 3000);
+  }
 
   // Toggle form visibility
-  function toggleForm() {
-    const isHidden = form.classList.contains("hidden");
-    
-    if (isHidden) {
-      // Show form, hide table/cards
-      table?.classList.add("hidden");
-      cards?.classList.add("hidden");
-      form.classList.remove("hidden");
-      form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  function showForm(show) {
+    if (show) {
+      els.desktopTable?.classList.add('hidden-view');
+      els.mobileCards?.classList.add('hidden-view');
+      els.createForm?.classList.remove('hidden-view');
+      els.createForm?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
-      // Hide form, show appropriate view based on screen size
-      form.classList.add("hidden");
+      els.createForm?.classList.add('hidden-view');
+      // Show appropriate view based on screen size
       if (window.innerWidth >= 640) {
-        table?.classList.remove("hidden");
+        els.desktopTable?.classList.remove('hidden-view');
+        els.mobileCards?.classList.add('hidden-view');
       } else {
-        cards?.classList.remove("hidden");
+        els.desktopTable?.classList.add('hidden-view');
+        els.mobileCards?.classList.remove('hidden-view');
       }
     }
   }
 
   // Event listeners for toggle
-  createButton?.addEventListener("click", toggleForm);
-  cancelBtn?.addEventListener("click", toggleForm);
-
-  // Show notification
-  function showNotification(message, type = 'success') {
-    const notification = document.getElementById("notification");
-    const textEl = document.getElementById("notification-text");
-    const iconEl = document.getElementById("notification-icon");
-    
-    if (!notification || !textEl || !iconEl) return;
-    
-    textEl.textContent = message;
-    
-    if (type === 'error') {
-      iconEl.innerHTML = `<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>`;
-    } else {
-      iconEl.innerHTML = `<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-      </svg>`;
-    }
-    
-    notification.classList.remove("hidden");
-    notification.classList.add("flex");
-    
-    requestAnimationFrame(() => {
-      notification.classList.remove("translate-y-2", "opacity-0");
-    });
-
-    setTimeout(() => {
-      notification.classList.add("translate-y-2", "opacity-0");
-      setTimeout(() => {
-        notification.classList.add("hidden");
-        notification.classList.remove("flex");
-      }, 300);
-    }, 3000);
-  }
+  els.createButton?.addEventListener('click', () => showForm(true));
+  els.cancelButton?.addEventListener('click', () => showForm(false));
 
   // Create API Key
-  createNodeBtn?.addEventListener("click", async () => {
-    const originalText = createNodeBtn.innerHTML;
-    createNodeBtn.disabled = true;
-    createNodeBtn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Creating...`;
+  els.confirmCreate?.addEventListener('click', async function() {
+    if (isCreating) return;
+    isCreating = true;
+
+    const originalHTML = this.innerHTML;
+    this.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Creating...`;
+    this.disabled = true;
 
     try {
-      const response = await fetch("/apikeys/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
+      const response = await fetch('/apikeys/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!response.ok) throw new Error("Create failed");
+      if (!response.ok) throw new Error('Create failed');
 
       const data = await response.json();
 
       // Remove empty states
-      document.getElementById("noKeysRowDesktop")?.remove();
-      document.getElementById("noKeysRowMobile")?.remove();
+      document.getElementById('desktopEmpty')?.remove();
+      document.getElementById('mobileEmpty')?.remove();
 
       // Create desktop row
-      const desktopRow = document.createElement("tr");
-      desktopRow.id = "row-desktop-" + data.id;
-      desktopRow.className = "hover:bg-white/[0.03] transition-colors duration-200 group animate-fade-in";
+      const desktopRow = document.createElement('tr');
+      desktopRow.id = 'desktop-row-' + data.id;
+      desktopRow.className = 'hover:bg-white/[0.03] transition-colors duration-200 group animate-fade-in';
       desktopRow.innerHTML = `
-        <td class="py-4 px-4 sm:py-5 sm:px-6">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-              <span class="text-xs font-bold text-neutral-400">#</span>
-            </div>
-            <span class="font-medium text-white">${data.id}</span>
-          </div>
+        <td class="py-4 px-4 sm:px-6">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-neutral-400">
+            ${data.id}
+          </span>
         </td>
-        <td class="py-4 px-4 sm:py-5 sm:px-6">
-          <div class="rounded-xl font-mono bg-neutral-800/50 px-3 py-2 text-xs text-neutral-300 border border-white/10 break-all key-display">
+        <td class="py-4 px-4 sm:px-6">
+          <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-2 text-xs text-neutral-300 border border-white/10 key-display">
             ${data.key}
           </div>
         </td>
-        <td class="py-4 px-4 sm:py-5 sm:px-6 hidden md:table-cell">
-          <div class="rounded-xl bg-neutral-800/50 px-3 py-2 text-xs text-neutral-400 border border-white/10 inline-block">
-            ${data.createdAt}
-          </div>
+        <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
+          <span class="text-xs text-neutral-400">${data.createdAt}</span>
         </td>
-        <td class="py-4 px-4 sm:py-5 sm:px-6 text-right">
-          <button type="button"
-                  class="removeButton px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 hover:border-red-500/30 transition-all duration-200 active:scale-95 flex items-center gap-1.5 ml-auto"
-                  data-keyid="${data.id}">
+        <td class="py-4 px-4 sm:px-6 text-right">
+          <button type="button" class="delete-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all duration-200 active:scale-95" data-id="${data.id}">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
             </svg>
@@ -460,220 +421,206 @@
       `;
 
       // Create mobile card
-      const mobileCard = document.createElement("div");
-      mobileCard.id = "row-mobile-" + data.id;
-      mobileCard.className = "rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl hover:border-white/20 transition-all duration-300 animate-fade-in";
+      const mobileCard = document.createElement('div');
+      mobileCard.id = 'mobile-card-' + data.id;
+      mobileCard.className = 'rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl animate-fade-in';
       mobileCard.innerHTML = `
-        <div class="p-4 border-b border-white/5 bg-white/[0.02]">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                <span class="text-sm font-bold text-neutral-400">#${data.id}</span>
-              </div>
-              <div class="min-w-0">
-                <p class="text-xs text-neutral-500 mb-0.5"><%= req.translations.createdAt %></p>
-                <p class="text-sm text-neutral-300 font-medium">${data.createdAt}</p>
-              </div>
+        <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+              #${data.id}
+            </span>
+            <div>
+              <p class="text-xs text-neutral-500">Created</p>
+              <p class="text-sm text-neutral-300 font-medium">${data.createdAt}</p>
             </div>
-            <button type="button"
-                    class="removeButtonMobile p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors active:scale-95"
-                    data-keyid="${data.id}"
-                    aria-label="<%= req.translations.remove %>">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-            </button>
           </div>
+          <button type="button" class="delete-btn-mobile p-2.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors active:scale-95" data-id="${data.id}" aria-label="Delete">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
         </div>
         <div class="p-4">
-          <p class="text-xs text-neutral-500 mb-2"><%= req.translations.key %></p>
-          <div class="rounded-xl font-mono bg-neutral-800/50 px-3 py-3 text-xs text-neutral-300 border border-white/10 break-all key-display select-all">
+          <p class="text-xs text-neutral-500 mb-2">API Key</p>
+          <div class="rounded-lg font-mono bg-neutral-800/50 px-3 py-3 text-xs text-neutral-300 border border-white/10 key-display select-all">
             ${data.key}
           </div>
         </div>
       `;
 
-      // Prepend to both containers
-      apiKeyBodyDesktop?.prepend(desktopRow);
-      apiKeyBodyMobile?.prepend(mobileCard);
+      // Insert into DOM
+      els.desktopBody?.insertBefore(desktopRow, els.desktopBody.firstChild);
+      els.mobileBody?.insertBefore(mobileCard, els.mobileBody.firstChild);
 
-      // Attach handlers
-      attachRemoveHandler(desktopRow.querySelector(".removeButton"));
-      attachRemoveHandlerMobile(mobileCard.querySelector(".removeButtonMobile"));
+      // Attach delete handlers
+      attachDeleteHandler(desktopRow.querySelector('.delete-btn'));
+      attachDeleteHandlerMobile(mobileCard.querySelector('.delete-btn-mobile'));
 
-      // Show appropriate view and notification
-      form.classList.add("hidden");
-      if (window.innerWidth >= 640) {
-        table?.classList.remove("hidden");
-      } else {
-        cards?.classList.remove("hidden");
-      }
-      
-      showNotification('API Key created successfully!', 'success');
+      // Show list and notification
+      showForm(false);
+      showNotification('API Key created successfully! Copy it now.', 'success');
 
     } catch (err) {
-      console.error(err);
+      console.error('Create error:', err);
       showNotification('<%= req.translations.apiKeyErrorCreated %>', 'error');
     } finally {
-      createNodeBtn.disabled = false;
-      createNodeBtn.innerHTML = originalText;
+      isCreating = false;
+      this.innerHTML = originalHTML;
+      this.disabled = false;
     }
   });
 
-  // Remove handler for desktop
-  function attachRemoveHandler(button) {
-    if (!button) return;
+  // Delete handler for desktop
+  function attachDeleteHandler(btn) {
+    if (!btn) return;
     
-    button.addEventListener("click", async function () {
-      const keyId = this.dataset.keyid;
-      const desktopRow = document.getElementById("row-desktop-" + keyId);
-      const mobileCard = document.getElementById("row-mobile-" + keyId);
+    btn.addEventListener('click', async function() {
+      const id = this.dataset.id;
+      const desktopRow = document.getElementById('desktop-row-' + id);
+      const mobileCard = document.getElementById('mobile-card-' + id);
 
-      // Visual feedback
-      desktopRow?.classList.add("opacity-50");
-      mobileCard?.classList.add("opacity-50");
+      if (!confirm('Are you sure you want to delete this API key?')) return;
+
+      desktopRow?.classList.add('opacity-50');
+      mobileCard?.classList.add('opacity-50');
 
       try {
-        const response = await fetch("/apikeys/delete", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keyId })
+        const response = await fetch('/apikeys/delete', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyId: id })
         });
 
-        if (!response.ok) throw new Error("Delete failed");
+        if (!response.ok) throw new Error('Delete failed');
 
-        // Remove both elements with animation
         desktopRow?.remove();
         mobileCard?.remove();
 
-        // Check if empty and show empty state
-        if (apiKeyBodyDesktop?.children.length === 0) {
-          apiKeyBodyDesktop.innerHTML = `
-            <tr id="noKeysRowDesktop">
-              <td colspan="4" class="py-16 text-center text-neutral-400">
-                <div class="flex flex-col items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                    </svg>
-                  </div>
-                  <%= req.translations.noApiKeysCreated %>
-                </div>
-              </td>
-            </tr>
-          `;
-        }
-        
-        if (apiKeyBodyMobile?.children.length === 0) {
-          apiKeyBodyMobile.innerHTML = `
-            <div id="noKeysRowMobile" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl">
-              <div class="flex flex-col items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                  </svg>
-                </div>
-                <p class="text-neutral-400 text-sm"><%= req.translations.noApiKeysCreated %></p>
-              </div>
-            </div>
-          `;
-        }
-
+        // Check empty states
+        checkEmptyStates();
         showNotification('API Key deleted successfully', 'success');
 
       } catch (err) {
-        console.error(err);
-        desktopRow?.classList.remove("opacity-50");
-        mobileCard?.classList.remove("opacity-50");
+        console.error('Delete error:', err);
+        desktopRow?.classList.remove('opacity-50');
+        mobileCard?.classList.remove('opacity-50');
         showNotification('<%= req.translations.apiKeyErrorDelete %>', 'error');
       }
     });
   }
 
-  // Remove handler for mobile
-  function attachRemoveHandlerMobile(button) {
-    if (!button) return;
+  // Delete handler for mobile
+  function attachDeleteHandlerMobile(btn) {
+    if (!btn) return;
     
-    button.addEventListener("click", async function () {
-      const keyId = this.dataset.keyid;
-      const mobileCard = document.getElementById("row-mobile-" + keyId);
-      const desktopRow = document.getElementById("row-desktop-" + keyId);
+    btn.addEventListener('click', async function() {
+      const id = this.dataset.id;
+      const mobileCard = document.getElementById('mobile-card-' + id);
+      const desktopRow = document.getElementById('desktop-row-' + id);
 
-      mobileCard?.classList.add("opacity-50");
-      desktopRow?.classList.add("opacity-50");
+      if (!confirm('Are you sure you want to delete this API key?')) return;
+
+      mobileCard?.classList.add('opacity-50');
+      desktopRow?.classList.add('opacity-50');
 
       try {
-        const response = await fetch("/apikeys/delete", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keyId })
+        const response = await fetch('/apikeys/delete', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyId: id })
         });
 
-        if (!response.ok) throw new Error("Delete failed");
+        if (!response.ok) throw new Error('Delete failed');
 
         mobileCard?.remove();
         desktopRow?.remove();
 
-        // Check empty states
-        if (apiKeyBodyDesktop?.children.length === 0) {
-          apiKeyBodyDesktop.innerHTML = `
-            <tr id="noKeysRowDesktop">
-              <td colspan="4" class="py-16 text-center text-neutral-400">
-                <div class="flex flex-col items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                    </svg>
-                  </div>
-                  <%= req.translations.noApiKeysCreated %>
-                </div>
-              </td>
-            </tr>
-          `;
-        }
-        
-        if (apiKeyBodyMobile?.children.length === 0) {
-          apiKeyBodyMobile.innerHTML = `
-            <div id="noKeysRowMobile" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl">
-              <div class="flex flex-col items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                  </svg>
-                </div>
-                <p class="text-neutral-400 text-sm"><%= req.translations.noApiKeysCreated %></p>
-              </div>
-            </div>
-          `;
-        }
-
+        checkEmptyStates();
         showNotification('API Key deleted successfully', 'success');
 
       } catch (err) {
-        console.error(err);
-        mobileCard?.classList.remove("opacity-50");
-        desktopRow?.classList.remove("opacity-50");
+        console.error('Delete error:', err);
+        mobileCard?.classList.remove('opacity-50');
+        desktopRow?.classList.remove('opacity-50');
         showNotification('<%= req.translations.apiKeyErrorDelete %>', 'error');
       }
     });
+  }
+
+  // Check and show empty states
+  function checkEmptyStates() {
+    const desktopHasItems = els.desktopBody?.querySelectorAll('tr[id^="desktop-row-"]').length > 0;
+    const mobileHasItems = els.mobileBody?.querySelectorAll('div[id^="mobile-card-"]').length > 0;
+
+    if (!desktopHasItems && !document.getElementById('desktopEmpty')) {
+      const emptyRow = document.createElement('tr');
+      emptyRow.id = 'desktopEmpty';
+      emptyRow.innerHTML = `
+        <td colspan="4" class="py-16 text-center text-neutral-400">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
+              <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+              </svg>
+            </div>
+            <p><%= req.translations.noApiKeysCreated %></p>
+          </div>
+        </td>
+      `;
+      els.desktopBody?.appendChild(emptyRow);
+    }
+
+    if (!mobileHasItems && !document.getElementById('mobileEmpty')) {
+      const emptyCard = document.createElement('div');
+      emptyCard.id = 'mobileEmpty';
+      emptyCard.className = 'rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl';
+      emptyCard.innerHTML = `
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
+            <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+            </svg>
+          </div>
+          <p class="text-neutral-400 text-sm"><%= req.translations.noApiKeysCreated %></p>
+        </div>
+      `;
+      els.mobileBody?.appendChild(emptyCard);
+    }
   }
 
   // Attach handlers to existing elements
-  document.querySelectorAll(".removeButton").forEach(attachRemoveHandler);
-  document.querySelectorAll(".removeButtonMobile").forEach(attachRemoveHandlerMobile);
+  document.querySelectorAll('.delete-btn').forEach(attachDeleteHandler);
+  document.querySelectorAll('.delete-btn-mobile').forEach(attachDeleteHandlerMobile);
 
-  // Handle resize to show correct view
-  window.addEventListener('resize', () => {
-    if (form?.classList.contains('hidden')) {
-      if (window.innerWidth >= 640) {
-        table?.classList.remove('hidden');
-        cards?.classList.add('hidden');
-      } else {
-        table?.classList.add('hidden');
-        cards?.classList.remove('hidden');
+  // Handle window resize properly
+  let resizeTimeout;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+      // Only switch views if form is not visible
+      if (els.createForm?.classList.contains('hidden-view')) {
+        if (window.innerWidth >= 640) {
+          els.desktopTable?.classList.remove('hidden-view');
+          els.mobileCards?.classList.add('hidden-view');
+        } else {
+          els.desktopTable?.classList.add('hidden-view');
+          els.mobileCards?.classList.remove('hidden-view');
+        }
       }
-    }
+    }, 100);
   });
+
+  // Initial state check
+  if (window.innerWidth >= 640) {
+    els.desktopTable?.classList.remove('hidden-view');
+    els.mobileCards?.classList.add('hidden-view');
+  } else {
+    els.desktopTable?.classList.add('hidden-view');
+    els.mobileCards?.classList.remove('hidden-view');
+  }
+
+})();
 </script>
 
 <%- include('../components/footer') %>
