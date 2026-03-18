@@ -1,45 +1,325 @@
 <%- include('../components/template') %>
 
-<main id="content" class="min-h-screen pb-10">
+<style>
+/* ============================================
+   BASE STYLES - Preserving exact colors
+   ============================================ */
 
-  <div class="px-8 pt-6">
-    <h1 class="text-2xl font-semibold text-white tracking-tight">
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevent iOS zoom */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* ============================================
+   VIEW VISIBILITY - Mobile First Approach
+   ============================================ */
+
+/* Default: Mobile view active */
+.view-mobile {
+  display: block  display: block !important;
+}
+
+.view-desktop {
+  display: none !important;
+}
+
+/* Desktop breakpoint at 768px */
+@media (min-width: 768px) {
+  .view-mobile {
+    display: none !important;
+  }
+  .view-desktop {
+    display: block !important;
+  }
+}
+
+/* ============================================
+   ANIMATIONS - Enhanced with easing
+   ============================================ */
+
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-12px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   GLASSMORPHISM - Exact preservation with fallback
+   ============================================ */
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05); /* bg-white/5 */
+  backdrop-filter: blur(12px); /* backdrop-blur-md */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* border-white/10 */
+  border-radius: 16px; /* rounded-2xl */
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(12px)) {
+  .glass-panel {
+    background: rgba(30, 30, 30, 0.95);
+  }
+}
+
+/* ============================================
+   TOUCH OPTIMIZATIONS - Mobile specific
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .mobile-card:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ============================================
+   MOBILE CARDS - Optimized layout
+   ============================================ */
+
+.mobile-audit-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-audit-card:active {
+  transform: scale(0.98);
+}
+
+/* Status indicators for mobile */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   DESKTOP TABLE - Enhanced styling
+   ============================================ */
+
+.table-row-hover {
+  transition: background-color 0.15s ease;
+}
+
+.table-row-hover:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+   FILTER BAR - Responsive adjustments
+   ============================================ */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .filter-group select,
+  .filter-group button {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   FOCUS VISIBLE FOR KEYBOARD NAVIGATION
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5); /* blue-500 with opacity */
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   CUSTOM SELECT STYLING
+   ============================================ */
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Ensure options are readable with dark background */
+select option {
+  background-color: #1f2937; /* gray-800 */
+  color: white;
+}
+
+/* ============================================
+   PAGINATION ENHANCEMENTS
+   ============================================ */
+
+.pagination-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .pagination-container {
+    gap: 0.25rem;
+  }
+  
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+  }
+}
+</style>
+
+<main id="content" class="min-h-screen pb-10 bg-gradient-to-b from-neutral-950 to-neutral-900">
+
+  <!-- ============================================
+       HEADER SECTION - Enhanced responsive
+       ============================================ -->
+  <div class="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
       <%= req.translations.auditLogs %>
     </h1>
-    <p class="mt-2 text-sm text-neutral-400">
+    <p class="mt-2 sm:mt-3 text-sm sm:text-base text-neutral-400 max-w-2xl leading-relaxed">
       <%= req.translations.auditLogsText %>
     </p>
   </div>
 
-  <div class="px-8 mt-6">
-    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-lg backdrop-blur-md">
-      <div class="flex flex-wrap items-center gap-6">
-
-        <div class="flex items-center gap-3">
-          <label for="actionFilter" class="text-sm text-neutral-300">
+  <!-- ============================================
+       FILTERS SECTION - Responsive layout
+       ============================================ -->
+  <div class="px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+    <div class="glass-panel p-4 sm:p-6 shadow-lg">
+      <div class="filter-bar">
+        
+        <!-- Action Filter -->
+        <div class="filter-group flex items-center gap-3">
+          <label for="actionFilter" class="text-sm text-neutral-300 whitespace-nowrap">
             <%= req.translations.filterByAction || 'Filter by Action:' %>
           </label>
           <select id="actionFilter"
-            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-            <option value="" class="text-neutral-800"
-              <%= !filters.actionFilter ? 'selected' : '' %>>
+            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition touch-target">
+            <option value="" <%= !filters.actionFilter ? 'selected' : '' %>>
               <%= req.translations.allActions || 'All Actions' %>
             </option>
             <% actions.forEach(action => { %>
-              <option value="<%= action %>" class="text-neutral-800"
-                <%= filters.actionFilter === action ? 'selected' : '' %>>
+              <option value="<%= action %>" <%= filters.actionFilter === action ? 'selected' : '' %>>
                 <%= action %>
               </option>
             <% }); %>
           </select>
         </div>
 
-        <div class="flex items-center gap-3">
-          <label for="dateRange" class="text-sm text-neutral-300">
+        <!-- Date Range -->
+        <div class="filter-group flex items-center gap-3">
+          <label for="dateRange" class="text-sm text-neutral-300 whitespace-nowrap">
             <%= req.translations.dateRange || 'Date Range:' %>
           </label>
           <select id="dateRange"
-            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            class="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition touch-target">
             <option value="2" <%= filters.dateRange == 2 ? 'selected' : '' %>>
               <%= req.translations.last2Days || 'Last 2 Days' %>
             </option>
@@ -55,14 +335,21 @@
           </select>
         </div>
 
-        <div class="flex items-center gap-3">
-          <button id="sortAsc"
-            class="rounded-xl bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition shadow-md">
-            ↑
+        <!-- Sort Controls -->
+        <div class="filter-group flex items-center gap-2">
+          <button id="sortAsc" aria-label="Sort ascending"
+            class="pagination-btn rounded-xl bg-blue-600 px-4 py-2.5 text-sm text-white hover:bg-blue-700 transition shadow-md touch-target flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+            </svg>
+            <span class="hidden sm:inline"><%= req.translations.oldestFirst || 'Oldest' %></span>
           </button>
-          <button id="sortDesc"
-            class="rounded-xl bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition shadow-md">
-            ↓
+          <button id="sortDesc" aria-label="Sort descending"
+            class="pagination-btn rounded-xl bg-blue-600 px-4 py-2.5 text-sm text-white hover:bg-blue-700 transition shadow-md touch-target flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path>
+            </svg>
+            <span class="hidden sm:inline"><%= req.translations.newestFirst || 'Newest' %></span>
           </button>
         </div>
 
@@ -70,73 +357,169 @@
     </div>
   </div>
 
-  <div class="px-8 mt-8">
+  <!-- ============================================
+       DESKTOP TABLE VIEW - Enhanced for 768px+
+       ============================================ -->
+  <div class="view-desktop px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
     <% if (audits && audits.length > 0) { %>
-
-      <div class="overflow-x-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-lg">
-        <table id="auditTable" class="min-w-full divide-y divide-white/10">
-
-          <thead class="bg-white/5">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
-                <%= req.translations.user %>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
-                <%= req.translations.action %>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
-                <%= req.translations.addressIP %>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase">
-                <%= req.translations.timestamp %>
-              </th>
-            </tr>
-          </thead>
-
-          <tbody id="auditBody" class="divide-y divide-white/5">
-            <% audits.forEach(function(audit) { %>
-              <tr class="hover:bg-white/5 transition"
-                  data-timestamp="<%= new Date(audit.timestamp).getTime() %>">
-
-                <td class="px-6 py-4 text-sm text-white font-medium">
-                  <% if (audit.userId === req.user.userId) { %>
-                    <%= req.translations.you %>
-                    <span class="text-neutral-400">(<%= audit.userId %>)</span>
-                  <% } else { %>
-                    <%= audit.username %>
-                    <span class="text-neutral-400">(<%= audit.userId %>)</span>
-                  <% } %>
-                </td>
-
-                <td class="px-6 py-4 text-sm text-neutral-400">
-                  <%= audit.action %>
-                </td>
-
-                <td class="px-6 py-4 text-sm text-neutral-400">
-                  <%= audit.ip %>
-                </td>
-
-                <td class="px-6 py-4 text-sm text-neutral-400">
-                  <%= new Date(audit.timestamp).toLocaleString() %>
-                </td>
-
+      <div class="glass-panel overflow-hidden shadow-lg animate-fade-in">
+        <div class="overflow-x-auto">
+          <table id="auditTableDesktop" class="min-w-full divide-y divide-white/10">
+            
+            <thead class="bg-white/5">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider">
+                  <%= req.translations.user %>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider">
+                  <%= req.translations.action %>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider hidden lg:table-cell">
+                  <%= req.translations.addressIP %>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider">
+                  <%= req">
+                  <%= req.translations.timestamp %>
+                </th>
               </tr>
-            <% }); %>
-          </tbody>
+            </thead>
 
-        </table>
+            <tbody id="auditBodyDesktop" class="divide-y divide-white/5">
+              <% audits.forEach(function(audit) { %>
+                <tr class="table-row-hover transition-colors"
+                    data-timestamp="<%= new Date(audit.timestamp).getTime() %>"
+                    data-action="<%= audit.action %>"
+                    data-userid="<%= audit.userId %>">
+
+                  <td class="px-6 py-4 text-sm text-white font-medium">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs font-bold">
+                        <%= audit.username ? audit.username.charAt(0).toUpperCase() : '?' %>
+                      </div>
+                      <div>
+                        <% if (audit.userId === req.user.userId) { %>
+                          <span class="text-white"><%= req.translations.you %></span>
+                          <span class="text-neutral-400 text-xs block">(<%= audit.userId %>)</span>
+                        <% } else { %>
+                          <span class="text-white"><%= audit.username %></span>
+                          <span class="text-neutral-400 text-xs block">(<%= audit.userId %>)</span>
+                        <% } %>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4">
+                    <span class="status-badge bg-white/10 text-neutral-300 border border-white/10">
+                      <%= audit.action %>
+                    </span>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm text-neutral-400 hidden lg:table-cell font-mono text-xs">
+                    <%= audit.ip %>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm text-neutral-400">
+                    <div class="flex items-center gap-2">
+                      <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <%= new Date(audit.timestamp).toLocaleString() %>
+                    </div>
+                  </td>
+
+                </tr>
+              <% }); %>
+            </tbody>
+
+          </table>
+        </div>
       </div>
-
     <% } else { %>
-
-      <div class="mt-6 text-neutral-500 text-sm">
-        <%= req.translations.auditLogsNotAvailable %>
+      <div class="glass-panel p-12 text-center animate-fade-in">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+            <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+          </div>
+          <p class="text-neutral-400 text-lg"><%= req.translations.auditLogsNotAvailable %></p>
+        </div>
       </div>
-
     <% } %>
   </div>
 
-  <div class="px-8 mt-6">
+  <!-- ============================================
+       MOBILE CARDS VIEW - Optimized for touch
+       ============================================ -->
+  <div class="view-mobile px-4 mt-6">
+    <% if (audits && audits.length > 0) { %>
+      <div id="auditBodyMobile" class="space-y-3">
+        <% audits.forEach(function(audit) { %>
+          <div class="mobile-audit-card glass-panel p-4 animate-fade-in" 
+               data-timestamp="<%= new Date(audit.timestamp).getTime() %>"
+               data-action="<%= audit.action %>"
+               data-userid="<%= audit.userId %>">
+            
+            <!-- Card Header -->
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm font-bold flex-shrink-0">
+                  <%= audit.username ? audit.username.charAt(0).toUpperCase() : '?' %>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-white">
+                    <% if (audit.userId === req.user.userId) { %>
+                      <%= req.translations.you %>
+                    <% } else { %>
+                      <%= audit.username %>
+                    <% } %>
+                  </p>
+                  <p class="text-xs text-neutral-500">ID: <%= audit.userId %></p>
+                </div>
+              </div>
+              <span class="status-badge bg-white/10 text-neutral-300 border border-white/10 text-xs">
+                <%= audit.action %>
+              </span>
+            </div>
+
+            <!-- Card Details -->
+            <div class="space-y-2 pt-3 border-t border-white/10">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-neutral-500 uppercase tracking-wide"><%= req.translations.addressIP %></span>
+                <span class="text-sm text-neutral-300 font-mono"><%= audit.ip %></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-neutral-500 uppercase tracking-wide"><%= req.translations.timestamp %></span>
+                <span class="text-sm text-neutral-300 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <%= new Date(audit.timestamp).toLocaleString() %>
+                </span>
+              </div>
+            </div>
+
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="glass-panel p-8 text-center animate-fade-in">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+            <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+          </div>
+          <p class="text-neutral-400 text-base"><%= req.translations.auditLogsNotAvailable %></p>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- ============================================
+       PAGINATION - Responsive
+       ============================================ -->
+  <div class="px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
     <%- include('../components/pagination', {
       pagination,
       filters: {
@@ -151,55 +534,99 @@
 <%- include('../components/footer') %>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function() {
+  'use strict';
 
-  const actionFilter = document.getElementById('actionFilter');
-  const dateRange = document.getElementById('dateRange');
-  const sortAsc = document.getElementById('sortAsc');
-  const sortDesc = document.getElementById('sortDesc');
-  const tableBody = document.getElementById('auditBody');
+  // ============================================
+  // DOM ELEMENTS
+  // ============================================
+  const els = {
+    actionFilter: document.getElementById('actionFilter'),
+    dateRange: document.getElementById('dateRange'),
+    sortAsc: document.getElementById('sortAsc'),
+    sortDesc: document.getElementById('sortDesc'),
+    auditBodyDesktop: document.getElementById('auditBodyDesktop'),
+    auditBodyMobile: document.getElementById('auditBodyMobile')
+  };
 
+  // ============================================
+  // NAVIGATION WITH FILTERS
+  // ============================================
   function navigateWithFilters(page = 1) {
     const params = new URLSearchParams();
     params.set('page', page);
 
-    if (actionFilter && actionFilter.value)
-      params.set('action', actionFilter.value);
+    if (els.actionFilter && els.actionFilter.value)
+      params.set('action', els.actionFilter.value);
 
-    if (dateRange && dateRange.value)
-      params.set('dateRange', dateRange.value);
+    if (els.dateRange && els.dateRange.value)
+      params.set('dateRange', els.dateRange.value);
 
     window.location.href = '/admin/auditlogs?' + params.toString();
   }
 
+  // ============================================
+  // SORTING FUNCTIONALITY
+  // ============================================
   function sortTable(ascending) {
-    if (!tableBody) return;
+    // Sort desktop rows
+    if (els.auditBodyDesktop) {
+      const rows = Array.from(els.auditBodyDesktop.querySelectorAll('tr'));
+      rows.sort((a, b) => {
+        const tA = parseInt(a.dataset.timestamp);
+        const tB = parseInt(b.dataset.timestamp);
+        return ascending ? tA - tB : tB - tA;
+      });
+      rows.forEach(row => els.auditBodyDesktop.appendChild(row));
+    }
 
-    const rows = Array.from(tableBody.querySelectorAll('tr'));
-
-    rows.sort((a, b) => {
-      const tA = parseInt(a.dataset.timestamp);
-      const tB = parseInt(b.dataset.timestamp);
-      return ascending ? tA - tB : tB - tA;
-    });
-
-    tableBody.innerHTML = '';
-    rows.forEach(row => tableBody.appendChild(row));
+    // Sort mobile cards
+    if (els.auditBodyMobile) {
+      const cards = Array.from(els.auditBodyMobile.querySelectorAll('.mobile-audit-card'));
+      cards.sort((a, b) => {
+        const tA = parseInt(a.dataset.timestamp);
+        const tB = parseInt(b.dataset.timestamp);
+        return ascending ? tA - tB : tB - tA;
+      });
+      cards.forEach(card => els.auditBodyMobile.appendChild(card));
+    }
   }
 
-  if (actionFilter)
-    actionFilter.addEventListener('change', () => navigateWithFilters(1));
+  // ============================================
+  // EVENT LISTENERS
+  // ============================================
+  if (els.actionFilter) {
+    els.actionFilter.addEventListener('change', () => navigateWithFilters(1));
+  }
 
-  if (dateRange)
-    dateRange.addEventListener('change', () => navigateWithFilters(1));
+  if (els.dateRange) {
+    els.dateRange.addEventListener('change', () => navigateWithFilters(1));
+  }
 
-  if (sortAsc)
-    sortAsc.addEventListener('click', () => sortTable(true));
+  if (els.sortAsc) {
+    els.sortAsc.addEventListener('click', () => sortTable(true));
+  }
 
-  if (sortDesc)
-    sortDesc.addEventListener('click', () => sortTable(false));
+  if (els.sortDesc) {
+    els.sortDesc.addEventListener('click', () => sortTable(false));
+  }
 
+  // ============================================
+  // GLOBAL FUNCTION FOR PAGINATION
+  // ============================================
   window.navigateWithFilters = navigateWithFilters;
 
-});
+  // ============================================
+  // DEBOUNCED RESIZE HANDLER
+  // ============================================
+  let resizeTimeout;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+      // Any resize-specific logic can go here
+      // View switching is handled by CSS media queries
+    }, 150);
+  });
+
+})();
 </script>
