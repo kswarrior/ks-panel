@@ -567,12 +567,24 @@
         inputElement.addEventListener('keydown', handleKeyUp);
     
         ['start', 'stop', 'restart'].forEach(action => {
-            document.getElementById(`${action}Button`).addEventListener('click', function () {
-                if (ws) {
-                    ws.send(JSON.stringify({
-                        event: `power:${action}`,
-                        containerId: instanceId
-                    }));
+            const btn = document.getElementById(`${action}Button`);
+            if (!btn) return;
+            btn.addEventListener('click', async function () {
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="animate-pulse">...</span>';
+    
+                try {
+                    const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
+                    if (res.data.message) {
+                        console.log(res.data.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Power action failed: " + (err.response?.data?.message || err.message));
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             });
         });
