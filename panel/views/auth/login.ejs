@@ -17,15 +17,36 @@ body {
   height: 100dvh;
   user-select: none;
   margin: var(--margin-body);
-font-family: 'Public Sans';
-    background:
-      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-      url('https://cdn.discordapp.com/attachments/1315671132203913218/1482722679101456599/image0.gif?ex=69b7fc9a&is=69b6ab1a&hm=8b71dec0f5da4a2fe26d74e104ddb078812e39780e8efbbbdf94517f1a2bfc52&');
-    background-position: center top;
-    background-repeat: no-repeat;   /* ← change to no-repeat for most GIFs */
-    background-size: cover;         /* ← cover is usually better than 100% auto for full-screen feel */
-    background-attachment: fixed;/* prevents unwanted scrollbars */
+  font-family: 'Public Sans';
+  background:
+    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+    url('https://cdn.discordapp.com/attachments/1315671132203913218/1482722679101456599/image0.gif?ex=69b7fc9a&is=69b6ab1a&hm=8b71dec0f5da4a2fe26d74e104ddb078812e39780e8efbbbdf94517f1a2bfc52&');
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Subtle animated overlay for optimism */
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.2) 100%);
+  pointer-events: none;
+  animation: pulse 8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
 /* ================= CARD ================= */
 .card {
   padding: var(--card-padding);
@@ -38,12 +59,44 @@ font-family: 'Public Sans';
   flex-direction: column;
   gap: var(--gap);
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.5s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Shine effect on card */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 0.6s ease;
+}
+
+.card:hover::before {
+  left: 100%;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card h2 {
   font-size: var(--h2-size);
   margin-bottom: 8px;
   font-weight: 800;
+  position: relative;
 }
 
 .card p {
@@ -53,34 +106,88 @@ font-family: 'Public Sans';
 }
 
 /* ================= INPUTS ================= */
+.input-group {
+  position: relative;
+  margin-bottom: 4px;
+}
+
 .input-label {
   display: block;
   margin-bottom: 6px;
   font-size: var(--label-size);
   font-weight: var(--label-font-weight);
+  transition: color 0.3s ease;
 }
 
 .input-field {
-  width: calc(100% - 36px);
+  width: 100%;
   padding: var(--input-padding);
   border-radius: var(--input-radius);
   border: 1px solid var(--border);
   background: var(--soft);
+  backdrop-filter: blur(var(--backdrop-blur));
   color: var(--text);
   transition: all var(--transition);
   font-size: var(--p-size);
   margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.input-field:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .input-field:focus {
   border-color: var(--accent);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 99, 102, 241), 0.2);
+  transform: translateY(-1px);
+}
+
+.input-group:focus-within .input-label {
+  color: var(--accent);
 }
 
 /* ================= CHECKBOX ================= */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .checkbox {
-  accent-color: blue;
-  margin-right: 8px;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--soft);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.checkbox-label {
+  font-size: var(--label-size);
+  cursor: pointer;
+  user-select: none;
 }
 
 /* ================= LINKS ================= */
@@ -88,13 +195,28 @@ font-family: 'Public Sans';
   color: var(--accent);
   font-size: var(--link-size);
   text-decoration: none;
-  transition: color 0.3s;
+  transition: all 0.3s ease;
   display: inline-block;
-  margin-bottom: 8px;
+  position: relative;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.3s ease;
 }
 
 .link:hover {
   color: var(--accent-glow);
+}
+
+.link:hover::after {
+  width: 100%;
 }
 
 /* ================= BUTTON ================= */
@@ -109,10 +231,32 @@ font-family: 'Public Sans';
   cursor: pointer;
   transition: all var(--transition);
   box-shadow: var(--btn-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s ease;
 }
 
 .btn:hover {
   transform: scale(1.03);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 /* ================= RESPONSIVE ================= */
@@ -120,6 +264,54 @@ font-family: 'Public Sans';
   .card {
     padding: var(--card-padding-mobile);
   }
+}
+
+/* ================= LOADING STATE ================= */
+.btn.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid transparent;
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ================= ERROR MESSAGE ================= */
+.error-message {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 12px 16px;
+  border-radius: var(--input-radius);
+  font-size: 14px;
+  display: none;
+  animation: shake 0.5s ease-in-out;
+  margin-bottom: 10px;
+}
+
+.error-message.show {
+  display: block;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 </style>
 </head>
@@ -132,9 +324,13 @@ font-family: 'Public Sans';
     <p>Please enter your account credentials below.</p>
   </div>
 
+  <div class="error-message" id="error-msg">
+    Invalid credentials provided
+  </div>
+
   <form id="login-form" onsubmit="event.preventDefault(); submitForm();">
     
-    <div>
+    <div class="input-group">
       <input class="input-field"
              placeholder="Username or Email"
              id="username"
@@ -142,7 +338,7 @@ font-family: 'Public Sans';
              required>
     </div>
 
-    <div>
+    <div class="input-group">
       <input class="input-field"
              placeholder="Password"
              id="password"
@@ -152,20 +348,22 @@ font-family: 'Public Sans';
              required>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <input class="checkbox"
-             id="remember-me"
-             name="remember-me"
-             type="checkbox">
-      <span class="input-label">Remember me</span>
-    </div>
-
-    <div>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <div class="checkbox-wrapper">
+        <input class="checkbox"
+               id="remember-me"
+               name="remember-me"
+               type="checkbox">
+        <label class="checkbox-label" for="remember-me">Remember me</label>
+      </div>
+      
       <a class="link" href="/auth/reset-password">Forgot your password?</a>
     </div>
 
-    <div>
-      <button class="btn" type="button" onclick="submitForm()">Sign in</button>
+    <div style="margin-top: 10px;">
+      <button class="btn" type="button" id="submit-btn" onclick="submitForm()">
+        <span>Sign in</span>
+      </button>
     </div>
 
   </form>
@@ -189,16 +387,39 @@ document.getElementById('login-form').addEventListener('keypress', function(even
 async function submitForm() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
+  const btn = document.getElementById("submit-btn");
 
   if (username === "" || password === "") {
-    document.location.href = `/auth/login?err=InvalidCredentials&state=failed`;
+    showError("Please fill in all fields");
     return;
   }
+
+  // Show loading state
+  btn.classList.add("loading");
+  btn.querySelector("span").style.opacity = "0";
+
+  // Simulate processing
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   const encodedUsername = encodeURIComponent(username);
   const encodedPassword = encodeURIComponent(password);
 
   document.location.href = `/auth/login?username=${encodedUsername}&password=${encodedPassword}`;
+}
+
+function showError(message) {
+  const errorMsg = document.getElementById("error-msg");
+  errorMsg.textContent = message;
+  errorMsg.classList.add("show");
+  setTimeout(() => {
+    errorMsg.classList.remove("show");
+  }, 3000);
+}
+
+// Check for URL error parameters
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('err') === 'InvalidCredentials') {
+  showError("Invalid username or password");
 }
 </script>
 
