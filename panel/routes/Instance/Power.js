@@ -1,5 +1,5 @@
 const express = require("express");
-const { db } = require("../../handlers/db.js"); // ← ADD THIS LINE
+const { db } = require("../../handlers/db.js"); // ← FIXED: Added missing import
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
@@ -36,37 +36,31 @@ router.post("/instance/:id/power", async (req, res) => {
   const url = `${baseUrl}/${action}`;
 
   try {
-    // Load template.json to get correct startup scripts
-    const fs = require('fs');
-    const path = require('path');
-    const templatePath = path.join(__dirname, '../../../database/instances', id, 'template.json');
-    
-    let templateData = {};
-    try {
-      if (fs.existsSync(templatePath)) {
-        templateData = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-      }
-    } catch (e) {
-      console.error("Failed to read template:", e);
-    }
-
     let bodyData = {};
     
     if (action === "start" || action === "restart") {
-      // Try multiple possible locations for startup command
-      const startupCmd = templateData.startup || 
-                        templateData.environment?.startup ||
-                        (templateData.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
-                        "";
+      // Load template.json to get startup command
+      const fs = require('fs');
+      const path = require('path');
+      const templatePath = path.join(__dirname, '../../../database/instances', id, 'template.json');
+      
+      let startupCmd = "";
+      try {
+        if (fs.existsSync(templatePath)) {
+          const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+          // Try multiple possible locations for startup command
+          startupCmd = template.startup || 
+                      template.environment?.startup ||
+                      (template.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
+                      "";
+        }
+      } catch (e) {
+        console.error("Failed to read template for startup:", e);
+      }
+      
       bodyData.startCode = startupCmd;
-    } else if (action === "stop") {
-      // Try multiple possible locations for stop command
-      const stopCmd = templateData.stop || 
-                     templateData.environment?.stop ||
-                     (templateData.actions?.find(a => a.id === "stop")?.operations?.find(op => op.type === "command")?.run_code) ||
-                     "stop";
-      bodyData.command = stopCmd;
-    }
+    } 
+    // For stop: send empty body, Wings will just do container.stop()
 
     const authString = Buffer.from(`kspanel:${instance.Node.apiKey}`).toString("base64");
 
