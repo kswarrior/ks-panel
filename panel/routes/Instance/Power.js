@@ -45,18 +45,20 @@ router.post("/instance/:id/power", async (req, res) => {
       const templatePath = path.join(__dirname, '../../../database/instances', id, 'template.json');
       
       let startupCmd = "";
-      try {
-        if (fs.existsSync(templatePath)) {
-          const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-          // Try multiple possible locations for startup command
-          startupCmd = template.startup || 
-                      template.environment?.startup ||
-                      (template.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
-                      "";
-        }
-      } catch (e) {
-        console.error("Failed to read template for startup:", e);
-      }
+try {
+  if (fs.existsSync(templatePath)) {
+    const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+    
+    // ← UPDATED & MORE ROBUST
+    startupCmd = template.startup ||
+                template.environment?.startup ||
+                template.environment?.start_code ||     // ← ADD THIS LINE
+                (template.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
+                "";
+  }
+} catch (e) {
+  console.error("Failed to read template for startup:", e);
+}
       
       bodyData.startCode = startupCmd;
     } 
