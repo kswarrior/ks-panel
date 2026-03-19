@@ -359,23 +359,27 @@
         });
       }
 
+      // === IMMEDIATE FALLBACK FOR STOPPED CONTAINERS (this fixes the "Loading..." stuck) ===
+      const currentStatusText = statusElements[0] ? statusElements[0].textContent.trim() : '';
+      if (currentStatusText === 'STOPPED' || currentStatusText.includes('Offline') || currentStatusText.includes('Stopped')) {
+        updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+        updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+        updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+        updateProgress(ramBarElements, 0);
+        updateProgress(cpuBarElements, 0);
+        updateProgress(diskBarElements, 0);
+        console.log('🚀 STOPPED container detected - instantly set 0 values (no WS wait needed)');
+      }
+
       socket.onmessage = event => {
-        // DEBUG: Open browser console (F12) and look for these lines to see what KS-Wings is actually sending
-        console.log('✅ Raw WS data received for instance', containerId, ':', event.data);
+        console.log('✅ Raw WS data received for', containerId, ':', event.data);
 
         let stats = null;
 
-        // Handle plain-text error messages from KS-Wings
         if (typeof event.data === 'string') {
           if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
-            statusBgElements.forEach(bg => {
-              bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30');
-              bg.classList.add('bg-yellow-600/10');
-            });
-            statusElements.forEach(el => {
-              el.className = 'text-orange-500';
-              el.textContent = 'KS Wings is Offline!';
-            });
+            statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
+            statusElements.forEach(el => { el.className = 'text-orange-500'; el.textContent = 'KS Wings is Offline!'; });
             updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
             updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
             updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
@@ -386,14 +390,8 @@
             return;
           }
           if (event.data.includes('Container not found')) {
-            statusBgElements.forEach(bg => {
-              bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30');
-              bg.classList.add('bg-yellow-600/10');
-            });
-            statusElements.forEach(el => {
-              el.className = 'text-orange-500';
-              el.textContent = 'Container not found!';
-            });
+            statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
+            statusElements.forEach(el => { el.className = 'text-orange-500'; el.textContent = 'Container not found!'; });
             updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
             updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
             updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
@@ -408,21 +406,18 @@
         try {
           if (event.data && event.data.trim()) stats = JSON.parse(event.data);
         } catch (e) {
-          console.error('JSON parse failed for instance', containerId);
+          console.error('JSON parse failed for', containerId);
           return;
         }
 
-        // === CRITICAL UNWRAP (KS-Wings always sends {event: "stats", args: [realStats]}) ===
         let realStats = stats;
         if (stats && stats.event === 'stats' && Array.isArray(stats.args) && stats.args.length > 0) {
           realStats = stats.args[0];
-          console.log('✅ Unwrapped real Docker stats for instance', containerId, ':', realStats);
-        } else {
-          console.log('⚠️ No wrapper found, using raw stats for instance', containerId);
+          console.log('✅ Unwrapped real stats for', containerId);
         }
 
         if (!realStats || realStats.error) {
-          console.warn('No valid stats or error for instance', containerId);
+          console.warn('Error or no stats for', containerId, realStats);
           updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
           updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
           updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
@@ -432,7 +427,7 @@
           return;
         }
 
-        // === RAM (bytes, no /1024) + green bar ===
+        // RAM
         const ramUsageRaw = realStats.memory_stats?.usage || 0;
         const ramLimitRaw = realStats.memory_stats?.limit || 1;
         const ramUsage = formatBytes(ramUsageRaw);
@@ -440,15 +435,14 @@
         updateAll(ramUsageElements, `${ramUsage} <%= req.translations.ramUsage %>`);
         updateProgress(ramBarElements, ramPercent);
 
-        // === CPU + green bar ===
+        // CPU
         const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage || 0) - (realStats.precpu_stats?.cpu_usage?.total_usage || 0);
         const systemCpuDelta = (realStats.cpu_stats?.system_cpu_usage || 0) - (realStats.precpu_stats?.system_cpu_usage || 0);
         const cpuPercent = (cpuDelta && systemCpuDelta) ? ((cpuDelta / systemCpuDelta) * 100) : 0;
-        const cpuUsagePercent = cpuPercent.toFixed(2) + '%';
-        updateAll(cpuUsageElements, `${cpuUsagePercent} <%= req.translations.cpuUsage %>`);
+        updateAll(cpuUsageElements, `${cpuPercent.toFixed(2)}% <%= req.translations.cpuUsage %>`);
         updateProgress(cpuBarElements, cpuPercent);
 
-        // === DISK (volumeSize is in MiB from backend → convert to bytes) + green bar ===
+        // Disk (volumeSize from your backend is in MiB)
         const diskUsageRaw = realStats.volumeSize ? parseFloat(realStats.volumeSize) * 1024 * 1024 : 0;
         const diskLimitRaw = realStats.diskLimit ? realStats.diskLimit * 1024 * 1024 : (diskUsageRaw + 1);
         const diskUsage = formatBytes(diskUsageRaw);
@@ -456,7 +450,7 @@
         updateAll(diskUsageElements, `${diskUsage} <%= req.translations.diskUsage || 'Disk Usage' %>`);
         updateProgress(diskBarElements, diskPercent);
 
-        // === Status (Online / Offline) ===
+        // Status
         const isOffline = isNaN(ramUsageRaw) || ramUsageRaw === 0;
         statusBgElements.forEach(bg => {
           bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30', 'bg-yellow-600/10');
@@ -468,8 +462,8 @@
         });
       };
 
-      socket.onerror = () => console.error(`❌ Stats WS error for ${containerId}`);
-      socket.onclose = () => console.warn(`⚠️ Stats WS closed for ${containerId}`);
+      socket.onerror = () => console.error(`❌ WS error for ${containerId}`);
+      socket.onclose = () => console.warn(`⚠️ WS closed for ${containerId}`);
     });
   });
 </script>
