@@ -42,24 +42,6 @@
   }
 }
 
-/* View visibility */
-.mobile-view {
-  display: block;
-}
-
-.desktop-view {
-  display: none;
-}
-
-@media (min-width: 640px) {
-  .mobile-view {
-    display: none;
-  }
-  .desktop-view {
-    display: block;
-  }
-}
-
 /* Resource bar animations */
 .resource-bar {
   transition: width 0.7s ease-out, background-color 0.3s ease;
@@ -79,10 +61,370 @@
   background: inherit;
   animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
+
+/* Card Grid Layout - Responsive */
+.nodes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .nodes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nodes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .nodes-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .nodes-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Card Styles */
+.node-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.node-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Card Header */
+.card-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+}
+
+.status-indicator {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+
+.node-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+  padding-right: 2rem;
+  word-break: break-word;
+}
+
+.connection-info {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.proxy-badge {
+  font-size: 0.625rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* Card Body */
+.card-body {
+  padding: 1.25rem;
+  space-y: 1rem;
+}
+
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.resource-row:last-child {
+  margin-bottom: 0;
+}
+
+.resource-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  width: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resource-bar-container {
+  flex: 1;
+  height: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.resource-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.7s ease-out, background-color 0.3s ease;
+  position: relative;
+}
+
+.resource-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.resource-value {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  width: 4rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Tags Section */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.tag-location::before {
+  content: '📍';
+  font-size: 0.625rem;
+}
+
+.tag-tunnel {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.tag-tunnel::before {
+  content: '🔒';
+  font-size: 0.625rem;
+}
+
+.tag-instances {
+  margin-left: auto;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.card-btn {
+  padding: 0.625rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  text-decoration: none;
+}
+
+.card-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.card-btn:active {
+  transform: scale(0.95);
+}
+
+.card-btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.card-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.card-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Desktop specific enhancements */
+@media (min-width: 640px) {
+  .card-header {
+    padding: 1.5rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .card-footer {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .node-name {
+    font-size: 1.25rem;
+  }
+  
+  .resource-label {
+    width: 3rem;
+    font-size: 0.875rem;
+  }
+  
+  .resource-value {
+    font-size: 0.875rem;
+    width: 4.5rem;
+  }
+}
+
+/* Status animations */
+.status-online {
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.status-online::before {
+  content: '';
+  position: absolute;
+  inset: -0.25rem;
+  border-radius: 50%;
+  background: #10b981;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.75;
+}
+
+.status-online::after {
+  content: '';
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.status-offline {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #6b7280;
+  display: inline-block;
+}
+
+.status-unknown {
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.status-unknown::before {
+  content: '';
+  position: absolute;
+  inset: -0.25rem;
+  border-radius: 50%;
+  background: #f59e0b;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.75;
+}
+
+.status-unknown::after {
+  content: '';
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
 </style>
 
 <main id="content" class="min-h-screen pb-20">
-  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+  <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     
     <!-- Header -->
     <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6 pb-6 sm:pb-8 border-b border-white/10">
@@ -203,270 +545,106 @@
     </div>
     <% } %>
 
-    <!-- DESKTOP VIEW - Table (sm and up) -->
-    <section class="mt-6 sm:mt-8 desktop-view">
-      <div class="bg-neutral-900/50 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm text-left text-white">
-            <thead class="bg-neutral-950/80 text-neutral-400 text-xs uppercase tracking-wider">
-              <tr>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold">Node</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold hidden md:table-cell">Connection</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold hidden lg:table-cell">Tunnel</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold hidden sm:table-cell">Location</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-center">Instances</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold">RAM</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold">CPU</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold">Disk</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-right hidden lg:table-cell">Upload</th>
-                <th class="py-4 px-4 sm:py-5 sm:px-6 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5">
-              <% nodes.forEach(function(node) { %>
-              <tr class="hover:bg-white/[0.03] transition-colors duration-200 group">
-                <!-- Name -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6">
-                  <div class="flex items-center gap-3">
-                    <div class="relative flex-shrink-0">
-                      <% if (node.status === "Online") { %>
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                        </span>
-                      <% } else if (node.status === "Offline") { %>
-                        <span class="relative flex h-3 w-3">
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-neutral-500"></span>
-                        </span>
-                      <% } else { %>
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                        </span>
-                      <% } %>
-                    </div>
-                    <div class="min-w-0">
-                      <span class="font-semibold text-white block truncate max-w-[120px] lg:max-w-[180px]"><%= node.name %></span>
-                    </div>
-                  </div>
-                </td>
-
-                <!-- Connection -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6 hidden md:table-cell">
-                  <div class="font-mono text-xs text-neutral-400 bg-neutral-800/50 px-3 py-1.5 rounded-lg inline-block border border-white/5">
-                    <%= node.address %><span class="text-neutral-600">:</span><%= node.port %>
-                    <% if (node.behindProxy) { %>
-                      <span class="ml-2 text-amber-400 text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded">PROXY</span>
-                    <% } %>
-                  </div>
-                </td>
-
-                <!-- Tunnel -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6 hidden lg:table-cell">
-                  <% if (node.useCloudflareTunnel) { %>
-                    <span class="inline-flex items-center gap-2 text-emerald-400 text-xs font-semibold bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
-                      <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                      CF TUNNEL
-                    </span>
-                  <% } else { %>
-                    <span class="text-neutral-500 text-xs">—</span>
-                  <% } %>
-                </td>
-
-                <!-- Location -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6 hidden sm:table-cell">
-                  <% let locName = 'Unknown'; %>
-                  <% locations.forEach(function(loc) { %>
-                    <% if (loc.id === node.location) locName = loc.name; %>
-                  <% }); %>
-                  <span class="text-sm text-neutral-300 bg-white/5 px-3 py-1 rounded-lg border border-white/5"><%= locName %></span>
-                </td>
-
-                <!-- Instances -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6 text-center">
-                  <span class="inline-flex items-center justify-center min-w-[2rem] bg-neutral-800 px-3 py-1.5 rounded-lg text-xs font-semibold text-white border border-white/10 shadow-sm">
-                    <%= set[node.id] || 0 %>
-                  </span>
-                </td>
-
-                <!-- RAM -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6">
-                  <div class="flex items-center gap-3 w-32 sm:w-40">
-                    <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                      <div id="desktop-ram-bar-<%= node.id %>" 
-                           class="h-full rounded-full resource-bar"
-                           style="width: 0%; background-color: #22c55e;"></div>
-                    </div>
-                    <span id="desktop-ram-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-16 text-right flex-shrink-0">--</span>
-                  </div>
-                </td>
-
-                <!-- CPU -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6">
-                  <div class="flex items-center gap-3 w-24 sm:w-28">
-                    <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                      <div id="desktop-cpu-bar-<%= node.id %>" 
-                           class="h-full rounded-full resource-bar"
-                           style="width: 0%; background-color: #22c55e;"></div>
-                    </div>
-                    <span id="desktop-cpu-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-10 text-right flex-shrink-0">0%</span>
-                  </div>
-                </td>
-
-                <!-- Disk -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6">
-                  <div class="flex items-center gap-3 w-32 sm:w-40">
-                    <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                      <div id="desktop-disk-bar-<%= node.id %>" 
-                           class="h-full rounded-full resource-bar"
-                           style="width: 0%; background-color: #22c55e;"></div>
-                    </div>
-                    <span id="desktop-disk-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-16 text-right flex-shrink-0">--</span>
-                  </div>
-                </td>
-
-                <!-- Upload -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6 text-right hidden lg:table-cell">
-                  <span class="text-sm text-neutral-300 font-medium bg-white/5 px-3 py-1.5 rounded-lg border border-white/5"><%= node.uploadSize || 500 %> MB</span>
-                </td>
-
-                <!-- Actions -->
-                <td class="py-4 px-4 sm:py-5 sm:px-6 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    <button onclick="configure('<%= node.id %>')" 
-                            class="px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 active:scale-95 border border-white/10">
-                      CONFIG
-                    </button>
-                    <a href="/admin/node/<%= node.id %>">
-                      <button class="px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 active:scale-95 border border-white/10">
-                        EDIT
-                      </button>
-                    </a>
-                    <button onclick="deletenode('<%= node.id %>')" 
-                            class="px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all duration-200 active:scale-95 border border-red-500/20">
-                      DELETE
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- MOBILE VIEW - Cards (below sm) -->
-    <section class="mt-6 mobile-view">
-      <div class="space-y-3">
+    <!-- Unified Card Grid -->
+    <section class="mt-6 sm:mt-8">
+      <div class="nodes-grid">
         <% nodes.forEach(function(node) { %>
-        <div class="bg-neutral-900/50 backdrop-blur-xl rounded-2xl border border-white/10 shadow-lg overflow-hidden">
+        <div class="node-card">
           <!-- Card Header -->
-          <div class="p-4 border-b border-white/5 bg-white/[0.02]">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="relative flex-shrink-0">
-                  <% if (node.status === "Online") { %>
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                    </span>
-                  <% } else if (node.status === "Offline") { %>
-                    <span class="relative flex h-3 w-3">
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-neutral-500"></span>
-                    </span>
-                  <% } else { %>
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                    </span>
-                  <% } %>
-                </div>
-                <span class="font-semibold text-white truncate"><%= node.name %></span>
-              </div>
-              <span class="text-xs text-neutral-300 bg-neutral-800 px-2.5 py-1 rounded-lg border border-white/10 flex-shrink-0"><%= set[node.id] || 0 %> inst</span>
+          <div class="card-header">
+            <div class="status-indicator">
+              <% if (node.status === "Online") { %>
+                <span class="status-online"></span>
+              <% } else if (node.status === "Offline") { %>
+                <span class="status-offline"></span>
+              <% } else { %>
+                <span class="status-unknown"></span>
+              <% } %>
             </div>
-            <div class="mt-2 font-mono text-xs text-neutral-500">
-              <%= node.address %>:<%= node.port %>
-              <% if (node.behindProxy) { %><span class="text-amber-400 ml-1">[proxy]</span><% } %>
+            
+            <h3 class="node-name"><%= node.name %></h3>
+            
+            <div class="connection-info">
+              <span><%= node.address %>:<%= node.port %></span>
+              <% if (node.behindProxy) { %>
+                <span class="proxy-badge">PROXY</span>
+              <% } %>
             </div>
           </div>
 
-          <!-- Card Body - Resources -->
-          <div class="p-4 space-y-3">
+          <!-- Card Body -->
+          <div class="card-body">
             <!-- RAM -->
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-medium text-neutral-500 w-10">RAM</span>
-              <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                <div id="mobile-ram-bar-<%= node.id %>" 
-                     class="h-full rounded-full resource-bar"
+            <div class="resource-row">
+              <span class="resource-label">RAM</span>
+              <div class="resource-bar-container">
+                <div id="ram-bar-<%= node.id %>" 
+                     class="resource-bar-fill"
                      style="width: 0%; background-color: #22c55e;"></div>
               </div>
-              <span id="mobile-ram-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-14 text-right">--</span>
+              <span id="ram-text-<%= node.id %>" class="resource-value">--</span>
             </div>
 
             <!-- CPU -->
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-medium text-neutral-500 w-10">CPU</span>
-              <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                <div id="mobile-cpu-bar-<%= node.id %>" 
-                     class="h-full rounded-full resource-bar"
+            <div class="resource-row">
+              <span class="resource-label">CPU</span>
+              <div class="resource-bar-container">
+                <div id="cpu-bar-<%= node.id %>" 
+                     class="resource-bar-fill"
                      style="width: 0%; background-color: #22c55e;"></div>
               </div>
-              <span id="mobile-cpu-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-14 text-right">--</span>
+              <span id="cpu-text-<%= node.id %>" class="resource-value">--</span>
             </div>
 
-            <!-- DISK -->
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-medium text-neutral-500 w-10">Disk</span>
-              <div class="flex-1 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                <div id="mobile-disk-bar-<%= node.id %>" 
-                     class="h-full rounded-full resource-bar"
+            <!-- Disk -->
+            <div class="resource-row">
+              <span class="resource-label">Disk</span>
+              <div class="resource-bar-container">
+                <div id="disk-bar-<%= node.id %>" 
+                     class="resource-bar-fill"
                      style="width: 0%; background-color: #22c55e;"></div>
               </div>
-              <span id="mobile-disk-text-<%= node.id %>" class="font-mono text-xs text-neutral-400 w-14 text-right">--</span>
+              <span id="disk-text-<%= node.id %>" class="resource-value">--</span>
             </div>
 
-            <!-- Location & Tunnel Tags -->
-            <div class="flex flex-wrap gap-2 pt-2">
-              <% let mobileLocName = 'Unknown'; %>
+            <!-- Tags -->
+            <div class="card-tags">
+              <% let locName = 'Unknown'; %>
               <% locations.forEach(function(loc) { %>
-                <% if (loc.id === node.location) mobileLocName = loc.name; %>
+                <% if (loc.id === node.location) locName = loc.name; %>
               <% }); %>
-              <span class="text-xs text-neutral-300 bg-white/5 px-2 py-1 rounded border border-white/10"><%= mobileLocName %></span>
+              <span class="tag tag-location"><%= locName %></span>
+              
               <% if (node.useCloudflareTunnel) { %>
-                <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">CF Tunnel</span>
+                <span class="tag tag-tunnel">CF Tunnel</span>
               <% } %>
-              <span class="text-xs text-neutral-400 bg-white/5 px-2 py-1 rounded border border-white/10 ml-auto"><%= node.uploadSize || 500 %> MB</span>
+              
+              <span class="tag tag-instances"><%= set[node.id] || 0 %> instances</span>
             </div>
           </div>
 
-          <!-- Card Footer - Actions -->
-          <div class="p-4 pt-0">
-            <div class="grid grid-cols-3 gap-2">
-              <button onclick="configure('<%= node.id %>')" 
-                      class="py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-medium rounded-xl border border-white/10 transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                </svg>
-                Config
-              </button>
-              <a href="/admin/node/<%= node.id %>" class="block">
-                <button class="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-medium rounded-xl border border-white/10 transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                  Edit
-                </button>
-              </a>
-              <button onclick="deletenode('<%= node.id %>')" 
-                      class="py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium rounded-xl border border-red-500/20 transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                Delete
-              </button>
-            </div>
+          <!-- Card Footer -->
+          <div class="card-footer">
+            <button onclick="configure('<%= node.id %>')" class="card-btn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Config
+            </button>
+            
+            <a href="/admin/node/<%= node.id %>" class="card-btn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </a>
+            
+            <button onclick="deletenode('<%= node.id %>')" class="card-btn card-btn-danger">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              Delete
+            </button>
           </div>
         </div>
         <% }); %>
@@ -511,12 +689,12 @@
   }
 
   // Helper: Update a single resource bar
-  function updateResourceBar(prefix, nodeId, key, data) {
-    const bar = document.getElementById(`${prefix}-${key}-bar-${nodeId}`);
-    const text = document.getElementById(`${prefix}-${key}-text-${nodeId}`);
+  function updateResourceBar(nodeId, key, data) {
+    const bar = document.getElementById(`${key}-bar-${nodeId}`);
+    const text = document.getElementById(`${key}-text-${nodeId}`);
     
     if (!bar || !text) {
-      console.warn(`Elements not found: ${prefix}-${key}-bar-${nodeId} or text`);
+      console.warn(`Elements not found: ${key}-bar-${nodeId} or text`);
       return;
     }
     
@@ -524,7 +702,7 @@
       bar.style.width = '0%';
       bar.style.backgroundColor = '#22c55e';
       text.textContent = '--';
-      text.className = text.className.replace(/text-(red|amber|blue|emerald)-400/g, 'text-neutral-400');
+      text.style.color = 'rgba(255, 255, 255, 0.6)';
       return;
     }
     
@@ -552,14 +730,10 @@
     text.textContent = textContent;
     
     // Update text color based on severity
-    let colorClass = 'text-emerald-400';
-    if (percent >= 90) colorClass = 'text-red-400';
-    else if (percent >= 75) colorClass = 'text-amber-400';
-    else if (percent >= 50) colorClass = 'text-blue-400';
-    
-    // Preserve width class and font-mono
-    const widthClass = prefix === 'mobile' ? 'w-14' : (key === 'cpu' ? 'w-10' : 'w-16');
-    text.className = `font-mono text-xs ${widthClass} text-right flex-shrink-0 ${colorClass}`;
+    if (percent >= 90) text.style.color = '#f87171';
+    else if (percent >= 75) text.style.color = '#fbbf24';
+    else if (percent >= 50) text.style.color = '#60a5fa';
+    else text.style.color = '#34d399';
   }
 
   // Main: Update all resources for a node
@@ -574,32 +748,24 @@
       const data = await res.json();
       console.log(`Resource data for ${nodeId}:`, data);
       
-      // Update desktop elements
-      updateResourceBar('desktop', nodeId, 'ram', data.ram);
-      updateResourceBar('desktop', nodeId, 'cpu', data.cpu);
-      updateResourceBar('desktop', nodeId, 'disk', data.disk);
-      
-      // Update mobile elements
-      updateResourceBar('mobile', nodeId, 'ram', data.ram);
-      updateResourceBar('mobile', nodeId, 'cpu', data.cpu);
-      updateResourceBar('mobile', nodeId, 'disk', data.disk);
+      // Update bars (now unified, no desktop/mobile prefix)
+      updateResourceBar(nodeId, 'ram', data.ram);
+      updateResourceBar(nodeId, 'cpu', data.cpu);
+      updateResourceBar(nodeId, 'disk', data.disk);
       
     } catch(e) {
       console.error(`Resource update failed for ${nodeId}:`, e);
       
       // Set error state on all bars
-      ['desktop', 'mobile'].forEach(prefix => {
-        ['ram', 'cpu', 'disk'].forEach(key => {
-          const bar = document.getElementById(`${prefix}-${key}-bar-${nodeId}`);
-          const text = document.getElementById(`${prefix}-${key}-text-${nodeId}`);
-          if (bar && text) {
-            bar.style.width = '0%';
-            bar.style.backgroundColor = '#ef4444';
-            text.textContent = 'ERR';
-            const widthClass = prefix === 'mobile' ? 'w-14' : (key === 'cpu' ? 'w-10' : 'w-16');
-            text.className = `font-mono text-xs ${widthClass} text-right flex-shrink-0 text-red-400`;
-          }
-        });
+      ['ram', 'cpu', 'disk'].forEach(key => {
+        const bar = document.getElementById(`${key}-bar-${nodeId}`);
+        const text = document.getElementById(`${key}-text-${nodeId}`);
+        if (bar && text) {
+          bar.style.width = '0%';
+          bar.style.backgroundColor = '#ef4444';
+          text.textContent = 'ERR';
+          text.style.color = '#f87171';
+        }
       });
     }
   }
