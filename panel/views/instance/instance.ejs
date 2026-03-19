@@ -388,6 +388,7 @@
     <!-- Info Cards Grid -->
     <div class="mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
         <dl class="info-grid">
+            <!-- Address Card (IP fixed - kept as-is but now clearly the connection address) -->
             <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
                 <div class="flex-grow min-w-0">
                     <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.address %></dt>
@@ -401,17 +402,21 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
                 </div>
             </div>
+
+            <!-- CHANGED: Image → Template (uses display_name from template) -->
             <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
                 <div class="flex-grow min-w-0">
-                    <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.image %></dt>
+                    <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider">Template</dt>
                     <dd class="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-white truncate">
-                        <%= instance.Image %>
+                        <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
                     </dd>
                 </div>
                 <div class="ml-3 sm:ml-4 shadow-lg border border-white/10 rounded-xl p-2.5 flex-shrink-0 bg-white/5 group-hover:bg-white/10 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63ZM84,96A12,12,0,1,1,96,84,12,12,0,0,1,84,96Z"/></svg>
                 </div>
             </div>
+
+            <!-- Node Card (unchanged) -->
             <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
                 <div class="flex-grow min-w-0">
                     <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.node %></dt>
@@ -424,6 +429,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
                 </div>
             </div>
+
+            <!-- Identifier Card (unchanged) -->
             <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
                 <div class="flex-grow min-w-0">
                     <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.identifier %></dt>
@@ -926,13 +933,18 @@
         }
     }
     
+    // FIXED: Correct status (uses real Docker status from wings + fallback)
     function updateStatus(stats) {
         const statusElement = document.getElementById('status');
         if (!statusElement) return;
         
+        // Real container status from Wings (inspect) has priority
+        const containerStatus = (stats.status || stats.state || stats.State?.Status || '').toLowerCase();
         const ramUsageRaw = stats.memory_stats?.usage / 1024 / 1024 || 0;
         
-        if (ramUsageRaw > 1) {
+        const isOnline = containerStatus === 'running' || ramUsageRaw > 1;
+        
+        if (isOnline) {
             statusElement.textContent = 'Online';
             statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight text-emerald-500';
             updateStatusChart('rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.3)');
