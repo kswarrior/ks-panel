@@ -1,136 +1,68 @@
 const express = require("express");
+const {
+  isUserAuthorizedForContainer,
+  isInstanceSuspended,
+} = require("../../utils/authHelper");
+
 const router = express.Router();
-const Docker = require("../utils/Docker");
-const docker = new Docker({ socketPath: process.env.dockerSocket });
-const fs = require("fs").promises;
-const fsSync = require("fs");
-const path = require("path");
-const { calculateDirectorySize } = require("../utils/FileType");
-const CatLoggr = require("cat-loggr");
-const log = new CatLoggr();
 
-const statesFilePath = path.join(__dirname, "../storage/states.json");
+router.post("/instance/:id/power", async (req, res) => {
+  if (!req.user) return res.redirect("/");
+  const { id } = req.params;
+  const { action } = req.body;
 
-// ==================== READ STATES (original logic) ====================
-function getStateForContainer(containerId) {
-  try {
-    if (fsSync.existsSync(statesFilePath)) {
-      const statesData = JSON.parse(fsSync.readFileSync(statesFilePath, "utf8"));
-      for (const [volumeId, state] of Object.entries(statesData)) {
-        if (state.containerId === containerId) {
-          return { volumeId, ...state };
-        }
-      }
-    }
-  } catch (err) {
-    log.warn("Failed to read states.json:", err.message);
+  if (!["start", "restart", "stop"].includes(action)) {
+    return res.status(400).json({ message: "Invalid action" });
   }
-  return null;
-}
 
-// ==================== AUTO-RUN TEMPLATE START CODE ====================
-const runStartCode = async (container, startCode) => {
-  if (!startCode || typeof startCode !== "string" || startCode.trim() === "") return;
+  const instance = await db.get(id + "_instance");
+  if (!instance || !id) return res.redirect("../instances");
+
+  const isAuthorized = await isUserAuthorizedForContainer(
+    req.user.userId,
+    instance.Id
+  );
+  if (!isAuthorized) {
+    return res.status(403).json({ message: "Unauthorized access to this instance." });
+  }
+
+  const suspended = await isInstanceSuspended(req.user.userId, instance, id);
+  if (suspended === true) {
+    return res.render("instance/suspended", { req, user: req.user });
+  }
+
+  const baseUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.ContainerId}`;
+  const url = `${baseUrl}/${action}`;
+
   try {
-    const exec = await container.exec({
-      Cmd: ["/bin/sh", "-c", startCode],
-      AttachStdout: false,
-      AttachStderr: false,
-      Tty: false,
+    let bodyData = {};
+    if (action === "start" || action === "restart") {
+      bodyData.startCode = instance.imageData?.Scripts || "";
+    } else if (action === "stop") {
+      bodyData.command = instance.StopCommand || "stop";
+    }
+
+    const authString = Buffer.from(`kspanel:${instance.Node.apiKey}`).toString("base64");
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${authString}`,
+      },
+      body: JSON.stringify(bodyData),
     });
-    await exec.start({ hijack: false, stdin: false });
-    log.info(`[KS Wings] Template start code executed successfully`);
-  } catch (err) {
-    log.error(`[KS Wings] Failed to run start code:`, err.message);
-  }
-};
 
-// ==================== GRACEFUL STOP COMMAND (Minecraft "stop" etc.) ====================
-const runStopCode = async (container, command) => {
-  if (!command || typeof command !== "string") return;
-  try {
-    const exec = await container.exec({
-      Cmd: ["/bin/sh", "-c", command],
-      AttachStdout: true,
-      AttachStderr: true,
-      Tty: false,
-    });
-    await exec.start({ hijack: false, stdin: false });
-    log.info(`[KS Wings] Stop command executed: ${command}`);
-  } catch (err) {
-    log.error(`[KS Wings] Stop command failed:`, err.message);
-  }
-};
+    const data = await response.json().catch(() => ({}));
 
-// ==================== MAIN POWER ROUTE (start/restart/stop) ====================
-router.post("/instances/:id/:power", async (req, res) => {
-  const containerId = req.params.id;
-  const power = req.params.power;
-  const container = docker.getContainer(containerId);
-
-  try {
-    // Disk limit check (original KS Wings behaviour)
-    if (power === "start" || power === "restart") {
-      const state = getStateForContainer(containerId);
-      if (state && state.diskLimit && state.diskLimit > 0) {
-        const volumePath = path.join(__dirname, "../volumes", state.volumeId);
-        const currentSize = await calculateDirectorySize(volumePath);
-        const currentSizeMiB = currentSize / (1024 * 1024);
-        if (currentSizeMiB >= state.diskLimit) {
-          return res.status(403).json({
-            message: "Cannot start: storage limit exceeded.",
-            currentUsageMiB: Math.round(currentSizeMiB),
-            limitMiB: state.diskLimit
-          });
-        }
-      }
+    if (!response.ok) {
+      throw new Error(data.message || `Node error (${response.status})`);
     }
 
-    switch (power) {
-      case "start":
-      case "restart":
-        await container[power]();
-        const startCode = req.body.startCode || "";
-        await runStartCode(container, startCode);
-        res.json({ message: `Container ${power}ed + template code executed` });
-        break;
-
-      case "stop":
-        const stopCommand = req.body.command || "";
-        // Always attempt graceful stop first (for templates that use StopCommand like Minecraft "stop")
-        if (stopCommand) {
-          await runStopCode(container, stopCommand);
-        }
-        // THEN force Docker stop (this was the missing piece — previous if/else meant container never stopped)
-        await container.stop();
-        res.json({ message: "Container stopped successfully" });
-        break;
-
-      default:
-        res.status(400).json({ message: "Invalid power action" });
-    }
-  } catch (err) {
-    log.error("Power action failed:", err.message);
-    if (err.statusCode === 304) {
-      res.status(304).json({ message: err.message });
-    } else {
-      res.status(500).json({ message: err.message });
-    }
-  }
-});
-
-// ==================== /runcode route (legacy — kept for compatibility) ====================
-router.post("/instances/:id/runcode", async (req, res) => {
-  const containerId = req.params.id;
-  const command = req.body.command;
-  const container = docker.getContainer(containerId);
-
-  try {
-    await runStopCode(container, command);
-    res.json({ message: "Command executed successfully inside container" });
-  } catch (err) {
-    log.error("Runcode failed:", err.message);
-    res.status(500).json({ message: err.message });
+    res.json(data);
+  } catch (error) {
+    console.error("Power error:", error.message);
+    res.status(500).json({ message: error.message || "Connection to node failed." });
   }
 });
 
