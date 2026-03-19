@@ -1,489 +1,469 @@
 <%- include('components/template') %>
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
+<% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
+<main id="content">
+  <div class="bg-transparent">
+    <div class="flex items-center justify-between px-4 sm:px-8 pt-4 flex-wrap gap-4">
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-    <div>
-      <h1 class="text-lg font-semibold text-white">
-        <%= req.translations.users %>
-      </h1>
-      <p class="mt-1 text-sm text-neutral-400">
-        <%= req.translations.usersDescription %>
-      </p>
+  <!-- Left Side -->
+  <h1 class="text-base font-medium text-white">
+    <%= req.translations.instances %>
+  </h1>
+
+  <% if (req.user.admin === true) { %>
+  <!-- Right Side -->
+  <label for="instance-toggle" class="flex items-center cursor-pointer select-none">
+  <div class="relative w-11 h-6">
+
+    <input type="checkbox"
+           id="instance-toggle"
+           class="peer sr-only"
+           <%= req.query.see === 'other' ? 'checked' : '' %>>
+
+    <!-- Track -->
+    <div class="w-full h-full rounded-full
+                bg-white/10
+                peer-checked:bg-blue-600
+                transition-colors duration-300">
     </div>
 
-    <button
-      id="createButton"
-      type="button"
-      class="rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow transition hover:scale-105 active:scale-95"
-    >
-      <%= req.translations.createUserButton %>
-    </button>
+    <!-- Dot -->
+    <div class="absolute top-0 left-0
+                w-6 h-6 rounded-full bg-white shadow-md
+                transition-transform duration-300
+                peer-checked:translate-x-5">
+    </div>
+
   </div>
 
-  <!-- Desktop Table View (hidden on mobile, shown on lg+) -->
-  <div id="nodeTable" class="hidden lg:block w-full overflow-x-auto">
-    <table class="min-w-full text-sm text-left text-white border-collapse">
-      <!-- Table Head -->
-      <thead class="border-b border-white/10 text-neutral-400">
-        <tr>
-          <th class="py-3 px-4 font-medium">
-            <%= req.translations.name %>
-          </th>
-          <th class="py-3 px-4 font-medium">
-            <%= req.translations.email %>
-          </th>
-          <th class="py-3 px-4 font-medium">
-            <%= req.translations.information %>
-          </th>
-          <th class="py-3 px-4 font-medium">
-            <%= req.translations.role %>
-          </th>
-          <th class="py-3 px-4 font-medium">
-            <%= req.translations.verificationStatus %>
-          </th>
-          <th class="py-3 px-4 font-medium text-right">
-            <%= req.translations.actions %>
-          </th>
-        </tr>
-      </thead>
+  <span class="ml-3 text-sm font-medium text-white">
+    Show All
+  </span>
+</label>
+  <% } %>
 
-      <!-- Table Body -->
-      <tbody class="divide-y divide-white/5">
-        <% users.forEach(function(user) { %>
-        <tr class="hover:bg-white/5 transition">
-          <!-- Name -->
-          <td class="py-4 px-4">
-            <div class="flex items-center gap-3 min-w-[180px]">
-              <div class="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs font-medium text-white">
-                <%= user.username.charAt(0).toUpperCase() %>
+</div>
+  </div>
+  <% if (req.query.err == "NOTACTIVEYET") { %>
+    <div class="rounded-xl bg-amber-800/10 px-4 py-6 m-4 sm:m-7">
+      <div class="flex">
+          <div class="flex-shrink-0 ml-1.5">
+              <svg class="animate-spin mt-2 h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg"
+                  fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                  </circle>
+                  <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+              </svg>
+          </div>
+          <div class="ml-5">
+              <h3 class="text-sm font-medium text-amber-400">Awaiting Installation</h3>
+              <div class="text-sm text-amber-400/50">
+                  <p>The instance either isn't installed yet, or is in a failed state.</p>
               </div>
-              <span class="truncate font-medium">
-                <%= user.username %>
-              </span>
-            </div>
-          </td>
-
-          <!-- Email -->
-          <td class="py-4 px-4 min-w-[220px]">
-            <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs text-neutral-300 truncate">
-              <%= user.email %>
-            </div>
-          </td>
-
-          <!-- User ID -->
-          <td class="py-4 px-4 min-w-[150px]">
-            <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs text-neutral-300 truncate">
-              <%= user.userId %>
-            </div>
-          </td>
-
-          <!-- Role -->
-          <td class="py-4 px-4">
-            <% if (user.admin==true) { %>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                <%= req.translations.admin %>
-              </span>
-            <% } else { %>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-700/30 text-neutral-400 border border-white/5">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                </svg>
-                <%= req.translations.regularUserRole %>
-              </span>
-            <% } %>
-          </td>
-
-          <!-- Verification -->
-          <td class="py-4 px-4">
-            <% if (user.verified==true) { %>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                <%= req.translations.verifiedStatus %>
-              </span>
-            <% } else { %>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-                <%= req.translations.unverifiedStatus %>
-              </span>
-            <% } %>
-          </td>
-
-          <!-- Actions -->
-          <td class="py-4 px-4">
-            <div class="flex justify-end gap-2 min-w-[160px]">
-              <a href="/admin/users/edit/<%= user.userId %>">
-                <button
-                  type="button"
-                  class="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-medium shadow transition hover:bg-neutral-200"
-                >
-                  <%= req.translations.edit %>
-                </button>
-              </a>
-
-              <button
-                type="button"
-                class="removeButton rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition"
-                data-user-id="<%= user.userId %>"
-              >
-                <%= req.translations.remove %>
-              </button>
-            </div>
-          </td>
-        </tr>
-        <% }); %>
-      </tbody>
-    </table>
+          </div>
+      </div>
   </div>
-
-  <!-- Mobile/Tablet Card Grid View (shown on mobile, hidden on lg+) -->
-  <div id="cardView" class="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-    <% users.forEach(function(user) { %>
-    <div class="group relative bg-neutral-800/40 border border-white/10 rounded-2xl p-5 hover:bg-neutral-800/60 transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-black/20">
-      
-      <!-- Card Header with Avatar and Actions -->
-      <div class="flex items-start justify-between mb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-lg font-bold text-white shadow-inner">
-            <%= user.username.charAt(0).toUpperCase() %>
-          </div>
-          <div class="min-w-0">
-            <h3 class="text-white font-semibold truncate max-w-[120px] sm:max-w-[180px]">
-              <%= user.username %>
-            </h3>
-            <div class="flex items-center gap-2 mt-1">
-              <% if (user.verified==true) { %>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                  </svg>
-                  <%= req.translations.verifiedStatus %>
-                </span>
-              <% } else { %>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <%= req.translations.unverifiedStatus %>
-                </span>
-              <% } %>
-            </div>
-          </div>
+    <% } %>	  
+  <div class="px-4 sm:px-6 lg:px-8 mt-8">
+    <% if (instances.length == 0) { %>
+      <!-- No instances -->
+      <div id="noInstancesContainer" class="text-center mt-32 sm:mt-64 px-4">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+          class="mx-auto h-12 w-12 text-neutral-500">
+          <path fill-rule="evenodd"
+            d="M11.622 1.602a.75.75 0 0 1 .756 0l2.25 1.313a.75.75 0 0 1-.756 1.295L12 3.118 10.128 4.21a.75.75 0 1 1-.756-1.295l2.25-1.313ZM5.898 5.81a.75.75 0 0 1-.27 1.025l-1.14.665 1.14.665a.75.75 0 1 1-.756 1.295L3.75 8.806v.944a.75.75 0 0 1-1.5 0V7.5a.75.75 0 0 1 .372-.648l2.25-1.312a.75.75 0 0 1 1.026.27Zm12.204 0a.75.75 0 0 1 1.026-.27l2.25 1.312a.75.75 0 0 1 .372.648v2.25a.75.75 0 0 1-1.5 0v-.944l-1.122.654a.75.75 0 1 1-.756-1.295l1.14-.665-1.14-.665a.75.75 0 0 1-.27-1.025Zm-9 5.25a.75.75 0 0 1 1.026-.27L12 11.882l1.872-1.092a.75.75 0 1 1 .756 1.295l-1.878 1.096V15a.75.75 0 0 1-1.5 0v-1.82l-1.878-1.095a.75.75 0 0 1-.27-1.025ZM3 13.5a.75.75 0 0 1 .75.75v1.82l1.878 1.095a.75.75 0 1 1-.756 1.295l-2.25-1.312a.75.75 0 0 1-.372-.648v-2.25A.75.75 0 0 1 3 13.5Zm18 0a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.372.648l-2.25 1.312a.75.75 0 1 1-.756-1.295l1.878-1.096V14.25a.75.75 0 0 1 .75-.75Zm-9 5.25a.75.75 0 0 1 .75.75v.944l1.122-.654a.75.75 0 1 1 .756 1.295l-2.25 1.313a.75.75 0 0 1-.756 0l-2.25-1.313a.75.75 0 1 1 .756-1.295l1.122.654V19.5a.75.75 0 0 1 .75-.75Z"
+            clip-rule="evenodd" />
+        </svg>
+        <h3 class="mt-4 text-md font-medium text-white"><%= req.translations.noInstances %></h3>
+        <p class="mt-1 text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
+      </div>
+    <% } else { %>
+      <!-- Mobile Card View / Desktop Table -->
+      <div class="instances-container">
+        <!-- Desktop Table Header (Hidden on Mobile) -->
+        <div class="hidden md:grid grid-cols-5 gap-4 px-6 py-3 bg-white/5 rounded-t-lg border-b border-white/10">
+          <div class="text-sm font-semibold text-white">Instance</div>
+          <div class="text-sm font-semibold text-white">Status</div>
+          <div class="text-sm font-semibold text-white">RAM Usage</div>
+          <div class="text-sm font-semibold text-white">CPU Usage</div>
+          <div class="text-sm font-semibold text-white">Disk Usage</div>
         </div>
         
-        <!-- Quick Actions Dropdown for Mobile -->
-        <div class="flex gap-1">
-          <a href="/admin/users/edit/<%= user.userId %>" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-            </svg>
-          </a>
-          <button 
-            type="button" 
-            class="removeButton p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition"
-            data-user-id="<%= user.userId %>"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-          </button>
+        <!-- Cards Container -->
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-0">
+          <% instances.forEach(function (instance) { %>
+            <!-- Mobile Card / Desktop Row -->
+            <div 
+              onclick="window.location.href = '../instance/<%= instance.Id %>';"
+              class="instance-card md:contents cursor-pointer group"
+              data-instance-id="<%= instance.Id %>"
+            >
+              <!-- Mobile Card Layout -->
+              <div class="md:hidden bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/[0.08] transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/20">
+                <!-- Card Header -->
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="rounded-xl bg-white/10 p-2.5 group-hover:bg-white/20 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                        <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="font-medium text-white text-sm"><%= instance.Name %></h3>
+                      <span class="text-xs text-neutral-400">Instance</span>
+                    </div>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors">
+                    <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                
+                <!-- Card Stats Grid -->
+                <div class="grid grid-cols-4 gap-3">
+                  <!-- Status -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">Status</div>
+                    <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-2 py-1 rounded-full text-xs font-medium">
+                      <span data-status>
+                        <% if (instance.InternalState) { %>
+                          <%= instance.InternalState %>
+                        <% } else { %>
+                          <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <%= req.translations.loading %>
+                        <% } %>
+                      </span>
+                    </span>
+                  </div>
+                  
+                  <!-- RAM -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">RAM Usage</div>
+                    <span data-ram-usage class="text-sm font-medium text-white">
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
+                    </span>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div data-ram-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  
+                  <!-- CPU -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">CPU Usage</div>
+                    <span data-cpu-usage class="text-sm font-medium text-white">
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
+                    </span>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div data-cpu-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                  </div>
+
+                  <!-- Disk -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">Disk Usage</div>
+                    <span data-disk-usage class="text-sm font-medium text-white">
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
+                    </span>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div data-disk-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Desktop Table Row (Hidden on Mobile) -->
+              <div class="hidden md:grid grid-cols-5 gap-4 px-6 py-4 bg-white/5 border-b border-white/5 hover:bg-white/[0.05] transition-colors items-center">
+                <!-- Instance Name -->
+                <div class="flex items-center">
+                  <div class="rounded-xl bg-white/5 p-2 mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                      <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
+                    </svg>
+                  </div>
+                  <a href="../instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-300 transition-colors"><%= instance.Name %></a>
+                </div>
+                
+                <!-- Status -->
+                <div>
+                  <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-2.5 py-1 rounded-full text-xs font-medium">
+                    <span data-status>
+                      <% if (instance.InternalState) { %>
+                        <%= instance.InternalState %>
+                      <% } else { %>
+                        <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <%= req.translations.loading %>
+                      <% } %>
+                    </span>
+                  </span>
+                </div>
+                
+                <!-- RAM -->
+                <div class="text-sm text-neutral-400">
+                  <span data-ram-usage>
+                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <%= req.translations.loading %>
+                  </span>
+                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                    <div data-ram-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
+                </div>
+                
+                <!-- CPU -->
+                <div class="text-sm text-neutral-400">
+                  <span data-cpu-usage>
+                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <%= req.translations.loading %>
+                  </span>
+                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                    <div data-cpu-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <!-- Disk -->
+                <div class="text-sm text-neutral-400">
+                  <span data-disk-usage>
+                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <%= req.translations.loading %>
+                  </span>
+                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                    <div data-disk-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
         </div>
       </div>
-
-      <!-- Card Body -->
-      <div class="space-y-3">
-        <!-- Email -->
-        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-900/30 border border-white/5">
-          <div class="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center">
-            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-medium"><%= req.translations.email %></p>
-            <p class="text-sm text-neutral-300 truncate"><%= user.email %></p>
-          </div>
-        </div>
-
-        <!-- User ID -->
-        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-900/30 border border-white/5">
-          <div class="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center">
-            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
-            </svg>
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-medium"><%= req.translations.information %></p>
-            <p class="text-sm text-neutral-300 truncate font-mono"><%= user.userId %></p>
-          </div>
-        </div>
-
-        <!-- Role Badge -->
-        <div class="flex items-center justify-between pt-2">
-          <span class="text-xs text-neutral-500"><%= req.translations.role %></span>
-          <% if (user.admin==true) { %>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <%= req.translations.admin %>
-            </span>
-          <% } else { %>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-700/30 text-neutral-400 border border-white/5">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-              </svg>
-              <%= req.translations.regularUserRole %>
-            </span>
-          <% } %>
-        </div>
-      </div>
-    </div>
-    <% }); %>
+    <% } %>
   </div>
-
-  <!-- Create User Form -->
-  <div id="nodeForm" class="mt-8 hidden">
-    <div class="max-w-2xl space-y-5 bg-neutral-800/30 border border-white/10 rounded-2xl p-6 md:p-8">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-          </svg>
-        </div>
-        <h2 class="text-lg font-semibold text-white"><%= req.translations.createUserButton %></h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="md:col-span-2">
-          <label class="block text-sm text-neutral-400 mb-2">
-            <%= req.translations.username %>
-          </label>
-          <input
-            id="userName"
-            type="text"
-            name="username"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
-            placeholder="kswarrior"
-          />
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm text-neutral-400 mb-2">
-            <%= req.translations.email %>
-          </label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
-            placeholder="kswarrior@ksmail.io"
-          />
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm text-neutral-400 mb-2">
-            <%= req.translations.passwordLabel %>
-          </label>
-          <input
-            id="userPass"
-            type="password"
-            name="password"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
-            placeholder="kswarrior#123"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm text-neutral-400 mb-2">
-            <%= req.translations.admin %>
-          </label>
-          <select
-            id="userAdmin"
-            name="admin"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition"
-          >
-            <option value="true"><%= req.translations.true %></option>
-            <option value="false" selected><%= req.translations.false %></option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm text-neutral-400 mb-2">
-            <%= req.translations.verifiedStatus %>
-          </label>
-          <select
-            id="userVerified"
-            name="verified"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition"
-          >
-            <option value="true"><%= req.translations.true %></option>
-            <option value="false" selected><%= req.translations.false %></option>
-          </select>
-        </div>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-3 pt-4">
-        <button
-          id="createNodeBtn"
-          type="button"
-          class="flex-1 rounded-xl bg-white text-black px-5 py-2.5 text-sm font-medium shadow transition hover:bg-neutral-200 active:scale-95"
-        >
-          <%= req.translations.create %>
-        </button>
-        <button
-          id="cancelButton"
-          type="button"
-          class="flex-1 sm:flex-initial rounded-xl bg-neutral-800 text-white border border-white/10 px-5 py-2.5 text-sm font-medium transition hover:bg-neutral-700"
-        >
-          <%= req.translations.cancel || 'Cancel' %>
-        </button>
-      </div>
-    </div>
-  </div>
-
 </main>
+<%- include('components/footer') %>
 
-<script>
-  // Toggle between table and form
-  document.getElementById("createButton").addEventListener("click", function () {
-    var table = document.getElementById("nodeTable");
-    var cardView = document.getElementById("cardView");
-    var form = document.getElementById("nodeForm");
+<style>
+  /* Toggle Switch Styles */
+  #instance-toggle:checked ~ .toggle-track {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  #instance-toggle:checked ~ .toggle-dot {
+    transform: translateX(100%);
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .instance-card {
+      animation: slideIn 0.3s ease-out;
+    }
     
-    if (form.classList.contains("hidden")) {
-      table.classList.add("hidden");
-      cardView.classList.add("hidden");
-      form.classList.remove("hidden");
-    } else {
-      form.classList.add("hidden");
-      // Show appropriate view based on screen size
-      if (window.innerWidth >= 1024) {
-        table.classList.remove("hidden");
-      } else {
-        cardView.classList.remove("hidden");
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
-  });
+  }
 
-  // Cancel button handler
-  document.getElementById("cancelButton").addEventListener("click", function () {
-    var table = document.getElementById("nodeTable");
-    var cardView = document.getElementById("cardView");
-    var form = document.getElementById("nodeForm");
-    
-    form.classList.add("hidden");
-    if (window.innerWidth >= 1024) {
-      table.classList.remove("hidden");
-    } else {
-      cardView.classList.remove("hidden");
+  /* Touch-friendly improvements */
+  @media (hover: none) and (pointer: coarse) {
+    .instance-card:active {
+      transform: scale(0.98);
     }
-  });
+  }
 
-  // Handle window resize to toggle between views
-  window.addEventListener("resize", function() {
-    var table = document.getElementById("nodeTable");
-    var cardView = document.getElementById("cardView");
-    var form = document.getElementById("nodeForm");
-    
-    if (!form.classList.contains("hidden")) return;
-    
-    if (window.innerWidth >= 1024) {
-      table.classList.remove("hidden");
-      cardView.classList.add("hidden");
-    } else {
-      table.classList.add("hidden");
-      cardView.classList.remove("hidden");
+  /* Safe area support for notched phones */
+  @supports (padding: max(0px)) {
+    .px-4 {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
     }
-  });
-</script>
+  }
+</style>
 
 <script>
-  document.getElementById("createNodeBtn").addEventListener("click", function () {
-    const username = document.getElementById("userName").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("userPass").value;
-    const adminString = document.getElementById("userAdmin").value;
-    const admin = adminString === "true";
-    const verifiedString = document.getElementById("userVerified").value;
-    const verified = verifiedString === "true";
-
-    const nodeData = {
-      username,
-      email,
-      password,
-      admin,
-      verified,
-    };
-
-    console.log(nodeData);
-
-    fetch("/users/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(nodeData),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Failed to create user");
-      })
-      .then((data) => {
-        console.log("user created:", data);
-        alert('<%= req.translations.userCreatedSuccess %>');
-        window.location.reload();
-      })
-      .catch((error) =>
-        alert('<%= req.translations.userCreateError %>: ' + error.message)
-      );
-  });
-</script>
-
-<!-- remove -->
-<script>
-  document.querySelectorAll('.removeButton').forEach(button => {
-    button.addEventListener('click', function() {
-      const userId = this.dataset.userId;
-      const totalUsers = document.querySelectorAll('.removeButton').length;
-      if (totalUsers === 1) {
-        alert('<%= req.translations.databaseCannotDelete %>');
-        return;
-      }
-      const currentUserId = '<%= user.userId %>';
-      if (userId === currentUserId) {
-        alert('<%= req.translations.userCannotDelete %>');
-        return;
-      }
-      const confirmation = confirm('<%= req.translations.userDeletingConfirmation %>');
-      if (!confirmation) return;
-
-      fetch('/user/delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
-      })
-      .then(response => {
-        if (response.ok) {
-          window.location.reload();
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggleSwitch = document.getElementById('instance-toggle');
+    if (toggleSwitch) {
+      toggleSwitch.addEventListener('change', function () {
+        if (this.checked) {
+          window.location.href = '/instances?see=other';
         } else {
-          throw new Error('Failed to delete user');
+          window.location.href = '/instances';
         }
-      })
-      .catch(error => alert('<%= req.translations.userDeletingError %>' + error.message));
+      });
+    }
+
+    const instances = document.querySelectorAll('[data-instance-id]');
+    instances.forEach(instance => {
+      const containerId = instance.dataset.instanceId;
+      const isSecure = window.location.protocol === 'https:';
+      const wsProtocol = isSecure ? 'wss' : 'ws';
+      const wsPort = isSecure ? '' : `:<%= config.port %>`;
+      const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
+
+      // Query ALL elements (mobile + desktop) so both views update
+      const statusElements = instance.querySelectorAll('[data-status]');
+      const statusBgElements = instance.querySelectorAll('[data-status-bg]');
+      const ramUsageElements = instance.querySelectorAll('[data-ram-usage]');
+      const cpuUsageElements = instance.querySelectorAll('[data-cpu-usage]');
+      const diskUsageElements = instance.querySelectorAll('[data-disk-usage]');
+      const ramBarElements = instance.querySelectorAll('[data-ram-bar]');
+      const cpuBarElements = instance.querySelectorAll('[data-cpu-bar]');
+      const diskBarElements = instance.querySelectorAll('[data-disk-bar]');
+
+      function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0.00 B';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['B', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      }
+
+      function updateAll(elements, value) {
+        elements.forEach(el => el.textContent = value);
+      }
+
+      function updateProgress(bars, percent) {
+        bars.forEach(bar => {
+          bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+        });
+      }
+
+      // === IMMEDIATE FALLBACK FOR STOPPED CONTAINERS (this fixes the "Loading..." stuck) ===
+      const currentStatusText = statusElements[0] ? statusElements[0].textContent.trim() : '';
+      if (currentStatusText === 'STOPPED' || currentStatusText.includes('Offline') || currentStatusText.includes('Stopped')) {
+        updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+        updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+        updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+        updateProgress(ramBarElements, 0);
+        updateProgress(cpuBarElements, 0);
+        updateProgress(diskBarElements, 0);
+        console.log('🚀 STOPPED container detected - instantly set 0 values (no WS wait needed)');
+      }
+
+      socket.onmessage = event => {
+        console.log('✅ Raw WS data received for', containerId, ':', event.data);
+
+        let stats = null;
+
+        if (typeof event.data === 'string') {
+          if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
+            statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
+            statusElements.forEach(el => { el.className = 'text-orange-500'; el.textContent = 'KS Wings is Offline!'; });
+            updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+            updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+            updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+            updateProgress(ramBarElements, 0);
+            updateProgress(cpuBarElements, 0);
+            updateProgress(diskBarElements, 0);
+            socket.close();
+            return;
+          }
+          if (event.data.includes('Container not found')) {
+            statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
+            statusElements.forEach(el => { el.className = 'text-orange-500'; el.textContent = 'Container not found!'; });
+            updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+            updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+            updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+            updateProgress(ramBarElements, 0);
+            updateProgress(cpuBarElements, 0);
+            updateProgress(diskBarElements, 0);
+            socket.close();
+            return;
+          }
+        }
+
+        try {
+          if (event.data && event.data.trim()) stats = JSON.parse(event.data);
+        } catch (e) {
+          console.error('JSON parse failed for', containerId);
+          return;
+        }
+
+        let realStats = stats;
+        if (stats && stats.event === 'stats' && Array.isArray(stats.args) && stats.args.length > 0) {
+          realStats = stats.args[0];
+          console.log('✅ Unwrapped real stats for', containerId);
+        }
+
+        if (!realStats || realStats.error) {
+          console.warn('Error or no stats for', containerId, realStats);
+          updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+          updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+          updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+          updateProgress(ramBarElements, 0);
+          updateProgress(cpuBarElements, 0);
+          updateProgress(diskBarElements, 0);
+          return;
+        }
+
+        // RAM
+        const ramUsageRaw = realStats.memory_stats?.usage || 0;
+        const ramLimitRaw = realStats.memory_stats?.limit || 1;
+        const ramUsage = formatBytes(ramUsageRaw);
+        const ramPercent = ramLimitRaw > 0 ? Math.min(100, (ramUsageRaw / ramLimitRaw) * 100) : 0;
+        updateAll(ramUsageElements, `${ramUsage} <%= req.translations.ramUsage %>`);
+        updateProgress(ramBarElements, ramPercent);
+
+        // CPU
+        const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage || 0) - (realStats.precpu_stats?.cpu_usage?.total_usage || 0);
+        const systemCpuDelta = (realStats.cpu_stats?.system_cpu_usage || 0) - (realStats.precpu_stats?.system_cpu_usage || 0);
+        const cpuPercent = (cpuDelta && systemCpuDelta) ? ((cpuDelta / systemCpuDelta) * 100) : 0;
+        updateAll(cpuUsageElements, `${cpuPercent.toFixed(2)}% <%= req.translations.cpuUsage %>`);
+        updateProgress(cpuBarElements, cpuPercent);
+
+        // Disk (volumeSize from your backend is in MiB)
+        const diskUsageRaw = realStats.volumeSize ? parseFloat(realStats.volumeSize) * 1024 * 1024 : 0;
+        const diskLimitRaw = realStats.diskLimit ? realStats.diskLimit * 1024 * 1024 : (diskUsageRaw + 1);
+        const diskUsage = formatBytes(diskUsageRaw);
+        const diskPercent = diskLimitRaw > 0 ? Math.min(100, (diskUsageRaw / diskLimitRaw) * 100) : 0;
+        updateAll(diskUsageElements, `${diskUsage} <%= req.translations.diskUsage || 'Disk Usage' %>`);
+        updateProgress(diskBarElements, diskPercent);
+
+        // Status
+        const isOffline = isNaN(ramUsageRaw) || ramUsageRaw === 0;
+        statusBgElements.forEach(bg => {
+          bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30', 'bg-yellow-600/10');
+          bg.classList.add(isOffline ? 'bg-red-700/30' : 'bg-emerald-600/10');
+        });
+        statusElements.forEach(el => {
+          el.className = isOffline ? 'text-red-500' : 'text-emerald-500';
+          el.textContent = isOffline ? 'Offline' : 'Online';
+        });
+      };
+
+      socket.onerror = () => console.error(`❌ WS error for ${containerId}`);
+      socket.onclose = () => console.warn(`⚠️ WS closed for ${containerId}`);
     });
   });
 </script>
-
-<%- include('components/footer') %>
