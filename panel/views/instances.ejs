@@ -360,6 +360,9 @@
       }
 
       socket.onmessage = event => {
+        // DEBUG: Open browser console (F12) and look for these lines to see what KS-Wings is actually sending
+        console.log('✅ Raw WS data received for instance', containerId, ':', event.data);
+
         let stats = null;
 
         // Handle plain-text error messages from KS-Wings
@@ -405,17 +408,21 @@
         try {
           if (event.data && event.data.trim()) stats = JSON.parse(event.data);
         } catch (e) {
+          console.error('JSON parse failed for instance', containerId);
           return;
         }
 
-        // === CRITICAL FIX: Unwrap the KS-Wings wrapper {event: "stats", args: [realDockerStats]} ===
-        // This is why RAM/CPU/Disk were stuck on "loading..." (data was nested)
+        // === CRITICAL UNWRAP (KS-Wings always sends {event: "stats", args: [realStats]}) ===
         let realStats = stats;
         if (stats && stats.event === 'stats' && Array.isArray(stats.args) && stats.args.length > 0) {
           realStats = stats.args[0];
+          console.log('✅ Unwrapped real Docker stats for instance', containerId, ':', realStats);
+        } else {
+          console.log('⚠️ No wrapper found, using raw stats for instance', containerId);
         }
 
         if (!realStats || realStats.error) {
+          console.warn('No valid stats or error for instance', containerId);
           updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
           updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
           updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
@@ -425,7 +432,7 @@
           return;
         }
 
-        // === RAM (fixed bytes + progress) ===
+        // === RAM (bytes, no /1024) + green bar ===
         const ramUsageRaw = realStats.memory_stats?.usage || 0;
         const ramLimitRaw = realStats.memory_stats?.limit || 1;
         const ramUsage = formatBytes(ramUsageRaw);
@@ -433,7 +440,7 @@
         updateAll(ramUsageElements, `${ramUsage} <%= req.translations.ramUsage %>`);
         updateProgress(ramBarElements, ramPercent);
 
-        // === CPU + progress ===
+        // === CPU + green bar ===
         const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage || 0) - (realStats.precpu_stats?.cpu_usage?.total_usage || 0);
         const systemCpuDelta = (realStats.cpu_stats?.system_cpu_usage || 0) - (realStats.precpu_stats?.system_cpu_usage || 0);
         const cpuPercent = (cpuDelta && systemCpuDelta) ? ((cpuDelta / systemCpuDelta) * 100) : 0;
@@ -441,7 +448,7 @@
         updateAll(cpuUsageElements, `${cpuUsagePercent} <%= req.translations.cpuUsage %>`);
         updateProgress(cpuBarElements, cpuPercent);
 
-        // === DISK (uses volumeSize from KS-Wings backend) + progress ===
+        // === DISK (volumeSize is in MiB from backend → convert to bytes) + green bar ===
         const diskUsageRaw = realStats.volumeSize ? parseFloat(realStats.volumeSize) * 1024 * 1024 : 0;
         const diskLimitRaw = realStats.diskLimit ? realStats.diskLimit * 1024 * 1024 : (diskUsageRaw + 1);
         const diskUsage = formatBytes(diskUsageRaw);
@@ -461,8 +468,8 @@
         });
       };
 
-      socket.onerror = () => console.error(`Stats WS error for ${containerId}`);
-      socket.onclose = () => console.warn(`Stats WS closed for ${containerId}`);
+      socket.onerror = () => console.error(`❌ Stats WS error for ${containerId}`);
+      socket.onclose = () => console.warn(`⚠️ Stats WS closed for ${containerId}`);
     });
   });
 </script>
