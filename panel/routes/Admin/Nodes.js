@@ -43,27 +43,40 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   let nodes = await checkMultipleNodesStatus(nodeIds);
 
   // ==================== FETCH NODE HOST RESOURCES (new resourceMonitor) ====================
-const nodesWithResources = await Promise.all(
-  nodes.map(async (node) => {
-    if (node.status !== "Online") {
-      node.resources = null;
-      return node;
-    }
+  const nodesWithResources = await Promise.all(
+    nodes.map(async (node) => {
+      if (node.status !== "Online") {
+        node.resources = null;
+        return node;
+      }
 
-    try {
-      // Call the new endpoint you added (no auth needed because it's mounted before basicAuth)
-      const response = await axios.get(
-        `http://${node.address}:${node.port}/resourceMonitor`,
-        { timeout: 4000 }
-      );
-      node.resources = response.data;
-    } catch (error) {
-      log.error(`Resource monitor failed for node ${node.id}: ${error.message}`);
-      node.resources = null;
-    }
-    return node;
-  })
-);
+      try {
+        // Smart URL: supports Cloudflare Tunnel (HTTPS, no port) + normal HTTP/HTTPS nodes
+        let monitorUrl;
+        if (node.useCloudflareTunnel && node.tunnelPublicHostname) {
+          monitorUrl = `https://${node.tunnelPublicHostname}/resourceMonitor`;
+        } else {
+          const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
+          monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
+        }
+
+        const response = await axios.get(monitorUrl, { timeout: 4000 });
+        node.resources = response.data;
+
+        // Auto-populate RAM/Disk for "auto" mode nodes (same logic as single-node route)
+        if (node.resourceMode === 'auto' && node.ram === 0 && response.data?.ram) {
+          node.ram = Math.round(parseFloat(response.data.ram.total));
+          node.disk = Math.round(parseFloat(response.data.disk.total));
+          await db.set(node.id + "_node", node);
+          invalidateNodeCache(node.id);
+        }
+      } catch (error) {
+        log.error(`Resource monitor failed for node ${node.id}: ${error.message}`);
+        node.resources = null;
+      }
+      return node;
+    })
+  );
   
   const locationIds = (await db.get("locations")) || [];
   const locations = [];
@@ -137,7 +150,7 @@ router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
 
   let set = { [id]: instanceCount };
 
-  res.render("/admin/nodes/stats", {
+  res.render("admin/nodes/stats", {   // ← FIXED: removed leading slash
     req,
     user: req.user,
     stats,
@@ -644,25 +657,29 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
 
   try {
     // Use connectionProtocol for protocol (http/https)
-    const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-    const targetAddress = node.useCloudflareTunnel && node.tunnelPublicHostname ? node.tunnelPublicHostname : node.address;
-    const response = await axios.get(
-      `${protocol}://${targetAddress}:${node.port}/resourceMonitor`,
-      {
-        auth: {
-          username: "kspanel",
-          password: node.apiKey,
-        },
-        timeout: 5000,
-        // If behind proxy or tunnel, add headers if needed
-        ...( (node.behindProxy || node.useCloudflareTunnel) && { headers: { 'X-Forwarded-Proto': protocol } }),
-      }
-    );
+    let monitorUrl;
+    if (node.useCloudflareTunnel && node.tunnelPublicHostname) {
+      monitorUrl = `https://${node.tunnelPublicHostname}/resourceMonitor`; // Tunnel = HTTPS + no port
+    } else {
+      const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
+      const targetAddress = node.address;
+      monitorUrl = `${protocol}://${targetAddress}:${node.port}/resourceMonitor`;
+    }
+
+    const response = await axios.get(monitorUrl, {
+      auth: {
+        username: "kspanel",
+        password: node.apiKey,
+      },
+      timeout: 5000,
+      // If behind proxy or tunnel, add headers if needed
+      ...( (node.behindProxy || node.useCloudflareTunnel) && { headers: { 'X-Forwarded-Proto': 'https' } }),
+    });
 
     // If resourceMode is auto and ram/disk are 0, update them with fetched values
-    if (node.resourceMode === 'auto' && node.ram === 0 && response.data) {
-      node.ram = Math.round(response.data.totalMemory / 1024); // Convert to GB assuming MB input
-      node.disk = Math.round(response.data.totalDisk / 1024); // Convert to GB assuming MB input
+    if (node.resourceMode === 'auto' && node.ram === 0 && response.data?.ram) {
+      node.ram = Math.round(parseFloat(response.data.ram.total));
+      node.disk = Math.round(parseFloat(response.data.disk.total));
       await db.set(id + "_node", node);
       invalidateNodeCache(id);
     }
