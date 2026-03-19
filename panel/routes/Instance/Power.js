@@ -1,5 +1,5 @@
 const express = require("express");
-const { db } = require("../../handlers/db.js"); // ← ADD THIS if missing
+const { db } = require("../../handlers/db.js"); // ← ADD THIS LINE
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
@@ -36,40 +36,50 @@ router.post("/instance/:id/power", async (req, res) => {
   const url = `${baseUrl}/${action}`;
 
   try {
-    // Build body object with exact property names Wings expects
-    let bodyPayload = {};
+    // Load template.json to get correct startup scripts
+    const fs = require('fs');
+    const path = require('path');
+    const templatePath = path.join(__dirname, '../../../database/instances', id, 'template.json');
+    
+    let templateData = {};
+    try {
+      if (fs.existsSync(templatePath)) {
+        templateData = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+      }
+    } catch (e) {
+      console.error("Failed to read template:", e);
+    }
+
+    let bodyData = {};
     
     if (action === "start" || action === "restart") {
-      // Wings expects: req.body.startCode
-      bodyPayload.startCode = instance.imageData?.Scripts || instance.imageData?.startup || "";
+      // Try multiple possible locations for startup command
+      const startupCmd = templateData.startup || 
+                        templateData.environment?.startup ||
+                        (templateData.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
+                        "";
+      bodyData.startCode = startupCmd;
     } else if (action === "stop") {
-      // Wings expects: req.body.command
-      bodyPayload.command = instance.StopCommand || "stop";
+      // Try multiple possible locations for stop command
+      const stopCmd = templateData.stop || 
+                     templateData.environment?.stop ||
+                     (templateData.actions?.find(a => a.id === "stop")?.operations?.find(op => op.type === "command")?.run_code) ||
+                     "stop";
+      bodyData.command = stopCmd;
     }
 
     const authString = Buffer.from(`kspanel:${instance.Node.apiKey}`).toString("base64");
 
-    // Explicitly set Content-Type and send JSON
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": `Basic ${authString}`,
+        Authorization: `Basic ${authString}`,
       },
-      body: JSON.stringify(bodyPayload),
+      body: JSON.stringify(bodyData),
     });
 
-    // Check if response is JSON before parsing
-    const contentType = response.headers.get("content-type");
-    let data = {};
-    
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      data = { message: text };
-    }
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new Error(data.message || `Node error (${response.status})`);
