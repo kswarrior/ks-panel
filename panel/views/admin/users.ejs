@@ -2,7 +2,7 @@
 <main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
 
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
     <div>
       <h1 class="text-lg font-semibold text-white">
         <%= req.translations.users %>
@@ -15,18 +15,15 @@
     <button
       id="createButton"
       type="button"
-      class="rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow transition"
+      class="rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow transition hover:scale-105 active:scale-95"
     >
       <%= req.translations.createUserButton %>
     </button>
   </div>
 
-
-  <!-- Table Wrapper -->
-  <div id="nodeTable" class="mt-6 w-full overflow-x-auto">
-
+  <!-- Desktop Table View (hidden on mobile, shown on lg+) -->
+  <div id="nodeTable" class="hidden lg:block w-full overflow-x-auto">
     <table class="min-w-full text-sm text-left text-white border-collapse">
-
       <!-- Table Head -->
       <thead class="border-b border-white/10 text-neutral-400">
         <tr>
@@ -53,13 +50,14 @@
 
       <!-- Table Body -->
       <tbody class="divide-y divide-white/5">
-
         <% users.forEach(function(user) { %>
         <tr class="hover:bg-white/5 transition">
-
           <!-- Name -->
           <td class="py-4 px-4">
             <div class="flex items-center gap-3 min-w-[180px]">
+              <div class="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs font-medium text-white">
+                <%= user.username.charAt(0).toUpperCase() %>
+              </div>
               <span class="truncate font-medium">
                 <%= user.username %>
               </span>
@@ -83,11 +81,17 @@
           <!-- Role -->
           <td class="py-4 px-4">
             <% if (user.admin==true) { %>
-              <span class="text-indigo-400 text-sm">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
                 <%= req.translations.admin %>
               </span>
             <% } else { %>
-              <span class="text-neutral-400 text-sm">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-700/30 text-neutral-400 border border-white/5">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                </svg>
                 <%= req.translations.regularUserRole %>
               </span>
             <% } %>
@@ -96,11 +100,17 @@
           <!-- Verification -->
           <td class="py-4 px-4">
             <% if (user.verified==true) { %>
-              <span class="text-green-500 text-sm">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
                 <%= req.translations.verifiedStatus %>
               </span>
             <% } else { %>
-              <span class="text-red-500 text-sm">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
                 <%= req.translations.unverifiedStatus %>
               </span>
             <% } %>
@@ -109,11 +119,10 @@
           <!-- Actions -->
           <td class="py-4 px-4">
             <div class="flex justify-end gap-2 min-w-[160px]">
-
               <a href="/admin/users/edit/<%= user.userId %>">
                 <button
                   type="button"
-                  class="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-medium shadow transition"
+                  class="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-medium shadow transition hover:bg-neutral-200"
                 >
                   <%= req.translations.edit %>
                 </button>
@@ -126,63 +135,171 @@
               >
                 <%= req.translations.remove %>
               </button>
-
             </div>
           </td>
-
         </tr>
         <% }); %>
-
       </tbody>
     </table>
   </div>
 
+  <!-- Mobile/Tablet Card Grid View (shown on mobile, hidden on lg+) -->
+  <div id="cardView" class="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+    <% users.forEach(function(user) { %>
+    <div class="group relative bg-neutral-800/40 border border-white/10 rounded-2xl p-5 hover:bg-neutral-800/60 transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-black/20">
+      
+      <!-- Card Header with Avatar and Actions -->
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-lg font-bold text-white shadow-inner">
+            <%= user.username.charAt(0).toUpperCase() %>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-white font-semibold truncate max-w-[120px] sm:max-w-[180px]">
+              <%= user.username %>
+            </h3>
+            <div class="flex items-center gap-2 mt-1">
+              <% if (user.verified==true) { %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <%= req.translations.verifiedStatus %>
+                </span>
+              <% } else { %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                  <%= req.translations.unverifiedStatus %>
+                </span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Actions Dropdown for Mobile -->
+        <div class="flex gap-1">
+          <a href="/admin/users/edit/<%= user.userId %>" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </a>
+          <button 
+            type="button" 
+            class="removeButton p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition"
+            data-user-id="<%= user.userId %>"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="space-y-3">
+        <!-- Email -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-900/30 border border-white/5">
+          <div class="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-medium"><%= req.translations.email %></p>
+            <p class="text-sm text-neutral-300 truncate"><%= user.email %></p>
+          </div>
+        </div>
+
+        <!-- User ID -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-900/30 border border-white/5">
+          <div class="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-medium"><%= req.translations.information %></p>
+            <p class="text-sm text-neutral-300 truncate font-mono"><%= user.userId %></p>
+          </div>
+        </div>
+
+        <!-- Role Badge -->
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-xs text-neutral-500"><%= req.translations.role %></span>
+          <% if (user.admin==true) { %>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <%= req.translations.admin %>
+            </span>
+          <% } else { %>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-700/30 text-neutral-400 border border-white/5">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+              </svg>
+              <%= req.translations.regularUserRole %>
+            </span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
 
   <!-- Create User Form -->
   <div id="nodeForm" class="mt-8 hidden">
-
-    <div class="max-w-2xl space-y-5">
-
-      <div>
-        <label class="block text-sm text-neutral-400 mb-2">
-          <%= req.translations.username %>
-        </label>
-        <input
-          id="userName"
-          type="text"
-          name="username"
-          class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none"
-          placeholder="kswarrior"
-        />
+    <div class="max-w-2xl space-y-5 bg-neutral-800/30 border border-white/10 rounded-2xl p-6 md:p-8">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white"><%= req.translations.createUserButton %></h2>
       </div>
 
-      <div>
-        <label class="block text-sm text-neutral-400 mb-2">
-          <%= req.translations.email %>
-        </label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none"
-          placeholder="kswarrior@ksmail.io"
-        />
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.username %>
+          </label>
+          <input
+            id="userName"
+            type="text"
+            name="username"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
+            placeholder="kswarrior"
+          />
+        </div>
 
-      <div>
-        <label class="block text-sm text-neutral-400 mb-2">
-          <%= req.translations.passwordLabel %>
-        </label>
-        <input
-          id="userPass"
-          type="password"
-          name="password"
-          class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none"
-          placeholder="kswarrior#123"
-        />
-      </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.email %>
+          </label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
+            placeholder="kswarrior@ksmail.io"
+          />
+        </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.passwordLabel %>
+          </label>
+          <input
+            id="userPass"
+            type="password"
+            name="password"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
+            placeholder="kswarrior#123"
+          />
+        </div>
 
         <div>
           <label class="block text-sm text-neutral-400 mb-2">
@@ -191,10 +308,10 @@
           <select
             id="userAdmin"
             name="admin"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition"
           >
             <option value="true"><%= req.translations.true %></option>
-            <option value="false"><%= req.translations.false %></option>
+            <option value="false" selected><%= req.translations.false %></option>
           </select>
         </div>
 
@@ -205,85 +322,133 @@
           <select
             id="userVerified"
             name="verified"
-            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2 text-sm text-white focus:outline-none"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition"
           >
             <option value="true"><%= req.translations.true %></option>
-            <option value="false"><%= req.translations.false %></option>
+            <option value="false" selected><%= req.translations.false %></option>
           </select>
         </div>
-
       </div>
 
-      <button
-        id="createNodeBtn"
-        type="button"
-        class="rounded-xl bg-white text-black px-5 py-2 text-sm font-medium shadow transition"
-      >
-        <%= req.translations.create %>
-      </button>
-
+      <div class="flex flex-col sm:flex-row gap-3 pt-4">
+        <button
+          id="createNodeBtn"
+          type="button"
+          class="flex-1 rounded-xl bg-white text-black px-5 py-2.5 text-sm font-medium shadow transition hover:bg-neutral-200 active:scale-95"
+        >
+          <%= req.translations.create %>
+        </button>
+        <button
+          id="cancelButton"
+          type="button"
+          class="flex-1 sm:flex-initial rounded-xl bg-neutral-800 text-white border border-white/10 px-5 py-2.5 text-sm font-medium transition hover:bg-neutral-700"
+        >
+          <%= req.translations.cancel || 'Cancel' %>
+        </button>
+      </div>
     </div>
   </div>
 
 </main>
+
 <script>
-  document
-    .getElementById("createButton")
-    .addEventListener("click", function () {
-      var table = document.getElementById("nodeTable");
-      var form = document.getElementById("nodeForm");
-      if (table.style.display !== "none") {
-        table.style.display = "none";
-        form.style.display = "block";
+  // Toggle between table and form
+  document.getElementById("createButton").addEventListener("click", function () {
+    var table = document.getElementById("nodeTable");
+    var cardView = document.getElementById("cardView");
+    var form = document.getElementById("nodeForm");
+    
+    if (form.classList.contains("hidden")) {
+      table.classList.add("hidden");
+      cardView.classList.add("hidden");
+      form.classList.remove("hidden");
+    } else {
+      form.classList.add("hidden");
+      // Show appropriate view based on screen size
+      if (window.innerWidth >= 1024) {
+        table.classList.remove("hidden");
       } else {
-        table.style.display = "block";
-        form.style.display = "none";
+        cardView.classList.remove("hidden");
       }
-    });
+    }
+  });
+
+  // Cancel button handler
+  document.getElementById("cancelButton").addEventListener("click", function () {
+    var table = document.getElementById("nodeTable");
+    var cardView = document.getElementById("cardView");
+    var form = document.getElementById("nodeForm");
+    
+    form.classList.add("hidden");
+    if (window.innerWidth >= 1024) {
+      table.classList.remove("hidden");
+    } else {
+      cardView.classList.remove("hidden");
+    }
+  });
+
+  // Handle window resize to toggle between views
+  window.addEventListener("resize", function() {
+    var table = document.getElementById("nodeTable");
+    var cardView = document.getElementById("cardView");
+    var form = document.getElementById("nodeForm");
+    
+    if (!form.classList.contains("hidden")) return;
+    
+    if (window.innerWidth >= 1024) {
+      table.classList.remove("hidden");
+      cardView.classList.add("hidden");
+    } else {
+      table.classList.add("hidden");
+      cardView.classList.remove("hidden");
+    }
+  });
 </script>
+
 <script>
-  document
-    .getElementById("createNodeBtn")
-    .addEventListener("click", function () {
-      const username = document.getElementById("userName").value;
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("userPass").value;
-      const adminString = document.getElementById("userAdmin").value;
-      const admin = adminString === "true";
+  document.getElementById("createNodeBtn").addEventListener("click", function () {
+    const username = document.getElementById("userName").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("userPass").value;
+    const adminString = document.getElementById("userAdmin").value;
+    const admin = adminString === "true";
+    const verifiedString = document.getElementById("userVerified").value;
+    const verified = verifiedString === "true";
 
-      const nodeData = {
-        username,
-        email,
-        password,
-        admin,
-        verified: false,
-      };
+    const nodeData = {
+      username,
+      email,
+      password,
+      admin,
+      verified,
+    };
 
-      console.log(nodeData);
+    console.log(nodeData);
 
-      fetch("/users/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(nodeData),
+    fetch("/users/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nodeData),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error("Failed to create user");
       })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          }
-          throw new Error("Failed to create user");
-        })
-        .then((data) => {
-          console.log("user created:", data);
-          alert('<%= req.translations.userCreatedSuccess %>');
-          window.location.reload();
-        })
-        .catch((error) =>
-          alert('<%= req.translations.userCreateError %>: ' + error.message)
-        );
-    });
+      .then((data) => {
+        console.log("user created:", data);
+        alert('<%= req.translations.userCreatedSuccess %>');
+        window.location.reload();
+      })
+      .catch((error) =>
+        alert('<%= req.translations.userCreateError %>: ' + error.message)
+      );
+  });
 </script>
+
 <!-- remove -->
 <script>
   document.querySelectorAll('.removeButton').forEach(button => {
