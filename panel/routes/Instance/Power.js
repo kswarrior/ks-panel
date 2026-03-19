@@ -1,5 +1,5 @@
 const express = require("express");
-const { db } = require("../../handlers/db.js"); // ← FIXED: Added missing import
+const { db } = require("../../handlers/db.js");
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
@@ -45,24 +45,23 @@ router.post("/instance/:id/power", async (req, res) => {
       const templatePath = path.join(__dirname, '../../../database/instances', id, 'template.json');
       
       let startupCmd = "";
-try {
-  if (fs.existsSync(templatePath)) {
-    const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-    
-    // ← UPDATED & MORE ROBUST
-    startupCmd = template.startup ||
-                template.environment?.startup ||
-                template.environment?.start_code ||     // ← ADD THIS LINE
-                (template.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
-                "";
-  }
-} catch (e) {
-  console.error("Failed to read template for startup:", e);
-}
+      try {
+        if (fs.existsSync(templatePath)) {
+          const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+          
+          // FIXED: Now correctly reads your Paper template
+          startupCmd = template.startup ||
+                      template.environment?.startup ||
+                      template.environment?.start_code ||   // ← THIS LINE WAS MISSING
+                      (template.actions?.find(a => a.id === "start")?.operations?.find(op => op.type === "command")?.run_code) ||
+                      "";
+        }
+      } catch (e) {
+        console.error("Failed to read template for startup:", e);
+      }
       
       bodyData.startCode = startupCmd;
-    } 
-    // For stop: send empty body, Wings will just do container.stop()
+    }
 
     const authString = Buffer.from(`kspanel:${instance.Node.apiKey}`).toString("base64");
 
