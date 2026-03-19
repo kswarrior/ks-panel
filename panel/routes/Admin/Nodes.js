@@ -42,6 +42,29 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
 
   let nodes = await checkMultipleNodesStatus(nodeIds);
 
+  // ==================== FETCH NODE HOST RESOURCES (new resourceMonitor) ====================
+const nodesWithResources = await Promise.all(
+  nodes.map(async (node) => {
+    if (node.status !== "Online") {
+      node.resources = null;
+      return node;
+    }
+
+    try {
+      // Call the new endpoint you added (no auth needed because it's mounted before basicAuth)
+      const response = await axios.get(
+        `http://${node.address}:${node.port}/resourceMonitor`,
+        { timeout: 4000 }
+      );
+      node.resources = response.data;
+    } catch (error) {
+      log.error(`Resource monitor failed for node ${node.id}: ${error.message}`);
+      node.resources = null;
+    }
+    return node;
+  })
+);
+  
   const locationIds = (await db.get("locations")) || [];
   const locations = [];
   for (const locId of locationIds) {
@@ -50,13 +73,13 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   }
 
   res.render("admin/nodes/overview", {
-    req,
-    user: req.user,
-    nodes,
-    set,
-    pagination: nodesResult.pagination,
-    locations,
-  });
+  req,
+  user: req.user,
+  nodes: nodesWithResources,   // ← use this instead of nodes
+  set,
+  pagination: nodesResult.pagination,
+  locations,
+});
 });
 
 // ==================== NEW: CREATE NODE PAGE (create.ejs) ====================
