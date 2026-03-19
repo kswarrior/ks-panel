@@ -764,7 +764,6 @@
                     const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
                     if (res.status === 200) {
                         btn.innerHTML = `<span class="text-emerald-400">✓ ${action.charAt(0).toUpperCase() + action.slice(1)} sent!</span>`;
-                        setTimeout(() => location.reload(), 1200);
                     } else {
                         throw new Error(res.data?.message || 'Unknown error');
                     }
