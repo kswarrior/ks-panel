@@ -1,4 +1,5 @@
 const express = require("express");
+const { db } = require("../../handlers/db.js"); // ← ADD THIS if missing
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
@@ -35,25 +36,40 @@ router.post("/instance/:id/power", async (req, res) => {
   const url = `${baseUrl}/${action}`;
 
   try {
-    let bodyData = {};
+    // Build body object with exact property names Wings expects
+    let bodyPayload = {};
+    
     if (action === "start" || action === "restart") {
-      bodyData.startCode = instance.imageData?.Scripts || "";
+      // Wings expects: req.body.startCode
+      bodyPayload.startCode = instance.imageData?.Scripts || instance.imageData?.startup || "";
     } else if (action === "stop") {
-      bodyData.command = instance.StopCommand || "stop";
+      // Wings expects: req.body.command
+      bodyPayload.command = instance.StopCommand || "stop";
     }
 
     const authString = Buffer.from(`kspanel:${instance.Node.apiKey}`).toString("base64");
 
+    // Explicitly set Content-Type and send JSON
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${authString}`,
+        "Accept": "application/json",
+        "Authorization": `Basic ${authString}`,
       },
-      body: JSON.stringify(bodyData),
+      body: JSON.stringify(bodyPayload),
     });
 
-    const data = await response.json().catch(() => ({}));
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get("content-type");
+    let data = {};
+    
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { message: text };
+    }
 
     if (!response.ok) {
       throw new Error(data.message || `Node error (${response.status})`);
