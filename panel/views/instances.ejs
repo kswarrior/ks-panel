@@ -82,11 +82,12 @@
       <!-- Mobile Card View / Desktop Table -->
       <div class="instances-container">
         <!-- Desktop Table Header (Hidden on Mobile) -->
-        <div class="hidden md:grid grid-cols-4 gap-4 px-6 py-3 bg-white/5 rounded-t-lg border-b border-white/10">
+        <div class="hidden md:grid grid-cols-5 gap-4 px-6 py-3 bg-white/5 rounded-t-lg border-b border-white/10">
           <div class="text-sm font-semibold text-white">Instance</div>
           <div class="text-sm font-semibold text-white">Status</div>
           <div class="text-sm font-semibold text-white">RAM Usage</div>
           <div class="text-sm font-semibold text-white">CPU Usage</div>
+          <div class="text-sm font-semibold text-white">Disk Usage</div>
         </div>
         
         <!-- Cards Container -->
@@ -119,7 +120,7 @@
                 </div>
                 
                 <!-- Card Stats Grid -->
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-4 gap-3">
                   <!-- Status -->
                   <div class="bg-white/5 rounded-lg p-3 border border-white/5">
                     <div class="text-xs text-neutral-400 mb-1">Status</div>
@@ -144,6 +145,9 @@
                       </svg>
                       <%= req.translations.loading %>
                     </span>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div data-ram-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
                   </div>
                   
                   <!-- CPU -->
@@ -156,12 +160,30 @@
                       </svg>
                       <%= req.translations.loading %>
                     </span>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div data-cpu-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                  </div>
+
+                  <!-- Disk -->
+                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <div class="text-xs text-neutral-400 mb-1">Disk Usage</div>
+                    <span data-disk-usage class="text-sm font-medium text-white">
+                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <%= req.translations.loading %>
+                    </span>
+                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div data-disk-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Desktop Table Row (Hidden on Mobile) -->
-              <div class="hidden md:grid grid-cols-4 gap-4 px-6 py-4 bg-white/5 border-b border-white/5 hover:bg-white/[0.05] transition-colors items-center">
+              <div class="hidden md:grid grid-cols-5 gap-4 px-6 py-4 bg-white/5 border-b border-white/5 hover:bg-white/[0.05] transition-colors items-center">
                 <!-- Instance Name -->
                 <div class="flex items-center">
                   <div class="rounded-xl bg-white/5 p-2 mr-3">
@@ -194,6 +216,9 @@
                     </svg>
                     <%= req.translations.loading %>
                   </span>
+                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                    <div data-ram-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
                 </div>
                 
                 <!-- CPU -->
@@ -205,6 +230,23 @@
                     </svg>
                     <%= req.translations.loading %>
                   </span>
+                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                    <div data-cpu-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <!-- Disk -->
+                <div class="text-sm text-neutral-400">
+                  <span data-disk-usage>
+                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <%= req.translations.loading %>
+                  </span>
+                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                    <div data-disk-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -280,10 +322,15 @@
       const wsPort = isSecure ? '' : `:<%= config.port %>`;
       const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
 
-      const statusElement = instance.querySelector('[data-status]');
-      const statusBg = instance.querySelector('[data-status-bg]');
-      const ramUsageElement = instance.querySelector('[data-ram-usage]');
-      const cpuUsageElement = instance.querySelector('[data-cpu-usage]');
+      // Query ALL elements (mobile + desktop) so both views update
+      const statusElements = instance.querySelectorAll('[data-status]');
+      const statusBgElements = instance.querySelectorAll('[data-status-bg]');
+      const ramUsageElements = instance.querySelectorAll('[data-ram-usage]');
+      const cpuUsageElements = instance.querySelectorAll('[data-cpu-usage]');
+      const diskUsageElements = instance.querySelectorAll('[data-disk-usage]');
+      const ramBarElements = instance.querySelectorAll('[data-ram-bar]');
+      const cpuBarElements = instance.querySelectorAll('[data-cpu-bar]');
+      const diskBarElements = instance.querySelectorAll('[data-disk-bar]');
 
       function formatBytes(bytes, decimals = 2) {
         if (bytes === 0) return '0.00 B';
@@ -294,75 +341,121 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
       }
 
-      function isValidJson(str) {
-            try {
-              JSON.parse(str);
-            } catch (e) {
-              return false;
-            }
-            return true;
-        }
+      function updateAll(elements, value) {
+        elements.forEach(el => el.textContent = value);
+      }
+
+      function updateProgress(bars, percent) {
+        bars.forEach(bar => {
+          bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+        });
+      }
 
       socket.onmessage = event => {
-        let stats;
+        let stats = null;
 
-        try {
-          if (isValidJson(event.data)) stats = JSON.parse(event.data);
-        } catch (e) {
+        // Handle plain-text error messages from KS-Wings
+        if (typeof event.data === 'string') {
           if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
-            statusBg.classList.remove('bg-neutral-600/20');
-            statusBg.classList.add('bg-yellow-600/10');
-            statusElement.className = 'text-orange-500';
-            statusElement.textContent = 'KS Wings is Offline!';
+            statusBgElements.forEach(bg => {
+              bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30');
+              bg.classList.add('bg-yellow-600/10');
+            });
+            statusElements.forEach(el => {
+              el.className = 'text-orange-500';
+              el.textContent = 'KS Wings is Offline!';
+            });
+            updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+            updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+            updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+            updateProgress(ramBarElements, 0);
+            updateProgress(cpuBarElements, 0);
+            updateProgress(diskBarElements, 0);
             socket.close();
             return;
-          } else if (event.data.includes('Container not found')) {
-            statusBg.classList.remove('bg-neutral-600/20');
-            statusBg.classList.add('bg-yellow-600/10');
-            statusElement.className = 'text-orange-500';
-            statusElement.textContent = 'Container not found!';
+          }
+          if (event.data.includes('Container not found')) {
+            statusBgElements.forEach(bg => {
+              bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30');
+              bg.classList.add('bg-yellow-600/10');
+            });
+            statusElements.forEach(el => {
+              el.className = 'text-orange-500';
+              el.textContent = 'Container not found!';
+            });
+            updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+            updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+            updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+            updateProgress(ramBarElements, 0);
+            updateProgress(cpuBarElements, 0);
+            updateProgress(diskBarElements, 0);
             socket.close();
-            return null;
+            return;
           }
         }
 
-        if (stats && stats.error) {
-          console.error('Error fetching stats:', stats.error);
+        try {
+          if (event.data && event.data.trim()) stats = JSON.parse(event.data);
+        } catch (e) {
+          // Not JSON and not a special error string
           return;
         }
 
         if (!stats || stats.error) {
-          ramUsageElement.textContent = '0 B <%= req.translations.ramUsage %>';
-          cpuUsageElement.textContent = '0% <%= req.translations.cpuUsage %>';
+          updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
+          updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
+          updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+          updateProgress(ramBarElements, 0);
+          updateProgress(cpuBarElements, 0);
+          updateProgress(diskBarElements, 0);
           return;
         }
 
-        const ramUsageRaw = stats.memory_stats.usage / 1024;
-        const ramUsage = isNaN(ramUsageRaw) ? '0 B' : formatBytes(ramUsageRaw);
-        const ramLimitRaw = stats.memory_stats.limit / 1024;
-        const ramLimit = isNaN(ramLimitRaw) ? '0 B' : formatBytes(ramLimitRaw);
-        ramUsageElement.textContent = ramUsage + ' <%= req.translations.ramUsage %>';
+        // === RAM (fixed: bytes, no /1024) + progress bar ===
+        const ramUsageRaw = stats.memory_stats?.usage || 0;
+        const ramLimitRaw = stats.memory_stats?.limit || 1;
+        const ramUsage = formatBytes(ramUsageRaw);
+        const ramPercent = ramLimitRaw > 0 ? Math.min(100, (ramUsageRaw / ramLimitRaw) * 100) : 0;
+        updateAll(ramUsageElements, `${ramUsage} <%= req.translations.ramUsage %>`);
+        updateProgress(ramBarElements, ramPercent);
 
-        if (isNaN(ramUsageRaw)) {
-          statusElement.className = 'text-neutral-500';
-          statusBg.classList.remove('bg-neutral-600/20');
-          statusBg.classList.add('bg-red-700/30');
-          statusElement.classList.add('text-red-500');
-          statusElement.textContent = 'Offline';
-        } else if (ramUsageRaw > 1) {
-          statusBg.classList.remove('bg-neutral-600/20');
-          statusBg.classList.add('bg-emerald-600/10');
-          statusElement.className = 'text-emerald-500';
-          statusElement.textContent = 'Online';
-        }
+        // === CPU + progress bar ===
+        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage || 0) - (stats.precpu_stats?.cpu_usage?.total_usage || 0);
+        const systemCpuDelta = (stats.cpu_stats?.system_cpu_usage || 0) - (stats.precpu_stats?.system_cpu_usage || 0);
+        const cpuPercent = (cpuDelta && systemCpuDelta)
+          ? ((cpuDelta / systemCpuDelta) * 100)
+          : 0;
+        const cpuUsagePercent = cpuPercent.toFixed(2) + '%';
+        updateAll(cpuUsageElements, `${cpuUsagePercent} <%= req.translations.cpuUsage %>`);
+        updateProgress(cpuBarElements, cpuPercent);
 
-        const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
-        const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-        const cpuUsagePercent = (cpuDelta && systemCpuDelta && !isNaN(cpuDelta) && !isNaN(systemCpuDelta))
-          ? ((cpuDelta / systemCpuDelta) * 100).toFixed(2) + '%'
-          : '0%';
-        cpuUsageElement.textContent = cpuUsagePercent + ' <%= req.translations.cpuUsage %>';
+        // === DISK (new) + progress bar ===
+        const diskUsageRaw = stats.disk_stats?.usage || 0;
+        const diskLimitRaw = stats.disk_stats?.limit || (diskUsageRaw + 1);
+        const diskUsage = formatBytes(diskUsageRaw);
+        const diskPercent = diskLimitRaw > 0 ? Math.min(100, (diskUsageRaw / diskLimitRaw) * 100) : 0;
+        updateAll(diskUsageElements, `${diskUsage} <%= req.translations.diskUsage || 'Disk Usage' %>`);
+        updateProgress(diskBarElements, diskPercent);
+
+        // === Status (Online / Offline) - updates BOTH mobile & desktop ===
+        const isOffline = isNaN(ramUsageRaw) || ramUsageRaw === 0;
+        statusBgElements.forEach(bg => {
+          bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30', 'bg-yellow-600/10');
+          if (isOffline) {
+            bg.classList.add('bg-red-700/30');
+          } else {
+            bg.classList.add('bg-emerald-600/10');
+          }
+        });
+        statusElements.forEach(el => {
+          el.className = isOffline ? 'text-red-500' : 'text-emerald-500';
+          el.textContent = isOffline ? 'Offline' : 'Online';
+        });
       };
+
+      // Optional debug
+      socket.onerror = () => console.error(`Stats WS error for ${containerId}`);
+      socket.onclose = () => console.warn(`Stats WS closed for ${containerId}`);
     });
   });
 </script>
