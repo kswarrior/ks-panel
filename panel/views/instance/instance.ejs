@@ -1,971 +1,489 @@
 <%- include('../components/template') %>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"
-    integrity="sha512-2PRgAav8Os8vLcOAh1gSaDoNLe1fAyq8/G3QSdyjFFD+OqNjLeHE/8q4+S4MEZgPsuo+itHopj+hJvqS8XUQ8A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css"
-    integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/attach/attach.min.js"
-    integrity="sha512-43J76SR5UijcuJTzs73z8NpkyWon8a8EoV+dX6obqXW7O26Yb268H2vP6EiJjD7sWXqxS3G/YOqPyyLF9fmqgA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"
-    integrity="sha512-+wh8VA1djpW3Dj9/IJDu6Ufi4vVQ0zxLv9Vmfo70AbmYFJm0z3NLnV98vdRKBdPDV4Kwpi7EZdr8mDY9L8JIA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-<style>
-    canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
 
-    .xterm-viewport {
-        overflow-y: hidden !important;
-    }
-
-    /* Custom scrollbar for terminal */
-    .xterm .xterm-viewport::-webkit-scrollbar {
-        width: 8px;
-    }
-    .xterm .xterm-viewport::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.05);
-    }
-    .xterm .xterm-viewport::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 4px;
-    }
-
-    /* ===== OPTIMIZED RESPONSIVE TERMINAL SIZING ===== */
-    #terminal {
-        width: 100%;
-        height: 250px;
-    }
-
-    @media (min-width: 640px) {
-        #terminal {
-            height: 350px;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        #terminal {
-            height: 450px;
-        }
-    }
-
-    @media (min-width: 1280px) {
-        #terminal {
-            height: 500px;
-        }
-    }
-
-    .xterm-rows {
-        font-size: 10px !important;
-    }
-
-    @media (min-width: 640px) {
-        .xterm-rows {
-            font-size: 11px !important;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .xterm-rows {
-            font-size: 12px !important;
-        }
-    }
-
-    /* ===== OPTIMIZED STATS CARDS ===== */
-    .stats-card {
-        height: clamp(70px, 12vh, 90px);
-        position: relative;
-        overflow: hidden;
-    }
-
-    @media (min-width: 640px) {
-        .stats-card {
-            height: clamp(80px, 14vh, 100px);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .stats-card {
-            height: clamp(90px, 16vh, 110px);
-        }
-    }
-
-    /* ===== EULA MODAL RESPONSIVE ===== */
-    .eula-modal {
-        width: min(92%, 500px);
-        max-height: 85vh;
-        overflow-y: auto;
-        margin: 1rem;
-    }
-
-    /* ===== ACTION BUTTONS RESPONSIVE ===== */
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        border-radius: 0.75rem;
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    @media (max-width: 639px) {
-        .action-btn {
-            flex: 1;
-            min-width: 0;
-            padding: 0.625rem 0.5rem;
-            font-size: 0.75rem;
-            gap: 0.25rem;
-        }
-        
-        .action-btn svg {
-            width: 1rem;
-            height: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .action-btn span {
-            font-size: 0.75rem;
-        }
-    }
-
-    @media (min-width: 640px) and (max-width: 1023px) {
-        .action-btn {
-            padding: 0.625rem 1.25rem;
-        }
-    }
-
-    /* ===== INFO GRID RESPONSIVE ===== */
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-
-    @media (min-width: 640px) {
-        .info-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .info-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
-        }
-    }
-
-    /* ===== MAIN LAYOUT RESPONSIVE ===== */
-    .main-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    @media (min-width: 1024px) {
-        .main-layout {
-            flex-direction: row;
-            gap: 1.5rem;
-        }
-        
-        .console-section {
-            flex: 1;
-            min-width: 0;
-            width: 65%;
-        }
-        
-        .stats-section {
-            width: 35%;
-            min-width: 280px;
-            max-width: 380px;
-        }
-    }
-
-    @media (min-width: 1280px) {
-        .console-section {
-            width: 70%;
-        }
-        
-        .stats-section {
-            width: 30%;
-            max-width: 400px;
-        }
-    }
-
-    /* ===== TEXT UTILITIES ===== */
-    .truncate-address {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 100%;
-        display: block;
-    }
-
-    /* ===== HEADER RESPONSIVE ===== */
-    .page-header {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    @media (min-width: 640px) {
-        .page-header {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 1.5rem;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .page-header {
-            padding: 1.5rem 2rem;
-        }
-    }
-
-    /* ===== BUTTONS CONTAINER ===== */
-    .actions-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        width: 100%;
-    }
-
-    @media (min-width: 640px) {
-        .actions-container {
-            width: auto;
-            flex-wrap: nowrap;
-            gap: 0.75rem;
-        }
-    }
-
-    /* ===== STATS GRID MOBILE OPTIMIZATION ===== */
-    @media (max-width: 639px) {
-        .stats-grid-mobile {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-        
-        .stats-grid-mobile .stats-card {
-            height: 80px;
-        }
-    }
-
-    @media (min-width: 640px) and (max-width: 1023px) {
-        .stats-grid-mobile {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-    }
-
-    /* ===== TOUCH FRIENDLY IMPROVEMENTS ===== */
-    @media (hover: none) and (pointer: coarse) {
-        .action-btn {
-            min-height: 44px;
-        }
-        
-        .action-btn:active {
-            transform: scale(0.96);
-        }
-        
-        #input {
-            min-height: 48px;
-            font-size: 16px; /* Prevents zoom on iOS */
-        }
-    }
-
-    /* ===== SMOOTH TRANSITIONS ===== */
-    .stats-card, .action-btn, .info-grid > div {
-        transition: all 0.3s ease;
-    }
-
-    /* ===== FOCUS STATES ===== */
-    #input:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-    }
-
-    /* ===== NOTIFICATION RESPONSIVE ===== */
-    @media (max-width: 639px) {
-        #notification {
-            left: 1rem;
-            right: 1rem;
-            bottom: 1rem;
-        }
-    }
-</style>
-<main class="overflow-hidden min-h-screen bg-transparent" id="content">
-    <% if (false) { %>
-        <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
-            <div class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-4">
-                <div class="bg-white/5 backdrop-blur-xl py-6 sm:py-8 px-4 sm:px-8 rounded-2xl shadow-2xl border border-white/10 eula-modal">
-                    <p class="text-white text-lg sm:text-xl font-semibold mb-2">Do you accept Minecraft's EULA?</p>
-                    <p class="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">By pressing this button you agree to the <a class="text-white hover:underline font-medium" href="https://account.mojang.com/documents/minecraft_eula" target="_blank">Mojang EULA</a>.</p>
-                    <button 
-                    onclick="axios.post('/instance/<%= req.params.id %>/imagefeatures/eula')
-                        .then(response => {
-                            if (response.status === 200) {
-                                location.reload();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('There was an error!', error);
-                        });" 
-                    class="w-full sm:w-auto bg-white text-sm font-semibold text-gray-900 px-8 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200 active:scale-95 shadow-lg">
-                    I agree
-                    </button>
-                </div>
-            </div>
-        <% } %>
-    <% } %>
-    
-    <div class="bg-transparent">
-        <div class="page-header">
-            <div class="flex-1 min-w-0">
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-semibold text-white tracking-tight truncate"><%= req.translations.manageInstance %></h1>
-                <p class="mt-1.5 text-sm text-neutral-400 line-clamp-2 max-w-2xl"><%= req.translations.manageInstanceText %></p>
-            </div>
-            <div class="actions-container">
-                <!-- Start Button -->
-                <button id="startButton" type="button"
-                    class="action-btn bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                        class="w-4 h-4 text-emerald-100">
-                        <path fill-rule="evenodd"
-                            d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <span class="hidden sm:inline"><%= req.translations.start %></span>
-                    <span class="sm:hidden">Start</span>
-                </button>
-
-                <!-- Restart Button -->
-                <button id="restartButton" type="button"
-                    class="action-btn bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                        class="w-4 h-4 text-blue-100">
-                        <path fill-rule="evenodd"
-                            d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <span class="hidden sm:inline"><%= req.translations.restart %></span>
-                    <span class="sm:hidden">Restart</span>
-                </button>
-
-                <!-- Stop Button -->
-                <button id="stopButton" type="button"
-                    class="action-btn bg-red-600 hover:bg-red-500 text-white shadow-red-900/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                        class="w-4 h-4 text-red-100">
-                        <path fill-rule="evenodd"
-                            d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <span class="hidden sm:inline"><%= req.translations.stop %></span>
-                    <span class="sm:hidden">Stop</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <%- include('../components/instance') %>
-    
-    <!-- Info Cards Grid -->
-    <div class="mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
-        <dl class="info-grid">
-            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
-                <div class="flex-grow min-w-0">
-                    <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.address %></dt>
-                    <dd class="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-white">
-                        <span class="truncate-address">
-                            <%= instance.Node.address %><span class="text-neutral-500">:<%= instance.Primary %></span>
-                        </span>
-                    </dd>
-                </div>
-                <div class="ml-3 sm:ml-4 shadow-lg border border-white/10 rounded-xl p-2.5 flex-shrink-0 bg-white/5 group-hover:bg-white/10 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
-                </div>
-            </div>
-            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
-                <div class="flex-grow min-w-0">
-                    <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.image %></dt>
-                    <dd class="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-white truncate">
-                        <%= instance.Image %>
-                    </dd>
-                </div>
-                <div class="ml-3 sm:ml-4 shadow-lg border border-white/10 rounded-xl p-2.5 flex-shrink-0 bg-white/5 group-hover:bg-white/10 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63ZM84,96A12,12,0,1,1,96,84,12,12,0,0,1,84,96Z"/></svg>
-                </div>
-            </div>
-            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
-                <div class="flex-grow min-w-0">
-                    <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.node %></dt>
-                    <dd class="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-white">
-                        <span class="truncate block"><%= instance.Node.name %></span>
-                        <span class="text-neutral-500 text-xs sm:text-sm truncate block font-normal">(<%= instance.Node.address %>)</span>
-                    </dd>
-                </div>
-                <div class="ml-3 sm:ml-4 shadow-lg border border-white/10 rounded-xl p-2.5 flex-shrink-0 bg-white/5 group-hover:bg-white/10 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M208,40H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM180,92a12,12,0,1,1,12-12A12,12,0,0,1,180,92Z"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm-28,52a12,12,0,1,1,12-12A12,12,0,0,1,180,188Z"/></svg>
-                </div>
-            </div>
-            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-4 sm:py-5 shadow-lg border border-white/5 hover:border-white/10 transition-colors flex items-center group">
-                <div class="flex-grow min-w-0">
-                    <dt class="text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.identifier %></dt>
-                    <dd class="mt-1.5 text-sm sm:text-base font-semibold tracking-tight text-white font-mono truncate">
-                        <%= req.params.id %>
-                    </dd>
-                </div>
-                <div class="ml-3 sm:ml-4 shadow-lg border border-white/10 rounded-xl p-2.5 flex-shrink-0 bg-white/5 group-hover:bg-white/10 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 sm:h-6 sm:w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M116.25,112h31.5l-8,32h-31.5ZM224,48V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48Zm-16,56a8,8,0,0,0-8-8H168.25l7.51-30.06a8,8,0,0,0-15.52-3.88L151.75,96h-31.5l7.51-30.06a8,8,0,0,0-15.52-3.88L103.75,96H64a8,8,0,0,0,0,16H99.75l-8,32H56a8,8,0,0,0,0,16H87.75l-7.51,30.06a8,8,0,0,0,5.82,9.7,8.13,8.13,0,0,0,2,.24,8,8,0,0,0,7.75-6.06L104.25,160h31.5l-7.51,30.06a8,8,0,0,0,5.82,9.7A8.13,8.13,0,0,0,136,200a8,8,0,0,0,7.75-6.06L152.25,160H192a8,8,0,0,0,0-16H156.25l8-32H200A8,8,0,0,0,208,104Z"/></svg>
-                </div>
-            </div>
-        </dl>
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-lg font-semibold text-white">
+        <%= req.translations.users %>
+      </h1>
+      <p class="mt-1 text-sm text-neutral-400">
+        <%= req.translations.usersDescription %>
+      </p>
     </div>
 
-    <!-- Daemon Down Alert -->
-    <div class="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-4 sm:py-5 mt-4 sm:mt-6 mx-4 sm:mx-6 lg:mx-8 hidden backdrop-blur-sm" id="daemonIsDown">
-        <div class="flex items-start gap-3 sm:gap-4">
-            <div class="flex-shrink-0">
-                <svg class="animate-spin h-5 w-5 text-red-400 mt-0.5" xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
+    <button
+      id="createButton"
+      type="button"
+      class="rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow transition hover:scale-105 active:scale-95"
+    >
+      <%= req.translations.createUserButton %>
+    </button>
+  </div>
+
+  <!-- Desktop Table View (hidden on mobile, shown on lg+) -->
+  <div id="nodeTable" class="hidden lg:block w-full overflow-x-auto">
+    <table class="min-w-full text-sm text-left text-white border-collapse">
+      <!-- Table Head -->
+      <thead class="border-b border-white/10 text-neutral-400">
+        <tr>
+          <th class="py-3 px-4 font-medium">
+            <%= req.translations.name %>
+          </th>
+          <th class="py-3 px-4 font-medium">
+            <%= req.translations.email %>
+          </th>
+          <th class="py-3 px-4 font-medium">
+            <%= req.translations.information %>
+          </th>
+          <th class="py-3 px-4 font-medium">
+            <%= req.translations.role %>
+          </th>
+          <th class="py-3 px-4 font-medium">
+            <%= req.translations.verificationStatus %>
+          </th>
+          <th class="py-3 px-4 font-medium text-right">
+            <%= req.translations.actions %>
+          </th>
+        </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody class="divide-y divide-white/5">
+        <% users.forEach(function(user) { %>
+        <tr class="hover:bg-white/5 transition">
+          <!-- Name -->
+          <td class="py-4 px-4">
+            <div class="flex items-center gap-3 min-w-[180px]">
+              <div class="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs font-medium text-white">
+                <%= user.username.charAt(0).toUpperCase() %>
+              </div>
+              <span class="truncate font-medium">
+                <%= user.username %>
+              </span>
+            </div>
+          </td>
+
+          <!-- Email -->
+          <td class="py-4 px-4 min-w-[220px]">
+            <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs text-neutral-300 truncate">
+              <%= user.email %>
+            </div>
+          </td>
+
+          <!-- User ID -->
+          <td class="py-4 px-4 min-w-[150px]">
+            <div class="bg-neutral-800/40 px-3 py-1 rounded-lg text-xs text-neutral-300 truncate">
+              <%= user.userId %>
+            </div>
+          </td>
+
+          <!-- Role -->
+          <td class="py-4 px-4">
+            <% if (user.admin==true) { %>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold text-red-400"><%= req.translations.connectionFailure %></h3>
-                <div class="text-xs sm:text-sm text-red-400/70 mt-1 leading-relaxed">
-                    <p><%= req.translations.connectionFailureText %></p>
-                </div>
-            </div>
-        </div>
-    </div>
+                <%= req.translations.admin %>
+              </span>
+            <% } else { %>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-700/30 text-neutral-400 border border-white/5">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                </svg>
+                <%= req.translations.regularUserRole %>
+              </span>
+            <% } %>
+          </td>
 
-    <!-- Main Layout: Console + Stats -->
-    <div class="main-layout px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
-        <!-- Left side: Console -->
-        <div class="console-section w-full">
-            <div class="bg-[#0a0a0a]/80 backdrop-blur-sm rounded-t-xl p-2 sm:p-3 overflow-hidden border border-white/5 border-b-0">
-                <div id="terminal"></div>
+          <!-- Verification -->
+          <td class="py-4 px-4">
+            <% if (user.verified==true) { %>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <%= req.translations.verifiedStatus %>
+              </span>
+            <% } else { %>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <%= req.translations.unverifiedStatus %>
+              </span>
+            <% } %>
+          </td>
+
+          <!-- Actions -->
+          <td class="py-4 px-4">
+            <div class="flex justify-end gap-2 min-w-[160px]">
+              <a href="/admin/users/edit/<%= user.userId %>">
+                <button
+                  type="button"
+                  class="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-medium shadow transition hover:bg-neutral-200"
+                >
+                  <%= req.translations.edit %>
+                </button>
+              </a>
+
+              <button
+                type="button"
+                class="removeButton rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs font-medium text-white shadow transition"
+                data-user-id="<%= user.userId %>"
+              >
+                <%= req.translations.remove %>
+              </button>
             </div>
-            <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>"
-                class="w-full px-4 py-3 sm:py-4 bg-[#0a0a0a]/60 text-white rounded-b-xl text-sm border border-white/5 border-t-0 focus:ring-2 focus:ring-white/10 focus:border-transparent placeholder:text-neutral-600 transition-all">
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile/Tablet Card Grid View (shown on mobile, hidden on lg+) -->
+  <div id="cardView" class="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+    <% users.forEach(function(user) { %>
+    <div class="group relative bg-neutral-800/40 border border-white/10 rounded-2xl p-5 hover:bg-neutral-800/60 transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-black/20">
+      
+      <!-- Card Header with Avatar and Actions -->
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-lg font-bold text-white shadow-inner">
+            <%= user.username.charAt(0).toUpperCase() %>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-white font-semibold truncate max-w-[120px] sm:max-w-[180px]">
+              <%= user.username %>
+            </h3>
+            <div class="flex items-center gap-2 mt-1">
+              <% if (user.verified==true) { %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <%= req.translations.verifiedStatus %>
+                </span>
+              <% } else { %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                  <%= req.translations.unverifiedStatus %>
+                </span>
+              <% } %>
+            </div>
+          </div>
         </div>
         
-        <!-- Right side: Stats Cards -->
-        <div class="stats-section w-full stats-grid-mobile lg:block space-y-3 sm:space-y-4">
-            <!-- Status Card -->
-            <div class="stats-card bg-white/5 rounded-xl px-4 py-3 sm:py-4 shadow-lg border border-white/5 hover:border-white/10 transition-all">
-                <canvas id="statusChart"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="text-xs font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.status %></h2>
-                    <p id="status" class="mt-1 text-lg sm:text-xl font-bold tracking-tight text-white">-</p>
-                </div>
-            </div>
-            
-            <!-- RAM Usage Card -->
-            <div class="stats-card bg-white/5 rounded-xl px-4 py-3 sm:py-4 shadow-lg border border-white/5 hover:border-white/10 transition-all">
-                <canvas id="ramChart"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="text-xs font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.ramUsage %></h2>
-                    <p id="ramUsage" class="mt-1 text-base sm:text-lg font-bold tracking-tight text-white truncate">-</p>
-                </div>
-            </div>
-            
-            <!-- CPU Usage Card -->
-            <div class="stats-card bg-white/5 rounded-xl px-4 py-3 sm:py-4 shadow-lg border border-white/5 hover:border-white/10 transition-all">
-                <canvas id="cpuChart"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="text-xs font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.cpuUsage %></h2>
-                    <p id="cpuUsage" class="mt-1 text-lg sm:text-xl font-bold tracking-tight text-white">-</p>
-                </div>
-            </div>
-            
-            <!-- Disk Usage Card -->
-            <div class="stats-card bg-white/5 rounded-xl px-4 py-3 sm:py-4 shadow-lg border border-white/5 hover:border-white/10 transition-all">
-                <canvas id="diskChart" class="hidden"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="text-xs font-medium text-neutral-400 uppercase tracking-wider"><%= req.translations.diskUsage %></h2>
-                    <p id="diskUsage" class="mt-1 text-base sm:text-lg font-bold tracking-tight text-white truncate">-</p>
-                </div>
-            </div>
+        <!-- Quick Actions Dropdown for Mobile -->
+        <div class="flex gap-1">
+          <a href="/admin/users/edit/<%= user.userId %>" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </a>
+          <button 
+            type="button" 
+            class="removeButton p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition"
+            data-user-id="<%= user.userId %>"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
         </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="space-y-3">
+        <!-- Email -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-900/30 border border-white/5">
+          <div class="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-medium"><%= req.translations.email %></p>
+            <p class="text-sm text-neutral-300 truncate"><%= user.email %></p>
+          </div>
+        </div>
+
+        <!-- User ID -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-900/30 border border-white/5">
+          <div class="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-medium"><%= req.translations.information %></p>
+            <p class="text-sm text-neutral-300 truncate font-mono"><%= user.userId %></p>
+          </div>
+        </div>
+
+        <!-- Role Badge -->
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-xs text-neutral-500"><%= req.translations.role %></span>
+          <% if (user.admin==true) { %>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <%= req.translations.admin %>
+            </span>
+          <% } else { %>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral-700/30 text-neutral-400 border border-white/5">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+              </svg>
+              <%= req.translations.regularUserRole %>
+            </span>
+          <% } %>
+        </div>
+      </div>
     </div>
+    <% }); %>
+  </div>
+
+  <!-- Create User Form -->
+  <div id="nodeForm" class="mt-8 hidden">
+    <div class="max-w-2xl space-y-5 bg-neutral-800/30 border border-white/10 rounded-2xl p-6 md:p-8">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white"><%= req.translations.createUserButton %></h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.username %>
+          </label>
+          <input
+            id="userName"
+            type="text"
+            name="username"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
+            placeholder="kswarrior"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.email %>
+          </label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
+            placeholder="kswarrior@ksmail.io"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.passwordLabel %>
+          </label>
+          <input
+            id="userPass"
+            type="password"
+            name="password"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition"
+            placeholder="kswarrior#123"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.admin %>
+          </label>
+          <select
+            id="userAdmin"
+            name="admin"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition"
+          >
+            <option value="true"><%= req.translations.true %></option>
+            <option value="false" selected><%= req.translations.false %></option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2">
+            <%= req.translations.verifiedStatus %>
+          </label>
+          <select
+            id="userVerified"
+            name="verified"
+            class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition"
+          >
+            <option value="true"><%= req.translations.true %></option>
+            <option value="false" selected><%= req.translations.false %></option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-4">
+        <button
+          id="createNodeBtn"
+          type="button"
+          class="flex-1 rounded-xl bg-white text-black px-5 py-2.5 text-sm font-medium shadow transition hover:bg-neutral-200 active:scale-95"
+        >
+          <%= req.translations.create %>
+        </button>
+        <button
+          id="cancelButton"
+          type="button"
+          class="flex-1 sm:flex-initial rounded-xl bg-neutral-800 text-white border border-white/10 px-5 py-2.5 text-sm font-medium transition hover:bg-neutral-700"
+        >
+          <%= req.translations.cancel || 'Cancel' %>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
-    const baseTheme = {
-        foreground: '#c5c9d1',
-        background: 'rgba(0 0 0 / 0)',
-        selection: '#5DA5D533',
-        black: '#1E1E1D',
-        brightBlack: '#262625',
-        red: '#E54B4B',
-        green: '#9ECE58',
-        yellow: '#FAED70',
-        blue: '#396FE2',
-        magenta: '#BB80B3',
-        cyan: '#2DDAFD',
-        white: '#d0d0d0',
-        brightBlack: 'rgba(255, 255, 255, 0.2)',
-        brightRed: '#FF5370',
-        brightGreen: '#C3E88D',
-        brightYellow: '#FFCB6B',
-        brightBlue: '#82AAFF',
-        brightMagenta: '#C792EA',
-        brightCyan: '#89DDFF',
-        brightWhite: '#ffffff',
-    };
+  // Toggle between table and form
+  document.getElementById("createButton").addEventListener("click", function () {
+    var table = document.getElementById("nodeTable");
+    var cardView = document.getElementById("cardView");
+    var form = document.getElementById("nodeForm");
     
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const instanceId = '<%= req.params.id %>';
-    const maxCommands = 10;
-    let commandHistory = [];
-    let currentCommandIndex = -1;
-    let term;
-    let ws;
-    let eulaModalShown = false;
-    
-    function initWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
-        
-        ws.onopen = () => console.log('WebSocket connected!');
-        ws.onmessage = handleWebSocketMessage;
-        ws.onclose = () => {
-            console.log('WebSocket connection closed, attempting to reconnect...');
-            setTimeout(initWebSocket, 3000);
-        };
-        ws.onerror = (error) => {
-            console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
-            setTimeout(initWebSocket, 5000);
-        };
+    if (form.classList.contains("hidden")) {
+      table.classList.add("hidden");
+      cardView.classList.add("hidden");
+      form.classList.remove("hidden");
+    } else {
+      form.classList.add("hidden");
+      // Show appropriate view based on screen size
+      if (window.innerWidth >= 1024) {
+        table.classList.remove("hidden");
+      } else {
+        cardView.classList.remove("hidden");
+      }
     }
-    
-    function showEulaModal() {
-        if (eulaModalShown) return;
-        eulaModalShown = true;
-        
-        const modalHtml = `
-            <div class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-4" id="eulaModal">
-                <div class="bg-white/5 backdrop-blur-xl py-6 sm:py-8 px-4 sm:px-8 rounded-2xl shadow-2xl border border-white/10 w-full max-w-md">
-                    <p class="text-white text-lg sm:text-xl font-semibold mb-2">Do you accept Minecraft's EULA?</p>
-                    <p class="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">By pressing this button you agree to the <a class="text-white hover:underline font-medium" href="https://account.mojang.com/documents/minecraft_eula" target="_blank">Mojang EULA</a>.</p>
-                    <button 
-                    onclick="acceptEula()" 
-                    class="w-full sm:w-auto bg-white text-sm font-semibold text-gray-900 px-8 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200 active:scale-95 shadow-lg">
-                    I agree
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    }
-    
-    function acceptEula() {
-        axios.post('/instance/<%= req.params.id %>/imagefeatures/eula')
-            .then(response => {
-                if (response.status === 200) {
-                    const modal = document.getElementById('eulaModal');
-                    if (modal) modal.remove();
-                    eulaModalShown = false;
-                }
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    }
-    
-    function handleWebSocketMessage(msg) {
-        const lines = msg.data.split('\n');
-        let isFirstLine = true;
-        let previousLineWasEmpty = false;
-    
-        lines.forEach(line => {
-            const trimmedLine = line.trim();
-            if (trimmedLine === '' && previousLineWasEmpty) return;
-            
-            // Check for EULA message
-            if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
-                (trimmedLine.toLowerCase().includes('eula.txt') || trimmedLine.toLowerCase().includes('dialog above'))) {
-                showEulaModal();
-            }
-            
-            if (!isFirstLine && !previousLineWasEmpty) {
-                term.write('\r\n');
-            }
-    
-            term.write('\x1b[0m' + trimmedLine);
-    
-            if (trimmedLine.includes("Working on")) {
-                term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
-                term.clear();
-                ws.close();
-            }
-            
-            if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                ws.close();
-                document.getElementById('daemonIsDown').classList.remove('hidden');
-            } else {
-                document.getElementById('daemonIsDown').classList.add('hidden');
-            }
-    
-            isFirstLine = false;
-            previousLineWasEmpty = (trimmedLine === '');
-        });
-    }
-    
-    function setupTerminal() {
-        // Determine terminal size based on screen width
-        const screenWidth = window.innerWidth;
-        let cols = 80;
-        let rows = 16;
-        
-        if (screenWidth < 640) {
-            cols = 32;
-            rows = 12;
-        } else if (screenWidth < 1024) {
-            cols = 60;
-            rows = 18;
-        } else {
-            cols = 80;
-            rows = 22;
-        }
-        
-        term = new Terminal({
-            disableStdin: true,
-            allowProposedApi: true,
-            lineHeight: 1.35,
-            rows: rows,
-            cols: cols,
-            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-            theme: baseTheme,
-            allowTransparency: true,
-            fontSize: screenWidth < 640 ? 10 : 12,
-            cursorBlink: false,
-            scrollback: 1000,
-        });
-        
-        term.open(document.getElementById('terminal'));
-        
-        // Handle window resize with debounce
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const newWidth = window.innerWidth;
-                let newCols = 80;
-                let newRows = 22;
-                
-                if (newWidth < 640) {
-                    newCols = 32;
-                    newRows = 12;
-                } else if (newWidth < 1024) {
-                    newCols = 60;
-                    newRows = 18;
-                }
-                
-                term.resize(newCols, newRows);
-            }, 250);
-        });
-    }
-    
-    function sendCommand() {
-        const inputElement = document.getElementById('input');
-        const command = inputElement.value.trim();
-        if (command && ws) {
-            term.write('\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
-            ws.send(JSON.stringify({
-                event: 'cmd',
-                command: command,
-                containerId: instanceId
-            }));
-    
-            if (commandHistory.length === maxCommands) {
-                commandHistory.shift();
-            }
-            commandHistory.push(command);
-            currentCommandIndex = commandHistory.length;
-    
-            inputElement.value = '';
-        }
-    }
-    
-    function handleKeyUp(event) {
-        if (event.key === 'ArrowUp') {
-            if (currentCommandIndex > 0) {
-                currentCommandIndex--;
-                document.getElementById('input').value = commandHistory[currentCommandIndex];
-            }
-            event.preventDefault();
-        } else if (event.key === 'ArrowDown') {
-            if (currentCommandIndex < commandHistory.length - 1) {
-                currentCommandIndex++;
-                document.getElementById('input').value = commandHistory[currentCommandIndex];
-            } else {
-                currentCommandIndex = commandHistory.length;
-                document.getElementById('input').value = '';
-            }
-            event.preventDefault();
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', function () {
-        setupTerminal();
-        initWebSocket();
-    
-        const inputElement = document.getElementById('input');
-        inputElement.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                sendCommand();
-            }
-        });
-    
-        inputElement.addEventListener('keydown', handleKeyUp);
-    
-        ['start', 'stop', 'restart'].forEach(action => {
-            const btn = document.getElementById(`${action}Button`);
-            if (!btn) return;
-            btn.addEventListener('click', async function () {
-                const originalText = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = '<span class="animate-pulse">...</span>';
-    
-                try {
-                    const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
-                    if (res.data.message) {
-                        console.log(res.data.message);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert("Power action failed: " + (err.response?.data?.message || err.message));
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                }
-            });
-        });
-    
-        initStatsWebSocket();
-    });
+  });
 
-    function isValidJson(str) {
-        try {
-          JSON.parse(str);
-        } catch (e) {
-          return false;
-        }
-        return true;
+  // Cancel button handler
+  document.getElementById("cancelButton").addEventListener("click", function () {
+    var table = document.getElementById("nodeTable");
+    var cardView = document.getElementById("cardView");
+    var form = document.getElementById("nodeForm");
+    
+    form.classList.add("hidden");
+    if (window.innerWidth >= 1024) {
+      table.classList.remove("hidden");
+    } else {
+      cardView.classList.remove("hidden");
     }
-    
-    function initStatsWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
-        
-        statsWs.onmessage = event => {
-            if (isValidJson(event.data)) {
-                const stats = JSON.parse(event.data);
-                if (stats.error) {
-                    console.error('Error fetching stats:', stats.error);
-                    return;
-                }
-    
-                updateRamUsage(stats);
-                updateCpuUsage(stats);
-                updateDiskUsage(stats);
-                updateStatus(stats);
-            } else {
-                console.log('Received non-JSON data:', event.data);
-            }
-        };
+  });
 
-        statsWs.onclose = () => {
-            console.log('WebSocket Stats connection closed, attempting to reconnect...');
-            setTimeout(initStatsWebSocket, 3000);
-        };
+  // Handle window resize to toggle between views
+  window.addEventListener("resize", function() {
+    var table = document.getElementById("nodeTable");
+    var cardView = document.getElementById("cardView");
+    var form = document.getElementById("nodeForm");
+    
+    if (!form.classList.contains("hidden")) return;
+    
+    if (window.innerWidth >= 1024) {
+      table.classList.remove("hidden");
+      cardView.classList.add("hidden");
+    } else {
+      table.classList.add("hidden");
+      cardView.classList.remove("hidden");
     }
-    
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-    
-    function createBackgroundChart(canvasId, type = 'line') {
-        const ctx = document.getElementById(canvasId);
-        if (!ctx) return null;
-        
-        return new Chart(ctx.getContext('2d'), {
-            type: type,
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderWidth: 1,
-                    pointRadius: 0,
-                    fill: true,
-                    tension: 0.4,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
-                },
-                scales: {
-                    x: { display: false },
-                    y: { display: false, min: 0, max: 100 }
-                },
-                animation: { duration: 0 }
-            }
-        });
-    }
-    
-    let statusChart, ramChart, cpuChart, diskChart;
-    
-    // Initialize charts after DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        statusChart = createBackgroundChart('statusChart');
-        ramChart = createBackgroundChart('ramChart');
-        cpuChart = createBackgroundChart('cpuChart');
-        diskChart = createBackgroundChart('diskChart', 'doughnut');
-    });
-    
-    function updateRamUsage(stats) {
-        const ramStatsUsage = stats.memory_stats?.usage || 0;
-        const ramStatsLimit = stats.memory_stats?.limit || 0;
-
-        const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
-        const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory || 1024 %>;
-        const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
-        
-        const ramElement = document.getElementById('ramUsage');
-        if (ramElement) {
-            ramElement.textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
-        }
-    
-        if (ramStatsUsage > 0 && ramChart) {
-            updateChart(ramChart, ramUsagePercent);
-        }
-    }
-    
-    function updateCpuUsage(stats) {
-        const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage || 0;
-        const systemCpuDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage || 0;
-        let cpuUsagePercent = 0;
-        
-        if (systemCpuDelta > 0) {
-            cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
-        }
-    
-        if (isNaN(cpuUsagePercent)) {
-            cpuUsagePercent = 0;
-        }
-    
-        const cpuElement = document.getElementById('cpuUsage');
-        if (cpuElement) {
-            cpuElement.textContent = `${cpuUsagePercent}%`;
-        }
-        
-        if (cpuUsagePercent > 0 && cpuChart) {
-            updateChart(cpuChart, cpuUsagePercent);
-        }
-    }
-    
-    function updateDiskUsage(stats) {
-        const diskUsageRaw = parseFloat(stats.volumeSize) || 0;
-        const diskLimitMiB = <%= instance.Disk || 0 %>;
-        
-        const diskElement = document.getElementById('diskUsage');
-        if (!diskElement) return;
-        
-        if (diskLimitMiB === 0) {
-            // Unlimited disk
-            diskElement.textContent = `${formatBytes(diskUsageRaw * 1024 * 1024)} / Unlimited`;
-            diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight text-emerald-400';
-        } else {
-            const diskLimitRaw = diskLimitMiB;
-            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
-            diskElement.textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
-            
-            // Add visual warning if approaching limit
-            if (parseFloat(diskUsagePercent) >= 100) {
-                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight text-red-500';
-            } else if (parseFloat(diskUsagePercent) >= 90) {
-                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight text-yellow-500';
-            } else {
-                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight text-emerald-400';
-            }
-        }
-    }
-    
-    function updateStatus(stats) {
-        const statusElement = document.getElementById('status');
-        if (!statusElement) return;
-        
-        const ramUsageRaw = stats.memory_stats?.usage / 1024 / 1024 || 0;
-        
-        if (ramUsageRaw > 1) {
-            statusElement.textContent = 'Online';
-            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight text-emerald-500';
-            updateStatusChart('rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.3)');
-        } else {
-            statusElement.textContent = 'Offline';
-            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight text-red-500';
-            updateStatusChart('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.3)');
-        }
-    }
-    
-    function updateChart(chart, value) {
-        if (!chart) return;
-        
-        const numValue = parseFloat(value) || 0;
-        chart.data.labels.push('');
-        chart.data.datasets[0].data.push(numValue);
-    
-        if (chart.data.labels.length > 20) {
-            chart.data.labels.shift();
-            chart.data.datasets[0].data.shift();
-        }
-    
-        chart.update('none'); // Efficient update
-    }
-    
-    function updateStatusChart(backgroundColor, borderColor) {
-        if (!statusChart) return;
-        
-        statusChart.data.datasets[0].backgroundColor = backgroundColor;
-        statusChart.data.datasets[0].borderColor = borderColor;
-        statusChart.data.labels = [''];
-        statusChart.data.datasets[0].data = [100];
-        statusChart.update('none');
-    }
+  });
 </script>
+
+<script>
+  document.getElementById("createNodeBtn").addEventListener("click", function () {
+    const username = document.getElementById("userName").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("userPass").value;
+    const adminString = document.getElementById("userAdmin").value;
+    const admin = adminString === "true";
+    const verifiedString = document.getElementById("userVerified").value;
+    const verified = verifiedString === "true";
+
+    const nodeData = {
+      username,
+      email,
+      password,
+      admin,
+      verified,
+    };
+
+    console.log(nodeData);
+
+    fetch("/users/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nodeData),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error("Failed to create user");
+      })
+      .then((data) => {
+        console.log("user created:", data);
+        alert('<%= req.translations.userCreatedSuccess %>');
+        window.location.reload();
+      })
+      .catch((error) =>
+        alert('<%= req.translations.userCreateError %>: ' + error.message)
+      );
+  });
+</script>
+
+<!-- remove -->
+<script>
+  document.querySelectorAll('.removeButton').forEach(button => {
+    button.addEventListener('click', function() {
+      const userId = this.dataset.userId;
+      const totalUsers = document.querySelectorAll('.removeButton').length;
+      if (totalUsers === 1) {
+        alert('<%= req.translations.databaseCannotDelete %>');
+        return;
+      }
+      const currentUserId = '<%= user.userId %>';
+      if (userId === currentUserId) {
+        alert('<%= req.translations.userCannotDelete %>');
+        return;
+      }
+      const confirmation = confirm('<%= req.translations.userDeletingConfirmation %>');
+      if (!confirmation) return;
+
+      fetch('/user/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          throw new Error('Failed to delete user');
+        }
+      })
+      .catch(error => alert('<%= req.translations.userDeletingError %>' + error.message));
+    });
+  });
+</script>
+
 <%- include('../components/footer') %>
