@@ -754,21 +754,24 @@
             const btn = document.getElementById(`${action}Button`);
             if (!btn) return;
             btn.addEventListener('click', async function () {
-                const originalText = btn.innerHTML;
+                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
+
+                const originalHTML = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<span class="animate-pulse">...</span>';
-    
+                btn.innerHTML = `<span class="animate-pulse">Processing ${action}...</span>`;
+
                 try {
                     const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
-                    if (res.data.message) {
-                        console.log(res.data.message);
+                    if (res.status === 200) {
+                        btn.innerHTML = `<span class="text-emerald-400">✓ ${action.charAt(0).toUpperCase() + action.slice(1)} sent!</span>`;
+                        setTimeout(() => location.reload(), 1200);
+                    } else {
+                        throw new Error(res.data?.message || 'Unknown error');
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("Power action failed: " + (err.response?.data?.message || err.message));
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
+                    alert("Power action failed: " + (err.response?.data?.message || err.message || 'Unknown'));
+                    btn.innerHTML = originalHTML;
                 }
             });
         });
