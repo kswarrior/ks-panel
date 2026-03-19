@@ -1,82 +1,72 @@
 <style>
-  /* ===== INSTANCE SIDEBAR NAVIGATION - OPTIMIZED RESPONSIVE ===== */
+  /* ===== INSTANCE NAVIGATION - ISOLATED STYLES ===== */
   
-  /* Container */
-  .instance-nav-container {
+  /* Scoped container to prevent conflicts */
+  .inst-nav-wrapper {
     margin-top: 1.5rem;
     margin-left: 1rem;
+    margin-right: 1rem;
     margin-bottom: 2rem;
   }
 
   @media (min-width: 640px) {
-    .instance-nav-container {
+    .inst-nav-wrapper {
       margin-left: 2rem;
-      margin-bottom: 2rem;
+      margin-right: 2rem;
     }
   }
 
-  /* Scrollable wrapper with optimized scrolling */
-  .instance-nav-wrapper {
+  /* Scroll container */
+  .inst-nav-scroll {
     position: relative;
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
     scroll-padding-left: 0.5rem;
     scroll-padding-right: 0.5rem;
   }
 
-  /* Custom scrollbar styling */
-  .instance-nav-wrapper::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .instance-nav-wrapper::-webkit-scrollbar-track {
-    background: transparent;
-    margin: 0 0.5rem;
-  }
-
-  .instance-nav-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
-  }
-
-  .instance-nav-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.25);
+  .inst-nav-scroll::-webkit-scrollbar {
+    display: none;
   }
 
   @media (min-width: 1024px) {
-    .instance-nav-wrapper {
+    .inst-nav-scroll {
       overflow-x: visible;
-      scrollbar-width: none;
-    }
-    
-    .instance-nav-wrapper::-webkit-scrollbar {
-      display: none;
     }
   }
 
   /* Navigation container */
-  .instance-nav {
+  .inst-nav {
     display: flex;
     position: relative;
     min-width: max-content;
-    padding: 0.375rem 0.5rem;
+    padding: 0.25rem;
+    gap: 0.5rem;
   }
 
   @media (min-width: 640px) {
-    .instance-nav {
+    .inst-nav {
+      gap: 0.5rem;
       padding: 0.375rem 0;
     }
   }
 
-  /* Sliding background indicator - preserved blur effect */
-  .nav-sliding-bg {
+  @media (min-width: 1024px) {
+    .inst-nav {
+      gap: 0.75rem;
+    }
+  }
+
+  /* Sliding background - isolated */
+  .inst-nav-bg {
     position: absolute;
     height: 2.25rem;
+    top: 0.25rem;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -84,19 +74,24 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 0;
+    opacity: 0;
   }
 
   @media (min-width: 640px) {
-    .nav-sliding-bg {
+    .inst-nav-bg {
       height: 2.5rem;
+      top: 0.375rem;
     }
   }
 
+  .inst-nav-bg.active {
+    opacity: 1;
+  }
+
   /* Navigation list */
-  .nav-list {
+  .inst-nav-list {
     display: flex;
-    margin-top: 0.375rem;
-    gap: 0.5rem;
+    gap: 0.375rem;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -105,32 +100,32 @@
   }
 
   @media (min-width: 640px) {
-    .nav-list {
+    .inst-nav-list {
       gap: 0.5rem;
     }
   }
 
   @media (min-width: 1024px) {
-    .nav-list {
+    .inst-nav-list {
       gap: 0.75rem;
     }
   }
 
   /* Navigation items */
-  .nav-item {
+  .inst-nav-item {
     flex-shrink: 0;
     scroll-snap-align: start;
   }
 
-  /* Navigation links - optimized touch targets */
-  .nav-link {
+  /* Navigation links */
+  .inst-nav-link {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.5rem 0.875rem;
-    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 400;
-    line-height: 1.5rem;
+    line-height: 1.25rem;
     color: rgb(163, 163, 163);
     text-decoration: none;
     white-space: nowrap;
@@ -138,229 +133,226 @@
     border: 1px solid transparent;
     transition: all 0.2s ease;
     position: relative;
-    overflow: hidden;
+    background: transparent;
   }
 
   @media (min-width: 640px) {
-    .nav-link {
-      padding: 0.625rem 1rem;
+    .inst-nav-link {
+      padding: 0.625rem 0.875rem;
       font-size: 0.875rem;
+      gap: 0.5rem;
     }
   }
 
   @media (min-width: 1024px) {
-    .nav-link {
-      padding: 0.625rem 1.125rem;
+    .inst-nav-link {
+      padding: 0.625rem 1rem;
     }
   }
 
-  /* Hover state - preserved colors */
-  .nav-link:hover {
+  /* Hover state */
+  .inst-nav-link:hover {
     background: rgba(255, 255, 255, 0.05);
-    border-color: transparent;
     color: rgb(255, 255, 255);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   }
 
-  /* Active state - preserved colors */
-  .nav-link.active {
+  /* Active state */
+  .inst-nav-link.is-active {
     color: rgb(255, 255, 255);
     font-weight: 500;
   }
 
-  /* Touch feedback */
+  /* Touch optimizations */
   @media (hover: none) and (pointer: coarse) {
-    .nav-link {
+    .inst-nav-link {
       min-height: 44px;
-      padding: 0.625rem 1rem;
     }
     
-    .nav-link:active {
+    .inst-nav-link:active {
       transform: scale(0.96);
       background: rgba(255, 255, 255, 0.08);
     }
   }
 
-  /* Icon styling */
-  .nav-icon {
+  /* Icons */
+  .inst-nav-icon {
     display: inline-flex;
     width: 1rem;
     height: 1rem;
-    margin-bottom: 0.125rem;
     flex-shrink: 0;
     transition: transform 0.2s ease;
   }
 
   @media (min-width: 640px) {
-    .nav-icon {
+    .inst-nav-icon {
       width: 1.125rem;
       height: 1.125rem;
     }
   }
 
-  .nav-link:hover .nav-icon {
+  .inst-nav-link:hover .inst-nav-icon {
     transform: translateY(-1px);
   }
 
-  /* Text label */
-  .nav-text {
+  /* Text labels - responsive */
+  .inst-nav-text {
     display: inline;
   }
 
-  /* Fade indicators for scroll hints */
-  .scroll-indicator {
+  /* Scroll fade indicators */
+  .inst-nav-fade {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 2rem;
+    width: 1.5rem;
     pointer-events: none;
     z-index: 2;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 
-  .scroll-indicator-left {
+  .inst-nav-fade-left {
     left: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.4), transparent);
   }
 
-  .scroll-indicator-right {
+  .inst-nav-fade-right {
     right: 0;
-    background: linear-gradient(to left, rgba(0, 0, 0, 0.3), transparent);
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.4), transparent);
   }
 
-  .instance-nav-wrapper.can-scroll-left .scroll-indicator-left,
-  .instance-nav-wrapper.can-scroll-right .scroll-indicator-right {
+  .inst-nav-scroll.has-left .inst-nav-fade-left,
+  .inst-nav-scroll.has-right .inst-nav-fade-right {
     opacity: 1;
   }
 
   @media (min-width: 1024px) {
-    .scroll-indicator {
+    .inst-nav-fade {
       display: none;
     }
   }
 
-  /* Reduced motion support */
+  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .nav-sliding-bg,
-    .nav-link,
-    .nav-icon,
-    .scroll-indicator {
+    .inst-nav-bg,
+    .inst-nav-link,
+    .inst-nav-icon,
+    .inst-nav-fade {
       transition: none;
     }
     
-    .nav-link:active {
+    .inst-nav-link:active {
       transform: none;
     }
   }
 </style>
 
-<div class="instance-nav-container">
-  <div class="instance-nav-wrapper" id="navWrapper">
-    <!-- Scroll indicators -->
-    <div class="scroll-indicator scroll-indicator-left"></div>
-    <div class="scroll-indicator scroll-indicator-right"></div>
+<div class="inst-nav-wrapper">
+  <div class="inst-nav-scroll" data-nav-scroll>
+    <div class="inst-nav-fade inst-nav-fade-left"></div>
+    <div class="inst-nav-fade inst-nav-fade-right"></div>
     
-    <nav class="instance-nav" id="instanceNav">
-      <div class="nav-sliding-bg" id="slidingBackground"></div>
-      <ul class="nav-list" role="list">
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>" class="nav-link" data-nav="console">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+    <nav class="inst-nav" data-inst-nav>
+      <div class="inst-nav-bg" data-nav-bg></div>
+      <ul class="inst-nav-list" role="list">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm-91,94.25-40,32a8,8,0,1,1-10-12.5L107.19,128,75,102.25a8,8,0,1,1,10-12.5l40,32a8,8,0,0,1,0,12.5ZM176,168H136a8,8,0,0,1,0-16h40a8,8,0,0,1,0,16Z"/>
             </svg>
-            <span class="nav-text">Console</span>
+            <span class="inst-nav-text">Console</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/files" class="nav-link" data-nav="files">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/files" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M224,64H154.67L126.93,43.2a16.12,16.12,0,0,0-9.6-3.2H72A16,16,0,0,0,56,56V72H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H192.89A15.13,15.13,0,0,0,208,200.89V184h16.89A15.13,15.13,0,0,0,240,168.89V80A16,16,0,0,0,224,64Zm0,104H208V112a16,16,0,0,0-16-16H122.67L94.93,75.2a16.12,16.12,0,0,0-9.6-3.2H72V56h45.33L147.2,78.4A8,8,0,0,0,152,80h72Z"/>
             </svg>
-            <span class="nav-text">Files</span>
+            <span class="inst-nav-text">Files</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/users" class="nav-link" data-nav="users">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/users" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"/>
             </svg>
-            <span class="nav-text">Users</span>
+            <span class="inst-nav-text">Users</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/network" class="nav-link" data-nav="network">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/network" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/>
             </svg>
-            <span class="nav-text">Network</span>
+            <span class="inst-nav-text">Network</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/archives" class="nav-link" data-nav="archives">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/archives" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M223.16,68.42l-16-32A8,8,0,0,0,200,32H56a8,8,0,0,0-7.16,4.42l-16,32A8.08,8.08,0,0,0,32,72V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V72A8.08,8.08,0,0,0,223.16,68.42Zm-57.5,73.24a8,8,0,0,1-11.32,0L136,123.31V184a8,8,0,0,1-16,0V123.31l-18.34,18.35a8,8,0,0,1-11.32-11.32l32-32a8,8,0,0,1,11.32,0l32,32A8,8,0,0,1,165.66,141.66ZM52.94,64l8-16H195.06l8,16Z"/>
             </svg>
-            <span class="nav-text">Archives</span>
+            <span class="inst-nav-text">Archives</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/automations" class="nav-link" data-nav="automations">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/automations" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM112,184a8,8,0,0,1-16,0V132.94l-4.42,2.22a8,8,0,0,1-7.16-14.32l16-8A8,8,0,0,1,112,120Zm56-8a8,8,0,0,1,0,16H136a8,8,0,0,1-6.4-12.8l28.78-38.37A8,8,0,1,0,145.07,132a8,8,0,1,1-13.85-8A24,24,0,0,1,176,136a23.76,23.76,0,0,1-4.84,14.45L152,176ZM48,80V48H72v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80Z"/>
             </svg>
-            <span class="nav-text">Automations</span>
+            <span class="inst-nav-text">Automations</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/db" class="nav-link" data-nav="db">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/db" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M128,24C74.17,24,32,48.6,32,80v96c0,31.4,42.17,56,96,56s96-24.6,96-56V80C224,48.6,181.83,24,128,24Zm80,104c0,9.62-7.88,19.43-21.61,26.92C170.93,163.35,150.19,168,128,168s-42.93-4.65-58.39-13.08C55.88,147.43,48,137.62,48,128V111.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64Zm-21.61,74.92C170.93,211.35,150.19,216,128,216s-42.93-4.65-58.39-13.08C55.88,195.43,48,185.62,48,176V159.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64V176C208,185.62,200.12,195.43,186.39,202.92Z"/>
             </svg>
-            <span class="nav-text">Databases</span>
+            <span class="inst-nav-text">Databases</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/ftp" class="nav-link" data-nav="ftp">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/ftp" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M74.34,77.66a8,8,0,0,1,0-11.32l48-48a8,8,0,0,1,11.32,0l48,48a8,8,0,0,1-11.32,11.32L136,43.31V128a8,8,0,0,1-16,0V43.31L85.66,77.66A8,8,0,0,1,74.34,77.66ZM240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16h68a4,4,0,0,1,4,4v3.46c0,13.45,11,24.79,24.46,24.54A24,24,0,0,0,152,128v-4a4,4,0,0,1,4-4h68A16,16,0,0,1,240,136Zm-40,32a12,12,0,1,0-12,12A12,12,0,0,0,200,168Z"/>
             </svg>
-            <span class="nav-text">FTP</span>
+            <span class="inst-nav-text">FTP</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/settings" class="nav-link" data-nav="settings">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/settings" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/>
             </svg>
-            <span class="nav-text">Settings</span>
+            <span class="inst-nav-text">Settings</span>
           </a>
         </li>
         
-        <li class="nav-item">
-          <a href="/instance/<%= req.params.id %>/startup" class="nav-link" data-nav="startup">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="nav-icon">
+        <li class="inst-nav-item">
+          <a href="/instance/<%= req.params.id %>/startup" class="inst-nav-link" data-nav-link>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="inst-nav-icon">
               <rect width="256" height="256" fill="none"/>
               <path d="M32,80a8,8,0,0,1,8-8H77.17a28,28,0,0,1,53.66,0H216a8,8,0,0,1,0,16H130.83a28,28,0,0,1-53.66,0H40A8,8,0,0,1,32,80Zm184,88H194.83a28,28,0,0,0-53.66,0H40a8,8,0,0,0,0,16H141.17a28,28,0,0,0,53.66,0H216a8,8,0,0,0,0-16Z"/>
             </svg>
-            <span class="nav-text">Startup</span>
+            <span class="inst-nav-text">Startup</span>
           </a>
         </li>
 
@@ -368,10 +360,10 @@
           <% addons.plugins.forEach(plugin => { %>
             <% if (plugin.instancesidebar) { %>
               <% Object.entries(plugin.instancesidebar).forEach(([key, value]) => { %>
-                <li class="nav-item">
-                  <a href="<%= (value.url).replace('%id%', req.params.id) %>" class="nav-link" data-nav="plugin-<%= key.toLowerCase().replace(/\s+/g, '-') %>">
-                    <i class="nav-icon <%= value.icon %>"></i>
-                    <span class="nav-text"><%= key %></span>
+                <li class="inst-nav-item">
+                  <a href="<%= (value.url).replace('%id%', req.params.id) %>" class="inst-nav-link" data-nav-link>
+                    <i class="inst-nav-icon <%= value.icon %>"></i>
+                    <span class="inst-nav-text"><%= key %></span>
                   </a>
                 </li>
               <% }); %>
@@ -385,133 +377,129 @@
 
 <script>
   (function() {
-    const navWrapper = document.getElementById('navWrapper');
-    const slidingBg = document.getElementById('slidingBackground');
-    const navLinks = document.querySelectorAll('.nav-link');
+    'use strict';
+    
+    // Scoped variables to prevent global conflicts
+    const navScroll = document.querySelector('[data-nav-scroll]');
+    const navBg = document.querySelector('[data-nav-bg]');
+    const navLinks = document.querySelectorAll('[data-nav-link]');
     const currentPath = window.location.pathname;
     
-    // Update scroll indicators
-    function updateScrollIndicators() {
-      const canScrollLeft = navWrapper.scrollLeft > 0;
-      const canScrollRight = navWrapper.scrollLeft < (navWrapper.scrollWidth - navWrapper.clientWidth - 1);
+    if (!navScroll || !navBg || navLinks.length === 0) return;
+    
+    // Update scroll fade indicators
+    function updateFadeIndicators() {
+      const scrollLeft = navScroll.scrollLeft;
+      const maxScroll = navScroll.scrollWidth - navScroll.clientWidth;
       
-      navWrapper.classList.toggle('can-scroll-left', canScrollLeft);
-      navWrapper.classList.toggle('can-scroll-right', canScrollRight);
+      navScroll.classList.toggle('has-left', scrollLeft > 5);
+      navScroll.classList.toggle('has-right', scrollLeft < maxScroll - 5);
     }
     
     // Initial check
-    updateScrollIndicators();
+    updateFadeIndicators();
     
-    // Update on scroll
-    navWrapper.addEventListener('scroll', updateScrollIndicators, { passive: true });
+    // Passive scroll listener
+    navScroll.addEventListener('scroll', updateFadeIndicators, { passive: true });
     
-    // Update on resize
-    window.addEventListener('resize', updateScrollIndicators);
+    // Resize handler
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        updateFadeIndicators();
+        updateActiveState();
+      }, 100);
+    });
     
-    // Find and activate current nav item
-    function updateActiveNav() {
-      let activeLink = null;
-      let maxMatchLength = 0;
+    // Find best matching link
+    function findActiveLink() {
+      let bestMatch = null;
+      let maxLength = 0;
       
-      navLinks.forEach(link => {
+      navLinks.forEach(function(link) {
         const href = link.getAttribute('href');
-        // Find the most specific match (longest matching prefix)
-        if (currentPath.startsWith(href) && href.length > maxMatchLength) {
-          activeLink = link;
-          maxMatchLength = href.length;
+        if (!href) return;
+        
+        // Exact match or starts with (for nested paths)
+        if (currentPath === href || currentPath.startsWith(href + '/')) {
+          if (href.length > maxLength) {
+            bestMatch = link;
+            maxLength = href.length;
+          }
         }
       });
       
+      return bestMatch;
+    }
+    
+    // Update active state
+    function updateActiveState() {
+      const activeLink = findActiveLink();
+      
+      // Clear all active states
+      navLinks.forEach(function(link) {
+        link.classList.remove('is-active');
+      });
+      
       if (activeLink) {
-        // Remove active class from all
-        navLinks.forEach(link => {
-          link.classList.remove('active', 'text-white', 'font-medium');
-        });
+        // Set active class
+        activeLink.classList.add('is-active');
         
-        // Add active class to current
-        activeLink.classList.add('active', 'text-white', 'font-medium');
-        
-        // Update sliding background position
-        const navRect = activeLink.closest('nav').getBoundingClientRect();
+        // Position background
+        const navRect = activeLink.closest('[data-inst-nav]').getBoundingClientRect();
         const linkRect = activeLink.getBoundingClientRect();
         
-        slidingBg.style.width = linkRect.width + 'px';
-        slidingBg.style.transform = `translateX(${linkRect.left - navRect.left}px)`;
-        slidingBg.style.opacity = '1';
+        const width = linkRect.width;
+        const left = linkRect.left - navRect.left;
         
-        // Scroll active item into view on mobile
+        navBg.style.width = width + 'px';
+        navBg.style.transform = 'translateX(' + left + 'px)';
+        navBg.classList.add('active');
+        
+        // Mobile: scroll into view
         if (window.innerWidth < 1024) {
-          const wrapperRect = navWrapper.getBoundingClientRect();
-          const linkLeft = linkRect.left - wrapperRect.left;
+          const scrollRect = navScroll.getBoundingClientRect();
+          const linkLeft = linkRect.left - scrollRect.left;
           const linkRight = linkLeft + linkRect.width;
           
-          if (linkLeft < 0 || linkRight > wrapperRect.width) {
-            activeLink.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          if (linkLeft < 20 || linkRight > scrollRect.width - 20) {
+            activeLink.scrollIntoView({ 
+              behavior: 'smooth', 
+              inline: 'center', 
+              block: 'nearest' 
+            });
           }
         }
       } else {
-        slidingBg.style.opacity = '0';
+        navBg.classList.remove('active');
       }
     }
     
     // Initial activation
-    updateActiveNav();
+    updateActiveState();
     
-    // Handle clicks with smooth transition
-    navLinks.forEach(link => {
+    // Click handlers
+    navLinks.forEach(function(link) {
       link.addEventListener('click', function(e) {
-        // Don't prevent default - let it navigate naturally
-        // Just update visual state immediately for perceived performance
+        // Update visual state immediately
+        navLinks.forEach(function(l) {
+          l.classList.remove('is-active');
+        });
+        this.classList.add('is-active');
         
-        navLinks.forEach(l => l.classList.remove('active', 'text-white', 'font-medium'));
-        this.classList.add('active', 'text-white', 'font-medium');
-        
-        const navRect = this.closest('nav').getBoundingClientRect();
+        // Move background
+        const navRect = this.closest('[data-inst-nav]').getBoundingClientRect();
         const linkRect = this.getBoundingClientRect();
         
-        slidingBg.style.width = linkRect.width + 'px';
-        slidingBg.style.transform = `translateX(${linkRect.left - navRect.left}px)`;
+        navBg.style.width = linkRect.width + 'px';
+        navBg.style.transform = 'translateX(' + (linkRect.left - navRect.left) + 'px)';
       });
     });
     
-    // Handle popstate (back/forward buttons)
-    window.addEventListener('popstate', function() {
-      // Update current path and re-activate
-      const newPath = window.location.pathname;
-      // Re-run activation logic with new path
-      let activeLink = null;
-      let maxMatchLength = 0;
-      
-      navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (newPath.startsWith(href) && href.length > maxMatchLength) {
-          activeLink = link;
-          maxMatchLength = href.length;
-        }
-      });
-      
-      if (activeLink) {
-        navLinks.forEach(link => {
-          link.classList.remove('active', 'text-white', 'font-medium');
-        });
-        activeLink.classList.add('active', 'text-white', 'font-medium');
-        
-        const navRect = activeLink.closest('nav').getBoundingClientRect();
-        const linkRect = activeLink.getBoundingClientRect();
-        slidingBg.style.width = linkRect.width + 'px';
-        slidingBg.style.transform = `translateX(${linkRect.left - navRect.left}px)`;
-      }
-    });
-    
-    // Hide sliding background when resizing to prevent visual glitches
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-      slidingBg.style.transition = 'none';
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(function() {
-        slidingBg.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        updateActiveNav();
-      }, 100);
-    });
+    // Handle browser back/forward
+    window.addEventListener('popstate', updateActiveState);
   })();
 </script>
+
+<%- include('../components/footer') %>
