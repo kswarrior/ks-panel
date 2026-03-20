@@ -45,9 +45,9 @@
                     }
                 %>
 
-                <% if (instance.imageData && instance.imageData.Variables) { %>
-                    <% Object.keys(instance.imageData.Variables).forEach(function(variableName) { %>
-                        <% const variable = instance.imageData.Variables[variableName]; %>
+                <% if (instance.templateData && instance.templateData.Variables) { %>
+                    <% Object.keys(instance.templateData.Variables).forEach(function(variableName) { %>
+                        <% const variable = instance.templateData.Variables[variableName]; %>
                         <div class="mt-5">
                             <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= variableName %></label>
                             <input type="<%= variable.type %>" id="variable-<%= variableName %>" value="<%= envObject[variableName] || '' %>" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" style="width: 340px;">
@@ -70,8 +70,8 @@
         window.location.href = `/instances/startup/changeimage/${instanceId}?image=${encodeURIComponent(image)}&user=${encodeURIComponent(userId)}`;
     });
 
-    <% if (instance.imageData && instance.imageData.Variables) { %>
-        <% Object.keys(instance.imageData.Variables).forEach(function(variableName) { %>
+    <% if (instance.templateData && instance.templateData.Variables) { %>
+        <% Object.keys(instance.templateData.Variables).forEach(function(variableName) { %>
             document.getElementById('save-variable-<%= variableName %>').addEventListener('click', function() {
                 const value = document.getElementById('variable-<%= variableName %>').value;
                 const userId = '<%= req.user.userId %>';
