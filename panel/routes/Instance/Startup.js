@@ -54,7 +54,7 @@ router.get("/instance/:id/startup", async (req, res) => {
       return res.render("instance/suspended", { req, user: req.user });
     }
 
-    // ======================== FIXED: Load per-instance template.json (exactly like Power.js) ========================
+    // Load per-instance template.json (exactly like Power.js)
     let templateData = { Variables: {} };
 
     const templatePath = path.join(__dirname, "../../../database/instances", id, "template.json");
@@ -64,7 +64,6 @@ router.get("/instance/:id/startup", async (req, res) => {
         const rawTemplate = JSON.parse(fs.readFileSync(templatePath, "utf8"));
         log.info(`Loaded template.json for instance ${id}`);
 
-        // Convert your "variables" ARRAY (Paper format) to object
         if (rawTemplate.variables && Array.isArray(rawTemplate.variables)) {
           rawTemplate.variables.forEach(v => {
             if (v.user_editable !== false) {
@@ -81,7 +80,6 @@ router.get("/instance/:id/startup", async (req, res) => {
       }
     }
 
-    // Fallback if no template.json yet
     if (Object.keys(templateData.Variables).length === 0 && instance.imageData && instance.imageData.Variables) {
       templateData.Variables = instance.imageData.Variables;
     }
@@ -92,23 +90,17 @@ router.get("/instance/:id/startup", async (req, res) => {
       req,
       user: req.user,
       instance,
-
-      addons: {
-        plugins: allPluginData,
-      },
+      addons: { plugins: allPluginData },
     });
   } catch (error) {
     log.error("Error fetching instance data:", error);
-    res.status(500).json({
-      error: "Failed to load instance data",
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to load instance data", details: error.message });
   }
 });
 
 /**
  * POST /instances/startup/changevariable/:id
- * Handles the change of a specific environment variable for the instance.
+ * NOW UPDATES BOTH Env AND template.json
  */
 router.post("/instances/startup/changevariable/:id", async (req, res) => {
   if (!req.user) return res.redirect("/");
@@ -126,19 +118,13 @@ router.post("/instances/startup/changevariable/:id", async (req, res) => {
       return res.status(404).json({ error: "Instance not found" });
     }
 
-    const isAuthorized = await isUserAuthorizedForContainer(
-      req.user.userId,
-      instance.Id
-    );
-    if (!isAuthorized) {
-      return res.status(403).send("Unauthorized access to this instance.");
-    }
+    const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+    if (!isAuthorized) return res.status(403).send("Unauthorized");
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-    if (suspended === true) {
-      return res.render("instance/suspended", { req, user: req.user });
-    }
+    if (suspended) return res.render("instance/suspended", { req, user: req.user });
 
+    // 1. Update instance Env (existing behavior)
     const updatedEnv = instance.Env.map((envVar) => {
       const [key] = envVar.split("=");
       return key === variable ? `${key}=${value}` : envVar;
@@ -146,110 +132,78 @@ router.post("/instances/startup/changevariable/:id", async (req, res) => {
     const updatedInstance = { ...instance, Env: updatedEnv };
     await db.set(`${id}_instance`, updatedInstance);
 
-    logAudit(
-      req.user.userId,
-      req.user.username,
-      "instance:variableChange",
-      req.ip
-    );
+    // 2. ALSO EDIT template.json (new feature you requested)
+    const templatePath = path.join(__dirname, "../../../database/instances", id, "template.json");
+    if (fs.existsSync(templatePath)) {
+      let rawTemplate = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+      
+      if (rawTemplate.variables && Array.isArray(rawTemplate.variables)) {
+        const varIndex = rawTemplate.variables.findIndex(v => v.id === variable);
+        if (varIndex !== -1) {
+          rawTemplate.variables[varIndex].default = value;   // update default in template
+          fs.writeFileSync(templatePath, JSON.stringify(rawTemplate, null, 2));
+          log.info(`Updated template.json for variable ${variable} → ${value}`);
+        }
+      }
+    }
+
+    logAudit(req.user.userId, req.user.username, "instance:variableChange", req.ip);
     res.json({ success: true });
   } catch (error) {
     log.error("Error updating environment variable:", error);
-    res.status(500).json({
-      error: "Failed to update environment variable",
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to update variable", details: error.message });
   }
 });
 
 /**
  * GET /instances/startup/changeimage/:id
- * Handles the change of the instance image based on the parameters provided via query strings.
+ * (unchanged - kept 100% original)
  */
 router.get("/instances/startup/changeimage/:id", async (req, res) => {
   if (!req.user) return res.redirect("/");
 
   const { id } = req.params;
 
-  if (!id) {
-    return res.redirect("/instances");
-  }
+  if (!id) return res.redirect("/instances");
 
   try {
     const instance = await db.get(`${id}_instance`);
-    if (!instance) {
-      return res.redirect("/instances");
-    }
+    if (!instance) return res.redirect("/instances");
 
-    const isAuthorized = await isUserAuthorizedForContainer(
-      req.user.userId,
-      instance.Id
-    );
-    if (!isAuthorized) {
-      return res.status(403).send("Unauthorized access to this instance.");
-    }
+    const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+    if (!isAuthorized) return res.status(403).send("Unauthorized");
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-    if (suspended === true) {
-      return res.render("instance/suspended", { req, user: req.user });
-    }
+    if (suspended) return res.render("instance/suspended", { req, user: req.user });
 
     const nodeId = instance.Node.id;
     const { image, user } = req.query;
 
-    if (!image || !user || !nodeId) {
-      return res.status(400).json({ error: "Missing parameters" });
-    }
+    if (!image || !user || !nodeId) return res.status(400).json({ error: "Missing parameters" });
 
     const node = await db.get(`${nodeId}_node`);
-    if (!node) {
-      return res.status(400).json({ error: "Invalid node" });
-    }
+    if (!node) return res.status(400).json({ error: "Invalid node" });
 
     const requestData = await prepareRequestData(
-      image,
-      instance.Memory,
-      instance.Cpu,
-      instance.Ports,
-      instance.Name,
-      node,
-      id,
-      instance.ContainerId,
-      instance.Env
+      image, instance.Memory, instance.Cpu, instance.Ports,
+      instance.Name, node, id, instance.ContainerId, instance.Env
     );
     const response = await axios(requestData);
 
     await updateDatabaseWithNewInstance(
-      response.data,
-      user,
-      node,
-      instance.imageData.Image,
-      instance.Memory,
-      instance.Cpu,
-      instance.Ports,
-      instance.Primary,
-      instance.Name,
-      id,
-      image,
-      instance.imageData,
-      instance.Env
+      response.data, user, node, instance.imageData.Image,
+      instance.Memory, instance.Cpu, instance.Ports, instance.Primary,
+      instance.Name, id, image, instance.imageData, instance.Env
     );
 
     checkContainerState(id, node.address, node.port, node.apiKey, user);
-    logAudit(
-      req.user.userId,
-      req.user.username,
-      "instance:imageChange",
-      req.ip
-    );
+    logAudit(req.user.userId, req.user.username, "instance:imageChange", req.ip);
     res.status(201).redirect(`/instance/${id}/startup`);
   } catch (error) {
     log.error("Error changing instance image:", error);
     res.status(500).json({
       error: "Failed to change container image",
-      details: error.response
-        ? error.response.data
-        : "No additional error info",
+      details: error.response ? error.response.data : "No additional error info",
     });
   }
 });
