@@ -124,4 +124,67 @@ router.get("/instance/:id/files/search", async (req, res) => {
   }
 });
 
+// ======================== NEW ROUTES FOR FULL DOWNLOAD ZIP (FOLDER + MASS SELECTED) ========================
+
+// Folder ZIP (Download button on directories)
+router.get("/instance/:id/files/archive/:file", async (req, res) => {
+  if (!req.user) return res.status(401).send("Authentication required");
+
+  const { id, file } = req.params;
+
+  const instance = await db.get(id + "_instance");
+  if (!instance) return res.status(404).send("Instance not found");
+
+  const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+  if (!isAuthorized) return res.status(403).send("Unauthorized");
+
+  const suspended = await isInstanceSuspended(req.user.userId, instance, id);
+  if (suspended) return res.render("instance/suspended", { req, user: req.user });
+
+  try {
+    const apiUrl = `http://${instance.Node.address}:${instance.Node.port}/archive/${instance.VolumeId}/zip`;
+    const response = await axios.post(apiUrl, { path: file }, {
+      responseType: "stream",
+      auth: { username: "kspanel", password: instance.Node.apiKey },
+    });
+
+    res.setHeader("Content-Disposition", `attachment; filename="${file}.zip"`);
+    res.setHeader("Content-Type", "application/zip");
+    response.data.pipe(res);
+  } catch (err) {
+    res.status(500).send("Failed to create folder ZIP");
+  }
+});
+
+// Mass selected ZIP (floating bar "Download ZIP")
+router.post("/instance/:id/files/archive-selected", async (req, res) => {
+  if (!req.user) return res.status(401).send("Authentication required");
+
+  const { id } = req.params;
+  const { files } = req.body;
+
+  const instance = await db.get(id + "_instance");
+  if (!instance) return res.status(404).send("Instance not found");
+
+  const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+  if (!isAuthorized) return res.status(403).send("Unauthorized");
+
+  const suspended = await isInstanceSuspended(req.user.userId, instance, id);
+  if (suspended) return res.render("instance/suspended", { req, user: req.user });
+
+  try {
+    const apiUrl = `http://${instance.Node.address}:${instance.Node.port}/archive/${instance.VolumeId}/zip`;
+    const response = await axios.post(apiUrl, { files }, {
+      responseType: "stream",
+      auth: { username: "kspanel", password: instance.Node.apiKey },
+    });
+
+    res.setHeader("Content-Disposition", `attachment; filename="selected-files.zip"`);
+    res.setHeader("Content-Type", "application/zip");
+    response.data.pipe(res);
+  } catch (err) {
+    res.status(500).send("Failed to create selected ZIP");
+  }
+});
+
 module.exports = router;
