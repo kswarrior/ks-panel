@@ -1,4 +1,5 @@
-<%- include('components/template') %>
+});
+</script><%- include('components/template') %>
 <% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
 <main id="content">
   <div class="bg-transparent">
@@ -79,187 +80,169 @@
         <p class="mt-1 text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
       </div>
     <% } else { %>
-      <!-- Mobile Card View / Desktop Table -->
-      <div class="instances-container">
-        <!-- Desktop Table Header (Hidden on Mobile) -->
-        <div class="hidden md:grid grid-cols-5 gap-4 px-6 py-3 bg-white/5 rounded-t-lg border-b border-white/10">
-          <div class="text-sm font-semibold text-white">Instance</div>
-          <div class="text-sm font-semibold text-white">Status</div>
-          <div class="text-sm font-semibold text-white">RAM Usage</div>
-          <div class="text-sm font-semibold text-white">CPU Usage</div>
-          <div class="text-sm font-semibold text-white">Disk Usage</div>
-        </div>
-        
-        <!-- Cards Container -->
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-0">
-          <% instances.forEach(function (instance) { %>
-            <!-- Mobile Card / Desktop Row -->
-            <div 
-              onclick="window.location.href = '../instance/<%= instance.Id %>';"
-              class="instance-card md:contents cursor-pointer group"
-              data-instance-id="<%= instance.Id %>"
-            >
-              <!-- Mobile Card Layout -->
-              <div class="md:hidden bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/[0.08] transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/20">
-                <!-- Card Header -->
-                <div class="flex items-center justify-between mb-4">
-                  <div class="flex items-center gap-3">
-                    <div class="rounded-xl bg-white/10 p-2.5 group-hover:bg-white/20 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
-                        <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 class="font-medium text-white text-sm"><%= instance.Name %></h3>
-                      <span class="text-xs text-neutral-400">Instance</span>
-                    </div>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors">
-                    <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+      <!-- Responsive Grid Container -->
+      <div class="instances-container grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 md:gap-6">
+        <% instances.forEach(function (instance) { %>
+          <!-- Instance Card -->
+          <div 
+            onclick="window.location.href = '../instance/<%= instance.Id %>';"
+            class="instance-card group cursor-pointer bg-white/5 rounded-2xl p-5 border border-white/10 hover:bg-white/[0.08] transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/20 relative overflow-hidden"
+            data-instance-id="<%= instance.Id %>"
+          >
+            <!-- Suspended Overlay -->
+            <% if (instance.suspended === true) { %>
+              <div class="absolute inset-0 bg-red-500/5 z-0 pointer-events-none"></div>
+              <div class="absolute top-3 right-3 z-10">
+                <span class="inline-flex items-center bg-red-500/20 text-red-400 px-2 py-1 rounded-full text-xs font-bold border border-red-500/30">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 mr-1">
+                    <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+                  </svg>
+                  SUSPENDED
+                </span>
+              </div>
+            <% } %>
+
+            <!-- Card Header -->
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <div class="flex items-center gap-3">
+                <div class="rounded-xl bg-white/10 p-3 group-hover:bg-white/20 transition-all duration-300 group-hover:scale-110">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white">
+                    <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
                   </svg>
                 </div>
-                
-                <!-- Card Stats Grid -->
-                <div class="grid grid-cols-4 gap-3">
-                  <!-- Status -->
-                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
-                    <div class="text-xs text-neutral-400 mb-1">Status</div>
-                    <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-2 py-1 rounded-full text-xs font-medium">
-                      <span data-status>
-                        <% if (instance.InternalState) { %>
-                          <%= instance.InternalState %>
-                        <% } else { %>
-                          <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          <%= req.translations.loading %>
-                        <% } %>
-                      </span>
-                    </span>
-                  </div>
-                  
-                  <!-- RAM -->
-                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
-                    <div class="text-xs text-neutral-400 mb-1">RAM Usage</div>
-                    <span data-ram-usage class="text-sm font-medium text-white">
-                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <%= req.translations.loading %>
-                    </span>
-                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
-                      <div data-ram-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                  </div>
-                  
-                  <!-- CPU -->
-                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
-                    <div class="text-xs text-neutral-400 mb-1">CPU Usage</div>
-                    <span data-cpu-usage class="text-sm font-medium text-white">
-                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <%= req.translations.loading %>
-                    </span>
-                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
-                      <div data-cpu-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                  </div>
+                <div>
+                  <h3 class="font-semibold text-white text-base group-hover:text-blue-400 transition-colors"><%= instance.Name %></h3>
+                  <span class="text-xs text-neutral-400 flex items-center gap-1 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3">
+                      <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+                    </svg>
+                    <%= instance.Id %>
+                  </span>
+                </div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-neutral-500 group-hover:text-white transition-all duration-300 group-hover:translate-x-1">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+              </svg>
+            </div>
 
-                  <!-- Disk -->
-                  <div class="bg-white/5 rounded-lg p-3 border border-white/5">
-                    <div class="text-xs text-neutral-400 mb-1">Disk Usage</div>
-                    <span data-disk-usage class="text-sm font-medium text-white">
-                      <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <%= req.translations.loading %>
-                    </span>
-                    <div class="h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
-                      <div data-disk-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                  </div>
+            <!-- Status Badge -->
+            <div class="mb-4 relative z-10">
+              <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-3 py-1.5 rounded-full text-xs font-medium border border-white/5">
+                <span data-status class="flex items-center gap-1.5">
+                  <% if (instance.InternalState) { %>
+                    <%= instance.InternalState %>
+                  <% } else { %>
+                    <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <%= req.translations.loading %>
+                  <% } %>
+                </span>
+              </span>
+            </div>
+
+            <!-- Info Grid - Node, Docker, Volume -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 relative z-10">
+              <!-- Node -->
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-blue-400">
+                    <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 011.272.71l-1.992 7.302h7.268a.75.75 0 01-.548-1.262l-10.5-11.25a.75.75 0 01.852-.359z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">Node</span>
+                </div>
+                <span class="text-xs text-white font-medium truncate block"><%= instance.Node ? instance.Node.name : 'N/A' %></span>
+              </div>
+
+              <!-- Docker ID -->
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-emerald-400">
+                    <path fill-rule="evenodd" d="M2.25 6a3 3 0 013-3h13.5a3 3 0 013 3v12a3 3 0 01-3 3H5.25a3 3 0 01-3-3V6zm3.97.97a.75.75 0 011.06 0l2.25 2.25a.75.75 0 010 1.06l-2.25 2.25a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06zm4.28 4.28a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">Docker</span>
+                </div>
+                <span class="text-xs text-white font-mono truncate block"><%= instance.ContainerId ? instance.ContainerId.substring(0, 12) : 'N/A' %></span>
+              </div>
+
+              <!-- Volume -->
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 transition-colors">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-amber-400">
+                    <path fill-rule="evenodd" d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-5.379a.75.75 0 01-.53-.22L11.47 3.66A2.25 2.25 0 009.879 3H4.5a3 3 0 00-3 3v12a3 3 0 003 3h15zm-6.75-10.5a.75.75 0 00-1.5 0v4.19l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V10.5z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">Volume</span>
+                </div>
+                <span class="text-xs text-white font-mono truncate block">/volumes/<%= instance.VolumeId ? instance.VolumeId.substring(0, 8) : 'N/A' %></span>
+              </div>
+            </div>
+
+            <!-- Stats Grid - RAM, CPU, Disk -->
+            <div class="grid grid-cols-3 gap-3 relative z-10">
+              <!-- RAM -->
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:border-white/10 transition-all">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">RAM</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-purple-400">
+                    <path d="M16.5 7.5h-9v9h9v-9z" />
+                    <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm4.5 1.5a.75.75 0 00-1.5 0v9a.75.75 0 001.5 0v-9zm3.75-1.5a.75.75 0 00-.75.75v9a.75.75 0 001.5 0v-9a.75.75 0 00-.75-.75zm3.75.75a.75.75 0 00-1.5 0v9a.75.75 0 001.5 0v-9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <span data-ram-usage class="text-sm font-bold text-white block mb-2">
+                  <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <%= req.translations.loading %>
+                </span>
+                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div data-ram-bar class="h-full bg-gradient-to-r from-purple-500 to-purple-400 transition-all duration-500 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              
+              <!-- CPU -->
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:border-white/10 transition-all">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">CPU</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-cyan-400">
+                    <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <span data-cpu-usage class="text-sm font-bold text-white block mb-2">
+                  <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <%= req.translations.loading %>
+                </span>
+                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div data-cpu-bar class="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 transition-all duration-500 rounded-full" style="width: 0%"></div>
                 </div>
               </div>
 
-              <!-- Desktop Table Row (Hidden on Mobile) -->
-              <div class="hidden md:grid grid-cols-5 gap-4 px-6 py-4 bg-white/5 border-b border-white/5 hover:bg-white/[0.05] transition-colors items-center">
-                <!-- Instance Name -->
-                <div class="flex items-center">
-                  <div class="rounded-xl bg-white/5 p-2 mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
-                      <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
-                    </svg>
-                  </div>
-                  <a href="../instance/<%= instance.Id %>" class="font-medium text-white hover:text-neutral-300 transition-colors"><%= instance.Name %></a>
+              <!-- Disk -->
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:border-white/10 transition-all">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">Disk</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-rose-400">
+                    <path fill-rule="evenodd" d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-5.379a.75.75 0 01-.53-.22L11.47 3.66A2.25 2.25 0 009.879 3H4.5a3 3 0 00-3 3v12a3 3 0 003 3h15zm-6.75-10.5a.75.75 0 00-1.5 0v4.19l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V10.5z" clip-rule="evenodd" />
+                  </svg>
                 </div>
-                
-                <!-- Status -->
-                <div>
-                  <span data-status-bg class="inline-flex items-center bg-neutral-600/20 text-neutral-400 px-2.5 py-1 rounded-full text-xs font-medium">
-                    <span data-status>
-                      <% if (instance.InternalState) { %>
-                        <%= instance.InternalState %>
-                      <% } else { %>
-                        <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <%= req.translations.loading %>
-                      <% } %>
-                    </span>
-                  </span>
-                </div>
-                
-                <!-- RAM -->
-                <div class="text-sm text-neutral-400">
-                  <span data-ram-usage>
-                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <%= req.translations.loading %>
-                  </span>
-                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
-                    <div data-ram-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                  </div>
-                </div>
-                
-                <!-- CPU -->
-                <div class="text-sm text-neutral-400">
-                  <span data-cpu-usage>
-                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <%= req.translations.loading %>
-                  </span>
-                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
-                    <div data-cpu-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                  </div>
-                </div>
-
-                <!-- Disk -->
-                <div class="text-sm text-neutral-400">
-                  <span data-disk-usage>
-                    <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <%= req.translations.loading %>
-                  </span>
-                  <div class="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
-                    <div data-disk-bar class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                  </div>
+                <span data-disk-usage class="text-sm font-bold text-white block mb-2">
+                  <svg class="animate-spin h-3 w-3 text-white mr-1 inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <%= req.translations.loading %>
+                </span>
+                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div data-disk-bar class="h-full bg-gradient-to-r from-rose-500 to-rose-400 transition-all duration-500 rounded-full" style="width: 0%"></div>
                 </div>
               </div>
             </div>
-          <% }); %>
-        </div>
+          </div>
+        <% }); %>
       </div>
     <% } %>
   </div>
@@ -275,22 +258,43 @@
     transform: translateX(100%);
   }
 
-  /* Mobile Optimizations */
-  @media (max-width: 768px) {
-    .instance-card {
-      animation: slideIn 0.3s ease-out;
+  /* Card Animations */
+  .instance-card {
+    animation: slideIn 0.4s ease-out backwards;
+  }
+  
+  .instance-card:nth-child(1) { animation-delay: 0.05s; }
+  .instance-card:nth-child(2) { animation-delay: 0.1s; }
+  .instance-card:nth-child(3) { animation-delay: 0.15s; }
+  .instance-card:nth-child(4) { animation-delay: 0.2s; }
+  .instance-card:nth-child(5) { animation-delay: 0.25s; }
+  .instance-card:nth-child(6) { animation-delay: 0.3s; }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
     }
-    
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
+  }
+
+  /* Hover glow effect */
+  .instance-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+    transition: left 0.5s;
+  }
+  
+  .instance-card:hover::before {
+    left: 100%;
   }
 
   /* Touch-friendly improvements */
@@ -306,6 +310,32 @@
       padding-left: max(1rem, env(safe-area-inset-left));
       padding-right: max(1rem, env(safe-area-inset-right));
     }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .instance-card {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  /* Custom scrollbar for webkit */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 </style>
 
@@ -330,7 +360,7 @@
       const wsPort = isSecure ? '' : `:<%= config.port %>`;
       const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
 
-      // Query ALL elements (mobile + desktop) so both views update
+      // Query ALL elements so both views update
       const statusElements = instance.querySelectorAll('[data-status]');
       const statusBgElements = instance.querySelectorAll('[data-status-bg]');
       const ramUsageElements = instance.querySelectorAll('[data-ram-usage]');
@@ -359,16 +389,16 @@
         });
       }
 
-      // === IMMEDIATE FALLBACK FOR STOPPED CONTAINERS (this fixes the "Loading..." stuck) ===
+      // === IMMEDIATE FALLBACK FOR STOPPED CONTAINERS ===
       const currentStatusText = statusElements[0] ? statusElements[0].textContent.trim() : '';
       if (currentStatusText === 'STOPPED' || currentStatusText.includes('Offline') || currentStatusText.includes('Stopped')) {
-        updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
-        updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
-        updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+        updateAll(ramUsageElements, `0 B`);
+        updateAll(cpuUsageElements, `0%`);
+        updateAll(diskUsageElements, `0 B`);
         updateProgress(ramBarElements, 0);
         updateProgress(cpuBarElements, 0);
         updateProgress(diskBarElements, 0);
-        console.log('🚀 STOPPED container detected - instantly set 0 values (no WS wait needed)');
+        console.log('🚀 STOPPED container detected - instantly set 0 values');
       }
 
       socket.onmessage = event => {
@@ -379,10 +409,10 @@
         if (typeof event.data === 'string') {
           if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
             statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
-            statusElements.forEach(el => { el.className = 'text-orange-500'; el.textContent = 'KS Wings is Offline!'; });
-            updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
-            updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
-            updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+            statusElements.forEach(el => { el.className = 'text-orange-500 flex items-center gap-1.5'; el.textContent = 'KS Wings is Offline!'; });
+            updateAll(ramUsageElements, `0 B`);
+            updateAll(cpuUsageElements, `0%`);
+            updateAll(diskUsageElements, `0 B`);
             updateProgress(ramBarElements, 0);
             updateProgress(cpuBarElements, 0);
             updateProgress(diskBarElements, 0);
@@ -391,10 +421,10 @@
           }
           if (event.data.includes('Container not found')) {
             statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
-            statusElements.forEach(el => { el.className = 'text-orange-500'; el.textContent = 'Container not found!'; });
-            updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
-            updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
-            updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+            statusElements.forEach(el => { el.className = 'text-orange-500 flex items-center gap-1.5'; el.textContent = 'Container not found!'; });
+            updateAll(ramUsageElements, `0 B`);
+            updateAll(cpuUsageElements, `0%`);
+            updateAll(diskUsageElements, `0 B`);
             updateProgress(ramBarElements, 0);
             updateProgress(cpuBarElements, 0);
             updateProgress(diskBarElements, 0);
@@ -418,9 +448,9 @@
 
         if (!realStats || realStats.error) {
           console.warn('Error or no stats for', containerId, realStats);
-          updateAll(ramUsageElements, `0 B <%= req.translations.ramUsage %>`);
-          updateAll(cpuUsageElements, `0% <%= req.translations.cpuUsage %>`);
-          updateAll(diskUsageElements, `0 B <%= req.translations.diskUsage || 'Disk Usage' %>`);
+          updateAll(ramUsageElements, `0 B`);
+          updateAll(cpuUsageElements, `0%`);
+          updateAll(diskUsageElements, `0 B`);
           updateProgress(ramBarElements, 0);
           updateProgress(cpuBarElements, 0);
           updateProgress(diskBarElements, 0);
@@ -432,14 +462,14 @@
         const ramLimitRaw = realStats.memory_stats?.limit || 1;
         const ramUsage = formatBytes(ramUsageRaw);
         const ramPercent = ramLimitRaw > 0 ? Math.min(100, (ramUsageRaw / ramLimitRaw) * 100) : 0;
-        updateAll(ramUsageElements, `${ramUsage} <%= req.translations.ramUsage %>`);
+        updateAll(ramUsageElements, `${ramUsage}`);
         updateProgress(ramBarElements, ramPercent);
 
         // CPU
         const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage || 0) - (realStats.precpu_stats?.cpu_usage?.total_usage || 0);
         const systemCpuDelta = (realStats.cpu_stats?.system_cpu_usage || 0) - (realStats.precpu_stats?.system_cpu_usage || 0);
         const cpuPercent = (cpuDelta && systemCpuDelta) ? ((cpuDelta / systemCpuDelta) * 100) : 0;
-        updateAll(cpuUsageElements, `${cpuPercent.toFixed(2)}% <%= req.translations.cpuUsage %>`);
+        updateAll(cpuUsageElements, `${cpuPercent.toFixed(2)}%`);
         updateProgress(cpuBarElements, cpuPercent);
 
         // Disk (volumeSize from your backend is in MiB)
@@ -447,7 +477,7 @@
         const diskLimitRaw = realStats.diskLimit ? realStats.diskLimit * 1024 * 1024 : (diskUsageRaw + 1);
         const diskUsage = formatBytes(diskUsageRaw);
         const diskPercent = diskLimitRaw > 0 ? Math.min(100, (diskUsageRaw / diskLimitRaw) * 100) : 0;
-        updateAll(diskUsageElements, `${diskUsage} <%= req.translations.diskUsage || 'Disk Usage' %>`);
+        updateAll(diskUsageElements, `${diskUsage}`);
         updateProgress(diskBarElements, diskPercent);
 
         // Status
@@ -457,8 +487,10 @@
           bg.classList.add(isOffline ? 'bg-red-700/30' : 'bg-emerald-600/10');
         });
         statusElements.forEach(el => {
-          el.className = isOffline ? 'text-red-500' : 'text-emerald-500';
-          el.textContent = isOffline ? 'Offline' : 'Online';
+          el.className = isOffline ? 'text-red-500 flex items-center gap-1.5' : 'text-emerald-500 flex items-center gap-1.5';
+          el.innerHTML = isOffline ? 
+            '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>Offline' : 
+            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Online';
         });
       };
 
