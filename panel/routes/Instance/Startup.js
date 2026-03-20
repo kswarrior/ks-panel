@@ -9,6 +9,7 @@ const {
   isInstanceSuspended,
 } = require("../../utils/authHelper");
 const path = require("path");
+const fs = require("fs");
 
 const { checkContainerState } = require("../../utils/checkstate.js");
 const {
@@ -52,6 +53,53 @@ router.get("/instance/:id/startup", async (req, res) => {
     if (suspended === true) {
       return res.render("instance/suspended", { req, user: req.user });
     }
+
+    // ======================== NEW: Load Variables from template.json (your real format) ========================
+    let templateData = { Variables: {} };
+
+    // Smart filename detection (works with your Paper example)
+    let templateKey = "default";
+    if (instance.imageData) {
+      if (instance.imageData.meta && instance.imageData.meta.name) {
+        templateKey = instance.imageData.meta.name;                    // "paper"
+      } else if (instance.imageData.Image) {
+        templateKey = instance.imageData.Image;
+      } else if (instance.imageData.environment && instance.imageData.environment.docker_image) {
+        templateKey = instance.imageData.environment.docker_image.split(":")[0];
+      }
+    }
+
+    const cleanName = templateKey.replace(/[^a-zA-Z0-9._-]/g, "_") + ".json";
+    const templatePath = path.join(__dirname, "../../templates", cleanName);
+
+    if (fs.existsSync(templatePath)) {
+      try {
+        const rawTemplate = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+        log.info(`Loaded template.json: ${cleanName}`);
+
+        // Convert your "variables" ARRAY to the object format EJS expects
+        if (rawTemplate.variables && Array.isArray(rawTemplate.variables)) {
+          rawTemplate.variables.forEach(v => {
+            if (v.user_editable !== false) {   // only show editable ones
+              templateData.Variables[v.id] = {
+                type: v.type === "string" ? "text" : (v.type || "text"),
+                name: v.name || v.id,           // nice label
+                default: v.default || ""
+              };
+            }
+          });
+        }
+      } catch (e) {
+        log.error("Failed to parse template.json:", e);
+      }
+    }
+
+    // Fallback to old imageData if template.json not found
+    if (Object.keys(templateData.Variables).length === 0 && instance.imageData && instance.imageData.Variables) {
+      templateData.Variables = instance.imageData.Variables;
+    }
+
+    instance.templateData = templateData;   // ← passed to EJS
 
     res.render("instance/startup.ejs", {
       req,
