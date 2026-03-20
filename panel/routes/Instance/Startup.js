@@ -54,36 +54,23 @@ router.get("/instance/:id/startup", async (req, res) => {
       return res.render("instance/suspended", { req, user: req.user });
     }
 
-    // ======================== NEW: Load Variables from template.json (your real format) ========================
+    // ======================== FIXED: Load per-instance template.json (exactly like Power.js) ========================
     let templateData = { Variables: {} };
 
-    // Smart filename detection (works with your Paper example)
-    let templateKey = "default";
-    if (instance.imageData) {
-      if (instance.imageData.meta && instance.imageData.meta.name) {
-        templateKey = instance.imageData.meta.name;                    // "paper"
-      } else if (instance.imageData.Image) {
-        templateKey = instance.imageData.Image;
-      } else if (instance.imageData.environment && instance.imageData.environment.docker_image) {
-        templateKey = instance.imageData.environment.docker_image.split(":")[0];
-      }
-    }
-
-    const cleanName = templateKey.replace(/[^a-zA-Z0-9._-]/g, "_") + ".json";
-    const templatePath = path.join(__dirname, "../../templates", cleanName);
+    const templatePath = path.join(__dirname, "../../../database/instances", id, "template.json");
 
     if (fs.existsSync(templatePath)) {
       try {
         const rawTemplate = JSON.parse(fs.readFileSync(templatePath, "utf8"));
-        log.info(`Loaded template.json: ${cleanName}`);
+        log.info(`Loaded template.json for instance ${id}`);
 
-        // Convert your "variables" ARRAY to the object format EJS expects
+        // Convert your "variables" ARRAY (Paper format) to object
         if (rawTemplate.variables && Array.isArray(rawTemplate.variables)) {
           rawTemplate.variables.forEach(v => {
-            if (v.user_editable !== false) {   // only show editable ones
+            if (v.user_editable !== false) {
               templateData.Variables[v.id] = {
                 type: v.type === "string" ? "text" : (v.type || "text"),
-                name: v.name || v.id,           // nice label
+                name: v.name || v.id,
                 default: v.default || ""
               };
             }
@@ -94,12 +81,12 @@ router.get("/instance/:id/startup", async (req, res) => {
       }
     }
 
-    // Fallback to old imageData if template.json not found
+    // Fallback if no template.json yet
     if (Object.keys(templateData.Variables).length === 0 && instance.imageData && instance.imageData.Variables) {
       templateData.Variables = instance.imageData.Variables;
     }
 
-    instance.templateData = templateData;   // ← passed to EJS
+    instance.templateData = templateData;
 
     res.render("instance/startup.ejs", {
       req,
