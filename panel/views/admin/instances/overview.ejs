@@ -16,89 +16,241 @@
       border-color: rgba(255, 255, 255, 0.3);
       box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
     }
+    
+    /* Mobile-First Responsive Table Styles */
+    .responsive-table-container {
+      position: relative;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    
+    .responsive-table-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    .responsive-table-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .responsive-table-container::-webkit-scrollbar-thumb {
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 3px;
+    }
+    
+    /* Sticky first column for mobile context */
+    .sticky-col {
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      background: inherit;
+    }
+    
+    /* Card-based mobile view */
+    @media (max-width: 768px) {
+      .mobile-card-view {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .mobile-instance-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem;
+        transition: all 0.2s ease;
+      }
+      
+      .mobile-instance-card:active {
+        transform: scale(0.98);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      
+      .mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .mobile-card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.75rem;
+      }
+      
+      .mobile-card-footer {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      
+      .mobile-label {
+        display: block;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 0.25rem;
+      }
+      
+      .mobile-value {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        word-break: break-all;
+      }
+      
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+      }
+      
+      .status-running { background: rgba(34, 197, 94, 0.2); color: rgb(34, 197, 94); }
+      .status-stopped { background: rgba(239, 68, 68, 0.2); color: rgb(239, 68, 68); }
+      .status-suspended { background: rgba(234, 179, 8, 0.2); color: rgb(234, 179, 8); }
+      .status-default { background: rgba(156, 163, 175, 0.2); color: rgb(156, 163, 175); }
+    }
+    
+    /* Touch-friendly action buttons */
+    .action-btn {
+      min-height: 36px;
+      min-width: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    
+    /* Modal responsiveness */
+    @media (max-width: 640px) {
+      #suspendInfoModal > div {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+      }
+    }
+    
+    /* Stats card animations */
+    .stat-card {
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* Loading shimmer for better perceived performance */
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    
+    .loading-shimmer {
+      animation: shimmer 2s infinite linear;
+      background: linear-gradient(to right, rgba(255,255,255,0.05) 4%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.05) 36%);
+      background-size: 1000px 100%;
+    }
 </style>
 
 <main id="content" class="max-w-screen-2xl mx-auto">
-  <div class="bg-transparent px-4 md:px-6 lg:px-8">
+  <div class="bg-transparent px-3 sm:px-4 md:px-6 lg:px-8">
     
-    <!-- Header Section -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
-      <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight"><%= req.translations.instances %></h1>
-        <p class="mt-1 text-sm text-neutral-400"><%= req.translations.instancesText %></p>
+    <!-- Header Section - Responsive -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-3 sm:gap-4 border-b border-white/10">
+      <div class="min-w-0">
+        <h1 class="text-xl sm:text-2xl font-semibold text-white tracking-tight truncate"><%= req.translations.instances %></h1>
+        <p class="mt-1 text-xs sm:text-sm text-neutral-400 line-clamp-2"><%= req.translations.instancesText %></p>
       </div>
 
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap gap-2 sm:gap-3 shrink-0">
         <button onclick="window.location.href='/admin/instances/create'"
-                class="px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
-          <%= req.translations.createNewInstance %>
+                class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-[10px] bg-white text-black font-semibold text-xs sm:text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95 touch-manipulation">
+          <span class="hidden sm:inline"><%= req.translations.createNewInstance %></span>
+          <span class="sm:hidden">+ <%= req.translations.createNewInstance %></span>
         </button>
       </div>
     </header>
 
-    <!-- Stats Section -->
-    <section id="stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      <article class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 transition-all duration-200 hover:border-white/20 group shadow-sm">
+    <!-- Stats Section - Responsive Grid -->
+    <section id="stats" class="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-6 mt-6 sm:mt-8">
+      <article class="stat-card bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 sm:p-6 hover:border-white/20 group shadow-sm">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Total Instances</p>
-            <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= instances.length %></p>
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Instances</p>
+            <p class="text-2xl sm:text-4xl md:text-5xl font-semibold text-white mt-1 sm:mt-2"><%= instances.length %></p>
           </div>
-          <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-3xl">🖥️</div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-2xl sm:text-3xl shrink-0 ml-2">🖥️</div>
         </div>
       </article>
 
-      <article class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 transition-all duration-200 hover:border-white/20 group shadow-sm">
+      <article class="stat-card bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 sm:p-6 hover:border-white/20 group shadow-sm">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-400">Suspended Instances</p>
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Suspended</p>
             <% 
               let suspendedCount = 0;
               instances.forEach(function(instance) {
                 if (instance.suspended === true) suspendedCount++;
               });
             %>
-            <p class="text-4xl md:text-5xl font-semibold text-white mt-2"><%= suspendedCount %></p>
+            <p class="text-2xl sm:text-4xl md:text-5xl font-semibold text-white mt-1 sm:mt-2"><%= suspendedCount %></p>
           </div>
-          <div class="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center text-3xl">⛔</div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center text-2xl sm:text-3xl shrink-0 ml-2">⛔</div>
         </div>
       </article>
     </section>
 
-    <!-- Success Banner -->
+    <!-- Success Banner - Responsive -->
     <% if (req.query.err == "CREATED") { %>
-    <div class="mt-8 mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-lg p-5 flex gap-4 items-start">
+    <div class="mt-6 sm:mt-8 mx-0 sm:mx-1 bg-emerald-900/30 border border-emerald-500/30 rounded-lg p-3 sm:p-5 flex gap-3 sm:gap-4 items-start">
       <div class="mt-0.5 flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <div class="flex-1">
-        <p class="font-medium text-emerald-400">Success!</p>
-        <p class="text-sm text-emerald-300/80">The instance was created successfully. Please allow a few minutes for it to finish installing and downloading additional files.</p>
+      <div class="flex-1 min-w-0">
+        <p class="font-medium text-emerald-400 text-sm sm:text-base">Success!</p>
+        <p class="text-xs sm:text-sm text-emerald-300/80 leading-relaxed">The instance was created successfully. Please allow a few minutes for it to finish installing and downloading additional files.</p>
       </div>
     </div>
     <% } %>
 
-    <!-- Table Section -->
-    <section class="mt-8">
-      <div class="overflow-x-auto rounded-lg border border-white/10 bg-neutral-900/50 shadow-2xl" id="instanceTable">
+    <!-- Table Section - Desktop View -->
+    <section class="mt-6 sm:mt-8 hidden md:block">
+      <div class="responsive-table-container rounded-lg border border-white/10 bg-neutral-900/50 shadow-2xl" id="instanceTable">
         <table class="min-w-full text-sm text-left text-white divide-y divide-white/10">
-          <thead class="bg-neutral-950/70">
+          <thead class="bg-neutral-950/70 sticky top-0 z-20">
             <tr>
-              <th class="py-4 pl-6 pr-2 font-semibold text-neutral-300 text-xs sm:py-5 sm:pl-8"><%= req.translations.name %></th>
-              <th class="py-4 px-2 font-semibold text-neutral-300 text-xs sm:px-4 sm:py-5">STATE</th>
-              <th class="py-4 px-2 font-semibold text-neutral-300 text-xs sm:px-4 sm:py-5"><%= req.translations.node %></th>
-              <th class="py-4 px-2 font-semibold text-neutral-300 text-xs sm:px-4 sm:py-5"><%= req.translations.dockerID %></th>
-              <th class="py-4 px-2 font-semibold text-neutral-300 text-xs sm:px-4 sm:py-5"><%= req.translations.volumeANDMount %></th>
-              <th class="py-4 pr-2 pl-2 font-semibold text-neutral-300 text-xs sm:pr-6 sm:pl-4 sm:py-5 text-right"><%= req.translations.actions %></th>
+              <th class="py-3 sm:py-4 pl-4 sm:pl-6 pr-2 font-semibold text-neutral-300 text-xs sm:text-sm sticky-col bg-neutral-950/70 backdrop-blur-sm"><%= req.translations.name %></th>
+              <th class="py-3 sm:py-4 px-2 font-semibold text-neutral-300 text-xs sm:text-sm">STATE</th>
+              <th class="py-3 sm:py-4 px-2 font-semibold text-neutral-300 text-xs sm:text-sm"><%= req.translations.node %></th>
+              <th class="py-3 sm:py-4 px-2 font-semibold text-neutral-300 text-xs sm:text-sm"><%= req.translations.dockerID %></th>
+              <th class="py-3 sm:py-4 px-2 font-semibold text-neutral-300 text-xs sm:text-sm"><%= req.translations.volumeANDMount %></th>
+              <th class="py-3 sm:py-4 pr-4 sm:pr-6 pl-2 font-semibold text-neutral-300 text-xs sm:text-sm text-right"><%= req.translations.actions %></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-white/5">
             <% if (instances.length === 0) { %>
             <tr>
-              <td colspan="6" class="text-center py-12">
-                <p class="text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
+              <td colspan="6" class="text-center py-8 sm:py-12">
+                <div class="flex flex-col items-center justify-center gap-3">
+                  <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-2xl">📭</div>
+                  <p class="text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
+                </div>
               </td>
             </tr>
             <% } %>
@@ -107,71 +259,91 @@
             <tr class="hover:bg-white/5 transition-colors duration-200 group cursor-pointer" onclick="location.href='/instance/<%= instance.Id %>'">
 
               <!-- Name -->
-              <td class="pl-6 py-4 sm:pl-8 sm:py-6">
-                <div class="flex items-center gap-3">
-                  <span class="font-semibold text-white truncate max-w-[180px]"><%= instance.Name %></span>
+              <td class="pl-4 sm:pl-6 py-3 sm:py-4 sticky-col bg-inherit">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <span class="font-semibold text-white truncate max-w-[120px] sm:max-w-[180px] md:max-w-[200px] text-xs sm:text-sm"><%= instance.Name %></span>
                 </div>
               </td>
 
               <!-- State -->
-              <td class="px-2 py-4 font-mono text-xs text-neutral-400 sm:px-4 sm:py-6">
-                <%= instance.InternalState %>
+              <td class="px-2 py-3 sm:py-4 font-mono text-xs text-neutral-400 whitespace-nowrap">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                  <%= instance.InternalState === 'RUNNING' ? 'bg-green-500/10 text-green-400' : 
+                      instance.InternalState === 'STOPPED' ? 'bg-red-500/10 text-red-400' : 
+                      instance.suspended ? 'bg-yellow-500/10 text-yellow-400' : 'bg-gray-500/10 text-gray-400' %>">
+                  <%= instance.InternalState %>
+                </span>
               </td>
 
               <!-- Node -->
-              <td class="px-2 py-4 font-mono text-xs text-neutral-400 sm:px-4 sm:py-6">
+              <td class="px-2 py-3 sm:py-4 font-mono text-xs text-neutral-400 whitespace-nowrap">
                 <%= instance.Node.name %>
               </td>
 
               <!-- Docker ID -->
-              <td class="px-2 py-4 font-mono text-xs text-neutral-400 sm:px-4 sm:py-6">
-                <%= instance.ContainerId %>
+              <td class="px-2 py-3 sm:py-4 font-mono text-xs text-neutral-400 whitespace-nowrap">
+                <span class="truncate max-w-[100px] inline-block" title="<%= instance.ContainerId %>"><%= instance.ContainerId %></span>
               </td>
 
               <!-- Volume -->
-              <td class="px-2 py-4 font-mono text-xs text-neutral-400 sm:px-4 sm:py-6">
-                /volumes/<%= instance.VolumeId %>
+              <td class="px-2 py-3 sm:py-4 font-mono text-xs text-neutral-400 whitespace-nowrap">
+                <span class="truncate max-w-[100px] inline-block">/volumes/<%= instance.VolumeId %></span>
               </td>
 
               <!-- Actions -->
-              <td class="pr-2 py-4 text-right sm:pr-6 sm:py-6">
-                <div class="flex items-center gap-2 justify-end flex-wrap" onclick="event.stopImmediatePropagation();">
+              <td class="pr-4 sm:pr-6 py-3 sm:py-4 text-right">
+                <div class="flex items-center gap-1 sm:gap-2 justify-end flex-wrap" onclick="event.stopImmediatePropagation();">
 
                   <!-- Delete -->
                   <button onclick="location.href='/admin/instance/delete/<%= instance.Id %>'; event.stopImmediatePropagation();" 
-                          class="px-3 py-1.5 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-[10px] transition-all duration-200 active:scale-95">
-                    <%= req.translations.remove %>
+                          class="action-btn px-2 sm:px-3 py-1.5 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-[10px] transition-all duration-200 active:scale-95"
+                          title="<%= req.translations.remove %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span class="hidden sm:inline"><%= req.translations.remove %></span>
                   </button>
 
                   <!-- Suspend / Unsuspend -->
                   <% if (instance.suspended === true) { %>
                     <% if (instance['suspended-flagg']) { %>
                       <button onclick="openSuspendInfoModal('<%= instance['suspended-flagg'] %>'); event.stopImmediatePropagation();" 
-                              class="px-3 py-1.5 text-xs font-medium bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-400 rounded-[10px] transition-all duration-200 active:scale-95 flex items-center gap-1">
+                              class="action-btn px-2 sm:px-3 py-1.5 text-xs font-medium bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-400 rounded-[10px] transition-all duration-200 active:scale-95"
+                              title="View Reason">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                         </svg>
                       </button>
                     <% } %>
-                    <form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST">
+                    <form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST" class="inline">
                       <button type="submit" onclick="event.stopImmediatePropagation();" 
-                              class="px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all duration-200 active:scale-95">
-                        <%= req.translations.unsuspend %>
+                              class="action-btn px-2 sm:px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all duration-200 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span class="hidden sm:inline"><%= req.translations.unsuspend %></span>
                       </button>
                     </form>
                   <% } else { %>
-                    <form action="/admin/instances/suspend/<%= instance.Id %>" method="POST">
+                    <form action="/admin/instances/suspend/<%= instance.Id %>" method="POST" class="inline">
                       <button type="submit" onclick="event.stopImmediatePropagation();" 
-                              class="px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all duration-200 active:scale-95">
-                        <%= req.translations.suspend %>
+                              class="action-btn px-2 sm:px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all duration-200 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="hidden sm:inline"><%= req.translations.suspend %></span>
                       </button>
                     </form>
                   <% } %>
 
                   <!-- Edit -->
                   <button onclick="location.href='/admin/instances/<%= instance.Id %>/edit'; event.stopImmediatePropagation();" 
-                          class="px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all duration-200 active:scale-95">
-                    <%= req.translations.edit %>
+                          class="action-btn px-2 sm:px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-[10px] transition-all duration-200 active:scale-95"
+                          title="<%= req.translations.edit %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span class="hidden sm:inline"><%= req.translations.edit %></span>
                   </button>
 
                 </div>
@@ -185,24 +357,121 @@
       </div>
     </section>
 
+    <!-- Mobile Card View - Alternative to Table for Small Screens -->
+    <section class="mt-6 sm:mt-8 md:hidden">
+      <% if (instances.length === 0) { %>
+        <div class="flex flex-col items-center justify-center gap-3 py-12 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg">
+          <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-2xl">📭</div>
+          <p class="text-sm text-neutral-400"><%= req.translations.noInstancesText %></p>
+        </div>
+      <% } else { %>
+        <div class="mobile-card-view">
+          <% instances.forEach(function(instance) { %>
+            <div class="mobile-instance-card" onclick="location.href='/instance/<%= instance.Id %>'">
+              <div class="mobile-card-header">
+                <div class="min-w-0 flex-1 mr-2">
+                  <h3 class="text-white font-semibold text-sm truncate"><%= instance.Name %></h3>
+                  <span class="status-badge mt-1 <%= instance.InternalState === 'RUNNING' ? 'status-running' : instance.InternalState === 'STOPPED' ? 'status-stopped' : instance.suspended ? 'status-suspended' : 'status-default' %>">
+                    <%= instance.InternalState %>
+                  </span>
+                </div>
+                <% if (instance.suspended && instance['suspended-flagg']) { %>
+                  <button onclick="openSuspendInfoModal('<%= instance['suspended-flagg'] %>'); event.stopImmediatePropagation();" 
+                          class="p-2 bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-400 rounded-lg transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                  </button>
+                <% } %>
+              </div>
+              
+              <div class="mobile-card-body">
+                <div>
+                  <span class="mobile-label">Node</span>
+                  <span class="mobile-value"><%= instance.Node.name %></span>
+                </div>
+                <div>
+                  <span class="mobile-label">Docker ID</span>
+                  <span class="mobile-value truncate block"><%= instance.ContainerId %></span>
+                </div>
+                <div class="col-span-2">
+                  <span class="mobile-label">Volume</span>
+                  <span class="mobile-value truncate block">/volumes/<%= instance.VolumeId %></span>
+                </div>
+              </div>
+              
+              <div class="mobile-card-footer" onclick="event.stopImmediatePropagation();">
+                <button onclick="location.href='/admin/instance/delete/<%= instance.Id %>'; event.stopImmediatePropagation();" 
+                        class="flex-1 px-3 py-2 text-xs font-medium bg-red-600/80 hover:bg-red-600 text-white rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <%= req.translations.remove %>
+                </button>
+                
+                <% if (instance.suspended === true) { %>
+                  <form action="/admin/instances/unsuspend/<%= instance.Id %>" method="POST" class="flex-1">
+                    <button type="submit" onclick="event.stopImmediatePropagation();" 
+                            class="w-full px-3 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <%= req.translations.unsuspend %>
+                    </button>
+                  </form>
+                <% } else { %>
+                  <form action="/admin/instances/suspend/<%= instance.Id %>" method="POST" class="flex-1">
+                    <button type="submit" onclick="event.stopImmediatePropagation();" 
+                            class="w-full px-3 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <%= req.translations.suspend %>
+                    </button>
+                  </form>
+                <% } %>
+                
+                <button onclick="location.href='/admin/instances/<%= instance.Id %>/edit'; event.stopImmediatePropagation();" 
+                        class="flex-1 px-3 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <%= req.translations.edit %>
+                </button>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </section>
+
     <%- include('../../components/pagination', { pagination }) %>
 
-    <!-- Notification (ready for future use) -->
+    <!-- Notification - Responsive Positioning -->
     <div id="notification" 
-         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
-      <span id="notification-text"></span>
+         class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-lg shadow-2xl text-sm font-medium z-50 max-w-[calc(100vw-2rem)] sm:max-w-md transition-all duration-300 transform translate-y-0">
+      <span id="notification-text" class="line-clamp-2"></span>
     </div>
 
   </div>
 
-  <!-- Suspend Info Modal -->
-  <div id="suspendInfoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-neutral-800 text-white border border-white/5 rounded-xl p-8 max-w-xl w-full transform scale-95 transition-transform duration-300 shadow-lg">
-      <h2 class="text-2xl font-semibold mb-2 text-neutral-200">Suspend Reason</h2>
-      <p class="mb-6 text-gray-400" id="modalMessage"></p>
-      <div class="flex justify-end space-x-4">
+  <!-- Suspend Info Modal - Responsive -->
+  <div id="suspendInfoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+    <div class="bg-neutral-800 text-white border border-white/10 rounded-xl p-6 sm:p-8 w-full max-w-lg transform scale-95 transition-transform duration-300 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-400 shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+        </div>
+        <h2 class="text-lg sm:text-2xl font-semibold text-neutral-200">Suspend Reason</h2>
+      </div>
+      <p class="mb-6 text-sm sm:text-base text-gray-400 leading-relaxed" id="modalMessage"></p>
+      <div class="flex justify-end">
         <button onclick="closeSuspendInfoModal()" 
-                class="px-5 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition">Close</button>
+                class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm sm:text-base font-medium active:scale-95 transition-transform">
+          Close
+        </button>
       </div>
     </div>
   </div>
@@ -213,34 +482,66 @@
       const modal = document.getElementById('suspendInfoModal');
       modal.classList.remove('opacity-0', 'pointer-events-none');
       modal.classList.add('opacity-100');
+      modal.querySelector('div').classList.remove('scale-95');
+      modal.querySelector('div').classList.add('scale-100');
+      document.body.style.overflow = 'hidden';
     }
 
     function closeSuspendInfoModal() {
       const modal = document.getElementById('suspendInfoModal');
       modal.classList.add('opacity-0', 'pointer-events-none');
       modal.classList.remove('opacity-100');
+      modal.querySelector('div').classList.add('scale-95');
+      modal.querySelector('div').classList.remove('scale-100');
+      document.body.style.overflow = '';
     }
 
-    // Optional notification helper (ready if needed)
+    // Close modal on backdrop click
+    document.getElementById('suspendInfoModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeSuspendInfoModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeSuspendInfoModal();
+      }
+    });
+
+    // Notification helper with mobile optimization
     function showNotification(message, type = 'success') {
       const notification = document.getElementById('notification');
       const textEl = document.getElementById('notification-text');
       textEl.textContent = message;
       
-      notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+      notification.className = `fixed bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 rounded-lg shadow-2xl text-sm font-medium z-50 max-w-[calc(100vw-2rem)] sm:max-w-md transition-all duration-300 transform translate-y-0 ${
         type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
       }`;
       notification.classList.remove('hidden');
       notification.classList.add('flex');
 
+      // Auto-hide after 3 seconds
       setTimeout(() => {
         notification.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => {
           notification.classList.add('hidden');
           notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
         }, 300);
-      }, 2800);
+      }, 3000);
     }
+
+    // Add touch feedback for mobile buttons
+    document.querySelectorAll('button, .mobile-instance-card').forEach(el => {
+      el.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.98)';
+      }, {passive: true});
+      
+      el.addEventListener('touchend', function() {
+        this.style.transform = '';
+      }, {passive: true});
+    });
   </script>
 </main>
 
