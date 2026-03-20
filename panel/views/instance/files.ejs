@@ -44,6 +44,14 @@
          <div class="flex flex-wrap gap-2">
             <input type="text" id="searchInput" placeholder="Search files..." 
                class="w-full sm:w-48 lg:w-64 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-neutral-500 focus:outline-none focus:border-neutral-500 transition">
+            
+            <!-- Upload from URL -->
+            <button id="urlUploadBtn" 
+               class="flex-1 sm:flex-none text-center rounded-xl px-3 py-2 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition">
+               <span class="hidden sm:inline">🌐 Upload from URL</span>
+               <span class="sm:hidden">URL</span>
+            </button>
+            
             <a href="/instance/<%= req.params.id %>/files/create<%= query %>" 
                class="flex-1 sm:flex-none text-center rounded-xl px-3 py-2 text-xs sm:text-sm font-medium bg-white/5 hover:bg-white/10 text-white border border-white/10 transition">
                <span class="sm:hidden">+ File</span>
@@ -208,14 +216,27 @@
    <div id="floatingBar" class="fixed bottom-0 left-0 right-0 bg-neutral-900/95 backdrop-blur border-t border-white/10 p-4 transform translate-y-full transition-transform duration-300 z-40">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
          <span id="selectedCount" class="text-sm text-white font-medium">0 selected</span>
-         <button id="deleteSelectedBtn" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-            Delete
-         </button>
+         <div class="flex gap-2">
+            <button id="massDownloadBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+               Download ZIP
+            </button>
+            <button id="deleteSelectedBtn" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+               Delete
+            </button>
+         </div>
       </div>
    </div>
 
    <!-- Action Dropdown (Shared) -->
-   <div id="actionDropdown" class="fixed hidden bg-white rounded-xl shadow-xl w-48 z-50 py-1 border border-neutral-200">
+   <div id="actionDropdown" class="fixed hidden bg-white rounded-xl shadow-xl w-56 z-50 py-1 border border-neutral-200">
+      <button id="actionDownload" class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition flex items-center gap-2">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v-4m0 0l4 4m-4-4l4-4m12 0v4m0 0l-4-4m4 4l-4 4"/></svg>
+         Download
+      </button>
+      <button id="actionEdit" class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition flex items-center gap-2">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+         Edit
+      </button>
       <button id="actionRename" class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition flex items-center gap-2">
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
          Rename
@@ -296,6 +317,22 @@
                <div id="uploadProgressBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
             <p id="uploadStatusText" class="text-sm text-neutral-600 text-center">0%</p>
+         </div>
+      </div>
+   </div>
+
+   <!-- Upload from URL Modal -->
+   <div id="urlUploadModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeUrlModal()"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+         <div class="bg-white rounded-2xl w-full max-w-md p-6 pointer-events-auto shadow-2xl">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">🌐 Upload from URL</h3>
+            <input type="text" id="urlInput" placeholder="https://example.com/file.zip" class="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-emerald-500 mb-4">
+            <input type="text" id="urlFilename" placeholder="Optional custom filename" class="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-emerald-500 mb-6">
+            <div class="flex gap-2 justify-end">
+               <button onclick="closeUrlModal()" class="px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg">Cancel</button>
+               <button onclick="startUrlUpload()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg">Download to Server</button>
+            </div>
          </div>
       </div>
    </div>
@@ -393,6 +430,10 @@
          dropdown.style.left = `${left}px`;
          dropdown.classList.remove('hidden');
          
+         // Show/hide Edit button only for editable text files (Pterodactyl style)
+         const isText = /\.(txt|js|json|yml|yaml|conf|ini|log|md|html|css|php|py|sh)$/i.test(file);
+         if (qs('#actionEdit')) qs('#actionEdit').style.display = isText ? 'block' : 'none';
+         
          // Close on outside click
          setTimeout(() => {
             document.addEventListener('click', closeActionDropdown, { once: true });
@@ -424,6 +465,21 @@
       });
 
       // Dropdown actions
+      qs('#actionDownload')?.addEventListener('click', () => {
+         closeActionDropdown();
+         const row = document.querySelector(`[data-filename="${state.currentActionFile}"]`);
+         const isDir = row && row.dataset.type === 'directory';
+         const url = isDir 
+            ? `/instance/<%= req.params.id %>/files/archive/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}` 
+            : `/instance/<%= req.params.id %>/files/download/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}`;
+         window.location.href = url;
+      });
+
+      qs('#actionEdit')?.addEventListener('click', () => {
+         closeActionDropdown();
+         window.location.href = `/instance/<%= req.params.id %>/files/edit/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}`;
+      });
+
       qs('#actionRename')?.addEventListener('click', () => {
          closeActionDropdown();
          openRenameModal(state.currentActionFile, state.currentActionExt);
@@ -762,8 +818,75 @@
             closeDeleteModal();
             closeMassDeleteModal();
             closeActionDropdown();
+            closeUrlModal();
          }
       });
+
+      // === NEW FEATURES: Upload from URL + Mass Download + Drag & Drop ===
+      qs('#urlUploadBtn')?.addEventListener('click', () => {
+         qs('#urlUploadModal').classList.remove('hidden');
+         qs('#urlInput').focus();
+      });
+
+      function closeUrlModal() {
+         qs('#urlUploadModal').classList.add('hidden');
+      }
+
+      async function startUrlUpload() {
+         const url = qs('#urlInput').value.trim();
+         const filename = qs('#urlFilename').value.trim();
+         if (!url) return;
+         closeUrlModal();
+         try {
+            const res = await fetch(`/instance/<%= req.params.id %>/files/pull${query}`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ url, filename })
+            });
+            if (res.ok) window.location.reload();
+            else alert('Failed to pull file from URL');
+         } catch (err) {
+            alert('Network error while pulling file');
+         }
+      }
+
+      // Mass Download ZIP
+      qs('#massDownloadBtn')?.addEventListener('click', async () => {
+         if (state.selectedFiles.size === 0) return;
+         const filesList = Array.from(state.selectedFiles);
+         try {
+            const res = await fetch(`/instance/<%= req.params.id %>/files/archive-selected${query}`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ files: filesList })
+            });
+            if (res.ok) {
+               const blob = await res.blob();
+               const a = document.createElement('a');
+               a.href = URL.createObjectURL(blob);
+               a.download = 'selected-files.zip';
+               a.click();
+            } else {
+               alert('Failed to create ZIP');
+            }
+         } catch (err) {
+            alert('Network error while downloading ZIP');
+         }
+      });
+
+      // Drag & Drop support (Pterodactyl style)
+      const listArea = qs('.hidden.sm\\:block') || qs('#mobileFileList');
+      if (listArea) {
+         listArea.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+         listArea.addEventListener('drop', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.dataTransfer.files.length) {
+               qs('#fileInput').files = e.dataTransfer.files;
+               qs('#fileInput').dispatchEvent(new Event('change'));
+            }
+         });
+      }
    </script>
 </main>
 <%- include('../components/footer') %>
