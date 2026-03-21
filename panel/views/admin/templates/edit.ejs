@@ -856,7 +856,6 @@ document.getElementById("btnImportJson").onclick = () => {
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
-        // keep current filename for update
         modeSelect.value = "json";
         modeSelect.onchange();
         jsonEditor.value = JSON.stringify(data, null, 2);
