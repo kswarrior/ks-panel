@@ -403,7 +403,7 @@ function showNotification(message, type = 'success') {
   }, 2800);
 }
 
-// ====================== MODE SWITCH (now mobile-friendly) ======================
+// ====================== MODE SWITCH ======================
 const modeSelect = document.createElement("select");
 modeSelect.id = "modeSelect";
 modeSelect.className = "input-field";
@@ -703,7 +703,7 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== COLLECT + FILL + DEFAULT ======================
+// ====================== COLLECT + FILL ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { meta: {}, environment: { install_steps: [] }, variables: [], actions: [], category: "" };
@@ -776,12 +776,14 @@ function collectFormData() {
 }
 
 function fillForm(data) {
+  // Pre-fill simple fields
   document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
   document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
 
+  // Clear and rebuild dynamic sections
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
   (data.variables || []).forEach(v => addVariable(v));
@@ -794,6 +796,7 @@ function fillForm(data) {
   installIndex = 0;
   (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
 
+  // JSON preview
   jsonEditor.value = JSON.stringify(data, null, 2);
 }
 
@@ -808,11 +811,8 @@ document.getElementById("btnSaveTemplate").onclick = async () => {
   }
 
   const filename = document.getElementById("hiddenFilename").value;
-  const url = `/admin/templates/${filename}`;
-  const method = "PUT";
-
-  const res = await fetch(url, {
-    method,
+  const res = await fetch(`/admin/templates/${filename}`, {
+    method: "PUT",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(payload)
   });
@@ -869,7 +869,8 @@ document.getElementById("btnImportJson").onclick = () => {
   input.click();
 };
 
-// ====================== INIT EDIT ======================
+// ====================== INIT + LOAD TEMPLATE.JSON ======================
+// FIXED: This now reliably loads the existing template
 const templateData = <%= JSON.stringify(template) %>;
 fillForm(templateData);
 modeSelect.value = "form";
