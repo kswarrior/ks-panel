@@ -2,7 +2,7 @@
 
 <style>
 /* ============================================
-   BASE STYLES - Preserving exact colors
+   BASE STYLES - Exact colors preserved
    ============================================ */
 
 .input-field {
@@ -234,11 +234,13 @@
 }
 
 /* ============================================
-   MOBILE CARD ENHANCEMENTS
+   MOBILE CARD ENHANCEMENTS - Optimistic UI
    ============================================ */
 
 .mobile-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .mobile-card:active {
@@ -251,8 +253,30 @@
   transform: translateX(10px);
 }
 
+.mobile-card.optimistic {
+  position: relative;
+}
+
+.mobile-card.optimistic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mobile-card.optimistic .key-content {
+  filter: blur(0.5px);
+}
+
 /* ============================================
-   DESKTOP TABLET ENHANCEMENTS
+   DESKTOP TABLE ENHANCEMENTS - Optimistic UI
    ============================================ */
 
 @media (min-width: 768px) {
@@ -268,10 +292,28 @@
     opacity: 0.5;
     pointer-events: none;
   }
+  
+  .desktop-row.optimistic {
+    position: relative;
+  }
+  
+  .desktop-row.optimistic::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    pointer-events: none;
+    z-index: 10;
+  }
 }
 
 /* ============================================
-   OPTIMISTIC UI STATES
+   OPTIMISTIC UI STATES - Enhanced visibility
    ============================================ */
 
 .optimistic-pending {
@@ -299,6 +341,21 @@
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 0.5rem;
+}
+
+.optimistic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ============================================
@@ -481,6 +538,71 @@ a:focus:not(:focus-visible) {
 .delete-btn-styled:active {
   transform: scale(0.95);
 }
+
+/* ============================================
+   STATUS INDICATORS
+   ============================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-dot.pending {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: pulse 2s infinite;
+}
+
+/* ============================================
+   GRID LAYOUTS FOR CARDS
+   ============================================ */
+
+.cards-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================
+   TABLE CELL ALIGNMENT
+   ============================================ */
+
+.table-key-cell {
+  max-width: 300px;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .table-key-cell {
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .table-key-cell {
+    max-width: 500px;
+  }
+}
 </style>
 
 <main id="content" class="min-h-screen pb-24 sm:pb-20">
@@ -491,7 +613,7 @@ a:focus:not(:focus-visible) {
          ============================================ -->
     <header class="page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 pb-6 sm:pb-8 mb-6 sm:mb-8">
       <div class="space-y-2 sm:space-y-1">
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight heading-responsive bg-gradient-to-r from-white to-neutral-400 bg-clip-text">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight heading-responsive bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
           <%= req.translations.APIKeys %>
         </h1>
         <p class="text-sm sm:text-base text-neutral-400 max-w-xl leading-relaxed">
@@ -541,9 +663,9 @@ a:focus:not(:focus-visible) {
           <table class="w-full text-sm text-left text-white">
             <thead class="bg-neutral-950/80 border-b border-white/10">
               <tr>
-                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider w-20">ID</th>
-                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider">Key</th>
-                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider hidden md:table-cell w-40">Created</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider w-24">ID</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider">API Key</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider hidden md:table-cell w-48">Created</th>
                 <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider text-right w-32">Actions</th>
               </tr>
             </thead>
@@ -568,17 +690,25 @@ a:focus:not(:focus-visible) {
                 <% apiKeys.forEach(function(key) { %>
                   <tr id="desktop-row-<%= key.id %>" class="desktop-row table-row-hover group animate-fade-in" data-id="<%= key.id %>">
                     <td class="py-4 px-4 sm:px-6">
-                      <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
-                        <%= key.id %>
-                      </span>
+                      <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+                          <%= key.id %>
+                        </span>
+                        <span class="status-dot active md:hidden"></span>
+                      </div>
                     </td>
-                    <td class="py-4 px-4 sm:px-6">
+                    <td class="py-4 px-4 sm:px-6 table-key-cell">
                       <div class="key-container key-display text-xs text-neutral-300 shadow-inner">
                         <%= key.key %>
                       </div>
                     </td>
                     <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
-                      <span class="text-xs text-neutral-400 font-medium"><%= key.createdAt %></span>
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="text-xs text-neutral-400 font-medium"><%= key.createdAt %></span>
+                      </div>
                     </td>
                     <td class="py-4 px-4 sm:px-6 text-right">
                       <button type="button" class="delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target" data-id="<%= key.id %>">
@@ -601,9 +731,9 @@ a:focus:not(:focus-visible) {
          MOBILE CARDS VIEW - Enhanced touch experience
          ============================================ -->
     <div id="mobileCards" class="view-mobile mt-6">
-      <div id="mobileBody" class="space-y-4">
+      <div id="mobileBody" class="cards-grid">
         <% if (apiKeys.length === 0) { %>
-          <div id="mobileEmpty" class="rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in">
+          <div id="mobileEmpty" class="col-span-full rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in">
             <div class="flex flex-col items-center gap-4">
               <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
                 <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -625,9 +755,12 @@ a:focus:not(:focus-visible) {
                   <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-base font-bold text-neutral-400">
                     #<%= key.id %>
                   </span>
-                  <div>
-                    <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">Created</p>
-                    <p class="text-sm text-neutral-200 font-semibold"><%= key.createdAt %></p>
+                  <div class="flex flex-col">
+                    <span class="optimistic-badge hidden" id="badge-<%= key.id %>">
+                      <span class="status-dot active"></span>
+                      Active
+                    </span>
+                    <span class="text-xs text-neutral-500 mt-1">ID: <%= key.id %></span>
                   </div>
                 </div>
                 <button type="button" class="delete-btn-mobile delete-btn-styled p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target" data-id="<%= key.id %>" aria-label="Delete API key">
@@ -639,17 +772,31 @@ a:focus:not(:focus-visible) {
               
               <!-- Key Section -->
               <div class="p-4 space-y-3">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-2">
                   <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
-                  <button onclick="copyToClipboard('<%= key.key %>')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-2 py-1 rounded-lg hover:bg-emerald-500/10">
+                  <button onclick="copyToClipboard('<%= key.key %>')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
                     Copy
                   </button>
                 </div>
-                <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all">
+                <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all key-content">
                   <%= key.key %>
+                </div>
+                
+                <!-- Meta Info -->
+                <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2 text-neutral-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span><%= key.createdAt %></span>
+                  </div>
+                  <span class="optimistic-badge hidden" id="meta-badge-<%= key.id %>">
+                    <span class="animate-spin">⟳</span>
+                    Syncing
+                  </span>
                 </div>
               </div>
             </div>
@@ -731,8 +878,8 @@ a:focus:not(:focus-visible) {
   // ============================================
   const state = {
     isCreating: false,
-    isDeleting: new Set(), // Track IDs being deleted to prevent duplicates
-    optimisticKeys: new Map(), // Track optimistic keys
+    isDeleting: new Set(),
+    optimisticKeys: new Map(),
     BREAKPOINT: 768
   };
 
@@ -744,7 +891,6 @@ a:focus:not(:focus-visible) {
   function showNotification(message, type = 'success') {
     if (!els.notification || !els.notificationText) return;
     
-    // Clear existing timeout
     clearTimeout(notificationTimeout);
     
     els.notificationText.textContent = message;
@@ -762,7 +908,6 @@ a:focus:not(:focus-visible) {
     
     els.notification.classList.add('show');
 
-    // Auto-hide after 3 seconds
     notificationTimeout = setTimeout(() => {
       els.notification.classList.remove('show');
     }, 3000);
@@ -776,7 +921,6 @@ a:focus:not(:focus-visible) {
       await navigator.clipboard.writeText(text);
       showNotification('API Key copied to clipboard!', 'success');
     } catch (err) {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
@@ -803,12 +947,10 @@ a:focus:not(:focus-visible) {
       els.mobileCards?.classList.add('hidden-view');
       els.createForm?.classList.remove('hidden-view');
       
-      // Smooth scroll to form
       requestAnimationFrame(() => {
         els.createForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       
-      // Focus management for accessibility
       setTimeout(() => {
         els.cancelButton?.focus();
       }, 100);
@@ -852,7 +994,7 @@ a:focus:not(:focus-visible) {
     const now = new Date();
     return {
       id: tempId,
-      key: 'Generating secure key...',
+      key: 'sk_live_••••••••••••••••••••••••••••••',
       createdAt: formatDate(now),
       isOptimistic: true
     };
@@ -865,23 +1007,31 @@ a:focus:not(:focus-visible) {
   function createDesktopRow(data, isOptimistic = false) {
     const tr = document.createElement('tr');
     tr.id = `desktop-row-${data.id}`;
-    tr.className = `desktop-row table-row-hover group animate-scale-in ${isOptimistic ? 'optimistic-pending' : ''}`;
+    tr.className = `desktop-row table-row-hover group animate-scale-in ${isOptimistic ? 'optimistic' : ''}`;
     tr.dataset.id = data.id;
     
     tr.innerHTML = `
       <td class="py-4 px-4 sm:px-6">
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
-          ${isOptimistic ? '...' : data.id}
-        </span>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+            ${isOptimistic ? '...' : data.id}
+          </span>
+          ${isOptimistic ? '<span class="optimistic-badge"><span class="status-dot pending"></span>Creating</span>' : '<span class="status-dot active"></span>'}
+        </div>
       </td>
-      <td class="py-4 px-4 sm:px-6">
-        <div class="key-container key-display text-xs text-neutral-300 shadow-inner ${isOptimistic ? 'animate-pulse' : ''}">
+      <td class="py-4 px-4 sm:px-6 table-key-cell">
+        <div class="key-container key-display text-xs text-neutral-300 shadow-inner ${isOptimistic ? 'key-content' : ''}">
           ${data.key}
         </div>
-        ${isOptimistic ? '<div class="optimistic-indicator"><span class="animate-spin">⟳</span> Creating...</div>' : ''}
+        ${isOptimistic ? '<div class="optimistic-indicator"><span class="animate-spin">⟳</span> Generating secure key...</div>' : ''}
       </td>
       <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
-        <span class="text-xs text-neutral-400 font-medium">${data.createdAt}</span>
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <span class="text-xs text-neutral-400 font-medium">${data.createdAt}</span>
+        </div>
       </td>
       <td class="py-4 px-4 sm:px-6 text-right">
         <button type="button" class="delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
@@ -905,7 +1055,7 @@ a:focus:not(:focus-visible) {
   function createMobileCard(data, isOptimistic = false) {
     const div = document.createElement('div');
     div.id = `mobile-card-${data.id}`;
-    div.className = `mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-scale-in ${isOptimistic ? 'optimistic-pending' : ''}`;
+    div.className = `mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-scale-in ${isOptimistic ? 'optimistic' : ''}`;
     div.dataset.id = data.id;
     
     div.innerHTML = `
@@ -914,9 +1064,12 @@ a:focus:not(:focus-visible) {
           <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-base font-bold text-neutral-400">
             ${isOptimistic ? '...' : '#' + data.id}
           </span>
-          <div>
-            <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">Created</p>
-            <p class="text-sm text-neutral-200 font-semibold">${data.createdAt}</p>
+          <div class="flex flex-col">
+            ${isOptimistic ? 
+              '<span class="optimistic-badge"><span class="status-dot pending"></span>Creating</span>' : 
+              '<span class="optimistic-badge"><span class="status-dot active"></span>Active</span>'
+            }
+            <span class="text-xs text-neutral-500 mt-1">${isOptimistic ? 'Just now' : data.createdAt}</span>
           </div>
         </div>
         <button type="button" class="delete-btn-mobile delete-btn-styled p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
@@ -927,21 +1080,31 @@ a:focus:not(:focus-visible) {
         </button>
       </div>
       <div class="p-4 space-y-3">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mb-2">
           <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
           ${!isOptimistic ? `
-          <button onclick="copyToClipboard('${data.key}')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-2 py-1 rounded-lg hover:bg-emerald-500/10">
+          <button onclick="copyToClipboard('${data.key}')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
             </svg>
             Copy
           </button>
-          ` : '<span class="text-xs text-neutral-500 animate-pulse">Generating...</span>'}
+          ` : '<span class="optimistic-badge"><span class="animate-spin">⟳</span>Syncing</span>'}
         </div>
-        <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all ${isOptimistic ? 'animate-pulse' : ''}">
+        <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all key-content">
           ${data.key}
         </div>
-        ${isOptimistic ? '<div class="optimistic-indicator"><span class="animate-spin">⟳</span> Creating secure key...</div>' : ''}
+        
+        <!-- Meta Info -->
+        <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2 text-neutral-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>${data.createdAt}</span>
+          </div>
+          ${isOptimistic ? '<span class="text-amber-400 animate-pulse">Processing...</span>' : ''}
+        </div>
       </div>
     `;
     
@@ -992,7 +1155,7 @@ a:focus:not(:focus-visible) {
     if (!hasMobileItems && !document.getElementById('mobileEmpty')) {
       const emptyCard = document.createElement('div');
       emptyCard.id = 'mobileEmpty';
-      emptyCard.className = 'rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in';
+      emptyCard.className = 'col-span-full rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in';
       emptyCard.innerHTML = `
         <div class="flex flex-col items-center gap-4">
           <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
@@ -1024,10 +1187,8 @@ a:focus:not(:focus-visible) {
       
       const id = this.dataset.id;
       
-      // Prevent duplicate deletions
       if (state.isDeleting.has(id)) return;
       
-      // Check if it's an optimistic key
       if (state.optimisticKeys.has(id)) {
         showNotification('Please wait for the key to be created first', 'warning');
         return;
@@ -1035,24 +1196,20 @@ a:focus:not(:focus-visible) {
       
       if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) return;
       
-      // Mark as deleting
       state.isDeleting.add(id);
       
-      // Optimistic removal - immediate UI feedback
       const desktopRow = document.getElementById(`desktop-row-${id}`);
       const mobileCard = document.getElementById(`mobile-card-${id}`);
       
       desktopRow?.classList.add('deleting', 'animate-slide-out');
       mobileCard?.classList.add('deleting', 'animate-slide-out');
       
-      // Remove from DOM after animation
       const removeFromDOM = () => {
         desktopRow?.remove();
         mobileCard?.remove();
         checkEmptyStates();
       };
       
-      // Optimistic notification
       showNotification('API Key deleted', 'success');
       
       try {
@@ -1064,13 +1221,11 @@ a:focus:not(:focus-visible) {
 
         if (!response.ok) throw new Error('Delete failed');
         
-        // Wait for animation then clean up
         setTimeout(removeFromDOM, 300);
         
       } catch (err) {
         console.error('Delete error:', err);
         
-        // Rollback UI - restore the items
         desktopRow?.classList.remove('deleting', 'animate-slide-out');
         mobileCard?.classList.remove('deleting', 'animate-slide-out');
         
@@ -1091,29 +1246,23 @@ a:focus:not(:focus-visible) {
     this.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Creating...`;
     this.disabled = true;
 
-    // Generate optimistic data
     const optimisticData = createOptimisticKeyData();
     const tempId = optimisticData.id;
     
-    // Track optimistic key
     state.optimisticKeys.set(tempId, optimisticData);
     
-    // Remove empty states immediately
     removeEmptyStates();
     
-    // Insert optimistic UI immediately (before server response)
     const desktopRow = createDesktopRow(optimisticData, true);
     const mobileCard = createMobileCard(optimisticData, true);
     
     els.desktopBody?.insertBefore(desktopRow, els.desktopBody.firstChild);
     els.mobileBody?.insertBefore(mobileCard, els.mobileBody.firstChild);
     
-    // Scroll to show the new item
     requestAnimationFrame(() => {
       mobileCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
     
-    // Show form returning animation
     window.showForm(false);
 
     try {
@@ -1126,24 +1275,19 @@ a:focus:not(:focus-visible) {
 
       const data = await response.json();
       
-      // Remove optimistic tracking
       state.optimisticKeys.delete(tempId);
       
-      // Update the optimistic elements with real data
       const realDesktopRow = createDesktopRow(data, false);
       const realMobileCard = createMobileCard(data, false);
       
-      // Replace optimistic with real (maintain position)
       desktopRow.replaceWith(realDesktopRow);
       mobileCard.replaceWith(realMobileCard);
       
-      // Success notification
       showNotification('API Key created successfully! Copy it now.', 'success');
 
     } catch (err) {
       console.error('Create error:', err);
       
-      // Remove optimistic elements on error
       desktopRow?.remove();
       mobileCard?.remove();
       state.optimisticKeys.delete(tempId);
@@ -1163,7 +1307,6 @@ a:focus:not(:focus-visible) {
   els.createButton?.addEventListener('click', () => window.showForm(true));
   els.cancelButton?.addEventListener('click', () => window.showForm(false));
 
-  // Close form on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !els.createForm?.classList.contains('hidden-view')) {
       window.showForm(false);
@@ -1174,11 +1317,9 @@ a:focus:not(:focus-visible) {
   // INITIALIZATION
   // ============================================
   
-  // Attach handlers to existing elements (server-rendered)
   document.querySelectorAll('.delete-btn').forEach(attachDeleteHandler);
   document.querySelectorAll('.delete-btn-mobile').forEach(attachDeleteHandler);
 
-  // Handle window resize with debounce
   let resizeTimeout;
   window.addEventListener('resize', function() {
     clearTimeout(resizeTimeout);
@@ -1189,7 +1330,6 @@ a:focus:not(:focus-visible) {
     }, 150);
   });
 
-  // Initial state check
   updateViewBasedOnScreenSize();
 
 })();
