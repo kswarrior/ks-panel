@@ -561,8 +561,7 @@ let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0;
 
 // ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
-  const itemClass = listType === 'options' ? '.tf-sub-item' : '.tf-sub-item';
-  const items = container.querySelectorAll(itemClass);
+  const items = container.querySelectorAll('.tf-sub-item');
   items.forEach((item, newIdx) => {
     item.querySelectorAll('input[name], select[name], textarea[name]').forEach(field => {
       if (field.name) {
@@ -582,10 +581,6 @@ function removeAndReindex(btn, listType) {
 }
 
 // ====================== NOTIFICATION ======================
-function hideForm() {
-  window.location.href = "/admin/templates/overview";
-}
-
 function showNotification(message, type = 'success') {
   const notification = document.getElementById('tf-notification');
   const textEl = document.getElementById('tf-notification-text');
@@ -598,9 +593,7 @@ function showNotification(message, type = 'success') {
   
   setTimeout(() => {
     notification.classList.add('opacity-0', 'translate-y-2');
-    setTimeout(() => {
-      notification.classList.remove('tf-show', 'opacity-0', 'translate-y-2');
-    }, 300);
+    setTimeout(() => notification.classList.remove('tf-show', 'opacity-0', 'translate-y-2'), 300);
   }, 2800);
 }
 
@@ -613,34 +606,58 @@ const submitSection = document.getElementById("submitSection");
 
 modeSelect.onchange = () => {
   const isJson = modeSelect.value === "json";
+
   if (isJson) {
+    // Hide visual form sections, show JSON
     Array.from(formArea.children).forEach(el => {
       if (el.id !== 'jsonArea' && el.id !== 'submitSection') {
         el.classList.add('tf-hidden');
       }
     });
     jsonArea.classList.remove("tf-hidden");
-    try { 
-      jsonEditor.value = JSON.stringify(collectFormData(), null, 2); 
-    } catch(e) {}
+
+    try {
+      jsonEditor.value = JSON.stringify(collectFormData(), null, 2);
+    } catch (e) {
+      jsonEditor.value = "{}";
+      showNotification("Could not generate JSON from form", "error");
+    }
   } else {
+    // Show visual form, hide JSON
     Array.from(formArea.children).forEach(el => {
       if (el.id !== 'jsonArea') {
         el.classList.remove('tf-hidden');
       }
     });
     jsonArea.classList.add("tf-hidden");
+
+    // Load JSON → Form
+    try {
+      const jsonText = jsonEditor.value.trim();
+      if (!jsonText || jsonText === "{}") {
+        showNotification("Empty JSON – form cleared", "success");
+        fillForm({});
+        return;
+      }
+      const parsed = JSON.parse(jsonText);
+      fillForm(parsed);
+      showNotification("JSON loaded into visual form", "success");
+    } catch (e) {
+      showNotification("Invalid JSON! Fix before switching back to form.", "error");
+      modeSelect.value = "json"; // stay in JSON mode
+      return;
+    }
   }
   submitSection.style.display = "flex";
 };
 
 // ====================== VARIABLE TYPES ======================
 const variableTypes = [
-  { value: "string", label: "String" },
+  { value: "string",  label: "String" },
   { value: "integer", label: "Integer" },
-  { value: "number", label: "Number" },
+  { value: "number",  label: "Number" },
   { value: "boolean", label: "Boolean" },
-  { value: "option", label: "Option (Dropdown)" }
+  { value: "option",  label: "Option (Dropdown)" }
 ];
 
 // ====================== ADD OPTION ITEM ======================
@@ -694,8 +711,8 @@ function addVariable(v = {}) {
       <div class="tf-field-short">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">User Editable</label>
         <select name="variables[${idx}].user_editable" class="tf-input">
-          <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>Yes</option>
-          <option value="false" ${v.user_editable === "false" ? "selected" : ""}>No</option>
+          <option value="true"  ${v.user_editable !== false ? "selected" : ""}>Yes</option>
+          <option value="false" ${v.user_editable === false ? "selected" : ""}>No</option>
         </select>
       </div>
     </div>
@@ -745,50 +762,38 @@ function addVariable(v = {}) {
 
   if (v.type === "option") {
     optionsSection.classList.remove("tf-hidden");
-    if (Array.isArray(v.options)) {
-      v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
-    }
+    (v.options || []).forEach((opt, i) => addOptionItem(idx, i, opt));
   }
   toggleFields();
 }
 
 // ====================== ITEM TYPES & FIELD CONFIGS ======================
 const itemTypes = [
-  { value: "command", label: "Run Shell Command" },
-  { value: "download", label: "Download File" },
-  { value: "git_clone", label: "Git Clone" },
-  { value: "create_file", label: "Create File" },
-  { value: "unzip", label: "Unzip Archive" },
-  { value: "mkdir", label: "Create Directory" },
-  { value: "chmod", label: "Change Permissions" }
+  { value: "command",    label: "Run Shell Command" },
+  { value: "download",   label: "Download File" },
+  { value: "git_clone",  label: "Git Clone" },
+  { value: "create_file",label: "Create File" },
+  { value: "unzip",      label: "Unzip Archive" },
+  { value: "mkdir",      label: "Create Directory" },
+  { value: "chmod",      label: "Change Permissions" }
 ];
 
 const fieldConfigs = {
-  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "#!/bin/bash\necho 'Hello World'" }],
-  download: [
-    { key: "url", label: "URL", type: "text", placeholder: "https://example.com/file.zip" },
-    { key: "filename", label: "Filename", type: "text", placeholder: "file.zip" },
-    { key: "path", label: "Save Path", type: "text", placeholder: "/data" }
-  ],
-  git_clone: [
-    { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/user/repo.git" },
-    { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
-    { key: "branch", label: "Branch", type: "text", placeholder: "main" }
-  ],
-  create_file: [
-    { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
-    { key: "path", label: "Path", type: "text", placeholder: "/data" },
-    { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "key: value" }
-  ],
-  unzip: [
-    { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
-    { key: "destination", label: "Extract To", type: "text", placeholder: "/data" }
-  ],
-  mkdir: [{ key: "path", label: "Directory Path", type: "text", placeholder: "/data/backups" }],
-  chmod: [
-    { key: "target", label: "Target", type: "text", placeholder: "/data/server.jar" },
-    { key: "mode", label: "Permissions", type: "text", placeholder: "755" }
-  ]
+  command:    [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "#!/bin/bash\necho 'Hello World'" }],
+  download:   [{ key: "url", label: "URL", type: "text", placeholder: "https://example.com/file.zip" },
+               { key: "filename", label: "Filename", type: "text", placeholder: "file.zip" },
+               { key: "path", label: "Save Path", type: "text", placeholder: "/data" }],
+  git_clone:  [{ key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/user/repo.git" },
+               { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
+               { key: "branch", label: "Branch", type: "text", placeholder: "main" }],
+  create_file:[{ key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
+               { key: "path", label: "Path", type: "text", placeholder: "/data" },
+               { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "key: value" }],
+  unzip:      [{ key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
+               { key: "destination", label: "Extract To", type: "text", placeholder: "/data" }],
+  mkdir:      [{ key: "path", label: "Directory Path", type: "text", placeholder: "/data/backups" }],
+  chmod:      [{ key: "target", label: "Target", type: "text", placeholder: "/data/server.jar" },
+               { key: "mode", label: "Permissions", type: "text", placeholder: "755" }]
 };
 
 // ====================== SUB-OPERATION ======================
@@ -875,8 +880,9 @@ function addAction(a = {}) {
   document.getElementById("actionsContainer").appendChild(div);
 
   const opsContainer = div.querySelector(`#ops-actions-${idx}`);
-  const ops = a.operations || [{ type: "command", run_code: "echo 'Action started'" }];
-  ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
+  (a.operations || [{ type: "command", run_code: "echo 'Action started'" }]).forEach(op => 
+    addSubOperation(opsContainer, "actions", idx, op)
+  );
 
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
 }
@@ -904,8 +910,9 @@ function addInstallStep(s = {}) {
   document.getElementById("installStepsContainer").appendChild(div);
 
   const opsContainer = div.querySelector(`#ops-install-${idx}`);
-  const ops = s.operations || [{ type: "command", run_code: "echo 'Installing...'" }];
-  ops.forEach(op => addSubOperation(opsContainer, "install_steps", idx, op));
+  (s.operations || [{ type: "command", run_code: "echo 'Installing...'" }]).forEach(op => 
+    addSubOperation(opsContainer, "install_steps", idx, op)
+  );
 
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
@@ -929,13 +936,13 @@ function addPage(p = {}) {
 
     <div class="mt-4">
       <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">EJS Content (HTML)</label>
-      <textarea name="pages[${idx}].ejsContent" rows="10" class="tf-input" placeholder="<div class=&quot;page-content&quot;>&#10;  <h2>My Page</h2>&#10;</div>">${(p.ejsContent || '').replace(/"/g, '&quot;')}</textarea>
+      <textarea name="pages[${idx}].ejsContent" rows="10" class="tf-input" placeholder="<div class=\"page-content\">\n  <h2>My Page</h2>\n</div>">${p.ejsContent || ''}</textarea>
       <p class="tf-note">Saved as pages/&lt;id&gt;.ejs • Access via /instance/:id/page/:id</p>
     </div>
 
     <div class="mt-4">
       <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">JS Handler (Optional)</label>
-      <textarea name="pages[${idx}].jsContent" rows="6" class="tf-input" placeholder="module.exports = {&#10;  getData: async (instance) => ({})&#10;};">${(p.jsContent || '').replace(/"/g, '&quot;')}</textarea>
+      <textarea name="pages[${idx}].jsContent" rows="6" class="tf-input" placeholder="module.exports = {\n  getData: async (instance) => ({})\n};">${p.jsContent || ''}</textarea>
       <p class="tf-note">Backend logic • Leave empty for static pages</p>
     </div>
 
@@ -956,7 +963,7 @@ function collectFormData() {
     category: "" 
   };
 
-  for (let [key, value] of fd) {
+  for (let [key, value] of fd.entries()) {
     if (key.startsWith("meta.")) {
       data.meta[key.split(".")[1]] = value;
     }
@@ -973,13 +980,13 @@ function collectFormData() {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
       if (match) {
         const i = parseInt(match[1]);
-        if (!data.variables[i]) data.variables[i] = {};
+        data.variables[i] = data.variables[i] || {};
         if (key.includes(".options[")) {
           const optMatch = key.match(/variables\[(\d+)\]\.options\[(\d+)\]\.(.+)/);
           if (optMatch) {
             const optI = parseInt(optMatch[2]);
-            if (!data.variables[i].options) data.variables[i].options = [];
-            if (!data.variables[i].options[optI]) data.variables[i].options[optI] = {};
+            data.variables[i].options = data.variables[i].options || [];
+            data.variables[i].options[optI] = data.variables[i].options[optI] || {};
             data.variables[i].options[optI][optMatch[3]] = value;
           }
         } else {
@@ -991,15 +998,15 @@ function collectFormData() {
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
-        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
-        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
+        data.actions[i] = data.actions[i] || { operations: [] };
+        data.actions[i].operations[j] = data.actions[i].operations[j] || {};
         data.actions[i].operations[j][opMatch[3]] = value;
       } else {
-        const simpleMatch = key.match(/actions\[(\d+)\]\.(.+)/);
-        if (simpleMatch) {
-          const i = parseInt(simpleMatch[1]);
-          if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
-          data.actions[i][simpleMatch[2]] = value;
+        const simple = key.match(/actions\[(\d+)\]\.(.+)/);
+        if (simple) {
+          const i = parseInt(simple[1]);
+          data.actions[i] = data.actions[i] || { operations: [] };
+          data.actions[i][simple[2]] = value;
         }
       }
     }
@@ -1007,15 +1014,15 @@ function collectFormData() {
       const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
-        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
-        if (!data.environment.install_steps[i].operations[j]) data.environment.install_steps[i].operations[j] = {};
+        data.environment.install_steps[i] = data.environment.install_steps[i] || { operations: [] };
+        data.environment.install_steps[i].operations[j] = data.environment.install_steps[i].operations[j] || {};
         data.environment.install_steps[i].operations[j][opMatch[3]] = value;
       } else {
-        const simpleMatch = key.match(/install_steps\[(\d+)\]\.(.+)/);
-        if (simpleMatch) {
-          const i = parseInt(simpleMatch[1]);
-          if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
-          data.environment.install_steps[i][simpleMatch[2]] = value;
+        const simple = key.match(/install_steps\[(\d+)\]\.(.+)/);
+        if (simple) {
+          const i = parseInt(simple[1]);
+          data.environment.install_steps[i] = data.environment.install_steps[i] || { operations: [] };
+          data.environment.install_steps[i][simple[2]] = value;
         }
       }
     }
@@ -1023,19 +1030,18 @@ function collectFormData() {
       const match = key.match(/pages\[(\d+)\]\.(.+)/);
       if (match) {
         const i = parseInt(match[1]);
-        if (!data.pages[i]) data.pages[i] = {};
+        data.pages[i] = data.pages[i] || {};
         data.pages[i][match[2]] = value;
       }
     }
   }
 
-  // Clean arrays
-  data.variables = data.variables.filter(Boolean);
-  data.actions = data.actions.filter(Boolean);
+  // Filter out undefined / empty slots
+  data.variables                = data.variables.filter(Boolean);
+  data.actions                  = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
-  data.pages = data.pages.filter(Boolean);
+  data.pages                    = data.pages.filter(Boolean);
 
-  // Clean nested arrays
   data.actions.forEach(a => { 
     if (a.operations) a.operations = a.operations.filter(Boolean); 
   });
@@ -1050,13 +1056,15 @@ function collectFormData() {
 }
 
 function fillForm(data) { 
-  document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
+  // Basic fields
+  document.querySelector('[name="meta.name"]').value         = data.meta?.name         || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
-  document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
-  document.querySelector('[name="category"]').value = data.category || "";
+  document.querySelector('[name="meta.description"]').value  = data.meta?.description  || "";
+  document.querySelector('[name="category"]').value          = data.category          || "";
   document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
-  document.querySelector('[name="environment.start_code"]').value = data.environment?.start_code || "";
+  document.querySelector('[name="environment.start_code"]').value   = data.environment?.start_code   || "";
 
+  // Clear & repopulate dynamic sections
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
   (data.variables || []).forEach(v => addVariable(v));
@@ -1073,48 +1081,53 @@ function fillForm(data) {
   pageIndex = 0;
   (data.pages || []).forEach(p => addPage(p));
 
-  jsonEditor.value = JSON.stringify(data, null, 2);
+  // Update JSON editor too
+  try {
+    jsonEditor.value = JSON.stringify(data, null, 2);
+  } catch {}
 }
 
 // ====================== SAVE ======================
 document.getElementById("btnSaveTemplate").onclick = async () => {
   let payload;
   try {
-    payload = modeSelect.value === "json" ? JSON.parse(jsonEditor.value) : collectFormData();
-  } catch(e) {
+    payload = modeSelect.value === "json" 
+      ? JSON.parse(jsonEditor.value) 
+      : collectFormData();
+  } catch (e) {
     showNotification("Invalid JSON format!", "error");
     return;
   }
 
   const filename = document.getElementById("hiddenFilename").value;
-  const url = `/admin/templates/${filename}`;
-  const method = "PUT";
-
   try {
-    const res = await fetch(url, {
-      method,
-      headers: {"Content-Type": "application/json"},
+    const res = await fetch(`/admin/templates/${filename}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
     if (res.ok) {
       showNotification("✅ Template updated successfully!", "success");
-      setTimeout(() => window.location.href = "/admin/templates/overview", 1200);
+      setTimeout(() => window.location.href = "/admin/templates/overview", 1400);
     } else {
       const err = await res.text();
-      showNotification("Error: " + err.substring(0, 100), "error");
+      showNotification("Error: " + (err || "Unknown error"), "error");
     }
   } catch (err) {
-    showNotification("Network error!", "error");
+    showNotification("Network / server error", "error");
   }
 };
 
 // ====================== BUTTON HANDLERS ======================
-document.getElementById("btnCancelForm").onclick = hideForm;
-document.getElementById("btnAddVar").onclick = () => addVariable();
-document.getElementById("btnAddAction").onclick = () => addAction();
+document.getElementById("btnCancelForm").onclick = () => {
+  window.location.href = "/admin/templates/overview";
+};
+
+document.getElementById("btnAddVar").onclick        = () => addVariable();
+document.getElementById("btnAddAction").onclick     = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
-document.getElementById("btnAddPage").onclick = () => addPage();
+document.getElementById("btnAddPage").onclick       = () => addPage();
 
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
@@ -1136,8 +1149,8 @@ document.getElementById("btnAddCategory").onclick = async () => {
     } else {
       showNotification("Failed to add category", "error");
     }
-  } catch (err) {
-    showNotification("Network error!", "error");
+  } catch {
+    showNotification("Network error", "error");
   }
 };
 
@@ -1147,19 +1160,18 @@ document.getElementById("btnImportJson").onclick = () => {
   input.type = "file";
   input.accept = ".json,application/json";
   input.onchange = e => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
     
     const reader = new FileReader();
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
-        // Keep filename for update
         modeSelect.value = "json";
         modeSelect.onchange();
         jsonEditor.value = JSON.stringify(data, null, 2);
         showNotification("JSON imported successfully!", "success");
-      } catch(e) {
+      } catch {
         showNotification("Invalid JSON file!", "error");
       }
     };
@@ -1168,11 +1180,11 @@ document.getElementById("btnImportJson").onclick = () => {
   input.click();
 };
 
-// ====================== INIT + LOAD TEMPLATE.JSON ======================
-const templateData = <%= JSON.stringify(template) %>;
+// ====================== INIT ======================
+const templateData = <%= JSON.stringify(template) %> || {};
 fillForm(templateData);
 modeSelect.value = "form";
-modeSelect.onchange();
+modeSelect.onchange();  // also syncs jsonEditor on load
 </script>
 
 <%- include('../../components/footer') %>
