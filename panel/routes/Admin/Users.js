@@ -10,6 +10,7 @@ const cache = require("../../utils/cache.js");
 
 const saltRounds = 10;
 
+// ==================== EXISTENCE CHECKS ====================
 async function doesUserExist(username) {
   const users = await db.get("users");
   return users ? users.some((user) => user.username === username) : false;
@@ -20,14 +21,16 @@ async function doesEmailExist(email) {
   return users ? users.some((user) => user.email === email) : false;
 }
 
+// ==================== ROUTES ====================
+
+// ── OVERVIEW (List) ──
 router.get("/admin/users", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
 
-  // Use pagination for users
   const usersResult = await getPaginatedUsers(page, pageSize);
 
-  res.render("admin/users", {
+  res.render("admin/users/overview", {
     req,
     user: req.user,
     users: usersResult.data,
@@ -35,6 +38,15 @@ router.get("/admin/users", isAdmin, async (req, res) => {
   });
 });
 
+// ── CREATE FORM PAGE ── (NEW ROUTE)
+router.get("/admin/users/create", isAdmin, (req, res) => {
+  res.render("admin/users/create", {
+    req,
+    user: req.user,
+  });
+});
+
+// ── CREATE USER (API) ──
 router.post("/users/create", isAdmin, async (req, res) => {
   const { username, email, password, admin, verified } = req.body;
 
@@ -46,13 +58,10 @@ router.post("/users/create", isAdmin, async (req, res) => {
     return res.status(400).send("Admin field must be true or false.");
   }
 
-  const userExists = await doesUserExist(username);
-  if (userExists) {
+  if (await doesUserExist(username)) {
     return res.status(400).send("User already exists.");
   }
-
-  const emailExists = await doesEmailExist(email);
-  if (emailExists) {
+  if (await doesEmailExist(email)) {
     return res.status(400).send("Email already exists.");
   }
 
@@ -73,46 +82,48 @@ router.post("/users/create", isAdmin, async (req, res) => {
   users.push(newUser);
   await db.set("users", users);
 
-  // Invalidate users cache after creation
   invalidateCache("users");
-  cache.delete("apiKeys_list"); // Also invalidate API keys cache
+  cache.delete("apiKeys_list");
   logAudit(req.user.userId, req.user.username, "user:create", req.ip);
 
-  res.status(201).send(newUser);
+  res.status(201).json(newUser); // Changed to .json() for cleaner frontend handling
 });
 
+// ── DELETE USER ──
 router.delete("/user/delete", isAdmin, async (req, res) => {
   const userId = req.body.userId;
   const users = (await db.get("users")) || [];
 
   const userIndex = users.findIndex((user) => user.userId === userId);
-
   if (userIndex === -1) {
     return res.status(400).send("The specified user does not exist");
   }
 
   users.splice(userIndex, 1);
   await db.set("users", users);
+
   logAudit(req.user.userId, req.user.username, "user:delete", req.ip);
   res.status(204).send();
 });
 
+// ── EDIT FORM PAGE ── (Updated render path to match new structure)
 router.get("/admin/users/edit/:userId", isAdmin, async (req, res) => {
   const userId = req.params.userId;
   const users = (await db.get("users")) || [];
-  const user = users.find((user) => user.userId === userId);
+  const editUser = users.find((user) => user.userId === userId);
 
-  if (!user) {
+  if (!editUser) {
     return res.status(404).send("User not found");
   }
 
-  res.render("admin/edit-user", {
+  res.render("admin/users/edit", {
     req,
     user: req.user,
-    editUser: user,
+    editUser,
   });
 });
 
+// ── EDIT USER (POST) ──
 router.post("/admin/users/edit/:userId", isAdmin, async (req, res, next) => {
   const userId = req.params.userId;
   const { username, email, password, admin, verified } = req.body;
@@ -128,36 +139,31 @@ router.post("/admin/users/edit/:userId", isAdmin, async (req, res, next) => {
     return res.status(404).send("User not found");
   }
 
-  const userExists = users.some(
-    (user) => user.username === username && user.userId !== userId
+  const usernameTaken = users.some(
+    (u) => u.username === username && u.userId !== userId
   );
-  const emailExists = users.some(
-    (user) => user.email === email && user.userId !== userId
+  const emailTaken = users.some(
+    (u) => u.email === email && u.userId !== userId
   );
 
-  if (userExists) {
-    return res.status(400).send("Username already exists.");
-  }
+  if (usernameTaken) return res.status(400).send("Username already exists.");
+  if (emailTaken) return res.status(400).send("Email already exists.");
 
-  if (emailExists) {
-    return res.status(400).send("Email already exists.");
-  }
-
+  // Update fields
   users[userIndex].username = username;
   users[userIndex].email = email;
   users[userIndex].admin = admin === "true";
   users[userIndex].verified = verified === "true";
 
-  if (password) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+  if (password && password.trim() !== "") {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     users[userIndex].password = hashedPassword;
   }
 
   await db.set("users", users);
-
   logAudit(req.user.userId, req.user.username, "user:edit", req.ip);
 
+  // If the admin edited themselves → force re-login
   if (req.user.userId === userId) {
     return req.logout((err) => {
       if (err) return next(err);
