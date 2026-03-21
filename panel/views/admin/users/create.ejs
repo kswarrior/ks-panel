@@ -1,0 +1,92 @@
+<%- include('../components/template') %>
+
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
+  <div class="max-w-2xl mx-auto">
+    <div class="space-y-5 bg-neutral-800/30 border border-white/10 rounded-2xl p-6 md:p-8">
+
+      <!-- Form Header -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white"><%= req.translations.createUserButton %></h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.username %></label>
+          <input id="userName" type="text" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition" placeholder="kswarrior">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.email %></label>
+          <input id="email" type="email" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition" placeholder="kswarrior@ksmail.io">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.passwordLabel %></label>
+          <input id="userPass" type="password" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition" placeholder="kswarrior#123">
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.admin %></label>
+          <select id="userAdmin" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition">
+            <option value="true"><%= req.translations.true %></option>
+            <option value="false" selected><%= req.translations.false %></option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.verifiedStatus %></label>
+          <select id="userVerified" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition">
+            <option value="true"><%= req.translations.true %></option>
+            <option value="false" selected><%= req.translations.false %></option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-4">
+        <button id="createNodeBtn" type="button" class="flex-1 rounded-xl bg-white text-black px-5 py-2.5 text-sm font-medium shadow transition hover:bg-neutral-200 active:scale-95">
+          <%= req.translations.create %>
+        </button>
+        <a href="/admin/users" 
+           class="flex-1 sm:flex-initial rounded-xl bg-neutral-800 text-white border border-white/10 px-5 py-2.5 text-sm font-medium transition hover:bg-neutral-700 flex items-center justify-center">
+          <%= req.translations.cancel || 'Cancel' %>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Create script -->
+<script>
+  document.getElementById("createNodeBtn").addEventListener("click", function () {
+    const username = document.getElementById("userName").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("userPass").value;
+    const admin = document.getElementById("userAdmin").value === "true";
+    const verified = document.getElementById("userVerified").value === "true";
+
+    const nodeData = { username, email, password, admin, verified };
+
+    fetch("/users/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nodeData),
+    })
+    .then((response) => {
+      if (response.ok) return response.json();
+      throw new Error("Failed to create user");
+    })
+    .then((data) => {
+      alert('<%= req.translations.userCreatedSuccess %>');
+      window.location.href = "/admin/users";
+    })
+    .catch((error) => alert('<%= req.translations.userCreateError %>: ' + error.message));
+  });
+</script>
+
+<%- include('../components/footer') %>
