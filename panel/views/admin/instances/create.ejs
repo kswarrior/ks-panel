@@ -1,938 +1,434 @@
 <%- include('../../components/template') %>
 <style>
-    /* Base Styles - Preserved Colors */
-    .input-error {
-      border: 2px solid rgb(255, 69, 69) !important;
-      animation: shake 0.4s ease-in-out;
-    }
-    .error-message {
-      color: rgb(255, 69, 69);
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      animation: slideDown 0.3s ease-out;
-    }
+.input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: #1c3b54;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  placeholder-color: rgba(255, 255, 255, 0.4);
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
 
-    .input-field {
-      width: 100%;
-      padding: 0.875rem 1rem;
-      background-color: #1c3b54;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      font-size: 0.9375rem;
-      outline: none;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-sizing: border-box;
-    }
+.input-field:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
 
-    .input-field::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-    }
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  width: 100%;
+}
 
-    .input-field:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      background-color: #234a66;
-    }
+.field-long,
+.field-short {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
 
-    .input-field:focus {
-      border-color: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.2);
-      transform: translateY(-1px);
-    }
+.field-long {
+  flex-basis: 420px;
+  min-width: 260px;
+}
 
-    /* Form Layout - Mobile First */
-    .form-grid {
-      display: grid;
-      gap: 1.25rem;
-      width: 100%;
-    }
+.field-short {
+  flex-basis: 180px;
+  min-width: 160px;
+}
 
-    /* Mobile: Stack everything */
-    @media (max-width: 640px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+@media (min-width: 1024px) {
+  .form-row {
+    gap: 2rem;
+  }
 
-    /* Tablet: 2 columns */
-    @media (min-width: 641px) and (max-width: 1023px) {
-      .form-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .form-grid .span-full {
-        grid-column: 1 / -1;
-      }
-    }
+  .field-long {
+    flex: 2 1 420px;
+  }
 
-    /* Desktop: Flexible grid */
-    @media (min-width: 1024px) {
-      .form-grid {
-        grid-template-columns: repeat(12, 1fr);
-        gap: 1.5rem;
-      }
-      .col-6 { grid-column: span 6; }
-      .col-4 { grid-column: span 4; }
-      .col-12 { grid-column: span 12; }
-    }
+  .field-short {
+    flex: 1 1 180px;
+  }
+}
 
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+/* checkbox / radio */
+.proxy-checkbox,
+.radio-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
-    .field-label {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.7);
-      text-transform: uppercase;
-      letter-spacing: 0.025em;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
+.proxy-checkbox input[type="checkbox"] {
+  accent-color: #3b82f6;
+}
 
-    .required-mark {
-      color: rgb(255, 69, 69);
-    }
+.radio-group input[type="radio"] {
+  accent-color: #3b82f6;
+}
 
-    /* Section Dividers */
-    .section-divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 2.5rem 0 1.5rem;
-    }
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  gap: 0.75rem;
+}
 
-    .section-divider-line {
-      height: 1px;
-      flex: 1;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    }
+.radio-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
-    .section-title {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: white;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
+.proxy-checkbox {
+  align-items: flex-start;
+  padding: 0.75rem;
+  background-color: rgba(75, 85, 99, 0.3);
+  border-radius: 0.5rem;
+  gap: 0.75rem;
+}
 
-    /* Cards Grid - Responsive */
-    .cards-container {
-      display: grid;
-      gap: 1rem;
-      width: 100%;
-    }
+/* select textarea */
+textarea.input-field,
+select.input-field {
+  resize: vertical;
+  min-height: 3rem;
+}
 
-    /* Phone: 1 card per line */
-    @media (max-width: 640px) {
-      .cards-container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Tablet: 2 cards */
-    @media (min-width: 641px) and (max-width: 1023px) {
-      .cards-container {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    /* Desktop: 3 cards */
-    @media (min-width: 1024px) and (max-width: 1535px) {
-      .cards-container {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    /* Large Desktop: 4 cards */
-    @media (min-width: 1536px) {
-      .cards-container {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    /* Optimistic Animations */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .animate-fade-in {
-      animation: fadeInUp 0.5s ease-out forwards;
-    }
-
-    .animate-delay-1 { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
-    .animate-delay-2 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
-    .animate-delay-3 { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
-    .animate-delay-4 { animation-delay: 0.4s; opacity: 0; animation-fill-mode: forwards; }
-
-    /* Button States */
-    .btn-primary {
-      position: relative;
-      overflow: hidden;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-primary:active:not(:disabled) {
-      transform: translateY(0);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .btn-primary.loading::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      top: 50%;
-      left: 50%;
-      margin-left: -10px;
-      margin-top: -10px;
-      border: 2px solid transparent;
-      border-top-color: currentColor;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    /* Toast Notifications */
-    .toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      pointer-events: none;
-    }
-
-    @media (max-width: 640px) {
-      .toast-container {
-        left: 1rem;
-        right: 1rem;
-        top: auto;
-        bottom: 1rem;
-      }
-    }
-
-    .toast {
-      background: rgba(28, 59, 84, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      animation: slideInRight 0.3s ease-out;
-      pointer-events: auto;
-    }
-
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(100%);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .toast-success {
-      border-left: 4px solid #10b981;
-    }
-
-    .toast-error {
-      border-left: 4px solid #ef4444;
-    }
-
-    /* Select styling */
-    select.input-field {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-      background-position: right 0.75rem center;
-      background-repeat: no-repeat;
-      background-size: 1.5em 1.5em;
-      padding-right: 2.5rem;
-    }
-
-    /* Helper text */
-    .helper-text {
-      font-size: 0.8125rem;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 0.375rem;
-      display: flex;
-      align-items: center;
-      gap: 0.375rem;
-    }
-
-    /* Loading skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, #1c3b54 25%, #234a66 50%, #1c3b54 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: 8px;
-    }
-
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* Focus visible for accessibility */
-    *:focus-visible {
-      outline: 2px solid rgba(255, 255, 255, 0.5);
-      outline-offset: 2px;
-    }
-
-    /* Smooth scrolling */
-    html {
-      scroll-behavior: smooth;
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Additional responsive utilities */
-    .container-narrow {
-      width: 100%;
-      max-width: 100%;
-    }
-
-    @media (min-width: 640px) {
-      .container-narrow {
-        max-width: 640px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
-
-    @media (min-width: 768px) {
-      .container-narrow {
-        max-width: 768px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .container-narrow {
-        max-width: 896px;
-      }
-    }
-
-    @media (min-width: 1280px) {
-      .container-narrow {
-        max-width: 1024px;
-      }
-    }
-
-    /* Card hover effects */
-    .hover-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .hover-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Gradient text */
-    .gradient-text {
-      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Status indicators */
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 0.5rem;
-    }
-
-    .status-active { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
-    .status-warning { background-color: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-    .status-error { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
-
-    /* Mobile optimizations */
-    @media (max-width: 640px) {
-      .section-divider {
-        margin: 2rem 0 1.25rem;
-      }
-      
-      .section-title {
-        font-size: 0.75rem;
-      }
-      
-      .input-field {
-        padding: 0.75rem 0.875rem;
-        font-size: 16px; /* Prevents zoom on iOS */
-      }
-    }
-
-    /* Touch feedback */
-    @media (hover: none) {
-      .btn-primary:active {
-        transform: scale(0.98);
-      }
-      
-      .input-field:active {
-        background-color: #234a66;
-      }
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
+/* hidden */
+.hidden {
+  display: none;
+}
 </style>
 
-<main id="content" class="w-full min-h-screen pb-12 animate-fade-in">
-  <!-- Toast Container -->
-  <div id="toastContainer" class="toast-container"></div>
-
-  <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+<main id="content" class="max-w-screen-2xl mx-auto">
+  <div class="bg-transparent px-4 md:px-6 lg:px-8">
     
-    <!-- Header -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10 animate-fade-in animate-delay-1">
-      <div class="space-y-1">
-        <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Create New Instance</h1>
-        <p class="text-sm text-neutral-400 max-w-2xl">Deploy a new server instance using a template with custom resources and port allocation</p>
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4 border-b border-white/10">
+      <div>
+        <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Instance</h1>
+        <p class="mt-1 text-sm text-neutral-400">Deploy a new server instance using a template with custom resources and port allocation</p>
       </div>
 
       <div class="flex flex-wrap gap-3">
         <button onclick="window.location.href='/admin/instances'" 
-                class="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md hover:border-white/20">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-          </svg>
-          Back to Instances
+                class="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-medium transition-all duration-200 active:scale-95 shadow-sm">
+          ← Back to Instances
         </button>
       </div>
     </header>
 
-    <!-- Main Form Section -->
-    <section class="mt-8 lg:mt-12 animate-fade-in animate-delay-2">
-      <div class="container-narrow">
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 sm:p-8 lg:p-10 shadow-2xl hover-card">
-          
-          <form id="instanceForm" class="space-y-2">
+    <section class="mt-12">
+      <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
+        <form id="instanceForm">
 
-            <!-- BASIC INFORMATION -->
-            <div class="section-divider">
-              <div class="section-divider-line"></div>
-              <h2 class="section-title">Basic Information</h2>
-              <div class="section-divider-line"></div>
+          <!-- BASIC -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">BASIC INFORMATION</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.name %> <span class="text-red-400">*</span></label>
+              <input id="name" class="input-field" placeholder="My instance" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.user %> <span class="text-red-400">*</span></label>
+              <select id="user" class="input-field" required>
+                <% users.forEach(function(user) { %>
+                  <option value="<%= user.userId %>" class="bg-neutral-800 text-white"><%= user.username %></option>
+                <% }); %>
+              </select>
             </div>
 
-            <div class="form-grid">
-              <div class="field-group col-12">
-                <label class="field-label">
-                  <%= req.translations.name %>
-                  <span class="required-mark">*</span>
-                </label>
-                <input id="name" class="input-field" placeholder="e.g., production-server-01" required autocomplete="off">
-              </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Template <span class="text-red-400">*</span></label>
+              <select id="template" class="input-field" required>
+                <option value="" class="bg-neutral-800 text-white">-- Select template --</option>
+                <% templates.forEach(function(template) { %>
+                  <option value="<%= template.filename %>" class="bg-neutral-800 text-white" data-variables="<%= JSON.stringify(template.Variables || []) %>"><%= template.Name %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.node %> <span class="text-red-400">*</span></label>
+              <select id="node" class="input-field" required>
+                <option value="" class="bg-neutral-800 text-white">-- Select node --</option>
+                <% nodes.forEach(function(node) { %>
+                  <option value="<%= node.id %>" class="bg-neutral-800 text-white"><%= node.name %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+          <!-- RESOURCES -->
+          <div class="flex items-center gap-4 mt-10 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">RESOURCES</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.memory %> (MiB) <span class="text-red-400">*</span></label>
+              <input id="memory" class="input-field" placeholder="2048" required>
             </div>
 
-            <div class="form-grid mt-5">
-              <div class="field-group col-6">
-                <label class="field-label">
-                  <%= req.translations.user %>
-                  <span class="required-mark">*</span>
-                </label>
-                <select id="user" class="input-field" required>
-                  <% users.forEach(function(user) { %>
-                    <option value="<%= user.userId %>" class="bg-[#1c3b54] text-white"><%= user.username %></option>
-                  <% }); %>
-                </select>
-              </div>
-
-              <div class="field-group col-6">
-                <label class="field-label">
-                  Template
-                  <span class="required-mark">*</span>
-                </label>
-                <select id="template" class="input-field" required>
-                  <option value="" class="bg-[#1c3b54] text-white">Select a template...</option>
-                  <% templates.forEach(function(template) { %>
-                    <option value="<%= template.filename %>" class="bg-[#1c3b54] text-white" data-variables="<%= JSON.stringify(template.Variables || []) %>"><%= template.Name %></option>
-                  <% }); %>
-                </select>
-              </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2"><%= req.translations.cpuThreads %> <span class="text-red-400">*</span></label>
+              <input id="cpu" class="input-field" placeholder="1" required>
             </div>
 
-            <div class="form-grid mt-5">
-              <div class="field-group col-12">
-                <label class="field-label">
-                  <%= req.translations.node %>
-                  <span class="required-mark">*</span>
-                </label>
-                <select id="node"Each(function(template) { %>
-                    <option value="<%= template.filename %>" class="bg-[#1c3b54] text-white" data-variables="<%= JSON.stringify(template.Variables || []) %>"><%= template.Name %></option>
-                  <% }); %>
-                </select>
-              </div>
+            <div class="field-short">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Disk (MiB) <span class="text-red-400">*</span></label>
+              <input id="disk" class="input-field" placeholder="10240" required>
             </div>
+          </div>
 
-            <div class="form-grid mt-5">
-              <div class="field-group col-12">
-                <label class="field-label">
-                  <%= req.translations.node %>
-                  <span class="required-mark">*</span>
-                </label>
-                <select id="node" class="input-field" required>
-                  <option value="" class="bg-[#1c3b54] text-white">Select a node...</option>
-                  <% nodes.forEach(function(node) { %>
-                    <option value="<%= node.id %>" class="bg-[#1c3b54] text-white"><%= node.name %></option>
-                  <% }); %>
-                </select>
-              </div>
+          <!-- ALLOCATION -->
+          <div class="flex items-center gap-4 mt-10 mb-6">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <h2 class="text-lg font-semibold text-white tracking-wide">ALLOCATION (HOST PORT)</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label class="text-xs font-medium text-neutral-400 block mb-2">Select Host Port (Allocation) (IP:Port) <span class="text-red-400">*</span></label>
+              <select id="primary" class="input-field" required>
+                <option value="" class="bg-neutral-800 text-white">-- Select node first --</option>
+              </select>
+              <small class="text-neutral-500 block mt-2">Choose an available IP:Port from the selected node</small>
             </div>
+          </div>
 
-            <!-- RESOURCES -->
-            <div class="section-divider">
-              <div class="section-divider-line"></div>
-              <h2 class="section-title">Resources</h2>
-              <div class="section-divider-line"></div>
+          <!-- TEMPLATE VARIABLES (dynamic) -->
+          <div id="secondCard" class="hidden mt-10">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              <h2 class="text-lg font-semibold text-white tracking-wide">TEMPLATE VARIABLES</h2>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </div>
+            <div id="variablesForm" class="space-y-6"></div>
+          </div>
 
-            <div class="form-grid">
-              <div class="field-group col-4">
-                <label class="field-label">
-                  <%= req.translations.memory %> (MiB)
-                  <span class="required-mark">*</span>
-                </label>
-                <input id="memory" class="input-field" placeholder="2048" type="number" min="1" required>
-                <span class="helper-text">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  1024 MiB = 1 GB
-                </span>
-              </div>
+          <!-- SUBMIT -->
+          <div class="mt-10">
+            <button id="createInstancesBtn" type="button"
+                    class="w-full px-6 py-2.5 rounded-[10px] bg-white text-black font-semibold text-sm shadow-lg hover:bg-neutral-100 transition-all duration-200 active:scale-95">
+              <%= req.translations.create %>
+            </button>
+          </div>
 
-              <div class="field-group col-4">
-                <label class="field-label">
-                  <%= req.translations.cpuThreads %>
-                  <span class="required-mark">*</span>
-                </label>
-                <input id="cpu" class="input-field" placeholder="1" type="number" min="1" required>
-              </div>
-
-              <div class="field-group col-4">
-                <label class="field-label">
-                  Disk (MiB)
-                  <span class="required-mark">*</span>
-                </label>
-                <input id="disk" class="input-field" placeholder="10240" type="number" min="1" required>
-                <span class="helper-text">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  10240 MiB = 10 GB
-                </span>
-              </div>
-            </div>
-
-            <!-- ALLOCATION -->
-            <div class="section-divider">
-              <div class="section-divider-line"></div>
-              <h2 class="section-title">Network Allocation</h2>
-              <div class="section-divider-line"></div>
-            </div>
-
-            <div class="form-grid">
-              <div class="field-group col-12">
-                <label class="field-label">
-                  Host Port (IP:Port)
-                  <span class="required-mark">*</span>
-                </label>
-                <select id="primary" class="input-field" required disabled>
-                  <option value="">Select a node first...</option>
-                </select>
-                <span class="helper-text">
-                  <svg class="w-3.5 h-3.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                  Available ports will load automatically after selecting a node
-                </span>
-              </div>
-            </div>
-
-            <!-- TEMPLATE VARIABLES (Dynamic) -->
-            <div id="secondCard" class="hidden animate-fade-in">
-              <div class="section-divider">
-                <div class="section-divider-line"></div>
-                <h2 class="section-title">Template Variables</h2>
-                <div class="section-divider-line"></div>
-              </div>
-              <div id="variablesForm" class="form-grid space-y-4"></div>
-            </div>
-
-            <!-- SUBMIT -->
-            <div class="mt-10 pt-4">
-              <button id="createInstancesBtn" type="submit"
-                      class="btn-primary w-full sm:w-auto sm:min-w-[200px] px-8 py-3 rounded-xl bg-white text-black font-bold text-sm shadow-lg flex items-center justify-center gap-2 mx-auto sm:mx-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <%= req.translations.create %>
-              </button>
-            </div>
-
-          </form>
-        </div>
+        </form>
       </div>
     </section>
 
+    <div id="notification" 
+         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
+      <span id="notification-text"></span>
+    </div>
   </div>
-</main>
 
-<!-- Template Variables Handler -->
-<script>
-  document.getElementById('template').addEventListener('change', function(event) {
-    const selectedOption = event.target.options[event.target.selectedIndex];
-    const variablesStr = selectedOption.getAttribute('data-variables');
-    const secondCard = document.getElement.getElementById('secondCard');
-    const variablesForm = document.getElementById('variablesForm');
+  <script>
+    // Template variables handler
+    document.getElementById('template').addEventListener('change', function(event) {
+      var selectedOption = event.target.options[event.target.selectedIndex];
+      var variablesStr = selectedOption.getAttribute('data-variables');
+      var secondCard = document.getElementById('secondCard');
+      var variablesForm = document.getElementById('variablesForm');
 
-    variablesForm.innerHTML = '';
+      variablesForm.innerHTML = '';
 
-    if (variablesStr && variablesStr !== '[]' && variablesStr !== '{}') {
-      secondCard.classList.remove('hidden');
-      let variables;
-      try { 
-        variables = JSON.parse(variablesStr); 
-      } catch(e) { 
-        console.error(e); 
-        secondCard.classList.add('hidden'); 
-        return; 
+      if (variablesStr && variablesStr !== '[]' && variablesStr !== '{}') {
+          secondCard.classList.remove('hidden');
+          let variables;
+          try { variables = JSON.parse(variablesStr); } catch(e) { console.error(e); secondCard.classList.add('hidden'); return; }
+
+          if (Array.isArray(variables)) {
+              variables.forEach(function(variable) {
+                  const id = variable.id || 'unknown';
+                  const label = variable.name || id;
+                  const defaultVal = variable.default || '';
+                  const desc = variable.description || '';
+                  const fieldHtml = `
+                      <div class="form-row">
+                          <div class="field-long">
+                              <label class="text-xs font-medium text-neutral-400 block mb-2">${label}:</label>
+                              <input type="text" name="${id}" value="${defaultVal}" class="input-field" placeholder="${desc}">
+                              ${desc ? `<small class="text-neutral-500 block mt-1">${desc}</small>` : ''}
+                          </div>
+                      </div>`;
+                  variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
+              });
+          }
+      } else {
+          secondCard.classList.add('hidden');
       }
-
-      if (Array.isArray(variables)) {
-        variables.forEach(function(variable, index) {
-          const id = variable.id || 'unknown';
-          const label = variable.name || id;
-          const defaultVal = variable.default || '';
-          const desc = variable.description || '';
-          
-          const fieldHtml = `
-            <div class="field-group col-12 animate-fade-in" style="animation-delay: ${index * 50}ms">
-              <label class="field-label">${label}</label>
-              <input type="text" name="${id}" value="${defaultVal}" class="input-field" placeholder="${desc || 'Enter value...'}">
-              ${desc ? `<span class="helper-text">${desc}</span>` : ''}
-            </div>`;
-          
-          variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
-        });
-      }
-    } else {
-      secondCard.classList.add('hidden');
-    }
-  });
-</script>
-
-<!-- Node Allocation Loader -->
-<script>
-  document.getElementById('node').addEventListener('change', async (e) => {
-    const nodeId = e.target.value;
-    const allocSelect = document.getElementById('primary');
-    
-    // Optimistic loading state
-    allocSelect.disabled = true;
-    allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
-    allocSelect.classList.add('skeleton');
-
-    if (!nodeId) {
-      allocSelect.innerHTML = '<option value="">Select a node first...</option>';
-      allocSelect.disabled = true;
-      allocSelect.classList.remove('skeleton');
-      return;
-    }
-
-    try {
-      // Simulate network delay for better UX (remove in production if too fast)
-      await new Promise(r => setTimeout(r, 300));
-      
-      const response = await fetch(`/admin/nodes/overview/${nodeId}/available-allocations`);
-      
-      if (!response.ok) throw new Error('Failed to load');
-      
-      const allocations = await response.json();
-
-      allocSelect.innerHTML = '<option value="">Choose available host port...</option>';
-      allocations.forEach(alloc => {
-        const display = alloc.label.replace(/ \(.+\)$/, '');
-        const option = document.createElement('option');
-        option.value = display;
-        option.textContent = display;
-        option.className = 'bg-[#1c3b54] text-white';
-        allocSelect.appendChild(option);
-      });
-      
-      allocSelect.disabled = false;
-      showToast('Ports loaded successfully', 'success');
-    } catch (err) {
-      allocSelect.innerHTML = '<option value="">Error loading ports. Try again.</option>';
-      showToast('Failed to load available ports', 'error');
-    } finally {
-      allocSelect.classList.remove('skeleton');
-    }
-  });
-</script>
-
-<!-- Form Submission Handler -->
-<script>
-  // Toast notification system
-  function showToast(message, type = 'info') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    
-    const icon = type === 'success' 
-      ? '<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 135 13l4 4L19 7"></path></svg>'
-      : type === 'error'
-      ? '<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
-      : '<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-    
-    toast.innerHTML = `${icon}<span class="text-white text-sm font-medium">${message}</span>`;
-    container.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.animation = 'slideInRight 0.3s ease-out reverse forwards';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
-  }
-
-  document.getElementById('instanceForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('createInstancesBtn');
-    const originalContent = btn.innerHTML;
-    
-    // Set loading state
-    btn.disabled = true;
-    btn.classList.add('loading');
-    btn.innerHTML = '<span class="opacity-0">Creating...</span>';
-
-    // Get values
-    const name = document.getElementById('name').value.trim();
-    const user = document.getElementById('user').value;
-    const template = document.getElementById('template').value;
-    const nodeId = document.getElementById('node').value;
-    const memory = document.getElementById('memory').value;
-    const cpu = document.getElementById('cpu').value;
-    const disk = document.getElementById('disk').value;
-    const primary = document.getElementById('primary').value;
-
-    clearValidationErrors();
-
-    let valid = true;
-    
-    // Validation with visual feedback
-    if (!name || name.includes(' ')) { 
-      showError(document.getElementById('name'), 'Name is required and cannot contain spaces'); 
-      valid = false; 
-    }
-    if (!template) { 
-      showToast('Please select a template', 'error'); 
-      valid = false; 
-    }
-    if (!nodeId) { 
-      showToast('Please select a node', 'error'); 
-      valid = false; 
-    }
-    if (!primary || !primary.includes(':')) { 
-      showError(document.getElementById('primary'), 'Please select a valid IP:Port allocation'); 
-      valid = false; 
-    }
-    if (!isPositiveInteger(memory)) { 
-      showError(document.getElementById('memory'), 'Memory must be an integer greater than 1'); 
-      valid = false; 
-    }
-    if (!isPositiveIntegerCpu(cpu)) { 
-      showError(document.getElementById('cpu'), 'CPU must be an integer greater than 0'); 
-      valid = false; 
-    }
-    if (!isPositiveInteger(disk)) { 
-      showError(document.getElementById('disk'), 'Disk must be an integer greater than 1'); 
-      valid = false; 
-    }
-
-    if (!valid) {
-      btn.disabled = false;
-      btn.classList.remove('loading');
-      btn.innerHTML = originalContent;
-      showToast('Please fix the errors above', 'error');
-      return;
-    }
-
-    const [allocationIp, allocationPort] = primary.split(':');
-    const variables = {};
-    document.querySelectorAll('#variablesForm input').forEach(inp => { 
-      if (inp.name) variables[inp.name] = inp.value; 
     });
 
-    const data = {
-      name, 
-      user, 
-      templateFilename: template, 
-      nodeId,
-      memory: parseInt(memory), 
-      cpu: parseInt(cpu), 
-      disk: parseInt(disk),
-      allocationIp, 
-      allocationPort: parseInt(allocationPort), 
-      variables
-    };
+    // Node allocation loader
+    document.getElementById('node').addEventListener('change', async (e) => {
+      const nodeId = e.target.value;
+      const allocSelect = document.getElementById('primary');
+      allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
 
-    try {
-      const res = await fetch('/admin/instances/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      let result;
-      const contentType = res.headers.get('content-type');
-      
-      if (contentType && contentType.includes('application/json')) {
-        result = await res.json();
-      } else {
-        const text = await res.text();
-        result = { 
-          error: text.includes('<!DOCTYPE') 
-            ? 'Server error occurred. Please check the logs.' 
-            : text 
-        };
+      if (!nodeId) {
+        allocSelect.innerHTML = '<option value="">-- Select node first --</option>';
+        return;
       }
 
-      if (res.ok) {
-        showToast('Instance created successfully! Redirecting...', 'success');
+      try {
+        const response = await fetch(`/admin/nodes/overview/${nodeId}/available-allocations`);
+        const allocations = await response.json();
+
+        allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
+        allocations.forEach(alloc => {
+          const display = alloc.label.replace(/ \(.+\)$/, '');
+          const option = document.createElement('option');
+          option.value = display;
+          option.textContent = display;
+          allocSelect.appendChild(option);
+        });
+      } catch (err) {
+        allocSelect.innerHTML = '<option value="">Error loading ports</option>';
+      }
+    });
+
+    // Notification helper (exactly like node create)
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      const textEl = document.getElementById('notification-text');
+      textEl.textContent = message;
+      
+      notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+        type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
+      }`;
+      notification.classList.remove('hidden');
+      notification.classList.add('flex');
+
+      setTimeout(() => {
+        notification.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          notification.classList.add('hidden');
+          notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+        }, 300);
+      }, 2800);
+    }
+
+    // Create Instance handler (exactly same pattern as node create)
+    document.getElementById('createInstancesBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('createInstancesBtn');
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Creating Instance...';
+
+      try {
+        const name = document.getElementById('name').value.trim();
+        const user = document.getElementById('user').value;
+        const template = document.getElementById('template').value;
+        const nodeId = document.getElementById('node').value;
+        const memory = document.getElementById('memory').value;
+        const cpu = document.getElementById('cpu').value;
+        const disk = document.getElementById('disk').value;
+        const primary = document.getElementById('primary').value;
+
+        // Validation (same style as node create - simple and clear)
+        if (!name || name.includes(' ')) {
+          throw new Error('Name is required (no spaces allowed)');
+        }
+        if (!template) {
+          throw new Error('Please select a template');
+        }
+        if (!nodeId) {
+          throw new Error('Please select a node');
+        }
+        if (!primary || !primary.includes(':')) {
+          throw new Error('Please select a valid IP:Port allocation');
+        }
+
+        const memNum = parseInt(memory, 10);
+        if (!Number.isInteger(memNum) || memNum <= 1) {
+          throw new Error('Memory must be an integer greater than 1');
+        }
+        const cpuNum = parseInt(cpu, 10);
+        if (!Number.isInteger(cpuNum) || cpuNum <= 0) {
+          throw new Error('CPU must be an integer greater than 0');
+        }
+        const diskNum = parseInt(disk, 10);
+        if (!Number.isInteger(diskNum) || diskNum <= 1) {
+          throw new Error('Disk must be an integer greater than 1');
+        }
+
+        const [allocationIp, allocationPortStr] = primary.split(':');
+        const allocationPort = parseInt(allocationPortStr, 10);
+        if (isNaN(allocationPort)) {
+          throw new Error('Invalid port number in allocation');
+        }
+
+        // Collect template variables
+        const variables = {};
+        document.querySelectorAll('#variablesForm input').forEach(inp => {
+          if (inp.name) variables[inp.name] = inp.value;
+        });
+
+        const data = {
+          name,
+          user,
+          templateFilename: template,
+          nodeId,
+          memory: memNum,
+          cpu: cpuNum,
+          disk: diskNum,
+          allocationIp,
+          allocationPort,
+          variables
+        };
+
+        const res = await fetch('/admin/instances/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+          let errData = {};
+          try {
+            errData = await res.json();
+          } catch (_) {}
+          throw new Error(errData.error || errData.message || 'Failed to create instance');
+        }
+
+        showNotification('Instance created successfully!', 'success');
         setTimeout(() => {
           window.location.href = '/admin/instances/overview/?err=CREATED';
-        }, 1000);
-      } else {
-        throw new Error(result.error || result.message || 'Unknown error occurred');
+        }, 800);
+
+      } catch (e) {
+        showNotification(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
       }
-    } catch (err) {
-      console.error(err);
-      showToast(`Creation failed: ${err.message}`, 'error');
-      btn.disabled = false;
-      btn.classList.remove('loading');
-      btn.innerHTML = originalContent;
-    }
-  });
-
-  function clearValidationErrors() {
-    document.querySelectorAll('.input-error').forEach(el => {
-      el.classList.remove('input-error');
     });
-    document.querySelectorAll('.error-message').forEach(el => el.remove());
-  }
-
-  function showError(el, msg) {
-    el.classList.add('input-error');
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Remove existing error
-    const existing = el.parentNode.querySelector('.error-message');
-    if (existing) existing.remove();
-    
-    const div = document.createElement('div');
-    div.className = 'error-message';
-    div.innerHTML = `
-      <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
-      ${msg}
-    `;
-    el.parentNode.appendChild(div);
-  }
-
-  function isPositiveInteger(v) { 
-    const n = parseInt(v, 10); 
-    return Number.isInteger(n) && n > 1; 
-  }
-  
-  function isPositiveIntegerCpu(v) { 
-    const n = parseInt(v, 10); 
-    return Number.isInteger(n) && n > 0; 
-  }
-</script>
+  </script>
+</main>
 
 <%- include('../../components/footer') %>
