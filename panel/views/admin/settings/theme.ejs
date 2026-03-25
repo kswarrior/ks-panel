@@ -1,172 +1,1092 @@
 <%- include('../../components/template') %>
-<div class="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
-  
-  <div class="ml-64 p-8">
-    <div class="max-w-6xl mx-auto">
-      <h1 class="text-4xl font-bold mb-2 flex items-center gap-3">
-        🎨 Theme Customization
-        <span class="text-sm bg-green-600 text-white px-3 py-1 rounded-full">LIVE PREVIEW ENABLED</span>
-      </h1>
-      <p class="text-[var(--muted-text)] mb-8">Change anything and see it update instantly. Save to database when done.</p>
-<%- include('../../components/settings') %>
-      <form id="themeForm" action="/admin/theme/save" method="POST" class="space-y-12">
-        
-        <!-- ================== GLOBAL COLORS ================== -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-6 border-b border-[var(--border-color)] pb-4">🌈 Global Colors</h2>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div>
-              <label class="block text-sm mb-1">Background</label>
-              <input type="color" name="--bg-color" value="<%= theme['--bg-color'] || '#0f172a' %>" class="w-full h-12 rounded-xl cursor-pointer">
-            </div>
-            <div>
-              <label class="block text-sm mb-1">Surface / Cards</label>
-              <input type="color" name="--surface-color" value="<%= theme['--surface-color'] || '#1e2937' %>" class="w-full h-12 rounded-xl cursor-pointer">
-            </div>
-            <div>
-              <label class="block text-sm mb-1">Text Color</label>
-              <input type="color" name="--text-color" value="<%= theme['--text-color'] || '#e2e8f0' %>" class="w-full h-12 rounded-xl cursor-pointer">
-            </div>
-            <div>
-              <label class="block text-sm mb-1">Muted Text</label>
-              <input type="color" name="--muted-text" value="<%= theme['--muted-text'] || '#94a3b8' %>" class="w-full h-12 rounded-xl cursor-pointer">
-            </div>
-            <div>
-              <label class="block text-sm mb-1">Border Color</label>
-              <input type="color" name="--border-color" value="<%= theme['--border-color'] || '#334155' %>" class="w-full h-12 rounded-xl cursor-pointer">
-            </div>
-            <div>
-              <label class="block text-sm mb-1">Primary / Accent</label>
-              <input type="color" name="--primary-color" value="<%= theme['--primary-color'] || '#3b82f6' %>" class="w-full h-12 rounded-xl cursor-pointer">
-            </div>
-          </div>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Theme Customization</title>
+    <style>
+        /* ============================================
+           CSS VARIABLES - RESPONSIVE DESIGN SYSTEM
+           ============================================ */
+        :root {
+            /* User's Original Color Variables - PRESERVED EXACTLY */
+            --bg-color: <%= theme['--bg-color'] || '#0f172a' %>;
+            --surface-color: <%= theme['--surface-color'] || '#1e2937' %>;
+            --text-color: <%= theme['--text-color'] || '#e2e8f0' %>;
+            --muted-text: <%= theme['--muted-text'] || '#94a3b8' %>;
+            --border-color: <%= theme['--border-color'] || '#334155' %>;
+            --primary-color: <%= theme['--primary-color'] || '#3b82f6' %>;
+            --button-bg: <%= theme['--button-bg'] || '#3b82f6' %>;
+            --button-text: <%= theme['--button-text'] || '#ffffff' %>;
+            --button-hover: <%= theme['--button-hover'] || '#2563eb' %>;
+            --button-radius: <%= theme['--button-radius'] || '0.5rem' %>;
+            --card-bg: <%= theme['--card-bg'] || '#1e2937' %>;
+            --card-border: <%= theme['--card-border'] || '#334155' %>;
+            --card-radius: <%= theme['--card-radius'] || '0.75rem' %>;
+            --success-color: <%= theme['--success-color'] || '#22c55e' %>;
+            --pending-color: <%= theme['--pending-color'] || '#eab308' %>;
+            --error-color: <%= theme['--error-color'] || '#ef4444' %>;
+            --info-color: <%= theme['--info-color'] || '#06b6d4' %>;
+            --h1-color: <%= theme['--h1-color'] || '#e2e8f0' %>;
+            --h2-color: <%= theme['--h2-color'] || '#e2e8f0' %>;
+            --h3-color: <%= theme['--h3-color'] || '#e2e8f0' %>;
+            --table-header-bg: <%= theme['--table-header-bg'] || '#334155' %>;
+            --input-radius: <%= theme['--input-radius'] || '0.375rem' %>;
 
-        <!-- ================== BUTTONS ================== -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-6">🔘 Buttons</h2>
-          <div class="grid grid-cols-2 gap-6">
-            <div>
-              <label>Button Background</label>
-              <input type="color" name="--button-bg" value="<%= theme['--button-bg'] || '#3b82f6' %>">
-            </div>
-            <div>
-              <label>Button Text</label>
-              <input type="color" name="--button-text" value="<%= theme['--button-text'] || '#ffffff' %>">
-            </div>
-            <div>
-              <label>Button Hover</label>
-              <input type="color" name="--button-hover" value="<%= theme['--button-hover'] || '#2563eb' %>">
-            </div>
-            <div>
-              <label>Border Radius (rem)</label>
-              <input type="number" step="0.05" name="--button-radius" value="<%= parseFloat(theme['--button-radius']) || 0.5 %>" class="w-full">
-            </div>
-          </div>
-        </div>
+            /* Responsive Spacing System [^1^] [^7^] */
+            --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+            --space-sm: clamp(0.5rem, 1vw, 0.75rem);
+            --space-md: clamp(1rem, 2vw, 1.5rem);
+            --space-lg: clamp(1.5rem, 3vw, 2rem);
+            --space-xl: clamp(2rem, 4vw, 3rem);
+            --space-2xl: clamp(3rem, 6vw, 4rem);
 
-        <!-- ================== CARDS ================== -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-6">📦 Cards</h2>
-          <div class="grid grid-cols-2 gap-6">
-            <div>
-              <label>Card Background</label>
-              <input type="color" name="--card-bg" value="<%= theme['--card-bg'] || '#1e2937' %>">
-            </div>
-            <div>
-              <label>Card Border</label>
-              <input type="color" name="--card-border" value="<%= theme['--card-border'] || '#334155' %>">
-            </div>
-            <div>
-              <label>Card Radius (rem)</label>
-              <input type="number" step="0.05" name="--card-radius" value="<%= parseFloat(theme['--card-radius']) || 0.75 %>" class="w-full">
-            </div>
-          </div>
-        </div>
+            /* Responsive Typography Scale */
+            --text-xs: clamp(0.75rem, 1.5vw, 0.875rem);
+            --text-sm: clamp(0.875rem, 1.8vw, 1rem);
+            --text-base: clamp(1rem, 2vw, 1.125rem);
+            --text-lg: clamp(1.125rem, 2.5vw, 1.25rem);
+            --text-xl: clamp(1.25rem, 3vw, 1.5rem);
+            --text-2xl: clamp(1.5rem, 4vw, 2rem);
+            --text-3xl: clamp(1.875rem, 5vw, 2.5rem);
+            --text-4xl: clamp(2.25rem, 6vw, 3rem);
 
-        <!-- ================== STATUS COLORS ================== -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-6">✅ Status Colors</h2>
-          <div class="grid grid-cols-4 gap-6">
-            <div><label>Success</label><input type="color" name="--success-color" value="<%= theme['--success-color'] || '#22c55e' %>"></div>
-            <div><label>Pending</label><input type="color" name="--pending-color" value="<%= theme['--pending-color'] || '#eab308' %>"></div>
-            <div><label>Error</label><input type="color" name="--error-color" value="<%= theme['--error-color'] || '#ef4444' %>"></div>
-            <div><label>Info</label><input type="color" name="--info-color" value="<%= theme['--info-color'] || '#06b6d4' %>"></div>
-          </div>
-        </div>
+            /* Layout Variables */
+            --sidebar-width: 16rem;
+            --sidebar-collapsed: 0rem;
+            --header-height: 4rem;
+            --max-content-width: 1400px;
+            --container-padding: clamp(1rem, 3vw, 2rem);
+        }
 
-        <!-- ================== TYPOGRAPHY & TEXT ================== -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-6">📝 Typography</h2>
-          <div class="grid grid-cols-3 gap-6">
-            <div><label>H1 Color</label><input type="color" name="--h1-color" value="<%= theme['--h1-color'] || '#e2e8f0' %>"></div>
-            <div><label>H2 Color</label><input type="color" name="--h2-color" value="<%= theme['--h2-color'] || '#e2e8f0' %>"></div>
-            <div><label>H3 Color</label><input type="color" name="--h3-color" value="<%= theme['--h3-color'] || '#e2e8f0' %>"></div>
-          </div>
-        </div>
+        /* ============================================
+           BASE STYLES & RESET
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <!-- ================== TABLE & INPUTS ================== -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-6">📋 Table & Inputs</h2>
-          <div class="grid grid-cols-2 gap-6">
-            <div>
-              <label>Table Header BG</label>
-              <input type="color" name="--table-header-bg" value="<%= theme['--table-header-bg'] || '#334155' %>">
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ============================================
+           LAYOUT STRUCTURE - MOBILE FIRST
+           ============================================ */
+        .app-container {
+            display: grid;
+            grid-template-areas: 
+                "header"
+                "main";
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        /* ============================================
+           SIDEBAR - RESPONSIVE DESIGN
+           ============================================ */
+        .sidebar {
+            grid-area: sidebar;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Desktop Sidebar [^5^] [^6^] */
+        @media (min-width: 1024px) {
+            .app-container {
+                grid-template-areas: 
+                    "sidebar header"
+                    "sidebar main";
+                grid-template-columns: var(--sidebar-width) 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                transform: translateX(0);
+                width: var(--sidebar-width);
+                max-width: none;
+            }
+
+            .sidebar-overlay {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        /* ============================================
+           HEADER - STICKY & RESPONSIVE
+           ============================================ */
+        .header {
+            grid-area: header;
+            position: sticky;
+            top: 0;
+            height: var(--header-height);
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--container-padding);
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--button-radius);
+            transition: background 0.2s;
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--border-color);
+        }
+
+        .header-title {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .live-badge {
+            display: none;
+            font-size: var(--text-xs);
+            background: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (min-width: 640px) {
+            .live-badge {
+                display: inline-block;
+            }
+        }
+
+        /* ============================================
+           MAIN CONTENT AREA
+           ============================================ */
+        .main-content {
+            grid-area: main;
+            padding: var(--space-md);
+            overflow-y: auto;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                padding: var(--space-lg);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .main-content {
+                padding: var(--space-xl);
+            }
+        }
+
+        .content-wrapper {
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: var(--space-xl);
+        }
+
+        .page-title {
+            font-size: var(--text-3xl);
+            font-weight: 800;
+            color: var(--text-color);
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .page-description {
+            font-size: var(--text-base);
+            color: var(--muted-text);
+            max-width: 600px;
+        }
+
+        /* ============================================
+           RESPONSIVE GRID SYSTEM [^5^] [^9^]
+           ============================================ */
+        .responsive-grid {
+            display: grid;
+            gap: var(--space-md);
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 640px) {
+            .responsive-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-lg);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .responsive-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .responsive-grid.cols-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Flexible auto-fit grid for cards */
+        .auto-grid {
+            display: grid;
+            gap: var(--space-md);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        @media (min-width: 640px) {
+            .auto-grid {
+                gap: var(--space-lg);
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            }
+        }
+
+        /* ============================================
+           CARDS - MODERN GLASSMORPHISM
+           ============================================ */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--card-radius);
+            padding: var(--space-lg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .card-icon {
+            font-size: 1.5em;
+        }
+
+        /* ============================================
+           FORM ELEMENTS - TOUCH OPTIMIZED
+           ============================================ */
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: var(--space-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .color-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 48px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--input-radius);
+            background: var(--surface-color);
+            cursor: pointer;
+            padding: 2px;
+            transition: all 0.2s;
+        }
+
+        input[type="color"]:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.02);
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: calc(var(--input-radius) - 2px);
+            border: none;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            height: 48px;
+            padding: 0 var(--space-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--input-radius);
+            background: var(--surface-color);
+            color: var(--text-color);
+            font-size: var(--text-base);
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: var(--text-xs);
+            color: var(--muted-text);
+            background: var(--bg-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* ============================================
+           BUTTONS - MODERN & ACCESSIBLE
+           ============================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-xl);
+            font-size: var(--text-base);
+            font-weight: 600;
+            border-radius: var(--button-radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+            min-height: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--button-bg);
+            color: var(--button-text);
+        }
+
+        .btn-primary:hover {
+            background: var(--button-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-danger:hover {
+            background: var(--error-color);
+            color: white;
+            border-color: var(--error-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 640px) {
+            .btn {
+                width: 100%;
+                padding: var(--space-md);
+            }
+        }
+
+        /* ============================================
+           LIVE PREVIEW AREA - RESPONSIVE
+           ============================================ */
+        .preview-container {
+            background: var(--surface-color);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--card-radius);
+            padding: var(--space-xl);
+            margin-top: var(--space-xl);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .preview-title {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .preview-frame {
+            background: var(--bg-color);
+            border-radius: var(--card-radius);
+            padding: var(--space-xl);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .preview-content {
+            min-width: 280px;
+        }
+
+        .preview-h1 {
+            font-size: var(--text-3xl);
+            color: var(--h1-color);
+            margin-bottom: var(--space-md);
+            font-weight: 800;
+        }
+
+        .preview-h2 {
+            font-size: var(--text-2xl);
+            color: var(--h2-color);
+            margin-bottom: var(--space-sm);
+            font-weight: 700;
+        }
+
+        .preview-text {
+            color: var(--muted-text);
+            margin-bottom: var(--space-lg);
+            line-height: 1.7;
+        }
+
+        .preview-btn {
+            background: var(--button-bg);
+            color: var(--button-text);
+            padding: var(--space-md) var(--space-xl);
+            border-radius: var(--button-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: var(--space-lg);
+            transition: all 0.2s;
+        }
+
+        .preview-btn:hover {
+            background: var(--button-hover);
+        }
+
+        .preview-tags {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .preview-tag {
+            padding: var(--space-xs) var(--space-md);
+            border-radius: 9999px;
+            font-size: var(--text-sm);
+            font-weight: 600;
+        }
+
+        .tag-success { background: var(--success-color); color: white; }
+        .tag-pending { background: var(--pending-color); color: black; }
+        .tag-error { background: var(--error-color); color: white; }
+
+        .preview-table {
+            width: 100%;
+            margin-top: var(--space-lg);
+            border-collapse: collapse;
+        }
+
+        .preview-table th {
+            background: var(--table-header-bg);
+            color: var(--text-color);
+            padding: var(--space-md);
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* ============================================
+           UTILITY CLASSES
+           ============================================ */
+        .hidden-mobile {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .hidden-mobile {
+                display: block;
+            }
+            .hidden-desktop {
+                display: none;
+            }
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: var(--space-2xl) 0;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted-text);
+        }
+
+        /* Focus visible for accessibility */
+        *:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar (included from components) -->
+    <aside class="sidebar" id="sidebar">
+        <%- include('../../components/settings') %>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()" aria-label="Toggle menu">
+                ☰
+            </button>
+            <h1 class="header-title">Theme Customization</h1>
+            <span class="live-badge">Live Preview Enabled</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    🎨 Theme Customization
+                    <span class="live-badge hidden-desktop">Live Preview</span>
+                </h1>
+                <p class="page-description">
+                    Change anything and see it update instantly. Your modifications are applied in real-time across all device sizes. Save to database when done.
+                </p>
             </div>
-            <div>
-              <label>Input Radius (rem)</label>
-              <input type="number" step="0.05" name="--input-radius" value="<%= parseFloat(theme['--input-radius']) || 0.375 %>" class="w-full">
-            </div>
-          </div>
-        </div>
 
-        <!-- LIVE PREVIEW AREA -->
-        <div class="card p-8">
-          <h2 class="text-2xl font-semibold mb-4">👀 Live Preview</h2>
-          <div id="preview" class="p-8 rounded-2xl border border-[var(--border-color)] bg-[var(--surface-color)]">
-            <h1 class="text-4xl font-bold">This is H1 Heading</h1>
-            <h2 class="text-3xl">This is H2</h2>
-            <p>Normal paragraph text with muted color support.</p>
-            <button class="btn px-8 py-3 mt-4">Sample Button</button>
-            <div class="mt-6 flex gap-4">
-              <span class="success px-4 py-1 rounded">Success</span>
-              <span class="pending px-4 py-1 rounded">Pending</span>
-              <span class="error px-4 py-1 rounded">Error</span>
-            </div>
-            <table class="mt-6 w-full">
-              <thead><tr><th>Table Preview</th></tr></thead>
-            </table>
-          </div>
-        </div>
+            <form id="themeForm" action="/admin/theme/save" method="POST" class="space-y-12">
+                
+                <!-- ================== GLOBAL COLORS ================== -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">🌈</span>
+                            Global Colors
+                        </h2>
+                    </div>
+                    <div class="auto-grid">
+                        <div class="form-group">
+                            <label class="form-label">Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--bg-color" value="<%= theme['--bg-color'] || '#0f172a' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--bg-color'] || '#0f172a' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Surface / Cards</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--surface-color" value="<%= theme['--surface-color'] || '#1e2937' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--surface-color'] || '#1e2937' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Text Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--text-color" value="<%= theme['--text-color'] || '#e2e8f0' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--text-color'] || '#e2e8f0' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Muted Text</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--muted-text" value="<%= theme['--muted-text'] || '#94a3b8' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--muted-text'] || '#94a3b8' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Border Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--border-color" value="<%= theme['--border-color'] || '#334155' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--border-color'] || '#334155' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Primary / Accent</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--primary-color" value="<%= theme['--primary-color'] || '#3b82f6' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--primary-color'] || '#3b82f6' %></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-        <div class="flex gap-4">
-          <button type="submit" class="btn bg-green-600 hover:bg-green-700 text-white px-10 py-4 text-lg font-medium">
-            💾 Save Theme to Database
-          </button>
-          <button type="button" onclick="resetToDefault()" class="btn border border-[var(--border-color)] hover:bg-red-600">
-            Reset to Default
-          </button>
+                <!-- ================== BUTTONS ================== -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">🔘</span>
+                            Buttons
+                        </h2>
+                    </div>
+                    <div class="responsive-grid">
+                        <div class="form-group">
+                            <label class="form-label">Button Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--button-bg" value="<%= theme['--button-bg'] || '#3b82f6' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--button-bg'] || '#3b82f6' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Button Text</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--button-text" value="<%= theme['--button-text'] || '#ffffff' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--button-text'] || '#ffffff' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Button Hover</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--button-hover" value="<%= theme['--button-hover'] || '#2563eb' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--button-hover'] || '#2563eb' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Border Radius (rem)</label>
+                            <input type="number" step="0.05" name="--button-radius" value="<%= parseFloat(theme['--button-radius']) || 0.5 %>" oninput="updatePreview(this)">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================== CARDS ================== -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">📦</span>
+                            Cards
+                        </h2>
+                    </div>
+                    <div class="responsive-grid">
+                        <div class="form-group">
+                            <label class="form-label">Card Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--card-bg" value="<%= theme['--card-bg'] || '#1e2937' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--card-bg'] || '#1e2937' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Card Border</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--card-border" value="<%= theme['--card-border'] || '#334155' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--card-border'] || '#334155' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Card Radius (rem)</label>
+                            <input type="number" step="0.05" name="--card-radius" value="<%= parseFloat(theme['--card-radius']) || 0.75 %>" oninput="updatePreview(this)">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================== STATUS COLORS ================== -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">✅</span>
+                            Status Colors
+                        </h2>
+                    </div>
+                    <div class="responsive-grid cols-4">
+                        <div class="form-group">
+                            <label class="form-label">Success</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--success-color" value="<%= theme['--success-color'] || '#22c55e' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--success-color'] || '#22c55e' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pending</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--pending-color" value="<%= theme['--pending-color'] || '#eab308' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--pending-color'] || '#eab308' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Error</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--error-color" value="<%= theme['--error-color'] || '#ef4444' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--error-color'] || '#ef4444' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Info</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--info-color" value="<%= theme['--info-color'] || '#06b6d4' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--info-color'] || '#06b6d4' %></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================== TYPOGRAPHY & TEXT ================== -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">📝</span>
+                            Typography
+                        </h2>
+                    </div>
+                    <div class="responsive-grid">
+                        <div class="form-group">
+                            <label class="form-label">H1 Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--h1-color" value="<%= theme['--h1-color'] || '#e2e8f0' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--h1-color'] || '#e2e8f0' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">H2 Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--h2-color" value="<%= theme['--h2-color'] || '#e2e8f0' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--h2-color'] || '#e2e8f0' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">H3 Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--h3-color" value="<%= theme['--h3-color'] || '#e2e8f0' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--h3-color'] || '#e2e8f0' %></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================== TABLE & INPUTS ================== -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">📋</span>
+                            Table & Inputs
+                        </h2>
+                    </div>
+                    <div class="responsive-grid">
+                        <div class="form-group">
+                            <label class="form-label">Table Header BG</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" name="--table-header-bg" value="<%= theme['--table-header-bg'] || '#334155' %>" oninput="updatePreview(this)">
+                                <span class="color-value"><%= theme['--table-header-bg'] || '#334155' %></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Input Radius (rem)</label>
+                            <input type="number" step="0.05" name="--input-radius" value="<%= parseFloat(theme['--input-radius']) || 0.375 %>" oninput="updatePreview(this)">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- LIVE PREVIEW AREA -->
+                <section class="preview-container">
+                    <div class="preview-header">
+                        <h2 class="preview-title">👀 Live Preview</h2>
+                        <span style="color: var(--muted-text); font-size: var(--text-sm);">Updates in real-time</span>
+                    </div>
+                    <div class="preview-frame">
+                        <div class="preview-content">
+                            <h1 class="preview-h1">This is H1 Heading</h1>
+                            <h2 class="preview-h2">This is H2 Subheading</h2>
+                            <p class="preview-text">
+                                Normal paragraph text with muted color support. This preview adapts to all screen sizes 
+                                from mobile phones to large desktop monitors. The layout remains consistent and readable.
+                            </p>
+                            <button class="preview-btn">Sample Button</button>
+                            <div class="preview-tags">
+                                <span class="preview-tag tag-success">Success</span>
+                                <span class="preview-tag tag-pending">Pending</span>
+                                <span class="preview-tag tag-error">Error</span>
+                            </div>
+                            <table class="preview-table">
+                                <thead>
+                                    <tr>
+                                        <th>Table Header Preview</th>
+                                        <th>Column 2</th>
+                                        <th>Column 3</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: var(--space-md); border-bottom: 1px solid var(--border-color); color: var(--muted-text);">Sample data row</td>
+                                        <td style="padding: var(--space-md); border-bottom: 1px solid var(--border-color); color: var(--muted-text);">Responsive</td>
+                                        <td style="padding: var(--space-md); border-bottom: 1px solid var(--border-color); color: var(--muted-text);">Design</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ACTION BUTTONS -->
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        <span>💾</span>
+                        <span>Save Theme to Database</span>
+                    </button>
+                    <button type="button" onclick="resetToDefault()" class="btn btn-secondary btn-danger">
+                        <span>↺</span>
+                        <span>Reset to Default</span>
+                    </button>
+                </div>
+
+            </form>
+
+            <div class="section-divider"></div>
+
+            <%- include('../../components/footer.ejs') %>
         </div>
-      </form>
-    </div>
-  </div>
+    </main>
 </div>
 
 <script>
-// LIVE PREVIEW - updates instantly
-document.querySelectorAll('input').forEach(input => {
-  input.addEventListener('input', () => {
-    document.documentElement.style.setProperty(input.name, input.value);
-  });
-});
+    // ==========================================
+    // LIVE PREVIEW - updates instantly
+    // ==========================================
+    function updatePreview(input) {
+        // Update CSS variable
+        document.documentElement.style.setProperty(input.name, input.value);
+        
+        // Update color value display
+        const wrapper = input.closest('.color-input-wrapper');
+        if (wrapper) {
+            const valueDisplay = wrapper.querySelector('.color-value');
+            if (valueDisplay) {
+                valueDisplay.textContent = input.value;
+            }
+        }
+    }
 
-// Reset function
-function resetToDefault() {
-  if (confirm('Reset ALL theme values to default?')) {
-    document.getElementById('themeForm').reset();
-    location.reload(); // reload to apply defaults
-  }
-}
+    // Initialize all inputs
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => updatePreview(input));
+    });
+
+    // ==========================================
+    // SIDEBAR TOGGLE FOR MOBILE
+    // ==========================================
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        
+        // Prevent body scroll when sidebar is open
+        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    }
+
+    // Close sidebar when clicking on a link (mobile)
+    document.querySelectorAll('.sidebar a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+        });
+    });
+
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (window.innerWidth >= 1024) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }, 250);
+    });
+
+    // ==========================================
+    // RESET FUNCTION
+    // ==========================================
+    function resetToDefault() {
+        if (confirm('Reset ALL theme values to default? This cannot be undone.')) {
+            document.getElementById('themeForm').reset();
+            location.reload();
+        }
+    }
+
+    // ==========================================
+    // FORM SUBMISSION HANDLING
+    // ==========================================
+    document.getElementById('themeForm').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalContent = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>⏳</span><span>Saving...</span>';
+        
+        // Re-enable after submission (success or error)
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalContent;
+        }, 2000);
+    });
 </script>
 
-<%- include('../../components/footer.ejs') %> <!-- Adjust include name if needed -->
+</body>
+</html>
