@@ -1,133 +1,254 @@
 <%- include('components/template') %>
-<main id="content">
+<main id="content" class="min-h-screen bg-neutral-900">
+   <!-- Header Section -->
    <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-8 pt-4">
-         <div class="sm:flex-auto">
-            <h1 class="text-base font-medium leading-6 text-white">Manage Instance</h1>
-            <p class="mt-1 tracking-tight text-sm text-neutral-500">View, update and manage an instance on the KS Panel.</p>
+      <div class="flex flex-col sm:flex-row sm:items-center px-4 sm:px-8 pt-4 pb-2 gap-2">
+         <div class="flex-auto">
+            <h1 class="text-lg sm:text-base font-medium leading-6 text-white">Manage Instance</h1>
+            <p class="mt-1 tracking-tight text-xs sm:text-sm text-neutral-500">View, update and manage an instance on the KS Panel.</p>
          </div>
       </div>
-  </div>
-   <%- include('components/instance') %>
-   <div class="p-3 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden sm:p-6 lg:p-10 w-full max-w-3xl mx-auto card">
-      <div class="flex flex-row">
-   <div class="w-1/2 mr-4">
-            <h2 class="text-md font-medium text-white tracking-tight">Settings</h2>
-            <div>
-                <div class="mt-5">
-                    <div class="mr-4 mt-5">
-                      <label class="text-neutral-400 text-sm tracking-tight mb-2">Name</label>
-                         <input id="name" placeholder="My Server" value="<%= instance.Name %>" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" style="width: 340px;">
-                    </div>
-                </div>
-               <button id="save" class="block mt-2 rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
-            </div>
+   </div>
 
-            <div class="mt-5">
-               <div class="mr-4 mt-5">
-                  <label class="text-neutral-400 text-sm tracking-tight mb-2" for="reinstall">Reinstall server</label>
-                  <button id="reinstall" name="reinstall" class="block rounded-xl bg-red-600 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-red-500 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mt-2" onclick="reinstall()">Reinstall</button>
+   <%- include('components/instance') %>
+
+   <!-- Main Card Container -->
+   <div class="px-3 sm:px-6 lg:px-8 pb-8">
+      <div class="p-4 sm:p-6 lg:p-10 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden w-full max-w-3xl mx-auto card backdrop-blur-sm">
+
+         <!-- Responsive Grid Layout -->
+         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+
+            <!-- Left Column: Settings -->
+            <div class="w-full lg:w-1/2 flex flex-col gap-6">
+               <div>
+                  <h2 class="text-base sm:text-md font-medium text-white tracking-tight mb-4">Settings</h2>
+                  
+                  <!-- Name Input Section -->
+                  <div class="space-y-4">
+                     <div>
+                        <label class="block text-neutral-400 text-xs sm:text-sm tracking-tight mb-2">Instance Name</label>
+                        <input 
+                           id="name" 
+                           placeholder="My Server" 
+                           value="<%= instance.Name %>" 
+                           class="w-full rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm transition hover:bg-white/5 px-4 py-3 border-white/5 bg-neutral-600/20 placeholder:text-white/20 border border-black/10"
+                        >
+                     </div>
+                     
+                     <button 
+                        id="save" 
+                        class="w-full sm:w-auto block rounded-xl <%= theme['button-color'] %> px-6 py-3 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                     >
+                        Save Changes
+                     </button>
+                  </div>
+               </div>
+
+               <!-- Reinstall Section -->
+               <div class="pt-4 border-t border-white/5">
+                  <div>
+                     <label class="block text-neutral-400 text-xs sm:text-sm tracking-tight mb-2" for="reinstall">Danger Zone</label>
+                     <button 
+                        id="reinstall" 
+                        name="reinstall" 
+                        class="w-full sm:w-auto block rounded-xl bg-red-600/90 hover:bg-red-600 px-6 py-3 text-center text-sm font-medium text-white shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                        onclick="reinstall()"
+                     >
+                        Reinstall Server
+                     </button>
+                     <p class="mt-2 text-xs text-neutral-500">This will wipe all data and restore factory settings.</p>
                   </div>
                </div>
             </div>
 
+            <!-- Right Column: Status/Info -->
+            <div class="w-full lg:w-1/2 flex flex-col gap-6 lg:border-l lg:border-white/5 lg:pl-8">
+               <!-- Instance Quick Stats -->
+               <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+                  <h3 class="text-sm font-medium text-white mb-3">Instance Status</h3>
+                  <div class="space-y-2 text-xs sm:text-sm">
+                     <div class="flex justify-between">
+                        <span class="text-neutral-400">ID:</span>
+                        <span class="text-white font-mono"><%= req.params.id %></span>
+                     </div>
+                     <div class="flex justify-between">
+                        <span class="text-neutral-400">Status:</span>
+                        <span class="text-emerald-400">Active</span>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Help Text -->
+               <div class="bg-neutral-800/30 rounded-xl p-4 border border-white/5">
+                  <h3 class="text-sm font-medium text-white mb-2">Quick Tips</h3>
+                  <ul class="text-xs text-neutral-400 space-y-1 list-disc list-inside">
+                     <li>Use meaningful names for easy identification</li>
+                     <li>Reinstalling cannot be undone</li>
+                     <li>Settings auto-save on confirmation</li>
+                  </ul>
+               </div>
             </div>
          </div>
       </div>
    </div>
 </main>
-<script>
-    document.getElementById('save').addEventListener('click', function() {
-        const name = document.getElementById('name').value;
-        window.location.href = '/instance/<%= req.params.id %>/change/name/' + name;
-    });
 
-    async function reinstall() {
-    const instanceId = '<%= req.params.id %>';
-
-    const loadingPopup = document.getElementById('loadingPopup');
-    loadingPopup.classList.add('active');
-    document.getElementById('loadingBar').style.width = '0%';
-    document.getElementById('loadingMessage').textContent = 'Initializing...';
-
-    try {
-        const response = await fetch(`/instance/reinstall/${instanceId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        let progress = 0;
-        const interval = setInterval(() => {
-            if (progress < 90) {
-                progress += 10;
-                document.getElementById('loadingBar').style.width = `${progress}%`;
-                document.getElementById('loadingMessage').textContent = `Reinstalling server... ${progress}%`;
-            } else {
-                clearInterval(interval);
-            }
-        }, 200);
-
-        if (response.ok) {
-            setTimeout(() => {
-                document.getElementById('loadingBar').style.width = '100%';
-                document.getElementById('loadingMessage').textContent = 'Server reinstalled successfully!';
-                setTimeout(() => {
-                    loadingPopup.classList.remove('active');
-                    window.location.href = `/instance/${instanceId}/settings`;
-                }, 1000);
-            }, 2000);
-        } else {
-            alert('Error reinstalling server: ' + response.statusText);
-            loadingPopup.classList.remove('active');
-        }
-    } catch (error) {
-        console.error('Error during POST request:', error);
-        alert('An error occurred.');
-        loadingPopup.classList.remove('active');
-    }
-}
-    </script>
-<%- include('../components/footer') %>
-
-<!-- Popup for loading -->
-<div id="loadingPopup" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-   <div class="bg-white rounded-xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300">
-       <h2 class="text-2xl font-medium mb-4 text-neutral-800">Reinstalling Server</h2>
-       <div class="mb-4">
-           <div class="w-full bg-neutral-200 rounded-full h-2.5">
-               <div id="loadingBar" class="bg-neutral-400 h-2.5 rounded-full" style="width: 0%"></div>
-           </div>
-       </div>
-       <p id="loadingMessage" class="text-center text-neutral-600">Initializing...</p>
+<!-- Loading Popup Modal -->
+<div 
+   id="loadingPopup" 
+   class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300"
+>
+   <div class="bg-neutral-900/90 border border-white/10 rounded-2xl p-6 sm:p-8 mx-4 w-full max-w-sm transform scale-95 transition-transform duration-300 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+         <div class="w-8 h-8 rounded-full bg-neutral-700/50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+         </div>
+         <h2 class="text-lg font-medium text-white">Reinstalling Server</h2>
+      </div>
+      
+      <div class="mb-4">
+         <div class="w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+            <div 
+               id="loadingBar" 
+               class="bg-gradient-to-r from-neutral-600 to-white h-full rounded-full transition-all duration-500 ease-out" 
+               style="width: 0%"
+            ></div>
+         </div>
+      </div>
+      
+      <p id="loadingMessage" class="text-center text-sm text-neutral-400">Initializing...</p>
    </div>
 </div>
 
+<script>
+    document.getElementById('save').addEventListener('click', function() {
+        const name = document.getElementById('name').value;
+        window.location.href = '/instance/<%= req.params.id %>/change/name/' + encodeURIComponent(name);
+    });
+
+    async function reinstall() {
+        const instanceId = '<%= req.params.id %>';
+        
+        if (!confirm('Are you sure you want to reinstall this server? All data will be lost.')) {
+            return;
+        }
+
+        const loadingPopup = document.getElementById('loadingPopup');
+        loadingPopup.classList.remove('pointer-events-none', 'opacity-0');
+        loadingPopup.classList.add('opacity-100');
+        loadingPopup.querySelector('.bg-neutral-900\\/90').classList.remove('scale-95');
+        loadingPopup.querySelector('.bg-neutral-900\\/90').classList.add('scale-100');
+        
+        document.getElementById('loadingBar').style.width = '0%';
+        document.getElementById('loadingMessage').textContent = 'Initializing...';
+
+        try {
+            const response = await fetch(`/instance/reinstall/${instanceId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.random() * 15 + 5;
+                    if (progress > 90) progress = 90;
+                    document.getElementById('loadingBar').style.width = `${progress}%`;
+                    document.getElementById('loadingMessage').textContent = `Reinstalling server... ${Math.round(progress)}%`;
+                }
+            }, 300);
+
+            if (response.ok) {
+                clearInterval(interval);
+                document.getElementById('loadingBar').style.width = '100%';
+                document.getElementById('loadingMessage').textContent = 'Server reinstalled successfully!';
+                document.getElementById('loadingMessage').classList.add('text-emerald-400');
+                
+                setTimeout(() => {
+                    loadingPopup.classList.remove('opacity-100');
+                    loadingPopup.classList.add('opacity-0', 'pointer-events-none');
+                    window.location.href = `/instance/${instanceId}/settings`;
+                }, 1500);
+            } else {
+                clearInterval(interval);
+                document.getElementById('loadingMessage').textContent = 'Error: ' + response.statusText;
+                document.getElementById('loadingMessage').classList.add('text-red-400');
+                document.getElementById('loadingBar').classList.add('bg-red-500');
+                
+                setTimeout(() => {
+                    loadingPopup.classList.remove('opacity-100');
+                    loadingPopup.classList.add('opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Error during POST request:', error);
+            document.getElementById('loadingMessage').textContent = 'An error occurred. Please try again.';
+            document.getElementById('loadingMessage').classList.add('text-red-400');
+            
+            setTimeout(() => {
+                loadingPopup.classList.remove('opacity-100');
+                loadingPopup.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    }
+
+    document.getElementById('loadingPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            const msg = document.getElementById('loadingMessage').textContent;
+            if (!msg.includes('Reinstalling')) {
+                this.classList.remove('opacity-100');
+                this.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+    });
+</script>
+
 <style>
-   #loadingPopup {
-       display: none;
-       opacity: 0;
-       pointer-events: none;
-       transition: opacity 0.3s, transform 0.3s;
+   input, button {
+      transition: all 0.2s ease-in-out;
    }
    
-   #loadingPopup.active {
-       display: flex;
-       opacity: 1;
-       pointer-events: auto;
+   input:focus {
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
    }
    
-   #loadingPopup .bg-white {
-       transform: scale(0.95);
-       transition: transform 0.3s;
+   ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
    }
    
-   #loadingPopup.active .bg-white {
-       transform: scale(1);
+   ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
    }
    
-   #loadingBar {
-       transition: width 0.4s;
+   ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
    }
-   </style>
+   
+   ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+   }
+   
+   @media (max-width: 640px) {
+      .card {
+         border-radius: 1rem;
+         margin: 0 0.5rem;
+      }
+   }
+   
+   button {
+      min-height: 44px;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+   }
+</style>
+
+<%- include('../components/footer') %>
