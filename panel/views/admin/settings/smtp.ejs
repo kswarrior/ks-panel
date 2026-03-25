@@ -1,180 +1,450 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="min-h-screen pb-10">
+<main id="content" class="min-h-screen pb-10 animate-fade-in">
 
-  <div class="px-8 pt-6">
-    <h1 class="text-2xl font-semibold text-white tracking-tight">
+  <div class="px-4 sm:px-6 lg:px-8 pt-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight animate-slide-down">
       <%= req.translations.settings %>
     </h1>
-    <p class="mt-2 text-sm text-neutral-400">
+    <p class="mt-2 text-sm sm:text-base text-neutral-400 max-w-2xl animate-slide-down" style="animation-delay: 100ms;">
       <%= req.translations.changeSettings %>
     </p>
   </div>
 
   <%- include('../../components/settings') %>
 
-  <div class="mx-8 mt-8 bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-md">
+  <!-- Main Settings Container -->
+  <div class="mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8">
+    
+    <!-- SMTP Settings Card -->
+    <div class="bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-md overflow-hidden animate-scale-up" style="animation-delay: 200ms;">
+      
+      <div class="px-4 sm:px-6 py-4 border-b border-white/10 bg-white/[0.02]">
+        <h2 class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          <%= req.translations.smtp %>
+        </h2>
+      </div>
 
-    <div class="px-6 py-4 border-b border-white/10">
-      <h2 class="text-lg font-semibold text-white">
-        <%= req.translations.smtp %>
-      </h2>
+      <div class="p-4 sm:p-6 lg:p-8">
+        
+        <!-- Responsive Grid: 1 col mobile, 2 cols desktop -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-10">
+          
+          <!-- SMTP Settings Form -->
+          <form action="/admin/settings/saveSmtpSettings" method="POST" class="space-y-4 sm:space-y-5 animate-fade-in" style="animation-delay: 300ms;">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label for="smtpServer" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                  <%= req.translations.smtpServer %>
+                </label>
+                <input
+                  type="text"
+                  id="smtpServer"
+                  name="smtpServer"
+                  required
+                  value="<%= smtpSettings.server || '' %>"
+                  placeholder="<%= req.translations.smtpServer %>"
+                  class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07]"
+                />
+              </div>
+
+              <div>
+                <label for="smtpPort" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                  <%= req.translations.smtpPort %>
+                </label>
+                <input
+                  type="number"
+                  id="smtpPort"
+                  name="smtpPort"
+                  required
+                  value="<%= smtpSettings.port || '' %>"
+                  placeholder="<%= req.translations.smtpPort %>"
+                  class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07]"
+                />
+              </div>
+
+              <div>
+                <label for="smtpUser" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                  <%= req.translations.smtpUsername %>
+                </label>
+                <input
+                  type="text"
+                  id="smtpUser"
+                  name="smtpUser"
+                  required
+                  value="<%= smtpSettings.username || '' %>"
+                  placeholder="<%= req.translations.smtpUsername %>"
+                  class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07]"
+                />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="smtpPass" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                  <%= req.translations.smtpPassword %>
+                </label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="smtpPass"
+                    name="smtpPass"
+                    required
+                    value="<%= smtpSettings.password || '' %>"
+                    placeholder="<%= req.translations.smtpPassword %>"
+                    class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07] pr-10"
+                  />
+                  <button type="button" onclick="togglePassword('smtpPass')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label for="smtpFromName" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                  <%= req.translations.mailFromName %>
+                </label>
+                <input
+                  type="text"
+                  id="smtpFromName"
+                  name="smtpFromName"
+                  required
+                  value="<%= smtpSettings.fromName || '' %>"
+                  placeholder="<%= req.translations.mailFromName %>"
+                  class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07]"
+                />
+              </div>
+
+              <div>
+                <label for="smtpFromAddress" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                  <%= req.translations.mailFromAddress %>
+                </label>
+                <input
+                  type="email"
+                  id="smtpFromAddress"
+                  name="smtpFromAddress"
+                  required
+                  value="<%= smtpSettings.fromAddress || '' %>"
+                  placeholder="<%= req.translations.mailFromAddress %>"
+                  class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07]"
+                />
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button
+                type="submit"
+                class="w-full sm:w-auto rounded-xl bg-white text-black px-6 py-2.5 text-sm font-semibold shadow-lg shadow-white/10 hover:shadow-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group">
+                <svg class="w-4 h-4 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                </svg>
+                <%= req.translations.saveSmtpSettings %>
+              </button>
+            </div>
+
+          </form>
+
+          <!-- Divider for desktop -->
+          <div class="hidden xl:block w-px bg-white/10 self-stretch mx-2"></div>
+          <div class="block xl:hidden h-px bg-white/10 my-2"></div>
+
+          <!-- Test Email Form -->
+          <form action="/sendTestEmail" method="POST" class="space-y-4 sm:space-y-5 animate-fade-in" style="animation-delay: 400ms;">
+            
+            <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-4">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                  <h3 class="text-sm font-medium text-blue-300 mb-1">Test Configuration</h3>
+                  <p class="text-xs text-blue-200/70">Send a test email to verify your SMTP settings are working correctly before saving.</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label for="recipientEmail" class="block text-sm font-medium text-neutral-300 mb-1.5">
+                <%= req.translations.recipientEmail %>
+              </label>
+              <input
+                type="email"
+                id="recipientEmail"
+                name="recipientEmail"
+                required
+                placeholder="Enter email address"
+                class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2.5 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:bg-white/[0.07]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group">
+              <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+              </svg>
+              <%= req.translations.sendTestEmail %>
+            </button>
+
+            <!-- Alert Messages with optimistic animations -->
+            <div class="space-y-2 min-h-[2rem]">
+              <% if (req.query.msg === "TestemailSentsuccess") { %>
+                <div class="flex items-center gap-2 text-emerald-400 text-sm bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 animate-success-pulse">
+                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span><%= req.translations.testEmailSuccess %></span>
+                </div>
+              <% } %>
+
+              <% if (req.query.err === "TestemailSentfailed") { %>
+                <div class="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 animate-shake">
+                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span><%= req.translations.testEmailFailed %></span>
+                </div>
+              <% } %>
+
+              <% if (req.query.msg === "SmtpSaveSuccess") { %>
+                <div class="flex items-center gap-2 text-emerald-400 text-sm bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 animate-success-pulse">
+                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span><%= req.translations.settingsSaved %></span>
+                </div>
+              <% } %>
+
+              <% if (req.query.err === "SmtpSaveFailed") { %>
+                <div class="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 animate-shake">
+                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span><%= req.translations.settingsSaveFailed %></span>
+                </div>
+              <% } %>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
     </div>
 
-    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-      <!-- SMTP Settings Form -->
-      <form action="/admin/settings/saveSmtpSettings" method="POST" class="space-y-5">
-
-        <div>
-          <label for="smtpServer" class="block text-sm text-neutral-400">
-            <%= req.translations.smtpServer %>
-          </label>
-          <input
-            type="text"
-            id="smtpServer"
-            name="smtpServer"
-            required
-            value="<%= smtpSettings.server || '' %>"
-            placeholder="<%= req.translations.smtpServer %>"
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <div>
-          <label for="smtpPort" class="block text-sm text-neutral-400">
-            <%= req.translations.smtpPort %>
-          </label>
-          <input
-            type="number"
-            id="smtpPort"
-            name="smtpPort"
-            required
-            value="<%= smtpSettings.port || '' %>"
-            placeholder="<%= req.translations.smtpPort %>"
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <div>
-          <label for="smtpUser" class="block text-sm text-neutral-400">
-            <%= req.translations.smtpUsername %>
-          </label>
-          <input
-            type="text"
-            id="smtpUser"
-            name="smtpUser"
-            required
-            value="<%= smtpSettings.username || '' %>"
-            placeholder="<%= req.translations.smtpUsername %>"
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <div>
-          <label for="smtpPass" class="block text-sm text-neutral-400">
-            <%= req.translations.smtpPassword %>
-          </label>
-          <input
-            type="password"
-            id="smtpPass"
-            name="smtpPass"
-            required
-            value="<%= smtpSettings.password || '' %>"
-            placeholder="<%= req.translations.smtpPassword %>"
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <div>
-          <label for="smtpFromName" class="block text-sm text-neutral-400">
-            <%= req.translations.mailFromName %>
-          </label>
-          <input
-            type="text"
-            id="smtpFromName"
-            name="smtpFromName"
-            required
-            value="<%= smtpSettings.fromName || '' %>"
-            placeholder="<%= req.translations.mailFromName %>"
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <div>
-          <label for="smtpFromAddress" class="block text-sm text-neutral-400">
-            <%= req.translations.mailFromAddress %>
-          </label>
-          <input
-            type="email"
-            id="smtpFromAddress"
-            name="smtpFromAddress"
-            required
-            value="<%= smtpSettings.fromAddress || '' %>"
-            placeholder="<%= req.translations.mailFromAddress %>"
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="w-full rounded-xl bg-white text-black px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
-          <%= req.translations.saveSmtpSettings %>
-        </button>
-
-      </form>
-
-      <!-- Test Email Form -->
-      <form action="/sendTestEmail" method="POST" class="space-y-5">
-
-        <div>
-          <label for="recipientEmail" class="block text-sm text-neutral-400">
-            <%= req.translations.recipientEmail %>
-          </label>
-          <input
-            type="email"
-            id="recipientEmail"
-            name="recipientEmail"
-            required
-            class="mt-2 w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm font-medium shadow-md transition focus:outline-none">
-          <%= req.translations.sendTestEmail %>
-        </button>
-
-        <% if (req.query.msg === "TestemailSentsuccess") { %>
-          <div class="text-emerald-500 text-sm">
-            <%= req.translations.testEmailSuccess %>
+    <!-- Additional Settings Cards Grid - Responsive -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
+      
+      <!-- Example Card 1 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/[0.07] transition-all duration-300 group cursor-pointer animate-scale-up" style="animation-delay: 500ms;">
+        <div class="flex items-start justify-between mb-3">
+          <div class="p-2 bg-blue-500/20 rounded-lg group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
           </div>
-        <% } %>
+          <svg class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold mb-1">General Settings</h3>
+        <p class="text-sm text-neutral-400">Configure basic application preferences</p>
+      </div>
 
-        <% if (req.query.err === "TestemailSentfailed") { %>
-          <div class="text-red-500 text-sm">
-            <%= req.translations.testEmailFailed %>
+      <!-- Example Card 2 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/[0.07] transition-all duration-300 group cursor-pointer animate-scale-up" style="animation-delay: 600ms;">
+        <div class="flex items-start justify-between mb-3">
+          <div class="p-2 bg-purple-500/20 rounded-lg group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
           </div>
-        <% } %>
+          <svg class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold mb-1">Security</h3>
+        <p class="text-sm text-neutral-400">Manage authentication and access</p>
+      </div>
 
-        <% if (req.query.msg === "SmtpSaveSuccess") { %>
-          <div class="text-emerald-500 text-sm">
-            <%= req.translations.settingsSaved %>
+      <!-- Example Card 3 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/[0.07] transition-all duration-300 group cursor-pointer animate-scale-up" style="animation-delay: 700ms;">
+        <div class="flex items-start justify-between mb-3">
+          <div class="p-2 bg-emerald-500/20 rounded-lg group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
           </div>
-        <% } %>
+          <svg class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold mb-1">Logs</h3>
+        <p class="text-sm text-neutral-400">View system activity and events</p>
+      </div>
 
-        <% if (req.query.err === "SmtpSaveFailed") { %>
-          <div class="text-red-500 text-sm">
-            <%= req.translations.settingsSaveFailed %>
+      <!-- Example Card 4 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/[0.07] transition-all duration-300 group cursor-pointer animate-scale-up" style="animation-delay: 800ms;">
+        <div class="flex items-start justify-between mb-3">
+          <div class="p-2 bg-amber-500/20 rounded-lg group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
           </div>
-        <% } %>
+          <svg class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold mb-1">Performance</h3>
+        <p class="text-sm text-neutral-400">Optimize system resources</p>
+      </div>
 
-      </form>
+      <!-- Example Card 5 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/[0.07] transition-all duration-300 group cursor-pointer animate-scale-up" style="animation-delay: 900ms;">
+        <div class="flex items-start justify-between mb-3">
+          <div class="p-2 bg-rose-500/20 rounded-lg group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+          </div>
+          <svg class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold mb-1">Support</h3>
+        <p class="text-sm text-neutral-400">Get help and documentation</p>
+      </div>
+
+      <!-- Example Card 6 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/[0.07] transition-all duration-300 group cursor-pointer animate-scale-up" style="animation-delay: 1000ms;">
+        <div class="flex items-start justify-between mb-3">
+          <div class="p-2 bg-cyan-500/20 rounded-lg group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+          </div>
+          <svg class="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold mb-1">Backups</h3>
+        <p class="text-sm text-neutral-400">Manage data backups</p>
+      </div>
 
     </div>
+
   </div>
 
 </main>
+
+<style>
+  /* Optimistic Animations */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes scale-up {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  @keyframes success-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-slide-down {
+    animation: slide-down 0.5s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-scale-up {
+    animation: scale-up 0.4s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .animate-success-pulse {
+    animation: success-pulse 2s ease-in-out;
+  }
+  
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Focus visible for accessibility */
+  *:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  // Toggle password visibility
+  function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+    } else {
+      input.type = 'password';
+    }
+  }
+  
+  // Add loading state to buttons on click
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      const btn = this.querySelector('button[type="submit"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
+      }
+    });
+  });
+</script>
 
 <%- include('../../components/footer') %>
