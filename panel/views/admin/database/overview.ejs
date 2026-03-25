@@ -1,68 +1,124 @@
 <%- include('../../components/template') %>
 
 <style>
-/* === NODES-STYLE CARDS (backdrop blur, premium feel) === */
+/* === PREMIUM GLASSMORPHIC CARDS === */
 .stat-card {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 1.75rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.05);
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
 }
 
 .stat-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px) scale(1.02);
   border-color: rgba(255,255,255,0.25);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .stat-number {
-  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-size: clamp(1.75rem, 4vw, 3rem);
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.025em;
-  margin-top: 0.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-top: 0.75rem;
   word-break: break-word;
+  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Header button style (exact match to Nodes) */
+/* Header button style */
 .refresh-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
+  padding: 12px 24px;
+  border-radius: 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   color: #a1a1aa;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .refresh-btn:hover {
   background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.25);
   color: white;
+  transform: translateY(-2px);
 }
 
-/* Notification (exact copy from Nodes) */
+.refresh-btn:active {
+  transform: translateY(0);
+}
+
+/* Notification styling */
 #notification {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Icon sizing */
+/* Icon container with gradient backgrounds */
 .stat-icon {
-  width: clamp(2.5rem, 6vw, 3rem);
-  height: clamp(2.5rem, 6vw, 3rem);
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  width: clamp(2.75rem, 6vw, 3.5rem);
+  height: clamp(2.75rem, 6vw, 3.5rem);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover .stat-icon::before {
+  opacity: 0.25;
+}
+
+.stat-icon svg {
+  width: 55%;
+  height: 55%;
+  stroke-width: 1.75;
+  position: relative;
+  z-index: 1;
 }
 
 /* Card content spacing */
@@ -73,50 +129,92 @@
   justify-content: space-between;
 }
 
+/* Subtle glow effects for each color */
+.stat-card:has(.text-blue-400) { --glow-color: rgba(96, 165, 250, 0.3); }
+.stat-card:has(.text-purple-400) { --glow-color: rgba(192, 132, 252, 0.3); }
+.stat-card:has(.text-orange-400) { --glow-color: rgba(251, 146, 60, 0.3); }
+.stat-card:has(.text-cyan-400) { --glow-color: rgba(34, 211, 238, 0.3); }
+.stat-card:has(.text-amber-400) { --glow-color: rgba(251, 191, 36, 0.3); }
+.stat-card:has(.text-pink-400) { --glow-color: rgba(244, 114, 182, 0.3); }
+.stat-card:has(.text-violet-400) { --glow-color: rgba(167, 139, 250, 0.3); }
+.stat-card:has(.text-emerald-400) { --glow-color: rgba(52, 211, 153, 0.3); }
+
+.stat-card:hover {
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1),
+    0 0 30px -5px var(--glow-color, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
 /* Mobile optimizations */
 @media (max-width: 640px) {
   .stat-card { 
     padding: 1.25rem;
-    border-radius: 12px;
+    border-radius: 16px;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
   }
   
   .header-actions {
     width: 100%;
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
   
   .refresh-btn {
     flex: 1;
     justify-content: center;
     min-width: 120px;
+    padding: 10px 16px;
   }
   
   .live-badge {
     flex: 1;
     justify-content: center;
+    padding: 10px 16px;
   }
   
   .version-badge {
     width: 100%;
     text-align: center;
+    padding: 8px 16px;
+  }
+  
+  main {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 
 /* Tablet adjustments */
 @media (min-width: 641px) and (max-width: 1024px) {
   .stat-number {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
+  }
+  
+  .stat-card {
+    padding: 1.5rem;
   }
 }
 
 /* Large screen optimizations */
 @media (min-width: 1536px) {
   .stat-card {
-    padding: 2rem;
+    padding: 2.25rem;
+    border-radius: 24px;
   }
   
   .stat-number {
-    font-size: 3.5rem;
+    font-size: 3.25rem;
+  }
+  
+  .stat-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 20px;
   }
 }
 
@@ -131,11 +229,66 @@
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+/* Loading shimmer effect */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0.05) 25%, 
+    rgba(255,255,255,0.1) 50%, 
+    rgba(255,255,255,0.05) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Smooth number transition */
+.stat-number {
+  transition: all 0.3s ease;
+}
+
+/* Grid gap optimizations */
+.grid {
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Section headers */
+section h2 {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Live badge pulse animation enhancement */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.live-badge::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0.3;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.live-badge {
+  position: relative;
+  overflow: visible;
+}
 </style>
 
 <main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
   
-  <!-- Header (styled exactly like Nodes) -->
+  <!-- Header -->
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10">
     <div class="flex-1 min-w-0">
       <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight truncate">Database Overview</h1>
@@ -144,26 +297,27 @@
 
     <div class="flex items-center gap-2 sm:gap-3 header-actions">
       <!-- LIVE badge -->
-      <div class="live-badge flex items-center justify-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 sm:px-5 py-2 rounded-[10px] text-xs sm:text-sm font-medium">
-        <div class="w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse flex-shrink-0"></div>
-        <span class="hidden sm:inline">LIVE</span>
-        <span class="sm:hidden">●</span>
+      <div class="live-badge flex items-center justify-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 sm:px-5 py-2 rounded-[10px] text-xs sm:text-sm font-medium relative">
+        <div class="w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse flex-shrink-0 relative z-10"></div>
+        <span class="hidden sm:inline relative z-10">LIVE</span>
+        <span class="sm:hidden relative z-10">●</span>
       </div>
 
-      <!-- Refresh button (styled like Radar Scan) -->
-      <button onclick="refreshDatabase()" 
-              class="refresh-btn">
-        <span class="inline-block transition-transform">↻</span>
+      <!-- Refresh button -->
+      <button onclick="refreshDatabase()" class="refresh-btn">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
         <span class="hidden sm:inline">Refresh Now</span>
         <span class="sm:hidden">Refresh</span>
       </button>
 
-      <span class="version-badge bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap">v<%= version %></span>
+      <span class="version-badge bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap border border-white/5">v<%= version %></span>
     </div>
   </header>
 
-  <!-- DATABASE STATISTICS (8 cards – exact Nodes article style) -->
-  <div class="mt-6 sm:mt-10">
+  <!-- DATABASE STATISTICS (8 cards) -->
+  <section class="mt-6 sm:mt-10">
     <div class="flex items-center justify-between mb-4 sm:mb-6">
       <h2 class="text-xl sm:text-2xl font-semibold text-white">Database Statistics</h2>
     </div>
@@ -177,10 +331,15 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Users</p>
             <p id="users-text" class="stat-number text-blue-400"><%= usersTotal %></p>
           </div>
-          <div class="stat-icon bg-blue-500/10 rounded-2xl flex items-center justify-center">👥</div>
+          <div class="stat-icon bg-blue-500/10 text-blue-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">
-          Admins: <span id="admins-text" class="text-emerald-400 font-medium"><%= adminsTotal %></span>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          Admins: <span id="admins-text" class="text-emerald-400 font-semibold"><%= adminsTotal %></span>
         </p>
       </article>
 
@@ -191,10 +350,15 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Instances</p>
             <p id="instances-text" class="stat-number text-purple-400"><%= instancesTotal %></p>
           </div>
-          <div class="stat-icon bg-purple-500/10 rounded-2xl flex items-center justify-center">📦</div>
+          <div class="stat-icon bg-purple-500/10 text-purple-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">
-          Suspended: <span id="suspended-text" class="text-red-400 font-medium"><%= suspendedTotal %></span>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+          Suspended: <span id="suspended-text" class="text-red-400 font-semibold"><%= suspendedTotal %></span>
         </p>
       </article>
 
@@ -205,11 +369,21 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Nodes</p>
             <p id="nodes-text" class="stat-number text-orange-400"><%= nodesTotal %></p>
           </div>
-          <div class="stat-icon bg-orange-500/10 rounded-2xl flex items-center justify-center">🖥️</div>
+          <div class="stat-icon bg-orange-500/10 text-orange-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+            </svg>
+          </div>
         </div>
-        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex flex-col sm:flex-row sm:justify-between gap-1">
-          <span>Online: <span id="online-text" class="text-emerald-400 font-medium"><%= onlineNodes %></span></span>
-          <span>Offline: <span id="offline-text" class="text-red-400 font-medium"><%= offlineNodes %></span></span>
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex flex-col sm:flex-row sm:justify-between gap-2">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            Online: <span id="online-text" class="text-emerald-400 font-semibold"><%= onlineNodes %></span>
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+            Offline: <span id="offline-text" class="text-red-400 font-semibold"><%= offlineNodes %></span>
+          </span>
         </div>
       </article>
 
@@ -220,8 +394,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Templates</p>
             <p id="templates-text" class="stat-number text-cyan-400"><%= templatesTotal %></p>
           </div>
-          <div class="stat-icon bg-cyan-500/10 rounded-2xl flex items-center justify-center">📋</div>
+          <div class="stat-icon bg-cyan-500/10 text-cyan-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Available configurations</p>
       </article>
 
       <!-- Locations -->
@@ -231,8 +410,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Locations</p>
             <p id="locations-text" class="stat-number text-amber-400"><%= locationsTotal %></p>
           </div>
-          <div class="stat-icon bg-amber-500/10 rounded-2xl flex items-center justify-center">🌍</div>
+          <div class="stat-icon bg-amber-500/10 text-amber-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Global regions</p>
       </article>
 
       <!-- API Keys -->
@@ -242,8 +426,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">API Keys</p>
             <p id="apikeys-text" class="stat-number text-pink-400"><%= apiKeysTotal %></p>
           </div>
-          <div class="stat-icon bg-pink-500/10 rounded-2xl flex items-center justify-center">🔑</div>
+          <div class="stat-icon bg-pink-500/10 text-pink-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Active credentials</p>
       </article>
 
       <!-- Plugins -->
@@ -253,8 +442,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Plugins</p>
             <p id="plugins-text" class="stat-number text-violet-400"><%= pluginsTotal %></p>
           </div>
-          <div class="stat-icon bg-violet-500/10 rounded-2xl flex items-center justify-center">🧩</div>
+          <div class="stat-icon bg-violet-500/10 text-violet-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Installed modules</p>
       </article>
 
       <!-- Requests -->
@@ -264,25 +458,35 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Requests</p>
             <p id="requests-text" class="stat-number text-emerald-400"><%= totalRequests %></p>
           </div>
-          <div class="stat-icon bg-emerald-500/10 rounded-2xl flex items-center justify-center">📡</div>
-        </div>
-        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 space-y-1">
-          <div class="flex justify-between">
-            <span>Visitors:</span>
-            <span id="visitors-text" class="text-white font-medium"><%= uniqueVisitors %></span>
+          <div class="stat-icon bg-emerald-500/10 text-emerald-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
           </div>
-          <div class="flex justify-between">
-            <span>Avg/hour:</span>
-            <span id="avg-text" class="text-white font-medium"><%= avgRequestsPerHour %></span>
+        </div>
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>
+              Visitors:
+            </span>
+            <span id="visitors-text" class="text-white font-semibold"><%= uniqueVisitors %></span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>
+              Avg/hour:
+            </span>
+            <span id="avg-text" class="text-white font-semibold"><%= avgRequestsPerHour %></span>
           </div>
         </div>
       </article>
 
     </div>
-  </div>
+  </section>
 
-  <!-- DATABASE INFORMATION (5 cards – same premium style) -->
-  <div class="mt-8 sm:mt-12">
+  <!-- DATABASE INFORMATION (5 cards) -->
+  <section class="mt-8 sm:mt-12">
     <h2 class="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">Database Information</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
 
@@ -293,8 +497,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Type</p>
             <p id="dbtype-text" class="stat-number text-emerald-400 break-text"><%= dbType %></p>
           </div>
-          <div class="stat-icon bg-emerald-500/10 rounded-2xl flex items-center justify-center">🗄️</div>
+          <div class="stat-icon bg-emerald-500/10 text-emerald-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Storage engine</p>
       </article>
 
       <!-- Size -->
@@ -304,8 +513,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Size</p>
             <p id="dbsize-text" class="stat-number text-cyan-400"><%= dbSize %></p>
           </div>
-          <div class="stat-icon bg-cyan-500/10 rounded-2xl flex items-center justify-center">📦</div>
+          <div class="stat-icon bg-cyan-500/10 text-cyan-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Storage used</p>
       </article>
 
       <!-- URL -->
@@ -313,9 +527,13 @@
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Connection URL</p>
-            <p id="dburl-text" class="mt-2 sm:mt-4 font-mono text-xs sm:text-sm text-amber-400 break-all leading-relaxed"><%= dbUrlMasked %></p>
+            <p id="dburl-text" class="mt-2 sm:mt-4 font-mono text-xs sm:text-sm text-amber-400 break-all leading-relaxed bg-black/20 p-2 rounded-lg"><%= dbUrlMasked %></p>
           </div>
-          <div class="stat-icon bg-amber-500/10 rounded-2xl flex items-center justify-center flex-shrink-0">🔗</div>
+          <div class="stat-icon bg-amber-500/10 text-amber-400 flex-shrink-0">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+          </div>
         </div>
       </article>
 
@@ -326,8 +544,13 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Table Name</p>
             <p id="dbtable-text" class="stat-number text-violet-400 break-text"><%= dbTable %></p>
           </div>
-          <div class="stat-icon bg-violet-500/10 rounded-2xl flex items-center justify-center">📋</div>
+          <div class="stat-icon bg-violet-500/10 text-violet-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7-8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Primary collection</p>
       </article>
 
       <!-- Total Keys -->
@@ -337,18 +560,26 @@
             <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Keys</p>
             <p id="dbkeys-text" class="stat-number text-pink-400"><%= totalKeys %></p>
           </div>
-          <div class="stat-icon bg-pink-500/10 rounded-2xl flex items-center justify-center">🔑</div>
+          <div class="stat-icon bg-pink-500/10 text-pink-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+            </svg>
+          </div>
         </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Stored entries</p>
       </article>
 
     </div>
-  </div>
+  </section>
 
 </main>
 
-<!-- Notification (exact Nodes style) -->
+<!-- Notification -->
 <div id="notification" 
-     class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)]">
+     class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm">
+  <svg id="notification-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+  </svg>
   <span id="notification-text" class="break-text"></span>
 </div>
 
@@ -394,9 +625,24 @@
 
   async function refreshDatabase() {
     const btn = event.currentTarget;
-    btn.style.opacity = 0.6;
+    const originalContent = btn.innerHTML;
+    
+    // Add loading state
+    btn.style.opacity = 0.7;
+    btn.innerHTML = `
+      <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="hidden sm:inline">Refreshing...</span>
+      <span class="sm:hidden">Wait</span>
+    `;
+    
     const success = await fetchDatabaseStats();
+    
+    // Restore button
     btn.style.opacity = 1;
+    btn.innerHTML = originalContent;
 
     if (success) {
       showNotification('Database statistics refreshed successfully!', 'success');
@@ -408,21 +654,29 @@
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const textEl = document.getElementById('notification-text');
+    const iconEl = document.getElementById('notification-icon');
+    
     textEl.textContent = message;
 
-    notification.className = `fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] transition-all duration-300 ${
-      type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
-    }`;
+    // Set icon based on type
+    if (type === 'error') {
+      iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+      notification.className = `fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm bg-red-600 text-white`;
+    } else {
+      iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      notification.className = `fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm bg-emerald-600 text-white`;
+    }
+    
     notification.classList.remove('hidden');
-    notification.classList.add('flex');
+    notification.classList.add('flex', 'animate-in', 'slide-in-from-bottom-2');
 
     setTimeout(() => {
       notification.classList.add('opacity-0', 'translate-y-2');
       setTimeout(() => {
         notification.classList.add('hidden');
-        notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+        notification.classList.remove('opacity-0', 'translate-y-2', 'flex', 'animate-in', 'slide-in-from-bottom-2');
       }, 300);
-    }, 2800);
+    }, 3000);
   }
 
   window.onload = () => {
@@ -449,7 +703,7 @@
       dbkeys: document.getElementById('dbkeys-text')
     };
 
-    // Initial live fetch (will match server-rendered numbers)
+    // Initial live fetch
     fetchDatabaseStats();
     setInterval(fetchDatabaseStats, 15000);
   };
