@@ -1,16 +1,16 @@
 <%- include('../components/template') %>
 <main id="content" class="min-h-screen text-white">
    <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-4 sm:px-8 pt-4">
+      <div class="flex flex-col sm:flex-row sm:items-center px-4 sm:px-8 pt-4 gap-4 sm:gap-0">
          <div class="sm:flex-auto">
-            <h1 class="text-base font-medium leading-6">Manage Instance</h1>
+            <h1 class="text-lg sm:text-base font-medium leading-6">Manage Instance</h1>
             <p class="mt-1 text-sm text-neutral-500">View, update, and manage an instance on the KS Panel.</p>
          </div>
          <% let query = req.query.path ? '?path=' + req.query.path : ''; %>
-         <div class="mt-4 sm:ml-16 sm:mt-0 flex space-x-2 sm:space-x-4">
-            <button id="save-button" type="button" class="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                Save Workflow
+         <div class="flex flex-wrap gap-2 sm:ml-16 sm:mt-0 sm:flex-nowrap sm:space-x-4">
+            <button id="save-button" type="button" class="inline-flex items-center px-3 sm:px-4 py-2.5 sm:py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 active:scale-95 transition-transform touch-manipulation">
+                <svg class="mr-2 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                <span class="whitespace-nowrap">Save Workflow</span>
             </button>
             <input type="file" id="fileInput" multiple style="display: none;">
          </div>
@@ -19,91 +19,138 @@
 
    <%- include('../components/instance') %>
 
-   <!-- Horizontal scroll wrapper -->
-   <div class="flex gap-4 m-5 overflow-x-auto pb-4">
-      <div id="action-blocks" class="flex-none w-64 bg-neutral-800/20 p-6 rounded-lg shadow-lg">
-         <h3 class="text-xl font-semibold text-white mb-6">Actions</h3>
-         <div class="action-block p-4 bg-indigo-600 shadow-lg rounded-lg mb-4 text-white cursor-pointer transition-transform transform hover:scale-105" draggable="true" data-type="interval">
-            <span class="font-medium">Interval</span>
-            <select class="interval-select mt-2 bg-indigo-700 text-white rounded w-full p-2">
-                <option value="0.5">Every 30 Minutes</option>
-                <option value="1">1 Hour</option>
-                <option value="2">2 Hours</option>
-                <option value="3">3 Hours</option>
-                <option value="4">4 Hours</option>
-                <option value="5">5 Hours</option>
-                <option value="7">7 Hours</option>
-                <option value="9">9 Hours</option>
-                <option value="13">13 Hours</option>
-                <option value="15">15 Hours</option>
-                <option value="17">17 Hours</option>
-                <option value="24">Every Day</option>
-                <option value="48">Every 2 Days</option>
-                <option value="72">Every 3 Days</option>
-                <option value="96">Every 4 Days</option>
-                <option value="120">Every 5 Days</option>
-                <option value="144">Every 6 Days</option>
-                <option value="168">Every Week</option>
-            </select>
-         </div>
-         <div class="action-block p-4 bg-green-600 shadow-lg rounded-lg mb-4 text-white cursor-pointer transition-transform transform hover:scale-105" draggable="true" data-type="power">
-            <span class="font-medium">Power Action</span>
-            <select class="power-action-select mt-2 bg-green-700 text-white rounded w-full p-2">
-               <option value="start">Start</option>
-               <option value="stop">Stop</option>
-               <option value="restart">Restart</option>
-            </select>
-         </div>
-         <div class="action-block p-4 bg-purple-600 shadow-lg rounded-lg mb-4 text-white cursor-pointer transition-transform transform hover:scale-105" draggable="true" data-type="webhook">
-            <span class="font-medium">Webhook</span>
-            <input type="text" placeholder="Enter URL" class="mt-2 bg-purple-700 text-white rounded w-full p-2">
+   <!-- Responsive layout: vertical on mobile, horizontal on desktop -->
+   <div class="flex flex-col lg:flex-row gap-4 m-4 sm:m-5 overflow-hidden lg:overflow-x-auto pb-4">
+      
+      <!-- Actions Sidebar - Full width on mobile, fixed width on desktop -->
+      <div id="action-blocks" class="w-full lg:flex-none lg:w-72 bg-neutral-800/20 p-4 sm:p-6 rounded-lg shadow-lg backdrop-blur-sm">
+         <h3 class="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            Actions
+         </h3>
+         
+         <!-- Action Blocks Grid on mobile, Stack on desktop -->
+         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
+            <div class="action-block p-4 bg-indigo-600 shadow-lg rounded-lg text-white cursor-pointer transition-all duration-200 transform hover:scale-105 active:scale-95 touch-manipulation select-none" draggable="true" data-type="interval">
+               <div class="flex items-center gap-2 mb-2">
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span class="font-medium text-sm sm:text-base">Interval</span>
+               </div>
+               <select class="interval-select mt-1 bg-indigo-700 text-white rounded w-full p-2.5 sm:p-2 text-sm border border-indigo-500 focus:ring-2 focus:ring-indigo-400 focus:outline-none touch-manipulation">
+                  <option value="0.5">Every 30 Minutes</option>
+                  <option value="1">1 Hour</option>
+                  <option value="2">2 Hours</option>
+                  <option value="3">3 Hours</option>
+                  <option value="4">4 Hours</option>
+                  <option value="5">5 Hours</option>
+                  <option value="7">7 Hours</option>
+                  <option value="9">9 Hours</option>
+                  <option value="13">13 Hours</option>
+                  <option value="15">15 Hours</option>
+                  <option value="17">17 Hours</option>
+                  <option value="24">Every Day</option>
+                  <option value="48">Every 2 Days</option>
+                  <option value="72">Every 3 Days</option>
+                  <option value="96">Every 4 Days</option>
+                  <option value="120">Every 5 Days</option>
+                  <option value="144">Every 6 Days</option>
+                  <option value="168">Every Week</option>
+               </select>
+            </div>
+
+            <div class="action-block p-4 bg-green-600 shadow-lg rounded-lg text-white cursor-pointer transition-all duration-200 transform hover:scale-105 active:scale-95 touch-manipulation select-none" draggable="true" data-type="power">
+               <div class="flex items-center gap-2 mb-2">
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  <span class="font-medium text-sm sm:text-base">Power Action</span>
+               </div>
+               <select class="power-action-select mt-1 bg-green-700 text-white rounded w-full p-2.5 sm:p-2 text-sm border border-green-500 focus:ring-2 focus:ring-green-400 focus:outline-none touch-manipulation">
+                  <option value="start">Start</option>
+                  <option value="stop">Stop</option>
+                  <option value="restart">Restart</option>
+               </select>
+            </div>
+
+            <div class="action-block p-4 bg-purple-600 shadow-lg rounded-lg text-white cursor-pointer transition-all duration-200 transform hover:scale-105 active:scale-95 touch-manipulation select-none sm:col-span-2 lg:col-span-1" draggable="true" data-type="webhook">
+               <div class="flex items-center gap-2 mb-2">
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                  <span class="font-medium text-sm sm:text-base">Webhook</span>
+               </div>
+               <input type="text" placeholder="Enter URL" class="mt-1 bg-purple-700 text-white rounded w-full p-2.5 sm:p-2 text-sm border border-purple-500 focus:ring-2 focus:ring-purple-400 focus:outline-none placeholder-purple-300 touch-manipulation">
+            </div>
          </div>
       </div>
 
-      <div id="workspace" class="flex-1 min-w-[300px] border border-neutral-200/20 p-6 rounded-lg shadow-lg relative overflow-auto" style="height: 600px; 
-      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
-                        radial-gradient(circle, rgba(255, 255, 255, 0.1) 1.5px, transparent 1px);
-      background-size: 40px 40px;
-      background-position: 0 0, 20px 20px;">
-      <h3 class="text-xl font-semibold text-white mb-6">Workspace</h3>
-      <p id="workspace-placeholder" class="text-gray-400 mb-4">Drag actions here to build your automation workflow.</p>
-      <svg id="connectors" class="absolute inset-0 pointer-events-none" style="z-index: 0;"></svg>
+      <!-- Workspace - Flexible height and width -->
+      <div id="workspace" class="flex-1 min-h-[400px] sm:min-h-[500px] lg:min-w-[300px] border border-neutral-200/20 p-4 sm:p-6 rounded-lg shadow-lg relative overflow-auto touch-pan-y" 
+           style="height: auto; min-height: 60vh; 
+           background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+                             radial-gradient(circle, rgba(255, 255, 255, 0.1) 1.5px, transparent 1px);
+           background-size: 40px 40px;
+           background-position: 0 0, 20px 20px;">
+         
+         <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2">
+               <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+               Workspace
+            </h3>
+            <span id="block-count" class="text-xs sm:text-sm text-neutral-400 bg-neutral-800/50 px-2 py-1 rounded-full hidden">0 blocks</span>
+         </div>
+         
+         <p id="workspace-placeholder" class="text-gray-400 mb-4 text-sm sm:text-base flex items-center gap-2">
+            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path></svg>
+            Drag actions here to build your automation workflow.
+         </p>
+         
+         <svg id="connectors" class="absolute inset-0 pointer-events-none w-full h-full" style="z-index: 0; min-width: 100%; min-height: 100%;"></svg>
       </div>
    </div>
 </main>
 <%- include('../components/footer') %>
 
 <style>
+   /* Base styles with touch optimization */
    .action-block, .block-item {
       cursor: grab;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
    }
+   
    .action-block:active, .block-item:active {
       cursor: grabbing;
    }
+   
    .block-item {
       position: absolute;
-      width: 200px; 
+      width: clamp(160px, 45vw, 200px);
       z-index: 10;
+      touch-action: none;
    }
+   
    .connector {
       stroke: #4f46e5;
       stroke-width: 2;
       fill: none;
       filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
    }
+   
    .connection-point {
-      width: 12px;
-      height: 12px;
+      width: clamp(14px, 4vw, 16px);
+      height: clamp(14px, 4vw, 16px);
       border-radius: 50%;
       background-color: #4f46e5;
       position: absolute;
       cursor: crosshair;
       box-shadow: 0 0 0 2px white, 0 0 0 4px #4f46e5, 0 0 5px 4px rgba(79, 70, 229, 0.5);
       z-index: 20;
-      transition: transform 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
+      touch-action: manipulation;
    }
-   .connection-point:hover {
-      transform: scale(1.2);
+   
+   .connection-point:hover, .connection-point:active {
+      transform: scale(1.3);
+      box-shadow: 0 0 0 3px white, 0 0 0 6px #4f46e5, 0 0 8px 6px rgba(79, 70, 229, 0.6);
    }
 
    #connectors {
@@ -114,11 +161,99 @@
       height: 100%;
       pointer-events: none;
       z-index: 0;
+      overflow: visible;
    }
 
-   /* Horizontal scroll styling */
-   .overflow-x-auto {
+   /* Touch-friendly utilities */
+   .touch-manipulation {
+      touch-action: manipulation;
+   }
+   
+   .touch-pan-y {
+      touch-action: pan-y pinch-zoom;
+   }
+
+   /* Smooth scrolling */
+   .overflow-x-auto, .overflow-auto {
       -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+   }
+
+   /* Context menu responsive positioning */
+   #context-menu {
+      max-width: calc(100vw - 20px);
+      z-index: 100;
+   }
+
+   /* Mobile-specific enhancements */
+   @media (max-width: 640px) {
+      .block-item {
+         font-size: 0.875rem;
+      }
+      
+      .block-item select, .block-item input {
+         font-size: 16px; /* Prevents zoom on iOS */
+         padding: 0.5rem;
+      }
+      
+      /* Larger touch targets on mobile */
+      .action-block {
+         min-height: 44px;
+      }
+   }
+
+   /* Tablet optimizations */
+   @media (min-width: 641px) and (max-width: 1023px) {
+      #workspace {
+         min-height: 70vh;
+      }
+   }
+
+   /* Desktop hover effects (disabled on touch devices via media query) */
+   @media (hover: hover) and (pointer: fine) {
+      .action-block:hover {
+         transform: scale(1.05);
+      }
+      
+      .connection-point:hover {
+         transform: scale(1.2);
+      }
+   }
+
+   /* Prevent text selection during drag */
+   .dragging {
+      opacity: 0.8;
+      pointer-events: none;
+   }
+
+   /* Animation for placeholder */
+   @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+   }
+   
+   #workspace-placeholder {
+      animation: pulse-subtle 2s ease-in-out infinite;
+   }
+
+   /* Custom scrollbar styling */
+   ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+   }
+   
+   ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+   }
+   
+   ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+   }
+   
+   ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
    }
 </style>
 
@@ -132,20 +267,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const connectors = document.getElementById('connectors');
     const saveButton = document.getElementById('save-button');
     const placeholder = document.getElementById('workspace-placeholder');
+    const blockCount = document.getElementById('block-count');
     let connections = [];
     let blockIdCounter = 0;
+    let isTouch = false;
+    let touchOffset = { x: 0, y: 0 };
+
+    // Detect touch device
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
     workspace.addEventListener('contextmenu', showContextMenu);
     document.addEventListener('click', hideContextMenu);
 
     const savedWorkflow = <%- JSON.stringify(workflow) %>;
 
+    // Event listeners with touch support
     actions.addEventListener('dragstart', dragStart);
     workspace.addEventListener('dragover', dragOver);
     workspace.addEventListener('drop', drop);
+    
+    // Mouse events
     workspace.addEventListener('mousedown', startDragging);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDragging);
+    
+    // Touch events for mobile
+    workspace.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+    
     saveButton.addEventListener('click', saveWorkflow);
 
     if (savedWorkflow) {
@@ -205,17 +355,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const contextMenu = document.createElement('div');
         contextMenu.id = 'context-menu';
-        contextMenu.style.position = 'absolute';
-        contextMenu.style.left = `${e.clientX}px`;
-        contextMenu.style.top = `${e.clientY + 10}px`;
-        contextMenu.classList.add('bg-neutral-200', 'p-1', 'rounded-lg', 'shadow', 'z-10', 'w-40', 'text-sm', 'border', 'border-neutral-300/20');
+        
+        // Responsive positioning
+        const x = e.clientX;
+        const y = e.clientY;
+        const menuWidth = 160;
+        const menuHeight = 40;
+        
+        // Adjust if near screen edges
+        const adjustedX = Math.min(x, window.innerWidth - menuWidth - 10);
+        const adjustedY = Math.min(y, window.innerHeight - menuHeight - 10);
+
+        contextMenu.style.position = 'fixed';
+        contextMenu.style.left = `${Math.max(10, adjustedX)}px`;
+        contextMenu.style.top = `${Math.max(10, adjustedY + 10)}px`;
+        contextMenu.classList.add('bg-neutral-800', 'p-2', 'rounded-lg', 'shadow-xl', 'z-50', 'w-40', 'text-sm', 'border', 'border-neutral-600');
 
         const target = e.target.closest('.block-item, .connector');
         if (target) {
             const deleteOption = document.createElement('div');
-            deleteOption.textContent = 'Delete';
+            deleteOption.innerHTML = `
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete
+            `;
             deleteOption.style.cursor = 'pointer';
-            deleteOption.classList.add('text-red-500', 'hover:text-neutral-200', 'transition-all', 'rounded-lg', 'px-2', 'py-1', 'hover:bg-red-600');
+            deleteOption.classList.add('text-red-400', 'hover:text-white', 'transition-all', 'rounded-md', 'px-3', 'py-2', 'hover:bg-red-600', 'flex', 'items-center');
 
             deleteOption.addEventListener('click', () => {
                 if (target.classList.contains('block-item')) {
@@ -227,7 +393,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             contextMenu.appendChild(deleteOption);
-
             document.body.appendChild(contextMenu);
         }
     }
@@ -260,112 +425,238 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
     function createBlockElement(type) {
         const blockTemplate = actions.querySelector(`[data-type="${type}"]`);
         const clone = blockTemplate.cloneNode(true);
         clone.classList.add('block-item');
+        clone.classList.remove('action-block');
         clone.dataset.type = type;
         clone.dataset.id = blockIdCounter++;
+        
+        // Add delete button for mobile-friendly removal
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.className = 'absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity md:hidden shadow-lg z-30';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteBlock(clone);
+        };
+        clone.style.position = 'relative';
+        clone.appendChild(deleteBtn);
+        
         return clone;
     }
 
     function dragStart(e) {
-        const clone = createBlockElement(e.target.dataset.type);
+        const clone = createBlockElement(e.target.closest('.action-block').dataset.type);
         workspace.appendChild(clone);
         draggedElement = clone;
-        offset.x = e.offsetX;
-        offset.y = e.offsetY;
+        offset.x = e.offsetX || 0;
+        offset.y = e.offsetY || 0;
+        isTouch = false;
     }
 
     function dragOver(e) {
         e.preventDefault();
-        if (draggedElement) {
-            const x = e.clientX - workspace.getBoundingClientRect().left - offset.x;
-            const y = e.clientY - workspace.getBoundingClientRect().top - offset.y;
-            draggedElement.style.left = `${x}px`;
-            draggedElement.style.top = `${y}px`;
+        if (draggedElement && !isTouch) {
+            const rect = workspace.getBoundingClientRect();
+            const x = e.clientX - rect.left - offset.x;
+            const y = e.clientY - rect.top - offset.y;
+            
+            // Boundary checks
+            const maxX = rect.width - draggedElement.offsetWidth;
+            const maxY = rect.height - draggedElement.offsetHeight;
+            
+            draggedElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+            draggedElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
             updateConnections();
         }
     }
 
     function drop(e) {
-        if (draggedElement) {
+        if (draggedElement && !isTouch) {
             createConnectionPoints(draggedElement);
             draggedElement = null;
         }
         updatePlaceholder();
     }
-    
-        function createConnectionPoints(block) {
-            ['left', 'right'].forEach(point => {
-                const connectionPoint = document.createElement('div');
-                connectionPoint.classList.add('connection-point');
-                connectionPoint.dataset.position = point;
-                
-                if (point === 'left') {
-                    connectionPoint.style.left = '-6px';
-                } else {
-                    connectionPoint.style.right = '-6px';
-                }
-                connectionPoint.style.top = '50%';
-                block.appendChild(connectionPoint);
-                
-                connectionPoint.addEventListener('mousedown', handleConnectionPoint);
-            });
-        }
-    
-        function handleConnectionPoint(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            const clickedPoint = e.target;
-            if (!currentConnection) {
-                startNewConnection(clickedPoint);
-            } else {
-                completeConnection(clickedPoint);
-            }
-        }
-    
-        function startNewConnection(point) {
-            if (point.dataset.position === 'right') {
-                const connector = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                connector.setAttribute('class', 'connector');
-                connectors.appendChild(connector);
-                currentConnection = { start: point, connector: connector };
-                document.addEventListener('mousemove', updateCurrentConnection);
-                document.addEventListener('mouseup', finishConnection);
-            }
-        }
 
-    
-        function updateCurrentConnection(e) {
-            if (currentConnection) {
-                const startPos = getConnectionPointPosition(currentConnection.start);
-                const endPos = {
-                    x: e.clientX - workspace.getBoundingClientRect().left,
-                    y: e.clientY - workspace.getBoundingClientRect().top
-                };
-                drawConnection({ start: startPos, end: endPos }, currentConnection.connector);
-            }
+    // Touch event handlers for mobile drag support
+    function handleTouchStart(e) {
+        const touch = e.touches[0];
+        const target = e.target.closest('.block-item');
+        
+        if (target) {
+            isTouch = true;
+            draggedElement = target;
+            const rect = target.getBoundingClientRect();
+            const workspaceRect = workspace.getBoundingClientRect();
+            
+            touchOffset.x = touch.clientX - rect.left;
+            touchOffset.y = touch.clientY - rect.top;
+            
+            target.classList.add('dragging');
+            e.preventDefault();
+        } else if (e.target.closest('.connection-point')) {
+            // Handle connection point touch
+            handleConnectionPoint(e);
         }
-    
-        function finishConnection(e) {
-            document.removeEventListener('mousemove', updateCurrentConnection);
-            document.removeEventListener('mouseup', finishConnection);
-            if (currentConnection && e.target.classList.contains('connection-point')) {
-                completeConnection(e.target);
+    }
+
+    function handleTouchMove(e) {
+        if (draggedElement && isTouch) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const workspaceRect = workspace.getBoundingClientRect();
+            
+            const x = touch.clientX - workspaceRect.left - touchOffset.x;
+            const y = touch.clientY - workspaceRect.top - touchOffset.y;
+            
+            // Boundary checks
+            const maxX = workspaceRect.width - draggedElement.offsetWidth;
+            const maxY = workspaceRect.height - draggedElement.offsetHeight;
+            
+            draggedElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+            draggedElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+            updateConnections();
+        } else if (currentConnection) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const workspaceRect = workspace.getBoundingClientRect();
+            
+            const startPos = getConnectionPointPosition(currentConnection.start);
+            const endPos = {
+                x: touch.clientX - workspaceRect.left,
+                y: touch.clientY - workspaceRect.top
+            };
+            drawConnection({ start: startPos, end: endPos }, currentConnection.connector);
+        }
+    }
+
+    function handleTouchEnd(e) {
+        if (draggedElement && isTouch) {
+            draggedElement.classList.remove('dragging');
+            
+            // Check if dropped on connection point
+            const touch = e.changedTouches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (!target || !target.closest('.connection-point')) {
+                // Ensure connection points exist
+                if (!draggedElement.querySelector('.connection-point')) {
+                    createConnectionPoints(draggedElement);
+                }
+            }
+            
+            draggedElement = null;
+            isTouch = false;
+            updatePlaceholder();
+        } else if (currentConnection) {
+            const touch = e.changedTouches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (target && target.classList.contains('connection-point')) {
+                completeConnection(target);
             } else {
                 connectors.removeChild(currentConnection.connector);
                 currentConnection = null;
             }
         }
-    
-        function completeConnection(point) {
-            if (point !== currentConnection.start) {
-                const fromBlock = currentConnection.start.parentElement;
-                const toBlock = point.parentElement;
+    }
 
-                if (currentConnection.start.dataset.position === 'right' && point.dataset.position === 'left') {
+    function createConnectionPoints(block) {
+        // Prevent duplicate points
+        if (block.querySelector('.connection-point')) return;
+        
+        ['left', 'right'].forEach(point => {
+            const connectionPoint = document.createElement('div');
+            connectionPoint.classList.add('connection-point');
+            connectionPoint.dataset.position = point;
+            
+            if (point === 'left') {
+                connectionPoint.style.left = '-8px';
+            } else {
+                connectionPoint.style.right = '-8px';
+            }
+            connectionPoint.style.top = '50%';
+            connectionPoint.style.transform = 'translateY(-50%)';
+            block.appendChild(connectionPoint);
+            
+            connectionPoint.addEventListener('mousedown', handleConnectionPoint);
+            connectionPoint.addEventListener('touchstart', handleConnectionPoint, { passive: false });
+        });
+    }
+
+    function handleConnectionPoint(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const clickedPoint = e.target;
+        
+        if (!currentConnection) {
+            startNewConnection(clickedPoint);
+        } else {
+            completeConnection(clickedPoint);
+        }
+    }
+
+    function startNewConnection(point) {
+        if (point.dataset.position === 'right') {
+            const connector = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            connector.setAttribute('class', 'connector');
+            connectors.appendChild(connector);
+            currentConnection = { start: point, connector: connector };
+            document.addEventListener('mousemove', updateCurrentConnection);
+            document.addEventListener('touchmove', updateCurrentConnection, { passive: false });
+            document.addEventListener('mouseup', finishConnection);
+            document.addEventListener('touchend', finishConnection);
+        }
+    }
+
+    function updateCurrentConnection(e) {
+        if (currentConnection) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const startPos = getConnectionPointPosition(currentConnection.start);
+            const endPos = {
+                x: clientX - workspace.getBoundingClientRect().left,
+                y: clientY - workspace.getBoundingClientRect().top
+            };
+            drawConnection({ start: startPos, end: endPos }, currentConnection.connector);
+        }
+    }
+
+    function finishConnection(e) {
+        document.removeEventListener('mousemove', updateCurrentConnection);
+        document.removeEventListener('touchmove', updateCurrentConnection);
+        document.removeEventListener('mouseup', finishConnection);
+        document.removeEventListener('touchend', finishConnection);
+        
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        
+        const target = document.elementFromPoint(clientX, clientY);
+        
+        if (currentConnection && target && target.classList.contains('connection-point')) {
+            completeConnection(target);
+        } else {
+            connectors.removeChild(currentConnection.connector);
+            currentConnection = null;
+        }
+    }
+
+    function completeConnection(point) {
+        if (point !== currentConnection.start) {
+            const fromBlock = currentConnection.start.parentElement;
+            const toBlock = point.parentElement;
+
+            if (currentConnection.start.dataset.position === 'right' && point.dataset.position === 'left') {
+                // Check if connection already exists
+                const exists = connections.some(conn => 
+                    conn.start === currentConnection.start && conn.end === point
+                );
+                
+                if (!exists && fromBlock !== toBlock) {
                     currentConnection.end = point;
                     connections.push(currentConnection);
                     updateConnections();
@@ -375,72 +666,89 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 connectors.removeChild(currentConnection.connector);
             }
-            currentConnection = null;
+        } else {
+            connectors.removeChild(currentConnection.connector);
         }
-    
-        function drawConnection(connection, connector) {
-            const startPos = connection.start;
-            const endPos = connection.end;
-            const midX = (startPos.x + endPos.x) / 2;
-            const d = `M ${startPos.x},${startPos.y} C ${midX},${startPos.y} ${midX},${endPos.y} ${endPos.x},${endPos.y}`;
-            connector.setAttribute('d', d);
-        }
+        currentConnection = null;
+    }
 
-    
-        function getConnectionPointPosition(point, side = 'right') {
+    function drawConnection(connection, connector) {
+        const startPos = connection.start;
+        const endPos = connection.end;
+        const midX = (startPos.x + endPos.x) / 2;
+        const d = `M ${startPos.x},${startPos.y} C ${midX},${startPos.y} ${midX},${endPos.y} ${endPos.x},${endPos.y}`;
+        connector.setAttribute('d', d);
+    }
+
+    function getConnectionPointPosition(point) {
+        const workspaceRect = workspace.getBoundingClientRect();
+        const rect = point.getBoundingClientRect();
+        
+        return {
+            x: rect.left + rect.width / 2 - workspaceRect.left,
+            y: rect.top + rect.height / 2 - workspaceRect.top
+        };
+    }
+
+    function startDragging(e) {
+        if (isTouch) return; // Skip if touch is being handled
+        
+        const block = e.target.closest('.block-item');
+        if (block && !e.target.classList.contains('connection-point')) {
+            draggedElement = block;
+            const rect = block.getBoundingClientRect();
+            offset.x = e.clientX - rect.left;
+            offset.y = e.clientY - rect.top;
+            block.classList.add('dragging');
+        }
+    }
+
+    function drag(e) {
+        if (draggedElement && !isTouch) {
             const workspaceRect = workspace.getBoundingClientRect();
-            const rect = point.getBoundingClientRect();
+            const x = e.clientX - workspaceRect.left - offset.x;
+            const y = e.clientY - workspaceRect.top - offset.y;
+            
+            // Boundary checks
+            const maxX = workspaceRect.width - draggedElement.offsetWidth;
+            const maxY = workspaceRect.height - draggedElement.offsetHeight;
+            
+            draggedElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+            draggedElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+            updateConnections();
+        }
+    }
 
-            if (side === 'right') {
-                return {
-                    x: rect.right - workspaceRect.left,
-                    y: rect.top + rect.height / 2 - workspaceRect.top
-                };
-            } else if (side === 'left') {
-                return {
-                    x: rect.left - workspaceRect.left,
-                    y: rect.top + rect.height / 2 - workspaceRect.top
-                };
-            }
-        }
-    
-        function startDragging(e) {
-            const block = e.target.closest('.block-item');
-            if (block) {
-                draggedElement = block;
-                offset.x = e.clientX - block.getBoundingClientRect().left;
-                offset.y = e.clientY - block.getBoundingClientRect().top;
-            }
-        }
-    
-        function drag(e) {
-            if (draggedElement) {
-                const x = e.clientX - workspace.offsetLeft - offset.x;
-                const y = e.clientY - workspace.offsetTop - offset.y;
-                draggedElement.style.left = `${x}px`;
-                draggedElement.style.top = `${y}px`;
-                updateConnections();
-            }
-        }
-    
-        function stopDragging() {
+    function stopDragging() {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
             draggedElement = null;
         }
-    
-        function updateConnections() {
-            connections.forEach(connection => {
-                const startPos = getConnectionPointPosition(connection.start);
-                const endPos = getConnectionPointPosition(connection.end);
-                drawConnection({ start: startPos, end: endPos }, connection.connector);
-            });
+    }
+
+    function updateConnections() {
+        connections.forEach(connection => {
+            const startPos = getConnectionPointPosition(connection.start);
+            const endPos = getConnectionPointPosition(connection.end);
+            drawConnection({ start: startPos, end: endPos }, connection.connector);
+        });
+    }
+
+    function updatePlaceholder() {
+        const blocks = workspace.querySelectorAll('.block-item');
+        const hasBlocks = blocks.length > 0;
+        
+        placeholder.style.display = hasBlocks ? 'none' : 'block';
+        
+        if (hasBlocks) {
+            blockCount.textContent = `${blocks.length} block${blocks.length !== 1 ? 's' : ''}`;
+            blockCount.classList.remove('hidden');
+        } else {
+            blockCount.classList.add('hidden');
         }
-    
-        function updatePlaceholder() {
-            const blocks = workspace.querySelectorAll('.block-item');
-            placeholder.style.display = blocks.length > 0 ? 'none' : 'block';
-        }
-    
-        async function saveWorkflow() {
+    }
+
+    async function saveWorkflow() {
         const blocks = Array.from(workspace.querySelectorAll('.block-item'));
         const blockData = blocks.map(block => {
             let meta = {};
@@ -457,8 +765,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return {
                 id: block.dataset.id,
                 type: block.dataset.type,
-                x: parseFloat(block.style.left),
-                y: parseFloat(block.style.top),
+                x: parseFloat(block.style.left) || 0,
+                y: parseFloat(block.style.top) || 0,
                 meta: meta
             };
         });
@@ -469,22 +777,70 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
 
         try {
+            // Visual feedback
+            saveButton.innerHTML = `
+                <svg class="animate-spin mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+            `;
+            saveButton.disabled = true;
+
             const response = await fetch('/instance/<%= req.params.id %>/automations/save-workflow', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ blocks: blockData, connections: connectionData })
             });
+            
             const result = await response.json();
+            
             if (result.success) {
-                alert('Workflow saved successfully!');
+                saveButton.innerHTML = `
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Saved!
+                `;
+                setTimeout(() => {
+                    saveButton.innerHTML = `
+                        <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        Save Workflow
+                    `;
+                    saveButton.disabled = false;
+                }, 2000);
             } else {
                 throw new Error(result.message || 'Unknown error occurred');
             }
         } catch (error) {
             console.error('Error saving workflow:', error);
-            alert('Failed to save the workflow: ' + error.message);
+            saveButton.innerHTML = `
+                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                Failed
+            `;
+            setTimeout(() => {
+                alert('Failed to save the workflow: ' + error.message);
+                saveButton.innerHTML = `
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    Save Workflow
+                `;
+                saveButton.disabled = false;
+            }, 1000);
         }
     }
+
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            updateConnections();
+        }, 100);
+    });
+
+    // Prevent scrolling when dragging on mobile
+    workspace.addEventListener('touchmove', (e) => {
+        if (draggedElement || currentConnection) {
+            e.preventDefault();
+        }
+    }, { passive: false });
 });
 </script>
-    
