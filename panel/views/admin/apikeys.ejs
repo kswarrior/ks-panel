@@ -51,9 +51,10 @@
 
 /* ============================================
    VIEW VISIBILITY - Mobile First Approach
+   FIXED: Proper display handling
    ============================================ */
 
-/* Default: Mobile view active */
+/* Default: Mobile view active, Desktop hidden */
 .view-mobile {
   display: block;
 }
@@ -62,7 +63,7 @@
   display: none;
 }
 
-/* Desktop breakpoint at 768px for better tablet support */
+/* Desktop breakpoint at 768px */
 @media (min-width: 768px) {
   .view-mobile {
     display: none !important;
@@ -191,13 +192,11 @@
    ============================================ */
 
 @media (hover: none) and (pointer: coarse) {
-  /* Larger touch targets on mobile */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
   }
   
-  /* Remove hover effects on touch devices */
   .hover\:scale-\[1\.02\]:active {
     transform: scale(0.98);
   }
@@ -214,7 +213,6 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Fallback for browsers without backdrop-filter support */
 @supports not (backdrop-filter: blur(24px)) {
   .glass-panel {
     background: rgba(23, 23, 23, 0.85);
@@ -603,6 +601,20 @@ a:focus:not(:focus-visible) {
     max-width: 500px;
   }
 }
+
+/* ============================================
+   MOBILE CARD ID FIX - Prevent text overflow
+   ============================================ */
+.mobile-card-id {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  word-break: break-all;
+  line-height: 1.4;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
 </style>
 
 <main id="content" class="min-h-screen pb-24 sm:pb-20">
@@ -707,7 +719,7 @@ a:focus:not(:focus-visible) {
                         <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
-                        <span class="text-xs text-neutral-400 font-medium"><%= key.createdAt %></span>
+                        <span class="text-xs text-neutral-400 font-medium created-date" data-date="<%= key.createdAt %>"><%= key.createdAt %></span>
                       </div>
                     </td>
                     <td class="py-4 px-4 sm:px-6 text-right">
@@ -715,7 +727,7 @@ a:focus:not(:focus-visible) {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
-                        <span class="hidden sm:inline"><%= req.translations ? req.translations.remove : 'Remove' %></span>
+                        <span class="hidden sm:inline">Remove</span>
                       </button>
                     </td>
                   </tr>
@@ -729,6 +741,7 @@ a:focus:not(:focus-visible) {
 
     <!-- ============================================
          MOBILE CARDS VIEW - Enhanced touch experience
+         FIXED: ID overflow and date formatting
          ============================================ -->
     <div id="mobileCards" class="view-mobile mt-6">
       <div id="mobileBody" class="cards-grid">
@@ -749,22 +762,23 @@ a:focus:not(:focus-visible) {
         <% } else { %>
           <% apiKeys.forEach(function(key) { %>
             <div id="mobile-card-<%= key.id %>" class="mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-fade-in" data-id="<%= key.id %>">
-              <!-- Card Header -->
-              <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-base font-bold text-neutral-400">
+              <!-- Card Header - FIXED: Better layout for ID -->
+              <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3 flex-1 min-w-0">
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-lg flex-shrink-0">
                    🔑
                   </span>
-                  <div class="flex flex-col">
-                    <span class="optimistic-badge" id="badge-<%= key.id %>">
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <!-- FIXED: Added mobile-card-id class for proper text breaking -->
+                    <span class="mobile-card-id" title="ID: <%= key.id %>">ID: <%= key.id %></span>
+                    <span class="optimistic-badge mt-2 self-start" id="badge-<%= key.id %>">
                       <span class="status-dot active"></span>
                       Active
                     </span>
-                    <span class="text-xs text-neutral-500 mt-1">ID: <%= key.id %></span>
                   </div>
                 </div>
-                <button type="button" class="delete-btn-mobile delete-btn-styled p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target" data-id="<%= key.id %>" aria-label="Delete API key">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" class="delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0" data-id="<%= key.id %>" aria-label="Delete API key">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
                 </button>
@@ -785,15 +799,15 @@ a:focus:not(:focus-visible) {
                   <%= key.key %>
                 </div>
                 
-                <!-- Meta Info - Fixed: Removed duplicate date, kept only one -->
+                <!-- Meta Info - FIXED: Date formatting -->
                 <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
                   <div class="flex items-center gap-2 text-neutral-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <span><%= key.createdAt %></span>
+                    <!-- FIXED: Added created-date class for JS formatting -->
+                    <span class="created-date truncate" data-date="<%= key.createdAt %>"><%= key.createdAt %></span>
                   </div>
-                  <!-- Fixed: Removed the second "Syncing" badge that was here -->
                 </div>
               </div>
             </div>
@@ -881,6 +895,37 @@ a:focus:not(:focus-visible) {
   };
 
   // ============================================
+  // DATE FORMATTING UTILITY - FIXED: Format ISO dates
+  // ============================================
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if invalid
+      
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  }
+
+  // Format all dates on page load
+  function formatAllDates() {
+    document.querySelectorAll('.created-date').forEach(el => {
+      const rawDate = el.getAttribute('data-date') || el.textContent;
+      if (rawDate && rawDate.includes('T')) { // Only format if looks like ISO string
+        el.textContent = formatDate(rawDate);
+      }
+    });
+  }
+
+  // ============================================
   // NOTIFICATION SYSTEM - Optimized
   // ============================================
   let notificationTimeout;
@@ -936,7 +981,7 @@ a:focus:not(:focus-visible) {
   };
 
   // ============================================
-  // VIEW TOGGLE SYSTEM - Optimized
+  // VIEW TOGGLE SYSTEM - FIXED: Proper visibility handling
   // ============================================
   window.showForm = function(show) {
     if (show) {
@@ -959,6 +1004,8 @@ a:focus:not(:focus-visible) {
 
   function updateViewBasedOnScreenSize() {
     const isDesktop = window.innerWidth >= state.BREAKPOINT;
+    
+    // FIXED: Properly handle view switching without !important conflicts
     if (isDesktop) {
       els.desktopTable?.classList.remove('hidden-view');
       els.mobileCards?.classList.add('hidden-view');
@@ -974,16 +1021,6 @@ a:focus:not(:focus-visible) {
   
   function generateTempId() {
     return 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  }
-
-  function formatDate(date) {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   }
 
   function createOptimisticKeyData() {
@@ -1055,24 +1092,23 @@ a:focus:not(:focus-visible) {
     div.className = `mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-scale-in ${isOptimistic ? 'optimistic' : ''}`;
     div.dataset.id = data.id;
     
-    // Fixed: Removed duplicate date display - only showing createdAt once in meta section
     div.innerHTML = `
-      <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-base font-bold text-neutral-400">
-            ${isOptimistic ? '...' : '#' + data.id}
+      <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3 flex-1 min-w-0">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-lg flex-shrink-0">
+           🔑
           </span>
-          <div class="flex flex-col">
+          <div class="flex flex-col min-w-0 flex-1">
+            <span class="mobile-card-id" title="ID: ${data.id}">ID: ${isOptimistic ? '...' : data.id}</span>
             ${isOptimistic ? 
-              '<span class="optimistic-badge"><span class="status-dot pending"></span>Creating</span>' : 
-              '<span class="optimistic-badge"><span class="status-dot active"></span>Active</span>'
+              '<span class=\"optimistic-badge mt-2 self-start\"><span class=\"status-dot pending\"></span>Creating</span>' : 
+              '<span class=\"optimistic-badge mt-2 self-start\"><span class=\"status-dot active\"></span>Active</span>'
             }
-            ${isOptimistic ? '<span class="text-xs text-neutral-500 mt-1">Just now</span>' : ''}
           </div>
         </div>
-        <button type="button" class="delete-btn-mobile delete-btn-styled p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
+        <button type="button" class="delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0 ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
                 data-id="${data.id}" ${isOptimistic ? 'disabled' : ''} aria-label="Delete API key">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
         </button>
@@ -1093,15 +1129,14 @@ a:focus:not(:focus-visible) {
           ${data.key}
         </div>
         
-        <!-- Meta Info - Fixed: Only one date display here -->
         <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
           <div class="flex items-center gap-2 text-neutral-500">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
             <span>${data.createdAt}</span>
           </div>
-          ${isOptimistic ? '<span class="text-amber-400 animate-pulse">Processing...</span>' : ''}
+          ${isOptimistic ? '<span class=\"text-amber-400 animate-pulse\">Processing...</span>' : ''}
         </div>
       </div>
     `;
@@ -1199,7 +1234,6 @@ a:focus:not(:focus-visible) {
       const desktopRow = document.getElementById(`desktop-row-${id}`);
       const mobileCard = document.getElementById(`mobile-card-${id}`);
       
-      // Fixed: Properly handle animation classes
       if (desktopRow) {
         desktopRow.classList.add('deleting');
         desktopRow.style.animation = 'slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
@@ -1231,7 +1265,6 @@ a:focus:not(:focus-visible) {
       } catch (err) {
         console.error('Delete error:', err);
         
-        // Fixed: Properly reset styles on error
         if (desktopRow) {
           desktopRow.classList.remove('deleting');
           desktopRow.style.animation = '';
@@ -1286,6 +1319,11 @@ a:focus:not(:focus-visible) {
       if (!response.ok) throw new Error('Create failed');
 
       const data = await response.json();
+      
+      // Format the date from server
+      if (data.createdAt) {
+        data.createdAt = formatDate(data.createdAt);
+      }
       
       state.optimisticKeys.delete(tempId);
       
@@ -1342,8 +1380,9 @@ a:focus:not(:focus-visible) {
     }, 150);
   });
 
-  // Fixed: Ensure correct initial view state
+  // FIXED: Initialize view and format dates on load
   updateViewBasedOnScreenSize();
+  formatAllDates();
 
 })();
 </script>
