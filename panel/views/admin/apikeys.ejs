@@ -55,11 +55,11 @@
 
 /* Default: Mobile view active */
 .view-mobile {
-  display: block !important;
+  display: block;
 }
 
 .view-desktop {
-  display: none !important;
+  display: none;
 }
 
 /* Desktop breakpoint at 768px for better tablet support */
@@ -447,7 +447,7 @@ a:focus:not(:focus-visible) {
   bottom: 1rem;
   right: 1rem;
   left: 1rem;
-  z-index: 50;
+  z-index: 9999;
   transform: translateY(100%);
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -614,10 +614,10 @@ a:focus:not(:focus-visible) {
     <header class="page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 pb-6 sm:pb-8 mb-6 sm:mb-8">
       <div class="space-y-2 sm:space-y-1">
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight heading-responsive bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-          <%= req.translations.APIKeys %>
+          <%= req.translations ? req.translations.APIKeys : 'API Keys' %>
         </h1>
         <p class="text-sm sm:text-base text-neutral-400 max-w-xl leading-relaxed">
-          <%= req.translations.APIKeysText %>
+          <%= req.translations ? req.translations.APIKeysText : 'Manage your API keys for accessing the platform programmatically.' %>
         </p>
       </div>
       <div class="flex-shrink-0">
@@ -626,7 +626,7 @@ a:focus:not(:focus-visible) {
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
-          <span class="hidden sm:inline"><%= req.translations.createNewAPIKey %></span>
+          <span class="hidden sm:inline"><%= req.translations ? req.translations.createNewAPIKey : 'Create New API Key' %></span>
           <span class="sm:hidden whitespace-nowrap">Create Key</span>
         </button>
       </div>
@@ -635,7 +635,7 @@ a:focus:not(:focus-visible) {
     <!-- ============================================
          SUCCESS BANNER - Enhanced visibility
          ============================================ -->
-    <% if (req.query.err === "CREATED") { %>
+    <% if (req.query && req.query.err === "CREATED") { %>
       <div class="mt-6 sm:mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 sm:px-6 py-4 flex items-start gap-3 shadow-lg backdrop-blur-sm animate-slide-in">
         <div class="flex-shrink-0 mt-0.5">
           <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -643,8 +643,8 @@ a:focus:not(:focus-visible) {
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <h3 class="text-base sm:text-lg font-semibold text-emerald-400"><%= req.translations.created %></h3>
-          <p class="text-sm text-emerald-300/80 mt-1 leading-relaxed"><%= req.translations.apiKeySuccessCreated %></p>
+          <h3 class="text-base sm:text-lg font-semibold text-emerald-400"><%= req.translations ? req.translations.created : 'Created' %></h3>
+          <p class="text-sm text-emerald-300/80 mt-1 leading-relaxed"><%= req.translations ? req.translations.apiKeySuccessCreated : 'API key created successfully!' %></p>
         </div>
         <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1 rounded-lg transition-colors touch-target" aria-label="Dismiss notification">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -670,7 +670,7 @@ a:focus:not(:focus-visible) {
               </tr>
             </thead>
             <tbody id="desktopBody" class="divide-y divide-white/5">
-              <% if (apiKeys.length === 0) { %>
+              <% if (!apiKeys || apiKeys.length === 0) { %>
                 <tr id="desktopEmpty">
                   <td colspan="4" class="py-16 text-center text-neutral-400">
                     <div class="flex flex-col items-center gap-4">
@@ -679,7 +679,7 @@ a:focus:not(:focus-visible) {
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                         </svg>
                       </div>
-                      <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+                      <p class="text-neutral-400 text-base"><%= req.translations ? req.translations.noApiKeysCreated : 'No API keys created yet' %></p>
                       <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
                         Create your first API key →
                       </button>
@@ -715,7 +715,7 @@ a:focus:not(:focus-visible) {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
-                        <span class="hidden sm:inline"><%= req.translations.remove %></span>
+                        <span class="hidden sm:inline"><%= req.translations ? req.translations.remove : 'Remove' %></span>
                       </button>
                     </td>
                   </tr>
@@ -732,7 +732,7 @@ a:focus:not(:focus-visible) {
          ============================================ -->
     <div id="mobileCards" class="view-mobile mt-6">
       <div id="mobileBody" class="cards-grid">
-        <% if (apiKeys.length === 0) { %>
+        <% if (!apiKeys || apiKeys.length === 0) { %>
           <div id="mobileEmpty" class="col-span-full rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in">
             <div class="flex flex-col items-center gap-4">
               <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
@@ -740,7 +740,7 @@ a:focus:not(:focus-visible) {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                 </svg>
               </div>
-              <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+              <p class="text-neutral-400 text-base"><%= req.translations ? req.translations.noApiKeysCreated : 'No API keys created yet' %></p>
               <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
                 Create your first API key →
               </button>
@@ -756,7 +756,7 @@ a:focus:not(:focus-visible) {
                    🔑
                   </span>
                   <div class="flex flex-col">
-                    <span class="optimistic-badge hidden" id="badge-<%= key.id %>">
+                    <span class="optimistic-badge" id="badge-<%= key.id %>">
                       <span class="status-dot active"></span>
                       Active
                     </span>
@@ -785,18 +785,15 @@ a:focus:not(:focus-visible) {
                   <%= key.key %>
                 </div>
                 
-                <!-- Meta Info -->
+                <!-- Meta Info - Fixed: Removed duplicate date, kept only one -->
                 <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
                   <div class="flex items-center gap-2 text-neutral-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                     <span><%= key.createdAt %></span>
                   </div>
-                  <span class="optimistic-badge hidden" id="meta-badge-<%= key.id %>">
-                    <span class="animate-spin">⟳</span>
-                    Syncing
-                  </span>
+                  <!-- Fixed: Removed the second "Syncing" badge that was here -->
                 </div>
               </div>
             </div>
@@ -808,7 +805,7 @@ a:focus:not(:focus-visible) {
     <!-- ============================================
          PAGINATION - Included component
          ============================================ -->
-    <%- include('../components/pagination', { pagination }) %>
+    <%- include('../components/pagination', { pagination: typeof pagination !== 'undefined' ? pagination : {} }) %>
 
     <!-- ============================================
          CREATE FORM - Enhanced modal experience
@@ -834,7 +831,7 @@ a:focus:not(:focus-visible) {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
-            <%= req.translations.clickToConfirmCreation %>
+            <%= req.translations ? req.translations.clickToConfirmCreation : 'Click to Confirm Creation' %>
           </button>
         </div>
       </div>
@@ -896,14 +893,14 @@ a:focus:not(:focus-visible) {
     els.notificationText.textContent = message;
     
     // Reset classes
-    els.notification.className = els.notification.className.replace(/bg-\w+-500\/90|border-\w+-400\/50/g, '');
+    els.notification.className = 'notification flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium backdrop-blur-xl';
     
     if (type === 'error') {
-      els.notification.classList.add('bg-red-500/90', 'border-red-400/50');
+      els.notification.classList.add('bg-red-500/90', 'text-white', 'border', 'border-red-400/50');
     } else if (type === 'warning') {
-      els.notification.classList.add('bg-amber-500/90', 'border-amber-400/50');
+      els.notification.classList.add('bg-amber-500/90', 'text-white', 'border', 'border-amber-400/50');
     } else {
-      els.notification.classList.add('bg-emerald-500/90', 'border-emerald-400/50');
+      els.notification.classList.add('bg-emerald-500/90', 'text-white', 'border', 'border-emerald-400/50');
     }
     
     els.notification.classList.add('show');
@@ -1039,7 +1036,7 @@ a:focus:not(:focus-visible) {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
-          <span class="hidden sm:inline"><%= req.translations.remove %></span>
+          <span class="hidden sm:inline">Remove</span>
         </button>
       </td>
     `;
@@ -1058,6 +1055,7 @@ a:focus:not(:focus-visible) {
     div.className = `mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-scale-in ${isOptimistic ? 'optimistic' : ''}`;
     div.dataset.id = data.id;
     
+    // Fixed: Removed duplicate date display - only showing createdAt once in meta section
     div.innerHTML = `
       <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -1069,7 +1067,7 @@ a:focus:not(:focus-visible) {
               '<span class="optimistic-badge"><span class="status-dot pending"></span>Creating</span>' : 
               '<span class="optimistic-badge"><span class="status-dot active"></span>Active</span>'
             }
-            <span class="text-xs text-neutral-500 mt-1">${isOptimistic ? 'Just now' : data.createdAt}</span>
+            ${isOptimistic ? '<span class="text-xs text-neutral-500 mt-1">Just now</span>' : ''}
           </div>
         </div>
         <button type="button" class="delete-btn-mobile delete-btn-styled p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
@@ -1095,11 +1093,11 @@ a:focus:not(:focus-visible) {
           ${data.key}
         </div>
         
-        <!-- Meta Info -->
+        <!-- Meta Info - Fixed: Only one date display here -->
         <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
           <div class="flex items-center gap-2 text-neutral-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
             <span>${data.createdAt}</span>
           </div>
@@ -1142,7 +1140,7 @@ a:focus:not(:focus-visible) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
               </svg>
             </div>
-            <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+            <p class="text-neutral-400 text-base">No API keys created yet</p>
             <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
               Create your first API key →
             </button>
@@ -1163,7 +1161,7 @@ a:focus:not(:focus-visible) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
             </svg>
           </div>
-          <p class="text-neutral-400 text-base"><%= req.translations.noApiKeysCreated %></p>
+          <p class="text-neutral-400 text-base">No API keys created yet</p>
           <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
             Create your first API key →
           </button>
@@ -1201,8 +1199,15 @@ a:focus:not(:focus-visible) {
       const desktopRow = document.getElementById(`desktop-row-${id}`);
       const mobileCard = document.getElementById(`mobile-card-${id}`);
       
-      desktopRow?.classList.add('deleting', 'animate-slide-out');
-      mobileCard?.classList.add('deleting', 'animate-slide-out');
+      // Fixed: Properly handle animation classes
+      if (desktopRow) {
+        desktopRow.classList.add('deleting');
+        desktopRow.style.animation = 'slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+      }
+      if (mobileCard) {
+        mobileCard.classList.add('deleting');
+        mobileCard.style.animation = 'slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+      }
       
       const removeFromDOM = () => {
         desktopRow?.remove();
@@ -1226,10 +1231,17 @@ a:focus:not(:focus-visible) {
       } catch (err) {
         console.error('Delete error:', err);
         
-        desktopRow?.classList.remove('deleting', 'animate-slide-out');
-        mobileCard?.classList.remove('deleting', 'animate-slide-out');
+        // Fixed: Properly reset styles on error
+        if (desktopRow) {
+          desktopRow.classList.remove('deleting');
+          desktopRow.style.animation = '';
+        }
+        if (mobileCard) {
+          mobileCard.classList.remove('deleting');
+          mobileCard.style.animation = '';
+        }
         
-        showNotification('<%= req.translations.apiKeyErrorDelete %>', 'error');
+        showNotification('Failed to delete API key', 'error');
         state.isDeleting.delete(id);
       }
     });
@@ -1293,7 +1305,7 @@ a:focus:not(:focus-visible) {
       state.optimisticKeys.delete(tempId);
       
       checkEmptyStates();
-      showNotification('<%= req.translations.apiKeyErrorCreated %>', 'error');
+      showNotification('Failed to create API key', 'error');
     } finally {
       state.isCreating = false;
       this.innerHTML = originalHTML;
@@ -1330,6 +1342,7 @@ a:focus:not(:focus-visible) {
     }, 150);
   });
 
+  // Fixed: Ensure correct initial view state
   updateViewBasedOnScreenSize();
 
 })();
