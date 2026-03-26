@@ -980,41 +980,28 @@
     }
     
     function handleWebSocketMessage(msg) {
-        const lines = msg.data.split('\n');
-        let isFirstLine = true;
-        let previousLineWasEmpty = false;
-    
-        lines.forEach(line => {
-            const trimmedLine = line.trim();
-            if (trimmedLine === '' && previousLineWasEmpty) return;
-            
-            if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
-                (trimmedLine.toLowerCase().includes('eula.txt') || trimmedLine.toLowerCase().includes('dialog above'))) {
-                showEulaModal();
-            }
-            
-            if (!isFirstLine && !previousLineWasEmpty) {
-                term.write('\r\n');
-            }
-    
-            term.write('\x1b[0m' + trimmedLine);
-    
-            if (trimmedLine.includes("Working on")) {
-                term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
-                term.clear();
-                ws.close();
-            }
-            
-            if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                ws.close();
-                document.getElementById('daemonIsDown').classList.remove('hidden');
-            } else {
-                document.getElementById('daemonIsDown').classList.add('hidden');
-            }
-    
-            isFirstLine = false;
-            previousLineWasEmpty = (trimmedLine === '');
-        });
+        const data = msg.data;
+
+        if (data.toLowerCase().includes('you need to agree to the eula') && 
+            (data.toLowerCase().includes('eula.txt') || data.toLowerCase().includes('dialog above'))) {
+            showEulaModal();
+        }
+        
+        if (data.includes("Working on")) {
+            term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
+            term.clear();
+            ws.close();
+            return;
+        }
+        
+        if (data.includes("KS Wings instance appears to be down")) {
+            ws.close();
+            document.getElementById('daemonIsDown').classList.remove('hidden');
+        } else {
+            document.getElementById('daemonIsDown').classList.add('hidden');
+        }
+
+        term.write(data);
     }
     
     function setupTerminal() {
