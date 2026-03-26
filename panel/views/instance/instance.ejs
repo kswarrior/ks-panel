@@ -16,24 +16,61 @@
 
 <style>
     /* ============================================
-       ORIGINAL CSS VARIABLES - PRESERVED EXACTLY
+       DESIGN SYSTEM - REFINED
        ============================================ */
     :root {
-        --glass-bg: rgba(255, 255, 255, 0.05);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --glass-blur: blur(20px);
-        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --transition-bounce: all 0.5s cubic-bezier(0.25, 1.8, 0.45, 1.35);
-        --radius-sm: 10px;
-        --radius-md: 12px;
-        --radius-lg: 16px;
-        --radius-xl: 20px;
-        --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.05);
-        --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.3);
+        /* Colors */
+        --bg-primary: #0f0f13;
+        --bg-secondary: #1a1a1f;
+        --bg-tertiary: #25252b;
+        --bg-hover: #2a2a32;
+        
+        --accent-primary: #3b82f6;
+        --accent-primary-hover: #2563eb;
+        --accent-success: #10b981;
+        --accent-success-hover: #059669;
+        --accent-danger: #ef4444;
+        --accent-danger-hover: #dc2626;
+        --accent-warning: #f59e0b;
+        
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
+        --text-muted: #6b7280;
+        
+        --border-color: rgba(255, 255, 255, 0.08);
+        --border-color-hover: rgba(255, 255, 255, 0.15);
+        
+        /* Spacing - More generous */
+        --space-xs: 0.25rem;   /* 4px */
+        --space-sm: 0.5rem;    /* 8px */
+        --space-md: 1rem;      /* 16px */
+        --space-lg: 1.5rem;    /* 24px */
+        --space-xl: 2rem;      /* 32px */
+        --space-2xl: 3rem;     /* 48px */
+        
+        /* Typography */
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', Monaco, monospace;
+        
+        /* Effects */
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
+        --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.3);
+        --shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
+        
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 16px;
+        
+        --transition-fast: 150ms ease;
+        --transition-base: 250ms ease;
     }
 
     /* ============================================
-       BASE STYLES & RESETS - NO FIXED POSITIONING
+       BASE STYLES
        ============================================ */
     * {
         margin: 0;
@@ -41,749 +78,825 @@
         box-sizing: border-box;
     }
 
-    canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    .xterm-viewport {
-        overflow-y: hidden !important;
-    }
-
-    /* Custom scrollbar for terminal */
-    .xterm .xterm-viewport::-webkit-scrollbar {
-        width: 8px;
-    }
-    .xterm .xterm-viewport::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.05);
-    }
-    .xterm .xterm-viewport::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 4px;
+    body {
+        font-family: var(--font-sans);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
     }
 
     /* ============================================
-       TERMINAL - RESPONSIVE SIZING
+       LAYOUT CONTAINER
        ============================================ */
-    #terminal {
-        width: 100%;
-        height: 250px;
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: var(--space-xl);
     }
 
-    @media (min-width: 640px) {
-        #terminal {
-            height: 350px;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        #terminal {
-            height: 450px;
-        }
-    }
-
-    @media (min-width: 1280px) {
-        #terminal {
-            height: 500px;
-        }
-    }
-
-    .xterm-rows {
-        font-size: 10px !important;
-    }
-
-    @media (min-width: 640px) {
-        .xterm-rows {
-            font-size: 11px !important;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .xterm-rows {
-            font-size: 12px !important;
+    @media (max-width: 768px) {
+        .page-container {
+            padding: var(--space-md);
         }
     }
 
     /* ============================================
-       TERMINAL CONTROLS BAR
+       HEADER SECTION
        ============================================ */
-    .terminal-controls {
+    .page-header {
+        margin-bottom: var(--space-xl);
+        padding-bottom: var(--space-lg);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-content {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: rgba(10, 10, 10, 0.6);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-lg);
         flex-wrap: wrap;
     }
 
-    .terminal-control-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.4rem 0.8rem;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-sm);
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.75rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        font-family: inherit;
+    .header-brand {
+        flex: 1;
+        min-width: 0;
     }
 
-    .terminal-control-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
+    .header-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: var(--space-sm);
+        letter-spacing: -0.025em;
     }
 
-    .terminal-control-btn:active {
-        transform: scale(0.95);
-    }
-
-    .terminal-control-btn.danger {
-        background: rgba(239, 68, 68, 0.1);
-        border-color: rgba(239, 68, 68, 0.3);
-        color: #f87171;
-    }
-
-    .terminal-control-btn.danger:hover {
-        background: rgba(239, 68, 68, 0.2);
-        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
-    }
-
-    .terminal-control-btn svg {
-        width: 14px;
-        height: 14px;
+    .header-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        max-width: 600px;
     }
 
     /* ============================================
-       STATS CARDS - ENHANCED GLASSMORPHISM
+       ACTION BUTTONS
        ============================================ */
-    .stats-card {
-        height: clamp(70px, 12vh, 90px);
+    .actions-container {
+        display: flex;
+        gap: var(--space-sm);
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        color: white;
         position: relative;
         overflow: hidden;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        border: 1px solid var(--glass-border);
+    }
+
+    .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .action-btn svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    .btn-start {
+        background-color: var(--accent-success);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-start:hover:not(:disabled) {
+        background-color: var(--accent-success-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-glow-green);
+    }
+
+    .btn-restart {
+        background-color: var(--accent-primary);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-restart:hover:not(:disabled) {
+        background-color: var(--accent-primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-glow-blue);
+    }
+
+    .btn-stop {
+        background-color: var(--accent-danger);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-stop:hover:not(:disabled) {
+        background-color: var(--accent-danger-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-glow-red);
+    }
+
+    .action-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    /* ============================================
+       INFO CARDS GRID
+       ============================================ */
+    .info-section {
+        margin-bottom: var(--space-xl);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-md);
+    }
+
+    @media (max-width: 1024px) {
+        .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .info-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
         border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-glow), 0 4px 24px rgba(0,0,0,0.1);
-        transition: var(--transition-smooth);
+        padding: var(--space-lg);
+        transition: all var(--transition-base);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent-primary), transparent);
+        opacity: 0;
+        transition: opacity var(--transition-base);
+    }
+
+    .info-card:hover {
+        background-color: var(--bg-tertiary);
+        border-color: var(--border-color-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .info-card:hover::before {
+        opacity: 1;
+    }
+
+    .info-card-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-md);
+    }
+
+    .info-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: var(--space-xs);
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .info-value.secondary {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+
+    .info-icon-wrapper {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bg-tertiary);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        transition: all var(--transition-fast);
+    }
+
+    .info-card:hover .info-icon-wrapper {
+        background-color: var(--bg-hover);
+        border-color: var(--border-color-hover);
+    }
+
+    .info-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--accent-primary);
+        transition: color var(--transition-fast);
+    }
+
+    .info-card:hover .info-icon {
+        color: var(--text-primary);
+    }
+
+    /* ============================================
+       DAEMON ALERT
+       ============================================ */
+    .daemon-alert {
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        margin-bottom: var(--space-xl);
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .daemon-alert.hidden {
+        display: none;
+    }
+
+    .daemon-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(239, 68, 68, 0.2);
+        border-radius: var(--radius-md);
+        color: var(--accent-danger);
+        flex-shrink: 0;
+    }
+
+    .daemon-text h3 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--space-xs);
+    }
+
+    .daemon-text p {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    /* ============================================
+       MAIN LAYOUT
+       ============================================ */
+    .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: var(--space-xl);
+    }
+
+    @media (max-width: 1024px) {
+        .main-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ============================================
+       TERMINAL STYLES
+       ============================================ */
+    .terminal-container {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .terminal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-sm) var(--space-md);
+        background-color: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .terminal-title {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+
+    .terminal-badge {
+        font-size: 0.625rem;
+        padding: 2px 8px;
+        background-color: var(--accent-success);
+        color: white;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+    }
+
+    .terminal-dots {
+        display: flex;
+        gap: 6px;
+    }
+
+    .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .terminal-dot.red { 
+        background-color: #ff5f56; 
+        border: 1px solid #e0443e;
+    }
+    .terminal-dot.yellow { 
+        background-color: #ffbd2e; 
+        border: 1px solid #dea123;
+    }
+    .terminal-dot.green { 
+        background-color: #27c93f; 
+        border: 1px solid #1aab29;
+    }
+
+    #terminal {
+        width: 100%;
+        height: 500px;
+        padding: var(--space-md);
+    }
+
+    .xterm {
+        padding: 0 !important;
+    }
+
+    .xterm-viewport {
+        background-color: transparent !important;
+    }
+
+    .xterm-viewport::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .xterm-viewport::-webkit-scrollbar-track {
+        background: var(--bg-tertiary);
+    }
+
+    .xterm-viewport::-webkit-scrollbar-thumb {
+        background: var(--border-color-hover);
+        border-radius: 4px;
+    }
+
+    .xterm-viewport::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+    }
+
+    .xterm-rows {
+        font-family: var(--font-mono) !important;
+        font-size: 13px !important;
+        line-height: 1.6 !important;
+    }
+
+    .terminal-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
+        background-color: var(--bg-tertiary);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .terminal-prompt {
+        font-family: var(--font-mono);
+        color: var(--accent-success);
+        font-weight: 600;
+        font-size: 0.875rem;
+        user-select: none;
+    }
+
+    #input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 0.875rem;
+        padding: var(--space-xs) 0;
+    }
+
+    #input::placeholder {
+        color: var(--text-muted);
+    }
+
+    /* ============================================
+       STATS SECTION
+       ============================================ */
+    .stats-grid {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+
+    .stats-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .stats-card:hover {
+        border-color: var(--border-color-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
     }
 
     .stats-card::before {
         content: '';
         position: absolute;
         top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-        transition: left 0.7s ease;
-        pointer-events: none;
-    }
-
-    .stats-card:hover::before {
-        left: 100%;
-    }
-
-    .stats-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(255,255,255,0.15);
-        box-shadow: var(--shadow-glow), 0 8px 32px rgba(0,0,0,0.15);
-    }
-
-    @media (min-width: 640px) {
-        .stats-card {
-            height: clamp(80px, 14vh, 100px);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .stats-card {
-            height: clamp(90px, 16vh, 110px);
-        }
-    }
-
-    /* ============================================
-       ACTION BUTTONS - MODERN ENHANCED
-       ============================================ */
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        border-radius: var(--radius-md);
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        transition: var(--transition-smooth);
-        white-space: nowrap;
-        position: relative;
-        overflow: hidden;
-        border: none;
-        cursor: pointer;
-        letter-spacing: 0.01em;
-    }
-
-    .action-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.2);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s ease, height 0.6s ease;
-    }
-
-    .action-btn:active::before {
-        width: 300px;
-        height: 300px;
-    }
-
-    .action-btn:active {
-        transform: scale(0.96);
-    }
-
-    .action-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none !important;
-    }
-
-    /* Button Variants */
-    .btn-start {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
-    }
-
-    .btn-start:hover {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
-        transform: translateY(-2px);
-    }
-
-    .btn-restart {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-    }
-
-    .btn-restart:hover {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-        transform: translateY(-2px);
-    }
-
-    .btn-stop {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-    }
-
-    .btn-stop:hover {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 639px) {
-        .action-btn {
-            flex: 1;
-            min-width: 0;
-            padding: 0.625rem 0.5rem;
-            font-size: 0.75rem;
-            gap: 0.25rem;
-            min-height: 44px;
-        }
-        
-        .action-btn svg {
-            width: 1rem;
-            height: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .action-btn span {
-            font-size: 0.75rem;
-        }
-    }
-
-    @media (min-width: 640px) and (max-width: 1023px) {
-        .action-btn {
-            padding: 0.625rem 1.25rem;
-        }
-    }
-
-    /* ============================================
-       INFO GRID - BENTO LAYOUT
-       ============================================ */
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-
-    @media (min-width: 640px) {
-        .info-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .info-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
-        }
-    }
-
-    /* Info Card Styling */
-    .info-card {
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-lg);
-        padding: 1rem;
-        box-shadow: var(--shadow-glow), 0 4px 24px rgba(0,0,0,0.1);
-        transition: var(--transition-smooth);
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        cursor: pointer;
-        position: relative;
-    }
-
-    .info-card:hover {
-        border-color: rgba(255,255,255,0.15);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-glow), 0 8px 32px rgba(0,0,0,0.15);
-    }
-
-    .info-card.copied {
-        animation: copiedPulse 0.6s ease;
-    }
-
-    @keyframes copiedPulse {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-
-    .info-icon-wrapper {
-        flex-shrink: 0;
-        margin-left: 0.75rem;
-        padding: 0.625rem;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: var(--radius-md);
-        transition: var(--transition-smooth);
-    }
-
-    .info-card:hover .info-icon-wrapper {
-        background: rgba(255,255,255,0.1);
-        border-color: rgba(255,255,255,0.2);
-    }
-
-    .info-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        color: #9ca3af;
-    }
-
-    @media (min-width: 640px) {
-        .info-card {
-            padding: 1.25rem;
-        }
-        
-        .info-icon-wrapper {
-            padding: 0.75rem;
-            margin-left: 1rem;
-        }
-        
-        .info-icon {
-            width: 1.5rem;
-            height: 1.5rem;
-        }
-    }
-
-    /* Copy feedback tooltip */
-    .copy-tooltip {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(16, 185, 129, 0.9);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: var(--radius-sm);
-        font-size: 0.75rem;
-        font-weight: 600;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent-primary);
         opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-        z-index: 10;
+        transition: opacity var(--transition-base);
     }
 
-    .copy-tooltip.show {
+    .stats-card.online::before {
+        background: var(--accent-success);
         opacity: 1;
     }
 
-    /* ============================================
-       MAIN LAYOUT - RESPONSIVE FLEX
-       ============================================ */
-    .main-layout {
+    .stats-card.offline::before {
+        background: var(--accent-danger);
+        opacity: 1;
+    }
+
+    .stats-card canvas {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    .stats-content {
+        position: relative;
+        z-index: 1;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        justify-content: space-between;
+        height: 100%;
     }
 
-    @media (min-width: 1024px) {
-        .main-layout {
-            flex-direction: row;
-            gap: 1.5rem;
-        }
-        
-        .console-section {
-            flex: 1;
-            min-width: 0;
-            width: 65%;
-        }
-        
-        .stats-section {
-            width: 35%;
-            min-width: 280px;
-            max-width: 380px;
-        }
-    }
-
-    @media (min-width: 1280px) {
-        .console-section {
-            width: 70%;
-        }
-        
-        .stats-section {
-            width: 30%;
-            max-width: 400px;
-        }
-    }
-
-    /* ============================================
-       HEADER - MODERN RESPONSIVE
-       ============================================ */
-    .page-header {
+    .stats-header {
         display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
+        align-items: center;
+        justify-content: space-between;
     }
 
-    @media (min-width: 640px) {
-        .page-header {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 1.5rem;
-        }
+    .stats-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
     }
 
-    @media (min-width: 1024px) {
-        .page-header {
-            padding: 1.5rem 2rem;
-        }
+    .stats-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--text-muted);
+        box-shadow: 0 0 8px currentColor;
     }
 
-    .header-title {
-        font-size: clamp(1.25rem, 3vw, 2rem);
+    .stats-indicator.online {
+        background-color: var(--accent-success);
+        animation: pulse 2s infinite;
+    }
+
+    .stats-indicator.offline {
+        background-color: var(--accent-danger);
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .stats-value {
+        font-family: var(--font-mono);
+        font-size: 1.5rem;
         font-weight: 700;
+        color: var(--text-primary);
         letter-spacing: -0.02em;
-        background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.8) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
     }
 
-    .header-subtitle {
-        font-size: clamp(0.75rem, 1.5vw, 0.875rem);
-        color: #9ca3af;
-        margin-top: 0.25rem;
-        line-height: 1.5;
+    .stats-value.small {
+        font-size: 1.125rem;
+    }
+
+    .stats-value.online {
+        color: var(--accent-success);
+    }
+
+    .stats-value.offline {
+        color: var(--accent-danger);
+    }
+
+    .stats-subvalue {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
     }
 
     /* ============================================
-       BUTTONS CONTAINER
+       EULA MODAL
        ============================================ */
-    .actions-container {
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 100;
+        padding: var(--space-md);
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .eula-modal {
         width: 100%;
+        max-width: 480px;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: var(--space-2xl);
+        box-shadow: var(--shadow-lg);
+        animation: modalSlide 0.3s ease;
     }
 
-    @media (min-width: 640px) {
-        .actions-container {
-            width: auto;
-            flex-wrap: nowrap;
-            gap: 0.75rem;
+    @keyframes modalSlide {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
         }
     }
 
-    /* ============================================
-       STATS GRID MOBILE OPTIMIZATION
-       ============================================ */
-    @media (max-width: 639px) {
-        .stats-grid-mobile {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-        
-        .stats-grid-mobile .stats-card {
-            height: 80px;
-        }
+    .eula-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        margin-bottom: var(--space-lg);
     }
 
-    @media (min-width: 640px) and (max-width: 1023px) {
-        .stats-grid-mobile {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
+    .eula-icon {
+        width: 48px;
+        height: 48px;
+        color: var(--accent-warning);
+        flex-shrink: 0;
     }
 
-    /* ============================================
-       DAEMON ALERT - MODERN STYLING
-       ============================================ */
-    .daemon-alert {
-        background: rgba(239, 68, 68, 0.1);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: var(--radius-lg);
-        padding: 1rem;
-        margin: 1rem 0;
+    .eula-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
     }
 
-    @media (min-width: 640px) {
-        .daemon-alert {
-            padding: 1.25rem;
-        }
-    }
-
-    /* ============================================
-       TERMINAL INPUT - MODERN STYLING
-       ============================================ */
-    .terminal-input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        background: rgba(10, 10, 10, 0.6);
-        border: 1px solid rgba(255,255,255,0.05);
-        border-top: none;
-        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-        color: white;
+    .eula-subtitle {
         font-size: 0.875rem;
-        font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-        transition: var(--transition-smooth);
+        color: var(--text-secondary);
+        margin-top: var(--space-xs);
     }
 
-    .terminal-input:focus {
-        outline: none;
-        background: rgba(10, 10, 10, 0.8);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    .eula-text {
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        margin-bottom: var(--space-xl);
     }
 
-    .terminal-input::placeholder {
-        color: #525252;
+    .eula-text a {
+        color: var(--accent-primary);
+        font-weight: 500;
+        text-decoration: none;
+        transition: color var(--transition-fast);
     }
 
-    @media (min-width: 640px) {
-        .terminal-input {
-            padding: 1rem 1.25rem;
-            font-size: 0.9375rem;
-        }
+    .eula-text a:hover {
+        color: var(--accent-primary-hover);
+        text-decoration: underline;
     }
 
-    /* ============================================
-       TOUCH FRIENDLY IMPROVEMENTS
-       ============================================ */
-    @media (hover: none) and (pointer: coarse) {
-        .action-btn {
-            min-height: 44px;
-        }
-        
-        .action-btn:active {
-            transform: scale(0.96);
-        }
-        
-        .terminal-input {
-            min-height: 48px;
-            font-size: 16px;
-        }
+    .eula-btn {
+        width: 100%;
+        padding: var(--space-md);
+        background-color: var(--accent-primary);
+        color: white;
+        font-family: var(--font-sans);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast);
     }
 
-    /* ============================================
-       SMOOTH TRANSITIONS
-       ============================================ */
-    .stats-card, .action-btn, .info-card {
-        transition: var(--transition-smooth);
+    .eula-btn:hover {
+        background-color: var(--accent-primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-glow-blue);
     }
 
     /* ============================================
-       FOCUS STATES FOR ACCESSIBILITY
+       NOTIFICATION
        ============================================ */
-    .terminal-input:focus,
-    .action-btn:focus-visible,
-    button:focus-visible {
-        outline: 2px solid rgba(255, 255, 255, 0.3);
-        outline-offset: 2px;
+    #notification {
+        position: fixed;
+        bottom: var(--space-xl);
+        right: var(--space-xl);
+        padding: var(--space-md) var(--space-lg);
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        box-shadow: var(--shadow-lg);
+        z-index: 50;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s ease;
     }
 
-    /* ============================================
-       NOTIFICATION RESPONSIVE
-       ============================================ */
-    @media (max-width: 639px) {
+    #notification.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    @media (max-width: 640px) {
         #notification {
-            left: 1rem;
-            right: 1rem;
-            bottom: 1rem;
+            left: var(--space-md);
+            right: var(--space-md);
+            bottom: var(--space-md);
         }
     }
 
     /* ============================================
        UTILITY CLASSES
        ============================================ */
-    .text-gradient {
-        background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.8) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    .font-mono {
+        font-family: var(--font-mono);
     }
 
-    .truncate-address {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 100%;
-        display: block;
+    .hidden {
+        display: none !important;
     }
 
-    /* Metric text styling */
-    .metric-label {
-        font-size: 0.625rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #9ca3af;
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
     }
 
-    @media (min-width: 640px) {
-        .metric-label {
-            font-size: 0.75rem;
-        }
+    ::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
     }
 
-    .metric-value {
-        font-variant-numeric: tabular-nums;
-        letter-spacing: -0.02em;
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-color-hover);
+        border-radius: 5px;
+        border: 2px solid var(--bg-secondary);
     }
 
-    /* Status colors */
-    .status-online {
-        color: #10b981;
-        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-    }
-
-    .status-offline {
-        color: #ef4444;
-        text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
-    }
-
-    /* ============================================
-       REDUCED MOTION SUPPORT
-       ============================================ */
-    @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
-
-    /* ============================================
-       SCROLLBAR STYLING
-       ============================================ */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255,255,255,0.1) transparent;
-    }
-
-    *::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    *::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    *::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.1);
-        border-radius: 4px;
-    }
-
-    *::-webkit-scrollbar-thumb:hover {
-        background: rgba(255,255,255,0.2);
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
     }
 </style>
 
-<main class="overflow-hidden min-h-screen bg-transparent" id="content">
+<div class="page-container">
+    <% if (false) { %>
+        <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
+            <div class="modal-overlay" id="eulaModal">
+                <div class="eula-modal">
+                    <div class="eula-header">
+                        <svg class="eula-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                        </svg>
+                        <div>
+                            <p class="eula-title">Minecraft EULA Agreement</p>
+                            <p class="eula-subtitle">License Agreement Required</p>
+                        </div>
+                    </div>
+                    <p class="eula-text">
+                        By clicking "I Agree" below, you acknowledge that you have read, understood, and agree to be bound by the terms of the <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" rel="noopener noreferrer">Minecraft End User License Agreement</a>. This server will not start until the EULA is accepted.
+                    </p>
+                    <button onclick="acceptEula()" class="eula-btn">
+                        I Agree to the EULA
+                    </button>
+                </div>
+            </div>
+        <% } %>
+    <% } %>
     
-    <div class="bg-transparent">
-        <div class="page-header">
-            <div class="flex-1 min-w-0">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-brand">
                 <h1 class="header-title"><%= req.translations.manageInstance %></h1>
                 <p class="header-subtitle"><%= req.translations.manageInstanceText %></p>
             </div>
+            
             <div class="actions-container">
-                <!-- Start Button -->
                 <button id="startButton" type="button" class="action-btn btn-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="hidden sm:inline"><%= req.translations.start %></span>
-                    <span class="sm:hidden">Start</span>
+                    <span class="full"><%= req.translations.start %></span>
+                    <span class="short">Start</span>
                 </button>
 
-                <!-- Restart Button -->
                 <button id="restartButton" type="button" class="action-btn btn-restart">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="hidden sm:inline"><%= req.translations.restart %></span>
-                    <span class="sm:hidden">Restart</span>
+                    <span class="full"><%= req.translations.restart %></span>
+                    <span class="short">Restart</span>
                 </button>
 
-                <!-- Stop Button -->
                 <button id="stopButton" type="button" class="action-btn btn-stop">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="hidden sm:inline"><%= req.translations.stop %></span>
-                    <span class="sm:hidden">Stop</span>
+                    <span class="full"><%= req.translations.stop %></span>
+                    <span class="short">Stop</span>
                 </button>
             </div>
         </div>
@@ -792,305 +905,326 @@
     <%- include('../components/instance') %>
     
     <!-- Info Cards Grid -->
-    <div class="mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
+    <section class="info-section">
         <dl class="info-grid">
-            <!-- Address Card - Click to Copy -->
-            <div class="info-card group" id="addressCard" onclick="copyToClipboard('<%= instance.Node.address %>:<%= instance.Primary %>', 'addressCard')">
-                <div class="flex-grow min-w-0">
-                    <dt class="metric-label">IP Address</dt>
-                    <dd class="mt-1 text-base sm:text-lg font-semibold tracking-tight text-white">
-                        <span class="truncate-address" id="ipAddress">
-                            <%= instance.Node.address %><span class="text-neutral-500">:<%= instance.Primary %></span>
-                        </span>
-                    </dd>
+            <!-- Address Card -->
+            <div class="info-card">
+                <div class="info-card-content">
+                    <div class="info-text">
+                        <dt class="info-label"><%= req.translations.address %></dt>
+                        <dd class="info-value">
+                            <%= instance.Node.address %><span style="color: var(--text-muted);">:<%= instance.Primary %></span>
+                        </dd>
+                    </div>
+                    <div class="info-icon-wrapper">
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="info-icon-wrapper">
-                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5"/>
-                    </svg>
-                </div>
-                <div class="copy-tooltip" id="tooltip-addressCard">Copied!</div>
             </div>
 
             <!-- Template Card -->
-            <div class="info-card group">
-                <div class="flex-grow min-w-0">
-                    <dt class="metric-label">Template</dt>
-                    <dd class="mt-1 text-base sm:text-lg font-semibold tracking-tight text-white truncate">
-                        <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
-                    </dd>
-                </div>
-                <div class="info-icon-wrapper">
-                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
-                    </svg>
+            <div class="info-card">
+                <div class="info-card-content">
+                    <div class="info-text">
+                        <dt class="info-label">Template</dt>
+                        <dd class="info-value">
+                            <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
+                        </dd>
+                    </div>
+                    <div class="info-icon-wrapper">
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
             <!-- Node Card -->
-            <div class="info-card group">
-                <div class="flex-grow min-w-0">
-                    <dt class="metric-label"><%= req.translations.node %></dt>
-                    <dd class="mt-1 text-base sm:text-lg font-semibold tracking-tight text-white">
-                        <span class="truncate block"><%= instance.Node.name %></span>
-                        <span class="text-neutral-500 text-xs sm:text-sm truncate block font-normal">(<%= instance.Node.address %>)</span>
-                    </dd>
-                </div>
-                <div class="info-icon-wrapper">
-                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
-                    </svg>
+            <div class="info-card">
+                <div class="info-card-content">
+                    <div class="info-text">
+                        <dt class="info-label"><%= req.translations.node %></dt>
+                        <dd class="info-value"><%= instance.Node.name %></dd>
+                        <dd class="info-value secondary"><%= instance.Node.address %></dd>
+                    </div>
+                    <div class="info-icon-wrapper">
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
             <!-- Identifier Card -->
-            <div class="info-card group">
-                <div class="flex-grow min-w-0">
-                    <dt class="metric-label"><%= req.translations.identifier %></dt>
-                    <dd class="mt-1 text-sm sm:text-base font-semibold tracking-tight text-white font-mono truncate">
-                        <%= req.params.id %>
-                    </dd>
-                </div>
-                <div class="info-icon-wrapper">
-                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                    </svg>
+            <div class="info-card">
+                <div class="info-card-content">
+                    <div class="info-text">
+                        <dt class="info-label"><%= req.translations.identifier %></dt>
+                        <dd class="info-value font-mono"><%= req.params.id %></dd>
+                    </div>
+                    <div class="info-icon-wrapper">
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </dl>
-    </div>
+    </section>
 
     <!-- Daemon Down Alert -->
-    <div class="daemon-alert hidden mx-4 sm:mx-6 lg:mx-8 mt-4 sm:mt-6" id="daemonIsDown">
-        <div class="flex items-start gap-3 sm:gap-4">
-            <div class="flex-shrink-0">
-                <svg class="animate-spin h-5 w-5 text-red-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold text-red-400"><%= req.translations.connectionFailure %></h3>
-                <div class="text-xs sm:text-sm text-red-400/70 mt-1 leading-relaxed">
-                    <p><%= req.translations.connectionFailureText %></p>
-                </div>
-            </div>
+    <div class="daemon-alert hidden" id="daemonIsDown">
+        <div class="daemon-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+        </div>
+        <div class="daemon-text">
+            <h3><%= req.translations.connectionFailure %></h3>
+            <p><%= req.translations.connectionFailureText %></p>
         </div>
     </div>
 
     <!-- Main Layout: Console + Stats -->
-    <div class="main-layout px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
-        <!-- Left side: Console -->
-        <div class="console-section w-full">
-            <div class="bg-[#0a0a0a]/80 backdrop-blur-sm rounded-t-xl overflow-hidden border border-white/5 border-b-0">
-                <!-- Terminal Controls Bar -->
-                <div class="terminal-controls">
-                    <button class="terminal-control-btn" onclick="clearTerminal()" title="Clear Terminal">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                        </svg>
-                        Clear
-                    </button>
-                    <button class="terminal-control-btn danger" onclick="sendTerminalCommand('stop')" title="Stop Server">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z"/>
-                        </svg>
-                        Stop
-                    </button>
-                    <button class="terminal-control-btn" onclick="sendTerminalCommand('restart')" title="Restart Server">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
-                        </svg>
-                        Restart
-                    </button>
-                    <button class="terminal-control-btn" onclick="sendTerminalCommand('kill')" title="Force Kill">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                        </svg>
-                        Kill
-                    </button>
-                    <div style="flex: 1;"></div>
-                    <span style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: monospace;">Console</span>
+    <div class="main-layout">
+        <!-- Console Section -->
+        <div class="console-section">
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <span>Instance Console</span>
+                        <span class="terminal-badge">Live</span>
+                    </div>
+                    <div class="terminal-dots">
+                        <span class="terminal-dot red"></span>
+                        <span class="terminal-dot yellow"></span>
+                        <span class="terminal-dot green"></span>
+                    </div>
                 </div>
                 <div id="terminal"></div>
+                <div class="terminal-input-wrapper">
+                    <span class="terminal-prompt">~</span>
+                    <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" spellcheck="false">
+                </div>
             </div>
-            <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" class="terminal-input rounded-b-xl">
         </div>
         
-        <!-- Right side: Stats Cards -->
-        <div class="stats-section w-full stats-grid-mobile lg:block space-y-3 sm:space-y-4">
-            <!-- Status Card -->
-            <div class="stats-card px-4 py-3 sm:py-4">
-                <canvas id="statusChart"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="metric-label"><%= req.translations.status %></h2>
-                    <p id="status" class="mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value">-</p>
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <!-- Status Card -->
+                <div class="stats-card" id="statusCard">
+                    <canvas id="statusChart"></canvas>
+                    <div class="stats-content">
+                        <div class="stats-header">
+                            <span class="stats-label"><%= req.translations.status %></span>
+                            <span class="stats-indicator" id="statusIndicator"></span>
+                        </div>
+                        <p id="status" class="stats-value">-</p>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- RAM Usage Card -->
-            <div class="stats-card px-4 py-3 sm:py-4">
-                <canvas id="ramChart"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="metric-label"><%= req.translations.ramUsage %></h2>
-                    <p id="ramUsage" class="mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-white truncate">-</p>
+                
+                <!-- RAM Usage Card -->
+                <div class="stats-card">
+                    <canvas id="ramChart"></canvas>
+                    <div class="stats-content">
+                        <div class="stats-header">
+                            <span class="stats-label"><%= req.translations.ramUsage %></span>
+                        </div>
+                        <p id="ramUsage" class="stats-value small">-</p>
+                        <p id="ramSubvalue" class="stats-subvalue">Calculating...</p>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- CPU Usage Card -->
-            <div class="stats-card px-4 py-3 sm:py-4">
-                <canvas id="cpuChart"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="metric-label"><%= req.translations.cpuUsage %></h2>
-                    <p id="cpuUsage" class="mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value text-white">-</p>
+                
+                <!-- CPU Usage Card -->
+                <div class="stats-card">
+                    <canvas id="cpuChart"></canvas>
+                    <div class="stats-content">
+                        <div class="stats-header">
+                            <span class="stats-label"><%= req.translations.cpuUsage %></span>
+                        </div>
+                        <p id="cpuUsage" class="stats-value">-</p>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Disk Usage Card -->
-            <div class="stats-card px-4 py-3 sm:py-4">
-                <canvas id="diskChart" class="hidden"></canvas>
-                <div class="relative z-10 h-full flex flex-col justify-center">
-                    <h2 class="metric-label"><%= req.translations.diskUsage %></h2>
-                    <p id="diskUsage" class="mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-white truncate">-</p>
+                
+                <!-- Disk Usage Card -->
+                <div class="stats-card">
+                    <canvas id="diskChart" class="hidden"></canvas>
+                    <div class="stats-content">
+                        <div class="stats-header">
+                            <span class="stats-label"><%= req.translations.diskUsage %></span>
+                        </div>
+                        <p id="diskUsage" class="stats-value small">-</p>
+                        <p id="diskSubvalue" class="stats-subvalue">Calculating...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</main>
+</div>
+
+<!-- Notification Toast -->
+<div id="notification" role="status" aria-live="polite"></div>
 
 <script>
+    // Theme configuration
     const baseTheme = {
-        foreground: '#c5c9d1',
-        background: 'rgba(0 0 0 / 0)',
-        selection: '#5DA5D533',
-        black: '#1E1E1D',
-        brightBlack: '#262625',
-        red: '#E54B4B',
-        green: '#9ECE58',
-        yellow: '#FAED70',
-        blue: '#396FE2',
-        magenta: '#BB80B3',
-        cyan: '#2DDAFD',
-        white: '#d0d0d0',
-        brightBlack: 'rgba(255, 255, 255, 0.2)',
-        brightRed: '#FF5370',
-        brightGreen: '#C3E88D',
-        brightYellow: '#FFCB6B',
-        brightBlue: '#82AAFF',
-        brightMagenta: '#C792EA',
-        brightCyan: '#89DDFF',
+        foreground: '#e5e7eb',
+        background: 'transparent',
+        selection: 'rgba(59, 130, 246, 0.3)',
+        black: '#0f0f13',
+        brightBlack: '#1a1a1f',
+        red: '#ef4444',
+        brightRed: '#f87171',
+        green: '#10b981',
+        brightGreen: '#34d399',
+        yellow: '#f59e0b',
+        brightYellow: '#fbbf24',
+        blue: '#3b82f6',
+        brightBlue: '#60a5fa',
+        magenta: '#a855f7',
+        brightMagenta: '#c084fc',
+        cyan: '#06b6d4',
+        brightCyan: '#22d3ee',
+        white: '#f9fafb',
         brightWhite: '#ffffff',
+        cursor: '#3b82f6',
+        cursorAccent: '#1a1a1f',
     };
     
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const instanceId = '<%= req.params.id %>';
-    const maxCommands = 10;
-    let commandHistory = [];
-    let currentCommandIndex = -1;
-    let term;
-    let ws;
+    // State management
+    const state = {
+        protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+        instanceId: '<%= req.params.id %>',
+        maxCommands: 50,
+        commandHistory: [],
+        currentCommandIndex: -1,
+        term: null,
+        ws: null,
+        statsWs: null,
+        eulaModalShown: false,
+        reconnectAttempts: 0,
+        maxReconnectAttempts: 10,
+        charts: {},
+        lastStats: null
+    };
     
-    // ============================================
-    // CLIPBOARD FUNCTIONALITY
-    // ============================================
-    async function copyToClipboard(text, elementId) {
-        try {
-            await navigator.clipboard.writeText(text);
-            
-            // Visual feedback
-            const card = document.getElementById(elementId);
-            const tooltip = document.getElementById(`tooltip-${elementId}`);
-            
-            if (card) {
-                card.classList.add('copied');
-                setTimeout(() => card.classList.remove('copied'), 600);
-            }
-            
-            if (tooltip) {
-                tooltip.classList.add('show');
-                setTimeout(() => tooltip.classList.remove('show'), 1500);
-            }
-        } catch (err) {
-            console.error('Failed to copy:', err);
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                const card = document.getElementById(elementId);
-                if (card) {
-                    card.classList.add('copied');
-                    setTimeout(() => card.classList.remove('copied'), 600);
-                }
-            } catch (e) {
-                console.error('Fallback copy failed:', e);
-            }
-            document.body.removeChild(textArea);
-        }
-    }
-    
-    // ============================================
-    // TERMINAL CONTROLS
-    // ============================================
-    function clearTerminal() {
-        if (term) {
-            term.clear();
-            term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mTerminal cleared.\r\n');
-        }
-    }
-    
-    function sendTerminalCommand(command) {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            if (term) term.write('\r\n\u001b[1m\u001b[31m[panel] \u001b[0mNot connected to server.\r\n');
-            return;
-        }
+    // Utilities
+    const utils = {
+        debounce: (fn, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        },
         
-        const commands = {
-            'stop': 'stop',
-            'restart': 'restart',
-            'kill': 'kill'
+        throttle: (fn, limit) => {
+            let inThrottle;
+            return (...args) => {
+                if (!inThrottle) {
+                    fn(...args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        },
+        
+        formatBytes: (bytes, decimals = 2) => {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        },
+        
+        isValidJson: (str) => {
+            try {
+                JSON.parse(str);
+                return true;
+            } catch {
+                return false;
+            }
+        },
+        
+        showNotification: (message, type = 'info') => {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'show';
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+    };
+    
+    // Terminal initialization
+    function initTerminal() {
+        const screenWidth = window.innerWidth;
+        const config = {
+            cols: screenWidth < 640 ? 40 : screenWidth < 1024 ? 80 : 100,
+            rows: screenWidth < 640 ? 20 : 24,
+            fontSize: screenWidth < 640 ? 12 : 14,
         };
         
-        const actualCommand = commands[command] || command;
+        state.term = new Terminal({
+            disableStdin: true,
+            allowProposedApi: true,
+            lineHeight: 1.5,
+            rows: config.rows,
+            cols: config.cols,
+            fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Courier New, monospace',
+            fontSize: config.fontSize,
+            theme: baseTheme,
+            allowTransparency: true,
+            cursorBlink: false,
+            scrollback: 5000,
+            smoothScrollDuration: 0,
+            fastScrollModifier: 'alt',
+            fastScrollSensitivity: 5,
+        });
         
-        term.write(`\r\n\u001b[1m\u001b[36m[panel] \u001b[0mExecuting: ${actualCommand}...\r\n`);
+        state.term.open(document.getElementById('terminal'));
         
-        // Send as power action for stop/restart/kill
-        if (['stop', 'restart', 'kill'].includes(actualCommand)) {
-            axios.post(`/instance/${instanceId}/power`, { action: actualCommand })
-                .then(() => {
-                    term.write(`\u001b[1m\u001b[32m[panel] \u001b[0m${actualCommand} command sent successfully.\r\n`);
-                })
-                .catch(err => {
-                    term.write(`\u001b[1m\u001b[31m[panel] \u001b[0mFailed to send ${actualCommand}: ${err.message}\r\n`);
-                });
-        } else {
-            ws.send(JSON.stringify({
-                event: 'cmd',
-                command: actualCommand,
-                containerId: instanceId
-            }));
-        }
+        const handleResize = utils.debounce(() => {
+            const newWidth = window.innerWidth;
+            const newConfig = {
+                cols: newWidth < 640 ? 40 : newWidth < 1024 ? 80 : 100,
+                rows: newWidth < 640 ? 20 : 24,
+            };
+            state.term.resize(newConfig.cols, newConfig.rows);
+        }, 250);
+        
+        window.addEventListener('resize', handleResize, { passive: true });
     }
     
+    // WebSocket management
     function initWebSocket() {
         const port = window.location.port ? `:${window.location.port}` : '';
-        ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
+        const wsUrl = `${state.protocol}://${window.location.hostname}${port}/console/${state.instanceId}`;
         
-        ws.onopen = () => console.log('WebSocket connected!');
-        ws.onmessage = handleWebSocketMessage;
-        ws.onclose = () => {
-            console.log('WebSocket connection closed, attempting to reconnect...');
-            setTimeout(initWebSocket, 3000);
+        state.ws = new WebSocket(wsUrl);
+        
+        state.ws.onopen = () => {
+            console.log('WebSocket connected');
+            state.reconnectAttempts = 0;
+            document.getElementById('daemonIsDown').classList.add('hidden');
         };
-        ws.onerror = (error) => {
-            console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
-            setTimeout(initWebSocket, 5000);
+        
+        state.ws.onmessage = handleWebSocketMessage;
+        
+        state.ws.onclose = () => {
+            if (state.reconnectAttempts < state.maxReconnectAttempts) {
+                const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts), 30000);
+                setTimeout(initWebSocket, delay);
+                state.reconnectAttempts++;
+            }
+        };
+        
+        state.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
         };
     }
     
@@ -1098,372 +1232,329 @@
         const lines = msg.data.split('\n');
         let isFirstLine = true;
         let previousLineWasEmpty = false;
-    
+        let output = '';
+        
         lines.forEach(line => {
             const trimmedLine = line.trim();
             if (trimmedLine === '' && previousLineWasEmpty) return;
             
-            if (!isFirstLine && !previousLineWasEmpty) {
-                term.write('\r\n');
+            if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
+                !state.eulaModalShown) {
+                showEulaModal();
             }
-    
-            term.write('\x1b[0m' + trimmedLine);
-    
+            
+            if (!isFirstLine && !previousLineWasEmpty) {
+                output += '\r\n';
+            }
+            
+            output += '\x1b[0m' + trimmedLine;
+            
             if (trimmedLine.includes("Working on")) {
-                term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
-                term.clear();
-                ws.close();
+                output += '\r\n\u001b[1m\u001b[33m[panel] \u001b[0mReconnecting...';
+                state.ws.close();
             }
             
             if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                ws.close();
+                state.ws.close();
                 document.getElementById('daemonIsDown').classList.remove('hidden');
-            } else {
-                document.getElementById('daemonIsDown').classList.add('hidden');
             }
-    
+            
             isFirstLine = false;
             previousLineWasEmpty = (trimmedLine === '');
         });
-    }
-    
-    function setupTerminal() {
-        const screenWidth = window.innerWidth;
-        let cols = 80;
-        let rows = 16;
         
-        if (screenWidth < 640) {
-            cols = 32;
-            rows = 12;
-        } else if (screenWidth < 1024) {
-            cols = 60;
-            rows = 18;
-        } else {
-            cols = 80;
-            rows = 22;
-        }
-        
-        term = new Terminal({
-            disableStdin: true,
-            allowProposedApi: true,
-            lineHeight: 1.35,
-            rows: rows,
-            cols: cols,
-            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-            theme: baseTheme,
-            allowTransparency: true,
-            fontSize: screenWidth < 640 ? 10 : 12,
-            cursorBlink: false,
-            scrollback: 1000,
-        });
-        
-        term.open(document.getElementById('terminal'));
-        
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const newWidth = window.innerWidth;
-                let newCols = 80;
-                let newRows = 22;
-                
-                if (newWidth < 640) {
-                    newCols = 32;
-                    newRows = 12;
-                } else if (newWidth < 1024) {
-                    newCols = 60;
-                    newRows = 18;
-                }
-                
-                term.resize(newCols, newRows);
-            }, 250);
-        });
+        state.term.write(output);
     }
     
-    function sendCommand() {
-        const inputElement = document.getElementById('input');
-        const command = inputElement.value.trim();
-        if (command && ws) {
-            term.write('\r\n\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
-            ws.send(JSON.stringify({
-                event: 'cmd',
-                command: command,
-                containerId: instanceId
-            }));
-    
-            if (commandHistory.length === maxCommands) {
-                commandHistory.shift();
-            }
-            commandHistory.push(command);
-            currentCommandIndex = commandHistory.length;
-    
-            inputElement.value = '';
-        }
-    }
-    
-    function handleKeyUp(event) {
-        if (event.key === 'ArrowUp') {
-            if (currentCommandIndex > 0) {
-                currentCommandIndex--;
-                document.getElementById('input').value = commandHistory[currentCommandIndex];
-            }
-            event.preventDefault();
-        } else if (event.key === 'ArrowDown') {
-            if (currentCommandIndex < commandHistory.length - 1) {
-                currentCommandIndex++;
-                document.getElementById('input').value = commandHistory[currentCommandIndex];
-            } else {
-                currentCommandIndex = commandHistory.length;
-                document.getElementById('input').value = '';
-            }
-            event.preventDefault();
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', function () {
-        setupTerminal();
-        initWebSocket();
-    
-        const inputElement = document.getElementById('input');
-        inputElement.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                sendCommand();
-            }
-        });
-    
-        inputElement.addEventListener('keydown', handleKeyUp);
-    
-        // Power buttons - NO CONFIRMATION
-        ['start', 'stop', 'restart'].forEach(action => {
-            const btn = document.getElementById(`${action}Button`);
-            if (!btn) return;
-            btn.addEventListener('click', async function () {
-                const originalHTML = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = `<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Processing...</span>`;
-
-                try {
-                    const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
-                    if (res.status === 200) {
-                        btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> <span>${action.charAt(0).toUpperCase() + action.slice(1)}ed!</span>`;
-                        setTimeout(() => {
-                            btn.innerHTML = originalHTML;
-                            btn.disabled = false;
-                        }, 2000);
-                    } else {
-                        throw new Error(res.data?.message || 'Unknown error');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg> <span>Failed</span>`;
-                    setTimeout(() => {
-                        btn.innerHTML = originalHTML;
-                        btn.disabled = false;
-                    }, 2000);
-                }
-            });
-        });
-    
-        initStatsWebSocket();
-    });
-
-    function isValidJson(str) {
-        try {
-          JSON.parse(str);
-        } catch (e) {
-          return false;
-        }
-        return true;
-    }
-    
+    // Stats WebSocket
     function initStatsWebSocket() {
         const port = window.location.port ? `:${window.location.port}` : '';
-        const statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
+        const wsUrl = `${state.protocol}://${window.location.hostname}${port}/stats/${state.instanceId}`;
         
-        statsWs.onmessage = event => {
-            if (isValidJson(event.data)) {
-                const stats = JSON.parse(event.data);
-                if (stats.error) {
-                    console.error('Error fetching stats:', stats.error);
-                    return;
-                }
-    
-                updateRamUsage(stats);
-                updateCpuUsage(stats);
-                updateDiskUsage(stats);
-                updateStatus(stats);
-            } else {
-                console.log('Received non-JSON data:', event.data);
-            }
-        };
-
-        statsWs.onclose = () => {
-            console.log('WebSocket Stats connection closed, attempting to reconnect...');
-            setTimeout(initStatsWebSocket, 3000);
-        };
-    }
-    
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-    
-    function createBackgroundChart(canvasId, type = 'line') {
-        const ctx = document.getElementById(canvasId);
-        if (!ctx) return null;
+        state.statsWs = new WebSocket(wsUrl);
         
-        return new Chart(ctx.getContext('2d'), {
-            type: type,
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderWidth: 1,
-                    pointRadius: 0,
-                    fill: true,
-                    tension: 0.4,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
-                },
-                scales: {
-                    x: { display: false },
-                    y: { display: false, min: 0, max: 100 }
-                },
-                animation: { duration: 0 }
-            }
-        });
-    }
-    
-    let statusChart, ramChart, cpuChart, diskChart;
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        statusChart = createBackgroundChart('statusChart');
-        ramChart = createBackgroundChart('ramChart');
-        cpuChart = createBackgroundChart('cpuChart');
-        diskChart = createBackgroundChart('diskChart', 'doughnut');
-    });
-    
-    function updateRamUsage(stats) {
-        const ramStatsUsage = stats.memory_stats?.usage || 0;
-        const ramStatsLimit = stats.memory_stats?.limit || 0;
-
-        const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
-        const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory || 1024 %>;
-        const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
-        
-        const ramElement = document.getElementById('ramUsage');
-        if (ramElement) {
-            ramElement.textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
-        }
-    
-        if (ramStatsUsage > 0 && ramChart) {
-            updateChart(ramChart, ramUsagePercent);
-        }
-    }
-    
-    function updateCpuUsage(stats) {
-        const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage || 0;
-        const systemCpuDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage || 0;
-        let cpuUsagePercent = 0;
-        
-        if (systemCpuDelta > 0) {
-            cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
-        }
-    
-        if (isNaN(cpuUsagePercent)) {
-            cpuUsagePercent = 0;
-        }
-    
-        const cpuElement = document.getElementById('cpuUsage');
-        if (cpuElement) {
-            cpuElement.textContent = `${cpuUsagePercent}%`;
-        }
-        
-        if (cpuUsagePercent > 0 && cpuChart) {
-            updateChart(cpuChart, cpuUsagePercent);
-        }
-    }
-    
-    function updateDiskUsage(stats) {
-        const diskUsageRaw = parseFloat(stats.volumeSize) || 0;
-        const diskLimitMiB = <%= instance.Disk || 0 %>;
-        
-        const diskElement = document.getElementById('diskUsage');
-        if (!diskElement) return;
-        
-        if (diskLimitMiB === 0) {
-            diskElement.textContent = `${formatBytes(diskUsageRaw * 1024 * 1024)} / Unlimited`;
-            diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
-        } else {
-            const diskLimitRaw = diskLimitMiB;
-            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
-            diskElement.textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
+        state.statsWs.onmessage = utils.throttle((event) => {
+            if (!utils.isValidJson(event.data)) return;
             
-            if (parseFloat(diskUsagePercent) >= 100) {
-                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-red-500';
-            } else if (parseFloat(diskUsagePercent) >= 90) {
-                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-amber-400';
-            } else {
-                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
+            const stats = JSON.parse(event.data);
+            if (stats.error) {
+                console.error('Stats error:', stats.error);
+                return;
             }
-        }
+            
+            state.lastStats = stats;
+            updateStats(stats);
+        }, 1000);
+        
+        state.statsWs.onclose = () => {
+            setTimeout(initStatsWebSocket, 5000);
+        };
     }
     
-    function updateStatus(stats) {
-        const statusElement = document.getElementById('status');
-        if (!statusElement) return;
+    // Stats charts
+    function initCharts() {
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
+            animation: { duration: 0 },
+            elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.4 } }
+        };
         
-        const containerStatus = (stats.status || stats.state || stats.State?.Status || '').toLowerCase();
-        const ramUsageRaw = stats.memory_stats?.usage / 1024 / 1024 || 0;
+        const createChart = (id, color, type = 'line') => {
+            const ctx = document.getElementById(id);
+            if (!ctx) return null;
+            
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: Array(20).fill(0),
+                        borderColor: color,
+                        backgroundColor: type === 'line' ? `${color}20` : `${color}40`,
+                        fill: type === 'line',
+                    }]
+                },
+                options: commonOptions
+            });
+        };
         
-        const isOnline = containerStatus === 'running' || ramUsageRaw > 1;
+        state.charts.status = createChart('statusChart', '#10b981');
+        state.charts.ram = createChart('ramChart', '#3b82f6');
+        state.charts.cpu = createChart('cpuChart', '#f59e0b');
+    }
+    
+    function updateStats(stats) {
+        // RAM
+        const ramUsage = stats.memory_stats?.usage || 0;
+        const ramLimit = stats.memory_stats?.limit || 0;
+        const ramPercent = ramLimit > 0 ? ((ramUsage / ramLimit) * 100).toFixed(1) : 0;
         
-        if (isOnline) {
-            statusElement.textContent = 'Online';
-            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-online';
-            updateStatusChart('rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.3)');
+        document.getElementById('ramUsage').textContent = `${ramPercent}%`;
+        document.getElementById('ramSubvalue').textContent = 
+            `${utils.formatBytes(ramUsage)} / ${utils.formatBytes(ramLimit)}`;
+        updateChart(state.charts.ram, ramPercent);
+        
+        // CPU
+        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage) || 0;
+        const systemDelta = (stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage) || 0;
+        const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
+        
+        document.getElementById('cpuUsage').textContent = `${cpuPercent}%`;
+        updateChart(state.charts.cpu, cpuPercent);
+        
+        // Disk
+        const diskUsage = parseFloat(stats.volumeSize) || 0;
+        const diskLimit = <%= instance.Disk || 0 %>;
+        const diskEl = document.getElementById('diskUsage');
+        const diskSubEl = document.getElementById('diskSubvalue');
+        
+        if (diskLimit === 0) {
+            diskEl.textContent = utils.formatBytes(diskUsage * 1024 * 1024);
+            diskSubEl.textContent = 'Unlimited';
+            diskEl.style.color = 'var(--accent-success)';
         } else {
-            statusElement.textContent = 'Offline';
-            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-offline';
-            updateStatusChart('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.3)');
+            const diskPercent = ((diskUsage / diskLimit) * 100).toFixed(1);
+            diskEl.textContent = `${diskPercent}%`;
+            diskSubEl.textContent = `${utils.formatBytes(diskUsage * 1024 * 1024)} / ${utils.formatBytes(diskLimit * 1024 * 1024)}`;
+            diskEl.style.color = diskPercent > 90 ? 'var(--accent-danger)' : diskPercent > 70 ? 'var(--accent-warning)' : 'var(--accent-success)';
+        }
+        
+        // Status
+        const statusEl = document.getElementById('status');
+        const statusCard = document.getElementById('statusCard');
+        const indicator = document.getElementById('statusIndicator');
+        const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
+        
+        if (isRunning) {
+            statusEl.textContent = 'Online';
+            statusEl.className = 'stats-value online';
+            statusCard.classList.add('online');
+            statusCard.classList.remove('offline');
+            indicator.className = 'stats-indicator online';
+            updateStatusChart('#10b981');
+        } else {
+            statusEl.textContent = 'Offline';
+            statusEl.className = 'stats-value offline';
+            statusCard.classList.add('offline');
+            statusCard.classList.remove('online');
+            indicator.className = 'stats-indicator offline';
+            updateStatusChart('#ef4444');
         }
     }
     
     function updateChart(chart, value) {
         if (!chart) return;
-        
-        const numValue = parseFloat(value) || 0;
-        chart.data.labels.push('');
-        chart.data.datasets[0].data.push(numValue);
-    
-        if (chart.data.labels.length > 20) {
-            chart.data.labels.shift();
-            chart.data.datasets[0].data.shift();
-        }
-    
+        const num = parseFloat(value) || 0;
+        chart.data.datasets[0].data.push(num);
+        chart.data.datasets[0].data.shift();
         chart.update('none');
     }
     
-    function updateStatusChart(backgroundColor, borderColor) {
-        if (!statusChart) return;
-        
-        statusChart.data.datasets[0].backgroundColor = backgroundColor;
-        statusChart.data.datasets[0].borderColor = borderColor;
-        statusChart.data.labels = [''];
-        statusChart.data.datasets[0].data = [100];
-        statusChart.update('none');
+    function updateStatusChart(color) {
+        if (!state.charts.status) return;
+        state.charts.status.data.datasets[0].backgroundColor = `${color}30`;
+        state.charts.status.data.datasets[0].borderColor = color;
+        state.charts.status.data.datasets[0].data = Array(20).fill(100);
+        state.charts.status.update('none');
     }
+    
+    // EULA Modal
+    function showEulaModal() {
+        if (state.eulaModalShown) return;
+        state.eulaModalShown = true;
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.id = 'eulaModal';
+        modal.innerHTML = `
+            <div class="eula-modal">
+                <div class="eula-header">
+                    <svg class="eula-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                    </svg>
+                    <div>
+                        <p class="eula-title">Minecraft EULA Agreement</p>
+                        <p class="eula-subtitle">License Agreement Required</p>
+                    </div>
+                </div>
+                <p class="eula-text">
+                    By clicking "I Agree" below, you acknowledge that you have read, understood, and agree to be bound by the terms of the <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" rel="noopener noreferrer">Minecraft End User License Agreement</a>. This server will not start until the EULA is accepted.
+                </p>
+                <button onclick="acceptEula()" class="eula-btn">I Agree to the EULA</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    function acceptEula() {
+        axios.post(`/instance/${state.instanceId}/imagefeatures/eula`)
+            .then(response => {
+                if (response.status === 200) {
+                    document.getElementById('eulaModal')?.remove();
+                    state.eulaModalShown = false;
+                    utils.showNotification('EULA accepted successfully');
+                }
+            })
+            .catch(error => {
+                console.error('EULA error:', error);
+                utils.showNotification('Failed to accept EULA', 'error');
+            });
+    }
+    
+    // Command input
+    function initCommandInput() {
+        const input = document.getElementById('input');
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendCommand();
+        });
+        
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (state.currentCommandIndex > 0) {
+                    state.currentCommandIndex--;
+                    input.value = state.commandHistory[state.currentCommandIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (state.currentCommandIndex < state.commandHistory.length - 1) {
+                    state.currentCommandIndex++;
+                    input.value = state.commandHistory[state.currentCommandIndex];
+                } else {
+                    state.currentCommandIndex = state.commandHistory.length;
+                    input.value = '';
+                }
+            }
+        });
+    }
+    
+    function sendCommand() {
+        const input = document.getElementById('input');
+        const command = input.value.trim();
+        
+        if (!command || !state.ws) return;
+        
+        state.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
+        
+        state.ws.send(JSON.stringify({
+            event: 'cmd',
+            command: command,
+            containerId: state.instanceId
+        }));
+        
+        if (state.commandHistory.length >= state.maxCommands) {
+            state.commandHistory.shift();
+        }
+        state.commandHistory.push(command);
+        state.currentCommandIndex = state.commandHistory.length;
+        
+        input.value = '';
+    }
+    
+    // Power buttons
+    function initPowerButtons() {
+        const actions = ['start', 'restart', 'stop'];
+        
+        actions.forEach(action => {
+            const btn = document.getElementById(`${action}Button`);
+            if (!btn) return;
+            
+            btn.addEventListener('click', async () => {
+                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
+                
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<svg class="animate-spin" style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Processing...</span>`;
+                
+                try {
+                    const res = await axios.post(`/instance/${state.instanceId}/power`, { action });
+                    
+                    if (res.status === 200) {
+                        btn.innerHTML = `<svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> <span>${action.charAt(0).toUpperCase() + action.slice(1)}ed!</span>`;
+                        utils.showNotification(`Instance ${action}ed successfully`);
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                        }, 2000);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    utils.showNotification(`Failed to ${action} instance`, 'error');
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }
+            });
+        });
+    }
+    
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        initTerminal();
+        initWebSocket();
+        initStatsWebSocket();
+        initCharts();
+        initCommandInput();
+        initPowerButtons();
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (state.statsWs) state.statsWs.onmessage = null;
+            } else {
+                if (state.statsWs) {
+                    state.statsWs.onmessage = utils.throttle((event) => {
+                        if (!utils.isValidJson(event.data)) return;
+                        const stats = JSON.parse(event.data);
+                        if (!stats.error) updateStats(stats);
+                    }, 1000);
+                }
+            }
+        });
+    });
 </script>
+
 <%- include('../components/footer') %>
