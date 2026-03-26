@@ -44,7 +44,8 @@
     }
 
     .xterm-viewport {
-        overflow-y: hidden !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
 
     /* Custom scrollbar for terminal */
@@ -60,11 +61,13 @@
     }
 
     /* ============================================
-       TERMINAL - RESPONSIVE SIZING
+       TERMINAL - RESPONSIVE SIZING FIXED
        ============================================ */
     #terminal {
         width: 100%;
         height: 250px;
+        position: relative;
+        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -99,6 +102,21 @@
         .xterm-rows {
             font-size: 12px !important;
         }
+    }
+
+    /* Fix xterm display issues */
+    .xterm {
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .xterm-screen {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .xterm-rows {
+        line-height: 1.4 !important;
     }
 
     /* ============================================
@@ -452,6 +470,7 @@
         .stats-grid-mobile {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
+           fr);
             gap: 0.75rem;
         }
         
@@ -681,6 +700,28 @@
     *::-webkit-scrollbar-thumb:hover {
         background: rgba(255,255,255,0.2);
     }
+
+    /* ============================================
+       TERMINAL CONTAINER FIXES
+       ============================================ */
+    .terminal-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: none;
+    }
+
+    .xterm .xterm-viewport {
+        background-color: transparent !important;
+    }
+
+    .xterm .xterm-screen {
+        background-color: transparent !important;
+    }
 </style>
 
 <main class="overflow-hidden min-h-screen bg-transparent" id="content">
@@ -843,7 +884,7 @@
     <div class="main-layout px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
         <!-- Left side: Console -->
         <div class="console-section w-full">
-            <div class="bg-[#0a0a0a]/80 backdrop-blur-sm rounded-t-xl p-2 sm:p-3 overflow-hidden border border-white/5 border-b-0">
+            <div class="terminal-container p-2 sm:p-3">
                 <div id="terminal"></div>
             </div>
             <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" class="terminal-input rounded-b-xl">
@@ -891,9 +932,13 @@
 </main>
 
 <script>
+    // ==========================================
+    // PERFORMANCE OPTIMIZED CODE
+    // ==========================================
+    
     const baseTheme = {
         foreground: '#c5c9d1',
-        background: 'rgba(0 0 0 / 0)',
+        background: 'rgba(0, 0, 0, 0)',
         selection: '#5DA5D533',
         black: '#1E1E1D',
         brightBlack: '#262625',
@@ -921,21 +966,74 @@
     let currentCommandIndex = -1;
     let term;
     let ws;
+    let statsWs;
     let eulaModalShown = false;
+    let reconnectTimeout = null;
+    let statsReconnectTimeout = null;
+    let resizeTimeout = null;
+    let updateFrameId = null;
+    
+    // Debounce utility for performance
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Throttle utility for performance
+    function throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
     
     function initWebSocket() {
+        // Clear any existing reconnect timeout
+        if (reconnectTimeout) {
+            clearTimeout(reconnectTimeout);
+            reconnectTimeout = null;
+        }
+        
+        // Close existing connection if open
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+            ws.close();
+        }
+        
         const port = window.location.port ? `:${window.location.port}` : '';
         ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
         
-        ws.onopen = () => console.log('WebSocket connected!');
-        ws.onmessage = handleWebSocketMessage;
-        ws.onclose = () => {
-            console.log('WebSocket connection closed, attempting to reconnect...');
-            setTimeout(initWebSocket, 3000);
+        ws.onopen = () => {
+            console.log('WebSocket connected!');
+            document.getElementById('daemonIsDown').classList.add('hidden');
         };
+        
+        ws.onmessage = handleWebSocketMessage;
+        
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+            // Only reconnect if not manually closed
+            if (!reconnectTimeout) {
+                reconnectTimeout = setTimeout(() => {
+                    reconnectTimeout = null;
+                    initWebSocket();
+                }, 3000);
+            }
+        };
+        
         ws.onerror = (error) => {
-            console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
-            setTimeout(initWebSocket, 5000);
+            console.log('WebSocket error:', error);
+            ws.close();
         };
     }
     
@@ -1001,7 +1099,11 @@
             document.getElementById('daemonIsDown').classList.add('hidden');
         }
 
-        term.write(data);
+        // Use requestAnimationFrame for smooth terminal writes
+        if (updateFrameId) cancelAnimationFrame(updateFrameId);
+        updateFrameId = requestAnimationFrame(() => {
+            term.write(data);
+        });
     }
     
     function setupTerminal() {
@@ -1010,7 +1112,7 @@
         let rows = 16;
         
         if (screenWidth < 640) {
-            cols = 32;
+            cols = 40;
             rows = 12;
         } else if (screenWidth < 1024) {
             cols = 60;
@@ -1029,38 +1131,53 @@
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             theme: baseTheme,
             allowTransparency: true,
-            fontSize: screenWidth < 640 ? 10 : 12,
+            fontSize: screenWidth < 640 ? 11 : 13,
             cursorBlink: false,
             scrollback: 1000,
+            // Performance optimizations
+            fastScrollModifier: 'alt',
+            fastScrollSensitivity: 5,
+            smoothScrollDuration: 0,
+            macOptionIsMeta: true,
+            wordSeparator: ' ()[]{}\',"`;: ',
+            // Disable bells and notifications for performance
+            bellStyle: 'none',
+            screenReaderMode: false,
         });
+        
+        // Load fit addon for proper sizing
+        Terminal.applyAddon(fit);
         
         term.open(document.getElementById('terminal'));
         
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const newWidth = window.innerWidth;
-                let newCols = 80;
-                let newRows = 22;
-                
-                if (newWidth < 640) {
-                    newCols = 32;
-                    newRows = 12;
-                } else if (newWidth < 1024) {
-                    newCols = 60;
-                    newRows = 18;
-                }
-                
-                term.resize(newCols, newRows);
-            }, 250);
-        });
+        // Initial fit
+        setTimeout(() => {
+            if (term.fit) term.fit();
+        }, 100);
+        
+        // Optimized resize handler
+        window.addEventListener('resize', debounce(() => {
+            const newWidth = window.innerWidth;
+            let newCols = 80;
+            let newRows = 22;
+            
+            if (newWidth < 640) {
+                newCols = 40;
+                newRows = 12;
+            } else if (newWidth < 1024) {
+                newCols = 60;
+                newRows = 18;
+            }
+            
+            term.resize(newCols, newRows);
+            if (term.fit) term.fit();
+        }, 250));
     }
     
     function sendCommand() {
         const inputElement = document.getElementById('input');
         const command = inputElement.value.trim();
-        if (command && ws) {
+        if (command && ws && ws.readyState === WebSocket.OPEN) {
             term.write('\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
             ws.send(JSON.stringify({
                 event: 'cmd',
@@ -1094,6 +1211,45 @@
                 document.getElementById('input').value = '';
             }
             event.preventDefault();
+        }
+    }
+    
+    // Cleanup function for page unload
+    function cleanup() {
+        if (reconnectTimeout) clearTimeout(reconnectTimeout);
+        if (statsReconnectTimeout) clearTimeout(statsReconnectTimeout);
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        if (updateFrameId) cancelAnimationFrame(updateFrameId);
+        
+        if (ws) {
+            ws.onclose = null;
+            ws.close();
+        }
+        if (statsWs) {
+            statsWs.onclose = null;
+            statsWs.close();
+        }
+        
+        // Destroy charts to prevent memory leaks
+        if (statusChart) {
+            statusChart.destroy();
+            statusChart = null;
+        }
+        if (ramChart) {
+            ramChart.destroy();
+            ramChart = null;
+        }
+        if (cpuChart) {
+            cpuChart.destroy();
+            cpuChart = null;
+        }
+        if (diskChart) {
+            diskChart.destroy();
+            diskChart = null;
+        }
+        
+        if (term) {
+            term.dispose();
         }
     }
     
@@ -1141,6 +1297,9 @@
         });
     
         initStatsWebSocket();
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
     });
 
     function isValidJson(str) {
@@ -1153,8 +1312,27 @@
     }
     
     function initStatsWebSocket() {
+        // Clear any existing reconnect timeout
+        if (statsReconnectTimeout) {
+            clearTimeout(statsReconnectTimeout);
+            statsReconnectTimeout = null;
+        }
+        
+        // Close existing connection if open
+        if (statsWs && (statsWs.readyState === WebSocket.OPEN || statsWs.readyState === WebSocket.CONNECTING)) {
+            statsWs.close();
+        }
+        
         const port = window.location.port ? `:${window.location.port}` : '';
-        const statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
+        statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
+        
+        // Throttled update function for performance
+        const throttledUpdate = throttle((stats) => {
+            updateRamUsage(stats);
+            updateCpuUsage(stats);
+            updateDiskUsage(stats);
+            updateStatus(stats);
+        }, 1000); // Update UI max once per second
         
         statsWs.onmessage = event => {
             if (isValidJson(event.data)) {
@@ -1164,23 +1342,31 @@
                     return;
                 }
     
-                updateRamUsage(stats);
-                updateCpuUsage(stats);
-                updateDiskUsage(stats);
-                updateStatus(stats);
+                throttledUpdate(stats);
             } else {
                 console.log('Received non-JSON data:', event.data);
             }
         };
 
         statsWs.onclose = () => {
-            console.log('WebSocket Stats connection closed, attempting to reconnect...');
-            setTimeout(initStatsWebSocket, 3000);
+            console.log('WebSocket Stats connection closed');
+            if (!statsReconnectTimeout) {
+                statsReconnectTimeout = setTimeout(() => {
+                    statsReconnectTimeout = null;
+                    initStatsWebSocket();
+                }, 3000);
+            }
+        };
+        
+        statsWs.onerror = (error) => {
+            console.log('Stats WebSocket error:', error);
+            statsWs.close();
         };
     }
     
     function formatBytes(bytes, decimals = 2) {
         if (bytes === 0) return '0 Bytes';
+        if (!bytes || isNaN(bytes)) return '0 Bytes';
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -1217,7 +1403,22 @@
                     x: { display: false },
                     y: { display: false, min: 0, max: 100 }
                 },
-                animation: { duration: 0 }
+                animation: { duration: 0 },
+                // Performance optimizations
+                elements: {
+                    point: {
+                        radius: 0,
+                        hitRadius: 0,
+                        hoverRadius: 0
+                    },
+                    line: {
+                        borderWidth: 1,
+                        tension: 0.4
+                    }
+                },
+                layout: {
+                    padding: 0
+                }
             }
         });
     }
@@ -1225,10 +1426,13 @@
     let statusChart, ramChart, cpuChart, diskChart;
     
     document.addEventListener('DOMContentLoaded', function() {
-        statusChart = createBackgroundChart('statusChart');
-        ramChart = createBackgroundChart('ramChart');
-        cpuChart = createBackgroundChart('cpuChart');
-        diskChart = createBackgroundChart('diskChart', 'doughnut');
+        // Delay chart initialization for better page load performance
+        setTimeout(() => {
+            statusChart = createBackgroundChart('statusChart');
+            ramChart = createBackgroundChart('ramChart');
+            cpuChart = createBackgroundChart('cpuChart');
+            diskChart = createBackgroundChart('diskChart', 'doughnut');
+        }, 100);
     });
     
     function updateRamUsage(stats) {
@@ -1250,24 +1454,26 @@
     }
     
     function updateCpuUsage(stats) {
-        const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage || 0;
-        const systemCpuDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage || 0;
+        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage || 0) - (stats.precpu_stats?.cpu_usage?.total_usage || 0);
+        const systemCpuDelta = (stats.cpu_stats?.system_cpu_usage || 0) - (stats.precpu_stats?.system_cpu_usage || 0);
         let cpuUsagePercent = 0;
         
-        if (systemCpuDelta > 0) {
+        if (systemCpuDelta > 0 && cpuDelta > 0) {
             cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
         }
     
-        if (isNaN(cpuUsagePercent)) {
+        if (isNaN(cpuUsagePercent) || cpuUsagePercent < 0) {
             cpuUsagePercent = 0;
         }
+        
+        if (cpuUsagePercent > 100) cpuUsagePercent = 100;
     
         const cpuElement = document.getElementById('cpuUsage');
         if (cpuElement) {
             cpuElement.textContent = `${cpuUsagePercent}%`;
         }
         
-        if (cpuUsagePercent > 0 && cpuChart) {
+        if (cpuChart) {
             updateChart(cpuChart, cpuUsagePercent);
         }
     }
@@ -1302,7 +1508,7 @@
         if (!statusElement) return;
         
         const containerStatus = (stats.status || stats.state || stats.State?.Status || '').toLowerCase();
-        const ramUsageRaw = stats.memory_stats?.usage / 1024 / 1024 || 0;
+        const ramUsageRaw = (stats.memory_stats?.usage || 0) / 1024 / 1024;
         
         const isOnline = containerStatus === 'running' || ramUsageRaw > 1;
         
@@ -1317,18 +1523,22 @@
         }
     }
     
+    // Optimized chart update with data limit
     function updateChart(chart, value) {
         if (!chart) return;
         
         const numValue = parseFloat(value) || 0;
-        chart.data.labels.push('');
-        chart.data.datasets[0].data.push(numValue);
-    
-        if (chart.data.labels.length > 20) {
+        
+        // Limit data points to prevent memory issues
+        if (chart.data.labels.length >= 20) {
             chart.data.labels.shift();
             chart.data.datasets[0].data.shift();
         }
+        
+        chart.data.labels.push('');
+        chart.data.datasets[0].data.push(numValue);
     
+        // Use 'none' mode for better performance
         chart.update('none');
     }
     
