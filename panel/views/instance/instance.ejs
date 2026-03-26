@@ -44,8 +44,7 @@
     }
 
     .xterm-viewport {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+        overflow-y: hidden !important;
     }
 
     /* Custom scrollbar for terminal */
@@ -61,13 +60,11 @@
     }
 
     /* ============================================
-       TERMINAL - RESPONSIVE SIZING FIXED
+       TERMINAL - RESPONSIVE SIZING
        ============================================ */
     #terminal {
         width: 100%;
         height: 250px;
-        position: relative;
-        overflow: hidden;
     }
 
     @media (min-width: 640px) {
@@ -102,22 +99,6 @@
         .xterm-rows {
             font-size: 12px !important;
         }
-    }
-
-    /* Fix xterm display issues */
-    .xterm {
-        padding: 8px;
-        box-sizing: border-box;
-        height: 100% !important;
-    }
-
-    .xterm-screen {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    .xterm-rows {
-        line-height: 1.4 !important;
     }
 
     /* ============================================
@@ -700,31 +681,38 @@
     *::-webkit-scrollbar-thumb:hover {
         background: rgba(255,255,255,0.2);
     }
-
-    /* ============================================
-       TERMINAL CONTAINER FIXES
-       ============================================ */
-    .terminal-container {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        background: rgba(10, 10, 10, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-bottom: none;
-    }
-
-    .xterm .xterm-viewport {
-        background-color: transparent !important;
-    }
-
-    .xterm .xterm-screen {
-        background-color: transparent !important;
-    }
 </style>
 
 <main class="overflow-hidden min-h-screen bg-transparent" id="content">
+    <% if (false) { %>
+        <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
+            <div class="modal-overlay">
+                <div class="eula-modal py-6 sm:py-8 px-4 sm:px-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <svg class="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                        </svg>
+                        <p class="text-white text-lg sm:text-xl font-semibold">Do you accept Minecraft's EULA?</p>
+                    </div>
+                    <p class="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">By pressing this button you agree to the <a class="text-white hover:underline font-medium transition-colors" href="https://account.mojang.com/documents/minecraft_eula" target="_blank">Mojang EULA</a>.</p>
+                    <button 
+                    onclick="axios.post('/instance/<%= req.params.id %>/imagefeatures/eula')
+                        .then(response => {
+                            if (response.status === 200) {
+                                location.reload();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('There was an error!', error);
+                        });" 
+                    class="w-full sm:w-auto bg-white text-sm font-semibold text-gray-900 px-8 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200 active:scale-95 shadow-lg">
+                    I agree
+                    </button>
+                </div>
+            </div>
+        <% } %>
+    <% } %>
+    
     <div class="bg-transparent">
         <div class="page-header">
             <div class="flex-1 min-w-0">
@@ -855,7 +843,7 @@
     <div class="main-layout px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
         <!-- Left side: Console -->
         <div class="console-section w-full">
-            <div class="terminal-container p-2 sm:p-3">
+            <div class="bg-[#0a0a0a]/80 backdrop-blur-sm rounded-t-xl p-2 sm:p-3 overflow-hidden border border-white/5 border-b-0">
                 <div id="terminal"></div>
             </div>
             <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" class="terminal-input rounded-b-xl">
@@ -903,17 +891,9 @@
 </main>
 
 <script>
-    // ==========================================
-    // FULLY FIXED VERSION (March 2026)
-    // - Power buttons now work reliably
-    // - Terminal + logs now work (fixed fit + resize)
-    // - Stats + charts work
-    // - No more hard-coded cols/rows that broke rendering
-    // ==========================================
-
     const baseTheme = {
         foreground: '#c5c9d1',
-        background: 'rgba(0, 0, 0, 0)',
+        background: 'rgba(0 0 0 / 0)',
         selection: '#5DA5D533',
         black: '#1E1E1D',
         brightBlack: '#262625',
@@ -924,6 +904,7 @@
         magenta: '#BB80B3',
         cyan: '#2DDAFD',
         white: '#d0d0d0',
+        brightBlack: 'rgba(255, 255, 255, 0.2)',
         brightRed: '#FF5370',
         brightGreen: '#C3E88D',
         brightYellow: '#FFCB6B',
@@ -940,43 +921,21 @@
     let currentCommandIndex = -1;
     let term;
     let ws;
-    let statsWs;
     let eulaModalShown = false;
-    let reconnectTimeout = null;
-    let statsReconnectTimeout = null;
-    let statusChart, ramChart, cpuChart, diskChart;
-    
-    // Initialize xterm fit addon (required for v3)
-    Terminal.applyAddon(fit);
     
     function initWebSocket() {
-        if (reconnectTimeout) {
-            clearTimeout(reconnectTimeout);
-            reconnectTimeout = null;
-        }
-        
-        if (ws) ws.close();
-        
         const port = window.location.port ? `:${window.location.port}` : '';
         ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
         
-        ws.onopen = function() {
-            console.log('✅ Console WebSocket connected');
-            document.getElementById('daemonIsDown').classList.add('hidden');
-        };
-        
+        ws.onopen = () => console.log('WebSocket connected!');
         ws.onmessage = handleWebSocketMessage;
-        
-        ws.onclose = function() {
-            console.log('Console WebSocket closed');
-            if (!reconnectTimeout) {
-                reconnectTimeout = setTimeout(initWebSocket, 3000);
-            }
+        ws.onclose = () => {
+            console.log('WebSocket connection closed, attempting to reconnect...');
+            setTimeout(initWebSocket, 3000);
         };
-        
-        ws.onerror = function(err) {
-            console.error('Console WebSocket error:', err);
-            ws.close();
+        ws.onerror = (error) => {
+            console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
+            setTimeout(initWebSocket, 5000);
         };
     }
     
@@ -994,10 +953,15 @@
                         <p class="text-white text-lg sm:text-xl font-semibold">Do you accept Minecraft's EULA?</p>
                     </div>
                     <p class="text-xs sm:text-sm text-neutral-400 mb-6 leading-relaxed">By pressing this button you agree to the <a class="text-white hover:underline font-medium transition-colors" href="https://account.mojang.com/documents/minecraft_eula" target="_blank">Mojang EULA</a>.</p>
-                    <button onclick="acceptEula()" class="w-full sm:w-auto bg-white text-sm font-semibold text-gray-900 px-8 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200 active:scale-95 shadow-lg">I agree</button>
+                    <button 
+                    onclick="acceptEula()" 
+                    class="w-full sm:w-auto bg-white text-sm font-semibold text-gray-900 px-8 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200 active:scale-95 shadow-lg">
+                    I agree
+                    </button>
                 </div>
             </div>
         `;
+        
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
     
@@ -1010,73 +974,98 @@
                     eulaModalShown = false;
                 }
             })
-            .catch(err => console.error('EULA accept error:', err));
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
     }
     
     function handleWebSocketMessage(msg) {
-        const data = msg.data;
-
-        // EULA detection
-        if (data.toLowerCase().includes('you need to agree to the eula') && 
-            (data.toLowerCase().includes('eula.txt') || data.toLowerCase().includes('dialog above'))) {
-            showEulaModal();
-        }
-        
-        // Reconnect message
-        if (data.includes("Working on")) {
-            term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
-            term.clear();
-            ws.close();
-            return;
-        }
-        
-        // Daemon down
-        if (data.includes("KS Wings instance appears to be down")) {
-            ws.close();
-            document.getElementById('daemonIsDown').classList.remove('hidden');
-        } else {
-            document.getElementById('daemonIsDown').classList.add('hidden');
-        }
-
-        term.write(data);
+        const lines = msg.data.split('\n');
+        let isFirstLine = true;
+        let previousLineWasEmpty = false;
+    
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+            if (trimmedLine === '' && previousLineWasEmpty) return;
+            
+            if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
+                (trimmedLine.toLowerCase().includes('eula.txt') || trimmedLine.toLowerCase().includes('dialog above'))) {
+                showEulaModal();
+            }
+            
+            if (!isFirstLine && !previousLineWasEmpty) {
+                term.write('\r\n');
+            }
+    
+            term.write('\x1b[0m' + trimmedLine);
+    
+            if (trimmedLine.includes("Working on")) {
+                term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
+                term.clear();
+                ws.close();
+            }
+            
+            if (trimmedLine.includes("KS Wings instance appears to be down")) {
+                ws.close();
+                document.getElementById('daemonIsDown').classList.remove('hidden');
+            } else {
+                document.getElementById('daemonIsDown').classList.add('hidden');
+            }
+    
+            isFirstLine = false;
+            previousLineWasEmpty = (trimmedLine === '');
+        });
     }
     
     function setupTerminal() {
         const screenWidth = window.innerWidth;
-        const fontSize = screenWidth < 640 ? 11 : 13;
+        let cols = 80;
+        let rows = 16;
+        
+        if (screenWidth < 640) {
+            cols = 32;
+            rows = 12;
+        } else if (screenWidth < 1024) {
+            cols = 60;
+            rows = 18;
+        } else {
+            cols = 80;
+            rows = 22;
+        }
         
         term = new Terminal({
             disableStdin: true,
             allowProposedApi: true,
             lineHeight: 1.35,
+            rows: rows,
+            cols: cols,
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             theme: baseTheme,
             allowTransparency: true,
-            fontSize: fontSize,
+            fontSize: screenWidth < 640 ? 10 : 12,
             cursorBlink: false,
             scrollback: 1000,
-            fastScrollModifier: 'alt',
-            fastScrollSensitivity: 5,
-            smoothScrollDuration: 0,
-            macOptionIsMeta: true,
-            wordSeparator: ' ()[]{}\',"`;: ',
-            bellStyle: 'none',
-            screenReaderMode: false,
         });
         
         term.open(document.getElementById('terminal'));
         
-        // Fit to container (this fixes the broken terminal)
-        setTimeout(() => {
-            if (term) term.fit();
-        }, 100);
-        
-        // Responsive resize (only use fit - no hard-coded cols/rows)
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (term) term.fit();
+                const newWidth = window.innerWidth;
+                let newCols = 80;
+                let newRows = 22;
+                
+                if (newWidth < 640) {
+                    newCols = 32;
+                    newRows = 12;
+                } else if (newWidth < 1024) {
+                    newCols = 60;
+                    newRows = 18;
+                }
+                
+                term.resize(newCols, newRows);
             }, 250);
         });
     }
@@ -1084,15 +1073,20 @@
     function sendCommand() {
         const inputElement = document.getElementById('input');
         const command = inputElement.value.trim();
-        
-        if (command && ws && ws.readyState === WebSocket.OPEN) {
+        if (command && ws) {
             term.write('\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
-            ws.send(JSON.stringify({ event: 'cmd', command: command, containerId: instanceId }));
-            
-            if (commandHistory.length === maxCommands) commandHistory.shift();
+            ws.send(JSON.stringify({
+                event: 'cmd',
+                command: command,
+                containerId: instanceId
+            }));
+    
+            if (commandHistory.length === maxCommands) {
+                commandHistory.shift();
+            }
             commandHistory.push(command);
             currentCommandIndex = commandHistory.length;
-            
+    
             inputElement.value = '';
         }
     }
@@ -1116,56 +1110,43 @@
         }
     }
     
-    function cleanup() {
-        if (reconnectTimeout) clearTimeout(reconnectTimeout);
-        if (statsReconnectTimeout) clearTimeout(statsReconnectTimeout);
-        
-        if (ws) ws.close();
-        if (statsWs) statsWs.close();
-        
-        if (statusChart) statusChart.destroy();
-        if (ramChart) ramChart.destroy();
-        if (cpuChart) cpuChart.destroy();
-        if (diskChart) diskChart.destroy();
-        
-        if (term) term.dispose();
-    }
-    
-    // ====================== MAIN INIT ======================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         setupTerminal();
         initWebSocket();
     
         const inputElement = document.getElementById('input');
-        inputElement.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendCommand();
+        inputElement.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                sendCommand();
+            }
         });
+    
         inputElement.addEventListener('keydown', handleKeyUp);
     
-        // ====================== POWER BUTTONS (FIXED) ======================
         ['start', 'stop', 'restart'].forEach(action => {
-            const btn = document.getElementById(action + 'Button');
+            const btn = document.getElementById(`${action}Button`);
             if (!btn) return;
-            
-            btn.addEventListener('click', async function() {
+            btn.addEventListener('click', async function () {
+                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
+
                 const originalHTML = btn.innerHTML;
                 btn.disabled = true;
                 btn.innerHTML = `<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Processing...</span>`;
-    
+
                 try {
-                    const res = await axios.post('/instance/<%= req.params.id %>/power', { action: action });
+                    const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
                     if (res.status === 200) {
                         btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> <span>${action.charAt(0).toUpperCase() + action.slice(1)}ed!</span>`;
                         setTimeout(() => {
                             btn.innerHTML = originalHTML;
                             btn.disabled = false;
-                        }, 1800);
+                        }, 2000);
                     } else {
-                        throw new Error('Bad response');
+                        throw new Error(res.data?.message || 'Unknown error');
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("Power action failed: " + (err.response?.data?.message || err.message));
+                    alert("Power action failed: " + (err.response?.data?.message || err.message || 'Unknown'));
                     btn.innerHTML = originalHTML;
                     btn.disabled = false;
                 }
@@ -1173,58 +1154,51 @@
         });
     
         initStatsWebSocket();
-        initCharts();
-        
-        window.addEventListener('beforeunload', cleanup);
     });
-    
+
     function isValidJson(str) {
-        try { JSON.parse(str); return true; } catch { return false; }
+        try {
+          JSON.parse(str);
+        } catch (e) {
+          return false;
+        }
+        return true;
     }
     
     function initStatsWebSocket() {
-        if (statsReconnectTimeout) {
-            clearTimeout(statsReconnectTimeout);
-            statsReconnectTimeout = null;
-        }
-        if (statsWs) statsWs.close();
-        
         const port = window.location.port ? `:${window.location.port}` : '';
-        statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
+        const statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
         
-        statsWs.onmessage = function(event) {
+        statsWs.onmessage = event => {
             if (isValidJson(event.data)) {
                 const stats = JSON.parse(event.data);
-                if (stats.error) return console.error('Stats error:', stats.error);
-                
+                if (stats.error) {
+                    console.error('Error fetching stats:', stats.error);
+                    return;
+                }
+    
                 updateRamUsage(stats);
                 updateCpuUsage(stats);
                 updateDiskUsage(stats);
                 updateStatus(stats);
+            } else {
+                console.log('Received non-JSON data:', event.data);
             }
         };
-        
-        statsWs.onclose = function() {
-            if (!statsReconnectTimeout) statsReconnectTimeout = setTimeout(initStatsWebSocket, 3000);
+
+        statsWs.onclose = () => {
+            console.log('WebSocket Stats connection closed, attempting to reconnect...');
+            setTimeout(initStatsWebSocket, 3000);
         };
     }
     
     function formatBytes(bytes, decimals = 2) {
-        if (!bytes || isNaN(bytes)) return '0 Bytes';
+        if (bytes === 0) return '0 Bytes';
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-    
-    function initCharts() {
-        setTimeout(() => {
-            statusChart = createBackgroundChart('statusChart');
-            ramChart = createBackgroundChart('ramChart');
-            cpuChart = createBackgroundChart('cpuChart');
-            diskChart = createBackgroundChart('diskChart', 'doughnut');
-        }, 100);
     }
     
     function createBackgroundChart(canvasId, type = 'line') {
@@ -1233,88 +1207,149 @@
         
         return new Chart(ctx.getContext('2d'), {
             type: type,
-            data: { labels: [], datasets: [{ data: [], borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, pointRadius: 0, fill: true, tension: 0.4 }] },
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4,
+                }]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false, min: 0, max: 100 }
+                },
                 animation: { duration: 0 }
             }
         });
     }
     
+    let statusChart, ramChart, cpuChart, diskChart;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        statusChart = createBackgroundChart('statusChart');
+        ramChart = createBackgroundChart('ramChart');
+        cpuChart = createBackgroundChart('cpuChart');
+        diskChart = createBackgroundChart('diskChart', 'doughnut');
+    });
+    
     function updateRamUsage(stats) {
-        const usage = (stats.memory_stats?.usage || 0) / 1024 / 1024;
-        const limit = (stats.memory_stats?.limit || <%= instance.Memory || 1024 %>) / 1024 / 1024;
-        const percent = limit > 0 ? ((usage / limit) * 100).toFixed(2) : '0.00';
+        const ramStatsUsage = stats.memory_stats?.usage || 0;
+        const ramStatsLimit = stats.memory_stats?.limit || 0;
+
+        const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
+        const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory || 1024 %>;
+        const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
         
-        document.getElementById('ramUsage').textContent = `${percent}% (${formatBytes(stats.memory_stats?.usage)} / ${formatBytes(stats.memory_stats?.limit)})`;
-        if (ramChart) updateChart(ramChart, percent);
+        const ramElement = document.getElementById('ramUsage');
+        if (ramElement) {
+            ramElement.textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
+        }
+    
+        if (ramStatsUsage > 0 && ramChart) {
+            updateChart(ramChart, ramUsagePercent);
+        }
     }
     
     function updateCpuUsage(stats) {
-        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage || 0) - (stats.precpu_stats?.cpu_usage?.total_usage || 0);
-        const systemDelta = (stats.cpu_stats?.system_cpu_usage || 0) - (stats.precpu_stats?.system_cpu_usage || 0);
-        let percent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(2) : 0;
-        if (isNaN(percent) || percent < 0) percent = 0;
-        if (percent > 100) percent = 100;
+        const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage || 0;
+        const systemCpuDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage || 0;
+        let cpuUsagePercent = 0;
         
-        document.getElementById('cpuUsage').textContent = `${percent}%`;
-        if (cpuChart) updateChart(cpuChart, percent);
+        if (systemCpuDelta > 0) {
+            cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+        }
+    
+        if (isNaN(cpuUsagePercent)) {
+            cpuUsagePercent = 0;
+        }
+    
+        const cpuElement = document.getElementById('cpuUsage');
+        if (cpuElement) {
+            cpuElement.textContent = `${cpuUsagePercent}%`;
+        }
+        
+        if (cpuUsagePercent > 0 && cpuChart) {
+            updateChart(cpuChart, cpuUsagePercent);
+        }
     }
     
     function updateDiskUsage(stats) {
-        const used = parseFloat(stats.volumeSize) || 0;
-        const limit = <%= instance.Disk || 0 %>;
-        const element = document.getElementById('diskUsage');
+        const diskUsageRaw = parseFloat(stats.volumeSize) || 0;
+        const diskLimitMiB = <%= instance.Disk || 0 %>;
         
-        if (limit === 0) {
-            element.textContent = `${formatBytes(used * 1024 * 1024)} / Unlimited`;
-            element.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
+        const diskElement = document.getElementById('diskUsage');
+        if (!diskElement) return;
+        
+        if (diskLimitMiB === 0) {
+            diskElement.textContent = `${formatBytes(diskUsageRaw * 1024 * 1024)} / Unlimited`;
+            diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
         } else {
-            const percent = (used / limit * 100).toFixed(2);
-            element.textContent = `${percent}% (${formatBytes(used * 1024 * 1024)} / ${formatBytes(limit * 1024 * 1024)})`;
+            const diskLimitRaw = diskLimitMiB;
+            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
+            diskElement.textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
             
-            if (parseFloat(percent) >= 100) element.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-red-500';
-            else if (parseFloat(percent) >= 90) element.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-amber-400';
-            else element.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
+            if (parseFloat(diskUsagePercent) >= 100) {
+                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-red-500';
+            } else if (parseFloat(diskUsagePercent) >= 90) {
+                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-amber-400';
+            } else {
+                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
+            }
         }
     }
     
     function updateStatus(stats) {
-        const statusEl = document.getElementById('status');
+        const statusElement = document.getElementById('status');
+        if (!statusElement) return;
+        
         const containerStatus = (stats.status || stats.state || stats.State?.Status || '').toLowerCase();
-        const isOnline = containerStatus === 'running' || (stats.memory_stats?.usage || 0) / 1024 / 1024 > 1;
+        const ramUsageRaw = stats.memory_stats?.usage / 1024 / 1024 || 0;
+        
+        const isOnline = containerStatus === 'running' || ramUsageRaw > 1;
         
         if (isOnline) {
-            statusEl.textContent = 'Online';
-            statusEl.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-online';
+            statusElement.textContent = 'Online';
+            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-online';
             updateStatusChart('rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.3)');
         } else {
-            statusEl.textContent = 'Offline';
-            statusEl.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-offline';
+            statusElement.textContent = 'Offline';
+            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-offline';
             updateStatusChart('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.3)');
         }
     }
     
     function updateChart(chart, value) {
         if (!chart) return;
-        const num = parseFloat(value) || 0;
         
-        if (chart.data.labels.length >= 20) {
+        const numValue = parseFloat(value) || 0;
+        chart.data.labels.push('');
+        chart.data.datasets[0].data.push(numValue);
+    
+        if (chart.data.labels.length > 20) {
             chart.data.labels.shift();
             chart.data.datasets[0].data.shift();
         }
-        chart.data.labels.push('');
-        chart.data.datasets[0].data.push(num);
+    
         chart.update('none');
     }
     
-    function updateStatusChart(bg, border) {
+    function updateStatusChart(backgroundColor, borderColor) {
         if (!statusChart) return;
-        statusChart.data.datasets[0].backgroundColor = bg;
-        statusChart.data.datasets[0].borderColor = border;
+        
+        statusChart.data.datasets[0].backgroundColor = backgroundColor;
+        statusChart.data.datasets[0].borderColor = borderColor;
         statusChart.data.labels = [''];
         statusChart.data.datasets[0].data = [100];
         statusChart.update('none');
