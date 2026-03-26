@@ -16,373 +16,225 @@
 
 <style>
     /* ============================================
-       ROOT VARIABLES - ADVANCED DESIGN SYSTEM
+       ORIGINAL CSS VARIABLES - PRESERVED EXACTLY
        ============================================ */
     :root {
-        /* Glassmorphism Core */
-        --glass-bg: rgba(255, 255, 255, 0.03);
-        --glass-bg-hover: rgba(255, 255, 255, 0.08);
-        --glass-border: rgba(255, 255, 255, 0.08);
-        --glass-border-hover: rgba(255, 255, 255, 0.15);
-        --glass-blur: blur(20px) saturate(180%);
-        --glass-blur-heavy: blur(40px) saturate(200%);
-        
-        /* Premium Gradients */
-        --gradient-primary: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
-        --gradient-success: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
-        --gradient-danger: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
-        --gradient-warning: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.2) 100%);
-        --gradient-info: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%);
-        
-        /* Glow Effects */
-        --glow-primary: 0 0 40px rgba(99, 102, 241, 0.3);
-        --glow-success: 0 0 40px rgba(16, 185, 129, 0.3);
-        --glow-danger: 0 0 40px rgba(239, 68, 68, 0.3);
-        --glow-warning: 0 0 40px rgba(245, 158, 11, 0.3);
-        
-        /* Shadows */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-        --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-        --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
-        --shadow-elevated: 0 24px 64px rgba(0, 0, 0, 0.5);
-        --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-        
-        /* Transitions - Optimized for Performance */
-        --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-        --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        
-        /* Radii */
-        --radius-xs: 6px;
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-blur: blur(20px);
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-bounce: all 0.5s cubic-bezier(0.25, 1.8, 0.45, 1.35);
         --radius-sm: 10px;
-        --radius-md: 14px;
-        --radius-lg: 20px;
-        --radius-xl: 28px;
-        --radius-full: 9999px;
-        
-        /* Spacing Scale */
-        --space-1: 0.25rem;
-        --space-2: 0.5rem;
-        --space-3: 0.75rem;
-        --space-4: 1rem;
-        --space-5: 1.25rem;
-        --space-6: 1.5rem;
-        --space-8: 2rem;
-        --space-10: 2.5rem;
-        --space-12: 3rem;
-        
-        /* Typography */
-        --font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
-        --font-sans: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        
-        /* Colors */
-        --color-text-primary: rgba(255, 255, 255, 0.95);
-        --color-text-secondary: rgba(255, 255, 255, 0.6);
-        --color-text-muted: rgba(255, 255, 255, 0.4);
-        --color-accent-primary: #818cf8;
-        --color-accent-success: #34d399;
-        --color-accent-danger: #f87171;
-        --color-accent-warning: #fbbf24;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.05);
+        --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
     /* ============================================
-       BASE RESET & OPTIMIZATIONS
+       BASE STYLES & RESETS - NO FIXED POSITIONING
        ============================================ */
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-    
-    /* GPU Acceleration for Smooth Animations */
-    .gpu-accelerated {
-        transform: translateZ(0);
-        backface-visibility: hidden;
-        perspective: 1000px;
-        will-change: transform;
     }
 
-    /* ============================================
-       DYNAMIC BACKGROUND MESH
-       ============================================ */
-    .bg-mesh {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        overflow: hidden;
-        background: radial-gradient(ellipse at top, #1e1b4b 0%, #0f0f1e 50%, #0a0a0f 100%);
-    }
-    
-    .bg-mesh::before {
-        content: '';
+    canvas {
         position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: 
-            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(99, 102, 241, 0.2) 0%, transparent 40%);
-        animation: meshMove 20s ease-in-out infinite;
-        pointer-events: none;
-    }
-    
-    @keyframes meshMove {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        33% { transform: translate(30px, -30px) rotate(120deg); }
-        66% { transform: translate(-20px, 20px) rotate(240deg); }
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        height: 100% !important;
     }
 
-    /* ============================================
-       XTERM TERMINAL - ENHANCED STYLING
-       ============================================ */
-    .terminal-container {
-        position: relative;
-        background: rgba(10, 10, 15, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.02);
-        transition: var(--transition-base);
-    }
-    
-    .terminal-container:hover {
-        border-color: rgba(255, 255, 255, 0.12);
-        box-shadow: var(--shadow-lg), var(--glow-primary);
-    }
-    
-    .terminal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: var(--space-3) var(--space-4);
-        background: rgba(255, 255, 255, 0.02);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .terminal-title {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--color-text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
-    }
-    
-    .terminal-dots {
-        display: flex;
-        gap: 6px;
-    }
-    
-    .terminal-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: var(--radius-full);
-        box-shadow: 0 0 6px currentColor;
-    }
-    
-    .terminal-dot.red { background: #ff5f56; color: #ff5f56; }
-    .terminal-dot.yellow { background: #ffbd2e; color: #ffbd2e; }
-    .terminal-dot.green { background: #27c93f; color: #27c93f; }
-    
-    #terminal {
-        width: 100%;
-        height: clamp(300px, 50vh, 600px);
-        padding: var(--space-4);
-    }
-    
-    .xterm {
-        padding: 0 !important;
-    }
-    
     .xterm-viewport {
-        overflow-y: auto !important;
-        background: transparent !important;
+        overflow-y: hidden !important;
     }
-    
-    .xterm-viewport::-webkit-scrollbar {
+
+    /* Custom scrollbar for terminal */
+    .xterm .xterm-viewport::-webkit-scrollbar {
         width: 8px;
     }
-    
-    .xterm-viewport::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.02);
+    .xterm .xterm-viewport::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+    }
+    .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
         border-radius: 4px;
     }
-    
-    .xterm-viewport::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-        transition: var(--transition-fast);
+
+    /* ============================================
+       TERMINAL - RESPONSIVE SIZING
+       ============================================ */
+    #terminal {
+        width: 100%;
+        height: 250px;
     }
-    
-    .xterm-viewport::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-    
-    .xterm-rows {
-        font-family: var(--font-mono) !important;
-        font-size: 13px !important;
-        line-height: 1.6 !important;
-    }
-    
-    @media (max-width: 768px) {
-        .xterm-rows {
-            font-size: 11px !important;
-        }
+
+    @media (min-width: 640px) {
         #terminal {
             height: 350px;
         }
     }
 
-    /* ============================================
-       TERMINAL INPUT - COMMAND LINE
-       ============================================ */
-    .terminal-input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.6);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        padding: var(--space-3) var(--space-4);
-    }
-    
-    .terminal-prompt {
-        font-family: var(--font-mono);
-        color: var(--color-accent-success);
-        font-weight: 600;
-        margin-right: var(--space-3);
-        font-size: 0.875rem;
-        white-space: nowrap;
-    }
-    
-    #input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        outline: none;
-        color: var(--color-text-primary);
-        font-family: var(--font-mono);
-        font-size: 0.875rem;
-        padding: var(--space-2) 0;
-    }
-    
-    #input::placeholder {
-        color: var(--color-text-muted);
-    }
-    
-    .terminal-input-wrapper:focus-within {
-        background: rgba(0, 0, 0, 0.8);
-    }
-
-    /* ============================================
-       HEADER SECTION - PREMIUM DESIGN
-       ============================================ */
-    .page-header {
-        position: relative;
-        padding: var(--space-6) var(--space-8);
-        margin-bottom: var(--space-6);
-    }
-    
-    .header-content {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-6);
-    }
-    
     @media (min-width: 1024px) {
-        .header-content {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
+        #terminal {
+            height: 450px;
         }
     }
-    
-    .header-brand {
-        position: relative;
+
+    @media (min-width: 1280px) {
+        #terminal {
+            height: 500px;
+        }
     }
-    
-    .header-title {
-        font-family: var(--font-sans);
-        font-size: clamp(1.75rem, 4vw, 2.5rem);
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 50%, #818cf8 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: var(--space-2);
-        position: relative;
-        display: inline-block;
+
+    .xterm-rows {
+        font-size: 10px !important;
     }
-    
-    .header-title::after {
-        content: '';
-        position: absolute;
-        bottom: -4px;
-        left: 0;
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, #6366f1, #a855f7);
-        border-radius: var(--radius-full);
+
+    @media (min-width: 640px) {
+        .xterm-rows {
+            font-size: 11px !important;
+        }
     }
-    
-    .header-subtitle {
-        font-size: 0.875rem;
-        color: var(--color-text-secondary);
-        max-width: 400px;
-        line-height: 1.6;
+
+    @media (min-width: 1024px) {
+        .xterm-rows {
+            font-size: 12px !important;
+        }
     }
 
     /* ============================================
-       ACTION BUTTONS - PREMIUM GLASS BUTTONS
+       TERMINAL CONTROLS BAR
        ============================================ */
-    .actions-container {
+    .terminal-controls {
         display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(10, 10, 10, 0.6);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         flex-wrap: wrap;
-        gap: var(--space-3);
     }
-    
-    .action-btn {
+
+    .terminal-control-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.8rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-sm);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        font-family: inherit;
+    }
+
+    .terminal-control-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .terminal-control-btn:active {
+        transform: scale(0.95);
+    }
+
+    .terminal-control-btn.danger {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #f87171;
+    }
+
+    .terminal-control-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.2);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+    }
+
+    .terminal-control-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* ============================================
+       STATS CARDS - ENHANCED GLASSMORPHISM
+       ============================================ */
+    .stats-card {
+        height: clamp(70px, 12vh, 90px);
         position: relative;
+        overflow: hidden;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-glow), 0 4px 24px rgba(0,0,0,0.1);
+        transition: var(--transition-smooth);
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        transition: left 0.7s ease;
+        pointer-events: none;
+    }
+
+    .stats-card:hover::before {
+        left: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255,255,255,0.15);
+        box-shadow: var(--shadow-glow), 0 8px 32px rgba(0,0,0,0.15);
+    }
+
+    @media (min-width: 640px) {
+        .stats-card {
+            height: clamp(80px, 14vh, 100px);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .stats-card {
+            height: clamp(90px, 16vh, 110px);
+        }
+    }
+
+    /* ============================================
+       ACTION BUTTONS - MODERN ENHANCED
+       ============================================ */
+    .action-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: var(--space-2);
-        padding: var(--space-3) var(--space-5);
-        font-family: var(--font-sans);
+        gap: 0.5rem;
+        border-radius: var(--radius-md);
+        padding: 0.5rem 1rem;
         font-size: 0.875rem;
         font-weight: 600;
-        letter-spacing: 0.01em;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transition: var(--transition-smooth);
+        white-space: nowrap;
+        position: relative;
         overflow: hidden;
-        transition: var(--transition-base);
-        transform: translateZ(0);
-        will-change: transform;
+        border: none;
+        cursor: pointer;
+        letter-spacing: 0.01em;
     }
-    
+
     .action-btn::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-        opacity: 0;
-        transition: var(--transition-fast);
-    }
-    
-    .action-btn:hover::before {
-        opacity: 1;
-    }
-    
-    .action-btn::after {
         content: '';
         position: absolute;
         top: 50%;
@@ -394,616 +246,472 @@
         transform: translate(-50%, -50%);
         transition: width 0.6s ease, height 0.6s ease;
     }
-    
-    .action-btn:active::after {
+
+    .action-btn:active::before {
         width: 300px;
         height: 300px;
     }
-    
+
     .action-btn:active {
-        transform: scale(0.96) translateZ(0);
+        transform: scale(0.96);
     }
-    
+
     .action-btn:disabled {
-        opacity: 0.5;
+        opacity: 0.6;
         cursor: not-allowed;
         transform: none !important;
     }
-    
-    /* Button Variants with Glassmorphism */
+
+    /* Button Variants */
     .btn-start {
-        background: var(--gradient-success);
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
         color: white;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3), var(--shadow-sm);
+        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
     }
-    
+
     .btn-start:hover {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%);
-        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4), var(--glow-success);
-        transform: translateY(-2px) translateZ(0);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        transform: translateY(-2px);
     }
-    
+
     .btn-restart {
-        background: var(--gradient-info);
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         color: white;
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3), var(--shadow-sm);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     }
-    
+
     .btn-restart:hover {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.3) 100%);
-        box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4), var(--glow-primary);
-        transform: translateY(-2px) translateZ(0);
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        transform: translateY(-2px);
     }
-    
+
     .btn-stop {
-        background: var(--gradient-danger);
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
         color: white;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3), var(--shadow-sm);
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
     }
-    
+
     .btn-stop:hover {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.3) 100%);
-        box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4), var(--glow-danger);
-        transform: translateY(-2px) translateZ(0);
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        transform: translateY(-2px);
     }
-    
-    .action-btn svg {
-        width: 18px;
-        height: 18px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-    
-    @media (max-width: 640px) {
-        .actions-container {
-            width: 100%;
-        }
+
+    @media (max-width: 639px) {
         .action-btn {
             flex: 1;
-            min-width: calc(33.333% - var(--space-3));
-            padding: var(--space-3) var(--space-2);
+            min-width: 0;
+            padding: 0.625rem 0.5rem;
+            font-size: 0.75rem;
+            gap: 0.25rem;
+            min-height: 44px;
+        }
+        
+        .action-btn svg {
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .action-btn span {
             font-size: 0.75rem;
         }
-        .action-btn span.full { display: none; }
-        .action-btn span.short { display: inline; }
     }
-    
-    @media (min-width: 641px) {
-        .action-btn span.short { display: none; }
+
+    @media (min-width: 640px) and (max-width: 1023px) {
+        .action-btn {
+            padding: 0.625rem 1.25rem;
+        }
     }
 
     /* ============================================
-       INFO CARDS - BENTO GRID LAYOUT
+       INFO GRID - BENTO LAYOUT
        ============================================ */
-    .info-section {
-        padding: 0 var(--space-8);
-        margin-bottom: var(--space-8);
-    }
-    
     .info-grid {
         display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: var(--space-4);
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
-    
+
     @media (min-width: 640px) {
         .info-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
         }
     }
-    
+
     @media (min-width: 1024px) {
         .info-grid {
             grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-5);
+            gap: 1.25rem;
         }
     }
-    
+
+    /* Info Card Styling */
     .info-card {
-        position: relative;
         background: var(--glass-bg);
         backdrop-filter: var(--glass-blur);
         -webkit-backdrop-filter: var(--glass-blur);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-lg);
-        padding: var(--space-5);
-        overflow: hidden;
+        padding: 1rem;
+        box-shadow: var(--shadow-glow), 0 4px 24px rgba(0,0,0,0.1);
         transition: var(--transition-smooth);
-        transform: translateZ(0);
-        will-change: transform;
-    }
-    
-    .info-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--gradient-primary);
-        opacity: 0;
-        transition: var(--transition-base);
-    }
-    
-    .info-card:hover {
-        background: var(--glass-bg-hover);
-        border-color: var(--glass-border-hover);
-        transform: translateY(-4px) translateZ(0);
-        box-shadow: var(--shadow-lg), var(--glow-primary);
-    }
-    
-    .info-card:hover::before {
-        opacity: 0.5;
-    }
-    
-    .info-card-content {
-        position: relative;
-        z-index: 1;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: var(--space-4);
-    }
-    
-    .info-text {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .info-label {
-        font-size: 0.625rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--color-text-muted);
-        margin-bottom: var(--space-1);
-    }
-    
-    .info-value {
-        font-family: var(--font-sans);
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--color-text-primary);
-        letter-spacing: -0.01em;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        cursor: pointer;
+        position: relative;
     }
-    
-    .info-value.secondary {
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: var(--color-text-secondary);
-        margin-top: 2px;
+
+    .info-card:hover {
+        border-color: rgba(255,255,255,0.15);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow), 0 8px 32px rgba(0,0,0,0.15);
     }
-    
+
+    .info-card.copied {
+        animation: copiedPulse 0.6s ease;
+    }
+
+    @keyframes copiedPulse {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
     .info-icon-wrapper {
         flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-left: 0.75rem;
+        padding: 0.625rem;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
         border-radius: var(--radius-md);
-        transition: var(--transition-base);
+        transition: var(--transition-smooth);
     }
-    
+
     .info-card:hover .info-icon-wrapper {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: scale(1.1) rotate(5deg);
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.2);
     }
-    
+
     .info-icon {
-        width: 22px;
-        height: 22px;
-        color: var(--color-accent-primary);
-        transition: var(--transition-base);
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #9ca3af;
     }
-    
-    .info-card:hover .info-icon {
+
+    @media (min-width: 640px) {
+        .info-card {
+            padding: 1.25rem;
+        }
+        
+        .info-icon-wrapper {
+            padding: 0.75rem;
+            margin-left: 1rem;
+        }
+        
+        .info-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+    }
+
+    /* Copy feedback tooltip */
+    .copy-tooltip {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(16, 185, 129, 0.9);
         color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+    }
+
+    .copy-tooltip.show {
+        opacity: 1;
     }
 
     /* ============================================
-       MAIN LAYOUT - CONSOLE + STATS
+       MAIN LAYOUT - RESPONSIVE FLEX
        ============================================ */
     .main-layout {
         display: flex;
         flex-direction: column;
-        gap: var(--space-6);
-        padding: 0 var(--space-8) var(--space-8);
+        gap: 1rem;
     }
-    
+
     @media (min-width: 1024px) {
         .main-layout {
             flex-direction: row;
-            gap: var(--space-8);
+            gap: 1.5rem;
         }
         
         .console-section {
-            flex: 1.5;
+            flex: 1;
             min-width: 0;
+            width: 65%;
         }
         
         .stats-section {
-            width: 340px;
-            flex-shrink: 0;
+            width: 35%;
+            min-width: 280px;
+            max-width: 380px;
         }
     }
-    
+
     @media (min-width: 1280px) {
+        .console-section {
+            width: 70%;
+        }
+        
         .stats-section {
-            width: 380px;
+            width: 30%;
+            max-width: 400px;
         }
     }
 
     /* ============================================
-       STATS CARDS - DYNAMIC VISUALIZATION
+       HEADER - MODERN RESPONSIVE
        ============================================ */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-4);
-    }
-    
-    @media (min-width: 640px) and (max-width: 1023px) {
-        .stats-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-            gap: var(--space-5);
-        }
-    }
-    
-    .stats-card {
-        position: relative;
-        height: 120px;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-lg);
-        padding: var(--space-4);
-        overflow: hidden;
-        transition: var(--transition-smooth);
-        transform: translateZ(0);
-        will-change: transform;
-    }
-    
-    .stats-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transition: var(--transition-base);
-    }
-    
-    .stats-card.online::before {
-        background: var(--gradient-success);
-        opacity: 0.1;
-    }
-    
-    .stats-card.offline::before {
-        background: var(--gradient-danger);
-        opacity: 0.1;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-4px) translateZ(0);
-        border-color: var(--glass-border-hover);
-        box-shadow: var(--shadow-lg);
-    }
-    
-    .stats-card canvas {
-        position: absolute;
-        inset: 0;
-        width: 100% !important;
-        height: 100% !important;
-        opacity: 0.3;
-    }
-    
-    .stats-content {
-        position: relative;
-        z-index: 1;
-        height: 100%;
+    .page-header {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-    }
-    
-    .stats-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .stats-label {
-        font-size: 0.625rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--color-text-muted);
-    }
-    
-    .stats-indicator {
-        width: 8px;
-        height: 8px;
-        border-radius: var(--radius-full);
-        box-shadow: 0 0 8px currentColor;
-        animation: pulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(0.9); }
-    }
-    
-    .stats-value {
-        font-family: var(--font-mono);
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        color: var(--color-text-primary);
-    }
-    
-    .stats-value.small {
-        font-size: 1rem;
-    }
-    
-    .stats-value.online {
-        color: var(--color-accent-success);
-        text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-    }
-    
-    .stats-value.offline {
-        color: var(--color-accent-danger);
-        text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-    }
-    
-    .stats-subvalue {
-        font-size: 0.75rem;
-        color: var(--color-text-secondary);
-        font-family: var(--font-mono);
+        gap: 1rem;
+        padding: 1rem;
     }
 
-    /* ============================================
-       DAEMON ALERT - ENHANCED NOTIFICATION
-       ============================================ */
-    .daemon-alert {
-        position: relative;
-        margin: 0 var(--space-8) var(--space-6);
-        background: var(--gradient-danger);
-        backdrop-filter: var(--glass-blur);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: var(--radius-lg);
-        padding: var(--space-5);
-        overflow: hidden;
-        animation: slideIn 0.5s var(--transition-bounce);
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+    @media (min-width: 640px) {
+        .page-header {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
         }
     }
-    
-    .daemon-alert::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-        opacity: 0.3;
+
+    @media (min-width: 1024px) {
+        .page-header {
+            padding: 1.5rem 2rem;
+        }
     }
-    
-    .daemon-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: flex-start;
-        gap: var(--space-4);
-    }
-    
-    .daemon-icon {
-        flex-shrink: 0;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-md);
-        animation: spin 3s linear infinite;
-    }
-    
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    .daemon-text h3 {
-        font-size: 0.875rem;
+
+    .header-title {
+        font-size: clamp(1.25rem, 3vw, 2rem);
         font-weight: 700;
-        color: #fecaca;
-        margin-bottom: var(--space-1);
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.8) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
-    
-    .daemon-text p {
-        font-size: 0.8125rem;
-        color: rgba(254, 202, 202, 0.8);
+
+    .header-subtitle {
+        font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+        color: #9ca3af;
+        margin-top: 0.25rem;
         line-height: 1.5;
     }
 
     /* ============================================
-       EULA MODAL - PREMIUM DIALOG
+       BUTTONS CONTAINER
        ============================================ */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
+    .actions-container {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: var(--glass-blur-heavy);
-        z-index: 100;
-        padding: var(--space-4);
-        animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
-    .eula-modal {
+        flex-wrap: wrap;
+        gap: 0.5rem;
         width: 100%;
-        max-width: 480px;
-        max-height: 90vh;
-        overflow-y: auto;
-        background: linear-gradient(135deg, rgba(30, 30, 45, 0.95) 0%, rgba(20, 20, 35, 0.95) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-xl);
-        padding: var(--space-8);
-        box-shadow: var(--shadow-elevated), 0 0 0 1px rgba(255, 255, 255, 0.05);
-        animation: modalSlide 0.4s var(--transition-bounce);
     }
-    
-    @keyframes modalSlide {
-        from {
-            opacity: 0;
-            transform: scale(0.9) translateY(20px);
+
+    @media (min-width: 640px) {
+        .actions-container {
+            width: auto;
+            flex-wrap: nowrap;
+            gap: 0.75rem;
         }
-        to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
-    
-    .eula-header {
-        display: flex;
-        align-items: center;
-        gap: var(--space-3);
-        margin-bottom: var(--space-5);
-    }
-    
-    .eula-icon {
-        width: 48px;
-        height: 48px;
-        color: #fbbf24;
-        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
-    }
-    
-    .eula-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: white;
-    }
-    
-    .eula-text {
-        font-size: 0.875rem;
-        line-height: 1.7;
-        color: var(--color-text-secondary);
-        margin-bottom: var(--space-6);
-    }
-    
-    .eula-text a {
-        color: white;
-        font-weight: 600;
-        text-decoration: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        transition: var(--transition-fast);
-    }
-    
-    .eula-text a:hover {
-        border-color: white;
-    }
-    
-    .eula-btn {
-        width: 100%;
-        padding: var(--space-4);
-        background: white;
-        color: #0f0f1e;
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        font-weight: 700;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        transition: var(--transition-base);
-        box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
-    }
-    
-    .eula-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
-    }
-    
-    .eula-btn:active {
-        transform: translateY(0);
     }
 
     /* ============================================
-       NOTIFICATION TOAST
+       STATS GRID MOBILE OPTIMIZATION
        ============================================ */
-    #notification {
-        position: fixed;
-        bottom: var(--space-6);
-        right: var(--space-6);
-        padding: var(--space-4) var(--space-6);
-        background: var(--glass-bg);
+    @media (max-width: 639px) {
+        .stats-grid-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .stats-grid-mobile .stats-card {
+            height: 80px;
+        }
+    }
+
+    @media (min-width: 640px) and (max-width: 1023px) {
+        .stats-grid-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+    }
+
+    /* ============================================
+       DAEMON ALERT - MODERN STYLING
+       ============================================ */
+    .daemon-alert {
+        background: rgba(239, 68, 68, 0.1);
         backdrop-filter: var(--glass-blur);
-        border: 1px solid var(--glass-border);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid rgba(239, 68, 68, 0.2);
         border-radius: var(--radius-lg);
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    @media (min-width: 640px) {
+        .daemon-alert {
+            padding: 1.25rem;
+        }
+    }
+
+    /* ============================================
+       TERMINAL INPUT - MODERN STYLING
+       ============================================ */
+    .terminal-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(10, 10, 10, 0.6);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-top: none;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
         color: white;
         font-size: 0.875rem;
-        font-weight: 500;
-        box-shadow: var(--shadow-lg);
-        z-index: 50;
-        transform: translateY(100px);
-        opacity: 0;
+        font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
         transition: var(--transition-smooth);
     }
-    
-    #notification.show {
-        transform: translateY(0);
-        opacity: 1;
+
+    .terminal-input:focus {
+        outline: none;
+        background: rgba(10, 10, 10, 0.8);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
     }
-    
-    @media (max-width: 640px) {
-        #notification {
-            left: var(--space-4);
-            right: var(--space-4);
-            bottom: var(--space-4);
+
+    .terminal-input::placeholder {
+        color: #525252;
+    }
+
+    @media (min-width: 640px) {
+        .terminal-input {
+            padding: 1rem 1.25rem;
+            font-size: 0.9375rem;
         }
     }
 
     /* ============================================
-       LOADING STATES & SKELETONS
+       TOUCH FRIENDLY IMPROVEMENTS
        ============================================ */
-    .skeleton {
-        background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-        border-radius: var(--radius-sm);
-    }
-    
-    @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+    @media (hover: none) and (pointer: coarse) {
+        .action-btn {
+            min-height: 44px;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .terminal-input {
+            min-height: 48px;
+            font-size: 16px;
+        }
     }
 
     /* ============================================
-       ACCESSIBILITY & REDUCED MOTION
+       SMOOTH TRANSITIONS
+       ============================================ */
+    .stats-card, .action-btn, .info-card {
+        transition: var(--transition-smooth);
+    }
+
+    /* ============================================
+       FOCUS STATES FOR ACCESSIBILITY
+       ============================================ */
+    .terminal-input:focus,
+    .action-btn:focus-visible,
+    button:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.3);
+        outline-offset: 2px;
+    }
+
+    /* ============================================
+       NOTIFICATION RESPONSIVE
+       ============================================ */
+    @media (max-width: 639px) {
+        #notification {
+            left: 1rem;
+            right: 1rem;
+            bottom: 1rem;
+        }
+    }
+
+    /* ============================================
+       UTILITY CLASSES
+       ============================================ */
+    .text-gradient {
+        background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.8) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .truncate-address {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+        display: block;
+    }
+
+    /* Metric text styling */
+    .metric-label {
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+    }
+
+    @media (min-width: 640px) {
+        .metric-label {
+            font-size: 0.75rem;
+        }
+    }
+
+    .metric-value {
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+    }
+
+    /* Status colors */
+    .status-online {
+        color: #10b981;
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .status-offline {
+        color: #ef4444;
+        text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ============================================
+       REDUCED MOTION SUPPORT
        ============================================ */
     @media (prefers-reduced-motion: reduce) {
         *,
@@ -1014,109 +722,68 @@
             transition-duration: 0.01ms !important;
         }
     }
-    
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border-width: 0;
-    }
 
     /* ============================================
        SCROLLBAR STYLING
        ============================================ */
-    ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.1) transparent;
     }
-    
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 5px;
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
     }
-    
-    ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 5px;
-        border: 2px solid transparent;
-        background-clip: padding-box;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-    
-    ::-webkit-scrollbar-corner {
+
+    *::-webkit-scrollbar-track {
         background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.2);
     }
 </style>
 
-<!-- Dynamic Background -->
-<div class="bg-mesh"></div>
-
-<main class="relative min-h-screen text-white overflow-x-hidden" id="content">
-    <% if (false) { %>
-        <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
-            <div class="modal-overlay">
-                <div class="eula-modal">
-                    <div class="eula-header">
-                        <svg class="eula-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                        </svg>
-                        <div>
-                            <p class="eula-title">Minecraft EULA Agreement</p>
-                            <p class="text-sm text-neutral-400 mt-1">License Agreement Required</p>
-                        </div>
-                    </div>
-                    <p class="eula-text">
-                        By clicking "I Agree" below, you acknowledge that you have read, understood, and agree to be bound by the terms of the <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" rel="noopener noreferrer">Minecraft End User License Agreement</a>. This server will not start until the EULA is accepted.
-                    </p>
-                    <button 
-                        onclick="acceptEula()" 
-                        class="eula-btn">
-                        I Agree to the EULA
-                    </button>
-                </div>
-            </div>
-        <% } %>
-    <% } %>
+<main class="overflow-hidden min-h-screen bg-transparent" id="content">
     
-    <!-- Header Section -->
-    <div class="page-header">
-        <div class="header-content">
-            <div class="header-brand">
+    <div class="bg-transparent">
+        <div class="page-header">
+            <div class="flex-1 min-w-0">
                 <h1 class="header-title"><%= req.translations.manageInstance %></h1>
                 <p class="header-subtitle"><%= req.translations.manageInstanceText %></p>
             </div>
-            
             <div class="actions-container">
-                <button id="startButton" type="button" class="action-btn btn-start gpu-accelerated">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <!-- Start Button -->
+                <button id="startButton" type="button" class="action-btn btn-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                         <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="full"><%= req.translations.start %></span>
-                    <span class="short">Start</span>
+                    <span class="hidden sm:inline"><%= req.translations.start %></span>
+                    <span class="sm:hidden">Start</span>
                 </button>
 
-                <button id="restartButton" type="button" class="action-btn btn-restart gpu-accelerated">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <!-- Restart Button -->
+                <button id="restartButton" type="button" class="action-btn btn-restart">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                         <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="full"><%= req.translations.restart %></span>
-                    <span class="short">Restart</span>
+                    <span class="hidden sm:inline"><%= req.translations.restart %></span>
+                    <span class="sm:hidden">Restart</span>
                 </button>
 
-                <button id="stopButton" type="button" class="action-btn btn-stop gpu-accelerated">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <!-- Stop Button -->
+                <button id="stopButton" type="button" class="action-btn btn-stop">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                         <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="full"><%= req.translations.stop %></span>
-                    <span class="short">Stop</span>
+                    <span class="hidden sm:inline"><%= req.translations.stop %></span>
+                    <span class="sm:hidden">Stop</span>
                 </button>
             </div>
         </div>
@@ -1125,339 +792,305 @@
     <%- include('../components/instance') %>
     
     <!-- Info Cards Grid -->
-    <section class="info-section">
+    <div class="mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
         <dl class="info-grid">
-            <!-- Address Card -->
-            <div class="info-card gpu-accelerated">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label"><%= req.translations.address %></dt>
-                        <dd class="info-value">
+            <!-- Address Card - Click to Copy -->
+            <div class="info-card group" id="addressCard" onclick="copyToClipboard('<%= instance.Node.address %>:<%= instance.Primary %>', 'addressCard')">
+                <div class="flex-grow min-w-0">
+                    <dt class="metric-label">IP Address</dt>
+                    <dd class="mt-1 text-base sm:text-lg font-semibold tracking-tight text-white">
+                        <span class="truncate-address" id="ipAddress">
                             <%= instance.Node.address %><span class="text-neutral-500">:<%= instance.Primary %></span>
-                        </dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
-                        </svg>
-                    </div>
+                        </span>
+                    </dd>
                 </div>
+                <div class="info-icon-wrapper">
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5"/>
+                    </svg>
+                </div>
+                <div class="copy-tooltip" id="tooltip-addressCard">Copied!</div>
             </div>
 
             <!-- Template Card -->
-            <div class="info-card gpu-accelerated">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label">Template</dt>
-                        <dd class="info-value">
-                            <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
-                        </dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
-                        </svg>
-                    </div>
+            <div class="info-card group">
+                <div class="flex-grow min-w-0">
+                    <dt class="metric-label">Template</dt>
+                    <dd class="mt-1 text-base sm:text-lg font-semibold tracking-tight text-white truncate">
+                        <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
+                    </dd>
+                </div>
+                <div class="info-icon-wrapper">
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+                    </svg>
                 </div>
             </div>
 
             <!-- Node Card -->
-            <div class="info-card gpu-accelerated">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label"><%= req.translations.node %></dt>
-                        <dd class="info-value"><%= instance.Node.name %></dd>
-                        <dd class="info-value secondary"><%= instance.Node.address %></dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
-                        </svg>
-                    </div>
+            <div class="info-card group">
+                <div class="flex-grow min-w-0">
+                    <dt class="metric-label"><%= req.translations.node %></dt>
+                    <dd class="mt-1 text-base sm:text-lg font-semibold tracking-tight text-white">
+                        <span class="truncate block"><%= instance.Node.name %></span>
+                        <span class="text-neutral-500 text-xs sm:text-sm truncate block font-normal">(<%= instance.Node.address %>)</span>
+                    </dd>
+                </div>
+                <div class="info-icon-wrapper">
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
+                    </svg>
                 </div>
             </div>
 
             <!-- Identifier Card -->
-            <div class="info-card gpu-accelerated">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label"><%= req.translations.identifier %></dt>
-                        <dd class="info-value font-mono"><%= req.params.id %></dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                        </svg>
-                    </div>
+            <div class="info-card group">
+                <div class="flex-grow min-w-0">
+                    <dt class="metric-label"><%= req.translations.identifier %></dt>
+                    <dd class="mt-1 text-sm sm:text-base font-semibold tracking-tight text-white font-mono truncate">
+                        <%= req.params.id %>
+                    </dd>
+                </div>
+                <div class="info-icon-wrapper">
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                    </svg>
                 </div>
             </div>
         </dl>
-    </section>
+    </div>
 
     <!-- Daemon Down Alert -->
-    <div class="daemon-alert hidden" id="daemonIsDown">
-        <div class="daemon-content">
-            <div class="daemon-icon">
-                <svg class="w-5 h-5 text-red-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    <div class="daemon-alert hidden mx-4 sm:mx-6 lg:mx-8 mt-4 sm:mt-6" id="daemonIsDown">
+        <div class="flex items-start gap-3 sm:gap-4">
+            <div class="flex-shrink-0">
+                <svg class="animate-spin h-5 w-5 text-red-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </div>
-            <div class="daemon-text">
-                <h3><%= req.translations.connectionFailure %></h3>
-                <p><%= req.translations.connectionFailureText %></p>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-red-400"><%= req.translations.connectionFailure %></h3>
+                <div class="text-xs sm:text-sm text-red-400/70 mt-1 leading-relaxed">
+                    <p><%= req.translations.connectionFailureText %></p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Main Layout: Console + Stats -->
-    <div class="main-layout">
-        <!-- Console Section -->
-        <div class="console-section">
-            <div class="terminal-container">
-                <div class="terminal-header">
-                    <div class="terminal-title">
-                        <span>Instance Console</span>
-                        <span class="text-xs px-2 py-0.5 bg-white/10 rounded-full">Live</span>
-                    </div>
-                    <div class="terminal-dots">
-                        <span class="terminal-dot red"></span>
-                        <span class="terminal-dot yellow"></span>
-                        <span class="terminal-dot green"></span>
-                    </div>
+    <div class="main-layout px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
+        <!-- Left side: Console -->
+        <div class="console-section w-full">
+            <div class="bg-[#0a0a0a]/80 backdrop-blur-sm rounded-t-xl overflow-hidden border border-white/5 border-b-0">
+                <!-- Terminal Controls Bar -->
+                <div class="terminal-controls">
+                    <button class="terminal-control-btn" onclick="clearTerminal()" title="Clear Terminal">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                        </svg>
+                        Clear
+                    </button>
+                    <button class="terminal-control-btn danger" onclick="sendTerminalCommand('stop')" title="Stop Server">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z"/>
+                        </svg>
+                        Stop
+                    </button>
+                    <button class="terminal-control-btn" onclick="sendTerminalCommand('restart')" title="Restart Server">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                        </svg>
+                        Restart
+                    </button>
+                    <button class="terminal-control-btn" onclick="sendTerminalCommand('kill')" title="Force Kill">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                        </svg>
+                        Kill
+                    </button>
+                    <div style="flex: 1;"></div>
+                    <span style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: monospace;">Console</span>
                 </div>
                 <div id="terminal"></div>
-                <div class="terminal-input-wrapper">
-                    <span class="terminal-prompt">~</span>
-                    <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" spellcheck="false">
-                </div>
             </div>
+            <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" class="terminal-input rounded-b-xl">
         </div>
         
-        <!-- Stats Section -->
-        <div class="stats-section">
-            <div class="stats-grid">
-                <!-- Status Card -->
-                <div class="stats-card gpu-accelerated" id="statusCard">
-                    <canvas id="statusChart"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.status %></span>
-                            <span class="stats-indicator" id="statusIndicator"></span>
-                        </div>
-                        <p id="status" class="stats-value">-</p>
-                    </div>
+        <!-- Right side: Stats Cards -->
+        <div class="stats-section w-full stats-grid-mobile lg:block space-y-3 sm:space-y-4">
+            <!-- Status Card -->
+            <div class="stats-card px-4 py-3 sm:py-4">
+                <canvas id="statusChart"></canvas>
+                <div class="relative z-10 h-full flex flex-col justify-center">
+                    <h2 class="metric-label"><%= req.translations.status %></h2>
+                    <p id="status" class="mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value">-</p>
                 </div>
-                
-                <!-- RAM Usage Card -->
-                <div class="stats-card gpu-accelerated">
-                    <canvas id="ramChart"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.ramUsage %></span>
-                        </div>
-                        <p id="ramUsage" class="stats-value small">-</p>
-                        <p id="ramSubvalue" class="stats-subvalue">Calculating...</p>
-                    </div>
+            </div>
+            
+            <!-- RAM Usage Card -->
+            <div class="stats-card px-4 py-3 sm:py-4">
+                <canvas id="ramChart"></canvas>
+                <div class="relative z-10 h-full flex flex-col justify-center">
+                    <h2 class="metric-label"><%= req.translations.ramUsage %></h2>
+                    <p id="ramUsage" class="mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-white truncate">-</p>
                 </div>
-                
-                <!-- CPU Usage Card -->
-                <div class="stats-card gpu-accelerated">
-                    <canvas id="cpuChart"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.cpuUsage %></span>
-                        </div>
-                        <p id="cpuUsage" class="stats-value">-</p>
-                    </div>
+            </div>
+            
+            <!-- CPU Usage Card -->
+            <div class="stats-card px-4 py-3 sm:py-4">
+                <canvas id="cpuChart"></canvas>
+                <div class="relative z-10 h-full flex flex-col justify-center">
+                    <h2 class="metric-label"><%= req.translations.cpuUsage %></h2>
+                    <p id="cpuUsage" class="mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value text-white">-</p>
                 </div>
-                
-                <!-- Disk Usage Card -->
-                <div class="stats-card gpu-accelerated">
-                    <canvas id="diskChart" class="hidden"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.diskUsage %></span>
-                        </div>
-                        <p id="diskUsage" class="stats-value small">-</p>
-                        <p id="diskSubvalue" class="stats-subvalue">Calculating...</p>
-                    </div>
+            </div>
+            
+            <!-- Disk Usage Card -->
+            <div class="stats-card px-4 py-3 sm:py-4">
+                <canvas id="diskChart" class="hidden"></canvas>
+                <div class="relative z-10 h-full flex flex-col justify-center">
+                    <h2 class="metric-label"><%= req.translations.diskUsage %></h2>
+                    <p id="diskUsage" class="mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-white truncate">-</p>
                 </div>
             </div>
         </div>
     </div>
 </main>
 
-<!-- Notification Toast -->
-<div id="notification" role="status" aria-live="polite"></div>
-
 <script>
-    // ============================================
-    // THEME & CONFIGURATION
-    // ============================================
     const baseTheme = {
-        foreground: '#e2e8f0',
-        background: 'transparent',
-        selection: 'rgba(99, 102, 241, 0.3)',
-        black: '#0f0f1e',
-        brightBlack: '#1e1e2e',
-        red: '#f87171',
-        brightRed: '#fca5a5',
-        green: '#34d399',
-        brightGreen: '#6ee7b7',
-        yellow: '#fbbf24',
-        brightYellow: '#fcd34d',
-        blue: '#60a5fa',
-        brightBlue: '#93c5fd',
-        magenta: '#c084fc',
-        brightMagenta: '#d8b4fe',
-        cyan: '#22d3ee',
-        brightCyan: '#67e8f9',
-        white: '#f1f5f9',
+        foreground: '#c5c9d1',
+        background: 'rgba(0 0 0 / 0)',
+        selection: '#5DA5D533',
+        black: '#1E1E1D',
+        brightBlack: '#262625',
+        red: '#E54B4B',
+        green: '#9ECE58',
+        yellow: '#FAED70',
+        blue: '#396FE2',
+        magenta: '#BB80B3',
+        cyan: '#2DDAFD',
+        white: '#d0d0d0',
+        brightBlack: 'rgba(255, 255, 255, 0.2)',
+        brightRed: '#FF5370',
+        brightGreen: '#C3E88D',
+        brightYellow: '#FFCB6B',
+        brightBlue: '#82AAFF',
+        brightMagenta: '#C792EA',
+        brightCyan: '#89DDFF',
         brightWhite: '#ffffff',
-        cursor: '#6366f1',
-        cursorAccent: '#1e1b4b',
     };
     
-    // ============================================
-    // STATE MANAGEMENT
-    // ============================================
-    const state = {
-        protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
-        instanceId: '<%= req.params.id %>',
-        maxCommands: 50,
-        commandHistory: [],
-        currentCommandIndex: -1,
-        term: null,
-        ws: null,
-        statsWs: null,
-        eulaModalShown: false,
-        reconnectAttempts: 0,
-        maxReconnectAttempts: 10,
-        charts: {},
-        lastStats: null
-    };
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const instanceId = '<%= req.params.id %>';
+    const maxCommands = 10;
+    let commandHistory = [];
+    let currentCommandIndex = -1;
+    let term;
+    let ws;
     
     // ============================================
-    // UTILITY FUNCTIONS
+    // CLIPBOARD FUNCTIONALITY
     // ============================================
-    const utils = {
-        debounce: (fn, delay) => {
-            let timeout;
-            return (...args) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => fn(...args), delay);
-            };
-        },
-        
-        throttle: (fn, limit) => {
-            let inThrottle;
-            return (...args) => {
-                if (!inThrottle) {
-                    fn(...args);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
-                }
-            };
-        },
-        
-        formatBytes: (bytes, decimals = 2) => {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        },
-        
-        isValidJson: (str) => {
-            try {
-                JSON.parse(str);
-                return true;
-            } catch {
-                return false;
+    async function copyToClipboard(text, elementId) {
+        try {
+            await navigator.clipboard.writeText(text);
+            
+            // Visual feedback
+            const card = document.getElementById(elementId);
+            const tooltip = document.getElementById(`tooltip-${elementId}`);
+            
+            if (card) {
+                card.classList.add('copied');
+                setTimeout(() => card.classList.remove('copied'), 600);
             }
-        },
-        
-        showNotification: (message, type = 'info') => {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = 'show';
-            setTimeout(() => notification.classList.remove('show'), 3000);
+            
+            if (tooltip) {
+                tooltip.classList.add('show');
+                setTimeout(() => tooltip.classList.remove('show'), 1500);
+            }
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const card = document.getElementById(elementId);
+                if (card) {
+                    card.classList.add('copied');
+                    setTimeout(() => card.classList.remove('copied'), 600);
+                }
+            } catch (e) {
+                console.error('Fallback copy failed:', e);
+            }
+            document.body.removeChild(textArea);
         }
-    };
-    
-    // ============================================
-    // TERMINAL MANAGEMENT
-    // ============================================
-    function initTerminal() {
-        const screenWidth = window.innerWidth;
-        const config = {
-            cols: screenWidth < 640 ? 40 : screenWidth < 1024 ? 80 : 100,
-            rows: screenWidth < 640 ? 20 : 24,
-            fontSize: screenWidth < 640 ? 12 : 14,
-        };
-        
-        state.term = new Terminal({
-            disableStdin: true,
-            allowProposedApi: true,
-            lineHeight: 1.5,
-            rows: config.rows,
-            cols: config.cols,
-            fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Courier New, monospace',
-            fontSize: config.fontSize,
-            theme: baseTheme,
-            allowTransparency: true,
-            cursorBlink: false,
-            scrollback: 5000,
-            smoothScrollDuration: 0,
-            fastScrollModifier: 'alt',
-            fastScrollSensitivity: 5,
-        });
-        
-        state.term.open(document.getElementById('terminal'));
-        
-        // Optimized resize handler
-        const handleResize = utils.debounce(() => {
-            const newWidth = window.innerWidth;
-            const newConfig = {
-                cols: newWidth < 640 ? 40 : newWidth < 1024 ? 80 : 100,
-                rows: newWidth < 640 ? 20 : 24,
-            };
-            state.term.resize(newConfig.cols, newConfig.rows);
-        }, 250);
-        
-        window.addEventListener('resize', handleResize, { passive: true });
     }
     
     // ============================================
-    // WEBSOCKET MANAGEMENT
+    // TERMINAL CONTROLS
     // ============================================
+    function clearTerminal() {
+        if (term) {
+            term.clear();
+            term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mTerminal cleared.\r\n');
+        }
+    }
+    
+    function sendTerminalCommand(command) {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            if (term) term.write('\r\n\u001b[1m\u001b[31m[panel] \u001b[0mNot connected to server.\r\n');
+            return;
+        }
+        
+        const commands = {
+            'stop': 'stop',
+            'restart': 'restart',
+            'kill': 'kill'
+        };
+        
+        const actualCommand = commands[command] || command;
+        
+        term.write(`\r\n\u001b[1m\u001b[36m[panel] \u001b[0mExecuting: ${actualCommand}...\r\n`);
+        
+        // Send as power action for stop/restart/kill
+        if (['stop', 'restart', 'kill'].includes(actualCommand)) {
+            axios.post(`/instance/${instanceId}/power`, { action: actualCommand })
+                .then(() => {
+                    term.write(`\u001b[1m\u001b[32m[panel] \u001b[0m${actualCommand} command sent successfully.\r\n`);
+                })
+                .catch(err => {
+                    term.write(`\u001b[1m\u001b[31m[panel] \u001b[0mFailed to send ${actualCommand}: ${err.message}\r\n`);
+                });
+        } else {
+            ws.send(JSON.stringify({
+                event: 'cmd',
+                command: actualCommand,
+                containerId: instanceId
+            }));
+        }
+    }
+    
     function initWebSocket() {
         const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `${state.protocol}://${window.location.hostname}${port}/console/${state.instanceId}`;
+        ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
         
-        state.ws = new WebSocket(wsUrl);
-        
-        state.ws.onopen = () => {
-            console.log('WebSocket connected');
-            state.reconnectAttempts = 0;
-            document.getElementById('daemonIsDown').classList.add('hidden');
+        ws.onopen = () => console.log('WebSocket connected!');
+        ws.onmessage = handleWebSocketMessage;
+        ws.onclose = () => {
+            console.log('WebSocket connection closed, attempting to reconnect...');
+            setTimeout(initWebSocket, 3000);
         };
-        
-        state.ws.onmessage = handleWebSocketMessage;
-        
-        state.ws.onclose = () => {
-            if (state.reconnectAttempts < state.maxReconnectAttempts) {
-                const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts), 30000);
-                setTimeout(initWebSocket, delay);
-                state.reconnectAttempts++;
-            }
-        };
-        
-        state.ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
+        ws.onerror = (error) => {
+            console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
+            setTimeout(initWebSocket, 5000);
         };
     }
     
@@ -1465,350 +1098,372 @@
         const lines = msg.data.split('\n');
         let isFirstLine = true;
         let previousLineWasEmpty = false;
-        
-        // Batch write for performance
-        let output = '';
-        
+    
         lines.forEach(line => {
             const trimmedLine = line.trim();
             if (trimmedLine === '' && previousLineWasEmpty) return;
             
-            // EULA Detection
-            if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
-                !state.eulaModalShown) {
-                showEulaModal();
-            }
-            
             if (!isFirstLine && !previousLineWasEmpty) {
-                output += '\r\n';
+                term.write('\r\n');
             }
-            
-            output += '\x1b[0m' + trimmedLine;
-            
-            // Handle special messages
+    
+            term.write('\x1b[0m' + trimmedLine);
+    
             if (trimmedLine.includes("Working on")) {
-                output += '\r\n\u001b[1m\u001b[33m[panel] \u001b[0mReconnecting...';
-                state.ws.close();
+                term.write('\r\n\u001b[1m\u001b[33m[panel] \u001b[0mreconnecting socket, hold on...');
+                term.clear();
+                ws.close();
             }
             
             if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                state.ws.close();
+                ws.close();
                 document.getElementById('daemonIsDown').classList.remove('hidden');
+            } else {
+                document.getElementById('daemonIsDown').classList.add('hidden');
             }
-            
+    
             isFirstLine = false;
             previousLineWasEmpty = (trimmedLine === '');
         });
-        
-        state.term.write(output);
     }
     
-    // ============================================
-    // STATS WEBSOCKET
-    // ============================================
-    function initStatsWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `${state.protocol}://${window.location.hostname}${port}/stats/${state.instanceId}`;
+    function setupTerminal() {
+        const screenWidth = window.innerWidth;
+        let cols = 80;
+        let rows = 16;
         
-        state.statsWs = new WebSocket(wsUrl);
-        
-        state.statsWs.onmessage = utils.throttle((event) => {
-            if (!utils.isValidJson(event.data)) return;
-            
-            const stats = JSON.parse(event.data);
-            if (stats.error) {
-                console.error('Stats error:', stats.error);
-                return;
-            }
-            
-            state.lastStats = stats;
-            updateStats(stats);
-        }, 1000); // Throttle to 1 second
-        
-        state.statsWs.onclose = () => {
-            setTimeout(initStatsWebSocket, 5000);
-        };
-    }
-    
-    // ============================================
-    // STATS CHARTS & UPDATES
-    // ============================================
-    function initCharts() {
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
-            animation: { duration: 0 },
-            elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.4 } }
-        };
-        
-        const createChart = (id, color, type = 'line') => {
-            const ctx = document.getElementById(id);
-            if (!ctx) return null;
-            
-            return new Chart(ctx, {
-                type: type,
-                data: {
-                    labels: Array(20).fill(''),
-                    datasets: [{
-                        data: Array(20).fill(0),
-                        borderColor: color,
-                        backgroundColor: type === 'line' ? `${color}20` : `${color}40`,
-                        fill: type === 'line',
-                    }]
-                },
-                options: commonOptions
-            });
-        };
-        
-        state.charts.status = createChart('statusChart', '#10b981');
-        state.charts.ram = createChart('ramChart', '#818cf8');
-        state.charts.cpu = createChart('cpuChart', '#fbbf24');
-    }
-    
-    function updateStats(stats) {
-        // RAM
-        const ramUsage = stats.memory_stats?.usage || 0;
-        const ramLimit = stats.memory_stats?.limit || 0;
-        const ramPercent = ramLimit > 0 ? ((ramUsage / ramLimit) * 100).toFixed(1) : 0;
-        
-        document.getElementById('ramUsage').textContent = `${ramPercent}%`;
-        document.getElementById('ramSubvalue').textContent = 
-            `${utils.formatBytes(ramUsage)} / ${utils.formatBytes(ramLimit)}`;
-        updateChart(state.charts.ram, ramPercent);
-        
-        // CPU
-        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage) || 0;
-        const systemDelta = (stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage) || 0;
-        const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
-        
-        document.getElementById('cpuUsage').textContent = `${cpuPercent}%`;
-        updateChart(state.charts.cpu, cpuPercent);
-        
-        // Disk
-        const diskUsage = parseFloat(stats.volumeSize) || 0;
-        const diskLimit = <%= instance.Disk || 0 %>;
-        const diskEl = document.getElementById('diskUsage');
-        const diskSubEl = document.getElementById('diskSubvalue');
-        
-        if (diskLimit === 0) {
-            diskEl.textContent = utils.formatBytes(diskUsage * 1024 * 1024);
-            diskSubEl.textContent = 'Unlimited';
-            diskEl.style.color = '#34d399';
+        if (screenWidth < 640) {
+            cols = 32;
+            rows = 12;
+        } else if (screenWidth < 1024) {
+            cols = 60;
+            rows = 18;
         } else {
-            const diskPercent = ((diskUsage / diskLimit) * 100).toFixed(1);
-            diskEl.textContent = `${diskPercent}%`;
-            diskSubEl.textContent = `${utils.formatBytes(diskUsage * 1024 * 1024)} / ${utils.formatBytes(diskLimit * 1024 * 1024)}`;
-            diskEl.style.color = diskPercent > 90 ? '#f87171' : diskPercent > 70 ? '#fbbf24' : '#34d399';
+            cols = 80;
+            rows = 22;
         }
         
-        // Status
-        const statusEl = document.getElementById('status');
-        const statusCard = document.getElementById('statusCard');
-        const indicator = document.getElementById('statusIndicator');
-        const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
+        term = new Terminal({
+            disableStdin: true,
+            allowProposedApi: true,
+            lineHeight: 1.35,
+            rows: rows,
+            cols: cols,
+            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+            theme: baseTheme,
+            allowTransparency: true,
+            fontSize: screenWidth < 640 ? 10 : 12,
+            cursorBlink: false,
+            scrollback: 1000,
+        });
         
-        if (isRunning) {
-            statusEl.textContent = 'Online';
-            statusEl.className = 'stats-value online';
-            statusCard.classList.add('online');
-            statusCard.classList.remove('offline');
-            indicator.style.background = '#34d399';
-            indicator.style.color = '#34d399';
-            updateStatusChart('#10b981');
+        term.open(document.getElementById('terminal'));
+        
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const newWidth = window.innerWidth;
+                let newCols = 80;
+                let newRows = 22;
+                
+                if (newWidth < 640) {
+                    newCols = 32;
+                    newRows = 12;
+                } else if (newWidth < 1024) {
+                    newCols = 60;
+                    newRows = 18;
+                }
+                
+                term.resize(newCols, newRows);
+            }, 250);
+        });
+    }
+    
+    function sendCommand() {
+        const inputElement = document.getElementById('input');
+        const command = inputElement.value.trim();
+        if (command && ws) {
+            term.write('\r\n\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
+            ws.send(JSON.stringify({
+                event: 'cmd',
+                command: command,
+                containerId: instanceId
+            }));
+    
+            if (commandHistory.length === maxCommands) {
+                commandHistory.shift();
+            }
+            commandHistory.push(command);
+            currentCommandIndex = commandHistory.length;
+    
+            inputElement.value = '';
+        }
+    }
+    
+    function handleKeyUp(event) {
+        if (event.key === 'ArrowUp') {
+            if (currentCommandIndex > 0) {
+                currentCommandIndex--;
+                document.getElementById('input').value = commandHistory[currentCommandIndex];
+            }
+            event.preventDefault();
+        } else if (event.key === 'ArrowDown') {
+            if (currentCommandIndex < commandHistory.length - 1) {
+                currentCommandIndex++;
+                document.getElementById('input').value = commandHistory[currentCommandIndex];
+            } else {
+                currentCommandIndex = commandHistory.length;
+                document.getElementById('input').value = '';
+            }
+            event.preventDefault();
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        setupTerminal();
+        initWebSocket();
+    
+        const inputElement = document.getElementById('input');
+        inputElement.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                sendCommand();
+            }
+        });
+    
+        inputElement.addEventListener('keydown', handleKeyUp);
+    
+        // Power buttons - NO CONFIRMATION
+        ['start', 'stop', 'restart'].forEach(action => {
+            const btn = document.getElementById(`${action}Button`);
+            if (!btn) return;
+            btn.addEventListener('click', async function () {
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Processing...</span>`;
+
+                try {
+                    const res = await axios.post(`/instance/<%= req.params.id %>/power`, { action });
+                    if (res.status === 200) {
+                        btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> <span>${action.charAt(0).toUpperCase() + action.slice(1)}ed!</span>`;
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                        }, 2000);
+                    } else {
+                        throw new Error(res.data?.message || 'Unknown error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg> <span>Failed</span>`;
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                    }, 2000);
+                }
+            });
+        });
+    
+        initStatsWebSocket();
+    });
+
+    function isValidJson(str) {
+        try {
+          JSON.parse(str);
+        } catch (e) {
+          return false;
+        }
+        return true;
+    }
+    
+    function initStatsWebSocket() {
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${instanceId}`);
+        
+        statsWs.onmessage = event => {
+            if (isValidJson(event.data)) {
+                const stats = JSON.parse(event.data);
+                if (stats.error) {
+                    console.error('Error fetching stats:', stats.error);
+                    return;
+                }
+    
+                updateRamUsage(stats);
+                updateCpuUsage(stats);
+                updateDiskUsage(stats);
+                updateStatus(stats);
+            } else {
+                console.log('Received non-JSON data:', event.data);
+            }
+        };
+
+        statsWs.onclose = () => {
+            console.log('WebSocket Stats connection closed, attempting to reconnect...');
+            setTimeout(initStatsWebSocket, 3000);
+        };
+    }
+    
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+    
+    function createBackgroundChart(canvasId, type = 'line') {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return null;
+        
+        return new Chart(ctx.getContext('2d'), {
+            type: type,
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false, min: 0, max: 100 }
+                },
+                animation: { duration: 0 }
+            }
+        });
+    }
+    
+    let statusChart, ramChart, cpuChart, diskChart;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        statusChart = createBackgroundChart('statusChart');
+        ramChart = createBackgroundChart('ramChart');
+        cpuChart = createBackgroundChart('cpuChart');
+        diskChart = createBackgroundChart('diskChart', 'doughnut');
+    });
+    
+    function updateRamUsage(stats) {
+        const ramStatsUsage = stats.memory_stats?.usage || 0;
+        const ramStatsLimit = stats.memory_stats?.limit || 0;
+
+        const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
+        const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory || 1024 %>;
+        const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
+        
+        const ramElement = document.getElementById('ramUsage');
+        if (ramElement) {
+            ramElement.textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
+        }
+    
+        if (ramStatsUsage > 0 && ramChart) {
+            updateChart(ramChart, ramUsagePercent);
+        }
+    }
+    
+    function updateCpuUsage(stats) {
+        const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage || 0;
+        const systemCpuDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage || 0;
+        let cpuUsagePercent = 0;
+        
+        if (systemCpuDelta > 0) {
+            cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+        }
+    
+        if (isNaN(cpuUsagePercent)) {
+            cpuUsagePercent = 0;
+        }
+    
+        const cpuElement = document.getElementById('cpuUsage');
+        if (cpuElement) {
+            cpuElement.textContent = `${cpuUsagePercent}%`;
+        }
+        
+        if (cpuUsagePercent > 0 && cpuChart) {
+            updateChart(cpuChart, cpuUsagePercent);
+        }
+    }
+    
+    function updateDiskUsage(stats) {
+        const diskUsageRaw = parseFloat(stats.volumeSize) || 0;
+        const diskLimitMiB = <%= instance.Disk || 0 %>;
+        
+        const diskElement = document.getElementById('diskUsage');
+        if (!diskElement) return;
+        
+        if (diskLimitMiB === 0) {
+            diskElement.textContent = `${formatBytes(diskUsageRaw * 1024 * 1024)} / Unlimited`;
+            diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
         } else {
-            statusEl.textContent = 'Offline';
-            statusEl.className = 'stats-value offline';
-            statusCard.classList.add('offline');
-            statusCard.classList.remove('online');
-            indicator.style.background = '#f87171';
-            indicator.style.color = '#f87171';
-            updateStatusChart('#ef4444');
+            const diskLimitRaw = diskLimitMiB;
+            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
+            diskElement.textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
+            
+            if (parseFloat(diskUsagePercent) >= 100) {
+                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-red-500';
+            } else if (parseFloat(diskUsagePercent) >= 90) {
+                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-amber-400';
+            } else {
+                diskElement.className = 'mt-1 text-base sm:text-lg font-bold tracking-tight metric-value text-emerald-400';
+            }
+        }
+    }
+    
+    function updateStatus(stats) {
+        const statusElement = document.getElementById('status');
+        if (!statusElement) return;
+        
+        const containerStatus = (stats.status || stats.state || stats.State?.Status || '').toLowerCase();
+        const ramUsageRaw = stats.memory_stats?.usage / 1024 / 1024 || 0;
+        
+        const isOnline = containerStatus === 'running' || ramUsageRaw > 1;
+        
+        if (isOnline) {
+            statusElement.textContent = 'Online';
+            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-online';
+            updateStatusChart('rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.3)');
+        } else {
+            statusElement.textContent = 'Offline';
+            statusElement.className = 'mt-1 text-lg sm:text-xl font-bold tracking-tight metric-value status-offline';
+            updateStatusChart('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.3)');
         }
     }
     
     function updateChart(chart, value) {
         if (!chart) return;
-        const num = parseFloat(value) || 0;
-        chart.data.datasets[0].data.push(num);
-        chart.data.datasets[0].data.shift();
+        
+        const numValue = parseFloat(value) || 0;
+        chart.data.labels.push('');
+        chart.data.datasets[0].data.push(numValue);
+    
+        if (chart.data.labels.length > 20) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+    
         chart.update('none');
     }
     
-    function updateStatusChart(color) {
-        if (!state.charts.status) return;
-        state.charts.status.data.datasets[0].backgroundColor = `${color}30`;
-        state.charts.status.data.datasets[0].borderColor = color;
-        state.charts.status.data.datasets[0].data = Array(20).fill(100);
-        state.charts.status.update('none');
+    function updateStatusChart(backgroundColor, borderColor) {
+        if (!statusChart) return;
+        
+        statusChart.data.datasets[0].backgroundColor = backgroundColor;
+        statusChart.data.datasets[0].borderColor = borderColor;
+        statusChart.data.labels = [''];
+        statusChart.data.datasets[0].data = [100];
+        statusChart.update('none');
     }
-    
-    // ============================================
-    // EULA MODAL
-    // ============================================
-    function showEulaModal() {
-        if (state.eulaModalShown) return;
-        state.eulaModalShown = true;
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.id = 'eulaModal';
-        modal.innerHTML = `
-            <div class="eula-modal">
-                <div class="eula-header">
-                    <svg class="eula-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                    </svg>
-                    <div>
-                        <p class="eula-title">Minecraft EULA Agreement</p>
-                        <p class="text-sm text-neutral-400 mt-1">License Agreement Required</p>
-                    </div>
-                </div>
-                <p class="eula-text">
-                    By clicking "I Agree" below, you acknowledge that you have read, understood, and agree to be bound by the terms of the <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" rel="noopener noreferrer">Minecraft End User License Agreement</a>. This server will not start until the EULA is accepted.
-                </p>
-                <button onclick="acceptEula()" class="eula-btn">I Agree to the EULA</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
-    function acceptEula() {
-        axios.post(`/instance/${state.instanceId}/imagefeatures/eula`)
-            .then(response => {
-                if (response.status === 200) {
-                    document.getElementById('eulaModal')?.remove();
-                    state.eulaModalShown = false;
-                    utils.showNotification('EULA accepted successfully');
-                }
-            })
-            .catch(error => {
-                console.error('EULA error:', error);
-                utils.showNotification('Failed to accept EULA', 'error');
-            });
-    }
-    
-    // ============================================
-    // COMMAND INPUT
-    // ============================================
-    function initCommandInput() {
-        const input = document.getElementById('input');
-        
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendCommand();
-        });
-        
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (state.currentCommandIndex > 0) {
-                    state.currentCommandIndex--;
-                    input.value = state.commandHistory[state.currentCommandIndex];
-                }
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (state.currentCommandIndex < state.commandHistory.length - 1) {
-                    state.currentCommandIndex++;
-                    input.value = state.commandHistory[state.currentCommandIndex];
-                } else {
-                    state.currentCommandIndex = state.commandHistory.length;
-                    input.value = '';
-                }
-            }
-        });
-    }
-    
-    function sendCommand() {
-        const input = document.getElementById('input');
-        const command = input.value.trim();
-        
-        if (!command || !state.ws) return;
-        
-        state.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
-        
-        state.ws.send(JSON.stringify({
-            event: 'cmd',
-            command: command,
-            containerId: state.instanceId
-        }));
-        
-        if (state.commandHistory.length >= state.maxCommands) {
-            state.commandHistory.shift();
-        }
-        state.commandHistory.push(command);
-        state.currentCommandIndex = state.commandHistory.length;
-        
-        input.value = '';
-    }
-    
-    // ============================================
-    // POWER BUTTONS
-    // ============================================
-    function initPowerButtons() {
-        const actions = ['start', 'restart', 'stop'];
-        
-        actions.forEach(action => {
-            const btn = document.getElementById(`${action}Button`);
-            if (!btn) return;
-            
-            btn.addEventListener('click', async () => {
-                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
-                
-                const originalHTML = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = `<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Processing...</span>`;
-                
-                try {
-                    const res = await axios.post(`/instance/${state.instanceId}/power`, { action });
-                    
-                    if (res.status === 200) {
-                        btn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> <span>${action.charAt(0).toUpperCase() + action.slice(1)}ed!</span>`;
-                        utils.showNotification(`Instance ${action}ed successfully`);
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = originalHTML;
-                            btn.disabled = false;
-                        }, 2000);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    utils.showNotification(`Failed to ${action} instance`, 'error');
-                    btn.innerHTML = originalHTML;
-                    btn.disabled = false;
-                }
-            });
-        });
-    }
-    
-    // ============================================
-    // INITIALIZATION
-    // ============================================
-    document.addEventListener('DOMContentLoaded', () => {
-        initTerminal();
-        initWebSocket();
-        initStatsWebSocket();
-        initCharts();
-        initCommandInput();
-        initPowerButtons();
-        
-        // Visibility API for performance
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                // Reduce update frequency when hidden
-                if (state.statsWs) state.statsWs.onmessage = null;
-            } else {
-                // Restore when visible
-                if (state.statsWs) {
-                    state.statsWs.onmessage = utils.throttle((event) => {
-                        if (!utils.isValidJson(event.data)) return;
-                        const stats = JSON.parse(event.data);
-                        if (!stats.error) updateStats(stats);
-                    }, 1000);
-                }
-            }
-        });
-    });
 </script>
-
 <%- include('../components/footer') %>
