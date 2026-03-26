@@ -1,30 +1,98 @@
 <%- include('../components/template') %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.js"></script>
-<main id="content">
+
+<main id="content" class="min-h-screen bg-transparent">
+    <!-- Header Section -->
     <div class="bg-transparent">
-        <div class="sm:flex sm:items-center px-8 pt-4">
-           <div class="sm:flex-auto">
-              <h1 class="text-base font-medium leading-6 text-white">Manage Instance</h1>
-              <p class="mt-1 tracking-tight text-sm text-neutral-500">View, update and manage an instance on the KS Panel.</p>
-           </div>
+        <div class="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="sm:flex-auto">
+                    <h1 class="text-lg sm:text-xl font-semibold leading-7 text-white tracking-tight">
+                        Manage Instance
+                    </h1>
+                    <p class="mt-1 sm:mt-2 text-sm text-neutral-400 max-w-2xl">
+                        View, update and manage an instance on the KS Panel.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
-    <%- include('../components/instance') %>
+
+    <!-- Instance Component -->
+    <div class="px-4 sm:px-6 lg:px-8 mt-4">
+        <%- include('../components/instance') %>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
     <% 
         let formattedFile = req.query.path ? '/' + req.params.file : req.params.file;
         let query = req.query.path ? '?path=' + req.query.path : '';
     %>  
-    <h1 class="text-neutral-200 text-md px-8"><a class="text-neutral-400 hover:text-neutral-300 transition" href="../?path=<%= req.query.path %>">/app/data/<%= req.query.path %></a><%= formattedFile %></h1>
     
-    <div class="pt-8 overflow-hidden" style="height: 500px;" id="editor"></div>
-    <div class="flex mt-8 space-x-4">
-        <a href="/instance/<%= req.params.id %>/files" type="button" class="block ml-8 rounded-xl bg-transparent border border-white/5 hover:bg-neutral-600/10 px-3 py-2 text-center text-sm font-normal text-neutral-300 shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Back
-        </a>
-        <button id="saveButton" onclick="saveFile()" type="button" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2">
-            Save File
-        </button>
+    <div class="px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+        <nav class="flex items-center text-sm text-neutral-400 overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
+            <a class="hover:text-neutral-200 transition-colors duration-200 flex-shrink-0" href="../?path=<%= req.query.path %>">
+                /app/data/<%= req.query.path %>
+            </a>
+            <span class="text-neutral-300 font-medium ml-1 flex-shrink-0"><%= formattedFile %></span>
+        </nav>
     </div>
+
+    <!-- Editor Container -->
+    <div class="px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+        <div class="relative group">
+            <!-- Editor with responsive height -->
+            <div 
+                id="editor" 
+                class="w-full rounded-xl border border-white/10 bg-neutral-900/50 overflow-hidden shadow-2xl transition-all duration-300 focus-within:border-white/20 focus-within:shadow-neutral-900/50"
+                style="height: calc(100vh - 280px); min-height: 300px; max-height: 800px;"
+            ></div>
+            
+            <!-- Mobile-optimized overlay hint -->
+            <div class="absolute top-3 right-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:block">
+                <span class="text-xs text-neutral-500 bg-neutral-900/80 px-2 py-1 rounded-md border border-white/5">
+                    Ctrl+S to save
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8 pb-8 sm:pb-12">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+            <a 
+                href="/instance/<%= req.params.id %>/files" 
+                type="button" 
+                class="flex items-center justify-center gap-2 rounded-xl bg-transparent border border-white/10 hover:bg-neutral-800/50 hover:border-white/20 px-4 py-3 sm:py-2.5 text-sm font-medium text-neutral-300 shadow-lg transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 active:scale-95 touch-manipulation"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back
+            </a>
+            
+            <button 
+                id="saveButton" 
+                onclick="saveFile()" 
+                type="button" 
+                class="flex items-center justify-center gap-2 rounded-xl <%= theme['button-color'] %> px-4 py-3 sm:py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-200 focus:outline focus:outline-2 focus:outline-offset-2 hover:shadow-indigo-500/30 active:scale-95 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" id="saveIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" id="loadingIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span id="buttonText">Save File</span>
+            </button>
+        </div>
+        
+        <!-- Mobile hint -->
+        <p class="mt-3 text-xs text-neutral-500 sm:hidden text-center">
+            Changes are saved automatically when you click Save
+        </p>
+    </div>
+</main>
 
 <%
     const fileExtension = formattedFile.split('.').pop();
@@ -51,26 +119,99 @@
 %>
 
 <script>
-require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
+require.config({ 
+    paths: { 
+        'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' 
+    }
+});
+
 require(['vs/editor/editor.main'], function () {
+    // Calculate responsive font size based on screen width
+    const isMobile = window.innerWidth < 640;
+    const fontSize = isMobile ? 12 : 14;
+    
     var editor = monaco.editor.create(document.getElementById('editor'), {
         value: <%- JSON.stringify(file) %>,
         language: '<%= language %>',
-        theme: 'vs-dark'
+        theme: 'vs-dark',
+        automaticLayout: true,
+        fontSize: fontSize,
+        lineNumbers: isMobile ? 'off' : 'on',
+        minimap: { enabled: !isMobile },
+        scrollBeyondLastLine: false,
+        roundedSelection: true,
+        padding: { top: 16, bottom: 16 },
+        lineHeight: isMobile ? 20 : 24,
+        wordWrap: 'on',
+        wrappingStrategy: 'advanced',
+        renderWhitespace: 'selection',
+        bracketPairColorization: { enabled: true },
+        guides: {
+            bracketPairs: true,
+            indentation: true
+        },
+        scrollbar: {
+            useShadows: false,
+            verticalHasArrows: false,
+            horizontalHasArrows: false,
+            vertical: 'auto',
+            horizontal: 'auto'
+        }
     });
+    
     window.editor = editor;
+    
+    // Handle window resize for responsive adjustments
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            const newIsMobile = window.innerWidth < 640;
+            editor.updateOptions({
+                fontSize: newIsMobile ? 12 : 14,
+                lineNumbers: newIsMobile ? 'off' : 'on',
+                minimap: { enabled: !newIsMobile },
+                lineHeight: newIsMobile ? 20 : 24
+            });
+        }, 250);
+    });
+    
+    // Keyboard shortcut for save
     window.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault();
             saveFile();
         }
     });
+    
+    // Auto-save indicator (visual feedback only)
+    let changeTimeout;
+    editor.onDidChangeModelContent(function() {
+        const btn = document.getElementById('saveButton');
+        if (!btn.disabled) {
+            btn.classList.add('ring-2', 'ring-indigo-500/50');
+            clearTimeout(changeTimeout);
+            changeTimeout = setTimeout(function() {
+                btn.classList.remove('ring-2', 'ring-indigo-500/50');
+            }, 300);
+        }
+    });
 });
 
 function saveFile() {
     var button = document.getElementById('saveButton');
+    var buttonText = document.getElementById('buttonText');
+    var saveIcon = document.getElementById('saveIcon');
+    var loadingIcon = document.getElementById('loadingIcon');
+    
+    // Set loading state
     button.disabled = true;
-    button.textContent = 'Working on it...';
+    button.classList.add('opacity-75');
+    buttonText.textContent = 'Saving...';
+    saveIcon.classList.add('hidden');
+    loadingIcon.classList.remove('hidden');
+    loadingIcon.classList.add('animate-spin');
+    
     var fileContent = window.editor.getValue();
     var filename = <%- JSON.stringify(req.params.file) %>;
     var instanceId = <%- JSON.stringify(req.params.id) %>;
@@ -83,27 +224,135 @@ function saveFile() {
         body: JSON.stringify({
             content: fileContent
         })
-    }).then(response => response.json())
-      .then(data => {
-          if (data && data.message) {
-              button.textContent = 'Done!';
-              setTimeout(() => {
-                  button.disabled = false;
-                  button.textContent = 'Save File';
-              }, 1000);
-          } else {
-              alert('Error saving file');
-              button.disabled = false;
-              button.textContent = 'Save File';
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          alert('Failed to save the file.');
-          button.disabled = false;
-          button.textContent = 'Save File';
-      });
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.message) {
+            // Success state
+            buttonText.textContent = 'Saved!';
+            loadingIcon.classList.add('hidden');
+            loadingIcon.classList.remove('animate-spin');
+            saveIcon.classList.remove('hidden');
+            button.classList.remove('opacity-75');
+            button.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            // Reset after delay
+            setTimeout(() => {
+                button.disabled = false;
+                buttonText.textContent = 'Save File';
+                saveIcon.classList.add('hidden');
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }, 1500);
+        } else {
+            throw new Error('Invalid response');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        
+        // Error state
+        buttonText.textContent = 'Error';
+        loadingIcon.classList.add('hidden');
+        loadingIcon.classList.remove('animate-spin');
+        button.classList.remove('opacity-75');
+        button.classList.add('bg-red-600', 'hover:bg-red-700');
+        
+        // Show alert on mobile, console on desktop
+        if (window.innerWidth < 640) {
+            // Use a toast notification instead of alert on mobile
+            showToast('Failed to save file. Please try again.');
+        } else {
+            alert('Failed to save the file.');
+        }
+        
+        // Reset after delay
+        setTimeout(() => {
+            button.disabled = false;
+            buttonText.textContent = 'Save File';
+            button.classList.remove('bg-red-600', 'hover:bg-red-700');
+        }, 2000);
+    });
+}
+
+// Toast notification for mobile
+function showToast(message) {
+    const existingToast = document.querySelector('.mobile-toast');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'mobile-toast fixed bottom-4 left-4 right-4 bg-neutral-800 border border-white/10 text-white px-4 py-3 rounded-xl shadow-2xl z-50 text-sm font-medium text-center transform transition-all duration-300 translate-y-0';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateY(100px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 </script>
-</main>
+
+<style>
+/* Custom scrollbar hiding for breadcrumb */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Touch optimization */
+.touch-manipulation {
+    touch-action: manipulation;
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Editor container focus states */
+#editor:focus-within {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+    .monaco-editor .overflow-guard {
+        border-radius: 0.75rem;
+    }
+    
+    /* Ensure buttons are easy to tap */
+    button, a {
+        min-height: 44px;
+    }
+}
+
+/* Desktop enhancements */
+@media (min-width: 641px) {
+    #editor {
+        height: calc(100vh - 240px) !important;
+    }
+}
+
+/* High DPI screen optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .monaco-editor {
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+/* Dark mode consistency */
+@media (prefers-color-scheme: dark) {
+    ::selection {
+        background: rgba(99, 102, 241, 0.3);
+    }
+}
+</style>
+
 <%- include('../components/footer') %>
