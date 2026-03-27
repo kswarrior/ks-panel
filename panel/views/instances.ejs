@@ -87,6 +87,7 @@
             onclick="window.location.href = '../instance/<%= instance.Id %>';"
             class="instance-card group cursor-pointer bg-white/5 rounded-2xl p-5 border border-white/10 hover:bg-white/[0.08] transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/20 relative overflow-hidden"
             data-instance-id="<%= instance.Id %>"
+            data-disk-limit="<%= instance.Disk || 0 %>"
           >
             <!-- Suspended Overlay -->
             <% if (instance.suspended === true) { %>
@@ -354,8 +355,9 @@
     const instances = document.querySelectorAll('[data-instance-id]');
     instances.forEach(instance => {
       const containerId = instance.dataset.instanceId;
+      const diskLimitRawFromServer = parseFloat(instance.dataset.diskLimit) || 0;
       
-      // ✅ FIXED: Exact same reliable WebSocket URL construction as the working detail page
+      // ✅ FIXED: Exact same reliable WebSocket URL construction as the working detail page (instance.ejs)
       const port = window.location.port ? `:${window.location.port}` : '';
       const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
       const socket = new WebSocket(`${wsProtocol}://${window.location.hostname}${port}/stats/${containerId}`);
@@ -457,37 +459,36 @@
           return;
         }
 
-        // RAM
+        // RAM (matches detail page logic - percent + bytes in list view)
         const ramUsageRaw = realStats.memory_stats?.usage || 0;
         const ramLimitRaw = realStats.memory_stats?.limit || 0;
         const ramPercent = ramLimitRaw > 0 ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(1) : 0;
         updateAll(ramUsageElements, `${ramPercent}%`);
         updateProgress(ramBarElements, ramPercent);
 
-        // CPU
+        // CPU (exact same as working detail page)
         const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage - realStats.precpu_stats?.cpu_usage?.total_usage) || 0;
         const systemDelta = (realStats.cpu_stats?.system_cpu_usage - realStats.precpu_stats?.system_cpu_usage) || 0;
         const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
         updateAll(cpuUsageElements, `${cpuPercent}%`);
         updateProgress(cpuBarElements, cpuPercent);
 
-        // Disk
+        // Disk - FIXED: now uses data-disk-limit attribute instead of undefined EJS variable
         const diskUsageRaw = parseFloat(realStats.volumeSize) || 0;
-        const diskLimitRaw = <%= instance.Disk || 0 %>;
         let diskText = '';
         let diskPercent = 0;
 
-        if (diskLimitRaw === 0) {
+        if (diskLimitRawFromServer === 0) {
           diskText = formatBytes(diskUsageRaw * 1024 * 1024);
           diskPercent = 0;
         } else {
-          diskPercent = ((diskUsageRaw / diskLimitRaw) * 100).toFixed(1);
+          diskPercent = ((diskUsageRaw / diskLimitRawFromServer) * 100).toFixed(1);
           diskText = `${diskPercent}%`;
         }
         updateAll(diskUsageElements, diskText);
         updateProgress(diskBarElements, diskPercent);
 
-        // Status
+        // Status (matches detail page)
         const isRunning = (realStats.status || '').toLowerCase() === 'running' || ramUsageRaw > 0;
         statusBgElements.forEach(bg => {
           bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30', 'bg-yellow-600/10');
