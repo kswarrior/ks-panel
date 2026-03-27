@@ -1,4 +1,4 @@
-<%- include('components/template') %>
+<DOCUMENT filename="Pasted Text-d5315578-4553-472c-b432-b9aa8582f6b6.txt"><%- include('components/template') %>
 <% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
 <main id="content">
   <div class="bg-transparent">
@@ -250,10 +250,10 @@
 
 <style>
   /* Toggle Switch Styles */
-  #instance-toggle:checked ~ .toggle-track {
+  #instance-toggle:checked \~ .toggle-track {
     background-color: rgba(255, 255, 255, 0.2);
   }
-  #instance-toggle:checked ~ .toggle-dot {
+  #instance-toggle:checked \~ .toggle-dot {
     transform: translateX(100%);
   }
 
@@ -354,10 +354,12 @@
     const instances = document.querySelectorAll('[data-instance-id]');
     instances.forEach(instance => {
       const containerId = instance.dataset.instanceId;
-      const isSecure = window.location.protocol === 'https:';
-      const wsProtocol = isSecure ? 'wss' : 'ws';
-      const wsPort = isSecure ? '' : `:<%= config.port %>`;
-      const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
+      
+      // ✅ FIXED: Use exact same reliable WebSocket URL as the working instance.ejs detail page
+      // (window.location instead of config.domain + config.port — this was the only mismatch)
+      const port = window.location.port ? `:${window.location.port}` : '';
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const socket = new WebSocket(`\( {wsProtocol}:// \){window.location.hostname}\( {port}/stats/ \){containerId}`);
 
       // Query ALL elements so both views update
       const statusElements = instance.querySelectorAll('[data-status]');
@@ -497,4 +499,4 @@
       socket.onclose = () => console.warn(`⚠️ WS closed for ${containerId}`);
     });
   });
-</script>
+</script></DOCUMENT>
