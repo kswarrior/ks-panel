@@ -1,4 +1,4 @@
-<DOCUMENT filename="Pasted Text-d5315578-4553-472c-b432-b9aa8582f6b6.txt"><%- include('components/template') %>
+<%- include('components/template') %>
 <% /* SSB0aGluayBJJ3ZlIGZvdW5kIG15IHZvaWNlCkknbSBhIGxlZWNoIHN1Y2tpbmcgYmxvb2QgYmFncwpUYXN0ZSBkZWZlYXQsIGl0J3MgYSBzYW5kYmFnClNhbGluZSBTb2x1dGlvbg== */ %>
 <main id="content">
   <div class="bg-transparent">
@@ -250,10 +250,10 @@
 
 <style>
   /* Toggle Switch Styles */
-  #instance-toggle:checked \~ .toggle-track {
+  #instance-toggle:checked ~ .toggle-track {
     background-color: rgba(255, 255, 255, 0.2);
   }
-  #instance-toggle:checked \~ .toggle-dot {
+  #instance-toggle:checked ~ .toggle-dot {
     transform: translateX(100%);
   }
 
@@ -355,11 +355,10 @@
     instances.forEach(instance => {
       const containerId = instance.dataset.instanceId;
       
-      // ✅ FIXED: Use exact same reliable WebSocket URL as the working instance.ejs detail page
-      // (window.location instead of config.domain + config.port — this was the only mismatch)
+      // ✅ FIXED: Exact same reliable WebSocket URL construction as the working detail page
       const port = window.location.port ? `:${window.location.port}` : '';
       const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const socket = new WebSocket(`\( {wsProtocol}:// \){window.location.hostname}\( {port}/stats/ \){containerId}`);
+      const socket = new WebSocket(`${wsProtocol}://${window.location.hostname}${port}/stats/${containerId}`);
 
       // Query ALL elements so both views update
       const statusElements = instance.querySelectorAll('[data-status]');
@@ -372,10 +371,10 @@
       const diskBarElements = instance.querySelectorAll('[data-disk-bar]');
 
       function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0.00 B';
+        if (bytes === 0) return '0 B';
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['B', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
       }
@@ -460,38 +459,45 @@
 
         // RAM
         const ramUsageRaw = realStats.memory_stats?.usage || 0;
-        const ramLimitRaw = realStats.memory_stats?.limit || 1;
-        const ramUsage = formatBytes(ramUsageRaw);
-        const ramPercent = ramLimitRaw > 0 ? Math.min(100, (ramUsageRaw / ramLimitRaw) * 100) : 0;
-        updateAll(ramUsageElements, `${ramUsage}`);
+        const ramLimitRaw = realStats.memory_stats?.limit || 0;
+        const ramPercent = ramLimitRaw > 0 ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(1) : 0;
+        updateAll(ramUsageElements, `${ramPercent}%`);
         updateProgress(ramBarElements, ramPercent);
 
         // CPU
-        const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage || 0) - (realStats.precpu_stats?.cpu_usage?.total_usage || 0);
-        const systemCpuDelta = (realStats.cpu_stats?.system_cpu_usage || 0) - (realStats.precpu_stats?.system_cpu_usage || 0);
-        const cpuPercent = (cpuDelta && systemCpuDelta) ? ((cpuDelta / systemCpuDelta) * 100) : 0;
-        updateAll(cpuUsageElements, `${cpuPercent.toFixed(2)}%`);
+        const cpuDelta = (realStats.cpu_stats?.cpu_usage?.total_usage - realStats.precpu_stats?.cpu_usage?.total_usage) || 0;
+        const systemDelta = (realStats.cpu_stats?.system_cpu_usage - realStats.precpu_stats?.system_cpu_usage) || 0;
+        const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
+        updateAll(cpuUsageElements, `${cpuPercent}%`);
         updateProgress(cpuBarElements, cpuPercent);
 
-        // Disk (volumeSize from your backend is in MiB)
-        const diskUsageRaw = realStats.volumeSize ? parseFloat(realStats.volumeSize) * 1024 * 1024 : 0;
-        const diskLimitRaw = realStats.diskLimit ? realStats.diskLimit * 1024 * 1024 : (diskUsageRaw + 1);
-        const diskUsage = formatBytes(diskUsageRaw);
-        const diskPercent = diskLimitRaw > 0 ? Math.min(100, (diskUsageRaw / diskLimitRaw) * 100) : 0;
-        updateAll(diskUsageElements, `${diskUsage}`);
+        // Disk
+        const diskUsageRaw = parseFloat(realStats.volumeSize) || 0;
+        const diskLimitRaw = <%= instance.Disk || 0 %>;
+        let diskText = '';
+        let diskPercent = 0;
+
+        if (diskLimitRaw === 0) {
+          diskText = formatBytes(diskUsageRaw * 1024 * 1024);
+          diskPercent = 0;
+        } else {
+          diskPercent = ((diskUsageRaw / diskLimitRaw) * 100).toFixed(1);
+          diskText = `${diskPercent}%`;
+        }
+        updateAll(diskUsageElements, diskText);
         updateProgress(diskBarElements, diskPercent);
 
         // Status
-        const isOffline = isNaN(ramUsageRaw) || ramUsageRaw === 0;
+        const isRunning = (realStats.status || '').toLowerCase() === 'running' || ramUsageRaw > 0;
         statusBgElements.forEach(bg => {
           bg.classList.remove('bg-neutral-600/20', 'bg-emerald-600/10', 'bg-red-700/30', 'bg-yellow-600/10');
-          bg.classList.add(isOffline ? 'bg-red-700/30' : 'bg-emerald-600/10');
+          bg.classList.add(isRunning ? 'bg-emerald-600/10' : 'bg-red-700/30');
         });
         statusElements.forEach(el => {
-          el.className = isOffline ? 'text-red-500 flex items-center gap-1.5' : 'text-emerald-500 flex items-center gap-1.5';
-          el.innerHTML = isOffline ? 
-            '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>Offline' : 
-            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Online';
+          el.className = isRunning ? 'text-emerald-500 flex items-center gap-1.5' : 'text-red-500 flex items-center gap-1.5';
+          el.innerHTML = isRunning ? 
+            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Online' : 
+            '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>Offline';
         });
       };
 
@@ -499,4 +505,4 @@
       socket.onclose = () => console.warn(`⚠️ WS closed for ${containerId}`);
     });
   });
-</script></DOCUMENT>
+</script>
