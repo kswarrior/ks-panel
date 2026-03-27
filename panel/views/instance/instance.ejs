@@ -88,6 +88,7 @@
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        isolation: isolate;
     }
 
     /* ============================================
@@ -532,6 +533,40 @@
         border: 1px solid #1aab29;
     }
 
+    /* NEW: Terminal controls (Stop, Clear, Toggle) - SVG only */
+    .im-terminal-controls {
+        display: flex;
+        align-items: center;
+        gap: var(--im-space-xs);
+    }
+
+    .im-terminal-control-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background-color: transparent;
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-md);
+        color: var(--im-text-secondary);
+        cursor: pointer;
+        transition: all var(--im-transition-fast);
+        flex-shrink: 0;
+    }
+
+    .im-terminal-control-btn:hover {
+        background-color: var(--im-bg-hover);
+        border-color: var(--im-border-color-hover);
+        color: var(--im-text-primary);
+        transform: translateY(-1px);
+    }
+
+    .im-terminal-control-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
     .im-terminal-body {
         position: relative;
         flex: 1;
@@ -586,6 +621,25 @@
         font-family: var(--im-font-mono) !important;
         font-size: 13px !important;
         line-height: 1.6 !important;
+    }
+
+    /* LOG VIEW MODES - Added exactly as requested */
+    .im-terminal-wrap.im-log-wrap-mode .xterm-rows {
+        white-space: pre-wrap !important;
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .im-terminal-wrap.im-log-scroll-mode .xterm-rows {
+        white-space: pre !important;
+    }
+
+    .im-terminal-wrap.im-log-wrap-mode .xterm-viewport {
+        overflow-x: hidden !important;
+    }
+
+    .im-terminal-wrap.im-log-scroll-mode .xterm-viewport {
+        overflow-x: auto !important;
     }
 
     .im-terminal-input {
@@ -847,6 +901,11 @@
             height: 100px;
             padding: var(--im-space-md);
         }
+        
+        .im-terminal-control-btn {
+            width: 28px;
+            height: 28px;
+        }
     }
 
     /* Touch device optimizations */
@@ -862,13 +921,18 @@
         .im-btn:hover:not(:disabled) {
             transform: none;
         }
+        
+        .im-terminal-control-btn:hover {
+            transform: none;
+        }
     }
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
         .im-info-card,
         .im-stat-card,
-        .im-btn {
+        .im-btn,
+        .im-terminal-control-btn {
             transition: none;
         }
         
@@ -952,12 +1016,38 @@
         <div class="im-main">
             <!-- Console Section -->
             <div class="im-console-section">
-                <div class="im-terminal-wrap">
+                <div class="im-terminal-wrap" id="im-terminalWrap">
                     <div class="im-terminal-header">
                         <div class="im-terminal-title">
                             <span>Instance Console</span>
                             <span class="im-terminal-badge">Live</span>
                         </div>
+                        
+                        <!-- NEW: Console controls with SVG icons only - Stop, Clear, View Mode Toggle -->
+                        <div class="im-terminal-controls">
+                            <!-- Stop / Pause Logging Button -->
+                            <button id="im-consoleStopBtn" type="button" class="im-terminal-control-btn" title="Pause / Resume logging">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="6" y="4" width="4" height="16" rx="1" ry="1"></rect>
+                                    <rect x="14" y="4" width="4" height="16" rx="1" ry="1"></rect>
+                                </svg>
+                            </button>
+                            
+                            <!-- Clear Button -->
+                            <button id="im-clearBtn" type="button" class="im-terminal-control-btn" title="Clear console">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                            
+                            <!-- Toggle Log View Mode Button -->
+                            <button id="im-toggleModeBtn" type="button" class="im-terminal-control-btn" title="Toggle log view mode (Wrap / Scroll)">
+                                <!-- SVG will be set by JS -->
+                            </button>
+                        </div>
+                        
                         <div class="im-terminal-dots">
                             <span class="im-terminal-dot red"></span>
                             <span class="im-terminal-dot yellow"></span>
@@ -1076,7 +1166,19 @@
         maxReconnectAttempts: 10,
         charts: {},
         lastStats: null,
-        isRunning: false
+        isRunning: false,
+        paused: false,           // NEW: Pause logging flag
+        autoScroll: true,        // NEW: Auto-scroll only when at bottom
+        logWrapMode: false       // NEW: false = horizontal scroll (default), true = wrap lines
+    };
+    
+    // NEW: SVG icons for console controls (SVG only, no text)
+    const consoleIcons = {
+        pause: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1" ry="1"></rect><rect x="14" y="4" width="4" height="16" rx="1" ry="1"></rect></svg>`,
+        play: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`,
+        clear: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`,
+        wrapMode: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`,
+        scrollMode: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="12" y2="18"></line></svg>`
     };
     
     // Utilities
@@ -1160,6 +1262,15 @@
         
         imState.term.open(document.getElementById('im-terminal'));
         
+        // NEW: Fix auto-scroll - only scroll to bottom if user was already at bottom
+        const viewport = document.querySelector('.xterm-viewport');
+        if (viewport) {
+            viewport.addEventListener('scroll', imUtils.debounce(() => {
+                const atBottom = viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 20;
+                imState.autoScroll = atBottom;
+            }, 50), { passive: true });
+        }
+        
         // Responsive resize with debounce
         const handleResize = imUtils.debounce(() => {
             const newWidth = window.innerWidth;
@@ -1209,6 +1320,9 @@
     }
     
     function imHandleWsMessage(msg) {
+        // NEW: Respect pause flag
+        if (imState.paused) return;
+        
         const lines = msg.data.split('\n');
         let isFirstLine = true;
         let previousLineWasEmpty = false;
@@ -1239,6 +1353,11 @@
         });
         
         imState.term.write(output);
+        
+        // NEW: Auto-scroll only if user is at bottom (fixes "go down screen automatically go up")
+        if (imState.autoScroll) {
+            imState.term.scrollToBottom();
+        }
     }
     
     // ============================================
@@ -1519,6 +1638,72 @@
     }
     
     // ============================================
+    // NEW: Terminal Controls (Stop, Clear, Toggle View Mode)
+    // ============================================
+    function imInitTerminalControls() {
+        const wrapEl = document.getElementById('im-terminalWrap');
+        
+        // Clear button
+        const clearBtn = document.getElementById('im-clearBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (imState.term) {
+                    imState.term.clear();
+                    imState.term.write('\x1b[0m');
+                }
+                imUtils.showNotification('Console cleared');
+            });
+        }
+        
+        // Stop / Pause logging button (toggles pause/resume)
+        const stopBtn = document.getElementById('im-consoleStopBtn');
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => {
+                imState.paused = !imState.paused;
+                if (imState.paused) {
+                    stopBtn.innerHTML = consoleIcons.play;
+                    imUtils.showNotification('Logging paused');
+                } else {
+                    stopBtn.innerHTML = consoleIcons.pause;
+                    imUtils.showNotification('Logging resumed');
+                }
+            });
+        }
+        
+        // Toggle log view mode button
+        const toggleBtn = document.getElementById('im-toggleModeBtn');
+        if (toggleBtn) {
+            const updateToggleIcon = () => {
+                toggleBtn.innerHTML = imState.logWrapMode ? consoleIcons.wrapMode : consoleIcons.scrollMode;
+            };
+            
+            toggleBtn.addEventListener('click', () => {
+                imState.logWrapMode = !imState.logWrapMode;
+                
+                if (imState.logWrapMode) {
+                    wrapEl.classList.add('im-log-wrap-mode');
+                    wrapEl.classList.remove('im-log-scroll-mode');
+                } else {
+                    wrapEl.classList.add('im-log-scroll-mode');
+                    wrapEl.classList.remove('im-log-wrap-mode');
+                }
+                
+                updateToggleIcon();
+                
+                // Force redraw
+                if (imState.term) {
+                    imState.term.resize(imState.term.cols, imState.term.rows);
+                }
+                
+                imUtils.showNotification(imState.logWrapMode ? 'Wrap mode enabled (long lines break to next line)' : 'Scroll mode enabled (long lines cause horizontal scroll)');
+            });
+            
+            // Initial icon
+            updateToggleIcon();
+        }
+    }
+    
+    // ============================================
     // INITIALIZATION
     // ============================================
     
@@ -1529,6 +1714,7 @@
         imInitCharts();
         imInitCommandInput();
         imInitPowerButtons();
+        imInitTerminalControls();   // NEW: Initialize console controls
         
         // Visibility change handling for performance
         document.addEventListener('visibilitychange', () => {
