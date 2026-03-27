@@ -1,4 +1,3 @@
-<DOCUMENT filename="Pasted Text-7b9c4d5a-458d-48c5-83bb-a5bb2567415e.txt">
 <%- include('../components/template') %>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"
@@ -17,73 +16,73 @@
 
 <style>
     /* ============================================
-       KS-INSTANCE MANAGER - OPTIMISTIC DESIGN SYSTEM
+       INSTANCE MANAGER - OPTIMISTIC DESIGN SYSTEM
        ============================================ */
     :root {
         /* Colors - Preserved exactly as requested */
-        --ks-instance-bg-primary: #0f0f13;
-        --ks-instance-bg-secondary: #1a1a1f;
-        --ks-instance-bg-tertiary: #25252b;
-        --ks-instance-bg-hover: #2a2a32;
+        --im-bg-primary: #0f0f13;
+        --im-bg-secondary: #1a1a1f;
+        --im-bg-tertiary: #25252b;
+        --im-bg-hover: #2a2a32;
         
-        --ks-instance-accent-primary: #3b82f6;
-        --ks-instance-accent-primary-hover: #2563eb;
-        --ks-instance-accent-success: #10b981;
-        --ks-instance-accent-success-hover: #059669;
-        --ks-instance-accent-danger: #ef4444;
-        --ks-instance-accent-danger-hover: #dc2626;
-        --ks-instance-accent-warning: #f59e0b;
+        --im-accent-primary: #3b82f6;
+        --im-accent-primary-hover: #2563eb;
+        --im-accent-success: #10b981;
+        --im-accent-success-hover: #059669;
+        --im-accent-danger: #ef4444;
+        --im-accent-danger-hover: #dc2626;
+        --im-accent-warning: #f59e0b;
         
-        --ks-instance-text-primary: #f9fafb;
-        --ks-instance-text-secondary: #9ca3af;
-        --ks-instance-text-muted: #6b7280;
+        --im-text-primary: #f9fafb;
+        --im-text-secondary: #9ca3af;
+        --im-text-muted: #6b7280;
         
-        --ks-instance-border-color: rgba(255, 255, 255, 0.08);
-        --ks-instance-border-color-hover: rgba(255, 255, 255, 0.15);
+        --im-border-color: rgba(255, 255, 255, 0.08);
+        --im-border-color-hover: rgba(255, 255, 255, 0.15);
         
         /* Spacing */
-        --ks-instance-space-xs: 0.25rem;
-        --ks-instance-space-sm: 0.5rem;
-        --ks-instance-space-md: 0.75rem;
-        --ks-instance-space-lg: 1rem;
-        --ks-instance-space-xl: 1.5rem;
-        --ks-instance-space-2xl: 2rem;
-        --ks-instance-space-3xl: 3rem;
+        --im-space-xs: 0.25rem;
+        --im-space-sm: 0.5rem;
+        --im-space-md: 0.75rem;
+        --im-space-lg: 1rem;
+        --im-space-xl: 1.5rem;
+        --im-space-2xl: 2rem;
+        --im-space-3xl: 3rem;
         
         /* Typography */
-        --ks-instance-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        --ks-instance-font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', Monaco, monospace;
+        --im-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --im-font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', Monaco, monospace;
         
         /* Effects */
-        --ks-instance-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-        --ks-instance-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        --ks-instance-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-        --ks-instance-shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
-        --ks-instance-shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.3);
-        --ks-instance-shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
+        --im-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --im-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        --im-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        --im-shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
+        --im-shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.3);
+        --im-shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
         
-        --ks-instance-radius-sm: 6px;
-        --ks-instance-radius-md: 8px;
-        --ks-instance-radius-lg: 12px;
-        --ks-instance-radius-xl: 16px;
+        --im-radius-sm: 6px;
+        --im-radius-md: 8px;
+        --im-radius-lg: 12px;
+        --im-radius-xl: 16px;
         
-        --ks-instance-transition-fast: 150ms ease;
-        --ks-instance-transition-base: 250ms ease;
+        --im-transition-fast: 150ms ease;
+        --im-transition-base: 250ms ease;
     }
 
     /* ============================================
        BASE STYLES
        ============================================ */
-    .ks-instance-container * {
+    .im-container * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
 
-    .ks-instance-container {
-        font-family: var(--ks-instance-font-sans);
-        background-color: var(--ks-instance-bg-primary);
-        color: var(--ks-instance-text-primary);
+    .im-container {
+        font-family: var(--im-font-sans);
+        background-color: var(--im-bg-primary);
+        color: var(--im-text-primary);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         width: 100%;
@@ -94,146 +93,96 @@
     /* ============================================
        LAYOUT CONTAINER
        ============================================ */
-    .ks-instance-page-wrapper {
+    .im-page-wrapper {
         width: 100%;
         max-width: 1600px;
         margin: 0 auto;
-        padding: var(--ks-instance-space-lg);
+        padding: var(--im-space-lg);
     }
 
     @media (min-width: 640px) {
-        .ks-instance-page-wrapper {
-            padding: var(--ks-instance-space-xl);
+        .im-page-wrapper {
+            padding: var(--im-space-xl);
         }
     }
 
     @media (min-width: 1024px) {
-        .ks-instance-page-wrapper {
-            padding: var(--ks-instance-space-2xl);
+        .im-page-wrapper {
+            padding: var(--im-space-2xl);
         }
     }
 
     /* ============================================
        HEADER SECTION - Optimistic & Responsive
        ============================================ */
-    .ks-instance-header {
-        margin-bottom: var(--ks-instance-space-xl);
-        padding-bottom: var(--ks-instance-space-lg);
-        border-bottom: 1px solid var(--ks-instance-border-color);
+    .im-header {
+        margin-bottom: var(--im-space-xl);
+        padding-bottom: var(--im-space-lg);
+        border-bottom: 1px solid var(--im-border-color);
     }
 
-    .ks-instance-header-content {
+    .im-header-content {
         display: flex;
         flex-direction: column;
-        gap: var(--ks-instance-space-lg);
+        gap: var(--im-space-lg);
     }
 
     @media (min-width: 768px) {
-        .ks-instance-header-content {
+        .im-header-content {
             flex-direction: row;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
     }
 
-    .ks-instance-brand {
+    .im-brand {
         flex: 1;
         min-width: 0;
     }
 
-    .ks-instance-title {
+    .im-title {
         font-size: clamp(1.25rem, 4vw, 1.875rem);
         font-weight: 700;
-        color: var(--ks-instance-text-primary);
-        margin-bottom: var(--ks-instance-space-sm);
+        color: var(--im-text-primary);
+        margin-bottom: var(--im-space-sm);
         letter-spacing: -0.025em;
         line-height: 1.2;
     }
 
-    .ks-instance-subtitle {
+    .im-subtitle {
         font-size: clamp(0.75rem, 2vw, 0.875rem);
-        color: var(--ks-instance-text-secondary);
+        color: var(--im-text-secondary);
         max-width: 600px;
         line-height: 1.5;
-    }
-
-    /* New: Header Right Section (Status + Buttons) */
-    .ks-instance-header-right {
-        display: flex;
-        align-items: center;
-        gap: var(--ks-instance-space-md);
-    }
-
-    /* ============================================
-       STATUS PILL - Top Right
-       ============================================ */
-    .ks-instance-header-status {
-        flex-shrink: 0;
-    }
-
-    .ks-instance-status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--ks-instance-space-sm);
-        padding: 6px 12px;
-        background-color: var(--ks-instance-bg-tertiary);
-        border: 1px solid var(--ks-instance-border-color);
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--ks-instance-text-secondary);
-        transition: all var(--ks-instance-transition-base);
-    }
-
-    .ks-instance-status-pill.online {
-        border-color: var(--ks-instance-accent-success);
-        color: var(--ks-instance-accent-success);
-    }
-
-    .ks-instance-status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: var(--ks-instance-accent-danger);
-        box-shadow: 0 0 6px var(--ks-instance-accent-danger);
-    }
-
-    .ks-instance-status-dot.online {
-        background-color: var(--ks-instance-accent-success);
-        box-shadow: 0 0 6px var(--ks-instance-accent-success);
-    }
-
-    .ks-instance-status-text {
-        font-family: var(--ks-instance-font-mono);
     }
 
     /* ============================================
        ACTION BUTTONS - Optimistic Interactions
        ============================================ */
-    .ks-instance-actions {
+    .im-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--ks-instance-space-sm);
+        gap: var(--im-space-sm);
     }
 
     @media (max-width: 639px) {
-        .ks-instance-actions {
+        .im-actions {
             width: 100%;
         }
     }
 
-    .ks-instance-btn {
+    .im-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: var(--ks-instance-space-sm);
-        padding: var(--ks-instance-space-sm) var(--ks-instance-space-md);
+        gap: var(--im-space-sm);
+        padding: var(--im-space-sm) var(--im-space-md);
         font-size: 0.875rem;
         font-weight: 500;
         border: none;
-        border-radius: var(--ks-instance-radius-md);
+        border-radius: var(--im-radius-md);
         cursor: pointer;
-        transition: all var(--ks-instance-transition-fast);
+        transition: all var(--im-transition-fast);
         color: white;
         position: relative;
         overflow: hidden;
@@ -243,71 +192,71 @@
     }
 
     @media (min-width: 640px) {
-        .ks-instance-btn {
+        .im-btn {
             flex: 0 0 auto;
             min-width: 100px;
         }
     }
 
-    .ks-instance-btn:disabled {
+    .im-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         transform: none !important;
     }
 
-    .ks-instance-btn svg {
+    .im-btn svg {
         width: 16px;
         height: 16px;
         flex-shrink: 0;
     }
 
-    .ks-instance-btn-start {
-        background-color: var(--ks-instance-accent-success);
-        box-shadow: var(--ks-instance-shadow-sm);
+    .im-btn-start {
+        background-color: var(--im-accent-success);
+        box-shadow: var(--im-shadow-sm);
     }
 
-    .ks-instance-btn-start:hover:not(:disabled) {
-        background-color: var(--ks-instance-accent-success-hover);
+    .im-btn-start:hover:not(:disabled) {
+        background-color: var(--im-accent-success-hover);
         transform: translateY(-2px);
-        box-shadow: var(--ks-instance-shadow-glow-green);
+        box-shadow: var(--im-shadow-glow-green);
     }
 
-    .ks-instance-btn-restart {
-        background-color: var(--ks-instance-accent-primary);
-        box-shadow: var(--ks-instance-shadow-sm);
+    .im-btn-restart {
+        background-color: var(--im-accent-primary);
+        box-shadow: var(--im-shadow-sm);
     }
 
-    .ks-instance-btn-restart:hover:not(:disabled) {
-        background-color: var(--ks-instance-accent-primary-hover);
+    .im-btn-restart:hover:not(:disabled) {
+        background-color: var(--im-accent-primary-hover);
         transform: translateY(-2px);
-        box-shadow: var(--ks-instance-shadow-glow-blue);
+        box-shadow: var(--im-shadow-glow-blue);
     }
 
-    .ks-instance-btn-stop {
-        background-color: var(--ks-instance-accent-danger);
-        box-shadow: var(--ks-instance-shadow-sm);
+    .im-btn-stop {
+        background-color: var(--im-accent-danger);
+        box-shadow: var(--im-shadow-sm);
     }
 
-    .ks-instance-btn-stop:hover:not(:disabled) {
-        background-color: var(--ks-instance-accent-danger-hover);
+    .im-btn-stop:hover:not(:disabled) {
+        background-color: var(--im-accent-danger-hover);
         transform: translateY(-2px);
-        box-shadow: var(--ks-instance-shadow-glow-red);
+        box-shadow: var(--im-shadow-glow-red);
     }
 
-    .ks-instance-btn:active:not(:disabled) {
+    .im-btn:active:not(:disabled) {
         transform: translateY(0);
     }
 
     /* Loading state */
-    .ks-instance-btn.loading {
+    .im-btn.loading {
         pointer-events: none;
     }
 
-    .ks-instance-btn.loading svg {
-        animation: ks-instance-spin 1s linear infinite;
+    .im-btn.loading svg {
+        animation: im-spin 1s linear infinite;
     }
 
-    @keyframes ks-instance-spin {
+    @keyframes im-spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
@@ -315,146 +264,146 @@
     /* ============================================
        INFO CARDS GRID - Responsive Layout
        ============================================ */
-    .ks-instance-info-section {
-        margin-bottom: var(--ks-instance-space-xl);
+    .im-info-section {
+        margin-bottom: var(--im-space-xl);
     }
 
-    .ks-instance-info-grid {
+    .im-info-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: var(--ks-instance-space-md);
+        gap: var(--im-space-md);
     }
 
     @media (min-width: 640px) {
-        .ks-instance-info-grid {
+        .im-info-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
 
     @media (min-width: 1024px) {
-        .ks-instance-info-grid {
+        .im-info-grid {
             grid-template-columns: repeat(4, 1fr);
         }
     }
 
-    .ks-instance-info-card {
-        background-color: var(--ks-instance-bg-secondary);
-        border: 1px solid var(--ks-instance-border-color);
-        border-radius: var(--ks-instance-radius-lg);
-        padding: var(--ks-instance-space-lg);
-        transition: all var(--ks-instance-transition-base);
+    .im-info-card {
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
+        padding: var(--im-space-lg);
+        transition: all var(--im-transition-base);
         position: relative;
         overflow: hidden;
     }
 
-    .ks-instance-info-card::before {
+    .im-info-card::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         height: 2px;
-        background: linear-gradient(90deg, var(--ks-instance-accent-primary), transparent);
+        background: linear-gradient(90deg, var(--im-accent-primary), transparent);
         opacity: 0;
-        transition: opacity var(--ks-instance-transition-base);
+        transition: opacity var(--im-transition-base);
     }
 
-    .ks-instance-info-card:hover {
-        background-color: var(--ks-instance-bg-tertiary);
-        border-color: var(--ks-instance-border-color-hover);
+    .im-info-card:hover {
+        background-color: var(--im-bg-tertiary);
+        border-color: var(--im-border-color-hover);
         transform: translateY(-2px);
-        box-shadow: var(--ks-instance-shadow-md);
+        box-shadow: var(--im-shadow-md);
     }
 
-    .ks-instance-info-card:hover::before {
+    .im-info-card:hover::before {
         opacity: 1;
     }
 
-    .ks-instance-info-content {
+    .im-info-content {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: var(--ks-instance-space-md);
+        gap: var(--im-space-md);
     }
 
-    .ks-instance-info-text {
+    .im-info-text {
         flex: 1;
         min-width: 0;
         overflow: hidden;
     }
 
-    .ks-instance-info-label {
+    .im-info-label {
         font-size: 0.6875rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--ks-instance-text-muted);
-        margin-bottom: var(--ks-instance-space-xs);
+        color: var(--im-text-muted);
+        margin-bottom: var(--im-space-xs);
     }
 
-    .ks-instance-info-value {
+    .im-info-value {
         font-size: 0.9375rem;
         font-weight: 500;
-        color: var(--ks-instance-text-primary);
+        color: var(--im-text-primary);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .ks-instance-info-value-secondary {
+    .im-info-value-secondary {
         font-size: 0.8125rem;
-        color: var(--ks-instance-text-secondary);
+        color: var(--im-text-secondary);
         margin-top: 2px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .ks-instance-info-icon-wrap {
+    .im-info-icon-wrap {
         width: 40px;
         height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--ks-instance-bg-tertiary);
-        border-radius: var(--ks-instance-radius-md);
-        border: 1px solid var(--ks-instance-border-color);
-        transition: all var(--ks-instance-transition-fast);
+        background-color: var(--im-bg-tertiary);
+        border-radius: var(--im-radius-md);
+        border: 1px solid var(--im-border-color);
+        transition: all var(--im-transition-fast);
         flex-shrink: 0;
     }
 
-    .ks-instance-info-card:hover .ks-instance-info-icon-wrap {
-        background-color: var(--ks-instance-bg-hover);
-        border-color: var(--ks-instance-border-color-hover);
+    .im-info-card:hover .im-info-icon-wrap {
+        background-color: var(--im-bg-hover);
+        border-color: var(--im-border-color-hover);
     }
 
-    .ks-instance-info-icon {
+    .im-info-icon {
         width: 20px;
         height: 20px;
-        color: var(--ks-instance-accent-primary);
-        transition: color var(--ks-instance-transition-fast);
+        color: var(--im-accent-primary);
+        transition: color var(--im-transition-fast);
     }
 
-    .ks-instance-info-card:hover .ks-instance-info-icon {
-        color: var(--ks-instance-text-primary);
+    .im-info-card:hover .im-info-icon {
+        color: var(--im-text-primary);
     }
 
     /* ============================================
        DAEMON ALERT
        ============================================ */
-    .ks-instance-alert {
+    .im-alert {
         background-color: rgba(239, 68, 68, 0.1);
         border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: var(--ks-instance-radius-lg);
-        padding: var(--ks-instance-space-lg);
-        margin-bottom: var(--ks-instance-space-xl);
+        border-radius: var(--im-radius-lg);
+        padding: var(--im-space-lg);
+        margin-bottom: var(--im-space-xl);
         display: flex;
         align-items: center;
-        gap: var(--ks-instance-space-md);
-        animation: ks-instance-slideIn 0.3s ease;
+        gap: var(--im-space-md);
+        animation: im-slideIn 0.3s ease;
     }
 
-    @keyframes ks-instance-slideIn {
+    @keyframes im-slideIn {
         from {
             opacity: 0;
             transform: translateY(-10px);
@@ -465,52 +414,52 @@
         }
     }
 
-    .ks-instance-alert.hidden {
+    .im-alert.hidden {
         display: none;
     }
 
-    .ks-instance-alert-icon {
+    .im-alert-icon {
         width: 40px;
         height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: rgba(239, 68, 68, 0.2);
-        border-radius: var(--ks-instance-radius-md);
-        color: var(--ks-instance-accent-danger);
+        border-radius: var(--im-radius-md);
+        color: var(--im-accent-danger);
         flex-shrink: 0;
     }
 
-    .ks-instance-alert-content h3 {
+    .im-alert-content h3 {
         font-size: 0.9375rem;
         font-weight: 600;
-        color: var(--ks-instance-text-primary);
-        margin-bottom: var(--ks-instance-space-xs);
+        color: var(--im-text-primary);
+        margin-bottom: var(--im-space-xs);
     }
 
-    .ks-instance-alert-content p {
+    .im-alert-content p {
         font-size: 0.8125rem;
-        color: var(--ks-instance-text-secondary);
+        color: var(--im-text-secondary);
         line-height: 1.5;
     }
 
     /* ============================================
        MAIN LAYOUT - Console + Stats
        ============================================ */
-    .ks-instance-main {
+    .im-main {
         display: grid;
         grid-template-columns: 1fr;
-        gap: var(--ks-instance-space-xl);
+        gap: var(--im-space-xl);
     }
 
     @media (min-width: 1024px) {
-        .ks-instance-main {
+        .im-main {
             grid-template-columns: 1fr 320px;
         }
     }
 
     @media (min-width: 1280px) {
-        .ks-instance-main {
+        .im-main {
             grid-template-columns: 1fr 380px;
         }
     }
@@ -518,72 +467,72 @@
     /* ============================================
        TERMINAL STYLES - Optimistic & Responsive
        ============================================ */
-    .ks-instance-terminal-wrap {
-        background-color: var(--ks-instance-bg-secondary);
-        border: 1px solid var(--ks-instance-border-color);
-        border-radius: var(--ks-instance-radius-lg);
+    .im-terminal-wrap {
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
         overflow: hidden;
-        box-shadow: var(--ks-instance-shadow-lg);
+        box-shadow: var(--im-shadow-lg);
         display: flex;
         flex-direction: column;
     }
 
-    .ks-instance-terminal-header {
+    .im-terminal-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ks-instance-space-sm) var(--ks-instance-space-md);
-        background-color: var(--ks-instance-bg-tertiary);
-        border-bottom: 1px solid var(--ks-instance-border-color);
+        padding: var(--im-space-sm) var(--im-space-md);
+        background-color: var(--im-bg-tertiary);
+        border-bottom: 1px solid var(--im-border-color);
         flex-shrink: 0;
     }
 
-    .ks-instance-terminal-title {
-        font-family: var(--ks-instance-font-mono);
+    .im-terminal-title {
+        font-family: var(--im-font-mono);
         font-size: 0.75rem;
         font-weight: 600;
-        color: var(--ks-instance-text-secondary);
+        color: var(--im-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         display: flex;
         align-items: center;
-        gap: var(--ks-instance-space-sm);
+        gap: var(--im-space-sm);
     }
 
-    .ks-instance-terminal-badge {
+    .im-terminal-badge {
         font-size: 0.625rem;
         padding: 2px 8px;
-        background-color: var(--ks-instance-accent-success);
+        background-color: var(--im-accent-success);
         color: white;
         border-radius: 9999px;
         font-weight: 600;
     }
 
-    .ks-instance-terminal-dots {
+    .im-terminal-dots {
         display: flex;
         gap: 6px;
     }
 
-    .ks-instance-terminal-dot {
+    .im-terminal-dot {
         width: 12px;
         height: 12px;
         border-radius: 50%;
     }
 
-    .ks-instance-terminal-dot.red { 
+    .im-terminal-dot.red { 
         background-color: #ff5f56; 
         border: 1px solid #e0443e;
     }
-    .ks-instance-terminal-dot.yellow { 
+    .im-terminal-dot.yellow { 
         background-color: #ffbd2e; 
         border: 1px solid #dea123;
     }
-    .ks-instance-terminal-dot.green { 
+    .im-terminal-dot.green { 
         background-color: #27c93f; 
         border: 1px solid #1aab29;
     }
 
-    .ks-instance-terminal-body {
+    .im-terminal-body {
         position: relative;
         flex: 1;
         min-height: 300px;
@@ -591,21 +540,21 @@
     }
 
     @media (min-width: 768px) {
-        .ks-instance-terminal-body {
+        .im-terminal-body {
             height: 500px;
         }
     }
 
     @media (min-width: 1024px) {
-        .ks-instance-terminal-body {
+        .im-terminal-body {
             height: 600px;
         }
     }
 
-    #ks-instance-terminal {
+    #im-terminal {
         width: 100%;
         height: 100%;
-        padding: var(--ks-instance-space-md);
+        padding: var(--im-space-md);
     }
 
     .xterm {
@@ -621,111 +570,111 @@
     }
 
     .xterm-viewport::-webkit-scrollbar-track {
-        background: var(--ks-instance-bg-tertiary);
+        background: var(--im-bg-tertiary);
     }
 
     .xterm-viewport::-webkit-scrollbar-thumb {
-        background: var(--ks-instance-border-color-hover);
+        background: var(--im-border-color-hover);
         border-radius: 4px;
     }
 
     .xterm-viewport::-webkit-scrollbar-thumb:hover {
-        background: var(--ks-instance-text-muted);
+        background: var(--im-text-muted);
     }
 
     .xterm-rows {
-        font-family: var(--ks-instance-font-mono) !important;
+        font-family: var(--im-font-mono) !important;
         font-size: 13px !important;
         line-height: 1.6 !important;
     }
 
-    .ks-instance-terminal-input {
+    .im-terminal-input {
         display: flex;
         align-items: center;
-        gap: var(--ks-instance-space-sm);
-        padding: var(--ks-instance-space-sm) var(--ks-instance-space-md);
-        background-color: var(--ks-instance-bg-tertiary);
-        border-top: 1px solid var(--ks-instance-border-color);
+        gap: var(--im-space-sm);
+        padding: var(--im-space-sm) var(--im-space-md);
+        background-color: var(--im-bg-tertiary);
+        border-top: 1px solid var(--im-border-color);
         flex-shrink: 0;
     }
 
-    .ks-instance-terminal-prompt {
-        font-family: var(--ks-instance-font-mono);
-        color: var(--ks-instance-accent-success);
+    .im-terminal-prompt {
+        font-family: var(--im-font-mono);
+        color: var(--im-accent-success);
         font-weight: 600;
         font-size: 0.875rem;
         user-select: none;
         flex-shrink: 0;
     }
 
-    #ks-instance-input {
+    #im-input {
         flex: 1;
         background: transparent;
         border: none;
         outline: none;
-        color: var(--ks-instance-text-primary);
-        font-family: var(--ks-instance-font-mono);
+        color: var(--im-text-primary);
+        font-family: var(--im-font-mono);
         font-size: 0.875rem;
-        padding: var(--ks-instance-space-xs) 0;
+        padding: var(--im-space-xs) 0;
         min-width: 0;
     }
 
-    #ks-instance-input::placeholder {
-        color: var(--ks-instance-text-muted);
+    #im-input::placeholder {
+        color: var(--im-text-muted);
     }
 
     /* ============================================
        STATS SECTION - Optimistic Cards
        ============================================ */
-    .ks-instance-stats {
+    .im-stats {
         display: flex;
         flex-direction: column;
-        gap: var(--ks-instance-space-md);
+        gap: var(--im-space-md);
     }
 
-    .ks-instance-stat-card {
-        background-color: var(--ks-instance-bg-secondary);
-        border: 1px solid var(--ks-instance-border-color);
-        border-radius: var(--ks-instance-radius-lg);
-        padding: var(--ks-instance-space-lg);
+    .im-stat-card {
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
+        padding: var(--im-space-lg);
         position: relative;
         overflow: hidden;
-        transition: all var(--ks-instance-transition-base);
+        transition: all var(--im-transition-base);
         height: 120px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
-    .ks-instance-stat-card:hover {
-        border-color: var(--ks-instance-border-color-hover);
+    .im-stat-card:hover {
+        border-color: var(--im-border-color-hover);
         transform: translateY(-2px);
-        box-shadow: var(--ks-instance-shadow-md);
+        box-shadow: var(--im-shadow-md);
     }
 
-    .ks-instance-stat-card::before {
+    .im-stat-card::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         height: 2px;
-        background: var(--ks-instance-accent-primary);
+        background: var(--im-accent-primary);
         opacity: 0;
-        transition: opacity var(--ks-instance-transition-base);
+        transition: opacity var(--im-transition-base);
     }
 
-    .ks-instance-stat-card.online::before {
-        background: var(--ks-instance-accent-success);
+    .im-stat-card.online::before {
+        background: var(--im-accent-success);
         opacity: 1;
     }
 
-    .ks-instance-stat-card.offline::before {
-        background: var(--ks-instance-accent-danger);
+    .im-stat-card.offline::before {
+        background: var(--im-accent-danger);
         opacity: 1;
     }
 
-    .ks-instance-stat-card canvas {
+    .im-stat-card canvas {
         position: absolute;
         inset: 0;
         width: 100% !important;
@@ -734,7 +683,7 @@
         pointer-events: none;
     }
 
-    .ks-instance-stat-content {
+    .im-stat-content {
         position: relative;
         z-index: 1;
         display: flex;
@@ -743,255 +692,294 @@
         height: 100%;
     }
 
-    .ks-instance-stat-header {
+    .im-stat-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .ks-instance-stat-label {
+    .im-stat-label {
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--ks-instance-text-muted);
+        color: var(--im-text-muted);
     }
 
-    .ks-instance-stat-indicator {
+    .im-stat-indicator {
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background-color: var(--ks-instance-text-muted);
+        background-color: var(--im-text-muted);
         box-shadow: 0 0 8px currentColor;
     }
 
-    .ks-instance-stat-indicator.online {
-        background-color: var(--ks-instance-accent-success);
-        animation: ks-instance-pulse 2s infinite;
+    .im-stat-indicator.online {
+        background-color: var(--im-accent-success);
+        animation: im-pulse 2s infinite;
     }
 
-    .ks-instance-stat-indicator.offline {
-        background-color: var(--ks-instance-accent-danger);
+    .im-stat-indicator.offline {
+        background-color: var(--im-accent-danger);
     }
 
-    @keyframes ks-instance-pulse {
+    @keyframes im-pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.5; }
     }
 
-    .ks-instance-stat-value {
-        font-family: var(--ks-instance-font-mono);
+    .im-stat-value {
+        font-family: var(--im-font-mono);
         font-size: clamp(1.25rem, 3vw, 1.5rem);
         font-weight: 700;
-        color: var(--ks-instance-text-primary);
+        color: var(--im-text-primary);
         letter-spacing: -0.02em;
     }
 
-    .ks-instance-stat-value.small {
+    .im-stat-value.small {
         font-size: clamp(1rem, 2.5vw, 1.125rem);
     }
 
-    .ks-instance-stat-value.online {
-        color: var(--ks-instance-accent-success);
+    .im-stat-value.online {
+        color: var(--im-accent-success);
     }
 
-    .ks-instance-stat-value.offline {
-        color: var(--ks-instance-accent-danger);
+    .im-stat-value.offline {
+        color: var(--im-accent-danger);
     }
 
-    .ks-instance-stat-sub {
+    .im-stat-sub {
         font-size: 0.75rem;
-        color: var(--ks-instance-text-secondary);
-        font-family: var(--ks-instance-font-mono);
+        color: var(--im-text-secondary);
+        font-family: var(--im-font-mono);
     }
 
     /* ============================================
        NOTIFICATION
        ============================================ */
-    #ks-instance-notification {
+    #im-notification {
         position: fixed;
-        bottom: var(--ks-instance-space-xl);
-        right: var(--ks-instance-space-xl);
-        padding: var(--ks-instance-space-md) var(--ks-instance-space-lg);
-        background-color: var(--ks-instance-bg-secondary);
-        border: 1px solid var(--ks-instance-border-color);
-        border-radius: var(--ks-instance-radius-lg);
-        color: var(--ks-instance-text-primary);
+        bottom: var(--im-space-xl);
+        right: var(--im-space-xl);
+        padding: var(--im-space-md) var(--im-space-lg);
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
+        color: var(--im-text-primary);
         font-size: 0.875rem;
         font-weight: 500;
-        box-shadow: var(--ks-instance-shadow-lg);
+        box-shadow: var(--im-shadow-lg);
         z-index: 50;
         transform: translateY(100px);
         opacity: 0;
         transition: all 0.3s ease;
-        max-width: calc(100vw - var(--ks-instance-space-xl) * 2);
+        max-width: calc(100vw - var(--im-space-xl) * 2);
     }
 
-    #ks-instance-notification.show {
+    #im-notification.show {
         transform: translateY(0);
         opacity: 1;
     }
 
     @media (max-width: 640px) {
-        #ks-instance-notification {
-            left: var(--ks-instance-space-md);
-            right: var(--ks-instance-space-md);
-            bottom: var(--ks-instance-space-md);
+        #im-notification {
+            left: var(--im-space-md);
+            right: var(--im-space-md);
+            bottom: var(--im-space-md);
         }
     }
 
     /* ============================================
        UTILITY CLASSES
        ============================================ */
-    .ks-instance-font-mono {
-        font-family: var(--ks-instance-font-mono);
+    .im-font-mono {
+        font-family: var(--im-font-mono);
     }
 
-    .ks-instance-hidden {
+    .im-hidden {
         display: none !important;
     }
 
     /* Scrollbar */
-    .ks-instance-container ::-webkit-scrollbar {
+    .im-container ::-webkit-scrollbar {
         width: 10px;
         height: 10px;
     }
 
-    .ks-instance-container ::-webkit-scrollbar-track {
-        background: var(--ks-instance-bg-secondary);
+    .im-container ::-webkit-scrollbar-track {
+        background: var(--im-bg-secondary);
     }
 
-    .ks-instance-container ::-webkit-scrollbar-thumb {
-        background: var(--ks-instance-border-color-hover);
+    .im-container ::-webkit-scrollbar-thumb {
+        background: var(--im-border-color-hover);
         border-radius: 5px;
-        border: 2px solid var(--ks-instance-bg-secondary);
+        border: 2px solid var(--im-bg-secondary);
     }
 
-    .ks-instance-container ::-webkit-scrollbar-thumb:hover {
-        background: var(--ks-instance-text-muted);
+    .im-container ::-webkit-scrollbar-thumb:hover {
+        background: var(--im-text-muted);
     }
 
     /* ============================================
        MOBILE OPTIMIZATIONS
        ============================================ */
     @media (max-width: 639px) {
-        .ks-instance-btn-text {
+        .im-btn-text {
             display: none;
         }
         
-        .ks-instance-btn {
-            padding: var(--ks-instance-space-sm);
+        .im-btn {
+            padding: var(--im-space-sm);
             min-width: 48px;
             height: 40px;
         }
         
-        .ks-instance-info-card {
-            padding: var(--ks-instance-space-md);
+        .im-info-card {
+            padding: var(--im-space-md);
         }
         
-        .ks-instance-info-icon-wrap {
+        .im-info-icon-wrap {
             width: 36px;
             height: 36px;
         }
         
-        .ks-instance-stat-card {
+        .im-stat-card {
             height: 100px;
-            padding: var(--ks-instance-space-md);
+            padding: var(--im-space-md);
         }
     }
 
     /* Touch device optimizations */
     @media (hover: none) and (pointer: coarse) {
-        .ks-instance-info-card:hover {
+        .im-info-card:hover {
             transform: none;
         }
         
-        .ks-instance-stat-card:hover {
+        .im-stat-card:hover {
             transform: none;
         }
         
-        .ks-instance-btn:hover:not(:disabled) {
+        .im-btn:hover:not(:disabled) {
             transform: none;
         }
     }
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
-        .ks-instance-info-card,
-        .ks-instance-stat-card,
-        .ks-instance-btn {
+        .im-info-card,
+        .im-stat-card,
+        .im-btn {
             transition: none;
         }
         
-        .ks-instance-stat-indicator.online {
+        .im-stat-indicator.online {
             animation: none;
         }
     }
 </style>
 
-<div class="ks-instance-container">
-    <div class="ks-instance-page-wrapper">
+<div class="im-container">
+    <div class="im-page-wrapper">
         <!-- Header Section -->
-        <div class="ks-instance-header">
-            <div class="ks-instance-header-content">
-                <div class="ks-instance-brand">
-                    <h1 class="ks-instance-title"><%= req.translations.manageInstance %></h1>
-                    <p class="ks-instance-subtitle"><%= req.translations.manageInstanceText %></p>
+        <div class="im-header">
+            <div class="im-header-content">
+                <div class="im-brand">
+                    <h1 class="im-title"><%= req.translations.manageInstance %></h1>
+                    <p class="im-subtitle"><%= req.translations.manageInstanceText %></p>
                 </div>
                 
-                <div class="ks-instance-header-right">
-                    <!-- Status Pill - Top Right -->
-                    <div class="ks-instance-header-status">
-                        <div class="ks-instance-status-pill" id="ks-instance-header-status-pill">
-                            <span class="ks-instance-status-dot" id="ks-instance-header-dot"></span>
-                            <span id="ks-instance-header-status-text" class="ks-instance-status-text">Offline</span>
-                        </div>
-                    </div>
+                <div class="im-actions">
+                    <button id="im-startBtn" type="button" class="im-btn im-btn-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="im-btn-text"><%= req.translations.start %></span>
+                    </button>
                     
-                    <div class="ks-instance-actions">
-                        <button id="ks-instance-startBtn" type="button" class="ks-instance-btn ks-instance-btn-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="ks-instance-btn-text"><%= req.translations.start %></span>
-                        </button>
-                        
-                        <button id="ks-instance-restartBtn" type="button" class="ks-instance-btn ks-instance-btn-restart">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="ks-instance-btn-text"><%= req.translations.restart %></span>
-                        </button>
-                        
-                        <button id="ks-instance-stopBtn" type="button" class="ks-instance-btn ks-instance-btn-stop">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="ks-instance-btn-text"><%= req.translations.stop %></span>
-                        </button>
-                    </div>
+                    <button id="im-restartBtn" type="button" class="im-btn im-btn-restart">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="im-btn-text"><%= req.translations.restart %></span>
+                    </button>
+                    
+                    <button id="im-stopBtn" type="button" class="im-btn im-btn-stop">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="im-btn-text"><%= req.translations.stop %></span>
+                    </button>
                 </div>
             </div>
         </div>
         
         <%- include('../components/instance') %>
         
-        <!-- Info Cards Grid (Only Address kept) -->
-        <section class="ks-instance-info-section">
-            <dl class="ks-instance-info-grid">
+        <!-- Info Cards Grid -->
+        <section class="im-info-section">
+            <dl class="im-info-grid">
                 <!-- Address Card -->
-                <div class="ks-instance-info-card">
-                    <div class="ks-instance-info-content">
-                        <div class="ks-instance-info-text">
-                            <dt class="ks-instance-info-label"><%= req.translations.address %></dt>
-                            <dd class="ks-instance-info-value">
-                                <%= instance.Node.address %><span style="color: var(--ks-instance-text-muted);">:<%= instance.Primary %></span>
+                <div class="im-info-card">
+                    <div class="im-info-content">
+                        <div class="im-info-text">
+                            <dt class="im-info-label"><%= req.translations.address %></dt>
+                            <dd class="im-info-value">
+                                <%= instance.Node.address %><span style="color: var(--im-text-muted);">:<%= instance.Primary %></span>
                             </dd>
                         </div>
-                        <div class="ks-instance-info-icon-wrap">
-                            <svg class="ks-instance-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <div class="im-info-icon-wrap">
+                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Template Card -->
+                <div class="im-info-card">
+                    <div class="im-info-content">
+                        <div class="im-info-text">
+                            <dt class="im-info-label">Template</dt>
+                            <dd class="im-info-value">
+                                <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
+                            </dd>
+                        </div>
+                        <div class="im-info-icon-wrap">
+                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Node Card -->
+                <div class="im-info-card">
+                    <div class="im-info-content">
+                        <div class="im-info-text">
+                            <dt class="im-info-label"><%= req.translations.node %></dt>
+                            <dd class="im-info-value"><%= instance.Node.name %></dd>
+                            <dd class="im-info-value-secondary"><%= instance.Node.address %></dd>
+                        </div>
+                        <div class="im-info-icon-wrap">
+                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Identifier Card -->
+                <div class="im-info-card">
+                    <div class="im-info-content">
+                        <div class="im-info-text">
+                            <dt class="im-info-label"><%= req.translations.identifier %></dt>
+                            <dd class="im-info-value im-font-mono"><%= req.params.id %></dd>
+                        </div>
+                        <div class="im-info-icon-wrap">
+                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                             </svg>
                         </div>
                     </div>
@@ -1000,91 +988,91 @@
         </section>
         
         <!-- Daemon Down Alert -->
-        <div class="ks-instance-alert ks-instance-hidden" id="ks-instance-daemonAlert">
-            <div class="ks-instance-alert-icon">
+        <div class="im-alert im-hidden" id="im-daemonAlert">
+            <div class="im-alert-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
             </div>
-            <div class="ks-instance-alert-content">
+            <div class="im-alert-content">
                 <h3><%= req.translations.connectionFailure %></h3>
                 <p><%= req.translations.connectionFailureText %></p>
             </div>
         </div>
         
         <!-- Main Layout: Console + Stats -->
-        <div class="ks-instance-main">
+        <div class="im-main">
             <!-- Console Section -->
-            <div class="ks-instance-console-section">
-                <div class="ks-instance-terminal-wrap">
-                    <div class="ks-instance-terminal-header">
-                        <div class="ks-instance-terminal-title">
+            <div class="im-console-section">
+                <div class="im-terminal-wrap">
+                    <div class="im-terminal-header">
+                        <div class="im-terminal-title">
                             <span>Instance Console</span>
-                            <span class="ks-instance-terminal-badge">Live</span>
+                            <span class="im-terminal-badge">Live</span>
                         </div>
-                        <div class="ks-instance-terminal-dots">
-                            <span class="ks-instance-terminal-dot red"></span>
-                            <span class="ks-instance-terminal-dot yellow"></span>
-                            <span class="ks-instance-terminal-dot green"></span>
+                        <div class="im-terminal-dots">
+                            <span class="im-terminal-dot red"></span>
+                            <span class="im-terminal-dot yellow"></span>
+                            <span class="im-terminal-dot green"></span>
                         </div>
                     </div>
-                    <div class="ks-instance-terminal-body">
-                        <div id="ks-instance-terminal"></div>
+                    <div class="im-terminal-body">
+                        <div id="im-terminal"></div>
                     </div>
-                    <div class="ks-instance-terminal-input">
-                        <span class="ks-instance-terminal-prompt">\~</span>
-                        <input id="ks-instance-input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" spellcheck="false">
+                    <div class="im-terminal-input">
+                        <span class="im-terminal-prompt">~</span>
+                        <input id="im-input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" spellcheck="false">
                     </div>
                 </div>
             </div>
             
             <!-- Stats Section -->
-            <div class="ks-instance-stats-section">
-                <div class="ks-instance-stats">
+            <div class="im-stats-section">
+                <div class="im-stats">
                     <!-- Status Card -->
-                    <div class="ks-instance-stat-card" id="ks-instance-statusCard">
-                        <canvas id="ks-instance-statusChart"></canvas>
-                        <div class="ks-instance-stat-content">
-                            <div class="ks-instance-stat-header">
-                                <span class="ks-instance-stat-label"><%= req.translations.status %></span>
-                                <span class="ks-instance-stat-indicator" id="ks-instance-statusIndicator"></span>
+                    <div class="im-stat-card" id="im-statusCard">
+                        <canvas id="im-statusChart"></canvas>
+                        <div class="im-stat-content">
+                            <div class="im-stat-header">
+                                <span class="im-stat-label"><%= req.translations.status %></span>
+                                <span class="im-stat-indicator" id="im-statusIndicator"></span>
                             </div>
-                            <p id="ks-instance-status" class="ks-instance-stat-value">-</p>
+                            <p id="im-status" class="im-stat-value">-</p>
                         </div>
                     </div>
                     
                     <!-- RAM Usage Card -->
-                    <div class="ks-instance-stat-card">
-                        <canvas id="ks-instance-ramChart"></canvas>
-                        <div class="ks-instance-stat-content">
-                            <div class="ks-instance-stat-header">
-                                <span class="ks-instance-stat-label"><%= req.translations.ramUsage %></span>
+                    <div class="im-stat-card">
+                        <canvas id="im-ramChart"></canvas>
+                        <div class="im-stat-content">
+                            <div class="im-stat-header">
+                                <span class="im-stat-label"><%= req.translations.ramUsage %></span>
                             </div>
-                            <p id="ks-instance-ram" class="ks-instance-stat-value small">-</p>
-                            <p id="ks-instance-ramSub" class="ks-instance-stat-sub">Calculating...</p>
+                            <p id="im-ram" class="im-stat-value small">-</p>
+                            <p id="im-ramSub" class="im-stat-sub">Calculating...</p>
                         </div>
                     </div>
                     
                     <!-- CPU Usage Card -->
-                    <div class="ks-instance-stat-card">
-                        <canvas id="ks-instance-cpuChart"></canvas>
-                        <div class="ks-instance-stat-content">
-                            <div class="ks-instance-stat-header">
-                                <span class="ks-instance-stat-label"><%= req.translations.cpuUsage %></span>
+                    <div class="im-stat-card">
+                        <canvas id="im-cpuChart"></canvas>
+                        <div class="im-stat-content">
+                            <div class="im-stat-header">
+                                <span class="im-stat-label"><%= req.translations.cpuUsage %></span>
                             </div>
-                            <p id="ks-instance-cpu" class="ks-instance-stat-value">-</p>
+                            <p id="im-cpu" class="im-stat-value">-</p>
                         </div>
                     </div>
                     
                     <!-- Disk Usage Card -->
-                    <div class="ks-instance-stat-card">
-                        <canvas id="ks-instance-diskChart" class="ks-instance-hidden"></canvas>
-                        <div class="ks-instance-stat-content">
-                            <div class="ks-instance-stat-header">
-                                <span class="ks-instance-stat-label"><%= req.translations.diskUsage %></span>
+                    <div class="im-stat-card">
+                        <canvas id="im-diskChart" class="im-hidden"></canvas>
+                        <div class="im-stat-content">
+                            <div class="im-stat-header">
+                                <span class="im-stat-label"><%= req.translations.diskUsage %></span>
                             </div>
-                            <p id="ks-instance-disk" class="ks-instance-stat-value small">-</p>
-                            <p id="ks-instance-diskSub" class="ks-instance-stat-sub">Calculating...</p>
+                            <p id="im-disk" class="im-stat-value small">-</p>
+                            <p id="im-diskSub" class="im-stat-sub">Calculating...</p>
                         </div>
                     </div>
                 </div>
@@ -1094,15 +1082,15 @@
 </div>
 
 <!-- Notification Toast -->
-<div id="ks-instance-notification" role="status" aria-live="polite"></div>
+<div id="im-notification" role="status" aria-live="polite"></div>
 
 <script>
     // ============================================
-    // KS-INSTANCE MANAGER - OPTIMISTIC IMPLEMENTATION
+    // INSTANCE MANAGER - OPTIMISTIC IMPLEMENTATION
     // ============================================
     
     // Theme configuration
-    const ksInstanceTheme = {
+    const imTheme = {
         foreground: '#e5e7eb',
         background: 'transparent',
         selection: 'rgba(59, 130, 246, 0.3)',
@@ -1127,7 +1115,7 @@
     };
     
     // State management
-    const ksInstanceState = {
+    const imState = {
         protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
         instanceId: '<%= req.params.id %>',
         maxCommands: 50,
@@ -1144,7 +1132,7 @@
     };
     
     // Utilities
-    const ksInstanceUtils = {
+    const imUtils = {
         debounce: (fn, delay) => {
             let timeout;
             return (...args) => {
@@ -1183,7 +1171,7 @@
         },
         
         showNotification: (message, type = 'info') => {
-            const notification = document.getElementById('ks-instance-notification');
+            const notification = document.getElementById('im-notification');
             notification.textContent = message;
             notification.className = 'show';
             setTimeout(() => notification.classList.remove('show'), 3000);
@@ -1194,7 +1182,7 @@
     // TERMINAL INITIALIZATION
     // ============================================
     
-    function ksInstanceInitTerminal() {
+    function imInitTerminal() {
         const screenWidth = window.innerWidth;
         const isMobile = screenWidth < 640;
         const isTablet = screenWidth < 1024;
@@ -1205,7 +1193,7 @@
             fontSize: isMobile ? 12 : 14,
         };
         
-        ksInstanceState.term = new Terminal({
+        imState.term = new Terminal({
             disableStdin: true,
             allowProposedApi: true,
             lineHeight: 1.5,
@@ -1213,7 +1201,7 @@
             cols: config.cols,
             fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Courier New, monospace',
             fontSize: config.fontSize,
-            theme: ksInstanceTheme,
+            theme: imTheme,
             allowTransparency: true,
             cursorBlink: false,
             scrollback: 5000,
@@ -1222,10 +1210,10 @@
             fastScrollSensitivity: 5,
         });
         
-        ksInstanceState.term.open(document.getElementById('ks-instance-terminal'));
+        imState.term.open(document.getElementById('im-terminal'));
         
         // Responsive resize with debounce
-        const handleResize = ksInstanceUtils.debounce(() => {
+        const handleResize = imUtils.debounce(() => {
             const newWidth = window.innerWidth;
             const newIsMobile = newWidth < 640;
             const newIsTablet = newWidth < 1024;
@@ -1235,7 +1223,7 @@
                 rows: newIsMobile ? 20 : 24,
             };
             
-            ksInstanceState.term.resize(newConfig.cols, newConfig.rows);
+            imState.term.resize(newConfig.cols, newConfig.rows);
         }, 250);
         
         window.addEventListener('resize', handleResize, { passive: true });
@@ -1245,34 +1233,34 @@
     // WEBSOCKET MANAGEMENT
     // ============================================
     
-    function ksInstanceInitWebSocket() {
+    function imInitWebSocket() {
         const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `\( {ksInstanceState.protocol}:// \){window.location.hostname}\( {port}/console/ \){ksInstanceState.instanceId}`;
+        const wsUrl = `${imState.protocol}://${window.location.hostname}${port}/console/${imState.instanceId}`;
         
-        ksInstanceState.ws = new WebSocket(wsUrl);
+        imState.ws = new WebSocket(wsUrl);
         
-        ksInstanceState.ws.onopen = () => {
-            console.log('[KSInstanceManager] WebSocket connected');
-            ksInstanceState.reconnectAttempts = 0;
-            document.getElementById('ks-instance-daemonAlert').classList.add('ks-instance-hidden');
+        imState.ws.onopen = () => {
+            console.log('[InstanceManager] WebSocket connected');
+            imState.reconnectAttempts = 0;
+            document.getElementById('im-daemonAlert').classList.add('im-hidden');
         };
         
-        ksInstanceState.ws.onmessage = ksInstanceHandleWsMessage;
+        imState.ws.onmessage = imHandleWsMessage;
         
-        ksInstanceState.ws.onclose = () => {
-            if (ksInstanceState.reconnectAttempts < ksInstanceState.maxReconnectAttempts) {
-                const delay = Math.min(1000 * Math.pow(2, ksInstanceState.reconnectAttempts), 30000);
-                setTimeout(ksInstanceInitWebSocket, delay);
-                ksInstanceState.reconnectAttempts++;
+        imState.ws.onclose = () => {
+            if (imState.reconnectAttempts < imState.maxReconnectAttempts) {
+                const delay = Math.min(1000 * Math.pow(2, imState.reconnectAttempts), 30000);
+                setTimeout(imInitWebSocket, delay);
+                imState.reconnectAttempts++;
             }
         };
         
-        ksInstanceState.ws.onerror = (error) => {
-            console.error('[KSInstanceManager] WebSocket error:', error);
+        imState.ws.onerror = (error) => {
+            console.error('[InstanceManager] WebSocket error:', error);
         };
     }
     
-    function ksInstanceHandleWsMessage(msg) {
+    function imHandleWsMessage(msg) {
         const lines = msg.data.split('\n');
         let isFirstLine = true;
         let previousLineWasEmpty = false;
@@ -1290,46 +1278,46 @@
             
             if (trimmedLine.includes("Working on")) {
                 output += '\r\n\u001b[1m\u001b[33m[panel] \u001b[0mReconnecting...';
-                ksInstanceState.ws.close();
+                imState.ws.close();
             }
             
             if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                ksInstanceState.ws.close();
-                document.getElementById('ks-instance-daemonAlert').classList.remove('ks-instance-hidden');
+                imState.ws.close();
+                document.getElementById('im-daemonAlert').classList.remove('im-hidden');
             }
             
             isFirstLine = false;
             previousLineWasEmpty = (trimmedLine === '');
         });
         
-        ksInstanceState.term.write(output);
+        imState.term.write(output);
     }
     
     // ============================================
     // STATS WEBSOCKET
     // ============================================
     
-    function ksInstanceInitStatsWebSocket() {
+    function imInitStatsWebSocket() {
         const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `\( {ksInstanceState.protocol}:// \){window.location.hostname}\( {port}/stats/ \){ksInstanceState.instanceId}`;
+        const wsUrl = `${imState.protocol}://${window.location.hostname}${port}/stats/${imState.instanceId}`;
         
-        ksInstanceState.statsWs = new WebSocket(wsUrl);
+        imState.statsWs = new WebSocket(wsUrl);
         
-        ksInstanceState.statsWs.onmessage = ksInstanceUtils.throttle((event) => {
-            if (!ksInstanceUtils.isValidJson(event.data)) return;
+        imState.statsWs.onmessage = imUtils.throttle((event) => {
+            if (!imUtils.isValidJson(event.data)) return;
             
             const stats = JSON.parse(event.data);
             if (stats.error) {
-                console.error('[KSInstanceManager] Stats error:', stats.error);
+                console.error('[InstanceManager] Stats error:', stats.error);
                 return;
             }
             
-            ksInstanceState.lastStats = stats;
-            ksInstanceUpdateStats(stats);
+            imState.lastStats = stats;
+            imUpdateStats(stats);
         }, 1000);
         
-        ksInstanceState.statsWs.onclose = () => {
-            setTimeout(ksInstanceInitStatsWebSocket, 5000);
+        imState.statsWs.onclose = () => {
+            setTimeout(imInitStatsWebSocket, 5000);
         };
     }
     
@@ -1337,7 +1325,7 @@
     // STATS CHARTS
     // ============================================
     
-    function ksInstanceInitCharts() {
+    function imInitCharts() {
         const commonOptions = {
             responsive: true,
             maintainAspectRatio: false,
@@ -1358,7 +1346,7 @@
                     datasets: [{
                         data: Array(20).fill(0),
                         borderColor: color,
-                        backgroundColor: type === 'line' ? `\( {color}20` : ` \){color}40`,
+                        backgroundColor: type === 'line' ? `${color}20` : `${color}40`,
                         fill: type === 'line',
                     }]
                 },
@@ -1366,90 +1354,77 @@
             });
         };
         
-        ksInstanceState.charts.status = createChart('ks-instance-statusChart', '#10b981');
-        ksInstanceState.charts.ram = createChart('ks-instance-ramChart', '#3b82f6');
-        ksInstanceState.charts.cpu = createChart('ks-instance-cpuChart', '#f59e0b');
+        imState.charts.status = createChart('im-statusChart', '#10b981');
+        imState.charts.ram = createChart('im-ramChart', '#3b82f6');
+        imState.charts.cpu = createChart('im-cpuChart', '#f59e0b');
     }
     
-    function ksInstanceUpdateStats(stats) {
+    function imUpdateStats(stats) {
         // RAM
         const ramUsage = stats.memory_stats?.usage || 0;
         const ramLimit = stats.memory_stats?.limit || 0;
         const ramPercent = ramLimit > 0 ? ((ramUsage / ramLimit) * 100).toFixed(1) : 0;
         
-        document.getElementById('ks-instance-ram').textContent = `${ramPercent}%`;
-        document.getElementById('ks-instance-ramSub').textContent = 
-            `${ksInstanceUtils.formatBytes(ramUsage)} / ${ksInstanceUtils.formatBytes(ramLimit)}`;
-        ksInstanceUpdateChart(ksInstanceState.charts.ram, ramPercent);
+        document.getElementById('im-ram').textContent = `${ramPercent}%`;
+        document.getElementById('im-ramSub').textContent = 
+            `${imUtils.formatBytes(ramUsage)} / ${imUtils.formatBytes(ramLimit)}`;
+        imUpdateChart(imState.charts.ram, ramPercent);
         
         // CPU
         const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage) || 0;
         const systemDelta = (stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage) || 0;
         const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
         
-        document.getElementById('ks-instance-cpu').textContent = `${cpuPercent}%`;
-        ksInstanceUpdateChart(ksInstanceState.charts.cpu, cpuPercent);
+        document.getElementById('im-cpu').textContent = `${cpuPercent}%`;
+        imUpdateChart(imState.charts.cpu, cpuPercent);
         
         // Disk
         const diskUsage = parseFloat(stats.volumeSize) || 0;
         const diskLimit = <%= instance.Disk || 0 %>;
-        const diskEl = document.getElementById('ks-instance-disk');
-        const diskSubEl = document.getElementById('ks-instance-diskSub');
+        const diskEl = document.getElementById('im-disk');
+        const diskSubEl = document.getElementById('im-diskSub');
         
         if (diskLimit === 0) {
-            diskEl.textContent = ksInstanceUtils.formatBytes(diskUsage * 1024 * 1024);
+            diskEl.textContent = imUtils.formatBytes(diskUsage * 1024 * 1024);
             diskSubEl.textContent = 'Unlimited';
-            diskEl.style.color = 'var(--ks-instance-accent-success)';
+            diskEl.style.color = 'var(--im-accent-success)';
         } else {
             const diskPercent = ((diskUsage / diskLimit) * 100).toFixed(1);
             diskEl.textContent = `${diskPercent}%`;
-            diskSubEl.textContent = `${ksInstanceUtils.formatBytes(diskUsage * 1024 * 1024)} / ${ksInstanceUtils.formatBytes(diskLimit * 1024 * 1024)}`;
-            diskEl.style.color = diskPercent > 90 ? 'var(--ks-instance-accent-danger)' : diskPercent > 70 ? 'var(--ks-instance-accent-warning)' : 'var(--ks-instance-accent-success)';
+            diskSubEl.textContent = `${imUtils.formatBytes(diskUsage * 1024 * 1024)} / ${imUtils.formatBytes(diskLimit * 1024 * 1024)}`;
+            diskEl.style.color = diskPercent > 90 ? 'var(--im-accent-danger)' : diskPercent > 70 ? 'var(--im-accent-warning)' : 'var(--im-accent-success)';
         }
         
         // Status detection
         const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
-        ksInstanceUpdateStatus(isRunning);
+        imUpdateStatus(isRunning);
     }
     
-    function ksInstanceUpdateStatus(isRunning) {
-        ksInstanceState.isRunning = isRunning;
+    function imUpdateStatus(isRunning) {
+        imState.isRunning = isRunning;
         
-        const statusEl = document.getElementById('ks-instance-status');
-        const statusCard = document.getElementById('ks-instance-statusCard');
-        const indicator = document.getElementById('ks-instance-statusIndicator');
-        
-        // Header Status Pill (Top Right)
-        const headerStatusText = document.getElementById('ks-instance-header-status-text');
-        const headerDot = document.getElementById('ks-instance-header-dot');
-        const headerPill = document.getElementById('ks-instance-header-status-pill');
+        const statusEl = document.getElementById('im-status');
+        const statusCard = document.getElementById('im-statusCard');
+        const indicator = document.getElementById('im-statusIndicator');
         
         if (isRunning) {
             statusEl.textContent = 'Online';
-            statusEl.className = 'ks-instance-stat-value online';
+            statusEl.className = 'im-stat-value online';
             statusCard.classList.add('online');
             statusCard.classList.remove('offline');
-            indicator.className = 'ks-instance-stat-indicator online';
-            ksInstanceUpdateStatusChart('#10b981');
-            
-            headerStatusText.textContent = 'Online';
-            headerPill.classList.add('online');
-            headerDot.classList.add('online');
+            indicator.className = 'im-stat-indicator online';
+            imUpdateStatusChart('#10b981');
         } else {
             statusEl.textContent = 'Offline';
-            statusEl.className = 'ks-instance-stat-value offline';
+            statusEl.className = 'im-stat-value offline';
             statusCard.classList.add('offline');
             statusCard.classList.remove('online');
-            indicator.className = 'ks-instance-stat-indicator offline';
-            ksInstanceUpdateStatusChart('#ef4444');
-            
-            headerStatusText.textContent = 'Offline';
-            headerPill.classList.remove('online');
-            headerDot.classList.remove('online');
+            indicator.className = 'im-stat-indicator offline';
+            imUpdateStatusChart('#ef4444');
         }
     }
     
-    function ksInstanceUpdateChart(chart, value) {
+    function imUpdateChart(chart, value) {
         if (!chart) return;
         const num = parseFloat(value) || 0;
         chart.data.datasets[0].data.push(num);
@@ -1457,64 +1432,64 @@
         chart.update('none');
     }
     
-    function ksInstanceUpdateStatusChart(color) {
-        if (!ksInstanceState.charts.status) return;
-        ksInstanceState.charts.status.data.datasets[0].backgroundColor = `${color}30`;
-        ksInstanceState.charts.status.data.datasets[0].borderColor = color;
-        ksInstanceState.charts.status.data.datasets[0].data = Array(20).fill(100);
-        ksInstanceState.charts.status.update('none');
+    function imUpdateStatusChart(color) {
+        if (!imState.charts.status) return;
+        imState.charts.status.data.datasets[0].backgroundColor = `${color}30`;
+        imState.charts.status.data.datasets[0].borderColor = color;
+        imState.charts.status.data.datasets[0].data = Array(20).fill(100);
+        imState.charts.status.update('none');
     }
     
     // ============================================
     // COMMAND INPUT
     // ============================================
     
-    function ksInstanceInitCommandInput() {
-        const input = document.getElementById('ks-instance-input');
+    function imInitCommandInput() {
+        const input = document.getElementById('im-input');
         
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') ksInstanceSendCommand();
+            if (e.key === 'Enter') imSendCommand();
         });
         
         input.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (ksInstanceState.currentCommandIndex > 0) {
-                    ksInstanceState.currentCommandIndex--;
-                    input.value = ksInstanceState.commandHistory[ksInstanceState.currentCommandIndex];
+                if (imState.currentCommandIndex > 0) {
+                    imState.currentCommandIndex--;
+                    input.value = imState.commandHistory[imState.currentCommandIndex];
                 }
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (ksInstanceState.currentCommandIndex < ksInstanceState.commandHistory.length - 1) {
-                    ksInstanceState.currentCommandIndex++;
-                    input.value = ksInstanceState.commandHistory[ksInstanceState.currentCommandIndex];
+                if (imState.currentCommandIndex < imState.commandHistory.length - 1) {
+                    imState.currentCommandIndex++;
+                    input.value = imState.commandHistory[imState.currentCommandIndex];
                 } else {
-                    ksInstanceState.currentCommandIndex = ksInstanceState.commandHistory.length;
+                    imState.currentCommandIndex = imState.commandHistory.length;
                     input.value = '';
                 }
             }
         });
     }
     
-    function ksInstanceSendCommand() {
-        const input = document.getElementById('ks-instance-input');
+    function imSendCommand() {
+        const input = document.getElementById('im-input');
         const command = input.value.trim();
         
-        if (!command || !ksInstanceState.ws) return;
+        if (!command || !imState.ws) return;
         
-        ksInstanceState.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
+        imState.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
         
-        ksInstanceState.ws.send(JSON.stringify({
+        imState.ws.send(JSON.stringify({
             event: 'cmd',
             command: command,
-            containerId: ksInstanceState.instanceId
+            containerId: imState.instanceId
         }));
         
-        if (ksInstanceState.commandHistory.length >= ksInstanceState.maxCommands) {
-            ksInstanceState.commandHistory.shift();
+        if (imState.commandHistory.length >= imState.maxCommands) {
+            imState.commandHistory.shift();
         }
-        ksInstanceState.commandHistory.push(command);
-        ksInstanceState.currentCommandIndex = ksInstanceState.commandHistory.length;
+        imState.commandHistory.push(command);
+        imState.currentCommandIndex = imState.commandHistory.length;
         
         input.value = '';
     }
@@ -1523,11 +1498,11 @@
     // POWER BUTTONS - OPTIMISTIC UI
     // ============================================
     
-    function ksInstanceInitPowerButtons() {
+    function imInitPowerButtons() {
         const buttons = {
-            start: document.getElementById('ks-instance-startBtn'),
-            restart: document.getElementById('ks-instance-restartBtn'),
-            stop: document.getElementById('ks-instance-stopBtn')
+            start: document.getElementById('im-startBtn'),
+            restart: document.getElementById('im-restartBtn'),
+            stop: document.getElementById('im-stopBtn')
         };
         
         const icons = {
@@ -1553,23 +1528,23 @@
                 const originalHTML = btn.innerHTML;
                 btn.disabled = true;
                 btn.classList.add('loading');
-                btn.innerHTML = `${icons[action]} <span class="ks-instance-btn-text">Processing...</span>`;
+                btn.innerHTML = `${icons[action]} <span class="im-btn-text">Processing...</span>`;
                 
                 // Optimistic status update
                 if (action === 'start') {
-                    ksInstanceUpdateStatus(true);
+                    imUpdateStatus(true);
                 } else if (action === 'stop') {
-                    ksInstanceUpdateStatus(false);
+                    imUpdateStatus(false);
                 }
                 
                 try {
-                    const res = await axios.post(`/instance/${ksInstanceState.instanceId}/power`, { action });
+                    const res = await axios.post(`/instance/${imState.instanceId}/power`, { action });
                     
                     if (res.status === 200) {
                         // Success state
-                        btn.innerHTML = `\( {icons[action]} <span class="ks-instance-btn-text"> \){labels[action]}ed!</span>`;
+                        btn.innerHTML = `${icons[action]} <span class="im-btn-text">${labels[action]}ed!</span>`;
                         btn.classList.remove('loading');
-                        ksInstanceUtils.showNotification(`Instance ${action}ed successfully`);
+                        imUtils.showNotification(`Instance ${action}ed successfully`);
                         
                         // Revert after delay
                         setTimeout(() => {
@@ -1579,7 +1554,7 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    ksInstanceUtils.showNotification(`Failed to ${action} instance`, 'error');
+                    imUtils.showNotification(`Failed to ${action} instance`, 'error');
                     
                     // Revert on error
                     btn.innerHTML = originalHTML;
@@ -1587,8 +1562,8 @@
                     btn.disabled = false;
                     
                     // Revert optimistic status
-                    if (ksInstanceState.lastStats) {
-                        ksInstanceUpdateStats(ksInstanceState.lastStats);
+                    if (imState.lastStats) {
+                        imUpdateStats(imState.lastStats);
                     }
                 }
             });
@@ -1600,23 +1575,23 @@
     // ============================================
     
     document.addEventListener('DOMContentLoaded', () => {
-        ksInstanceInitTerminal();
-        ksInstanceInitWebSocket();
-        ksInstanceInitStatsWebSocket();
-        ksInstanceInitCharts();
-        ksInstanceInitCommandInput();
-        ksInstanceInitPowerButtons();
+        imInitTerminal();
+        imInitWebSocket();
+        imInitStatsWebSocket();
+        imInitCharts();
+        imInitCommandInput();
+        imInitPowerButtons();
         
         // Visibility change handling for performance
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                if (ksInstanceState.statsWs) ksInstanceState.statsWs.onmessage = null;
+                if (imState.statsWs) imState.statsWs.onmessage = null;
             } else {
-                if (ksInstanceState.statsWs) {
-                    ksInstanceState.statsWs.onmessage = ksInstanceUtils.throttle((event) => {
-                        if (!ksInstanceUtils.isValidJson(event.data)) return;
+                if (imState.statsWs) {
+                    imState.statsWs.onmessage = imUtils.throttle((event) => {
+                        if (!imUtils.isValidJson(event.data)) return;
                         const stats = JSON.parse(event.data);
-                        if (!stats.error) ksInstanceUpdateStats(stats);
+                        if (!stats.error) imUpdateStats(stats);
                     }, 1000);
                 }
             }
@@ -1624,4 +1599,4 @@
     });
 </script>
 
-<%- include('../components/footer') %></DOCUMENT>
+<%- include('../components/footer') %>
