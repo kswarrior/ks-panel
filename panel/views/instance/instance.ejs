@@ -876,6 +876,128 @@
             animation: none;
         }
     }
+
+    /* ============================================
+       SERVERS.EJS STYLISH DESIGN SYSTEM (applied to console cards)
+       ============================================ */
+    /* Toggle Switch Styles (kept for future compatibility) */
+    #instance-toggle:checked ~ .toggle-track {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    #instance-toggle:checked ~ .toggle-dot {
+        transform: translateX(100%);
+    }
+
+    /* Card Animations & Hover Effects - Exact same as servers.ejs instance cards */
+    .im-info-card.instance-card,
+    .im-terminal-wrap.instance-card,
+    .im-stat-card.instance-card {
+        animation: slideIn 0.4s ease-out backwards;
+    }
+    
+    .im-info-card.instance-card:nth-child(1) { animation-delay: 0.05s; }
+    .im-info-card.instance-card:nth-child(2) { animation-delay: 0.1s; }
+    .im-info-card.instance-card:nth-child(3) { animation-delay: 0.15s; }
+    .im-info-card.instance-card:nth-child(4) { animation-delay: 0.2s; }
+    
+    .im-terminal-wrap.instance-card,
+    .im-stat-card.instance-card {
+        animation-delay: 0.1s;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Hover glow effect - Exact same as servers.ejs */
+    .im-info-card.instance-card::before,
+    .im-terminal-wrap.instance-card::before,
+    .im-stat-card.instance-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+        transition: left 0.5s;
+    }
+    
+    .im-info-card.instance-card:hover::before,
+    .im-terminal-wrap.instance-card:hover::before,
+    .im-stat-card.instance-card:hover::before {
+        left: 100%;
+    }
+
+    /* Base card styling to match servers.ejs exactly */
+    .im-info-card.instance-card,
+    .im-terminal-wrap.instance-card,
+    .im-stat-card.instance-card {
+        background-color: rgb(255 255 255 / 0.05);
+        border: 1px solid rgb(255 255 255 / 0.1);
+        border-radius: 1rem; /* rounded-2xl */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .im-info-card.instance-card:hover,
+    .im-terminal-wrap.instance-card:hover,
+    .im-stat-card.instance-card:hover {
+        background-color: rgb(255 255 255 / 0.08);
+        border-color: rgb(255 255 255 / 0.15);
+        transform: scale(1.02);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    /* Touch-friendly improvements - Exact same as servers.ejs */
+    @media (hover: none) and (pointer: coarse) {
+        .im-info-card.instance-card:active,
+        .im-terminal-wrap.instance-card:active,
+        .im-stat-card.instance-card:active {
+            transform: scale(0.98);
+        }
+    }
+
+    /* Safe area support for notched phones - Exact same as servers.ejs */
+    @supports (padding: max(0px)) {
+        .im-page-wrapper {
+            padding-left: max(1rem, env(safe-area-inset-left));
+            padding-right: max(1rem, env(safe-area-inset-right));
+        }
+    }
+
+    /* Responsive adjustments - Exact same as servers.ejs */
+    @media (max-width: 640px) {
+        .im-info-card.instance-card,
+        .im-stat-card.instance-card {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Custom scrollbar for webkit - Exact same as servers.ejs */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
 </style>
 
 <div class="im-container">
@@ -919,7 +1041,7 @@
         <section class="im-info-section">
             <dl class="im-info-grid">
                 <!-- Address Card -->
-                <div class="im-info-card">
+                <div class="im-info-card instance-card">
                     <div class="im-info-content">
                         <div class="im-info-text">
                             <dt class="im-info-label"><%= req.translations.address %></dt>
@@ -955,7 +1077,7 @@
         <div class="im-main">
             <!-- Console Section -->
             <div class="im-console-section">
-                <div class="im-terminal-wrap">
+                <div class="im-terminal-wrap instance-card">
                     <div class="im-terminal-header">
                         <div class="im-terminal-title">
                             <span>Instance Console</span>
@@ -981,7 +1103,7 @@
             <div class="im-stats-section">
                 <div class="im-stats">
                     <!-- Status Card -->
-                    <div class="im-stat-card" id="im-statusCard">
+                    <div class="im-stat-card instance-card" id="im-statusCard">
                         <canvas id="im-statusChart"></canvas>
                         <div class="im-stat-content">
                             <div class="im-stat-header">
@@ -993,7 +1115,7 @@
                     </div>
                     
                     <!-- RAM Usage Card -->
-                    <div class="im-stat-card">
+                    <div class="im-stat-card instance-card">
                         <canvas id="im-ramChart"></canvas>
                         <div class="im-stat-content">
                             <div class="im-stat-header">
@@ -1005,7 +1127,7 @@
                     </div>
                     
                     <!-- CPU Usage Card -->
-                    <div class="im-stat-card">
+                    <div class="im-stat-card instance-card">
                         <canvas id="im-cpuChart"></canvas>
                         <div class="im-stat-content">
                             <div class="im-stat-header">
@@ -1016,7 +1138,7 @@
                     </div>
                     
                     <!-- Disk Usage Card -->
-                    <div class="im-stat-card">
+                    <div class="im-stat-card instance-card">
                         <canvas id="im-diskChart" class="im-hidden"></canvas>
                         <div class="im-stat-content">
                             <div class="im-stat-header">
