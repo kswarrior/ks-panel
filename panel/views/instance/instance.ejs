@@ -1,1557 +1,494 @@
 <%- include('../components/template') %>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"
+<main id="content" class="min-h-screen pb-24 bg-transparent">
+  <div class="px-4 sm:px-6 lg:px-8 pt-6">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-2xl font-semibold text-white">Manage Instance</h1>
+        <p class="text-neutral-400 text-sm mt-1">Control, monitor and interact with your server in real time</p>
+      </div>
+
+      <!-- Power Buttons -->
+      <div class="flex flex-wrap gap-3">
+        <button id="startButton"
+          class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 4.01V8" />
+          </svg>
+          <span class="font-medium">Start</span>
+        </button>
+
+        <button id="restartButton"
+          class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-7.714-6" />
+          </svg>
+          <span class="font-medium">Restart</span>
+        </button>
+
+        <button id="stopButton"
+          class="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6h12v12" />
+          </svg>
+          <span class="font-medium">Stop</span>
+        </button>
+      </div>
+    </div>
+
+    <%- include('../components/instance') %>
+
+    <!-- Info Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <!-- Address -->
+      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
+        <div class="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314-11.314z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-neutral-400 tracking-widest">ADDRESS</p>
+          <p class="text-white font-mono text-lg truncate"><%= instance.Node.address %><span class="text-neutral-400">:</span><%= instance.Primary %></p>
+        </div>
+      </div>
+
+      <!-- Template -->
+      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
+        <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2zM17 21a4 4 0 01-4-4V5a2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2z" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-neutral-400 tracking-widest">TEMPLATE</p>
+          <p class="text-white text-lg truncate">
+            <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Node -->
+      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
+        <div class="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-neutral-400 tracking-widest">NODE</p>
+          <p class="text-white text-lg"><%= instance.Node.name %></p>
+          <p class="text-neutral-400 text-sm font-mono"><%= instance.Node.address %></p>
+        </div>
+      </div>
+
+      <!-- Identifier -->
+      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
+        <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 4L2 8l4 4" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-neutral-400 tracking-widest">IDENTIFIER</p>
+          <p class="text-white font-mono text-lg"><%= req.params.id %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <!-- Terminal -->
+      <div class="xl:col-span-8 bg-neutral-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-neutral-950">
+          <div class="flex items-center gap-3">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-400"></div>
+              <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+            </div>
+            <span class="font-mono text-xs text-neutral-400 tracking-widest">INSTANCE CONSOLE • LIVE</span>
+          </div>
+          <div class="text-emerald-400 text-xs font-medium flex items-center gap-1">
+            <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            CONNECTED
+          </div>
+        </div>
+        
+        <div id="terminal" class="flex-1 min-h-[500px] p-4 bg-[#0f0f13] font-mono text-sm"></div>
+        
+        <!-- Command Input -->
+        <div class="px-6 py-4 bg-neutral-950 border-t border-white/10 flex items-center gap-3">
+          <span class="text-emerald-400 font-medium font-mono select-none">$</span>
+          <input id="input" type="text" 
+            class="flex-1 bg-transparent outline-none text-white font-mono placeholder-neutral-500"
+            placeholder="Type command and press Enter...">
+        </div>
+      </div>
+
+      <!-- Stats Sidebar -->
+      <div class="xl:col-span-4 flex flex-col gap-4">
+        <!-- Status -->
+        <div id="statusCard" class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+          <canvas id="statusChart" class="absolute inset-0 opacity-10 pointer-events-none"></canvas>
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <p class="text-xs font-medium text-neutral-400 tracking-widest">STATUS</p>
+              <p id="status" class="text-4xl font-semibold text-white mt-1">—</p>
+            </div>
+            <span id="statusIndicator" class="inline-flex items-center px-3 py-1 rounded-2xl text-xs font-medium">
+              <!-- JS updated -->
+            </span>
+          </div>
+        </div>
+
+        <!-- RAM -->
+        <div class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+          <canvas id="ramChart" class="absolute inset-0 opacity-10 pointer-events-none"></canvas>
+          <div>
+            <p class="text-xs font-medium text-neutral-400 tracking-widest mb-1">RAM USAGE</p>
+            <div class="flex justify-between items-baseline">
+              <p id="ramUsage" class="text-4xl font-semibold text-blue-400">—</p>
+              <p id="ramSubvalue" class="text-neutral-400 font-mono text-sm">—</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CPU -->
+        <div class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+          <canvas id="cpuChart" class="absolute inset-0 opacity-10 pointer-events-none"></canvas>
+          <div>
+            <p class="text-xs font-medium text-neutral-400 tracking-widest mb-1">CPU USAGE</p>
+            <p id="cpuUsage" class="text-4xl font-semibold text-amber-400">—</p>
+          </div>
+        </div>
+
+        <!-- Disk -->
+        <div class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+          <div>
+            <p class="text-xs font-medium text-neutral-400 tracking-widest mb-1">DISK USAGE</p>
+            <div class="flex justify-between items-baseline">
+              <p id="diskUsage" class="text-4xl font-semibold text-white">—</p>
+              <p id="diskSubvalue" class="text-neutral-400 font-mono text-sm">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="notification" 
+       class="hidden fixed bottom-6 right-6 bg-neutral-900 border border-white/10 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+    <span id="notificationText" class="text-sm font-medium"></span>
+  </div>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"
     integrity="sha512-2PRgAav8Os8vLcOAh1gSaDoNLe1fAyq8/G3QSdyjFFD+OqNjLeHE/8q4+S4MEZgPsuo+itHopj+hJvqS8XUQ8A=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css"
-    integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/attach/attach.min.js"
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/attach/attach.min.js"
     integrity="sha512-43J76SR5UijcuJTzs73z8NpkyWon8a8EoV+dX6obqXW7O26Yb268H2vP6EiJjD7sWXqxS3G/YOqPyyLF9fmqgA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"
     integrity="sha512-+wh8VA1djpW3Dj9/IJDu6Ufi4vVQ0zxLv9Vmfo70AbmYFJm0z3NLnV98vdRKBdPDV4Kwpi7EZdr8mDY9L8JIA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 
-<style>
-    /* ============================================
-       DESIGN SYSTEM - REFINED
-       ============================================ */
-    :root {
-        /* Colors */
-        --bg-primary: #0f0f13;
-        --bg-secondary: #1a1a1f;
-        --bg-tertiary: #25252b;
-        --bg-hover: #2a2a32;
-        
-        --accent-primary: #3b82f6;
-        --accent-primary-hover: #2563eb;
-        --accent-success: #10b981;
-        --accent-success-hover: #059669;
-        --accent-danger: #ef4444;
-        --accent-danger-hover: #dc2626;
-        --accent-warning: #f59e0b;
-        
-        --text-primary: #f9fafb;
-        --text-secondary: #9ca3af;
-        --text-muted: #6b7280;
-        
-        --border-color: rgba(255, 255, 255, 0.08);
-        --border-color-hover: rgba(255, 255, 255, 0.15);
-        
-        /* Spacing - More generous */
-        --space-xs: 0.25rem;   /* 4px */
-        --space-sm: 0.5rem;    /* 8px */
-        --space-md: 1rem;      /* 16px */
-        --space-lg: 1.5rem;    /* 24px */
-        --space-xl: 2rem;      /* 32px */
-        --space-2xl: 3rem;     /* 48px */
-        
-        /* Typography */
-        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        --font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', Monaco, monospace;
-        
-        /* Effects */
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-        --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
-        --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.3);
-        --shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
-        
-        --radius-sm: 6px;
-        --radius-md: 8px;
-        --radius-lg: 12px;
-        --radius-xl: 16px;
-        
-        --transition-fast: 150ms ease;
-        --transition-base: 250ms ease;
-    }
-
-    /* ============================================
-       BASE STYLES
-       ============================================ */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: var(--font-sans);
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-    }
-
-    /* ============================================
-       LAYOUT CONTAINER
-       ============================================ */
-    .page-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: var(--space-xl);
-    }
-
-    @media (max-width: 768px) {
-        .page-container {
-            padding: var(--space-md);
-        }
-    }
-
-    /* ============================================
-       HEADER SECTION
-       ============================================ */
-    .page-header {
-        margin-bottom: var(--space-xl);
-        padding-bottom: var(--space-lg);
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: var(--space-lg);
-        flex-wrap: wrap;
-    }
-
-    .header-brand {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .header-title {
-        font-size: 1.875rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: var(--space-sm);
-        letter-spacing: -0.025em;
-    }
-
-    .header-subtitle {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        max-width: 600px;
-    }
-
-    /* ============================================
-       ACTION BUTTONS
-       ============================================ */
-    .actions-container {
-        display: flex;
-        gap: var(--space-sm);
-        flex-wrap: wrap;
-    }
-
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-sm);
-        padding: var(--space-sm) var(--space-md);
-        font-size: 0.875rem;
-        font-weight: 500;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .action-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .action-btn svg {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-    }
-
-    .btn-start {
-        background-color: var(--accent-success);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .btn-start:hover:not(:disabled) {
-        background-color: var(--accent-success-hover);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-glow-green);
-    }
-
-    .btn-restart {
-        background-color: var(--accent-primary);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .btn-restart:hover:not(:disabled) {
-        background-color: var(--accent-primary-hover);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-glow-blue);
-    }
-
-    .btn-stop {
-        background-color: var(--accent-danger);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .btn-stop:hover:not(:disabled) {
-        background-color: var(--accent-danger-hover);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-glow-red);
-    }
-
-    .action-btn:active:not(:disabled) {
-        transform: translateY(0);
-    }
-
-    /* ============================================
-       INFO CARDS GRID
-       ============================================ */
-    .info-section {
-        margin-bottom: var(--space-xl);
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: var(--space-md);
-    }
-
-    @media (max-width: 1024px) {
-        .info-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 640px) {
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .info-card {
-        background-color: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: var(--space-lg);
-        transition: all var(--transition-base);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .info-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--accent-primary), transparent);
-        opacity: 0;
-        transition: opacity var(--transition-base);
-    }
-
-    .info-card:hover {
-        background-color: var(--bg-tertiary);
-        border-color: var(--border-color-hover);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .info-card:hover::before {
-        opacity: 1;
-    }
-
-    .info-card-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--space-md);
-    }
-
-    .info-text {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .info-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-muted);
-        margin-bottom: var(--space-xs);
-    }
-
-    .info-value {
-        font-size: 0.9375rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .info-value.secondary {
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        margin-top: 2px;
-    }
-
-    .info-icon-wrapper {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--bg-tertiary);
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-color);
-        transition: all var(--transition-fast);
-    }
-
-    .info-card:hover .info-icon-wrapper {
-        background-color: var(--bg-hover);
-        border-color: var(--border-color-hover);
-    }
-
-    .info-icon {
-        width: 20px;
-        height: 20px;
-        color: var(--accent-primary);
-        transition: color var(--transition-fast);
-    }
-
-    .info-card:hover .info-icon {
-        color: var(--text-primary);
-    }
-
-    /* ============================================
-       DAEMON ALERT
-       ============================================ */
-    .daemon-alert {
-        background-color: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: var(--radius-lg);
-        padding: var(--space-lg);
-        margin-bottom: var(--space-xl);
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .daemon-alert.hidden {
-        display: none;
-    }
-
-    .daemon-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(239, 68, 68, 0.2);
-        border-radius: var(--radius-md);
-        color: var(--accent-danger);
-        flex-shrink: 0;
-    }
-
-    .daemon-text h3 {
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: var(--space-xs);
-    }
-
-    .daemon-text p {
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        line-height: 1.5;
-    }
-
-    /* ============================================
-       MAIN LAYOUT
-       ============================================ */
-    .main-layout {
-        display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: var(--space-xl);
-    }
-
-    @media (max-width: 1024px) {
-        .main-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ============================================
-       TERMINAL STYLES
-       ============================================ */
-    .terminal-container {
-        background-color: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        box-shadow: var(--shadow-lg);
-    }
-
-    .terminal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: var(--space-sm) var(--space-md);
-        background-color: var(--bg-tertiary);
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .terminal-title {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-    }
-
-    .terminal-badge {
-        font-size: 0.625rem;
-        padding: 2px 8px;
-        background-color: var(--accent-success);
-        color: white;
-        border-radius: var(--radius-full);
-        font-weight: 600;
-    }
-
-    .terminal-dots {
-        display: flex;
-        gap: 6px;
-    }
-
-    .terminal-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
-
-    .terminal-dot.red { 
-        background-color: #ff5f56; 
-        border: 1px solid #e0443e;
-    }
-    .terminal-dot.yellow { 
-        background-color: #ffbd2e; 
-        border: 1px solid #dea123;
-    }
-    .terminal-dot.green { 
-        background-color: #27c93f; 
-        border: 1px solid #1aab29;
-    }
-
-    #terminal {
-        width: 100%;
-        height: 500px;
-        padding: var(--space-md);
-    }
-
-    .xterm {
-        padding: 0 !important;
-    }
-
-    .xterm-viewport {
-        background-color: transparent !important;
-    }
-
-    .xterm-viewport::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .xterm-viewport::-webkit-scrollbar-track {
-        background: var(--bg-tertiary);
-    }
-
-    .xterm-viewport::-webkit-scrollbar-thumb {
-        background: var(--border-color-hover);
-        border-radius: 4px;
-    }
-
-    .xterm-viewport::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted);
-    }
-
-    .xterm-rows {
-        font-family: var(--font-mono) !important;
-        font-size: 13px !important;
-        line-height: 1.6 !important;
-    }
-
-    .terminal-input-wrapper {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        padding: var(--space-sm) var(--space-md);
-        background-color: var(--bg-tertiary);
-        border-top: 1px solid var(--border-color);
-    }
-
-    .terminal-prompt {
-        font-family: var(--font-mono);
-        color: var(--accent-success);
-        font-weight: 600;
-        font-size: 0.875rem;
-        user-select: none;
-    }
-
-    #input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        outline: none;
-        color: var(--text-primary);
-        font-family: var(--font-mono);
-        font-size: 0.875rem;
-        padding: var(--space-xs) 0;
-    }
-
-    #input::placeholder {
-        color: var(--text-muted);
-    }
-
-    /* ============================================
-       STATS SECTION
-       ============================================ */
-    .stats-grid {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-md);
-    }
-
-    .stats-card {
-        background-color: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: var(--space-lg);
-        position: relative;
-        overflow: hidden;
-        transition: all var(--transition-base);
-        height: 120px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .stats-card:hover {
-        border-color: var(--border-color-hover);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .stats-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--accent-primary);
-        opacity: 0;
-        transition: opacity var(--transition-base);
-    }
-
-    .stats-card.online::before {
-        background: var(--accent-success);
-        opacity: 1;
-    }
-
-    .stats-card.offline::before {
-        background: var(--accent-danger);
-        opacity: 1;
-    }
-
-    .stats-card canvas {
-        position: absolute;
-        inset: 0;
-        width: 100% !important;
-        height: 100% !important;
-        opacity: 0.15;
-        pointer-events: none;
-    }
-
-    .stats-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
-    }
-
-    .stats-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .stats-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-muted);
-    }
-
-    .stats-indicator {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: var(--text-muted);
-        box-shadow: 0 0 8px currentColor;
-    }
-
-    .stats-indicator.online {
-        background-color: var(--accent-success);
-        animation: pulse 2s infinite;
-    }
-
-    .stats-indicator.offline {
-        background-color: var(--accent-danger);
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    .stats-value {
-        font-family: var(--font-mono);
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.02em;
-    }
-
-    .stats-value.small {
-        font-size: 1.125rem;
-    }
-
-    .stats-value.online {
-        color: var(--accent-success);
-    }
-
-    .stats-value.offline {
-        color: var(--accent-danger);
-    }
-
-    .stats-subvalue {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        font-family: var(--font-mono);
-    }
-
-    /* ============================================
-       EULA MODAL
-       ============================================ */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(8px);
-        z-index: 100;
-        padding: var(--space-md);
-        animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    .eula-modal {
-        width: 100%;
-        max-width: 480px;
-        background-color: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-xl);
-        padding: var(--space-2xl);
-        box-shadow: var(--shadow-lg);
-        animation: modalSlide 0.3s ease;
-    }
-
-    @keyframes modalSlide {
-        from {
-            opacity: 0;
-            transform: scale(0.95) translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
-
-    .eula-header {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        margin-bottom: var(--space-lg);
-    }
-
-    .eula-icon {
-        width: 48px;
-        height: 48px;
-        color: var(--accent-warning);
-        flex-shrink: 0;
-    }
-
-    .eula-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .eula-subtitle {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        margin-top: var(--space-xs);
-    }
-
-    .eula-text {
-        font-size: 0.875rem;
-        line-height: 1.7;
-        color: var(--text-secondary);
-        margin-bottom: var(--space-xl);
-    }
-
-    .eula-text a {
-        color: var(--accent-primary);
-        font-weight: 500;
-        text-decoration: none;
-        transition: color var(--transition-fast);
-    }
-
-    .eula-text a:hover {
-        color: var(--accent-primary-hover);
-        text-decoration: underline;
-    }
-
-    .eula-btn {
-        width: 100%;
-        padding: var(--space-md);
-        background-color: var(--accent-primary);
-        color: white;
-        font-family: var(--font-sans);
-        font-size: 0.9375rem;
-        font-weight: 600;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        transition: all var(--transition-fast);
-    }
-
-    .eula-btn:hover {
-        background-color: var(--accent-primary-hover);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-glow-blue);
-    }
-
-    /* ============================================
-       NOTIFICATION
-       ============================================ */
-    #notification {
-        position: fixed;
-        bottom: var(--space-xl);
-        right: var(--space-xl);
-        padding: var(--space-md) var(--space-lg);
-        background-color: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        color: var(--text-primary);
-        font-size: 0.875rem;
-        font-weight: 500;
-        box-shadow: var(--shadow-lg);
-        z-index: 50;
-        transform: translateY(100px);
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    #notification.show {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    @media (max-width: 640px) {
-        #notification {
-            left: var(--space-md);
-            right: var(--space-md);
-            bottom: var(--space-md);
-        }
-    }
-
-    /* ============================================
-       UTILITY CLASSES
-       ============================================ */
-    .font-mono {
-        font-family: var(--font-mono);
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: var(--bg-secondary);
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: var(--border-color-hover);
-        border-radius: 5px;
-        border: 2px solid var(--bg-secondary);
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted);
-    }
-</style>
-
-<div class="page-container">
-    <% if (false) { %>
-        <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
-            <div class="modal-overlay" id="eulaModal">
-                <div class="eula-modal">
-                    <div class="eula-header">
-                        <svg class="eula-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                        </svg>
-                        <div>
-                            <p class="eula-title">Minecraft EULA Agreement</p>
-                            <p class="eula-subtitle">License Agreement Required</p>
-                        </div>
-                    </div>
-                    <p class="eula-text">
-                        By clicking "I Agree" below, you acknowledge that you have read, understood, and agree to be bound by the terms of the <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" rel="noopener noreferrer">Minecraft End User License Agreement</a>. This server will not start until the EULA is accepted.
-                    </p>
-                    <button onclick="acceptEula()" class="eula-btn">
-                        I Agree to the EULA
-                    </button>
-                </div>
-            </div>
-        <% } %>
-    <% } %>
-    
-    <!-- Header Section -->
-    <div class="page-header">
-        <div class="header-content">
-            <div class="header-brand">
-                <h1 class="header-title"><%= req.translations.manageInstance %></h1>
-                <p class="header-subtitle"><%= req.translations.manageInstanceText %></p>
-            </div>
-            
-            <div class="actions-container">
-                <button id="startButton" type="button" class="action-btn btn-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="full"><%= req.translations.start %></span>
-                </button>
-
-                <button id="restartButton" type="button" class="action-btn btn-restart">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="full"><%= req.translations.restart %></span>
-                </button>
-
-                <button id="stopButton" type="button" class="action-btn btn-stop">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="full"><%= req.translations.stop %></span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <%- include('../components/instance') %>
-    
-    <!-- Info Cards Grid -->
-    <section class="info-section">
-        <dl class="info-grid">
-            <!-- Address Card -->
-            <div class="info-card">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label"><%= req.translations.address %></dt>
-                        <dd class="info-value">
-                            <%= instance.Node.address %><span style="color: var(--text-muted);">:<%= instance.Primary %></span>
-                        </dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Template Card -->
-            <div class="info-card">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label">Template</dt>
-                        <dd class="info-value">
-                            <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
-                        </dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Node Card -->
-            <div class="info-card">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label"><%= req.translations.node %></dt>
-                        <dd class="info-value"><%= instance.Node.name %></dd>
-                        <dd class="info-value secondary"><%= instance.Node.address %></dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Identifier Card -->
-            <div class="info-card">
-                <div class="info-card-content">
-                    <div class="info-text">
-                        <dt class="info-label"><%= req.translations.identifier %></dt>
-                        <dd class="info-value font-mono"><%= req.params.id %></dd>
-                    </div>
-                    <div class="info-icon-wrapper">
-                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </dl>
-    </section>
-
-    <!-- Daemon Down Alert -->
-    <div class="daemon-alert hidden" id="daemonIsDown">
-        <div class="daemon-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-        </div>
-        <div class="daemon-text">
-            <h3><%= req.translations.connectionFailure %></h3>
-            <p><%= req.translations.connectionFailureText %></p>
-        </div>
-    </div>
-
-    <!-- Main Layout: Console + Stats -->
-    <div class="main-layout">
-        <!-- Console Section -->
-        <div class="console-section">
-            <div class="terminal-container">
-                <div class="terminal-header">
-                    <div class="terminal-title">
-                        <span>Instance Console</span>
-                        <span class="terminal-badge">Live</span>
-                    </div>
-                    <div class="terminal-dots">
-                        <span class="terminal-dot red"></span>
-                        <span class="terminal-dot yellow"></span>
-                        <span class="terminal-dot green"></span>
-                    </div>
-                </div>
-                <div id="terminal"></div>
-                <div class="terminal-input-wrapper">
-                    <span class="terminal-prompt">~</span>
-                    <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>" spellcheck="false">
-                </div>
-            </div>
-        </div>
-        
-        <!-- Stats Section -->
-        <div class="stats-section">
-            <div class="stats-grid">
-                <!-- Status Card -->
-                <div class="stats-card" id="statusCard">
-                    <canvas id="statusChart"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.status %></span>
-                            <span class="stats-indicator" id="statusIndicator"></span>
-                        </div>
-                        <p id="status" class="stats-value">-</p>
-                    </div>
-                </div>
-                
-                <!-- RAM Usage Card -->
-                <div class="stats-card">
-                    <canvas id="ramChart"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.ramUsage %></span>
-                        </div>
-                        <p id="ramUsage" class="stats-value small">-</p>
-                        <p id="ramSubvalue" class="stats-subvalue">Calculating...</p>
-                    </div>
-                </div>
-                
-                <!-- CPU Usage Card -->
-                <div class="stats-card">
-                    <canvas id="cpuChart"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.cpuUsage %></span>
-                        </div>
-                        <p id="cpuUsage" class="stats-value">-</p>
-                    </div>
-                </div>
-                
-                <!-- Disk Usage Card -->
-                <div class="stats-card">
-                    <canvas id="diskChart" class="hidden"></canvas>
-                    <div class="stats-content">
-                        <div class="stats-header">
-                            <span class="stats-label"><%= req.translations.diskUsage %></span>
-                        </div>
-                        <p id="diskUsage" class="stats-value small">-</p>
-                        <p id="diskSubvalue" class="stats-subvalue">Calculating...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Notification Toast -->
-<div id="notification" role="status" aria-live="polite"></div>
-
-<script>
-    // Theme configuration
-    const baseTheme = {
-        foreground: '#e5e7eb',
-        background: 'transparent',
-        selection: 'rgba(59, 130, 246, 0.3)',
-        black: '#0f0f13',
-        brightBlack: '#1a1a1f',
-        red: '#ef4444',
-        brightRed: '#f87171',
-        green: '#10b981',
-        brightGreen: '#34d399',
-        yellow: '#f59e0b',
-        brightYellow: '#fbbf24',
-        blue: '#3b82f6',
-        brightBlue: '#60a5fa',
-        magenta: '#a855f7',
-        brightMagenta: '#c084fc',
-        cyan: '#06b6d4',
-        brightCyan: '#22d3ee',
-        white: '#f9fafb',
-        brightWhite: '#ffffff',
-        cursor: '#3b82f6',
-        cursorAccent: '#1a1a1f',
-    };
-    
-    // State management
+  <script>
+    // State
     const state = {
-        protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
-        instanceId: '<%= req.params.id %>',
-        maxCommands: 50,
-        commandHistory: [],
-        currentCommandIndex: -1,
-        term: null,
-        ws: null,
-        statsWs: null,
-        eulaModalShown: false,
-        reconnectAttempts: 0,
-        maxReconnectAttempts: 10,
-        charts: {},
-        lastStats: null
+      instanceId: '<%= req.params.id %>',
+      term: null,
+      ws: null,
+      statsWs: null,
+      charts: {},
+      commandHistory: [],
+      currentCommandIndex: -1,
+      reconnectAttempts: 0,
+      maxReconnectAttempts: 8
     };
-    
-    // Utilities
+
     const utils = {
-        debounce: (fn, delay) => {
-            let timeout;
-            return (...args) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => fn(...args), delay);
-            };
-        },
-        
-        throttle: (fn, limit) => {
-            let inThrottle;
-            return (...args) => {
-                if (!inThrottle) {
-                    fn(...args);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
-                }
-            };
-        },
-        
-        formatBytes: (bytes, decimals = 2) => {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        },
-        
-        isValidJson: (str) => {
-            try {
-                JSON.parse(str);
-                return true;
-            } catch {
-                return false;
-            }
-        },
-        
-        showNotification: (message, type = 'info') => {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = 'show';
-            setTimeout(() => notification.classList.remove('show'), 3000);
-        }
+      showNotification(msg, type = 'success') {
+        const toast = document.getElementById('notification');
+        const text = document.getElementById('notificationText');
+        text.textContent = msg;
+        toast.className = `fixed bottom-6 right-6 bg-neutral-900 border border-white/10 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 ${type === 'error' ? 'border-red-400' : 'border-emerald-400'}`;
+        toast.style.display = 'flex';
+        setTimeout(() => { toast.style.display = 'none'; }, 2800);
+      },
+
+      formatBytes(bytes) {
+        if (!bytes) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+      }
     };
-    
-    // Terminal initialization
+
+    // Terminal
     function initTerminal() {
-        const screenWidth = window.innerWidth;
-        const config = {
-            cols: screenWidth < 640 ? 40 : screenWidth < 1024 ? 80 : 100,
-            rows: screenWidth < 640 ? 20 : 24,
-            fontSize: screenWidth < 640 ? 12 : 14,
-        };
-        
-        state.term = new Terminal({
-            disableStdin: true,
-            allowProposedApi: true,
-            lineHeight: 1.5,
-            rows: config.rows,
-            cols: config.cols,
-            fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Courier New, monospace',
-            fontSize: config.fontSize,
-            theme: baseTheme,
-            allowTransparency: true,
-            cursorBlink: false,
-            scrollback: 5000,
-            smoothScrollDuration: 0,
-            fastScrollModifier: 'alt',
-            fastScrollSensitivity: 5,
-        });
-        
-        state.term.open(document.getElementById('terminal'));
-        
-        const handleResize = utils.debounce(() => {
-            const newWidth = window.innerWidth;
-            const newConfig = {
-                cols: newWidth < 640 ? 40 : newWidth < 1024 ? 80 : 100,
-                rows: newWidth < 640 ? 20 : 24,
-            };
-            state.term.resize(newConfig.cols, newConfig.rows);
-        }, 250);
-        
-        window.addEventListener('resize', handleResize, { passive: true });
+      const cols = window.innerWidth > 1200 ? 110 : window.innerWidth > 800 ? 85 : 60;
+      state.term = new Terminal({
+        cols: cols,
+        rows: 28,
+        fontFamily: 'JetBrains Mono, monospace',
+        fontSize: 14,
+        lineHeight: 1.6,
+        theme: {
+          background: '#0f0f13',
+          foreground: '#e5e7eb',
+          cursor: '#22d3ee',
+          black: '#1a1a1f',
+          red: '#ef4444',
+          green: '#10b981',
+          yellow: '#f59e0b',
+          blue: '#3b82f6',
+          magenta: '#a855f7',
+          cyan: '#06b6d4',
+          white: '#f9fafb',
+          brightBlack: '#4b5563',
+          brightRed: '#f87171',
+          brightGreen: '#34d399',
+          brightYellow: '#fbbf24',
+          brightBlue: '#60a5fa',
+          brightMagenta: '#c084fc',
+          brightCyan: '#22d3ee',
+          brightWhite: '#ffffff'
+        },
+        allowTransparency: true,
+        cursorBlink: true
+      });
+
+      state.term.open(document.getElementById('terminal'));
+      
+      // Resize handler
+      window.addEventListener('resize', () => {
+        const newCols = window.innerWidth > 1200 ? 110 : window.innerWidth > 800 ? 85 : 60;
+        state.term.resize(newCols, 28);
+      });
     }
-    
-    // WebSocket management
+
+    // WebSocket Console
     function initWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `${state.protocol}://${window.location.hostname}${port}/console/${state.instanceId}`;
-        
-        state.ws = new WebSocket(wsUrl);
-        
-        state.ws.onopen = () => {
-            console.log('WebSocket connected');
-            state.reconnectAttempts = 0;
-            document.getElementById('daemonIsDown').classList.add('hidden');
-        };
-        
-        state.ws.onmessage = handleWebSocketMessage;
-        
-        state.ws.onclose = () => {
-            if (state.reconnectAttempts < state.maxReconnectAttempts) {
-                const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts), 30000);
-                setTimeout(initWebSocket, delay);
-                state.reconnectAttempts++;
-            }
-        };
-        
-        state.ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
-    }
-    
-    function handleWebSocketMessage(msg) {
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const port = window.location.port ? `:${window.location.port}` : '';
+      state.ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${state.instanceId}`);
+
+      state.ws.onopen = () => {
+        state.reconnectAttempts = 0;
+      };
+
+      state.ws.onmessage = (msg) => {
         const lines = msg.data.split('\n');
-        let isFirstLine = true;
-        let previousLineWasEmpty = false;
         let output = '';
-        
-        lines.forEach(line => {
-            const trimmedLine = line.trim();
-            if (trimmedLine === '' && previousLineWasEmpty) return;
-            
-            if (trimmedLine.toLowerCase().includes('you need to agree to the eula') && 
-                !state.eulaModalShown) {
-                showEulaModal();
-            }
-            
-            if (!isFirstLine && !previousLineWasEmpty) {
-                output += '\r\n';
-            }
-            
-            output += '\x1b[0m' + trimmedLine;
-            
-            if (trimmedLine.includes("Working on")) {
-                output += '\r\n\u001b[1m\u001b[33m[panel] \u001b[0mReconnecting...';
-                state.ws.close();
-            }
-            
-            if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                state.ws.close();
-                document.getElementById('daemonIsDown').classList.remove('hidden');
-            }
-            
-            isFirstLine = false;
-            previousLineWasEmpty = (trimmedLine === '');
+        lines.forEach((line, i) => {
+          if (line.trim()) output += (i > 0 ? '\r\n' : '') + line.trim();
         });
-        
         state.term.write(output);
+      };
+
+      state.ws.onclose = () => {
+        if (state.reconnectAttempts < state.maxReconnectAttempts) {
+          setTimeout(initWebSocket, 1200 * Math.pow(1.6, state.reconnectAttempts));
+          state.reconnectAttempts++;
+        }
+      };
     }
-    
+
     // Stats WebSocket
     function initStatsWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `${state.protocol}://${window.location.hostname}${port}/stats/${state.instanceId}`;
-        
-        state.statsWs = new WebSocket(wsUrl);
-        
-        state.statsWs.onmessage = utils.throttle((event) => {
-            if (!utils.isValidJson(event.data)) return;
-            
-            const stats = JSON.parse(event.data);
-            if (stats.error) {
-                console.error('Stats error:', stats.error);
-                return;
-            }
-            
-            state.lastStats = stats;
-            updateStats(stats);
-        }, 1000);
-        
-        state.statsWs.onclose = () => {
-            setTimeout(initStatsWebSocket, 5000);
-        };
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const port = window.location.port ? `:${window.location.port}` : '';
+      state.statsWs = new WebSocket(`${protocol}://${window.location.hostname}${port}/stats/${state.instanceId}`);
+
+      state.statsWs.onmessage = (e) => {
+        try {
+          const stats = JSON.parse(e.data);
+          if (stats.error) return;
+          updateStatsUI(stats);
+        } catch (_) {}
+      };
+
+      state.statsWs.onclose = () => setTimeout(initStatsWebSocket, 4000);
     }
-    
-    // Stats charts
+
+    // Charts
     function initCharts() {
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
-            animation: { duration: 0 },
-            elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.4 } }
-        };
-        
-        const createChart = (id, color, type = 'line') => {
-            const ctx = document.getElementById(id);
-            if (!ctx) return null;
-            
-            return new Chart(ctx, {
-                type: type,
-                data: {
-                    labels: Array(20).fill(''),
-                    datasets: [{
-                        data: Array(20).fill(0),
-                        borderColor: color,
-                        backgroundColor: type === 'line' ? `${color}20` : `${color}40`,
-                        fill: type === 'line',
-                    }]
-                },
-                options: commonOptions
-            });
-        };
-        
-        state.charts.status = createChart('statusChart', '#10b981');
-        state.charts.ram = createChart('ramChart', '#3b82f6');
-        state.charts.cpu = createChart('cpuChart', '#f59e0b');
+      const opts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
+        elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.3 } }
+      };
+
+      state.charts.ram = new Chart(document.getElementById('ramChart'), {
+        type: 'line', data: { labels: Array(20).fill(''), datasets: [{ data: Array(20).fill(0), borderColor: '#3b82f6', backgroundColor: '#3b82f620' }] }, options: opts
+      });
+      state.charts.cpu = new Chart(document.getElementById('cpuChart'), {
+        type: 'line', data: { labels: Array(20).fill(''), datasets: [{ data: Array(20).fill(0), borderColor: '#f59e0b', backgroundColor: '#f59e0b20' }] }, options: opts
+      });
+      state.charts.status = new Chart(document.getElementById('statusChart'), {
+        type: 'line', data: { labels: Array(20).fill(''), datasets: [{ data: Array(20).fill(100), borderColor: '#10b981', backgroundColor: '#10b98120' }] }, options: opts
+      });
     }
-    
-    function updateStats(stats) {
-        // RAM
-        const ramUsage = stats.memory_stats?.usage || 0;
-        const ramLimit = stats.memory_stats?.limit || 0;
-        const ramPercent = ramLimit > 0 ? ((ramUsage / ramLimit) * 100).toFixed(1) : 0;
-        
-        document.getElementById('ramUsage').textContent = `${ramPercent}%`;
-        document.getElementById('ramSubvalue').textContent = 
-            `${utils.formatBytes(ramUsage)} / ${utils.formatBytes(ramLimit)}`;
-        updateChart(state.charts.ram, ramPercent);
-        
-        // CPU
-        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage) || 0;
-        const systemDelta = (stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage) || 0;
-        const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
-        
-        document.getElementById('cpuUsage').textContent = `${cpuPercent}%`;
-        updateChart(state.charts.cpu, cpuPercent);
-        
-        // Disk
-        const diskUsage = parseFloat(stats.volumeSize) || 0;
-        const diskLimit = <%= instance.Disk || 0 %>;
-        const diskEl = document.getElementById('diskUsage');
-        const diskSubEl = document.getElementById('diskSubvalue');
-        
-        if (diskLimit === 0) {
-            diskEl.textContent = utils.formatBytes(diskUsage * 1024 * 1024);
-            diskSubEl.textContent = 'Unlimited';
-            diskEl.style.color = 'var(--accent-success)';
-        } else {
-            const diskPercent = ((diskUsage / diskLimit) * 100).toFixed(1);
-            diskEl.textContent = `${diskPercent}%`;
-            diskSubEl.textContent = `${utils.formatBytes(diskUsage * 1024 * 1024)} / ${utils.formatBytes(diskLimit * 1024 * 1024)}`;
-            diskEl.style.color = diskPercent > 90 ? 'var(--accent-danger)' : diskPercent > 70 ? 'var(--accent-warning)' : 'var(--accent-success)';
-        }
-        
-        // Status
-        const statusEl = document.getElementById('status');
-        const statusCard = document.getElementById('statusCard');
-        const indicator = document.getElementById('statusIndicator');
-        const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
-        
-        if (isRunning) {
-            statusEl.textContent = 'Online';
-            statusEl.className = 'stats-value online';
-            statusCard.classList.add('online');
-            statusCard.classList.remove('offline');
-            indicator.className = 'stats-indicator online';
-            updateStatusChart('#10b981');
-        } else {
-            statusEl.textContent = 'Offline';
-            statusEl.className = 'stats-value offline';
-            statusCard.classList.add('offline');
-            statusCard.classList.remove('online');
-            indicator.className = 'stats-indicator offline';
-            updateStatusChart('#ef4444');
-        }
+
+    function updateStatsUI(stats) {
+      // RAM
+      const ramUsed = stats.memory_stats?.usage || 0;
+      const ramLimit = stats.memory_stats?.limit || 0;
+      const ramPct = ramLimit ? Math.round((ramUsed / ramLimit) * 100) : 0;
+      document.getElementById('ramUsage').textContent = `${ramPct}%`;
+      document.getElementById('ramSubvalue').innerHTML = `${utils.formatBytes(ramUsed)} <span class="text-neutral-500">/</span> ${utils.formatBytes(ramLimit)}`;
+      if (state.charts.ram) {
+        state.charts.ram.data.datasets[0].data.push(ramPct);
+        state.charts.ram.data.datasets[0].data.shift();
+        state.charts.ram.update('none');
+      }
+
+      // CPU
+      const cpuPct = stats.cpu_stats && stats.precpu_stats 
+        ? Math.round(((stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage) / 
+                     (stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage)) * 100) || 0 
+        : 0;
+      document.getElementById('cpuUsage').textContent = `${cpuPct}%`;
+      if (state.charts.cpu) {
+        state.charts.cpu.data.datasets[0].data.push(cpuPct);
+        state.charts.cpu.data.datasets[0].data.shift();
+        state.charts.cpu.update('none');
+      }
+
+      // Disk
+      const diskUsedMB = parseFloat(stats.volumeSize) || 0;
+      const diskLimit = <%= instance.Disk || 0 %>;
+      const diskEl = document.getElementById('diskUsage');
+      const diskSub = document.getElementById('diskSubvalue');
+      if (diskLimit === 0) {
+        diskEl.textContent = utils.formatBytes(diskUsedMB * 1024 * 1024);
+        diskSub.textContent = 'Unlimited';
+      } else {
+        const pct = Math.round((diskUsedMB / diskLimit) * 100);
+        diskEl.textContent = `${pct}%`;
+        diskSub.innerHTML = `${utils.formatBytes(diskUsedMB * 1024 * 1024)} <span class="text-neutral-500">/</span> ${utils.formatBytes(diskLimit * 1024 * 1024)}`;
+      }
+
+      // Status
+      const isOnline = (stats.status || '').toLowerCase() === 'running' || ramUsed > 0;
+      const statusEl = document.getElementById('status');
+      const indicator = document.getElementById('statusIndicator');
+      const card = document.getElementById('statusCard');
+
+      if (isOnline) {
+        statusEl.innerHTML = 'Online <span class="text-emerald-400 text-xl">●</span>';
+        statusEl.className = 'text-4xl font-semibold text-emerald-400';
+        card.classList.add('border-emerald-400/30');
+        indicator.innerHTML = `<span class="px-3 py-1 bg-emerald-400/10 text-emerald-400 text-xs rounded-2xl flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> RUNNING</span>`;
+        if (state.charts.status) state.charts.status.data.datasets[0].borderColor = '#10b981';
+      } else {
+        statusEl.innerHTML = 'Offline <span class="text-red-400 text-xl">●</span>';
+        statusEl.className = 'text-4xl font-semibold text-red-400';
+        card.classList.add('border-red-400/30');
+        indicator.innerHTML = `<span class="px-3 py-1 bg-red-400/10 text-red-400 text-xs rounded-2xl">STOPPED</span>`;
+        if (state.charts.status) state.charts.status.data.datasets[0].borderColor = '#ef4444';
+      }
+      if (state.charts.status) state.charts.status.update('none');
     }
-    
-    function updateChart(chart, value) {
-        if (!chart) return;
-        const num = parseFloat(value) || 0;
-        chart.data.datasets[0].data.push(num);
-        chart.data.datasets[0].data.shift();
-        chart.update('none');
-    }
-    
-    function updateStatusChart(color) {
-        if (!state.charts.status) return;
-        state.charts.status.data.datasets[0].backgroundColor = `${color}30`;
-        state.charts.status.data.datasets[0].borderColor = color;
-        state.charts.status.data.datasets[0].data = Array(20).fill(100);
-        state.charts.status.update('none');
-    }
-    
-    // EULA Modal
-    function showEulaModal() {
-        if (state.eulaModalShown) return;
-        state.eulaModalShown = true;
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.id = 'eulaModal';
-        modal.innerHTML = `
-            <div class="eula-modal">
-                <div class="eula-header">
-                    <svg class="eula-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                    </svg>
-                    <div>
-                        <p class="eula-title">Minecraft EULA Agreement</p>
-                        <p class="eula-subtitle">License Agreement Required</p>
-                    </div>
-                </div>
-                <p class="eula-text">
-                    By clicking "I Agree" below, you acknowledge that you have read, understood, and agree to be bound by the terms of the <a href="https://account.mojang.com/documents/minecraft_eula" target="_blank" rel="noopener noreferrer">Minecraft End User License Agreement</a>. This server will not start until the EULA is accepted.
-                </p>
-                <button onclick="acceptEula()" class="eula-btn">I Agree to the EULA</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
-    function acceptEula() {
-        axios.post(`/instance/${state.instanceId}/imagefeatures/eula`)
-            .then(response => {
-                if (response.status === 200) {
-                    document.getElementById('eulaModal')?.remove();
-                    state.eulaModalShown = false;
-                    utils.showNotification('EULA accepted successfully');
-                }
-            })
-            .catch(error => {
-                console.error('EULA error:', error);
-                utils.showNotification('Failed to accept EULA', 'error');
-            });
-    }
-    
+
     // Command input
     function initCommandInput() {
-        const input = document.getElementById('input');
-        
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendCommand();
-        });
-        
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (state.currentCommandIndex > 0) {
-                    state.currentCommandIndex--;
-                    input.value = state.commandHistory[state.currentCommandIndex];
-                }
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (state.currentCommandIndex < state.commandHistory.length - 1) {
-                    state.currentCommandIndex++;
-                    input.value = state.commandHistory[state.currentCommandIndex];
-                } else {
-                    state.currentCommandIndex = state.commandHistory.length;
-                    input.value = '';
-                }
-            }
-        });
-    }
-    
-    function sendCommand() {
-        const input = document.getElementById('input');
-        const command = input.value.trim();
-        
-        if (!command || !state.ws) return;
-        
-        state.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
-        
-        state.ws.send(JSON.stringify({
-            event: 'cmd',
-            command: command,
-            containerId: state.instanceId
-        }));
-        
-        if (state.commandHistory.length >= state.maxCommands) {
-            state.commandHistory.shift();
+      const input = document.getElementById('input');
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && state.ws && state.ws.readyState === WebSocket.OPEN) {
+          const cmd = input.value.trim();
+          if (!cmd) return;
+          
+          state.term.write(`\r\n\x1b[36m❯\x1b[0m ${cmd}\r\n`);
+          state.ws.send(JSON.stringify({ event: 'cmd', command: cmd, containerId: state.instanceId }));
+          
+          state.commandHistory.push(cmd);
+          if (state.commandHistory.length > 50) state.commandHistory.shift();
+          state.currentCommandIndex = state.commandHistory.length;
+          
+          input.value = '';
         }
-        state.commandHistory.push(command);
-        state.currentCommandIndex = state.commandHistory.length;
-        
-        input.value = '';
-    }
-    
-    // Power buttons
-    function initPowerButtons() {
-        const actions = ['start', 'restart', 'stop'];
-        
-        actions.forEach(action => {
-            const btn = document.getElementById(`${action}Button`);
-            if (!btn) return;
-            
-            btn.addEventListener('click', async () => {
-                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
-                
-                const originalHTML = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = `<svg class="animate-spin" style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Processing...</span>`;
-                
-                try {
-                    const res = await axios.post(`/instance/${state.instanceId}/power`, { action });
-                    
-                    if (res.status === 200) {
-                        btn.innerHTML = `<svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> <span>${action.charAt(0).toUpperCase() + action.slice(1)}ed!</span>`;
-                        utils.showNotification(`Instance ${action}ed successfully`);
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = originalHTML;
-                            btn.disabled = false;
-                        }, 2000);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    utils.showNotification(`Failed to ${action} instance`, 'error');
-                    btn.innerHTML = originalHTML;
-                    btn.disabled = false;
-                }
-            });
-        });
-    }
-    
-    // Initialization
-    document.addEventListener('DOMContentLoaded', () => {
-        initTerminal();
-        initWebSocket();
-        initStatsWebSocket();
-        initCharts();
-        initCommandInput();
-        initPowerButtons();
-        
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (state.statsWs) state.statsWs.onmessage = null;
-            } else {
-                if (state.statsWs) {
-                    state.statsWs.onmessage = utils.throttle((event) => {
-                        if (!utils.isValidJson(event.data)) return;
-                        const stats = JSON.parse(event.data);
-                        if (!stats.error) updateStats(stats);
-                    }, 1000);
-                }
-            }
-        });
-    });
-</script>
+      });
 
+      // Arrow history
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp' && state.commandHistory.length) {
+          e.preventDefault();
+          state.currentCommandIndex = Math.max(0, state.currentCommandIndex - 1);
+          input.value = state.commandHistory[state.currentCommandIndex];
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          state.currentCommandIndex = Math.min(state.commandHistory.length, state.currentCommandIndex + 1);
+          input.value = state.currentCommandIndex < state.commandHistory.length 
+            ? state.commandHistory[state.currentCommandIndex] 
+            : '';
+        }
+      });
+    }
+
+    // Optimistic Power Buttons
+    function initPowerButtons() {
+      const buttons = {
+        start: document.getElementById('startButton'),
+        restart: document.getElementById('restartButton'),
+        stop: document.getElementById('stopButton')
+      };
+
+      Object.keys(buttons).forEach(action => {
+        const btn = buttons[action];
+        btn.addEventListener('click', async () => {
+          if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
+
+          const originalContent = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = `
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+
+          try {
+            const res = await axios.post(`/instance/${state.instanceId}/power`, { action });
+            if (res.status === 200) {
+              utils.showNotification(`${action.charAt(0).toUpperCase() + action.slice(1)} command sent successfully`);
+              // Optimistic UI stays for 2 seconds then resets
+              setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+              }, 2000);
+            }
+          } catch (err) {
+            utils.showNotification(`Failed to ${action} instance`, 'error');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+          }
+        });
+      });
+    }
+
+    // Boot everything
+    document.addEventListener('DOMContentLoaded', () => {
+      initTerminal();
+      initWebSocket();
+      initStatsWebSocket();
+      initCharts();
+      initCommandInput();
+      initPowerButtons();
+
+      // Cleanup on page hide
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && state.statsWs) state.statsWs.onmessage = null;
+      });
+    });
+  </script>
+</main>
 <%- include('../components/footer') %>
