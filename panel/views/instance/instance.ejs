@@ -930,56 +930,8 @@
                             </svg>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Template Card -->
-                <div class="im-info-card">
-                    <div class="im-info-content">
-                        <div class="im-info-text">
-                            <dt class="im-info-label">Template</dt>
-                            <dd class="im-info-value">
-                                <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
-                            </dd>
-                        </div>
-                        <div class="im-info-icon-wrap">
-                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Node Card -->
-                <div class="im-info-card">
-                    <div class="im-info-content">
-                        <div class="im-info-text">
-                            <dt class="im-info-label"><%= req.translations.node %></dt>
-                            <dd class="im-info-value"><%= instance.Node.name %></dd>
-                            <dd class="im-info-value-secondary"><%= instance.Node.address %></dd>
-                        </div>
-                        <div class="im-info-icon-wrap">
-                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-11.25-3.75v6.75m8.25-6.75v6.75m-13.5-9.75h18m-9-6.75v6.75"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Identifier Card -->
-                <div class="im-info-card">
-                    <div class="im-info-content">
-                        <div class="im-info-text">
-                            <dt class="im-info-label"><%= req.translations.identifier %></dt>
-                            <dd class="im-info-value im-font-mono"><%= req.params.id %></dd>
-                        </div>
-                        <div class="im-info-icon-wrap">
-                            <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+                </div>    
+              </div>
             </dl>
         </section>
         
