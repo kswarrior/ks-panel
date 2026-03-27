@@ -10,144 +10,377 @@
 
 <style>
     :root {
-        --bg: #0f0f13;
-        --card: #1a1a1f;
-        --border: #25252b;
+        --bg: #0a0a0f;
+        --bg-secondary: #12121a;
+        --card: rgba(26, 26, 35, 0.6);
+        --card-border: rgba(255, 255, 255, 0.08);
         --text: #f9fafb;
         --muted: #9ca3af;
         --accent: #3b82f6;
+        --accent-glow: rgba(59, 130, 246, 0.3);
         --success: #10b981;
+        --success-glow: rgba(16, 185, 129, 0.3);
         --danger: #ef4444;
+        --danger-glow: rgba(239, 68, 68, 0.3);
+        --warning: #f59e0b;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-highlight: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+        box-sizing: border-box;
     }
 
     .ks-instance-container {
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         background: var(--bg);
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 20%, rgba(239, 68, 68, 0.05) 0%, transparent 50%);
         color: var(--text);
         min-height: 100vh;
-        padding: 1.5rem;
+        padding: 1rem;
+        position: relative;
+        overflow-x: hidden;
     }
 
+    /* Animated background grid */
+    .ks-instance-container::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .ks-instance-content {
+        position: relative;
+        z-index: 1;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    /* Header Section */
     .ks-instance-header {
         display: flex;
         justify-content: flex-end;
         gap: 0.75rem;
         margin-bottom: 1.5rem;
         flex-wrap: wrap;
+        position: relative;
     }
 
     .ks-instance-btn {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.95rem;
-        font-weight: 600;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: 8px;
-        transition: all 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    .ks-instance-btn-start { background: var(--success); }
-    .ks-instance-btn-restart { background: var(--accent); }
-    .ks-instance-btn-stop { background: var(--danger); }
+    .ks-instance-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
 
-    .ks-instance-btn:hover { transform: translateY(-1px); }
-    .ks-instance-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ks-instance-btn:hover::before {
+        left: 100%;
+    }
 
+    .ks-instance-btn-start { 
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+        border-color: rgba(16, 185, 129, 0.3);
+        color: var(--success);
+        box-shadow: 0 4px 20px var(--success-glow);
+    }
+    .ks-instance-btn-start:hover { 
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 30px var(--success-glow);
+        border-color: var(--success);
+    }
+
+    .ks-instance-btn-restart { 
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+        border-color: rgba(59, 130, 246, 0.3);
+        color: var(--accent);
+        box-shadow: 0 4px 20px var(--accent-glow);
+    }
+    .ks-instance-btn-restart:hover { 
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 30px var(--accent-glow);
+        border-color: var(--accent);
+    }
+
+    .ks-instance-btn-stop { 
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+        border-color: rgba(239, 68, 68, 0.3);
+        color: var(--danger);
+        box-shadow: 0 4px 20px var(--danger-glow);
+    }
+    .ks-instance-btn-stop:hover { 
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 30px var(--danger-glow);
+        border-color: var(--danger);
+    }
+
+    .ks-instance-btn:disabled { 
+        opacity: 0.4; 
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    /* Info Grid - Glass Cards */
     .ks-instance-info-grid {
         display: grid;
         grid-template-columns: 1fr;
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
+
     @media (min-width: 640px) {
-        .ks-instance-info-grid { grid-template-columns: repeat(2, 1fr); }
+        .ks-instance-info-grid { 
+            grid-template-columns: repeat(2, 1fr); 
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .ks-instance-info-grid { 
+            grid-template-columns: repeat(3, 1fr); 
+        }
     }
 
     .ks-instance-info-card {
         background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1rem 1.25rem;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.25rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ks-instance-info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+    }
+
+    .ks-instance-info-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     }
 
     .ks-instance-info-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
         color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
     }
 
     .ks-instance-info-value {
         font-size: 1.1rem;
         font-weight: 600;
+        color: var(--text);
+        font-family: 'Courier New', monospace;
     }
 
-    .ks-instance-alert {
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.3);
+    .ks-instance-info-icon {
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
-        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .ks-instance-info-card:hover .ks-instance-info-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: rgba(59, 130, 246, 0.2);
+    }
+
+    /* Alert */
+    .ks-instance-alert {
+        background: rgba(239, 68, 68, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 16px;
+        padding: 1.25rem;
         display: none;
         align-items: center;
         gap: 1rem;
         margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
     }
+
+    .ks-instance-alert::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--danger);
+    }
+
     .ks-instance-alert.show { display: flex; }
 
+    /* Main Layout */
     .ks-instance-main {
         display: grid;
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+
     @media (min-width: 1024px) {
-        .ks-instance-main { grid-template-columns: 1fr 340px; }
+        .ks-instance-main { 
+            grid-template-columns: 1fr 360px; 
+        }
     }
 
-    /* Terminal */
+    @media (min-width: 1280px) {
+        .ks-instance-main { 
+            grid-template-columns: 1fr 400px; 
+        }
+    }
+
+    /* Terminal - Gaming Style */
     .ks-instance-terminal-wrap {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
+        background: rgba(18, 18, 26, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        height: 520px;
+        height: 500px;
+        position: relative;
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .ks-instance-terminal-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        z-index: 10;
     }
 
     .ks-instance-terminal-header {
-        background: #25252b;
-        padding: 0.75rem 1rem;
+        background: rgba(26, 26, 35, 0.9);
+        padding: 1rem 1.25rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         font-size: 0.85rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--card-border);
+        position: relative;
+    }
+
+    .ks-instance-terminal-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ks-instance-terminal-status::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--success);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
     }
 
     .ks-instance-terminal-body {
         flex: 1;
         position: relative;
+        background: rgba(10, 10, 15, 0.5);
     }
 
     #im-terminal {
         width: 100%;
         height: 100%;
+        padding: 0.5rem;
     }
 
     .ks-instance-terminal-input {
-        padding: 0.75rem 1rem;
-        background: #25252b;
-        border-top: 1px solid var(--border);
+        padding: 1rem 1.25rem;
+        background: rgba(26, 26, 35, 0.95);
+        border-top: 1px solid var(--card-border);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
+        position: relative;
+    }
+
+    .ks-instance-terminal-input::before {
+        content: '>';
+        color: var(--success);
+        font-weight: 900;
+        font-size: 1.2rem;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
     }
 
     #im-input {
@@ -156,223 +389,465 @@
         border: none;
         outline: none;
         color: var(--text);
-        font-family: monospace;
+        font-family: 'Courier New', monospace;
+        font-size: 0.95rem;
+        font-weight: 500;
     }
 
-    /* Controls */
+    #im-input::placeholder {
+        color: var(--muted);
+        opacity: 0.6;
+    }
+
+    /* Terminal Controls */
+    .ks-instance-terminal-controls {
+        display: flex;
+        gap: 8px;
+    }
+
     .ks-instance-terminal-controls button {
         width: 36px;
         height: 36px;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: var(--muted);
         cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
     }
 
-    /* Stats */
+    .ks-instance-terminal-controls button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent);
+        color: var(--accent);
+        transform: translateY(-2px);
+    }
+
+    /* Stats Panel */
     .ks-instance-stats {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr;
         gap: 1rem;
+    }
+
+    @media (min-width: 640px) and (max-width: 1023px) {
+        .ks-instance-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 
     .ks-instance-stat-card {
         background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1.25rem;
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 1.5rem;
         position: relative;
-        height: 130px;
+        height: 140px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .ks-instance-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+    }
+
+    .ks-instance-stat-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--glass-border);
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .ks-instance-stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
     }
 
     .ks-instance-stat-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
+        letter-spacing: 1.5px;
         color: var(--muted);
+        font-weight: 700;
+    }
+
+    .ks-instance-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--card-border);
     }
 
     .ks-instance-stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        font-family: monospace;
+        font-size: 2rem;
+        font-weight: 800;
+        font-family: 'Courier New', monospace;
+        position: relative;
+        z-index: 2;
     }
 
-    .ks-instance-stat-value.online { color: var(--success); }
-    .ks-instance-stat-value.offline { color: var(--danger); }
+    .ks-instance-stat-value.online { 
+        color: var(--success);
+        text-shadow: 0 0 20px var(--success-glow);
+    }
+    .ks-instance-stat-value.offline { 
+        color: var(--danger);
+        text-shadow: 0 0 20px var(--danger-glow);
+    }
+
+    .ks-instance-stat-sub {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    .ks-instance-stat-chart {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        opacity: 0.2;
+        pointer-events: none;
+    }
 
     /* Notification */
     #im-notification {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 24px;
+        right: 24px;
         background: var(--card);
-        border: 1px solid var(--border);
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        padding: 1.25rem 1.75rem;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         display: none;
         z-index: 1000;
+        font-weight: 600;
+        transform: translateY(100px);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    #im-notification.show { display: block; }
 
-    /* Optimized responsive styles for phone & desktop - stylish, clean, no color or blur changes */
+    #im-notification.show { 
+        display: block;
+        transform: translateY(0);
+    }
+
+    /* Mobile Optimizations */
     @media (max-width: 640px) {
         .ks-instance-container {
-            padding: 1rem;
+            padding: 0.75rem;
         }
+
         .ks-instance-header {
             gap: 0.5rem;
             margin-bottom: 1rem;
+            justify-content: stretch;
         }
+
         .ks-instance-btn {
-            padding: 0.65rem 1rem;
-            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
             flex: 1;
             justify-content: center;
+            border-radius: 10px;
         }
-        .ks-instance-terminal-wrap {
-            height: 400px;
-        }
+
         .ks-instance-info-grid {
             gap: 0.75rem;
+            margin-bottom: 1rem;
         }
+
+        .ks-instance-info-card {
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .ks-instance-info-value {
+            font-size: 0.95rem;
+        }
+
+        .ks-instance-info-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .ks-instance-terminal-wrap {
+            height: 380px;
+            border-radius: 16px;
+        }
+
+        .ks-instance-terminal-header {
+            padding: 0.875rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .ks-instance-terminal-input {
+            padding: 0.875rem 1rem;
+        }
+
         .ks-instance-main {
             gap: 1rem;
         }
+
+        .ks-instance-stats {
+            gap: 0.75rem;
+        }
+
         .ks-instance-stat-card {
-            height: 115px;
-            padding: 1rem;
+            height: 120px;
+            padding: 1.25rem;
+            border-radius: 16px;
         }
+
         .ks-instance-stat-value {
-            font-size: 1.55rem;
+            font-size: 1.75rem;
         }
-        .ks-instance-terminal-header {
-            padding: 0.65rem 0.85rem;
+
+        .ks-instance-stat-sub {
             font-size: 0.8rem;
         }
-        .ks-instance-terminal-input {
-            padding: 0.65rem 0.85rem;
+
+        #im-notification {
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
         }
     }
 
+    /* Tablet Optimizations */
     @media (min-width: 641px) and (max-width: 1023px) {
         .ks-instance-terminal-wrap {
-            height: 480px;
+            height: 450px;
         }
-    }
 
-    @media (min-width: 1280px) {
-        .ks-instance-main {
-            grid-template-columns: 1fr 380px;
-        }
-        .ks-instance-terminal-wrap {
-            height: 560px;
-        }
         .ks-instance-stat-card {
-            height: 140px;
+            height: 130px;
         }
     }
 
-    /* Extra polish for smooth UI on both phone and desktop */
+    /* Large Desktop Optimizations */
+    @media (min-width: 1280px) {
+        .ks-instance-container {
+            padding: 2rem;
+        }
+
+        .ks-instance-terminal-wrap {
+            height: 600px;
+        }
+
+        .ks-instance-stat-card {
+            height: 150px;
+        }
+
+        .ks-instance-stat-value {
+            font-size: 2.25rem;
+        }
+    }
+
+    /* Extra Large Screens */
+    @media (min-width: 1536px) {
+        .ks-instance-main {
+            grid-template-columns: 1fr 450px;
+        }
+
+        .ks-instance-terminal-wrap {
+            height: 650px;
+        }
+    }
+
+    /* Smooth transitions for all interactive elements */
     .ks-instance-info-card,
     .ks-instance-stat-card,
-    .ks-instance-terminal-wrap {
-        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    .ks-instance-terminal-wrap,
+    .ks-instance-btn {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                    box-shadow 0.3s ease,
+                    border-color 0.3s ease;
     }
-    .ks-instance-info-card:hover,
-    .ks-instance-stat-card:hover {
-        transform: translateY(-2px);
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Loading animation for stats */
+    @keyframes statPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    .ks-instance-stat-value.loading {
+        animation: statPulse 1.5s infinite;
+    }
+
+    /* Gaming accent lines */
+    .ks-instance-accent-line {
+        position: absolute;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0.5;
     }
 </style>
 
 <div class="ks-instance-container">
-    <div class="ks-instance-header">
-        <button id="im-startBtn" class="ks-instance-btn ks-instance-btn-start">
-            ▶️ Start
-        </button>
-        <button id="im-restartBtn" class="ks-instance-btn ks-instance-btn-restart">
-            ⟳ Restart
-        </button>
-        <button id="im-stopBtn" class="ks-instance-btn ks-instance-btn-stop">
-            ⏹ Stop
-        </button>
-    </div>
-
-    <%- include('../components/instance') %>
-
-    <!-- Info -->
-    <div class="ks-instance-info-grid">
-        <div class="ks-instance-info-card">
-            <div>
-                <div class="ks-instance-info-label">ADDRESS</div>
-                <div class="ks-instance-info-value"><%= instance.Node.address %><span style="color:#666">:<%= instance.Primary %></span></div>
-            </div>
-            <svg width="28" height="28" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
-            </svg>
+    <div class="ks-instance-content">
+        <div class="ks-instance-header">
+            <button id="im-startBtn" class="ks-instance-btn ks-instance-btn-start">
+                <span>▶</span> Start
+            </button>
+            <button id="im-restartBtn" class="ks-instance-btn ks-instance-btn-restart">
+                <span>↻</span> Restart
+            </button>
+            <button id="im-stopBtn" class="ks-instance-btn ks-instance-btn-stop">
+                <span>■</span> Stop
+            </button>
         </div>
-    </div>
 
-    <!-- Alert -->
-    <div class="ks-instance-alert" id="im-daemonAlert">
-        <strong>⚠️</strong>
-        <div>
-            <strong>Connection Failure</strong>
-            <p style="margin:0; font-size:0.9rem; opacity:0.8;">Cannot connect to the daemon. Please check server status.</p>
-        </div>
-    </div>
+        <%- include('../components/instance') %>
 
-    <div class="ks-instance-main">
-        <!-- Terminal -->
-        <div class="ks-instance-terminal-wrap">
-            <div class="ks-instance-terminal-header">
-                <div>Instance Console <span style="background:#10b981;color:#000;font-size:10px;padding:2px 6px;border-radius:9999px;">LIVE</span></div>
-                <div class="ks-instance-terminal-controls" style="display:flex;gap:6px;">
-                    <button id="im-consoleStopBtn" title="Pause/Resume">⏸</button>
-                    <button id="im-clearBtn" title="Clear">🗑</button>
-                    <button id="im-toggleModeBtn" title="Toggle wrap/scroll">↔</button>
+        <!-- Info Grid -->
+        <div class="ks-instance-info-grid">
+            <div class="ks-instance-info-card">
+                <div>
+                    <div class="ks-instance-info-label">Server Address</div>
+                    <div class="ks-instance-info-value"><%= instance.Node.address %><span style="color:var(--muted)">:<%= instance.Primary %></span></div>
+                </div>
+                <div class="ks-instance-info-icon">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+                    </svg>
                 </div>
             </div>
-            <div class="ks-instance-terminal-body">
-                <div id="im-terminal"></div>
+
+            <div class="ks-instance-info-card">
+                <div>
+                    <div class="ks-instance-info-label">Instance ID</div>
+                    <div class="ks-instance-info-value" style="font-size: 0.9rem; opacity: 0.9;"><%= req.params.id %></div>
+                </div>
+                <div class="ks-instance-info-icon" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--warning);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                    </svg>
+                </div>
             </div>
-            <div class="ks-instance-terminal-input">
-                <span style="color:#10b981;font-weight:700;">~</span>
-                <input id="im-input" type="text" placeholder="Send a command..." autocomplete="off">
+
+            <div class="ks-instance-info-card">
+                <div>
+                    <div class="ks-instance-info-label">Node</div>
+                    <div class="ks-instance-info-value"><%= instance.Node.name || 'Unknown' %></div>
+                </div>
+                <div class="ks-instance-info-icon" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--success);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 3 3m13.5 0a3 3 0 0 0 3-3m-3 3a3 3 0 1 1-3 3m-6.75-6h9m-9 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 3 3m9-3a3 3 0 0 0 3-3m-3 3a3 3 0 1 1-3 3"/>
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="ks-instance-stats">
-            <div class="ks-instance-stat-card" id="im-statusCard">
-                <div class="ks-instance-stat-label">STATUS</div>
-                <div id="im-status" class="ks-instance-stat-value">-</div>
-                <canvas id="im-statusChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
+        <!-- Alert -->
+        <div class="ks-instance-alert" id="im-daemonAlert">
+            <strong style="font-size: 1.5rem;">⚠</strong>
+            <div>
+                <strong style="color: var(--danger); font-size: 1.1rem;">Connection Failure</strong>
+                <p style="margin:0.25rem 0 0 0; font-size:0.9rem; color: var(--muted);">Cannot connect to the daemon. Please check server status.</p>
+            </div>
+        </div>
+
+        <div class="ks-instance-main">
+            <!-- Terminal -->
+            <div class="ks-instance-terminal-wrap">
+                <div class="ks-instance-terminal-header">
+                    <div class="ks-instance-terminal-status">
+                        Instance Console
+                    </div>
+                    <div class="ks-instance-terminal-controls">
+                        <button id="im-consoleStopBtn" title="Pause/Resume">⏸</button>
+                        <button id="im-clearBtn" title="Clear">🗑</button>
+                        <button id="im-toggleModeBtn" title="Toggle wrap/scroll">⇄</button>
+                    </div>
+                </div>
+                <div class="ks-instance-terminal-body">
+                    <div id="im-terminal"></div>
+                </div>
+                <div class="ks-instance-terminal-input">
+                    <input id="im-input" type="text" placeholder="Enter command..." autocomplete="off" spellcheck="false">
+                </div>
             </div>
 
-            <div class="ks-instance-stat-card">
-                <div class="ks-instance-stat-label">RAM USAGE</div>
-                <div id="im-ram" class="ks-instance-stat-value">-</div>
-                <div id="im-ramSub" style="font-size:0.85rem;color:var(--muted);margin-top:4px;">—</div>
-                <canvas id="im-ramChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
-            </div>
+            <!-- Stats -->
+            <div class="ks-instance-stats">
+                <div class="ks-instance-stat-card" id="im-statusCard">
+                    <div class="ks-instance-stat-header">
+                        <div class="ks-instance-stat-label">Status</div>
+                        <div class="ks-instance-stat-icon" style="color: var(--success);">●</div>
+                    </div>
+                    <div id="im-status" class="ks-instance-stat-value loading">-</div>
+                    <canvas id="im-statusChart" class="ks-instance-stat-chart"></canvas>
+                </div>
 
-            <div class="ks-instance-stat-card">
-                <div class="ks-instance-stat-label">CPU USAGE</div>
-                <div id="im-cpu" class="ks-instance-stat-value">-</div>
-                <canvas id="im-cpuChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
-            </div>
+                <div class="ks-instance-stat-card">
+                    <div class="ks-instance-stat-header">
+                        <div class="ks-instance-stat-label">RAM Usage</div>
+                        <div class="ks-instance-stat-icon" style="color: var(--accent);">◈</div>
+                    </div>
+                    <div id="im-ram" class="ks-instance-stat-value loading">-</div>
+                    <div id="im-ramSub" class="ks-instance-stat-sub">—</div>
+                    <canvas id="im-ramChart" class="ks-instance-stat-chart"></canvas>
+                </div>
 
-            <div class="ks-instance-stat-card">
-                <div class="ks-instance-stat-label">DISK USAGE</div>
-                <div id="im-disk" class="ks-instance-stat-value">-</div>
-                <div id="im-diskSub" style="font-size:0.85rem;color:var(--muted);margin-top:4px;">—</div>
-                <canvas id="im-diskChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
+                <div class="ks-instance-stat-card">
+                    <div class="ks-instance-stat-header">
+                        <div class="ks-instance-stat-label">CPU Usage</div>
+                        <div class="ks-instance-stat-icon" style="color: var(--warning);">◉</div>
+                    </div>
+                    <div id="im-cpu" class="ks-instance-stat-value loading">-</div>
+                    <canvas id="im-cpuChart" class="ks-instance-stat-chart"></canvas>
+                </div>
+
+                <div class="ks-instance-stat-card">
+                    <div class="ks-instance-stat-header">
+                        <div class="ks-instance-stat-label">Disk Usage</div>
+                        <div class="ks-instance-stat-icon" style="color: var(--danger);">◉</div>
+                    </div>
+                    <div id="im-disk" class="ks-instance-stat-value loading">-</div>
+                    <div id="im-diskSub" class="ks-instance-stat-sub">—</div>
+                    <canvas id="im-diskChart" class="ks-instance-stat-chart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -388,19 +863,40 @@
         statsWs: null,
         paused: false,
         logWrapMode: false,
-        autoScroll: true
+        autoScroll: true,
+        charts: {}
     };
 
     function imInitTerminal() {
         imState.term = new Terminal({
-            theme: { background: 'transparent', foreground: '#e5e7eb' },
-            fontFamily: 'monospace',
+            theme: { 
+                background: 'transparent', 
+                foreground: '#e5e7eb',
+                cursor: '#3b82f6',
+                selection: 'rgba(59, 130, 246, 0.3)',
+                black: '#1a1a1f',
+                red: '#ef4444',
+                green: '#10b981',
+                yellow: '#f59e0b',
+                blue: '#3b82f6',
+                magenta: '#8b5cf6',
+                cyan: '#06b6d4',
+                white: '#f9fafb'
+            },
+            fontFamily: "'Courier New', 'Monaco', monospace",
             fontSize: 14,
             lineHeight: 1.5,
-            scrollback: 1000,
-            allowTransparency: true
+            scrollback: 5000,
+            allowTransparency: true,
+            cursorBlink: true,
+            cursorStyle: 'block'
         });
         imState.term.open(document.getElementById('im-terminal'));
+        
+        // Welcome message
+        imState.term.writeln('\r\n\x1b[1;34m╔══════════════════════════════════════════╗\x1b[0m');
+        imState.term.writeln('\x1b[1;34m║\x1b[0m  \x1b[1;32m⚡ Instance Console Connected\x1b[0m          \x1b[1;34m║\x1b[0m');
+        imState.term.writeln('\x1b[1;34m╚══════════════════════════════════════════╝\x1b[0m\r\n');
     }
 
     function imInitWebSocket() {
@@ -413,7 +909,14 @@
             if (imState.autoScroll) imState.term.scrollToBottom();
         };
 
-        imState.ws.onclose = () => setTimeout(imInitWebSocket, 2000);
+        imState.ws.onclose = () => {
+            imState.term.writeln('\r\n\x1b[1;31m⚠ Connection lost. Reconnecting...\x1b[0m');
+            setTimeout(imInitWebSocket, 2000);
+        };
+
+        imState.ws.onopen = () => {
+            imState.term.writeln('\x1b[1;32m✓ Connected to instance\x1b[0m\r\n');
+        };
     }
 
     function imInitStatsWebSocket() {
@@ -424,22 +927,49 @@
             const stats = JSON.parse(e.data);
             if (stats.error) return;
 
+            // Remove loading class
+            document.querySelectorAll('.ks-instance-stat-value').forEach(el => el.classList.remove('loading'));
+
             // RAM
             const ramUsage = stats.memory_stats?.usage || 0;
             const ramLimit = stats.memory_stats?.limit || 0;
             const ramPercent = ramLimit ? Math.round((ramUsage / ramLimit) * 100) : 0;
-            document.getElementById('im-ram').textContent = ramPercent + '%';
+            const ramEl = document.getElementById('im-ram');
+            ramEl.textContent = ramPercent + '%';
             document.getElementById('im-ramSub').textContent = `${(ramUsage/1024/1024).toFixed(0)}MB / ${(ramLimit/1024/1024).toFixed(0)}MB`;
+            
+            // Color code RAM
+            if (ramPercent > 90) ramEl.style.color = 'var(--danger)';
+            else if (ramPercent > 70) ramEl.style.color = 'var(--warning)';
+            else ramEl.style.color = 'var(--success)';
 
-            // CPU
-            const cpu = 42; // simplified placeholder (real calc can be added if needed)
-            document.getElementById('im-cpu').textContent = cpu + '%';
+            // CPU - Calculate properly
+            const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage;
+            const systemDelta = stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage;
+            let cpuPercent = 0;
+            if (systemDelta > 0 && cpuDelta > 0) {
+                cpuPercent = Math.round((cpuDelta / systemDelta) * 100);
+            }
+            document.getElementById('im-cpu').textContent = cpuPercent + '%';
+
+            // Disk (if available)
+            const diskUsage = stats.disk_stats?.used || 0;
+            const diskTotal = stats.disk_stats?.total || 0;
+            if (diskTotal > 0) {
+                const diskPercent = Math.round((diskUsage / diskTotal) * 100);
+                document.getElementById('im-disk').textContent = diskPercent + '%';
+                document.getElementById('im-diskSub').textContent = `${(diskUsage/1024/1024/1024).toFixed(1)}GB / ${(diskTotal/1024/1024/1024).toFixed(1)}GB`;
+            }
 
             // Status
             const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
             const statusEl = document.getElementById('im-status');
-            statusEl.textContent = isRunning ? 'Online' : 'Offline';
+            statusEl.textContent = isRunning ? 'ONLINE' : 'OFFLINE';
             statusEl.className = 'ks-instance-stat-value ' + (isRunning ? 'online' : 'offline');
+        };
+
+        imState.statsWs.onclose = () => {
+            setTimeout(imInitStatsWebSocket, 3000);
         };
     }
 
@@ -449,12 +979,20 @@
             const btn = document.getElementById(`im-${key}Btn`);
             if (!btn) return;
             btn.addEventListener('click', async () => {
+                const actionText = key.charAt(0).toUpperCase() + key.slice(1);
                 if (!confirm(`Are you sure you want to ${key} this instance?`)) return;
+                
                 btn.disabled = true;
+                btn.style.opacity = '0.6';
+                
                 try {
                     await axios.post(`/instance/${imState.instanceId}/power`, { action: actions[key] });
+                    window.showToast(`Instance ${actionText} command sent`);
+                } catch (err) {
+                    window.showToast(`Failed to ${key} instance`, 'error');
                 } finally {
                     btn.disabled = false;
+                    btn.style.opacity = '';
                 }
             });
         });
@@ -462,33 +1000,85 @@
 
     function imInitTerminalControls() {
         // Pause/Resume
-        document.getElementById('im-consoleStopBtn').addEventListener('click', () => {
+        const pauseBtn = document.getElementById('im-consoleStopBtn');
+        pauseBtn.addEventListener('click', function() {
             imState.paused = !imState.paused;
-            this.textContent = imState.paused ? '▶️' : '⏸';
+            this.innerHTML = imState.paused ? '▶' : '⏸';
+            this.style.color = imState.paused ? 'var(--success)' : '';
+            window.showToast(imState.paused ? 'Console paused' : 'Console resumed');
         });
 
         // Clear
         document.getElementById('im-clearBtn').addEventListener('click', () => {
-            if (imState.term) imState.term.clear();
+            if (imState.term) {
+                imState.term.clear();
+                imState.term.writeln('\x1b[1;36m✓ Console cleared\x1b[0m\r\n');
+            }
         });
 
-        // Toggle wrap/scroll (basic)
-        document.getElementById('im-toggleModeBtn').addEventListener('click', () => {
+        // Toggle wrap/scroll
+        const toggleBtn = document.getElementById('im-toggleModeBtn');
+        toggleBtn.addEventListener('click', function() {
             imState.logWrapMode = !imState.logWrapMode;
-            this.textContent = imState.logWrapMode ? '⇣' : '↔';
+            this.innerHTML = imState.logWrapMode ? '⇣' : '⇄';
+            window.showToast(imState.logWrapMode ? 'Wrap mode enabled' : 'Scroll mode enabled');
         });
 
         // Input
         const input = document.getElementById('im-input');
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && imState.ws) {
+            if (e.key === 'Enter' && imState.ws && imState.ws.readyState === WebSocket.OPEN) {
                 const cmd = input.value.trim();
                 if (cmd) {
-                    imState.term.write(`\r\n❯ ${cmd}\r\n`);
+                    imState.term.write(`\r\n\x1b[1;32m❯\x1b[0m \x1b[1m${cmd}\x1b[0m\r\n`);
                     imState.ws.send(JSON.stringify({ event: 'cmd', command: cmd, containerId: imState.instanceId }));
                     input.value = '';
                 }
             }
+        });
+
+        // Focus input on terminal click
+        document.getElementById('im-terminal').addEventListener('click', () => {
+            input.focus();
+        });
+    }
+
+    // Initialize charts for visual appeal
+    function imInitCharts() {
+        const chartIds = ['im-statusChart', 'im-ramChart', 'im-cpuChart', 'im-diskChart'];
+        chartIds.forEach(id => {
+            const ctx = document.getElementById(id).getContext('2d');
+            imState.charts[id] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: Array(20).fill(0),
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const ctx = context.chart.ctx;
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 60);
+                            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+                            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                            return gradient;
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false, min: 0, max: 100 }
+                    },
+                    animation: { duration: 0 }
+                }
+            });
         });
     }
 
@@ -498,14 +1088,27 @@
         imInitStatsWebSocket();
         imInitPowerButtons();
         imInitTerminalControls();
+        imInitCharts();
 
-        // Simple notification helper
-        window.showToast = (msg) => {
+        // Enhanced notification helper
+        window.showToast = (msg, type = 'info') => {
             const n = document.getElementById('im-notification');
+            const colors = {
+                info: 'var(--accent)',
+                success: 'var(--success)',
+                error: 'var(--danger)',
+                warning: 'var(--warning)'
+            };
             n.textContent = msg;
+            n.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
             n.classList.add('show');
-            setTimeout(() => n.classList.remove('show'), 2500);
+            setTimeout(() => n.classList.remove('show'), 3000);
         };
+
+        // Handle window resize for responsive charts
+        window.addEventListener('resize', () => {
+            Object.values(imState.charts).forEach(chart => chart.resize());
+        });
     });
 </script>
 
