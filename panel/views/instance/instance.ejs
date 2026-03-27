@@ -1,18 +1,18 @@
 <%- include('../components/template') %>
 <main id="content" class="min-h-screen pb-24 bg-transparent">
-  <div class="px-4 sm:px-6 lg:px-8 pt-6">
+  <div class="px-3 sm:px-4 lg:px-6 xl:px-8 pt-4 sm:pt-6">
     <!-- Header -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
       <div>
-        <h1 class="text-2xl font-semibold text-white">Manage Instance</h1>
-        <p class="text-neutral-400 text-sm mt-1">Control, monitor and interact with your server in real time</p>
+        <h1 class="text-xl sm:text-2xl font-semibold text-white">Manage Instance</h1>
+        <p class="text-neutral-400 text-xs sm:text-sm mt-1">Control, monitor and interact with your server in real time</p>
       </div>
 
       <!-- Power Buttons -->
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap gap-2 sm:gap-3">
         <button id="startButton"
-          class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50 text-xs sm:text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 4.01V8" />
           </svg>
@@ -20,16 +20,16 @@
         </button>
 
         <button id="restartButton"
-          class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50 text-xs sm:text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-7.714-6" />
           </svg>
           <span class="font-medium">Restart</span>
         </button>
 
         <button id="stopButton"
-          class="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-50 text-xs sm:text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6h12v12" />
           </svg>
           <span class="font-medium">Stop</span>
@@ -40,138 +40,140 @@
     <%- include('../components/instance') %>
 
     <!-- Info Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
       <!-- Address -->
-      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
-        <div class="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-neutral-900/70 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 hover:border-white/20 transition-all">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500/10 text-emerald-400 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314-11.314z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-medium text-neutral-400 tracking-widest">ADDRESS</p>
-          <p class="text-white font-mono text-lg truncate"><%= instance.Node.address %><span class="text-neutral-400">:</span><%= instance.Primary %></p>
+          <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest">ADDRESS</p>
+          <p class="text-white font-mono text-sm sm:text-lg truncate"><%= instance.Node.address %><span class="text-neutral-400">:</span><%= instance.Primary %></p>
         </div>
       </div>
 
       <!-- Template -->
-      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
-        <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-neutral-900/70 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 hover:border-white/20 transition-all">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 text-blue-400 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2zM17 21a4 4 0 01-4-4V5a2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 01-2-2 2 2 0 012-2z" />
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-medium text-neutral-400 tracking-widest">TEMPLATE</p>
-          <p class="text-white text-lg truncate">
+          <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest">TEMPLATE</p>
+          <p class="text-white text-sm sm:text-lg truncate">
             <%= instance.imageData && instance.imageData.meta && instance.imageData.meta.display_name ? instance.imageData.meta.display_name : (instance.Template || instance.Image) %>
           </p>
         </div>
       </div>
 
       <!-- Node -->
-      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
-        <div class="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-neutral-900/70 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 hover:border-white/20 transition-all">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-amber-500/10 text-amber-400 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2" />
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-medium text-neutral-400 tracking-widest">NODE</p>
-          <p class="text-white text-lg"><%= instance.Node.name %></p>
-          <p class="text-neutral-400 text-sm font-mono"><%= instance.Node.address %></p>
+          <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest">NODE</p>
+          <p class="text-white text-sm sm:text-lg"><%= instance.Node.name %></p>
+          <p class="text-neutral-400 text-xs sm:text-sm font-mono"><%= instance.Node.address %></p>
         </div>
       </div>
 
       <!-- Identifier -->
-      <div class="bg-neutral-900/70 border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:border-white/20 transition-all">
-        <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-neutral-900/70 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 hover:border-white/20 transition-all">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/10 text-purple-400 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 4L2 8l4 4" />
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-medium text-neutral-400 tracking-widest">IDENTIFIER</p>
-          <p class="text-white font-mono text-lg"><%= req.params.id %></p>
+          <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest">IDENTIFIER</p>
+          <p class="text-white font-mono text-sm sm:text-lg truncate"><%= req.params.id %></p>
         </div>
       </div>
     </div>
 
     <!-- Main Content Area -->
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6">
       <!-- Terminal -->
-      <div class="xl:col-span-8 bg-neutral-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-neutral-950">
-          <div class="flex items-center gap-3">
-            <div class="flex gap-1.5">
-              <div class="w-3 h-3 rounded-full bg-red-400"></div>
-              <div class="w-3 h-3 rounded-full bg-amber-400"></div>
-              <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+      <div class="xl:col-span-8 bg-neutral-900 border border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 flex items-center justify-between bg-neutral-950">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex gap-1 sm:gap-1.5">
+              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400"></div>
+              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400"></div>
+              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400"></div>
             </div>
-            <span class="font-mono text-xs text-neutral-400 tracking-widest">INSTANCE CONSOLE • LIVE</span>
+            <span class="font-mono text-[10px] sm:text-xs text-neutral-400 tracking-widest hidden sm:inline">INSTANCE CONSOLE • LIVE</span>
+            <span class="font-mono text-[10px] sm:text-xs text-neutral-400 tracking-widest sm:hidden">CONSOLE • LIVE</span>
           </div>
-          <div class="text-emerald-400 text-xs font-medium flex items-center gap-1">
-            <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-            CONNECTED
+          <div class="text-emerald-400 text-[10px] sm:text-xs font-medium flex items-center gap-1">
+            <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            <span class="hidden sm:inline">CONNECTED</span>
+            <span class="sm:hidden">ON</span>
           </div>
         </div>
         
-        <div id="terminal" class="flex-1 min-h-[500px] p-4 bg-[#0f0f13] font-mono text-sm"></div>
+        <div id="terminal" class="flex-1 min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] p-2 sm:p-4 bg-[#0f0f13] font-mono text-xs sm:text-sm"></div>
         
         <!-- Command Input -->
-        <div class="px-6 py-4 bg-neutral-950 border-t border-white/10 flex items-center gap-3">
-          <span class="text-emerald-400 font-medium font-mono select-none">$</span>
+        <div class="px-3 sm:px-6 py-3 sm:py-4 bg-neutral-950 border-t border-white/10 flex items-center gap-2 sm:gap-3">
+          <span class="text-emerald-400 font-medium font-mono select-none text-sm sm:text-base">$</span>
           <input id="input" type="text" 
-            class="flex-1 bg-transparent outline-none text-white font-mono placeholder-neutral-500"
+            class="flex-1 bg-transparent outline-none text-white font-mono placeholder-neutral-500 text-sm sm:text-base"
             placeholder="Type command and press Enter...">
         </div>
       </div>
 
       <!-- Stats Sidebar -->
-      <div class="xl:col-span-4 flex flex-col gap-4">
+      <div class="xl:col-span-4 flex flex-col gap-3 sm:gap-4">
         <!-- Status -->
-        <div id="statusCard" class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+        <div id="statusCard" class="bg-neutral-900 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden">
           <canvas id="statusChart" class="absolute inset-0 opacity-10 pointer-events-none"></canvas>
-          <div class="flex justify-between items-start mb-6">
+          <div class="flex justify-between items-start mb-4 sm:mb-6">
             <div>
-              <p class="text-xs font-medium text-neutral-400 tracking-widest">STATUS</p>
-              <p id="status" class="text-4xl font-semibold text-white mt-1">—</p>
+              <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest">STATUS</p>
+              <p id="status" class="text-2xl sm:text-4xl font-semibold text-white mt-1">—</p>
             </div>
-            <span id="statusIndicator" class="inline-flex items-center px-3 py-1 rounded-2xl text-xs font-medium">
+            <span id="statusIndicator" class="inline-flex items-center px-2 sm:px-3 py-1 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-medium">
               <!-- JS updated -->
             </span>
           </div>
         </div>
 
         <!-- RAM -->
-        <div class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden">
           <canvas id="ramChart" class="absolute inset-0 opacity-10 pointer-events-none"></canvas>
           <div>
-            <p class="text-xs font-medium text-neutral-400 tracking-widest mb-1">RAM USAGE</p>
+            <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest mb-1">RAM USAGE</p>
             <div class="flex justify-between items-baseline">
-              <p id="ramUsage" class="text-4xl font-semibold text-blue-400">—</p>
-              <p id="ramSubvalue" class="text-neutral-400 font-mono text-sm">—</p>
+              <p id="ramUsage" class="text-2xl sm:text-4xl font-semibold text-blue-400">—</p>
+              <p id="ramSubvalue" class="text-neutral-400 font-mono text-xs sm:text-sm">—</p>
             </div>
           </div>
         </div>
 
         <!-- CPU -->
-        <div class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden">
           <canvas id="cpuChart" class="absolute inset-0 opacity-10 pointer-events-none"></canvas>
           <div>
-            <p class="text-xs font-medium text-neutral-400 tracking-widest mb-1">CPU USAGE</p>
-            <p id="cpuUsage" class="text-4xl font-semibold text-amber-400">—</p>
+            <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest mb-1">CPU USAGE</p>
+            <p id="cpuUsage" class="text-2xl sm:text-4xl font-semibold text-amber-400">—</p>
           </div>
         </div>
 
         <!-- Disk -->
-        <div class="bg-neutral-900 border border-white/10 rounded-3xl p-5 relative overflow-hidden">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden">
           <div>
-            <p class="text-xs font-medium text-neutral-400 tracking-widest mb-1">DISK USAGE</p>
+            <p class="text-[10px] sm:text-xs font-medium text-neutral-400 tracking-widest mb-1">DISK USAGE</p>
             <div class="flex justify-between items-baseline">
-              <p id="diskUsage" class="text-4xl font-semibold text-white">—</p>
-              <p id="diskSubvalue" class="text-neutral-400 font-mono text-sm">—</p>
+              <p id="diskUsage" class="text-2xl sm:text-4xl font-semibold text-white">—</p>
+              <p id="diskSubvalue" class="text-neutral-400 font-mono text-xs sm:text-sm">—</p>
             </div>
           </div>
         </div>
@@ -181,8 +183,8 @@
 
   <!-- Toast Notification -->
   <div id="notification" 
-       class="hidden fixed bottom-6 right-6 bg-neutral-900 border border-white/10 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
-    <span id="notificationText" class="text-sm font-medium"></span>
+       class="hidden fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-neutral-900 border border-white/10 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-2xl flex items-center gap-2 sm:gap-3 max-w-[90vw] sm:max-w-none">
+    <span id="notificationText" class="text-xs sm:text-sm font-medium"></span>
   </div>
 
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -216,7 +218,7 @@
         const toast = document.getElementById('notification');
         const text = document.getElementById('notificationText');
         text.textContent = msg;
-        toast.className = `fixed bottom-6 right-6 bg-neutral-900 border border-white/10 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 ${type === 'error' ? 'border-red-400' : 'border-emerald-400'}`;
+        toast.className = `fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-neutral-900 border border-white/10 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-2xl flex items-center gap-2 sm:gap-3 max-w-[90vw] sm:max-w-none ${type === 'error' ? 'border-red-400' : 'border-emerald-400'}`;
         toast.style.display = 'flex';
         setTimeout(() => { toast.style.display = 'none'; }, 2800);
       },
@@ -232,12 +234,24 @@
 
     // Terminal
     function initTerminal() {
-      const cols = window.innerWidth > 1200 ? 110 : window.innerWidth > 800 ? 85 : 60;
+      const isMobile = window.innerWidth < 640;
+      const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+      const isDesktop = window.innerWidth >= 1024;
+      
+      let cols = 60;
+      if (isDesktop) cols = 110;
+      else if (isTablet) cols = 85;
+      else if (isMobile) cols = 45;
+      
+      let rows = 28;
+      if (isMobile) rows = 20;
+      else if (isTablet) rows = 24;
+
       state.term = new Terminal({
         cols: cols,
-        rows: 28,
+        rows: rows,
         fontFamily: 'JetBrains Mono, monospace',
-        fontSize: 14,
+        fontSize: isMobile ? 12 : 14,
         lineHeight: 1.6,
         theme: {
           background: '#0f0f13',
@@ -268,8 +282,20 @@
       
       // Resize handler
       window.addEventListener('resize', () => {
-        const newCols = window.innerWidth > 1200 ? 110 : window.innerWidth > 800 ? 85 : 60;
-        state.term.resize(newCols, 28);
+        const newIsMobile = window.innerWidth < 640;
+        const newIsTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+        const newIsDesktop = window.innerWidth >= 1024;
+        
+        let newCols = 60;
+        if (newIsDesktop) newCols = 110;
+        else if (newIsTablet) newCols = 85;
+        else if (newIsMobile) newCols = 45;
+        
+        let newRows = 28;
+        if (newIsMobile) newRows = 20;
+        else if (newIsTablet) newRows = 24;
+        
+        state.term.resize(newCols, newRows);
       });
     }
 
@@ -384,16 +410,16 @@
       const card = document.getElementById('statusCard');
 
       if (isOnline) {
-        statusEl.innerHTML = 'Online <span class="text-emerald-400 text-xl">●</span>';
-        statusEl.className = 'text-4xl font-semibold text-emerald-400';
+        statusEl.innerHTML = 'Online <span class="text-emerald-400 text-lg sm:text-xl">●</span>';
+        statusEl.className = 'text-2xl sm:text-4xl font-semibold text-emerald-400';
         card.classList.add('border-emerald-400/30');
-        indicator.innerHTML = `<span class="px-3 py-1 bg-emerald-400/10 text-emerald-400 text-xs rounded-2xl flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> RUNNING</span>`;
+        indicator.innerHTML = `<span class="px-2 sm:px-3 py-1 bg-emerald-400/10 text-emerald-400 text-[10px] sm:text-xs rounded-xl sm:rounded-2xl flex items-center gap-1"><span class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full animate-pulse"></span> <span class="hidden sm:inline">RUNNING</span><span class="sm:hidden">ON</span></span>`;
         if (state.charts.status) state.charts.status.data.datasets[0].borderColor = '#10b981';
       } else {
-        statusEl.innerHTML = 'Offline <span class="text-red-400 text-xl">●</span>';
-        statusEl.className = 'text-4xl font-semibold text-red-400';
+        statusEl.innerHTML = 'Offline <span class="text-red-400 text-lg sm:text-xl">●</span>';
+        statusEl.className = 'text-2xl sm:text-4xl font-semibold text-red-400';
         card.classList.add('border-red-400/30');
-        indicator.innerHTML = `<span class="px-3 py-1 bg-red-400/10 text-red-400 text-xs rounded-2xl">STOPPED</span>`;
+        indicator.innerHTML = `<span class="px-2 sm:px-3 py-1 bg-red-400/10 text-red-400 text-[10px] sm:text-xs rounded-xl sm:rounded-2xl">STOPPED</span>`;
         if (state.charts.status) state.charts.status.data.datasets[0].borderColor = '#ef4444';
       }
       if (state.charts.status) state.charts.status.update('none');
@@ -451,7 +477,7 @@
           const originalContent = btn.innerHTML;
           btn.disabled = true;
           btn.innerHTML = `
-            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>`;
