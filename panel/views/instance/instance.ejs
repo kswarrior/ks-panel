@@ -20,7 +20,7 @@
         --danger: #ef4444;
     }
 
-    .im-container {
+    .ks-instance-container {
         font-family: system-ui, -apple-system, sans-serif;
         background: var(--bg);
         color: var(--text);
@@ -28,7 +28,7 @@
         padding: 1.5rem;
     }
 
-    .im-header {
+    .ks-instance-header {
         display: flex;
         justify-content: flex-end;
         gap: 0.75rem;
@@ -36,7 +36,7 @@
         flex-wrap: wrap;
     }
 
-    .im-btn {
+    .ks-instance-btn {
         padding: 0.75rem 1.25rem;
         font-size: 0.95rem;
         font-weight: 600;
@@ -49,24 +49,24 @@
         transition: all 0.2s;
     }
 
-    .im-btn-start { background: var(--success); }
-    .im-btn-restart { background: var(--accent); }
-    .im-btn-stop { background: var(--danger); }
+    .ks-instance-btn-start { background: var(--success); }
+    .ks-instance-btn-restart { background: var(--accent); }
+    .ks-instance-btn-stop { background: var(--danger); }
 
-    .im-btn:hover { transform: translateY(-1px); }
-    .im-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ks-instance-btn:hover { transform: translateY(-1px); }
+    .ks-instance-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .im-info-grid {
+    .ks-instance-info-grid {
         display: grid;
         grid-template-columns: 1fr;
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
     @media (min-width: 640px) {
-        .im-info-grid { grid-template-columns: repeat(2, 1fr); }
+        .ks-instance-info-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    .im-info-card {
+    .ks-instance-info-card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 12px;
@@ -76,19 +76,19 @@
         justify-content: space-between;
     }
 
-    .im-info-label {
+    .ks-instance-info-label {
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--muted);
     }
 
-    .im-info-value {
+    .ks-instance-info-value {
         font-size: 1.1rem;
         font-weight: 600;
     }
 
-    .im-alert {
+    .ks-instance-alert {
         background: rgba(239, 68, 68, 0.15);
         border: 1px solid rgba(239, 68, 68, 0.3);
         border-radius: 12px;
@@ -98,19 +98,19 @@
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
-    .im-alert.show { display: flex; }
+    .ks-instance-alert.show { display: flex; }
 
-    .im-main {
+    .ks-instance-main {
         display: grid;
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
     @media (min-width: 1024px) {
-        .im-main { grid-template-columns: 1fr 340px; }
+        .ks-instance-main { grid-template-columns: 1fr 340px; }
     }
 
     /* Terminal */
-    .im-terminal-wrap {
+    .ks-instance-terminal-wrap {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 12px;
@@ -120,7 +120,7 @@
         height: 520px;
     }
 
-    .im-terminal-header {
+    .ks-instance-terminal-header {
         background: #25252b;
         padding: 0.75rem 1rem;
         display: flex;
@@ -131,7 +131,7 @@
         letter-spacing: 0.5px;
     }
 
-    .im-terminal-body {
+    .ks-instance-terminal-body {
         flex: 1;
         position: relative;
     }
@@ -141,7 +141,7 @@
         height: 100%;
     }
 
-    .im-terminal-input {
+    .ks-instance-terminal-input {
         padding: 0.75rem 1rem;
         background: #25252b;
         border-top: 1px solid var(--border);
@@ -160,7 +160,7 @@
     }
 
     /* Controls */
-    .im-terminal-controls button {
+    .ks-instance-terminal-controls button {
         width: 36px;
         height: 36px;
         background: transparent;
@@ -174,13 +174,13 @@
     }
 
     /* Stats */
-    .im-stats {
+    .ks-instance-stats {
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
 
-    .im-stat-card {
+    .ks-instance-stat-card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 12px;
@@ -189,20 +189,20 @@
         height: 130px;
     }
 
-    .im-stat-label {
+    .ks-instance-stat-label {
         font-size: 0.75rem;
         text-transform: uppercase;
         color: var(--muted);
     }
 
-    .im-stat-value {
+    .ks-instance-stat-value {
         font-size: 1.75rem;
         font-weight: 700;
         font-family: monospace;
     }
 
-    .im-stat-value.online { color: var(--success); }
-    .im-stat-value.offline { color: var(--danger); }
+    .ks-instance-stat-value.online { color: var(--success); }
+    .ks-instance-stat-value.offline { color: var(--danger); }
 
     /* Notification */
     #im-notification {
@@ -218,17 +218,86 @@
         z-index: 1000;
     }
     #im-notification.show { display: block; }
+
+    /* Optimized responsive styles for phone & desktop - stylish, clean, no color or blur changes */
+    @media (max-width: 640px) {
+        .ks-instance-container {
+            padding: 1rem;
+        }
+        .ks-instance-header {
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .ks-instance-btn {
+            padding: 0.65rem 1rem;
+            font-size: 0.9rem;
+            flex: 1;
+            justify-content: center;
+        }
+        .ks-instance-terminal-wrap {
+            height: 400px;
+        }
+        .ks-instance-info-grid {
+            gap: 0.75rem;
+        }
+        .ks-instance-main {
+            gap: 1rem;
+        }
+        .ks-instance-stat-card {
+            height: 115px;
+            padding: 1rem;
+        }
+        .ks-instance-stat-value {
+            font-size: 1.55rem;
+        }
+        .ks-instance-terminal-header {
+            padding: 0.65rem 0.85rem;
+            font-size: 0.8rem;
+        }
+        .ks-instance-terminal-input {
+            padding: 0.65rem 0.85rem;
+        }
+    }
+
+    @media (min-width: 641px) and (max-width: 1023px) {
+        .ks-instance-terminal-wrap {
+            height: 480px;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .ks-instance-main {
+            grid-template-columns: 1fr 380px;
+        }
+        .ks-instance-terminal-wrap {
+            height: 560px;
+        }
+        .ks-instance-stat-card {
+            height: 140px;
+        }
+    }
+
+    /* Extra polish for smooth UI on both phone and desktop */
+    .ks-instance-info-card,
+    .ks-instance-stat-card,
+    .ks-instance-terminal-wrap {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ks-instance-info-card:hover,
+    .ks-instance-stat-card:hover {
+        transform: translateY(-2px);
+    }
 </style>
 
-<div class="im-container">
-    <div class="im-header">
-        <button id="im-startBtn" class="im-btn im-btn-start">
+<div class="ks-instance-container">
+    <div class="ks-instance-header">
+        <button id="im-startBtn" class="ks-instance-btn ks-instance-btn-start">
             ▶️ Start
         </button>
-        <button id="im-restartBtn" class="im-btn im-btn-restart">
+        <button id="im-restartBtn" class="ks-instance-btn ks-instance-btn-restart">
             ⟳ Restart
         </button>
-        <button id="im-stopBtn" class="im-btn im-btn-stop">
+        <button id="im-stopBtn" class="ks-instance-btn ks-instance-btn-stop">
             ⏹ Stop
         </button>
     </div>
@@ -236,11 +305,11 @@
     <%- include('../components/instance') %>
 
     <!-- Info -->
-    <div class="im-info-grid">
-        <div class="im-info-card">
+    <div class="ks-instance-info-grid">
+        <div class="ks-instance-info-card">
             <div>
-                <div class="im-info-label">ADDRESS</div>
-                <div class="im-info-value"><%= instance.Node.address %><span style="color:#666">:<%= instance.Primary %></span></div>
+                <div class="ks-instance-info-label">ADDRESS</div>
+                <div class="ks-instance-info-value"><%= instance.Node.address %><span style="color:#666">:<%= instance.Primary %></span></div>
             </div>
             <svg width="28" height="28" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
@@ -250,7 +319,7 @@
     </div>
 
     <!-- Alert -->
-    <div class="im-alert" id="im-daemonAlert">
+    <div class="ks-instance-alert" id="im-daemonAlert">
         <strong>⚠️</strong>
         <div>
             <strong>Connection Failure</strong>
@@ -258,50 +327,50 @@
         </div>
     </div>
 
-    <div class="im-main">
+    <div class="ks-instance-main">
         <!-- Terminal -->
-        <div class="im-terminal-wrap">
-            <div class="im-terminal-header">
+        <div class="ks-instance-terminal-wrap">
+            <div class="ks-instance-terminal-header">
                 <div>Instance Console <span style="background:#10b981;color:#000;font-size:10px;padding:2px 6px;border-radius:9999px;">LIVE</span></div>
-                <div class="im-terminal-controls" style="display:flex;gap:6px;">
+                <div class="ks-instance-terminal-controls" style="display:flex;gap:6px;">
                     <button id="im-consoleStopBtn" title="Pause/Resume">⏸</button>
                     <button id="im-clearBtn" title="Clear">🗑</button>
                     <button id="im-toggleModeBtn" title="Toggle wrap/scroll">↔</button>
                 </div>
             </div>
-            <div class="im-terminal-body">
+            <div class="ks-instance-terminal-body">
                 <div id="im-terminal"></div>
             </div>
-            <div class="im-terminal-input">
+            <div class="ks-instance-terminal-input">
                 <span style="color:#10b981;font-weight:700;">~</span>
                 <input id="im-input" type="text" placeholder="Send a command..." autocomplete="off">
             </div>
         </div>
 
         <!-- Stats -->
-        <div class="im-stats">
-            <div class="im-stat-card" id="im-statusCard">
-                <div class="im-stat-label">STATUS</div>
-                <div id="im-status" class="im-stat-value">-</div>
+        <div class="ks-instance-stats">
+            <div class="ks-instance-stat-card" id="im-statusCard">
+                <div class="ks-instance-stat-label">STATUS</div>
+                <div id="im-status" class="ks-instance-stat-value">-</div>
                 <canvas id="im-statusChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
             </div>
 
-            <div class="im-stat-card">
-                <div class="im-stat-label">RAM USAGE</div>
-                <div id="im-ram" class="im-stat-value">-</div>
+            <div class="ks-instance-stat-card">
+                <div class="ks-instance-stat-label">RAM USAGE</div>
+                <div id="im-ram" class="ks-instance-stat-value">-</div>
                 <div id="im-ramSub" style="font-size:0.85rem;color:var(--muted);margin-top:4px;">—</div>
                 <canvas id="im-ramChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
             </div>
 
-            <div class="im-stat-card">
-                <div class="im-stat-label">CPU USAGE</div>
-                <div id="im-cpu" class="im-stat-value">-</div>
+            <div class="ks-instance-stat-card">
+                <div class="ks-instance-stat-label">CPU USAGE</div>
+                <div id="im-cpu" class="ks-instance-stat-value">-</div>
                 <canvas id="im-cpuChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
             </div>
 
-            <div class="im-stat-card">
-                <div class="im-stat-label">DISK USAGE</div>
-                <div id="im-disk" class="im-stat-value">-</div>
+            <div class="ks-instance-stat-card">
+                <div class="ks-instance-stat-label">DISK USAGE</div>
+                <div id="im-disk" class="ks-instance-stat-value">-</div>
                 <div id="im-diskSub" style="font-size:0.85rem;color:var(--muted);margin-top:4px;">—</div>
                 <canvas id="im-diskChart" style="position:absolute;bottom:0;left:0;right:0;height:60px;opacity:0.15;"></canvas>
             </div>
@@ -370,7 +439,7 @@
             const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
             const statusEl = document.getElementById('im-status');
             statusEl.textContent = isRunning ? 'Online' : 'Offline';
-            statusEl.className = 'im-stat-value ' + (isRunning ? 'online' : 'offline');
+            statusEl.className = 'ks-instance-stat-value ' + (isRunning ? 'online' : 'offline');
         };
     }
 
