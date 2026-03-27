@@ -1,4 +1,518 @@
 <%- include('../components/template') %>
+<script>
+    // ============================================
+    // INSTANCE MANAGER - OPTIMISTIC IMPLEMENTATION
+    // ============================================
+    
+    // Theme configuration
+    const imTheme = {
+        foreground: '#e5e7eb',
+        background: 'transparent',
+        selection: 'rgba(59, 130, 246, 0.3)',
+        black: '#0f0f13',
+        brightBlack: '#1a1a1f',
+        red: '#ef4444',
+        brightRed: '#f87171',
+        green: '#10b981',
+        brightGreen: '#34d399',
+        yellow: '#f59e0b',
+        brightYellow: '#fbbf24',
+        blue: '#3b82f6',
+        brightBlue: '#60a5fa',
+        magenta: '#a855f7',
+        brightMagenta: '#c084fc',
+        cyan: '#06b6d4',
+        brightCyan: '#22d3ee',
+        white: '#f9fafb',
+        brightWhite: '#ffffff',
+        cursor: '#3b82f6',
+        cursorAccent: '#1a1a1f',
+    };
+    
+    // State management
+    const imState = {
+        protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+        instanceId: '<%= req.params.id %>',
+        maxCommands: 50,
+        commandHistory: [],
+        currentCommandIndex: -1,
+        term: null,
+        ws: null,
+        statsWs: null,
+        reconnectAttempts: 0,
+        maxReconnectAttempts: 10,
+        charts: {},
+        lastStats: null,
+        isRunning: false
+    };
+    
+    // Utilities
+    const imUtils = {
+        debounce: (fn, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        },
+        
+        throttle: (fn, limit) => {
+            let inThrottle;
+            return (...args) => {
+                if (!inThrottle) {
+                    fn(...args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        },
+        
+        formatBytes: (bytes, decimals = 2) => {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        },
+        
+        isValidJson: (str) => {
+            try {
+                JSON.parse(str);
+                return true;
+            } catch {
+                return false;
+            }
+        },
+        
+        showNotification: (message, type = 'info') => {
+            const notification = document.getElementById('im-notification');
+            notification.textContent = message;
+            notification.className = 'show';
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+    };
+    
+    // ============================================
+    // TERMINAL INITIALIZATION
+    // ============================================
+    
+    function imInitTerminal() {
+        const screenWidth = window.innerWidth;
+        const isMobile = screenWidth < 640;
+        const isTablet = screenWidth < 1024;
+        
+        const config = {
+            cols: isMobile ? 40 : isTablet ? 80 : 100,
+            rows: isMobile ? 20 : 24,
+            fontSize: isMobile ? 12 : 14,
+        };
+        
+        imState.term = new Terminal({
+            disableStdin: true,
+            allowProposedApi: true,
+            lineHeight: 1.5,
+            rows: config.rows,
+            cols: config.cols,
+            fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Courier New, monospace',
+            fontSize: config.fontSize,
+            theme: imTheme,
+            allowTransparency: true,
+            cursorBlink: false,
+            scrollback: 5000,
+            smoothScrollDuration: 0,
+            fastScrollModifier: 'alt',
+            fastScrollSensitivity: 5,
+        });
+        
+        imState.term.open(document.getElementById('im-terminal'));
+        
+        // Responsive resize with debounce
+        const handleResize = imUtils.debounce(() => {
+            const newWidth = window.innerWidth;
+            const newIsMobile = newWidth < 640;
+            const newIsTablet = newWidth < 1024;
+            
+            const newConfig = {
+                cols: newIsMobile ? 40 : newIsTablet ? 80 : 100,
+                rows: newIsMobile ? 20 : 24,
+            };
+            
+            imState.term.resize(newConfig.cols, newConfig.rows);
+        }, 250);
+        
+        window.addEventListener('resize', handleResize, { passive: true });
+    }
+    
+    // ============================================
+    // WEBSOCKET MANAGEMENT
+    // ============================================
+    
+    function imInitWebSocket() {
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const wsUrl = `${imState.protocol}://${window.location.hostname}${port}/console/${imState.instanceId}`;
+        
+        imState.ws = new WebSocket(wsUrl);
+        
+        imState.ws.onopen = () => {
+            console.log('[InstanceManager] WebSocket connected');
+            imState.reconnectAttempts = 0;
+            document.getElementById('im-daemonAlert').classList.add('im-hidden');
+        };
+        
+        imState.ws.onmessage = imHandleWsMessage;
+        
+        imState.ws.onclose = () => {
+            if (imState.reconnectAttempts < imState.maxReconnectAttempts) {
+                const delay = Math.min(1000 * Math.pow(2, imState.reconnectAttempts), 30000);
+                setTimeout(imInitWebSocket, delay);
+                imState.reconnectAttempts++;
+            }
+        };
+        
+        imState.ws.onerror = (error) => {
+            console.error('[InstanceManager] WebSocket error:', error);
+        };
+    }
+    
+    function imHandleWsMessage(msg) {
+        const lines = msg.data.split('\n');
+        let isFirstLine = true;
+        let previousLineWasEmpty = false;
+        let output = '';
+        
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+            if (trimmedLine === '' && previousLineWasEmpty) return;
+            
+            if (!isFirstLine && !previousLineWasEmpty) {
+                output += '\r\n';
+            }
+            
+            output += '\x1b[0m' + trimmedLine;
+            
+            if (trimmedLine.includes("Working on")) {
+                output += '\r\n\u001b[1m\u001b[33m[panel] \u001b[0mReconnecting...';
+                imState.ws.close();
+            }
+            
+            if (trimmedLine.includes("KS Wings instance appears to be down")) {
+                imState.ws.close();
+                document.getElementById('im-daemonAlert').classList.remove('im-hidden');
+            }
+            
+            isFirstLine = false;
+            previousLineWasEmpty = (trimmedLine === '');
+        });
+        
+        imState.term.write(output);
+    }
+    
+    // ============================================
+    // STATS WEBSOCKET
+    // ============================================
+    
+    function imInitStatsWebSocket() {
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const wsUrl = `${imState.protocol}://${window.location.hostname}${port}/stats/${imState.instanceId}`;
+        
+        imState.statsWs = new WebSocket(wsUrl);
+        
+        imState.statsWs.onmessage = imUtils.throttle((event) => {
+            if (!imUtils.isValidJson(event.data)) return;
+            
+            const stats = JSON.parse(event.data);
+            if (stats.error) {
+                console.error('[InstanceManager] Stats error:', stats.error);
+                return;
+            }
+            
+            imState.lastStats = stats;
+            imUpdateStats(stats);
+        }, 1000);
+        
+        imState.statsWs.onclose = () => {
+            setTimeout(imInitStatsWebSocket, 5000);
+        };
+    }
+    
+    // ============================================
+    // STATS CHARTS
+    // ============================================
+    
+    function imInitCharts() {
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
+            animation: { duration: 0 },
+            elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.4 } }
+        };
+        
+        const createChart = (id, color, type = 'line') => {
+            const ctx = document.getElementById(id);
+            if (!ctx) return null;
+            
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: Array(20).fill(0),
+                        borderColor: color,
+                        backgroundColor: type === 'line' ? `${color}20` : `${color}40`,
+                        fill: type === 'line',
+                    }]
+                },
+                options: commonOptions
+            });
+        };
+        
+        imState.charts.status = createChart('im-statusChart', '#10b981');
+        imState.charts.ram = createChart('im-ramChart', '#3b82f6');
+        imState.charts.cpu = createChart('im-cpuChart', '#f59e0b');
+    }
+    
+    function imUpdateStats(stats) {
+        // RAM
+        const ramUsage = stats.memory_stats?.usage || 0;
+        const ramLimit = stats.memory_stats?.limit || 0;
+        const ramPercent = ramLimit > 0 ? ((ramUsage / ramLimit) * 100).toFixed(1) : 0;
+        
+        document.getElementById('im-ram').textContent = `${ramPercent}%`;
+        document.getElementById('im-ramSub').textContent = 
+            `${imUtils.formatBytes(ramUsage)} / ${imUtils.formatBytes(ramLimit)}`;
+        imUpdateChart(imState.charts.ram, ramPercent);
+        
+        // CPU
+        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage) || 0;
+        const systemDelta = (stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage) || 0;
+        const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
+        
+        document.getElementById('im-cpu').textContent = `${cpuPercent}%`;
+        imUpdateChart(imState.charts.cpu, cpuPercent);
+        
+        // Disk
+        const diskUsage = parseFloat(stats.volumeSize) || 0;
+        const diskLimit = <%= instance.Disk || 0 %>;
+        const diskEl = document.getElementById('im-disk');
+        const diskSubEl = document.getElementById('im-diskSub');
+        
+        if (diskLimit === 0) {
+            diskEl.textContent = imUtils.formatBytes(diskUsage * 1024 * 1024);
+            diskSubEl.textContent = 'Unlimited';
+            diskEl.style.color = 'var(--im-accent-success)';
+        } else {
+            const diskPercent = ((diskUsage / diskLimit) * 100).toFixed(1);
+            diskEl.textContent = `${diskPercent}%`;
+            diskSubEl.textContent = `${imUtils.formatBytes(diskUsage * 1024 * 1024)} / ${imUtils.formatBytes(diskLimit * 1024 * 1024)}`;
+            diskEl.style.color = diskPercent > 90 ? 'var(--im-accent-danger)' : diskPercent > 70 ? 'var(--im-accent-warning)' : 'var(--im-accent-success)';
+        }
+        
+        // Status detection
+        const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
+        imUpdateStatus(isRunning);
+    }
+    
+    function imUpdateStatus(isRunning) {
+        imState.isRunning = isRunning;
+        
+        const statusEl = document.getElementById('im-status');
+        const statusCard = document.getElementById('im-statusCard');
+        const indicator = document.getElementById('im-statusIndicator');
+        
+        if (isRunning) {
+            statusEl.textContent = 'Online';
+            statusEl.className = 'im-stat-value online';
+            statusCard.classList.add('online');
+            statusCard.classList.remove('offline');
+            indicator.className = 'im-stat-indicator online';
+            imUpdateStatusChart('#10b981');
+        } else {
+            statusEl.textContent = 'Offline';
+            statusEl.className = 'im-stat-value offline';
+            statusCard.classList.add('offline');
+            statusCard.classList.remove('online');
+            indicator.className = 'im-stat-indicator offline';
+            imUpdateStatusChart('#ef4444');
+        }
+    }
+    
+    function imUpdateChart(chart, value) {
+        if (!chart) return;
+        const num = parseFloat(value) || 0;
+        chart.data.datasets[0].data.push(num);
+        chart.data.datasets[0].data.shift();
+        chart.update('none');
+    }
+    
+    function imUpdateStatusChart(color) {
+        if (!imState.charts.status) return;
+        imState.charts.status.data.datasets[0].backgroundColor = `${color}30`;
+        imState.charts.status.data.datasets[0].borderColor = color;
+        imState.charts.status.data.datasets[0].data = Array(20).fill(100);
+        imState.charts.status.update('none');
+    }
+    
+    // ============================================
+    // COMMAND INPUT
+    // ============================================
+    
+    function imInitCommandInput() {
+        const input = document.getElementById('im-input');
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') imSendCommand();
+        });
+        
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (imState.currentCommandIndex > 0) {
+                    imState.currentCommandIndex--;
+                    input.value = imState.commandHistory[imState.currentCommandIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (imState.currentCommandIndex < imState.commandHistory.length - 1) {
+                    imState.currentCommandIndex++;
+                    input.value = imState.commandHistory[imState.currentCommandIndex];
+                } else {
+                    imState.currentCommandIndex = imState.commandHistory.length;
+                    input.value = '';
+                }
+            }
+        });
+    }
+    
+    function imSendCommand() {
+        const input = document.getElementById('im-input');
+        const command = input.value.trim();
+        
+        if (!command || !imState.ws) return;
+        
+        imState.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
+        
+        imState.ws.send(JSON.stringify({
+            event: 'cmd',
+            command: command,
+            containerId: imState.instanceId
+        }));
+        
+        if (imState.commandHistory.length >= imState.maxCommands) {
+            imState.commandHistory.shift();
+        }
+        imState.commandHistory.push(command);
+        imState.currentCommandIndex = imState.commandHistory.length;
+        
+        input.value = '';
+    }
+    
+    // ============================================
+    // POWER BUTTONS - OPTIMISTIC UI
+    // ============================================
+    
+    function imInitPowerButtons() {
+        const buttons = {
+            start: document.getElementById('im-startBtn'),
+            restart: document.getElementById('im-restartBtn'),
+            stop: document.getElementById('im-stopBtn')
+        };
+        
+        const icons = {
+            start: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/></svg>`,
+            restart: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/></svg>`,
+            stop: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/></svg>`
+        };
+        
+        const labels = {
+            start: '<%= req.translations.start %>',
+            restart: '<%= req.translations.restart %>',
+            stop: '<%= req.translations.stop %>'
+        };
+        
+        Object.keys(buttons).forEach(action => {
+            const btn = buttons[action];
+            if (!btn) return;
+            
+            btn.addEventListener('click', async () => {
+                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
+                
+                // Optimistic UI update
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.classList.add('loading');
+                btn.innerHTML = `${icons[action]} <span class="im-btn-text">Processing...</span>`;
+                
+                // Optimistic status update
+                if (action === 'start') {
+                    imUpdateStatus(true);
+                } else if (action === 'stop') {
+                    imUpdateStatus(false);
+                }
+                
+                try {
+                    const res = await axios.post(`/instance/${imState.instanceId}/power`, { action });
+                    
+                    if (res.status === 200) {
+                        // Success state
+                        btn.innerHTML = `${icons[action]} <span class="im-btn-text">${labels[action]}ed!</span>`;
+                        btn.classList.remove('loading');
+                        imUtils.showNotification(`Instance ${action}ed successfully`);
+                        
+                        // Revert after delay
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                        }, 2000);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    imUtils.showNotification(`Failed to ${action} instance`, 'error');
+                    
+                    // Revert on error
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                    
+                    // Revert optimistic status
+                    if (imState.lastStats) {
+                        imUpdateStats(imState.lastStats);
+                    }
+                }
+            });
+        });
+    }
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        imInitTerminal();
+        imInitWebSocket();
+        imInitStatsWebSocket();
+        imInitCharts();
+        imInitCommandInput();
+        imInitPowerButtons();
+        
+        // Visibility change handling for performance
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (imState.statsWs) imState.statsWs.onmessage = null;
+            } else {
+                if (imState.statsWs) {
+                    imState.statsWs.onmessage = imUtils.throttle((event) => {
+                        if (!imUtils.isValidJson(event.data)) return;
+                        const stats = JSON.parse(event.data);
+                        if (!stats.error) imUpdateStats(stats);
+                    }, 1000);
+                }
+            }
+        });
+    });
+</script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"
     integrity="sha512-2PRgAav8Os8vLcOAh1gSaDoNLe1fAyq8/G3QSdyjFFD+OqNjLeHE/8q4+S4MEZgPsuo+itHopj+hJvqS8XUQ8A=="
@@ -1156,520 +1670,5 @@
 
 <!-- Notification Toast -->
 <div id="im-notification" role="status" aria-live="polite"></div>
-
-<script>
-    // ============================================
-    // INSTANCE MANAGER - OPTIMISTIC IMPLEMENTATION
-    // ============================================
-    
-    // Theme configuration
-    const imTheme = {
-        foreground: '#e5e7eb',
-        background: 'transparent',
-        selection: 'rgba(59, 130, 246, 0.3)',
-        black: '#0f0f13',
-        brightBlack: '#1a1a1f',
-        red: '#ef4444',
-        brightRed: '#f87171',
-        green: '#10b981',
-        brightGreen: '#34d399',
-        yellow: '#f59e0b',
-        brightYellow: '#fbbf24',
-        blue: '#3b82f6',
-        brightBlue: '#60a5fa',
-        magenta: '#a855f7',
-        brightMagenta: '#c084fc',
-        cyan: '#06b6d4',
-        brightCyan: '#22d3ee',
-        white: '#f9fafb',
-        brightWhite: '#ffffff',
-        cursor: '#3b82f6',
-        cursorAccent: '#1a1a1f',
-    };
-    
-    // State management
-    const imState = {
-        protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
-        instanceId: '<%= req.params.id %>',
-        maxCommands: 50,
-        commandHistory: [],
-        currentCommandIndex: -1,
-        term: null,
-        ws: null,
-        statsWs: null,
-        reconnectAttempts: 0,
-        maxReconnectAttempts: 10,
-        charts: {},
-        lastStats: null,
-        isRunning: false
-    };
-    
-    // Utilities
-    const imUtils = {
-        debounce: (fn, delay) => {
-            let timeout;
-            return (...args) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => fn(...args), delay);
-            };
-        },
-        
-        throttle: (fn, limit) => {
-            let inThrottle;
-            return (...args) => {
-                if (!inThrottle) {
-                    fn(...args);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
-                }
-            };
-        },
-        
-        formatBytes: (bytes, decimals = 2) => {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        },
-        
-        isValidJson: (str) => {
-            try {
-                JSON.parse(str);
-                return true;
-            } catch {
-                return false;
-            }
-        },
-        
-        showNotification: (message, type = 'info') => {
-            const notification = document.getElementById('im-notification');
-            notification.textContent = message;
-            notification.className = 'show';
-            setTimeout(() => notification.classList.remove('show'), 3000);
-        }
-    };
-    
-    // ============================================
-    // TERMINAL INITIALIZATION
-    // ============================================
-    
-    function imInitTerminal() {
-        const screenWidth = window.innerWidth;
-        const isMobile = screenWidth < 640;
-        const isTablet = screenWidth < 1024;
-        
-        const config = {
-            cols: isMobile ? 40 : isTablet ? 80 : 100,
-            rows: isMobile ? 20 : 24,
-            fontSize: isMobile ? 12 : 14,
-        };
-        
-        imState.term = new Terminal({
-            disableStdin: true,
-            allowProposedApi: true,
-            lineHeight: 1.5,
-            rows: config.rows,
-            cols: config.cols,
-            fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Courier New, monospace',
-            fontSize: config.fontSize,
-            theme: imTheme,
-            allowTransparency: true,
-            cursorBlink: false,
-            scrollback: 5000,
-            smoothScrollDuration: 0,
-            fastScrollModifier: 'alt',
-            fastScrollSensitivity: 5,
-        });
-        
-        imState.term.open(document.getElementById('im-terminal'));
-        
-        // Responsive resize with debounce
-        const handleResize = imUtils.debounce(() => {
-            const newWidth = window.innerWidth;
-            const newIsMobile = newWidth < 640;
-            const newIsTablet = newWidth < 1024;
-            
-            const newConfig = {
-                cols: newIsMobile ? 40 : newIsTablet ? 80 : 100,
-                rows: newIsMobile ? 20 : 24,
-            };
-            
-            imState.term.resize(newConfig.cols, newConfig.rows);
-        }, 250);
-        
-        window.addEventListener('resize', handleResize, { passive: true });
-    }
-    
-    // ============================================
-    // WEBSOCKET MANAGEMENT
-    // ============================================
-    
-    function imInitWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `${imState.protocol}://${window.location.hostname}${port}/console/${imState.instanceId}`;
-        
-        imState.ws = new WebSocket(wsUrl);
-        
-        imState.ws.onopen = () => {
-            console.log('[InstanceManager] WebSocket connected');
-            imState.reconnectAttempts = 0;
-            document.getElementById('im-daemonAlert').classList.add('im-hidden');
-        };
-        
-        imState.ws.onmessage = imHandleWsMessage;
-        
-        imState.ws.onclose = () => {
-            if (imState.reconnectAttempts < imState.maxReconnectAttempts) {
-                const delay = Math.min(1000 * Math.pow(2, imState.reconnectAttempts), 30000);
-                setTimeout(imInitWebSocket, delay);
-                imState.reconnectAttempts++;
-            }
-        };
-        
-        imState.ws.onerror = (error) => {
-            console.error('[InstanceManager] WebSocket error:', error);
-        };
-    }
-    
-    function imHandleWsMessage(msg) {
-        const lines = msg.data.split('\n');
-        let isFirstLine = true;
-        let previousLineWasEmpty = false;
-        let output = '';
-        
-        lines.forEach(line => {
-            const trimmedLine = line.trim();
-            if (trimmedLine === '' && previousLineWasEmpty) return;
-            
-            if (!isFirstLine && !previousLineWasEmpty) {
-                output += '\r\n';
-            }
-            
-            output += '\x1b[0m' + trimmedLine;
-            
-            if (trimmedLine.includes("Working on")) {
-                output += '\r\n\u001b[1m\u001b[33m[panel] \u001b[0mReconnecting...';
-                imState.ws.close();
-            }
-            
-            if (trimmedLine.includes("KS Wings instance appears to be down")) {
-                imState.ws.close();
-                document.getElementById('im-daemonAlert').classList.remove('im-hidden');
-            }
-            
-            isFirstLine = false;
-            previousLineWasEmpty = (trimmedLine === '');
-        });
-        
-        imState.term.write(output);
-    }
-    
-    // ============================================
-    // STATS WEBSOCKET
-    // ============================================
-    
-    function imInitStatsWebSocket() {
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const wsUrl = `${imState.protocol}://${window.location.hostname}${port}/stats/${imState.instanceId}`;
-        
-        imState.statsWs = new WebSocket(wsUrl);
-        
-        imState.statsWs.onmessage = imUtils.throttle((event) => {
-            if (!imUtils.isValidJson(event.data)) return;
-            
-            const stats = JSON.parse(event.data);
-            if (stats.error) {
-                console.error('[InstanceManager] Stats error:', stats.error);
-                return;
-            }
-            
-            imState.lastStats = stats;
-            imUpdateStats(stats);
-        }, 1000);
-        
-        imState.statsWs.onclose = () => {
-            setTimeout(imInitStatsWebSocket, 5000);
-        };
-    }
-    
-    // ============================================
-    // STATS CHARTS
-    // ============================================
-    
-    function imInitCharts() {
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } },
-            animation: { duration: 0 },
-            elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.4 } }
-        };
-        
-        const createChart = (id, color, type = 'line') => {
-            const ctx = document.getElementById(id);
-            if (!ctx) return null;
-            
-            return new Chart(ctx, {
-                type: type,
-                data: {
-                    labels: Array(20).fill(''),
-                    datasets: [{
-                        data: Array(20).fill(0),
-                        borderColor: color,
-                        backgroundColor: type === 'line' ? `${color}20` : `${color}40`,
-                        fill: type === 'line',
-                    }]
-                },
-                options: commonOptions
-            });
-        };
-        
-        imState.charts.status = createChart('im-statusChart', '#10b981');
-        imState.charts.ram = createChart('im-ramChart', '#3b82f6');
-        imState.charts.cpu = createChart('im-cpuChart', '#f59e0b');
-    }
-    
-    function imUpdateStats(stats) {
-        // RAM
-        const ramUsage = stats.memory_stats?.usage || 0;
-        const ramLimit = stats.memory_stats?.limit || 0;
-        const ramPercent = ramLimit > 0 ? ((ramUsage / ramLimit) * 100).toFixed(1) : 0;
-        
-        document.getElementById('im-ram').textContent = `${ramPercent}%`;
-        document.getElementById('im-ramSub').textContent = 
-            `${imUtils.formatBytes(ramUsage)} / ${imUtils.formatBytes(ramLimit)}`;
-        imUpdateChart(imState.charts.ram, ramPercent);
-        
-        // CPU
-        const cpuDelta = (stats.cpu_stats?.cpu_usage?.total_usage - stats.precpu_stats?.cpu_usage?.total_usage) || 0;
-        const systemDelta = (stats.cpu_stats?.system_cpu_usage - stats.precpu_stats?.system_cpu_usage) || 0;
-        const cpuPercent = systemDelta > 0 ? ((cpuDelta / systemDelta) * 100).toFixed(1) : 0;
-        
-        document.getElementById('im-cpu').textContent = `${cpuPercent}%`;
-        imUpdateChart(imState.charts.cpu, cpuPercent);
-        
-        // Disk
-        const diskUsage = parseFloat(stats.volumeSize) || 0;
-        const diskLimit = <%= instance.Disk || 0 %>;
-        const diskEl = document.getElementById('im-disk');
-        const diskSubEl = document.getElementById('im-diskSub');
-        
-        if (diskLimit === 0) {
-            diskEl.textContent = imUtils.formatBytes(diskUsage * 1024 * 1024);
-            diskSubEl.textContent = 'Unlimited';
-            diskEl.style.color = 'var(--im-accent-success)';
-        } else {
-            const diskPercent = ((diskUsage / diskLimit) * 100).toFixed(1);
-            diskEl.textContent = `${diskPercent}%`;
-            diskSubEl.textContent = `${imUtils.formatBytes(diskUsage * 1024 * 1024)} / ${imUtils.formatBytes(diskLimit * 1024 * 1024)}`;
-            diskEl.style.color = diskPercent > 90 ? 'var(--im-accent-danger)' : diskPercent > 70 ? 'var(--im-accent-warning)' : 'var(--im-accent-success)';
-        }
-        
-        // Status detection
-        const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
-        imUpdateStatus(isRunning);
-    }
-    
-    function imUpdateStatus(isRunning) {
-        imState.isRunning = isRunning;
-        
-        const statusEl = document.getElementById('im-status');
-        const statusCard = document.getElementById('im-statusCard');
-        const indicator = document.getElementById('im-statusIndicator');
-        
-        if (isRunning) {
-            statusEl.textContent = 'Online';
-            statusEl.className = 'im-stat-value online';
-            statusCard.classList.add('online');
-            statusCard.classList.remove('offline');
-            indicator.className = 'im-stat-indicator online';
-            imUpdateStatusChart('#10b981');
-        } else {
-            statusEl.textContent = 'Offline';
-            statusEl.className = 'im-stat-value offline';
-            statusCard.classList.add('offline');
-            statusCard.classList.remove('online');
-            indicator.className = 'im-stat-indicator offline';
-            imUpdateStatusChart('#ef4444');
-        }
-    }
-    
-    function imUpdateChart(chart, value) {
-        if (!chart) return;
-        const num = parseFloat(value) || 0;
-        chart.data.datasets[0].data.push(num);
-        chart.data.datasets[0].data.shift();
-        chart.update('none');
-    }
-    
-    function imUpdateStatusChart(color) {
-        if (!imState.charts.status) return;
-        imState.charts.status.data.datasets[0].backgroundColor = `${color}30`;
-        imState.charts.status.data.datasets[0].borderColor = color;
-        imState.charts.status.data.datasets[0].data = Array(20).fill(100);
-        imState.charts.status.update('none');
-    }
-    
-    // ============================================
-    // COMMAND INPUT
-    // ============================================
-    
-    function imInitCommandInput() {
-        const input = document.getElementById('im-input');
-        
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') imSendCommand();
-        });
-        
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (imState.currentCommandIndex > 0) {
-                    imState.currentCommandIndex--;
-                    input.value = imState.commandHistory[imState.currentCommandIndex];
-                }
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (imState.currentCommandIndex < imState.commandHistory.length - 1) {
-                    imState.currentCommandIndex++;
-                    input.value = imState.commandHistory[imState.currentCommandIndex];
-                } else {
-                    imState.currentCommandIndex = imState.commandHistory.length;
-                    input.value = '';
-                }
-            }
-        });
-    }
-    
-    function imSendCommand() {
-        const input = document.getElementById('im-input');
-        const command = input.value.trim();
-        
-        if (!command || !imState.ws) return;
-        
-        imState.term.write(`\r\n\u001b[1m\u001b[36m❯ \u001b[0m${command}\r\n`);
-        
-        imState.ws.send(JSON.stringify({
-            event: 'cmd',
-            command: command,
-            containerId: imState.instanceId
-        }));
-        
-        if (imState.commandHistory.length >= imState.maxCommands) {
-            imState.commandHistory.shift();
-        }
-        imState.commandHistory.push(command);
-        imState.currentCommandIndex = imState.commandHistory.length;
-        
-        input.value = '';
-    }
-    
-    // ============================================
-    // POWER BUTTONS - OPTIMISTIC UI
-    // ============================================
-    
-    function imInitPowerButtons() {
-        const buttons = {
-            start: document.getElementById('im-startBtn'),
-            restart: document.getElementById('im-restartBtn'),
-            stop: document.getElementById('im-stopBtn')
-        };
-        
-        const icons = {
-            start: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/></svg>`,
-            restart: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd"/></svg>`,
-            stop: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd"/></svg>`
-        };
-        
-        const labels = {
-            start: '<%= req.translations.start %>',
-            restart: '<%= req.translations.restart %>',
-            stop: '<%= req.translations.stop %>'
-        };
-        
-        Object.keys(buttons).forEach(action => {
-            const btn = buttons[action];
-            if (!btn) return;
-            
-            btn.addEventListener('click', async () => {
-                if (!confirm(`Are you sure you want to ${action} this instance?`)) return;
-                
-                // Optimistic UI update
-                const originalHTML = btn.innerHTML;
-                btn.disabled = true;
-                btn.classList.add('loading');
-                btn.innerHTML = `${icons[action]} <span class="im-btn-text">Processing...</span>`;
-                
-                // Optimistic status update
-                if (action === 'start') {
-                    imUpdateStatus(true);
-                } else if (action === 'stop') {
-                    imUpdateStatus(false);
-                }
-                
-                try {
-                    const res = await axios.post(`/instance/${imState.instanceId}/power`, { action });
-                    
-                    if (res.status === 200) {
-                        // Success state
-                        btn.innerHTML = `${icons[action]} <span class="im-btn-text">${labels[action]}ed!</span>`;
-                        btn.classList.remove('loading');
-                        imUtils.showNotification(`Instance ${action}ed successfully`);
-                        
-                        // Revert after delay
-                        setTimeout(() => {
-                            btn.innerHTML = originalHTML;
-                            btn.disabled = false;
-                        }, 2000);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    imUtils.showNotification(`Failed to ${action} instance`, 'error');
-                    
-                    // Revert on error
-                    btn.innerHTML = originalHTML;
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                    
-                    // Revert optimistic status
-                    if (imState.lastStats) {
-                        imUpdateStats(imState.lastStats);
-                    }
-                }
-            });
-        });
-    }
-    
-    // ============================================
-    // INITIALIZATION
-    // ============================================
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        imInitTerminal();
-        imInitWebSocket();
-        imInitStatsWebSocket();
-        imInitCharts();
-        imInitCommandInput();
-        imInitPowerButtons();
-        
-        // Visibility change handling for performance
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (imState.statsWs) imState.statsWs.onmessage = null;
-            } else {
-                if (imState.statsWs) {
-                    imState.statsWs.onmessage = imUtils.throttle((event) => {
-                        if (!imUtils.isValidJson(event.data)) return;
-                        const stats = JSON.parse(event.data);
-                        if (!stats.error) imUpdateStats(stats);
-                    }, 1000);
-                }
-            }
-        });
-    });
-</script>
 
 <%- include('../components/footer') %>
