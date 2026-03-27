@@ -286,6 +286,108 @@
         }
     }
 
+    .im-info-card {
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
+        padding: var(--im-space-lg);
+        transition: all var(--im-transition-base);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .im-info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--im-accent-primary), transparent);
+        opacity: 0;
+        transition: opacity var(--im-transition-base);
+    }
+
+    .im-info-card:hover {
+        background-color: var(--im-bg-tertiary);
+        border-color: var(--im-border-color-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--im-shadow-md);
+    }
+
+    .im-info-card:hover::before {
+        opacity: 1;
+    }
+
+    .im-info-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--im-space-md);
+    }
+
+    .im-info-text {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .im-info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--im-text-muted);
+        margin-bottom: var(--im-space-xs);
+    }
+
+    .im-info-value {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--im-text-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .im-info-value-secondary {
+        font-size: 0.8125rem;
+        color: var(--im-text-secondary);
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .im-info-icon-wrap {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--im-bg-tertiary);
+        border-radius: var(--im-radius-md);
+        border: 1px solid var(--im-border-color);
+        transition: all var(--im-transition-fast);
+        flex-shrink: 0;
+    }
+
+    .im-info-card:hover .im-info-icon-wrap {
+        background-color: var(--im-bg-hover);
+        border-color: var(--im-border-color-hover);
+    }
+
+    .im-info-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--im-accent-primary);
+        transition: color var(--im-transition-fast);
+    }
+
+    .im-info-card:hover .im-info-icon {
+        color: var(--im-text-primary);
+    }
+
     /* ============================================
        DAEMON ALERT
        ============================================ */
@@ -352,35 +454,27 @@
 
     @media (min-width: 1024px) {
         .im-main {
-            grid-template-columns: 2.5fr 320px;
+            grid-template-columns: 2.5fr 320px; /* increased console/log width for better UI */
         }
     }
 
     @media (min-width: 1280px) {
         .im-main {
-            grid-template-columns: 2.5fr 380px;
+            grid-template-columns: 2.5fr 380px; /* increased console/log width for better UI */
         }
     }
 
     /* ============================================
-       TERMINAL STYLES - Optimistic & Responsive + SERVERS.EJS STYLE
+       TERMINAL STYLES - Optimistic & Responsive
        ============================================ */
     .im-terminal-wrap {
-        background-color: rgb(255 255 255 / 0.05);
-        border: 1px solid rgb(255 255 255 / 0.1);
-        border-radius: 1rem;
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
         overflow: hidden;
         box-shadow: var(--im-shadow-lg);
         display: flex;
         flex-direction: column;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .im-terminal-wrap:hover {
-        background-color: rgb(255 255 255 / 0.08);
-        border-color: rgb(255 255 255 / 0.15);
-        transform: scale(1.02);
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     }
 
     .im-terminal-header {
@@ -425,33 +519,42 @@
         border-radius: 50%;
     }
 
-    .im-terminal-dot.red { background-color: #ff5f56; border: 1px solid #e0443e; }
-    .im-terminal-dot.yellow { background-color: #ffbd2e; border: 1px solid #dea123; }
-    .im-terminal-dot.green { background-color: #27c93f; border: 1px solid #1aab29; }
+    .im-terminal-dot.red { 
+        background-color: #ff5f56; 
+        border: 1px solid #e0443e;
+    }
+    .im-terminal-dot.yellow { 
+        background-color: #ffbd2e; 
+        border: 1px solid #dea123;
+    }
+    .im-terminal-dot.green { 
+        background-color: #27c93f; 
+        border: 1px solid #1aab29;
+    }
 
     .im-terminal-body {
         position: relative;
         flex: 1;
-        min-height: 450px;
+        min-height: 450px; /* increased height for better log visibility */
         height: 450px;
     }
 
     @media (min-width: 768px) {
         .im-terminal-body {
-            height: 550px;
+            height: 550px; /* increased height for better log visibility */
         }
     }
 
     @media (min-width: 1024px) {
         .im-terminal-body {
-            height: 650px;
+            height: 650px; /* increased height for better log visibility */
         }
     }
 
     #im-terminal {
         width: 100%;
         height: 100%;
-        padding: var(--im-space-lg);
+        padding: var(--im-space-lg); /* increased padding for cleaner, more optimistic UI */
     }
 
     .xterm {
@@ -481,8 +584,8 @@
 
     .xterm-rows {
         font-family: var(--im-font-mono) !important;
-        font-size: 13px !important;
-        line-height: 1.35 !important;
+        font-size: 13px !important; /* increased font size for clearer, more readable text */
+        line-height: 1.35 !important; /* improved line-height for better readability */
     }
 
     .im-terminal-input {
@@ -521,7 +624,7 @@
     }
 
     /* ============================================
-       STATS SECTION - Optimistic Cards + SERVERS.EJS STYLE
+       STATS SECTION - Optimistic Cards
        ============================================ */
     .im-stats {
         display: flex;
@@ -530,13 +633,13 @@
     }
 
     .im-stat-card {
-        background-color: rgb(255 255 255 / 0.05);
-        border: 1px solid rgb(255 255 255 / 0.1);
-        border-radius: 1rem;
+        background-color: var(--im-bg-secondary);
+        border: 1px solid var(--im-border-color);
+        border-radius: var(--im-radius-lg);
         padding: var(--im-space-lg);
         position: relative;
         overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--im-transition-base);
         height: 120px;
         display: flex;
         flex-direction: column;
@@ -544,10 +647,31 @@
     }
 
     .im-stat-card:hover {
-        background-color: rgb(255 255 255 / 0.08);
-        border-color: rgb(255 255 255 / 0.15);
-        transform: scale(1.02);
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        border-color: var(--im-border-color-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--im-shadow-md);
+    }
+
+    .im-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--im-accent-primary);
+        opacity: 0;
+        transition: opacity var(--im-transition-base);
+    }
+
+    .im-stat-card.online::before {
+        background: var(--im-accent-success);
+        opacity: 1;
+    }
+
+    .im-stat-card.offline::before {
+        background: var(--im-accent-danger);
+        opacity: 1;
     }
 
     .im-stat-card canvas {
@@ -631,24 +755,6 @@
     }
 
     /* ============================================
-       INFO CARDS - SERVERS.EJS STYLE
-       ============================================ */
-    .im-info-card {
-        background-color: rgb(255 255 255 / 0.05);
-        border: 1px solid rgb(255 255 255 / 0.1);
-        border-radius: 1rem;
-        padding: var(--im-space-lg);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .im-info-card:hover {
-        background-color: rgb(255 255 255 / 0.08);
-        border-color: rgb(255 255 255 / 0.15);
-        transform: scale(1.02);
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    }
-
-    /* ============================================
        NOTIFICATION
        ============================================ */
     #im-notification {
@@ -684,7 +790,7 @@
     }
 
     /* ============================================
-       UTILITY CLASSES + SERVERS.EJS EXACT STYLES
+       UTILITY CLASSES
        ============================================ */
     .im-font-mono {
         font-family: var(--im-font-mono);
@@ -694,93 +800,7 @@
         display: none !important;
     }
 
-    /* SERVERS.EJS CARD ANIMATIONS & HOVER GLOW (applied to all console cards) */
-    .im-info-card,
-    .im-terminal-wrap,
-    .im-stat-card {
-        animation: slideIn 0.4s ease-out backwards;
-    }
-    
-    .im-info-card:nth-child(1) { animation-delay: 0.05s; }
-    .im-terminal-wrap { animation-delay: 0.1s; }
-    .im-stat-card { animation-delay: 0.15s; }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    /* Hover glow effect - Exact same as servers.ejs */
-    .im-info-card::before,
-    .im-terminal-wrap::before,
-    .im-stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-        transition: left 0.5s;
-    }
-    
-    .im-info-card:hover::before,
-    .im-terminal-wrap:hover::before,
-    .im-stat-card:hover::before {
-        left: 100%;
-    }
-
-    /* Touch-friendly improvements - Exact same as servers.ejs */
-    @media (hover: none) and (pointer: coarse) {
-        .im-info-card:active,
-        .im-terminal-wrap:active,
-        .im-stat-card:active {
-            transform: scale(0.98);
-        }
-    }
-
-    /* Safe area support for notched phones - Exact same as servers.ejs */
-    @supports (padding: max(0px)) {
-        .im-page-wrapper {
-            padding-left: max(1rem, env(safe-area-inset-left));
-            padding-right: max(1rem, env(safe-area-inset-right));
-        }
-    }
-
-    /* Responsive adjustments - Exact same as servers.ejs */
-    @media (max-width: 640px) {
-        .im-info-card,
-        .im-stat-card {
-            margin-bottom: 0.5rem;
-        }
-    }
-
-    /* Custom scrollbar for webkit - Exact same as servers.ejs */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Scrollbar for im-container */
+    /* Scrollbar */
     .im-container ::-webkit-scrollbar {
         width: 10px;
         height: 10px;
@@ -800,7 +820,9 @@
         background: var(--im-text-muted);
     }
 
-    /* MOBILE OPTIMIZATIONS */
+    /* ============================================
+       MOBILE OPTIMIZATIONS
+       ============================================ */
     @media (max-width: 639px) {
         .im-btn-text {
             display: none;
@@ -816,9 +838,29 @@
             padding: var(--im-space-md);
         }
         
+        .im-info-icon-wrap {
+            width: 36px;
+            height: 36px;
+        }
+        
         .im-stat-card {
             height: 100px;
             padding: var(--im-space-md);
+        }
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) and (pointer: coarse) {
+        .im-info-card:hover {
+            transform: none;
+        }
+        
+        .im-stat-card:hover {
+            transform: none;
+        }
+        
+        .im-btn:hover:not(:disabled) {
+            transform: none;
         }
     }
 
@@ -826,8 +868,7 @@
     @media (prefers-reduced-motion: reduce) {
         .im-info-card,
         .im-stat-card,
-        .im-btn,
-        .im-terminal-wrap {
+        .im-btn {
             transition: none;
         }
         
@@ -868,6 +909,38 @@
                         </svg>
                         <span class="im-btn-text"><%= req.translations.stop %></span>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address and Status - Placed exactly at the top of components/instance as requested -->
+        <div class="flex flex-col lg:flex-row gap-6 mb-8">
+            <!-- Address Card (optimistic card style) -->
+            <div class="im-info-card flex-1">
+                <div class="im-info-content">
+                    <div class="im-info-text">
+                        <dt class="im-info-label"><%= req.translations.address %></dt>
+                        <dd class="im-info-value">
+                            <%= instance.Node.address %><span style="color: var(--im-text-muted);">:<%= instance.Primary %></span>
+                        </dd>
+                    </div>
+                    <div class="im-info-icon-wrap">
+                        <svg class="im-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Card (optimistic card style - top position) -->
+            <div class="im-stat-card flex-1" style="height: auto; min-height: 90px;">
+                <div class="im-stat-content">
+                    <div class="im-stat-header">
+                        <span class="im-stat-label"><%= req.translations.status %></span>
+                        <span class="im-stat-indicator" id="im-statusIndicatorTop"></span>
+                    </div>
+                    <p id="im-statusTop" class="im-stat-value">-</p>
                 </div>
             </div>
         </div>
