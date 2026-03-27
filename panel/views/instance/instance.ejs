@@ -940,6 +940,118 @@
             animation: none;
         }
     }
+
+    /* ============================================
+       GAMING STYLISH + TRANSPARENT BACKGROUND + BLUR CARDS
+       OPTIMIZED FOR PHONE & DESKTOP - NO COLOR/BLURNESS CHANGES
+       ============================================ */
+    
+    /* Transparent background for entire UI (glassmorphism base) */
+    .im-container {
+        background: transparent !important;
+        position: relative;
+    }
+    
+    .im-container::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.6;
+    }
+    
+    /* Blur + transparent glass cards - gaming neon edge */
+    .im-info-card,
+    .im-stat-card,
+    .im-terminal-wrap,
+    .im-alert {
+        background: rgba(26, 26, 31, 0.78) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: var(--im-shadow-lg),
+                    0 0 0 1px rgba(59, 130, 246, 0.15) inset;
+    }
+    
+    /* Gaming stylish hover - subtle neon pulse (no color change) */
+    .im-info-card:hover,
+    .im-stat-card:hover,
+    .im-terminal-wrap:hover {
+        box-shadow: var(--im-shadow-lg),
+                    0 0 25px rgba(59, 130, 246, 0.35),
+                    0 0 45px rgba(16, 185, 129, 0.15);
+        border-color: rgba(255, 255, 255, 0.22);
+    }
+    
+    /* Extra gaming depth for terminal header */
+    .im-terminal-header {
+        background: rgba(37, 37, 43, 0.85) !important;
+        backdrop-filter: blur(12px);
+    }
+    
+    /* Phone-optimized (extra compact + full-bleed feel) */
+    @media (max-width: 639px) {
+        .im-page-wrapper {
+            padding: 0.75rem !important;
+        }
+        .im-main {
+            gap: 1rem;
+        }
+        .im-terminal-body {
+            min-height: 340px;
+            height: 420px;
+        }
+        .im-info-grid {
+            gap: 0.75rem;
+        }
+        .im-stat-card {
+            height: 110px;
+        }
+        .im-terminal-wrap {
+            border-radius: 14px;
+        }
+    }
+    
+    /* Desktop-optimized (wider, more breathing room + epic scale) */
+    @media (min-width: 1024px) {
+        .im-terminal-body {
+            height: 640px;
+        }
+        .im-page-wrapper {
+            padding: 2.5rem;
+        }
+        .im-info-card,
+        .im-stat-card {
+            border-radius: 18px;
+        }
+    }
+    
+    @media (min-width: 1280px) {
+        .im-terminal-body {
+            height: 680px;
+        }
+    }
+    
+    /* Gaming subtle scanline for terminal (desktop only) */
+    @media (min-width: 1024px) {
+        .im-terminal-body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(255,255,255,0.03) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 1;
+            opacity: 0.15;
+        }
+    }
 </style>
 
 <div class="im-container">
