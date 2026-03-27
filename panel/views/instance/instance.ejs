@@ -16,7 +16,7 @@
 
 <style>
     /* ============================================
-       INSTANCE MANAGER - OPTIMISTIC DESIGN SYSTEM
+       INSTANCE MANAGER - GLASSMORPHISM DESIGN SYSTEM
        ============================================ */
     :root {
         /* Colors - Preserved exactly as requested */
@@ -39,6 +39,14 @@
         
         --im-border-color: rgba(255, 255, 255, 0.08);
         --im-border-color-hover: rgba(255, 255, 255, 0.15);
+        
+        /* Glassmorphism Variables */
+        --glass-bg: rgba(26, 26, 31, 0.6);
+        --glass-bg-hover: rgba(42, 42, 50, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-border-hover: rgba(255, 255, 255, 0.2);
+        --glass-blur: blur(20px);
+        --glass-blur-heavy: blur(40px);
         
         /* Spacing */
         --im-space-xs: 0.25rem;
@@ -71,7 +79,7 @@
     }
 
     /* ============================================
-       BASE STYLES
+       BASE STYLES & GLASSMORPHISM BACKGROUND
        ============================================ */
     .im-container * {
         margin: 0;
@@ -81,13 +89,31 @@
 
     .im-container {
         font-family: var(--im-font-sans);
-        background-color: var(--im-bg-primary);
+        background: linear-gradient(135deg, #0f0f13 0%, #1a1a2e 50%, #0f0f13 100%);
+        background-attachment: fixed;
         color: var(--im-text-primary);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .im-container::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
     }
 
     /* ============================================
@@ -98,6 +124,8 @@
         max-width: 1600px;
         margin: 0 auto;
         padding: var(--im-space-lg);
+        position: relative;
+        z-index: 1;
     }
 
     @media (min-width: 640px) {
@@ -113,12 +141,29 @@
     }
 
     /* ============================================
-       HEADER SECTION - Optimistic & Responsive
+       HEADER SECTION - Glassmorphism Style
        ============================================ */
     .im-header {
         margin-bottom: var(--im-space-xl);
-        padding-bottom: var(--im-space-lg);
-        border-bottom: 1px solid var(--im-border-color);
+        padding: var(--im-space-lg);
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--im-radius-xl);
+        box-shadow: var(--im-shadow-lg), 0 0 40px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .im-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     }
 
     .im-header-content {
@@ -147,6 +192,7 @@
         margin-bottom: var(--im-space-sm);
         letter-spacing: -0.025em;
         line-height: 1.2;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     .im-subtitle {
@@ -157,7 +203,7 @@
     }
 
     /* ============================================
-       ACTION BUTTONS - Optimistic Interactions
+       ACTION BUTTONS - Glassmorphism Style
        ============================================ */
     .im-actions {
         display: flex;
@@ -179,7 +225,7 @@
         padding: var(--im-space-sm) var(--im-space-md);
         font-size: 0.875rem;
         font-weight: 500;
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: var(--im-radius-md);
         cursor: pointer;
         transition: all var(--im-transition-fast);
@@ -189,6 +235,9 @@
         white-space: nowrap;
         flex: 1;
         min-width: 80px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.05);
     }
 
     @media (min-width: 640px) {
@@ -196,6 +245,22 @@
             flex: 0 0 auto;
             min-width: 100px;
         }
+    }
+
+    .im-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+        opacity: 0;
+        transition: opacity var(--im-transition-fast);
+    }
+
+    .im-btn:hover::before {
+        opacity: 1;
     }
 
     .im-btn:disabled {
@@ -211,34 +276,40 @@
     }
 
     .im-btn-start {
-        background-color: var(--im-accent-success);
-        box-shadow: var(--im-shadow-sm);
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.3);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
     }
 
     .im-btn-start:hover:not(:disabled) {
-        background-color: var(--im-accent-success-hover);
+        background: rgba(16, 185, 129, 0.25);
+        border-color: rgba(16, 185, 129, 0.5);
         transform: translateY(-2px);
         box-shadow: var(--im-shadow-glow-green);
     }
 
     .im-btn-restart {
-        background-color: var(--im-accent-primary);
-        box-shadow: var(--im-shadow-sm);
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
     }
 
     .im-btn-restart:hover:not(:disabled) {
-        background-color: var(--im-accent-primary-hover);
+        background: rgba(59, 130, 246, 0.25);
+        border-color: rgba(59, 130, 246, 0.5);
         transform: translateY(-2px);
         box-shadow: var(--im-shadow-glow-blue);
     }
 
     .im-btn-stop {
-        background-color: var(--im-accent-danger);
-        box-shadow: var(--im-shadow-sm);
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
     }
 
     .im-btn-stop:hover:not(:disabled) {
-        background-color: var(--im-accent-danger-hover);
+        background: rgba(239, 68, 68, 0.25);
+        border-color: rgba(239, 68, 68, 0.5);
         transform: translateY(-2px);
         box-shadow: var(--im-shadow-glow-red);
     }
@@ -262,7 +333,7 @@
     }
 
     /* ============================================
-       INFO CARDS GRID - Responsive Layout
+       INFO CARDS GRID - Glassmorphism Style
        ============================================ */
     .im-info-section {
         margin-bottom: var(--im-space-xl);
@@ -287,8 +358,10 @@
     }
 
     .im-info-card {
-        background-color: var(--im-bg-secondary);
-        border: 1px solid var(--im-border-color);
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
         border-radius: var(--im-radius-lg);
         padding: var(--im-space-lg);
         transition: all var(--im-transition-base);
@@ -308,14 +381,31 @@
         transition: opacity var(--im-transition-base);
     }
 
+    .im-info-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity var(--im-transition-base);
+        pointer-events: none;
+    }
+
     .im-info-card:hover {
-        background-color: var(--im-bg-tertiary);
-        border-color: var(--im-border-color-hover);
-        transform: translateY(-2px);
-        box-shadow: var(--im-shadow-md);
+        background: var(--glass-bg-hover);
+        border-color: var(--glass-border-hover);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: var(--im-shadow-lg), 0 20px 40px rgba(0,0,0,0.3);
     }
 
     .im-info-card:hover::before {
+        opacity: 1;
+    }
+
+    .im-info-card:hover::after {
         opacity: 1;
     }
 
@@ -324,6 +414,8 @@
         align-items: center;
         justify-content: space-between;
         gap: var(--im-space-md);
+        position: relative;
+        z-index: 1;
     }
 
     .im-info-text {
@@ -365,35 +457,40 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--im-bg-tertiary);
+        background: rgba(255, 255, 255, 0.05);
         border-radius: var(--im-radius-md);
-        border: 1px solid var(--im-border-color);
+        border: 1px solid var(--glass-border);
         transition: all var(--im-transition-fast);
         flex-shrink: 0;
+        backdrop-filter: blur(5px);
     }
 
     .im-info-card:hover .im-info-icon-wrap {
-        background-color: var(--im-bg-hover);
-        border-color: var(--im-border-color-hover);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--glass-border-hover);
+        transform: scale(1.1);
     }
 
     .im-info-icon {
         width: 20px;
         height: 20px;
         color: var(--im-accent-primary);
-        transition: color var(--im-transition-fast);
+        transition: all var(--im-transition-fast);
     }
 
     .im-info-card:hover .im-info-icon {
         color: var(--im-text-primary);
+        filter: drop-shadow(0 0 8px currentColor);
     }
 
     /* ============================================
-       DAEMON ALERT
+       DAEMON ALERT - Glassmorphism
        ============================================ */
     .im-alert {
-        background-color: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.15);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid rgba(239, 68, 68, 0.3);
         border-radius: var(--im-radius-lg);
         padding: var(--im-space-lg);
         margin-bottom: var(--im-space-xl);
@@ -401,6 +498,7 @@
         align-items: center;
         gap: var(--im-space-md);
         animation: im-slideIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
     }
 
     @keyframes im-slideIn {
@@ -424,10 +522,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.2);
         border-radius: var(--im-radius-md);
         color: var(--im-accent-danger);
         flex-shrink: 0;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .im-alert-content h3 {
@@ -465,16 +565,30 @@
     }
 
     /* ============================================
-       TERMINAL STYLES - Optimistic & Responsive
+       TERMINAL STYLES - Glassmorphism
        ============================================ */
     .im-terminal-wrap {
-        background-color: var(--im-bg-secondary);
-        border: 1px solid var(--im-border-color);
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur-heavy);
+        -webkit-backdrop-filter: var(--glass-blur-heavy);
+        border: 1px solid var(--glass-border);
         border-radius: var(--im-radius-lg);
         overflow: hidden;
-        box-shadow: var(--im-shadow-lg);
+        box-shadow: var(--im-shadow-lg), 0 0 60px rgba(0, 0, 0, 0.3);
         display: flex;
         flex-direction: column;
+        position: relative;
+    }
+
+    .im-terminal-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        z-index: 10;
     }
 
     .im-terminal-header {
@@ -482,8 +596,9 @@
         align-items: center;
         justify-content: space-between;
         padding: var(--im-space-sm) var(--im-space-md);
-        background-color: var(--im-bg-tertiary);
-        border-bottom: 1px solid var(--im-border-color);
+        background: rgba(37, 37, 43, 0.6);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--glass-border);
         flex-shrink: 0;
     }
 
@@ -502,10 +617,12 @@
     .im-terminal-badge {
         font-size: 0.625rem;
         padding: 2px 8px;
-        background-color: var(--im-accent-success);
-        color: white;
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--im-accent-success);
+        border: 1px solid rgba(16, 185, 129, 0.3);
         border-radius: 9999px;
         font-weight: 600;
+        backdrop-filter: blur(5px);
     }
 
     .im-terminal-dots {
@@ -517,6 +634,7 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .im-terminal-dot.red { 
@@ -537,6 +655,7 @@
         flex: 1;
         min-height: 300px;
         height: 400px;
+        background: rgba(15, 15, 19, 0.5);
     }
 
     @media (min-width: 768px) {
@@ -570,11 +689,11 @@
     }
 
     .xterm-viewport::-webkit-scrollbar-track {
-        background: var(--im-bg-tertiary);
+        background: rgba(37, 37, 43, 0.3);
     }
 
     .xterm-viewport::-webkit-scrollbar-thumb {
-        background: var(--im-border-color-hover);
+        background: var(--glass-border-hover);
         border-radius: 4px;
     }
 
@@ -593,8 +712,9 @@
         align-items: center;
         gap: var(--im-space-sm);
         padding: var(--im-space-sm) var(--im-space-md);
-        background-color: var(--im-bg-tertiary);
-        border-top: 1px solid var(--im-border-color);
+        background: rgba(37, 37, 43, 0.6);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--glass-border);
         flex-shrink: 0;
     }
 
@@ -605,6 +725,7 @@
         font-size: 0.875rem;
         user-select: none;
         flex-shrink: 0;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
     #im-input {
@@ -624,7 +745,7 @@
     }
 
     /* ============================================
-       STATS SECTION - Optimistic Cards
+       STATS SECTION - Glassmorphism Cards
        ============================================ */
     .im-stats {
         display: flex;
@@ -633,8 +754,10 @@
     }
 
     .im-stat-card {
-        background-color: var(--im-bg-secondary);
-        border: 1px solid var(--im-border-color);
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
         border-radius: var(--im-radius-lg);
         padding: var(--im-space-lg);
         position: relative;
@@ -644,12 +767,6 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-    }
-
-    .im-stat-card:hover {
-        border-color: var(--im-border-color-hover);
-        transform: translateY(-2px);
-        box-shadow: var(--im-shadow-md);
     }
 
     .im-stat-card::before {
@@ -667,11 +784,19 @@
     .im-stat-card.online::before {
         background: var(--im-accent-success);
         opacity: 1;
+        box-shadow: 0 0 10px var(--im-accent-success);
     }
 
     .im-stat-card.offline::before {
         background: var(--im-accent-danger);
         opacity: 1;
+        box-shadow: 0 0 10px var(--im-accent-danger);
+    }
+
+    .im-stat-card:hover {
+        border-color: var(--glass-border-hover);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: var(--im-shadow-lg), 0 20px 40px rgba(0,0,0,0.2);
     }
 
     .im-stat-card canvas {
@@ -717,15 +842,17 @@
     .im-stat-indicator.online {
         background-color: var(--im-accent-success);
         animation: im-pulse 2s infinite;
+        box-shadow: 0 0 12px var(--im-accent-success);
     }
 
     .im-stat-indicator.offline {
         background-color: var(--im-accent-danger);
+        box-shadow: 0 0 12px var(--im-accent-danger);
     }
 
     @keyframes im-pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+        0%, 100% { opacity: 1; box-shadow: 0 0 12px currentColor; }
+        50% { opacity: 0.5; box-shadow: 0 0 20px currentColor; }
     }
 
     .im-stat-value {
@@ -734,6 +861,7 @@
         font-weight: 700;
         color: var(--im-text-primary);
         letter-spacing: -0.02em;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     .im-stat-value.small {
@@ -742,10 +870,12 @@
 
     .im-stat-value.online {
         color: var(--im-accent-success);
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
     }
 
     .im-stat-value.offline {
         color: var(--im-accent-danger);
+        text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
     }
 
     .im-stat-sub {
@@ -755,20 +885,22 @@
     }
 
     /* ============================================
-       NOTIFICATION
+       NOTIFICATION - Glassmorphism Toast
        ============================================ */
     #im-notification {
         position: fixed;
         bottom: var(--im-space-xl);
         right: var(--im-space-xl);
         padding: var(--im-space-md) var(--im-space-lg);
-        background-color: var(--im-bg-secondary);
-        border: 1px solid var(--im-border-color);
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
         border-radius: var(--im-radius-lg);
         color: var(--im-text-primary);
         font-size: 0.875rem;
         font-weight: 500;
-        box-shadow: var(--im-shadow-lg);
+        box-shadow: var(--im-shadow-lg), 0 10px 40px rgba(0,0,0,0.4);
         z-index: 50;
         transform: translateY(100px);
         opacity: 0;
@@ -807,13 +939,14 @@
     }
 
     .im-container ::-webkit-scrollbar-track {
-        background: var(--im-bg-secondary);
+        background: rgba(26, 26, 31, 0.3);
     }
 
     .im-container ::-webkit-scrollbar-thumb {
-        background: var(--im-border-color-hover);
+        background: var(--glass-border-hover);
         border-radius: 5px;
-        border: 2px solid var(--im-bg-secondary);
+        border: 2px solid transparent;
+        background-clip: padding-box;
     }
 
     .im-container ::-webkit-scrollbar-thumb:hover {
@@ -847,6 +980,10 @@
             height: 100px;
             padding: var(--im-space-md);
         }
+
+        .im-header {
+            padding: var(--im-space-md);
+        }
     }
 
     /* Touch device optimizations */
@@ -874,6 +1011,21 @@
         
         .im-stat-indicator.online {
             animation: none;
+        }
+    }
+
+    /* High DPI / Retina optimizations */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .im-container {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    }
+
+    /* Dark mode support (already dark, but for system consistency) */
+    @media (prefers-color-scheme: dark) {
+        .im-container {
+            color-scheme: dark;
         }
     }
 </style>
@@ -1060,7 +1212,7 @@
                             <div class="im-stat-header">
                                 <span class="im-stat-label"><%= req.translations.cpuUsage %></span>
                             </div>
-                            <p id="im-cpu" class="im-stat-value">-</p>
+                            <p id="im-im-cpu" class="im-stat-value">-</p>
                         </div>
                     </div>
                     
