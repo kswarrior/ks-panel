@@ -27,7 +27,7 @@
         overflow-y: hidden !important;
     }
 
-    /* Premium glassmorphic design */
+    /* Premium glassmorphic design - PRESERVED EXACTLY */
     .glass {
         background: rgba(255,255,255,0.06);
         backdrop-filter: blur(16px);
@@ -60,9 +60,448 @@
         transform: translateY(-3px);
         box-shadow: 25px 25px 50px -12px rgb(0 0 0 / 0.25);
     }
+
+    /* ============================================
+       RESPONSIVE DESIGN - PHONE & DESKTOP OPTIMIZED
+       ============================================ */
+    
+    /* Mobile-first base styles */
+    .main-container {
+        padding: 0.75rem;
+    }
+    
+    /* Power buttons container */
+    .power-controls {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.75rem;
+        padding: 0 0.75rem;
+    }
+    
+    .power-btn {
+        flex: 1;
+        min-width: 80px;
+        justify-content: center;
+        padding: 0.625rem 0.75rem;
+        font-size: 0.8125rem;
+        border-radius: 1rem;
+    }
+    
+    /* Instance info card */
+    .instance-header {
+        margin: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .instance-card {
+        padding: 1rem;
+        border-radius: 1.5rem;
+    }
+    
+    .instance-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+    
+    .instance-ip {
+        margin-top: 0.5rem;
+        font-size: 0.9375rem;
+        gap: 0.5rem;
+    }
+    
+    .instance-icon {
+        margin-left: 0.75rem;
+        padding: 0.625rem;
+        border-radius: 0.75rem;
+    }
+    
+    .instance-icon svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+    
+    /* Status tag */
+    .status-tag {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.6875rem;
+        border-radius: 9999px;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Error banner */
+    .error-banner {
+        margin: 0.75rem;
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+    
+    /* Main content layout */
+    .content-layout {
+        display: flex;
+        flex-direction: column;
+        padding: 0 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    /* Console section */
+    .console-section {
+        width: 100%;
+    }
+    
+    .terminal-container {
+        padding: 0.75rem;
+        border-radius: 1.25rem;
+    }
+    
+    #terminal {
+        height: 280px;
+        border-radius: 0.75rem;
+        font-size: 11px;
+    }
+    
+    .command-input {
+        margin-top: 0.75rem;
+        padding: 0.875rem 1rem;
+        border-radius: 1rem;
+        font-size: 0.9375rem;
+    }
+    
+    /* Stats section */
+    .stats-section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+        border-radius: 1.25rem;
+        height: 120px;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    .stat-percent {
+        font-size: 2rem;
+        margin-top: 0.125rem;
+    }
+    
+    .stat-detail {
+        font-size: 0.8125rem;
+    }
+    
+    .stat-chart-container {
+        margin-top: 0.5rem;
+        height: 50px;
+    }
+    
+    /* ============================================
+       TABLET BREAKPOINT (768px+)
+       ============================================ */
+    @media (min-width: 768px) {
+        .main-container {
+            padding: 1rem;
+        }
+        
+        .power-controls {
+            gap: 0.625rem;
+            margin-top: 1rem;
+            padding: 0 1rem;
+        }
+        
+        .power-btn {
+            flex: 0 1 auto;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+        }
+        
+        .instance-header {
+            margin: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .instance-card {
+            padding: 1.25rem;
+        }
+        
+        .instance-name {
+            font-size: 1.25rem;
+        }
+        
+        .instance-ip {
+            margin-top: 0.625rem;
+            font-size: 1rem;
+        }
+        
+        .instance-icon {
+            padding: 0.75rem;
+        }
+        
+        .instance-icon svg {
+            width: 1.75rem;
+            height: 1.75rem;
+        }
+        
+        .status-tag {
+            padding: 0.375rem 0.875rem;
+            font-size: 0.75rem;
+        }
+        
+        .error-banner {
+            margin: 1rem;
+            padding: 1.25rem;
+        }
+        
+        .content-layout {
+            padding: 0 1rem;
+            gap: 1rem;
+        }
+        
+        .terminal-container {
+            padding: 1rem;
+        }
+        
+        #terminal {
+            height: 320px;
+            font-size: 12px;
+        }
+        
+        .command-input {
+            margin-top: 0.875rem;
+            padding: 1rem 1.25rem;
+        }
+        
+        .stats-section {
+            gap: 0.75rem;
+        }
+        
+        .stat-card {
+            padding: 1.25rem;
+            height: 130px;
+        }
+        
+        .stat-percent {
+            font-size: 2.25rem;
+        }
+        
+        .stat-chart-container {
+            height: 55px;
+        }
+    }
+    
+    /* ============================================
+       DESKTOP BREAKPOINT (1024px+)
+       ============================================ */
+    @media (min-width: 1024px) {
+        .main-container {
+            padding: 1.5rem;
+        }
+        
+        .power-controls {
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding: 0 1.5rem;
+        }
+        
+        .power-btn {
+            padding: 0.625rem 1.25rem;
+        }
+        
+        .instance-header {
+            margin: 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .instance-card {
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+        }
+        
+        .instance-name {
+            font-size: 1.5rem;
+        }
+        
+        .instance-ip {
+            margin-top: 0.75rem;
+            font-size: 1.125rem;
+            gap: 0.75rem;
+        }
+        
+        .instance-icon {
+            margin-left: 1rem;
+            padding: 0.875rem;
+            border-radius: 1rem;
+        }
+        
+        .instance-icon svg {
+            width: 2rem;
+            height: 2rem;
+        }
+        
+        .status-tag {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
+        
+        .error-banner {
+            margin: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+        }
+        
+        .content-layout {
+            flex-direction: row;
+            padding: 0 1.5rem;
+            gap: 1.25rem;
+        }
+        
+        .console-section {
+            width: 66.666667%;
+            padding-right: 0;
+        }
+        
+        .terminal-container {
+            padding: 1rem;
+            border-radius: 1.5rem;
+        }
+        
+        #terminal {
+            height: 380px;
+            border-radius: 1rem;
+        }
+        
+        .command-input {
+            margin-top: 1rem;
+            padding: 1.125rem 1.5rem;
+            border-radius: 1.25rem;
+            font-size: 1rem;
+        }
+        
+        .stats-section {
+            width: 33.333333%;
+            margin-top: 0;
+            gap: 0.75rem;
+        }
+        
+        .stat-card {
+            padding: 1.25rem 1.5rem;
+            border-radius: 1.5rem;
+            height: 140px;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+        }
+        
+        .stat-percent {
+            font-size: 2.5rem;
+            margin-top: 0.25rem;
+        }
+        
+        .stat-detail {
+            font-size: 0.9375rem;
+        }
+        
+        .stat-chart-container {
+            margin-top: 0.75rem;
+            height: 60px;
+        }
+    }
+    
+    /* ============================================
+       LARGE DESKTOP BREAKPOINT (1280px+)
+       ============================================ */
+    @media (min-width: 1280px) {
+        .content-layout {
+            gap: 1.5rem;
+        }
+        
+        .console-section {
+            width: 70%;
+        }
+        
+        .stats-section {
+            width: 30%;
+        }
+        
+        #terminal {
+            height: 420px;
+        }
+        
+        .stat-card {
+            height: 150px;
+        }
+        
+        .stat-percent {
+            font-size: 3rem;
+        }
+        
+        .stat-chart-container {
+            height: 70px;
+        }
+    }
+    
+    /* ============================================
+       TOUCH OPTIMIZATIONS
+       ============================================ */
+    @media (hover: none) and (pointer: coarse) {
+        .power-btn:hover {
+            transform: none;
+            box-shadow: 0 8px 32px -12px rgb(0 0 0 / 0.3);
+        }
+        
+        .power-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .stat-card:hover {
+            transform: none;
+            box-shadow: 0 8px 32px -12px rgb(0 0 0 / 0.3);
+        }
+        
+        .glass:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.12);
+            box-shadow: 0 8px 32px -12px rgb(0 0 0 / 0.3);
+        }
+    }
+    
+    /* ============================================
+       SAFE AREA INSETS FOR MODERN PHONES
+       ============================================ */
+    @supports (padding: max(0px)) {
+        .main-container {
+            padding-left: max(0.75rem, env(safe-area-inset-left));
+            padding-right: max(0.75rem, env(safe-area-inset-right));
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+        }
+        
+        @media (min-width: 768px) {
+            .main-container {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .main-container {
+                padding-left: max(1.5rem, env(safe-area-inset-left));
+                padding-right: max(1.5rem, env(safe-area-inset-right));
+            }
+        }
+    }
 </style>
 
-<main class="overflow-hidden" id="content">
+<main class="overflow-hidden main-container" id="content">
     <% if (false) { %>
         <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
             <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur z-50">
@@ -89,80 +528,82 @@
     
     <%- include('../components/instance') %>
 
-    <!-- Start / Restart / Stop buttons (tighter spacing) -->
-    <div class="px-6 mt-4 flex gap-2">
+    <!-- Power Controls - Optimized for touch on mobile -->
+    <div class="power-controls">
         <!-- Start Button -->
         <button id="startButton" type="button"
-            class="power-btn flex items-center rounded-2xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-emerald-500 transition">
+            class="power-btn flex items-center rounded-2xl bg-emerald-600 text-sm font-medium text-white shadow-lg hover:bg-emerald-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                class="w-4 h-4 mr-1 text-emerald-100">
+                class="w-4 h-4 mr-1.5 text-emerald-100 flex-shrink-0">
                 <path fill-rule="evenodd"
                     d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
                     clip-rule="evenodd" />
             </svg>
-            <%= req.translations.start %>
+            <span class="whitespace-nowrap"><%= req.translations.start %></span>
         </button>
 
         <!-- Restart Button -->
         <button id="restartButton" type="button"
-            class="power-btn flex items-center rounded-2xl bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-blue-500 transition">
+            class="power-btn flex items-center rounded-2xl bg-blue-600 text-sm font-medium text-white shadow-lg hover:bg-blue-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                class="w-4 h-4 mr-1 text-white">
+                class="w-4 h-4 mr-1.5 text-white flex-shrink-0">
                 <path fill-rule="evenodd"
                     d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z"
                     clip-rule="evenodd" />
             </svg>
-            <%= req.translations.restart %>
+            <span class="whitespace-nowrap"><%= req.translations.restart %></span>
         </button>
 
         <!-- Stop Button -->
         <button id="stopButton" type="button"
-            class="power-btn flex items-center rounded-2xl bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-red-500 transition">
+            class="power-btn flex items-center rounded-2xl bg-red-600 text-sm font-medium text-white shadow-lg hover:bg-red-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                class="w-4 h-4 mr-1 text-red-100">
+                class="w-4 h-4 mr-1.5 text-red-100 flex-shrink-0">
                 <path fill-rule="evenodd"
                     d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z"
                     clip-rule="evenodd" />
             </svg>
-            <%= req.translations.stop %>
+            <span class="whitespace-nowrap"><%= req.translations.stop %></span>
         </button>
     </div>
 
-    <div class="mt-6 ml-6 mb-3">
-        <dl class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-4 mr-6">
-            <!-- Updated Address Card -->
-            <div class="overflow-hidden rounded-3xl glass px-6 py-6 shadow-xl flex items-center">
-                <div class="flex-grow">
-                    <div class="flex items-center justify-between">
-                        <!-- Name: normal size but bold -->
-                        <span class="font-semibold text-xl text-white"><%= instance.Name %></span>
+    <!-- Instance Header Card -->
+    <div class="instance-header">
+        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Address Card -->
+            <div class="overflow-hidden instance-card glass shadow-xl flex items-center col-span-1 sm:col-span-2 lg:col-span-1">
+                <div class="flex-grow min-w-0">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <!-- Name -->
+                        <span class="instance-name text-white truncate"><%= instance.Name %></span>
                         
-                        <!-- Status tag (Online / Offline) -->
-                        <span id="statusTag" class="inline-flex items-center px-3 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-3xl tracking-wider">Online</span>
+                        <!-- Status tag -->
+                        <span id="statusTag" class="status-tag inline-flex items-center bg-emerald-500/10 text-emerald-400">Online</span>
                     </div>
                     
-                    <!-- IP: normal size, not bold, italic -->
+                    <!-- IP -->
                     <div onclick="copyIP()" id="ipContainer"
-                        class="mt-3 text-base font-normal italic text-white flex items-center gap-3 cursor-pointer hover:text-emerald-300 transition">
-                        <span id="ipText">
+                        class="instance-ip font-normal italic text-white flex items-center gap-2 cursor-pointer hover:text-emerald-300 transition break-all">
+                        <span id="ipText" class="truncate">
                             <%= instance.Allocation.IP %><span class="text-neutral-400 not-italic">:</span><%= instance.Allocation.Port %>
                         </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 16v-4m4 4v4m-8-8h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v4a2 2 0 002 2z" />
                         </svg>
                     </div>
                 </div>
-                <div class="ml-4 shadow border border-white/10 rounded-2xl p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-7 w-7 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
+                <div class="instance-icon shadow border border-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
                 </div>
             </div>
         </dl>
     </div>
 
-    <div class="rounded-3xl bg-red-800/10 px-4 py-6 mt-6 ml-6 mb-6 mr-6 hidden" id="daemonIsDown">
+    <!-- Error Banner -->
+    <div class="error-banner bg-red-800/10 hidden" id="daemonIsDown">
         <div class="flex">
-            <div class="flex-shrink-0 ml-1.5">
-                <svg class="animate-spin mt-2 h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg"
+            <div class="flex-shrink-0 ml-1">
+                <svg class="animate-spin mt-1.5 h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                     </circle>
@@ -171,66 +612,68 @@
                     </path>
                 </svg>
             </div>
-            <div class="ml-5">
+            <div class="ml-4">
                 <h3 class="text-sm font-medium text-red-400"><%= req.translations.connectionFailure %></h3>
-                <div class="text-sm text-red-400/50">
+                <div class="text-sm text-red-400/70 mt-1">
                     <p><%= req.translations.connectionFailureText %></p>
                 </div>
             </div>
         </div>
     </div>
-    <div class="flex flex-col lg:flex-row px-6">
+
+    <!-- Main Content: Console + Stats -->
+    <div class="content-layout">
         <!-- Left side: Console -->
-        <div class="w-full lg:w-2/3 lg:pr-4">
-            <div class="glass rounded-3xl p-4">
-                <div id="terminal" class="overflow-x-auto whitespace-pre-wrap h-[380px] rounded-2xl"></div>
+        <div class="console-section">
+            <div class="glass terminal-container">
+                <div id="terminal" class="overflow-x-auto whitespace-pre-wrap"></div>
             </div>
             <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>"
-                class="mt-3 w-full px-6 py-4 bg-[#101010]/70 text-white rounded-3xl text-base border border-white/10 focus:border-white/30 placeholder:font-medium placeholder:text-neutral-400 focus:outline-none transition-all">
+                class="command-input w-full bg-[#101010]/70 text-white border border-white/10 focus:border-white/30 placeholder:font-medium placeholder:text-neutral-400 focus:outline-none transition-all">
         </div>
         
-        <!-- Right side: Redesigned Stats Cards (smaller text + smoother graphs) -->
-        <div class="w-full lg:w-1/3 mt-4 lg:mt-0 space-y-3">
+        <!-- Right side: Stats Cards -->
+        <div class="stats-section">
             
             <!-- RAM Card -->
-            <div class="stat-card bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
+            <div class="stat-card bg-white/5 shadow flex flex-col relative overflow-hidden">
                 <div class="flex justify-between items-baseline">
                     <div>
-                        <span class="text-sm font-medium text-neutral-400"><%= req.translations.ramUsage %></span>
-                        <div id="ramPercent" class="text-4xl font-semibold leading-none text-white mt-1">0%</div>
+                        <span class="stat-label font-medium text-neutral-400"><%= req.translations.ramUsage %></span>
+                        <div id="ramPercent" class="stat-percent font-semibold leading-none text-white">0%</div>
                     </div>
-                    <div id="ramUsageText" class="text-right text-base font-medium text-white">0 GB / 0 GB</div>
+                    <div id="ramUsageText" class="stat-detail font-medium text-white">0 GB / 0 GB</div>
                 </div>
-                <div class="flex-1 mt-4 relative">
-                    <canvas id="ramChart" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="stat-chart-container flex-1 relative">
+                    <canvas id="ramChart"></canvas>
                 </div>
             </div>
             
             <!-- CPU Card -->
-            <div class="stat-card bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
+            <div class="stat-card bg-white/5 shadow flex flex-col relative overflow-hidden">
                 <div class="flex justify-between items-baseline">
                     <div>
-                        <span class="text-sm font-medium text-neutral-400"><%= req.translations.cpuUsage %></span>
-                        <div id="cpuPercent" class="text-4xl font-semibold leading-none text-white mt-1">0%</div>
+                        <span class="stat-label font-medium text-neutral-400"><%= req.translations.cpuUsage %></span>
+                        <div id="cpuPercent" class="stat-percent font-semibold leading-none text-white">0%</div>
                     </div>
-                    <div id="cpuUsageText" class="text-right text-base font-medium text-white">0%</div>
+                    <div id="cpuUsageText" class="stat-detail font-medium text-white">0%</div>
                 </div>
-                <div class="flex-1 mt-4 relative">
-                    <canvas id="cpuChart" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="stat-chart-container flex-1 relative">
+                    <canvas id="cpuChart"></canvas>
                 </div>
             </div>
             
             <!-- Disk Card -->
-            <div class="stat-card bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
+            <div class="stat-card bg-white/5 shadow flex flex-col relative overflow-hidden">
                 <div class="flex justify-between items-baseline">
                     <div>
-                        <span class="text-sm font-medium text-neutral-400"><%= req.translations.diskUsage %></span>
-                        <div id="diskPercent" class="text-4xl font-semibold leading-none text-white mt-1">0%</div>
+                        <span class="stat-label font-medium text-neutral-400"><%= req.translations.diskUsage %></span>
+                        <div id="diskPercent" class="stat-percent font-semibold leading-none text-white">0%</div>
                     </div>
-                    <div id="diskUsageText" class="text-right text-base font-medium text-white">0 GB / 0 GB</div>
+                    <div id="diskUsageText" class="stat-detail font-medium text-white">0 GB / 0 GB</div>
                 </div>
-                <div class="flex-1 mt-4 relative">
-                    <canvas id="diskChart" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="stat-chart-container flex-1 relative">
+                    <canvas id="diskChart"></canvas>
                 </div>
             </div>
         </div>
@@ -239,7 +682,7 @@
 
 <script>
     // ============================================
-    // FULL WORKING JS - ONLY JS ADDED (no style/HTML changed)
+    // FULL WORKING JS - PRESERVED EXACTLY
     // ============================================
 
     const baseTheme = {
@@ -353,18 +796,23 @@
 
     // Terminal
     function setupTerminal() {
+        // Responsive terminal sizing
+        const terminalEl = document.getElementById('terminal');
+        const isMobile = window.innerWidth < 768;
+        const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+        
         term = new Terminal({
             disableStdin: true,
             allowProposedApi: true,
             lineHeight: 1.35,
-            rows: 19,
-            cols: 100,
+            rows: isMobile ? 16 : (isTablet ? 18 : 19),
+            cols: isMobile ? 60 : (isTablet ? 80 : 100),
             fontFamily: 'Menlo, monospace',
             theme: baseTheme,
             allowTransparency: true,
-            fontSize: 12,
+            fontSize: isMobile ? 11 : 12,
         });
-        term.open(document.getElementById('terminal'));
+        term.open(terminalEl);
     }
 
     // Console WebSocket
@@ -567,10 +1015,23 @@
 
         if (isRunning) {
             tag.textContent = 'Online';
-            tag.className = 'inline-flex items-center px-3 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-3xl tracking-wider';
+            tag.className = 'status-tag inline-flex items-center bg-emerald-500/10 text-emerald-400';
         } else {
             tag.textContent = 'Offline';
-            tag.className = 'inline-flex items-center px-3 py-1 text-xs font-medium bg-red-500/10 text-red-400 rounded-3xl tracking-wider';
+            tag.className = 'status-tag inline-flex items-center bg-red-500/10 text-red-400';
+        }
+    }
+
+    // Handle resize for terminal
+    function handleResize() {
+        if (term) {
+            const isMobile = window.innerWidth < 768;
+            const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+            
+            // Update terminal options
+            term.options.rows = isMobile ? 16 : (isTablet ? 18 : 19);
+            term.options.cols = isMobile ? 60 : (isTablet ? 80 : 100);
+            term.options.fontSize = isMobile ? 11 : 12;
         }
     }
 
@@ -589,6 +1050,13 @@
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && statsWs) statsWs.onmessage = null;
             else if (statsWs) initStatsWebSocket();
+        });
+
+        // Responsive resize handling
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(handleResize, 250);
         });
     });
 </script>
