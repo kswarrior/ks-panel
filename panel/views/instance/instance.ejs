@@ -54,12 +54,11 @@
     
     <div class="bg-transparent">
         <div class="sm:flex sm:items-center px-8 pt-4">
-            <div class="sm:flex-auto">
-                <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.manageInstance %></h1>
-                <p class="mt-1 tracking-tight text-sm text-neutral-500"><%= req.translations.manageInstanceText %></p>
-            </div>
             <div class="mt-4 sm:mt-0 flex gap-2.5">
-    <!-- Start Button -->
+    
+
+    <%- include('../components/instance') %>
+<!-- Start Button -->
     <button id="startButton" type="button"
         class="flex items-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-emerald-500 transition">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -97,7 +96,6 @@
 </div>
         </div>
     </div>
-    <%- include('../components/instance') %>
     <div class="mt-8 ml-8 mb-4">
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-4 mr-8">
             <!-- Updated Address Card -->
