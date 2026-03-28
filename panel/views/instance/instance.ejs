@@ -107,8 +107,8 @@
                         <!-- Name: normal size but bold -->
                         <span class="font-semibold text-base text-white"><%= instance.Name %></span>
                         
-                        <!-- Statics: small text as a tag -->
-                        <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-white/10 text-neutral-300 rounded-3xl tracking-wider">Statics</span>
+                        <!-- Status tag (Online / Offline) -->
+                        <span id="statusTag" class="inline-flex items-center px-3 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-3xl tracking-wider">Online</span>
                     </div>
                     
                     <!-- IP: normal size, not bold, italic -->
@@ -127,19 +127,6 @@
                 </div>
             </div>
         </dl>
-    </div>
-
-    <!-- Stylish modern SVG Status (replaces the old card) -->
-    <div class="px-8 mb-6">
-        <div class="inline-flex items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-8 py-4 shadow-2xl">
-            <div class="flex items-center gap-x-4">
-                <svg id="statusSvg" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle id="statusRing" cx="16" cy="16" r="13" stroke="#10b981" stroke-width="3" stroke-opacity="0.25"/>
-                    <circle id="statusDot" cx="16" cy="16" r="8" fill="#10b981"/>
-                </svg>
-                <span id="statusText" class="text-4xl font-semibold tracking-[-0.05em] text-emerald-400">Online</span>
-            </div>
-        </div>
     </div>
 
     <div class="rounded-xl bg-red-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8 hidden" id="daemonIsDown">
@@ -492,25 +479,19 @@
         }
     }
 
-    // Modern SVG Status Updater
+    // Status now shown as tag inside Address card
     function updateStatus(stats) {
         const ramUsage = stats.memory_stats?.usage || 0;
         const isRunning = (stats.status || '').toLowerCase() === 'running' || ramUsage > 0;
 
-        const dot = document.getElementById('statusDot');
-        const ring = document.getElementById('statusRing');
-        const text = document.getElementById('statusText');
+        const tag = document.getElementById('statusTag');
 
         if (isRunning) {
-            dot.setAttribute('fill', '#10b981');
-            ring.setAttribute('stroke', '#10b981');
-            text.textContent = 'Online';
-            text.className = 'text-4xl font-semibold tracking-[-0.05em] text-emerald-400';
+            tag.textContent = 'Online';
+            tag.className = 'inline-flex items-center px-3 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-3xl tracking-wider';
         } else {
-            dot.setAttribute('fill', '#ef4444');
-            ring.setAttribute('stroke', '#ef4444');
-            text.textContent = 'Offline';
-            text.className = 'text-4xl font-semibold tracking-[-0.05em] text-red-400';
+            tag.textContent = 'Offline';
+            tag.className = 'inline-flex items-center px-3 py-1 text-xs font-medium bg-red-500/10 text-red-400 rounded-3xl tracking-wider';
         }
     }
 
