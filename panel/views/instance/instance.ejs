@@ -100,18 +100,27 @@
     <%- include('../components/instance') %>
     <div class="mt-8 ml-8 mb-4">
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-4 mr-8">
+            <!-- Updated Address Card -->
             <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-5 shadow sm:p-6 flex items-center">
                 <div class="flex-grow">
-                    <dt class="truncate text-sm font-medium text-neutral-400"><%= req.translations.address %></dt>
-                    <dd onclick="copyIP()" id="ipContainer"
-                        class="mt-1 text-lg font-medium tracking-tight text-white flex items-center gap-3 cursor-pointer hover:text-emerald-300 transition">
+                    <div class="flex items-center justify-between">
+                        <!-- Name: normal size but bold -->
+                        <span class="font-semibold text-base text-white"><%= instance.Name %></span>
+                        
+                        <!-- Statics: small text as a tag -->
+                        <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-white/10 text-neutral-300 rounded-3xl tracking-wider">Statics</span>
+                    </div>
+                    
+                    <!-- IP: normal size, not bold, italic -->
+                    <div onclick="copyIP()" id="ipContainer"
+                        class="mt-3 text-base font-normal italic text-white flex items-center gap-3 cursor-pointer hover:text-emerald-300 transition">
                         <span id="ipText">
-                            <%= instance.Allocation.IP %><span class="text-neutral-400">:<%= instance.Allocation.Port %></span>
+                            <%= instance.Allocation.IP %><span class="text-neutral-400 not-italic">:</span><%= instance.Allocation.Port %>
                         </span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 16v-4m4 4v4m-8-8h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v4a2 2 0 002 2z" />
                         </svg>
-                    </dd>
+                    </div>
                 </div>
                 <div class="ml-4 shadow border border-white/10 rounded-xl p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-6 w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
