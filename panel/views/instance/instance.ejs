@@ -26,7 +26,42 @@
     .xterm-viewport {
         overflow-y: hidden !important;
     }
+
+    /* Premium glassmorphic design */
+    .glass {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.12);
+        box-shadow: 0 8px 32px -12px rgb(0 0 0 / 0.3);
+    }
+
+    .glass:hover {
+        background: rgba(255,255,255,0.09);
+        border-color: rgba(255,255,255,0.25);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+    }
+
+    .power-btn {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .power-btn:hover {
+        transform: translateY(-1px) scale(1.03);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+    }
+    .power-btn:active {
+        transform: scale(0.97);
+    }
+
+    /* Stats cards - ultra smooth */
+    .stat-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 25px 25px 50px -12px rgb(0 0 0 / 0.25);
+    }
 </style>
+
 <main class="overflow-hidden" id="content">
     <% if (false) { %>
         <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
@@ -58,7 +93,7 @@
     <div class="px-6 mt-4 flex gap-2">
         <!-- Start Button -->
         <button id="startButton" type="button"
-            class="flex items-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-emerald-500 transition">
+            class="power-btn flex items-center rounded-2xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-emerald-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="w-4 h-4 mr-1 text-emerald-100">
                 <path fill-rule="evenodd"
@@ -70,7 +105,7 @@
 
         <!-- Restart Button -->
         <button id="restartButton" type="button"
-            class="flex items-center rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-blue-500 transition">
+            class="power-btn flex items-center rounded-2xl bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-blue-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="w-4 h-4 mr-1 text-white">
                 <path fill-rule="evenodd"
@@ -82,7 +117,7 @@
 
         <!-- Stop Button -->
         <button id="stopButton" type="button"
-            class="flex items-center rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-red-500 transition">
+            class="power-btn flex items-center rounded-2xl bg-red-600 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-red-500 transition">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="w-4 h-4 mr-1 text-red-100">
                 <path fill-rule="evenodd"
@@ -96,11 +131,11 @@
     <div class="mt-6 ml-6 mb-3">
         <dl class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-4 mr-6">
             <!-- Updated Address Card -->
-            <div class="overflow-hidden rounded-xl bg-white/5 px-4 py-5 shadow sm:p-6 flex items-center">
+            <div class="overflow-hidden rounded-3xl glass px-6 py-6 shadow-xl flex items-center">
                 <div class="flex-grow">
                     <div class="flex items-center justify-between">
                         <!-- Name: normal size but bold -->
-                        <span class="font-semibold text-base text-white"><%= instance.Name %></span>
+                        <span class="font-semibold text-xl text-white"><%= instance.Name %></span>
                         
                         <!-- Status tag (Online / Offline) -->
                         <span id="statusTag" class="inline-flex items-center px-3 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-3xl tracking-wider">Online</span>
@@ -117,14 +152,14 @@
                         </svg>
                     </div>
                 </div>
-                <div class="ml-4 shadow border border-white/10 rounded-xl p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-6 w-6 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
+                <div class="ml-4 shadow border border-white/10 rounded-2xl p-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-7 w-7 text-neutral-400"><rect width="256" height="256" fill="none"/><path d="M240,120a8,8,0,0,1-8,8H200v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H176a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H72v32h8a16,16,0,0,1,16,16v32a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V176a16,16,0,0,1,16-16h8V128H24a8,8,0,0,1,0-16h96V88h-8A16,16,0,0,1,96,72V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V72a16,16,0,0,1-16,16h-8v24h96A8,8,0,0,1,240,120Z"/></svg>
                 </div>
             </div>
         </dl>
     </div>
 
-    <div class="rounded-xl bg-red-800/10 px-4 py-6 mt-6 ml-6 mb-6 mr-6 hidden" id="daemonIsDown">
+    <div class="rounded-3xl bg-red-800/10 px-4 py-6 mt-6 ml-6 mb-6 mr-6 hidden" id="daemonIsDown">
         <div class="flex">
             <div class="flex-shrink-0 ml-1.5">
                 <svg class="animate-spin mt-2 h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg"
@@ -147,18 +182,18 @@
     <div class="flex flex-col lg:flex-row px-6">
         <!-- Left side: Console -->
         <div class="w-full lg:w-2/3 lg:pr-4">
-            <div class="bg-[#101010]/50 rounded-t-xl p-4">
-                <div id="terminal" class="overflow-x-auto whitespace-pre-wrap"></div>
+            <div class="glass rounded-3xl p-4">
+                <div id="terminal" class="overflow-x-auto whitespace-pre-wrap h-[380px] rounded-2xl"></div>
             </div>
             <input id="input" type="text" autocomplete="off" placeholder="<%= req.translations.SendACommand %>"
-                class="w-full px-4 py-3 bg-[#101010]/30 text-white rounded-b-xl text-sm border-t border-transparent focus:ring-2 focus:focus:ring-transparent focus:border-transparent placeholder:font-medium placeholder:text-neutral-500">
+                class="mt-3 w-full px-6 py-4 bg-[#101010]/70 text-white rounded-3xl text-base border border-white/10 focus:border-white/30 placeholder:font-medium placeholder:text-neutral-400 focus:outline-none transition-all">
         </div>
         
         <!-- Right side: Redesigned Stats Cards (smaller text + smoother graphs) -->
         <div class="w-full lg:w-1/3 mt-4 lg:mt-0 space-y-3">
             
             <!-- RAM Card -->
-            <div class="bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
+            <div class="stat-card bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
                 <div class="flex justify-between items-baseline">
                     <div>
                         <span class="text-sm font-medium text-neutral-400"><%= req.translations.ramUsage %></span>
@@ -172,7 +207,7 @@
             </div>
             
             <!-- CPU Card -->
-            <div class="bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
+            <div class="stat-card bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
                 <div class="flex justify-between items-baseline">
                     <div>
                         <span class="text-sm font-medium text-neutral-400"><%= req.translations.cpuUsage %></span>
@@ -186,7 +221,7 @@
             </div>
             
             <!-- Disk Card -->
-            <div class="bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
+            <div class="stat-card bg-white/5 rounded-3xl px-6 py-5 shadow flex flex-col h-40 relative overflow-hidden">
                 <div class="flex justify-between items-baseline">
                     <div>
                         <span class="text-sm font-medium text-neutral-400"><%= req.translations.diskUsage %></span>
