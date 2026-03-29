@@ -448,12 +448,47 @@
 
           <div class="tf-row">
             <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Template Name <span class="text-red-400">*</span></label>
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ID <span class="text-red-400">*</span></label>
+              <input type="text" name="meta.id" required class="tf-input font-mono" placeholder="my-template-id">
+            </div>
+            <div class="tf-field-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Name <span class="text-red-400">*</span></label>
               <input type="text" name="meta.name" required class="tf-input" placeholder="my-awesome-server">
             </div>
+          </div>
+
+          <div class="tf-row">
             <div class="tf-field-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
               <input type="text" name="meta.display_name" class="tf-input" placeholder="My Awesome Server">
+            </div>
+          </div>
+
+          <div class="tf-row">
+            <div class="tf-field-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category <span class="text-red-400">*</span></label>
+              <div class="flex gap-2">
+                <select name="category" required class="tf-input">
+                  <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
+                </select>
+                <button type="button" id="btnAddCategory" class="tf-btn tf-btn-secondary whitespace-nowrap">
+                  + Add
+                </button>
+              </div>
+            </div>
+            <div class="tf-field-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type <span class="text-red-400">*</span></label>
+              <div class="flex gap-2">
+                <select name="meta.type" id="typeSelect" required class="tf-input">
+                  <option value="generic">Generic</option>
+                  <option value="game">Game Server</option>
+                  <option value="web">Web Application</option>
+                  <option value="database">Database</option>
+                </select>
+                <button type="button" id="btnAddType" class="tf-btn tf-btn-secondary whitespace-nowrap">
+                  + Add
+                </button>
+              </div>
             </div>
           </div>
 
@@ -470,20 +505,16 @@
           </div>
 
           <div class="tf-row">
-            <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category <span class="text-red-400">*</span></label>
-              <div class="flex gap-2">
-                <select name="category" required class="tf-input">
-                  <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
-                </select>
-                <button type="button" id="btnAddCategory" class="tf-btn tf-btn-secondary whitespace-nowrap">
-                  + Add
-                </button>
-              </div>
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Instance Type <span class="text-red-400">*</span></label>
+              <select name="environment.instance_type" required class="tf-input">
+                <option value="docker">Docker</option>
+                <option value="multipass">Multipass</option>
+              </select>
             </div>
             <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label>
-              <input type="text" name="environment.docker_image" required placeholder="eclipse-temurin:21-jre" class="tf-input">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
+              <input type="text" name="environment.image" required placeholder="eclipse-temurin:21-jre" class="tf-input">
             </div>
           </div>
 
@@ -491,6 +522,25 @@
             <div class="tf-field-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Start Code <span class="text-red-400">*</span></label>
               <input type="text" name="environment.start_code" required placeholder="java -Xms4G -Xmx4G -jar server.jar --nogui" class="tf-input">
+            </div>
+          </div>
+
+          <!-- TERMINAL -->
+          <div class="tf-section-divider">
+            <h2>Terminal</h2>
+          </div>
+
+          <div class="tf-row">
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Maximum</label>
+              <input type="number" name="terminal.maximum" value="5" min="1" class="tf-input" placeholder="Maximum">
+            </div>
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Input Able</label>
+              <select name="terminal.input_able" class="tf-input">
+                <option value="true" selected>Yes</option>
+                <option value="false">No</option>
+              </select>
             </div>
           </div>
 
@@ -678,7 +728,7 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
   container.appendChild(div);
 }
 
-// ====================== VARIABLES ======================
+// ====================== VARIABLES (Required added) ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -705,6 +755,13 @@ function addVariable(v = {}) {
         <select name="variables[${idx}].user_editable" class="tf-input">
           <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>Yes</option>
           <option value="false" ${v.user_editable === "false" ? "selected" : ""}>No</option>
+        </select>
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Required</label>
+        <select name="variables[${idx}].required" class="tf-input">
+          <option value="true" ${v.required === "true" ? "selected" : ""}>Yes</option>
+          <option value="false" ${v.required !== "true" ? "selected" : ""}>No</option>
         </select>
       </div>
     </div>
@@ -953,12 +1010,13 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA ======================
+// ====================== COLLECT FORM DATA (updated with new fields) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
     meta: {}, 
     environment: { install_steps: [] }, 
+    terminal: {},
     variables: [], 
     actions: [], 
     pages: [], 
@@ -972,11 +1030,18 @@ function collectFormData() {
     else if (key === "category") {
       data.category = value;
     }
-    else if (key === "environment.docker_image") {
-      data.environment.docker_image = value;
+    else if (key === "environment.instance_type") {
+      data.environment.instance_type = value;
+    }
+    else if (key === "environment.image") {
+      data.environment.image = value;
     }
     else if (key === "environment.start_code") {
       data.environment.start_code = value;
+    }
+    else if (key.startsWith("terminal.")) {
+      const field = key.split(".")[1];
+      data.terminal[field] = value;
     }
     else if (key.startsWith("variables[")) {
       const match = key.match(/variables\[(\d+)\]\.(.+)/);
@@ -1059,12 +1124,17 @@ function collectFormData() {
 }
 
 function fillForm(data) { 
+  document.querySelector('[name="meta.id"]').value = data.meta?.id || "";
   document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
   document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
+  document.querySelector('[name="meta.type"]').value = data.meta?.type || "";
   document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
   document.querySelector('[name="category"]').value = data.category || "";
-  document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
+  document.querySelector('[name="environment.instance_type"]').value = data.environment?.instance_type || "docker";
+  document.querySelector('[name="environment.image"]').value = data.environment?.image || "";
   document.querySelector('[name="environment.start_code"]').value = data.environment?.start_code || "";
+  document.querySelector('[name="terminal.maximum"]').value = data.terminal?.maximum || "5";
+  document.querySelector('[name="terminal.input_able"]').value = data.terminal?.input_able || "true";
 
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
@@ -1116,6 +1186,10 @@ function loadDefaultForm() {
   pageIndex = 0;
 
   document.querySelector('[name="environment.start_code"]').value = "java -Xms4G -Xmx4G -jar server.jar --nogui";
+  document.querySelector('[name="environment.instance_type"]').value = "docker";
+  document.querySelector('[name="environment.image"]').value = "eclipse-temurin:21-jre";
+  document.querySelector('[name="terminal.maximum"]').value = "5";
+  document.querySelector('[name="terminal.input_able"]').value = "true";
 }
 
 // ====================== SAVE ======================
@@ -1181,6 +1255,18 @@ document.getElementById("btnAddCategory").onclick = async () => {
   } catch (err) {
     showNotification("Network error!", "error");
   }
+};
+
+document.getElementById("btnAddType").onclick = () => {
+  const name = prompt("New type name:");
+  if (!name?.trim()) return;
+  const select = document.getElementById("typeSelect");
+  const option = document.createElement("option");
+  option.value = name.trim().toLowerCase();
+  option.textContent = name.trim();
+  select.appendChild(option);
+  select.value = name.trim().toLowerCase();
+  showNotification("Type added!", "success");
 };
 
 // ====================== IMPORT HANDLERS ======================
