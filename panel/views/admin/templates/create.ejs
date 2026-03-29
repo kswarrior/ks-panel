@@ -503,14 +503,14 @@
           <div class="tf-row">
             <div class="tf-field-short">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Instance Type <span class="text-red-400">*</span></label>
-              <select name="environment.instance_type" required class="tf-input">
+              <select name="environment.instance_type" id="instanceTypeSelect" required class="tf-input">
                 <option value="docker">Docker</option>
                 <option value="multipass">Multipass</option>
               </select>
             </div>
             <div class="tf-field-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
-              <input type="text" name="environment.image" required placeholder="eclipse-temurin:21-jre" class="tf-input">
+              <input type="text" name="environment.image" id="imageInput" required placeholder="eclipse-temurin:21-jre" class="tf-input">
             </div>
           </div>
 
@@ -533,6 +533,15 @@
               <input type="number" name="environment.limits.disk" value="20" class="tf-input" placeholder="20">
             </div>
           </div>
+
+          <!-- VOLUMES / MOUNTS - added directly below Resource Limits as requested -->
+          <div class="tf-section-header">
+            <h2>Volumes / Mounts</h2>
+            <button type="button" id="btnAddVolume" class="tf-btn tf-btn-accent text-xs">
+              + Add Volume
+            </button>
+          </div>
+          <div id="volumesContainer" class="space-y-3"></div>
 
           <!-- VARIABLES -->
           <div class="tf-section-header">
@@ -612,7 +621,7 @@
           <!-- CUSTOM PAGES -->
           <div class="tf-section-header">
             <div class="flex items-center gap-2">
-              <h2>Custom Pages</h2>
+              <h2>Pages</h2>
               <span class="text-xs text-amber-400/80">(sidebar navigation)</span>
             </div>
             <button type="button" id="btnAddPage" class="tf-btn tf-btn-accent text-xs">
@@ -1067,8 +1076,32 @@ function addPort(p = {}) {
 }
 
 // ====================== VOLUMES ======================
-// (kept for JSON compatibility - UI removed as requested)
-function addVolume(v = {}) {}
+function addVolume(v = {}) {
+  const idx = volumeIndex++;
+  const div = document.createElement("div");
+  div.className = "tf-card";
+  div.innerHTML = `
+    <div class="tf-row">
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Host Path</label>
+        <input type="text" name="environment.volumes[${idx}].host" value="${v.host || ''}" class="tf-input" placeholder="/data/server">
+      </div>
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Container Path</label>
+        <input type="text" name="environment.volumes[${idx}].container" value="${v.container || ''}" class="tf-input" placeholder="/data">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Mode</label>
+        <select name="environment.volumes[${idx}].mode" class="tf-input">
+          <option value="rw" ${v.mode === "rw" ? "selected" : ""}>Read/Write</option>
+          <option value="ro" ${v.mode === "ro" ? "selected" : ""}>Read Only</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+  `;
+  document.getElementById("volumesContainer").appendChild(div);
+}
 
 // ====================== ALLOWED TERMINAL COMMANDS ======================
 function addAllowedCommand(cmd = "") {
@@ -1388,6 +1421,11 @@ function fillForm(data) {
   portIndex = 0;
   (data.environment?.ports || []).forEach(p => addPort(p));
 
+  // Volumes
+  document.getElementById("volumesContainer").innerHTML = "";
+  volumeIndex = 0;
+  (data.environment?.volumes || []).forEach(v => addVolume(v));
+
   // Allowed Terminal Commands
   document.getElementById("allowedCommandsContainer").innerHTML = "";
   allowedCommandIndex = 0;
@@ -1449,6 +1487,11 @@ function loadDefaultForm() {
   portIndex = 0;
   addPort({ internal: 25565, external: 25565, protocol: "tcp" });
 
+  // Default Volumes
+  document.getElementById("volumesContainer").innerHTML = "";
+  volumeIndex = 0;
+  addVolume({ host: "/data/server", container: "/data", mode: "rw" });
+
   // Default Allowed Terminal Commands (custom code support)
   document.getElementById("allowedCommandsContainer").innerHTML = "";
   allowedCommandIndex = 0;
@@ -1496,6 +1539,7 @@ document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddPage").onclick = () => addPage();
 document.getElementById("btnAddPort").onclick = () => addPort();
+document.getElementById("btnAddVolume").onclick = () => addVolume();
 document.getElementById("btnAddAllowedCommand").onclick = () => addAllowedCommand();
 
 document.getElementById("btnAddCategory").onclick = async () => {
@@ -1551,6 +1595,18 @@ function toggleTerminalConditions() {
 }
 
 terminalInputAble.addEventListener("change", toggleTerminalConditions);
+
+// ====================== MULTIPASS DEFAULT IMAGE ======================
+const instanceTypeSelect = document.getElementById("instanceTypeSelect");
+const imageInput = document.getElementById("imageInput");
+
+instanceTypeSelect.addEventListener("change", () => {
+  if (instanceTypeSelect.value === "multipass") {
+    imageInput.value = "24.04";
+  } else {
+    imageInput.value = "eclipse-temurin:21-jre";
+  }
+});
 
 // ====================== IMPORT HANDLERS ======================
 document.getElementById("btnImportJson").onclick = () => {
