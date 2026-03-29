@@ -536,7 +536,7 @@
           </div>
           <div id="actionsContainer" class="space-y-3"></div>
 
-          <!-- TERMINAL (moved below Actions as requested) -->
+          <!-- TERMINAL (below Actions) -->
           <div class="tf-section-divider">
             <h2>Terminal</h2>
           </div>
@@ -555,7 +555,7 @@
             </div>
           </div>
 
-          <!-- Terminal Conditions (shown only when Input Able = Yes) -->
+          <!-- Terminal Conditions -->
           <div id="terminalConditionsSection" class="mt-4">
             <div class="tf-section-header">
               <h2>Terminal Conditions</h2>
@@ -822,7 +822,7 @@ function addVariable(v = {}) {
   toggleFields();
 }
 
-// ====================== ITEM TYPES & FIELD CONFIGS (Instance Control added as operation type) ======================
+// ====================== ITEM TYPES & FIELD CONFIGS ======================
 const itemTypes = [
   { value: "command", label: "Run Shell Command" },
   { value: "download", label: "Download File" },
@@ -865,7 +865,7 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== SUB-OPERATION (now supports Instance Control) ======================
+// ====================== SUB-OPERATION (with End Run) ======================
 function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
@@ -918,6 +918,15 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
       </div>
       <div class="tf-field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
     </div>
+
+    <!-- End Run Section (optional) -->
+    <div class="mt-4 end-run-wrapper">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">End Run (runs when operation stops)</span>
+        <button type="button" class="tf-btn tf-btn-accent text-xs py-1 px-3 add-end-run-btn">+ Add End Run</button>
+      </div>
+      <div class="end-run-container space-y-2" id="end-run-container-${prefix}-${mainIdx}-${subIdx}" data-sub-count="0"></div>
+    </div>
   `;
   opsContainer.appendChild(div);
 
@@ -929,9 +938,54 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   select.addEventListener("change", (e) => {
     renderSubDynamicFields(mainIdx, subIdx, e.target.value, {}, prefix);
   });
+
+  // End Run button
+  const endRunBtn = div.querySelector(".add-end-run-btn");
+  const endRunContainer = div.querySelector(`#end-run-container-${prefix}-${mainIdx}-${subIdx}`);
+  endRunBtn.onclick = () => {
+    const endIdx = parseInt(endRunContainer.dataset.subCount || 0);
+    endRunContainer.dataset.subCount = endIdx + 1;
+    addEndRunOperation(endRunContainer, prefix, mainIdx, subIdx, endIdx, subData.endRun || {});
+  };
+
+  // Load existing End Run if any
+  if (subData.endRun) {
+    const endIdx = 0;
+    endRunContainer.dataset.subCount = 1;
+    addEndRunOperation(endRunContainer, prefix, mainIdx, subIdx, endIdx, subData.endRun);
+  }
 }
 
-// ====================== ACTIONS (Instance Control moved to Operations) ======================
+// Helper to add End Run (nested operation)
+function addEndRunOperation(container, prefix, mainIdx, subIdx, endIdx, data = {}) {
+  const div = document.createElement("div");
+  div.className = "tf-sub-item";
+  div.innerHTML = `
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-xs font-medium text-neutral-400">End Run</span>
+      <button type="button" onclick="this.closest('.tf-sub-item').remove()" class="tf-remove-btn">×</button>
+    </div>
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type</label>
+        <select name="${prefix}[${mainIdx}].operations[${subIdx}].endRun.type" class="tf-input end-type-select">
+          ${itemTypes.map(t => `<option value="${t.value}" ${data.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+        </select>
+      </div>
+      <div class="tf-field-long dynamic-end" id="dynamic-end-${prefix}-${mainIdx}-${subIdx}"></div>
+    </div>
+  `;
+  container.appendChild(div);
+
+  const select = div.querySelector(".end-type-select");
+  const containerEnd = div.querySelector(`#dynamic-end-${prefix}-${mainIdx}-${subIdx}`);
+  renderSubDynamicFields(mainIdx, subIdx, data.type || "command", data, `${prefix}[${mainIdx}].operations[${subIdx}].endRun`);
+  select.addEventListener("change", () => {
+    renderSubDynamicFields(mainIdx, subIdx, select.value, {}, `${prefix}[${mainIdx}].operations[${subIdx}].endRun`);
+  });
+}
+
+// ====================== ACTIONS ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
@@ -954,7 +1008,7 @@ function addAction(a = {}) {
       </div>
       <div class="operations-list space-y-2" id="ops-actions-${idx}" data-sub-count="0"></div>
     </div>
-    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+    <button type="button" onclick="removeAction(this)" class="tf-remove-btn">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
 
@@ -963,8 +1017,17 @@ function addAction(a = {}) {
   ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
 
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
+
+  refreshTerminalActionOptions(); // refresh after adding action
 }
 
+function removeAction(btn) {
+  const card = btn.closest('.tf-card');
+  if (card) card.remove();
+  refreshTerminalActionOptions();
+}
+
+// ====================== INSTALL STEPS ======================
 function addInstallStep(s = {}) {
   const idx = installIndex++;
   const div = document.createElement("div");
@@ -994,7 +1057,41 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== TERMINAL CONDITIONS ======================
+// ====================== TERMINAL CONDITIONS (dynamic Attach Action) ======================
+function getCurrentActions() {
+  const actions = [];
+  document.querySelectorAll('#actionsContainer .tf-card').forEach(card => {
+    const idInput = card.querySelector('input[name$=".id"]');
+    const nameInput = card.querySelector('input[name$=".name"]');
+    if (idInput && idInput.value) {
+      actions.push({
+        id: idInput.value,
+        name: nameInput ? nameInput.value : idInput.value
+      });
+    }
+  });
+  return actions;
+}
+
+function refreshTerminalActionOptions() {
+  const selects = document.querySelectorAll('#terminalConditionsContainer select[name$=".action"]');
+  const currentActions = getCurrentActions();
+  
+  selects.forEach(select => {
+    const currentValue = select.value;
+    select.innerHTML = `<option value="">Select Action...</option>`;
+    currentActions.forEach(act => {
+      const opt = document.createElement("option");
+      opt.value = act.id;
+      opt.textContent = `${act.name} (${act.id})`;
+      select.appendChild(opt);
+    });
+    if (currentValue && currentActions.some(a => a.id === currentValue)) {
+      select.value = currentValue;
+    }
+  });
+}
+
 function addTerminalCondition(c = {}) {
   const idx = conditionIndex++;
   const div = document.createElement("div");
@@ -1002,17 +1099,12 @@ function addTerminalCondition(c = {}) {
   div.innerHTML = `
     <div class="flex justify-between items-center mb-2">
       <span class="text-xs font-medium text-neutral-400">Condition #${idx + 1}</span>
-      <button type="button" onclick="this.closest('.tf-sub-item').remove()" class="tf-remove-btn">×</button>
+      <button type="button" onclick="this.closest('.tf-sub-item').remove();refreshTerminalActionOptions()" class="tf-remove-btn">×</button>
     </div>
     <div class="tf-row">
       <div class="tf-field-long">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Attach Action</label>
-        <select name="terminal.conditions[${idx}].action" class="tf-input">
-          <option value="start" ${c.action === "start" ? "selected" : ""}>Start</option>
-          <option value="restart" ${c.action === "restart" ? "selected" : ""}>Restart</option>
-          <option value="stop" ${c.action === "stop" ? "selected" : ""}>Stop</option>
-          <option value="kill" ${c.action === "kill" ? "selected" : ""}>Kill</option>
-        </select>
+        <select name="terminal.conditions[${idx}].action" class="tf-input"></select>
       </div>
       <div class="tf-field-long">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">When</label>
@@ -1024,6 +1116,18 @@ function addTerminalCondition(c = {}) {
     </div>
   `;
   document.getElementById("terminalConditionsContainer").appendChild(div);
+  
+  // Populate dynamic actions
+  const actionSelect = div.querySelector('select[name$=".action"]');
+  const currentActions = getCurrentActions();
+  actionSelect.innerHTML = `<option value="">Select Action...</option>`;
+  currentActions.forEach(act => {
+    const opt = document.createElement("option");
+    opt.value = act.id;
+    opt.textContent = `${act.name} (${act.id})`;
+    actionSelect.appendChild(opt);
+  });
+  if (c.action) actionSelect.value = c.action;
 }
 
 // ====================== CUSTOM PAGES ======================
@@ -1118,8 +1222,18 @@ function collectFormData() {
       }
     }
     else if (key.startsWith("actions[")) {
+      // Handle endRun
+      const endMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.endRun\.(.+)/);
+      if (endMatch) {
+        const i = parseInt(endMatch[1]), j = parseInt(endMatch[2]);
+        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = { endRun: {} };
+        if (!data.actions[i].operations[j].endRun) data.actions[i].operations[j].endRun = {};
+        data.actions[i].operations[j].endRun[endMatch[3]] = value;
+      }
+      // Normal operation
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
-      if (opMatch) {
+      if (opMatch && !key.includes(".endRun.")) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
         if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
         if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
@@ -1166,7 +1280,7 @@ function collectFormData() {
   data.pages = data.pages.filter(Boolean);
   data.terminal.conditions = data.terminal.conditions.filter(Boolean);
 
-  // Clean nested arrays
+  // Clean nested
   data.actions.forEach(a => { 
     if (a.operations) a.operations = a.operations.filter(Boolean); 
   });
@@ -1216,6 +1330,7 @@ function fillForm(data) {
   (data.pages || []).forEach(p => addPage(p));
 
   jsonEditor.value = JSON.stringify(data, null, 2);
+  refreshTerminalActionOptions();
 }
 
 function loadDefaultForm() {
@@ -1225,7 +1340,7 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   
-  // Default actions with Instance Control as operation type
+  // Default actions
   addAction({ id: "start", name: "Start Server", operations: [{ type: "instance", command: "start" }] });
   addAction({ id: "restart", name: "Restart Server", operations: [{ type: "instance", command: "restart" }] });
   addAction({ id: "stop", name: "Stop Server", operations: [{ type: "instance", command: "stop" }] });
@@ -1258,7 +1373,7 @@ function loadDefaultForm() {
   document.querySelector('[name="terminal.maximum"]').value = "5";
   document.querySelector('[name="terminal.input_able"]').value = "true";
 
-  // Show default conditions
+  // Default condition
   document.getElementById("terminalConditionsContainer").innerHTML = "";
   conditionIndex = 0;
   addTerminalCondition({ action: "start", when: "running" });
@@ -1344,7 +1459,7 @@ document.getElementById("btnAddType").onclick = () => {
 // Terminal condition handler
 document.getElementById("btnAddTerminalCondition").onclick = () => addTerminalCondition();
 
-// Show/hide terminal conditions based on Input Able
+// Show/hide terminal conditions
 const terminalInputAble = document.getElementById("terminalInputAble");
 const terminalConditionsSection = document.getElementById("terminalConditionsSection");
 
@@ -1393,7 +1508,7 @@ document.getElementById("btnImportPages").onclick = () => {
 loadDefaultForm();
 modeSelect.value = "form";
 modeSelect.onchange();
-toggleTerminalConditions(); // ensure correct initial visibility
+toggleTerminalConditions();
 </script>
 
 <%- include('../../components/footer') %>
