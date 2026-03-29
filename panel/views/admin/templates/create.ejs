@@ -451,10 +451,6 @@
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ID <span class="text-red-400">*</span></label>
               <input type="text" name="meta.id" required class="tf-input font-mono" placeholder="my-template-id">
             </div>
-            <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Name <span class="text-red-400">*</span></label>
-              <input type="text" name="meta.name" required class="tf-input" placeholder="my-awesome-server">
-            </div>
           </div>
 
           <div class="tf-row">
@@ -885,7 +881,7 @@ const fieldConfigs = {
   ]
 };
 
-// ====================== SUB-OPERATION (with End Run) ======================
+// ====================== SUB-OPERATION ======================
 function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   const container = document.getElementById(`dynamic-sub-${prefix}-${mainIdx}-${subIdx}`);
   if (!container) return;
@@ -938,15 +934,6 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
       </div>
       <div class="tf-field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
     </div>
-
-    <!-- End Run Section -->
-    <div class="mt-4 end-run-wrapper">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">End Run (runs when this operation stops)</span>
-        <button type="button" class="tf-btn tf-btn-accent text-xs py-1 px-3 add-end-run-btn">+ Add End Run</button>
-      </div>
-      <div class="end-run-container space-y-2" id="end-run-container-${prefix}-${mainIdx}-${subIdx}" data-sub-count="0"></div>
-    </div>
   `;
   opsContainer.appendChild(div);
 
@@ -957,49 +944,6 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
 
   select.addEventListener("change", (e) => {
     renderSubDynamicFields(mainIdx, subIdx, e.target.value, {}, prefix);
-  });
-
-  // End Run button
-  const endRunBtn = div.querySelector(".add-end-run-btn");
-  const endRunContainer = div.querySelector(`#end-run-container-${prefix}-${mainIdx}-${subIdx}`);
-  endRunBtn.onclick = () => {
-    const endIdx = parseInt(endRunContainer.dataset.subCount || 0);
-    endRunContainer.dataset.subCount = endIdx + 1;
-    addEndRunOperation(endRunContainer, prefix, mainIdx, subIdx, endIdx, subData.endRun || {});
-  };
-
-  if (subData.endRun) {
-    const endIdx = 0;
-    endRunContainer.dataset.subCount = 1;
-    addEndRunOperation(endRunContainer, prefix, mainIdx, subIdx, endIdx, subData.endRun);
-  }
-}
-
-function addEndRunOperation(container, prefix, mainIdx, subIdx, endIdx, data = {}) {
-  const div = document.createElement("div");
-  div.className = "tf-sub-item";
-  div.innerHTML = `
-    <div class="flex justify-between items-center mb-2">
-      <span class="text-xs font-medium text-neutral-400">End Run Operation</span>
-      <button type="button" onclick="this.closest('.tf-sub-item').remove()" class="tf-remove-btn">×</button>
-    </div>
-    <div class="tf-row">
-      <div class="tf-field-short">
-        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type</label>
-        <select name="${prefix}[${mainIdx}].operations[${subIdx}].endRun.type" class="tf-input end-type-select">
-          ${itemTypes.map(t => `<option value="${t.value}" ${data.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
-        </select>
-      </div>
-      <div class="tf-field-long dynamic-end" id="dynamic-end-${prefix}-${mainIdx}-${subIdx}-${endIdx}"></div>
-    </div>
-  `;
-  container.appendChild(div);
-
-  const select = div.querySelector(".end-type-select");
-  const containerEnd = div.querySelector(`#dynamic-end-${prefix}-${mainIdx}-${subIdx}-${endIdx}`);
-  renderSubDynamicFields(mainIdx, subIdx, data.type || "command", data, `${prefix}[${mainIdx}].operations[${subIdx}].endRun`);
-  select.addEventListener("change", () => {
-    renderSubDynamicFields(mainIdx, subIdx, select.value, {}, `${prefix}[${mainIdx}].operations[${subIdx}].endRun`);
   });
 }
 
@@ -1187,7 +1131,7 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA (unchanged except removed sections are no longer in form) ======================
+// ====================== COLLECT FORM DATA ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
@@ -1265,16 +1209,8 @@ function collectFormData() {
       }
     }
     else if (key.startsWith("actions[")) {
-      const endMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.endRun\.(.+)/);
-      if (endMatch) {
-        const i = parseInt(endMatch[1]), j = parseInt(endMatch[2]);
-        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
-        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
-        if (!data.actions[i].operations[j].endRun) data.actions[i].operations[j].endRun = {};
-        data.actions[i].operations[j].endRun[endMatch[3]] = value;
-      }
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
-      if (opMatch && !key.includes(".endRun.")) {
+      if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
         if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
         if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
