@@ -508,8 +508,8 @@
                 <option value="multipass">Multipass</option>
               </select>
             </div>
-            <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
+            <div class="tf-field-long" id="imageFieldContainer">
+              <label id="imageLabel" class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
               <input type="text" name="environment.image" id="imageInput" required placeholder="eclipse-temurin:21-jre" class="tf-input">
             </div>
           </div>
@@ -665,6 +665,15 @@
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0, portIndex = 0, volumeIndex = 0, allowedCommandIndex = 0;
 
+// ====================== DISTRIBUTION CONFIG (for Multipass) ======================
+const distributionConfig = {
+  ubuntu: { label: "Ubuntu", defaultVersion: "24.04" },
+  debian: { label: "Debian", defaultVersion: "12" },
+  fedora: { label: "Fedora", defaultVersion: "41" },
+  centos: { label: "CentOS", defaultVersion: "9" },
+  alpine: { label: "Alpine", defaultVersion: "3.20" }
+};
+
 // ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
   const itemClass = listType === 'options' ? '.tf-sub-item' : '.tf-sub-item';
@@ -739,6 +748,57 @@ modeSelect.onchange = () => {
   }
   submitSection.style.display = "flex";
 };
+
+// ====================== DYNAMIC IMAGE FIELD FOR MULTIPASS ======================
+const instanceTypeSelect = document.getElementById("instanceTypeSelect");
+const imageFieldContainer = document.getElementById("imageFieldContainer");
+
+function updateImageField() {
+  const isMultipass = instanceTypeSelect.value === "multipass";
+  const currentImageValue = document.getElementById("imageInput") ? document.getElementById("imageInput").value : "";
+
+  imageFieldContainer.innerHTML = "";
+
+  if (!isMultipass) {
+    // Docker mode - original Image field
+    imageFieldContainer.innerHTML = `
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
+      <input type="text" name="environment.image" id="imageInput" required placeholder="eclipse-temurin:21-jre" class="tf-input" value="${currentImageValue}">
+    `;
+  } else {
+    // Multipass mode - Distribution select + Version input
+    const distributionSelectHTML = `
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Distribution <span class="text-red-400">*</span></label>
+      <select name="environment.distribution" id="distributionSelect" class="tf-input">
+        ${Object.keys(distributionConfig).map(key => {
+          const config = distributionConfig[key];
+          return `<option value="${key}" ${key === "ubuntu" ? "selected" : ""}>${config.label}</option>`;
+        }).join("")}
+      </select>
+    `;
+
+    const versionInputHTML = `
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mt-3">Version <span class="text-red-400">*</span></label>
+      <input type="text" name="environment.image" id="imageInput" required class="tf-input" value="24.04">
+    `;
+
+    imageFieldContainer.innerHTML = distributionSelectHTML + versionInputHTML;
+
+    // Attach listener to update version default when distribution changes
+    const distributionSelect = document.getElementById("distributionSelect");
+    const versionInput = document.getElementById("imageInput");
+
+    distributionSelect.addEventListener("change", () => {
+      const selected = distributionSelect.value;
+      if (distributionConfig[selected]) {
+        versionInput.value = distributionConfig[selected].defaultVersion;
+      }
+    });
+  }
+}
+
+// Attach listener to Instance Type
+instanceTypeSelect.addEventListener("change", updateImageField);
 
 // ====================== VARIABLE TYPES ======================
 const variableTypes = [
@@ -1596,18 +1656,6 @@ function toggleTerminalConditions() {
 
 terminalInputAble.addEventListener("change", toggleTerminalConditions);
 
-// ====================== MULTIPASS DEFAULT IMAGE ======================
-const instanceTypeSelect = document.getElementById("instanceTypeSelect");
-const imageInput = document.getElementById("imageInput");
-
-instanceTypeSelect.addEventListener("change", () => {
-  if (instanceTypeSelect.value === "multipass") {
-    imageInput.value = "24.04";
-  } else {
-    imageInput.value = "eclipse-temurin:21-jre";
-  }
-});
-
 // ====================== IMPORT HANDLERS ======================
 document.getElementById("btnImportJson").onclick = () => {
   const input = document.createElement("input");
@@ -1644,6 +1692,7 @@ loadDefaultForm();
 modeSelect.value = "form";
 modeSelect.onchange();
 toggleTerminalConditions();
+updateImageField();  // Initialize the dynamic Image/Distribution field
 </script>
 
 <%- include('../../components/footer') %>
