@@ -236,6 +236,7 @@
 <script>
     // ============================================
     // FULL WORKING JS - ONLY JS ADDED (no style/HTML changed)
+    // DOUBLE LOGS FIXED: added initialized guard + WS safety
     // ============================================
 
     const baseTheme = {
@@ -271,6 +272,7 @@
     let statsWs;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 10;
+    let initialized = false;   // ← ADDED: prevents double initialization / double WS / double logs
 
     function isValidJson(str) {
         try { JSON.parse(str); return true; } catch { return false; }
@@ -361,6 +363,16 @@
     }
 
     function initWebSocket() {
+        // ← ADDED: full protection against duplicate WebSocket (this was the cause of double logs)
+        if (initialized && ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+            console.warn('[Console] Already connected – skipping duplicate WS');
+            return;
+        }
+        if (ws) {
+            ws.onclose = null;
+            ws.close();
+        }
+
         const port = window.location.port ? `:${window.location.port}` : '';
         ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
 
@@ -386,6 +398,7 @@
         };
 
         ws.onclose = () => {
+            ws = null;   // ← ADDED: clean reference so next init doesn't think old WS is still alive
             if (reconnectAttempts < maxReconnectAttempts) {
                 const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
                 setTimeout(initWebSocket, delay);
@@ -544,6 +557,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // ← ADDED: single initialization guard (this eliminates the double WS creation on page load)
+        if (initialized) {
+            console.log('[Console] Already initialized – skipping duplicate');
+            return;
+        }
+        initialized = true;
+
         setupTerminal();
         initWebSocket();
         initPowerButtons();
