@@ -518,13 +518,6 @@
             </div>
           </div>
 
-          <div class="tf-row">
-            <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Start Code <span class="text-red-400">*</span></label>
-              <input type="text" name="environment.start_code" required placeholder="java -Xms4G -Xmx4G -jar server.jar --nogui" class="tf-input">
-            </div>
-          </div>
-
           <!-- TERMINAL -->
           <div class="tf-section-divider">
             <h2>Terminal</h2>
@@ -544,18 +537,9 @@
             </div>
           </div>
 
-          <!-- VARIABLES -->
+          <!-- ACTIONS -->
           <div class="tf-section-header">
-            <h2>Variables</h2>
-            <button type="button" id="btnAddVar" class="tf-btn tf-btn-accent text-xs">
-              + Add Variable
-            </button>
-          </div>
-          <div id="variablesContainer" class="space-y-3"></div>
-
-          <!-- CUSTOM ACTIONS -->
-          <div class="tf-section-header">
-            <h2>Custom Actions</h2>
+            <h2>Actions</h2>
             <button type="button" id="btnAddAction" class="tf-btn tf-btn-accent text-xs">
               + Add Action
             </button>
@@ -728,7 +712,7 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
   container.appendChild(div);
 }
 
-// ====================== VARIABLES (Required added) ======================
+// ====================== VARIABLES ======================
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
@@ -913,9 +897,10 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   });
 }
 
-// ====================== ADD ACTION / INSTALL STEP ======================
+// ====================== ACTIONS (fully customisable - Instance + Custom) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
+  const isInstance = (a.type === "instance");
   const div = document.createElement("div");
   div.className = "tf-card";
   div.innerHTML = `
@@ -929,22 +914,66 @@ function addAction(a = {}) {
         <input type="text" name="actions[${idx}].name" value="${a.name || ''}" class="tf-input" placeholder="Start Server">
       </div>
     </div>
-    <div class="mt-4">
+
+    <div class="tf-row mt-3">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type</label>
+        <select name="actions[${idx}].type" class="tf-input action-type-select" data-idx="${idx}">
+          <option value="custom" ${!isInstance ? "selected" : ""}>Custom Operations</option>
+          <option value="instance" ${isInstance ? "selected" : ""}>Instance Control</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Custom Operations -->
+    <div id="ops-section-${idx}" class="mt-4 ${isInstance ? 'tf-hidden' : ''}">
       <div class="flex items-center justify-between mb-3">
         <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Operations</span>
         <button type="button" class="tf-btn tf-btn-accent text-xs py-1.5 px-3 add-op-btn">+ Add Operation</button>
       </div>
       <div class="operations-list space-y-2" id="ops-actions-${idx}" data-sub-count="0"></div>
     </div>
+
+    <!-- Instance Control -->
+    <div id="instance-section-${idx}" class="mt-4 ${isInstance ? '' : 'tf-hidden'}">
+      <div class="tf-row">
+        <div class="tf-field-long">
+          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Instance Command <span class="text-red-400">*</span></label>
+          <select name="actions[${idx}].command" class="tf-input">
+            <option value="start" ${a.command === "start" ? "selected" : ""}>Start</option>
+            <option value="restart" ${a.command === "restart" ? "selected" : ""}>Restart</option>
+            <option value="stop" ${a.command === "stop" ? "selected" : ""}>Stop</option>
+            <option value="kill" ${a.command === "kill" ? "selected" : ""}>Kill</option>
+            <option value="logs" ${a.command === "logs" ? "selected" : ""}>Logs</option>
+            <option value="attach" ${a.command === "attach" ? "selected" : ""}>Attach</option>
+            <option value="top" ${a.command === "top" ? "selected" : ""}>Top Processes</option>
+            <option value="stats" ${a.command === "stats" ? "selected" : ""}>Stats</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
 
+  const typeSelect = div.querySelector(".action-type-select");
+  const opsSection = document.getElementById(`ops-section-${idx}`);
+  const instanceSection = document.getElementById(`instance-section-${idx}`);
   const opsContainer = div.querySelector(`#ops-actions-${idx}`);
-  const ops = a.operations || [{ type: "command", run_code: "echo 'Action started'" }];
-  ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
 
-  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
+  typeSelect.addEventListener("change", () => {
+    const val = typeSelect.value;
+    opsSection.classList.toggle("tf-hidden", val === "instance");
+    instanceSection.classList.toggle("tf-hidden", val !== "instance");
+  });
+
+  // Handle operations only for custom type
+  if (!isInstance) {
+    const ops = a.operations || [{ type: "command", run_code: "echo 'Action started'" }];
+    ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
+    div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
+  }
 }
 
 function addInstallStep(s = {}) {
@@ -1010,7 +1039,7 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA (updated with new fields) ======================
+// ====================== COLLECT FORM DATA ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
@@ -1035,9 +1064,6 @@ function collectFormData() {
     }
     else if (key === "environment.image") {
       data.environment.image = value;
-    }
-    else if (key === "environment.start_code") {
-      data.environment.start_code = value;
     }
     else if (key.startsWith("terminal.")) {
       const field = key.split(".")[1];
@@ -1132,7 +1158,6 @@ function fillForm(data) {
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.instance_type"]').value = data.environment?.instance_type || "docker";
   document.querySelector('[name="environment.image"]').value = data.environment?.image || "";
-  document.querySelector('[name="environment.start_code"]').value = data.environment?.start_code || "";
   document.querySelector('[name="terminal.maximum"]').value = data.terminal?.maximum || "5";
   document.querySelector('[name="terminal.input_able"]').value = data.terminal?.input_able || "true";
 
@@ -1161,6 +1186,11 @@ function loadDefaultForm() {
 
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
+  
+  // Default Start / Restart / Stop as Instance Control (fully customisable)
+  addAction({ id: "start", name: "Start Server", type: "instance", command: "start" });
+  addAction({ id: "restart", name: "Restart Server", type: "instance", command: "restart" });
+  addAction({ id: "stop", name: "Stop Server", type: "instance", command: "stop" });
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
@@ -1185,7 +1215,6 @@ function loadDefaultForm() {
   document.getElementById("pagesContainer").innerHTML = "";
   pageIndex = 0;
 
-  document.querySelector('[name="environment.start_code"]').value = "java -Xms4G -Xmx4G -jar server.jar --nogui";
   document.querySelector('[name="environment.instance_type"]').value = "docker";
   document.querySelector('[name="environment.image"]').value = "eclipse-temurin:21-jre";
   document.querySelector('[name="terminal.maximum"]').value = "5";
