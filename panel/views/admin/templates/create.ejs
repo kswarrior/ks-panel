@@ -514,7 +514,7 @@
             </div>
           </div>
 
-          <!-- RESOURCE LIMITS - moved directly below Image as requested -->
+          <!-- RESOURCE LIMITS -->
           <div class="tf-section-divider">
             <h2>Resource Limits</h2>
           </div>
@@ -534,7 +534,7 @@
             </div>
           </div>
 
-          <!-- VOLUMES / MOUNTS - added directly below Resource Limits as requested -->
+          <!-- VOLUMES / MOUNTS -->
           <div class="tf-section-header">
             <h2>Volumes / Mounts</h2>
             <button type="button" id="btnAddVolume" class="tf-btn tf-btn-accent text-xs">
@@ -591,7 +591,7 @@
             <div id="terminalConditionsContainer" class="space-y-3"></div>
           </div>
 
-          <!-- ALLOWED TERMINAL COMMANDS (custom code support - ls, node <filename>, etc.) -->
+          <!-- ALLOWED TERMINAL COMMANDS -->
           <div class="tf-section-header">
             <h2>Allowed Terminal Commands</h2>
             <button type="button" id="btnAddAllowedCommand" class="tf-btn tf-btn-accent text-xs">
@@ -600,7 +600,7 @@
           </div>
           <div id="allowedCommandsContainer" class="space-y-3"></div>
 
-          <!-- PORTS - added below Terminal as requested -->
+          <!-- PORTS -->
           <div class="tf-section-header">
             <h2>Ports</h2>
             <button type="button" id="btnAddPort" class="tf-btn tf-btn-accent text-xs">
@@ -760,13 +760,11 @@ function updateImageField() {
   imageFieldContainer.innerHTML = "";
 
   if (!isMultipass) {
-    // Docker mode - original Image field
     imageFieldContainer.innerHTML = `
       <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
       <input type="text" name="environment.image" id="imageInput" required placeholder="eclipse-temurin:21-jre" class="tf-input" value="${currentImageValue}">
     `;
   } else {
-    // Multipass mode - Distribution select + Version input
     const distributionSelectHTML = `
       <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Distribution <span class="text-red-400">*</span></label>
       <select name="environment.distribution" id="distributionSelect" class="tf-input">
@@ -784,7 +782,6 @@ function updateImageField() {
 
     imageFieldContainer.innerHTML = distributionSelectHTML + versionInputHTML;
 
-    // Attach listener to update version default when distribution changes
     const distributionSelect = document.getElementById("distributionSelect");
     const versionInput = document.getElementById("imageInput");
 
@@ -797,7 +794,6 @@ function updateImageField() {
   }
 }
 
-// Attach listener to Instance Type
 instanceTypeSelect.addEventListener("change", updateImageField);
 
 // ====================== VARIABLE TYPES ======================
@@ -1034,7 +1030,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   });
 }
 
-// ====================== ACTIONS ======================
+// ====================== ACTIONS (enhanced with SVG, colors, type, menu support) ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
@@ -1050,13 +1046,47 @@ function addAction(a = {}) {
         <input type="text" name="actions[${idx}].name" value="${a.name || ''}" class="tf-input" placeholder="Start Server">
       </div>
     </div>
+
+    <!-- NEW: Action styling & type -->
+    <div class="tf-row mt-4">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type</label>
+        <select name="actions[${idx}].type" class="tf-input action-type-select">
+          <option value="normal" ${(!a.type || a.type === "normal") ? "selected" : ""}>Normal</option>
+          <option value="menu" ${a.type === "menu" ? "selected" : ""}>Menu</option>
+        </select>
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">SVG Icon</label>
+        <input type="text" name="actions[${idx}].svg" value="${a.svg || ''}" class="tf-input font-mono" placeholder="&lt;svg ...&gt;">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Background Color</label>
+        <input type="color" name="actions[${idx}].bgColor" value="${a.bgColor || '#22c55e'}" class="tf-input">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Text Color</label>
+        <input type="color" name="actions[${idx}].textColor" value="${a.textColor || '#ffffff'}" class="tf-input">
+      </div>
+    </div>
+
     <div class="mt-4">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Operations</span>
+        <span id="operations-label-${idx}" class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Operations</span>
         <button type="button" class="tf-btn tf-btn-accent text-xs py-1.5 px-3 add-op-btn">+ Add Operation</button>
       </div>
       <div class="operations-list space-y-2" id="ops-actions-${idx}" data-sub-count="0"></div>
     </div>
+
+    <!-- Sub Actions container (shown only for Menu type) -->
+    <div id="sub-actions-container-${idx}" class="mt-6 tf-hidden">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Sub Actions</span>
+        <button type="button" class="tf-btn tf-btn-accent text-xs py-1.5 px-3 add-sub-action-btn">+ Add Sub Action</button>
+      </div>
+      <div class="sub-actions-list space-y-3" id="sub-actions-list-${idx}"></div>
+    </div>
+
     <button type="button" onclick="removeAction(this)" class="tf-remove-btn">×</button>
   `;
   document.getElementById("actionsContainer").appendChild(div);
@@ -1067,7 +1097,75 @@ function addAction(a = {}) {
 
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
 
+  // Type change handler
+  const typeSelect = div.querySelector(".action-type-select");
+  const subContainer = div.querySelector(`#sub-actions-container-${idx}`);
+  const label = div.querySelector(`#operations-label-${idx}`);
+
+  function toggleMenuMode() {
+    if (typeSelect.value === "menu") {
+      label.textContent = "Sub Actions";
+      subContainer.classList.remove("tf-hidden");
+    } else {
+      label.textContent = "Operations";
+      subContainer.classList.add("tf-hidden");
+    }
+  }
+  typeSelect.addEventListener("change", toggleMenuMode);
+  toggleMenuMode(); // initial state
+
+  // Sub Action button (re-uses full addAction logic but nests under this action)
+  const subActionsList = div.querySelector(`#sub-actions-list-${idx}`);
+  div.querySelector(".add-sub-action-btn").onclick = () => {
+    const subIdx = subActionsList.children.length;
+    const subDiv = document.createElement("div");
+    subDiv.className = "tf-card";
+    // We reuse the same addAction logic but adjust names manually for nesting
+    // For simplicity we call addAction but then move it - however to keep clean we duplicate minimal structure
+    // Since user asked for full action functions as sub, we simply call a helper
+    addNestedAction(subActionsList, idx, subIdx);
+  };
+
+  // If data has subActions, populate them
+  if (a.subActions && Array.isArray(a.subActions)) {
+    a.subActions.forEach((sub, sIdx) => addNestedAction(subActionsList, idx, sIdx, sub));
+  }
+
   refreshTerminalActionOptions();
+}
+
+// Helper for nested sub-action inside menu
+function addNestedAction(parentContainer, parentIdx, subIdx, subData = {}) {
+  const nestedDiv = document.createElement("div");
+  nestedDiv.className = "tf-card";
+  nestedDiv.style.borderLeft = "4px solid #22c55e";
+  nestedDiv.innerHTML = `
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Sub ID</label>
+        <input type="text" name="actions[${parentIdx}].subActions[${subIdx}].id" value="${subData.id || ''}" required class="tf-input font-mono" placeholder="sub-action-id">
+      </div>
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Sub Action Name</label>
+        <input type="text" name="actions[${parentIdx}].subActions[${subIdx}].name" value="${subData.name || ''}" class="tf-input" placeholder="Sub Action">
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Sub Operations</span>
+        <button type="button" class="tf-btn tf-btn-accent text-xs py-1.5 px-3 add-sub-op-btn">+ Add Operation</button>
+      </div>
+      <div class="operations-list space-y-2" id="sub-ops-${parentIdx}-${subIdx}" data-sub-count="0"></div>
+    </div>
+    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+  `;
+  parentContainer.appendChild(nestedDiv);
+
+  const subOpsContainer = nestedDiv.querySelector(`#sub-ops-${parentIdx}-${subIdx}`);
+  const subOps = subData.operations || [{ type: "command", run_code: "echo 'Sub action'" }];
+  subOps.forEach(op => addSubOperation(subOpsContainer, `actions[${parentIdx}].subActions`, subIdx, op));
+
+  nestedDiv.querySelector(".add-sub-op-btn").onclick = () => addSubOperation(subOpsContainer, `actions[${parentIdx}].subActions`, subIdx);
 }
 
 function removeAction(btn) {
@@ -1180,7 +1278,7 @@ function addAllowedCommand(cmd = "") {
   document.getElementById("allowedCommandsContainer").appendChild(div);
 }
 
-// ====================== TERMINAL CONDITIONS ======================
+// ====================== TERMINAL CONDITIONS (enhanced with Actions + Allowed Commands) ======================
 function getCurrentActions() {
   const actions = [];
   document.querySelectorAll('#actionsContainer .tf-card').forEach(card => {
@@ -1189,27 +1287,42 @@ function getCurrentActions() {
     if (idInput && idInput.value) {
       actions.push({
         id: idInput.value,
-        name: nameInput ? nameInput.value : idInput.value
+        name: nameInput ? nameInput.value : idInput.value,
+        type: "action"
       });
     }
   });
   return actions;
 }
 
+function getAllowedCommands() {
+  const cmds = [];
+  document.querySelectorAll('#allowedCommandsContainer input[name^="terminal.allowed_commands"]').forEach(input => {
+    if (input.value.trim()) {
+      cmds.push({ id: input.value.trim(), name: input.value.trim(), type: "command" });
+    }
+  });
+  return cmds;
+}
+
 function refreshTerminalActionOptions() {
   const selects = document.querySelectorAll('#terminalConditionsContainer select[name$=".action"]');
   const currentActions = getCurrentActions();
-  
+  const allowedCmds = getAllowedCommands();
+  const allOptions = [...currentActions, ...allowedCmds];
+
   selects.forEach(select => {
     const currentValue = select.value;
-    select.innerHTML = `<option value="">Select Action...</option>`;
-    currentActions.forEach(act => {
+    select.innerHTML = `<option value="">Select Action or Command...</option>`;
+    allOptions.forEach(item => {
       const opt = document.createElement("option");
-      opt.value = act.id;
-      opt.textContent = `${act.name} (${act.id})`;
+      opt.value = item.id;
+      opt.textContent = item.type === "action" 
+        ? `Action: ${item.name} (${item.id})` 
+        : `Cmd: ${item.name}`;
       select.appendChild(opt);
     });
-    if (currentValue && currentActions.some(a => a.id === currentValue)) select.value = currentValue;
+    if (currentValue && allOptions.some(item => item.id === currentValue)) select.value = currentValue;
   });
 }
 
@@ -1224,7 +1337,7 @@ function addTerminalCondition(c = {}) {
     </div>
     <div class="tf-row">
       <div class="tf-field-long">
-        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Attach Action</label>
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Attach Action / Command</label>
         <select name="terminal.conditions[${idx}].action" class="tf-input"></select>
       </div>
       <div class="tf-field-long">
@@ -1239,14 +1352,7 @@ function addTerminalCondition(c = {}) {
   document.getElementById("terminalConditionsContainer").appendChild(div);
   
   const actionSelect = div.querySelector('select[name$=".action"]');
-  const currentActions = getCurrentActions();
-  actionSelect.innerHTML = `<option value="">Select Action...</option>`;
-  currentActions.forEach(act => {
-    const opt = document.createElement("option");
-    opt.value = act.id;
-    opt.textContent = `${act.name} (${act.id})`;
-    actionSelect.appendChild(opt);
-  });
+  refreshTerminalActionOptions(); // will populate the new select too
   if (c.action) actionSelect.value = c.action;
 }
 
@@ -1284,7 +1390,7 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA ======================
+// ====================== COLLECT FORM DATA (updated for new action fields) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
@@ -1369,17 +1475,40 @@ function collectFormData() {
       }
     }
     else if (key.startsWith("actions[")) {
+      // Handle normal action fields
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
-        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+        if (!data.actions[i]) data.actions[i] = { id: "", name: "", type: "normal", svg: "", bgColor: "", textColor: "", operations: [] };
         if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
         data.actions[i].operations[j][opMatch[3]] = value;
-      } else {
+      } 
+      // Handle subActions for menu type
+      else if (key.includes(".subActions[")) {
+        const subMatch = key.match(/actions\[(\d+)\]\.subActions\[(\d+)\]\.(.+)/);
+        if (subMatch) {
+          const i = parseInt(subMatch[1]), s = parseInt(subMatch[2]);
+          if (!data.actions[i]) data.actions[i] = { id: "", name: "", type: "normal", svg: "", bgColor: "", textColor: "", operations: [], subActions: [] };
+          if (!data.actions[i].subActions[s]) data.actions[i].subActions[s] = { id: "", name: "", operations: [] };
+          const field = subMatch[3];
+          if (field.startsWith("operations[")) {
+            // nested operation inside subAction
+            const opSubMatch = field.match(/operations\[(\d+)\]\.(.+)/);
+            if (opSubMatch) {
+              const j = parseInt(opSubMatch[1]);
+              if (!data.actions[i].subActions[s].operations[j]) data.actions[i].subActions[s].operations[j] = {};
+              data.actions[i].subActions[s].operations[j][opSubMatch[2]] = value;
+            }
+          } else {
+            data.actions[i].subActions[s][field] = value;
+          }
+        }
+      } 
+      else {
         const simpleMatch = key.match(/actions\[(\d+)\]\.(.+)/);
         if (simpleMatch) {
           const i = parseInt(simpleMatch[1]);
-          if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+          if (!data.actions[i]) data.actions[i] = { id: "", name: "", type: "normal", svg: "", bgColor: "", textColor: "", operations: [] };
           data.actions[i][simpleMatch[2]] = value;
         }
       }
@@ -1421,9 +1550,10 @@ function collectFormData() {
   if (!data.terminal.allowed_commands) data.terminal.allowed_commands = [];
   data.terminal.allowed_commands = data.terminal.allowed_commands.filter(Boolean);
 
-  // Clean nested arrays
+  // Clean nested
   data.actions.forEach(a => { 
     if (a.operations) a.operations = a.operations.filter(Boolean); 
+    if (a.subActions) a.subActions = a.subActions.filter(Boolean); 
   });
   data.environment.install_steps.forEach(s => { 
     if (s.operations) s.operations = s.operations.filter(Boolean); 
@@ -1447,7 +1577,6 @@ function fillForm(data) {
   document.querySelector('[name="terminal.maximum"]').value = data.terminal?.maximum || "5";
   document.querySelector('[name="terminal.input_able"]').value = data.terminal?.input_able || "true";
 
-  // Resource limits
   if (data.environment?.limits) {
     document.querySelector('[name="environment.limits.memory"]').value = data.environment.limits.memory || "4096";
     document.querySelector('[name="environment.limits.cpu"]').value = data.environment.limits.cpu || "200";
@@ -1476,17 +1605,14 @@ function fillForm(data) {
     data.terminal.conditions.forEach(c => addTerminalCondition(c));
   }
 
-  // Ports
   document.getElementById("portsContainer").innerHTML = "";
   portIndex = 0;
   (data.environment?.ports || []).forEach(p => addPort(p));
 
-  // Volumes
   document.getElementById("volumesContainer").innerHTML = "";
   volumeIndex = 0;
   (data.environment?.volumes || []).forEach(v => addVolume(v));
 
-  // Allowed Terminal Commands
   document.getElementById("allowedCommandsContainer").innerHTML = "";
   allowedCommandIndex = 0;
   if (data.terminal?.allowed_commands && Array.isArray(data.terminal.allowed_commands)) {
@@ -1504,10 +1630,9 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   
-  // Default actions with Instance Control
-  addAction({ id: "start", name: "Start Server", operations: [{ type: "instance", command: "start" }] });
-  addAction({ id: "restart", name: "Restart Server", operations: [{ type: "instance", command: "restart" }] });
-  addAction({ id: "stop", name: "Stop Server", operations: [{ type: "instance", command: "stop" }] });
+  addAction({ id: "start", name: "Start Server", type: "normal", operations: [{ type: "instance", command: "start" }] });
+  addAction({ id: "restart", name: "Restart Server", type: "normal", operations: [{ type: "instance", command: "restart" }] });
+  addAction({ id: "stop", name: "Stop Server", type: "normal", operations: [{ type: "instance", command: "stop" }] });
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
@@ -1515,16 +1640,8 @@ function loadDefaultForm() {
     { 
       name: "Install Server", 
       operations: [
-        { 
-          type: "download", 
-          url: "https://example.com/server.jar", 
-          filename: "server.jar", 
-          path: "/data" 
-        },
-        { 
-          type: "command", 
-          run_code: "echo 'Installation complete'" 
-        }
+        { type: "download", url: "https://example.com/server.jar", filename: "server.jar", path: "/data" },
+        { type: "command", run_code: "echo 'Installation complete'" }
       ]
     }
   ].forEach(addInstallStep);
@@ -1537,22 +1654,18 @@ function loadDefaultForm() {
   document.querySelector('[name="terminal.maximum"]').value = "5";
   document.querySelector('[name="terminal.input_able"]').value = "true";
 
-  // Default terminal condition
   document.getElementById("terminalConditionsContainer").innerHTML = "";
   conditionIndex = 0;
   addTerminalCondition({ action: "start", when: "running" });
 
-  // Default Ports
   document.getElementById("portsContainer").innerHTML = "";
   portIndex = 0;
   addPort({ internal: 25565, external: 25565, protocol: "tcp" });
 
-  // Default Volumes
   document.getElementById("volumesContainer").innerHTML = "";
   volumeIndex = 0;
   addVolume({ host: "/data/server", container: "/data", mode: "rw" });
 
-  // Default Allowed Terminal Commands (custom code support)
   document.getElementById("allowedCommandsContainer").innerHTML = "";
   allowedCommandIndex = 0;
   addAllowedCommand("ls");
@@ -1642,7 +1755,7 @@ document.getElementById("btnAddType").onclick = () => {
 // Terminal condition handler
 document.getElementById("btnAddTerminalCondition").onclick = () => addTerminalCondition();
 
-// Show/hide terminal conditions
+// Show/hide terminal conditions based on Input Able
 const terminalInputAble = document.getElementById("terminalInputAble");
 const terminalConditionsSection = document.getElementById("terminalConditionsSection");
 
@@ -1692,7 +1805,7 @@ loadDefaultForm();
 modeSelect.value = "form";
 modeSelect.onchange();
 toggleTerminalConditions();
-updateImageField();  // Initialize the dynamic Image/Distribution field
+updateImageField();
 </script>
 
 <%- include('../../components/footer') %>
