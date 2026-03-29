@@ -518,7 +518,7 @@
             </div>
           </div>
 
-          <!-- RESOURCE LIMITS - placed directly below Image as requested -->
+          <!-- RESOURCE LIMITS - moved directly below Image as requested -->
           <div class="tf-section-divider">
             <h2>Resource Limits</h2>
           </div>
@@ -537,6 +537,24 @@
               <input type="number" name="environment.limits.disk" value="20" class="tf-input" placeholder="20">
             </div>
           </div>
+
+          <!-- VARIABLES -->
+          <div class="tf-section-header">
+            <h2>Variables</h2>
+            <button type="button" id="btnAddVar" class="tf-btn tf-btn-accent text-xs">
+              + Add Variable
+            </button>
+          </div>
+          <div id="variablesContainer" class="space-y-3"></div>
+
+          <!-- ACTIONS -->
+          <div class="tf-section-header">
+            <h2>Actions</h2>
+            <button type="button" id="btnAddAction" class="tf-btn tf-btn-accent text-xs">
+              + Add Action
+            </button>
+          </div>
+          <div id="actionsContainer" class="space-y-3"></div>
 
           <!-- TERMINAL -->
           <div class="tf-section-divider">
@@ -622,7 +640,7 @@
 
 <script>
 // ====================== CONFIG ======================
-let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0;
+let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0, portIndex = 0, volumeIndex = 0;
 
 // ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
@@ -1057,6 +1075,14 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
+// ====================== PORTS ======================
+// (kept for JSON compatibility - UI removed as requested)
+function addPort(p = {}) {}
+
+// ====================== VOLUMES ======================
+// (kept for JSON compatibility - UI removed as requested)
+function addVolume(v = {}) {}
+
 // ====================== TERMINAL CONDITIONS ======================
 function getCurrentActions() {
   const actions = [];
@@ -1161,12 +1187,12 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA ======================
+// ====================== COLLECT FORM DATA (unchanged except removed sections are no longer in form) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
     meta: {}, 
-    environment: { install_steps: [], limits: {} }, 
+    environment: { install_steps: [], ports: [], volumes: [], limits: {} }, 
     terminal: { conditions: [] },
     variables: [], 
     actions: [], 
@@ -1186,6 +1212,22 @@ function collectFormData() {
     }
     else if (key === "environment.image") {
       data.environment.image = value;
+    }
+    else if (key.startsWith("environment.ports[")) {
+      const match = key.match(/environment\.ports\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.environment.ports[i]) data.environment.ports[i] = {};
+        data.environment.ports[i][match[2]] = value;
+      }
+    }
+    else if (key.startsWith("environment.volumes[")) {
+      const match = key.match(/environment\.volumes\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.environment.volumes[i]) data.environment.volumes[i] = {};
+        data.environment.volumes[i][match[2]] = value;
+      }
     }
     else if (key.startsWith("environment.limits.")) {
       const field = key.split(".")[2];
@@ -1276,6 +1318,8 @@ function collectFormData() {
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
+  data.environment.ports = data.environment.ports.filter(Boolean);
+  data.environment.volumes = data.environment.volumes.filter(Boolean);
   data.pages = data.pages.filter(Boolean);
   data.terminal.conditions = data.terminal.conditions.filter(Boolean);
 
