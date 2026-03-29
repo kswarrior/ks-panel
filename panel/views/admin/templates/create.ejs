@@ -525,7 +525,7 @@
               <input type="number" name="environment.limits.memory" value="4096" class="tf-input" placeholder="4096">
             </div>
             <div class="tf-field-short">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">CPU Limit (%)</label>
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">CPU Threads</label>
               <input type="number" name="environment.limits.cpu" value="200" class="tf-input" placeholder="200">
             </div>
             <div class="tf-field-short">
@@ -582,6 +582,24 @@
             <div id="terminalConditionsContainer" class="space-y-3"></div>
           </div>
 
+          <!-- ALLOWED TERMINAL COMMANDS (custom code support - ls, node <filename>, etc.) -->
+          <div class="tf-section-header">
+            <h2>Allowed Terminal Commands</h2>
+            <button type="button" id="btnAddAllowedCommand" class="tf-btn tf-btn-accent text-xs">
+              + Add Command
+            </button>
+          </div>
+          <div id="allowedCommandsContainer" class="space-y-3"></div>
+
+          <!-- PORTS - added below Terminal as requested -->
+          <div class="tf-section-header">
+            <h2>Ports</h2>
+            <button type="button" id="btnAddPort" class="tf-btn tf-btn-accent text-xs">
+              + Add Port
+            </button>
+          </div>
+          <div id="portsContainer" class="space-y-3"></div>
+
           <!-- INSTALL STEPS -->
           <div class="tf-section-header">
             <h2>Install Steps</h2>
@@ -636,7 +654,7 @@
 
 <script>
 // ====================== CONFIG ======================
-let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0, portIndex = 0, volumeIndex = 0;
+let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0, portIndex = 0, volumeIndex = 0, allowedCommandIndex = 0;
 
 // ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
@@ -1020,12 +1038,54 @@ function addInstallStep(s = {}) {
 }
 
 // ====================== PORTS ======================
-// (kept for JSON compatibility - UI removed as requested)
-function addPort(p = {}) {}
+function addPort(p = {}) {
+  const idx = portIndex++;
+  const div = document.createElement("div");
+  div.className = "tf-card";
+  div.innerHTML = `
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Internal Port</label>
+        <input type="number" name="environment.ports[${idx}].internal" value="${p.internal || ''}" class="tf-input" placeholder="25565">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">External Port</label>
+        <input type="number" name="environment.ports[${idx}].external" value="${p.external || ''}" class="tf-input" placeholder="25565">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Protocol</label>
+        <select name="environment.ports[${idx}].protocol" class="tf-input">
+          <option value="tcp" ${p.protocol === "tcp" ? "selected" : ""}>TCP</option>
+          <option value="udp" ${p.protocol === "udp" ? "selected" : ""}>UDP</option>
+          <option value="both" ${p.protocol === "both" ? "selected" : ""}>TCP+UDP</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+  `;
+  document.getElementById("portsContainer").appendChild(div);
+}
 
 // ====================== VOLUMES ======================
 // (kept for JSON compatibility - UI removed as requested)
 function addVolume(v = {}) {}
+
+// ====================== ALLOWED TERMINAL COMMANDS ======================
+function addAllowedCommand(cmd = "") {
+  const idx = allowedCommandIndex++;
+  const div = document.createElement("div");
+  div.className = "tf-card";
+  div.innerHTML = `
+    <div class="tf-row">
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Command <span class="text-red-400">*</span></label>
+        <input type="text" name="terminal.allowed_commands[${idx}]" value="${cmd}" class="tf-input font-mono" placeholder="ls or node index.js">
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+  `;
+  document.getElementById("allowedCommandsContainer").appendChild(div);
+}
 
 // ====================== TERMINAL CONDITIONS ======================
 function getCurrentActions() {
@@ -1185,6 +1245,13 @@ function collectFormData() {
           if (!data.terminal.conditions[i]) data.terminal.conditions[i] = {};
           data.terminal.conditions[i][match[2]] = value;
         }
+      } else if (key.startsWith("terminal.allowed_commands[")) {
+        const match = key.match(/terminal\.allowed_commands\[(\d+)\]/);
+        if (match) {
+          const i = parseInt(match[1]);
+          if (!data.terminal.allowed_commands) data.terminal.allowed_commands = [];
+          data.terminal.allowed_commands[i] = value;
+        }
       } else {
         const field = key.split(".")[1];
         data.terminal[field] = value;
@@ -1258,6 +1325,8 @@ function collectFormData() {
   data.environment.volumes = data.environment.volumes.filter(Boolean);
   data.pages = data.pages.filter(Boolean);
   data.terminal.conditions = data.terminal.conditions.filter(Boolean);
+  if (!data.terminal.allowed_commands) data.terminal.allowed_commands = [];
+  data.terminal.allowed_commands = data.terminal.allowed_commands.filter(Boolean);
 
   // Clean nested arrays
   data.actions.forEach(a => { 
@@ -1314,6 +1383,18 @@ function fillForm(data) {
     data.terminal.conditions.forEach(c => addTerminalCondition(c));
   }
 
+  // Ports
+  document.getElementById("portsContainer").innerHTML = "";
+  portIndex = 0;
+  (data.environment?.ports || []).forEach(p => addPort(p));
+
+  // Allowed Terminal Commands
+  document.getElementById("allowedCommandsContainer").innerHTML = "";
+  allowedCommandIndex = 0;
+  if (data.terminal?.allowed_commands && Array.isArray(data.terminal.allowed_commands)) {
+    data.terminal.allowed_commands.forEach(cmd => addAllowedCommand(cmd));
+  }
+
   jsonEditor.value = JSON.stringify(data, null, 2);
   refreshTerminalActionOptions();
 }
@@ -1362,6 +1443,17 @@ function loadDefaultForm() {
   document.getElementById("terminalConditionsContainer").innerHTML = "";
   conditionIndex = 0;
   addTerminalCondition({ action: "start", when: "running" });
+
+  // Default Ports
+  document.getElementById("portsContainer").innerHTML = "";
+  portIndex = 0;
+  addPort({ internal: 25565, external: 25565, protocol: "tcp" });
+
+  // Default Allowed Terminal Commands (custom code support)
+  document.getElementById("allowedCommandsContainer").innerHTML = "";
+  allowedCommandIndex = 0;
+  addAllowedCommand("ls");
+  addAllowedCommand("node");
 }
 
 // ====================== SAVE ======================
@@ -1403,6 +1495,8 @@ document.getElementById("btnAddVar").onclick = () => addVariable();
 document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddPage").onclick = () => addPage();
+document.getElementById("btnAddPort").onclick = () => addPort();
+document.getElementById("btnAddAllowedCommand").onclick = () => addAllowedCommand();
 
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
