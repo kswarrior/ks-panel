@@ -518,6 +518,36 @@
             </div>
           </div>
 
+          <!-- STARTUP CONFIGURATION (added for completeness) -->
+          <div class="tf-section-divider">
+            <h2>Startup Configuration</h2>
+          </div>
+
+          <div class="tf-row">
+            <div class="tf-field-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Startup Command</label>
+              <input type="text" name="environment.startup" class="tf-input" placeholder="java -Xms4G -Xmx4G -jar server.jar --nogui">
+            </div>
+          </div>
+
+          <!-- PORTS (added for game servers & networking) -->
+          <div class="tf-section-header">
+            <h2>Ports</h2>
+            <button type="button" id="btnAddPort" class="tf-btn tf-btn-accent text-xs">
+              + Add Port
+            </button>
+          </div>
+          <div id="portsContainer" class="space-y-3"></div>
+
+          <!-- VOLUMES (added for persistence - critical for all servers) -->
+          <div class="tf-section-header">
+            <h2>Volumes / Mounts</h2>
+            <button type="button" id="btnAddVolume" class="tf-btn tf-btn-accent text-xs">
+              + Add Volume
+            </button>
+          </div>
+          <div id="volumesContainer" class="space-y-3"></div>
+
           <!-- VARIABLES -->
           <div class="tf-section-header">
             <h2>Variables</h2>
@@ -536,7 +566,7 @@
           </div>
           <div id="actionsContainer" class="space-y-3"></div>
 
-          <!-- TERMINAL (below Actions) -->
+          <!-- TERMINAL -->
           <div class="tf-section-divider">
             <h2>Terminal</h2>
           </div>
@@ -564,6 +594,26 @@
               </button>
             </div>
             <div id="terminalConditionsContainer" class="space-y-3"></div>
+          </div>
+
+          <!-- RESOURCE LIMITS (added for complete control - essential for game servers & VMs) -->
+          <div class="tf-section-divider">
+            <h2>Resource Limits</h2>
+          </div>
+
+          <div class="tf-row">
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Memory Limit (MB)</label>
+              <input type="number" name="environment.limits.memory" value="4096" class="tf-input" placeholder="4096">
+            </div>
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">CPU Limit (%)</label>
+              <input type="number" name="environment.limits.cpu" value="200" class="tf-input" placeholder="200">
+            </div>
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Disk Limit (GB)</label>
+              <input type="number" name="environment.limits.disk" value="20" class="tf-input" placeholder="20">
+            </div>
           </div>
 
           <!-- INSTALL STEPS -->
@@ -620,7 +670,7 @@
 
 <script>
 // ====================== CONFIG ======================
-let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0;
+let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0, portIndex = 0, volumeIndex = 0;
 
 // ====================== REINDEX HELPERS ======================
 function reindexDynamicList(container, listType) {
@@ -919,10 +969,10 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
       <div class="tf-field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
     </div>
 
-    <!-- End Run Section (optional) -->
+    <!-- End Run Section -->
     <div class="mt-4 end-run-wrapper">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">End Run (runs when operation stops)</span>
+        <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">End Run (runs when this operation stops)</span>
         <button type="button" class="tf-btn tf-btn-accent text-xs py-1 px-3 add-end-run-btn">+ Add End Run</button>
       </div>
       <div class="end-run-container space-y-2" id="end-run-container-${prefix}-${mainIdx}-${subIdx}" data-sub-count="0"></div>
@@ -948,7 +998,6 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
     addEndRunOperation(endRunContainer, prefix, mainIdx, subIdx, endIdx, subData.endRun || {});
   };
 
-  // Load existing End Run if any
   if (subData.endRun) {
     const endIdx = 0;
     endRunContainer.dataset.subCount = 1;
@@ -956,13 +1005,12 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   }
 }
 
-// Helper to add End Run (nested operation)
 function addEndRunOperation(container, prefix, mainIdx, subIdx, endIdx, data = {}) {
   const div = document.createElement("div");
   div.className = "tf-sub-item";
   div.innerHTML = `
     <div class="flex justify-between items-center mb-2">
-      <span class="text-xs font-medium text-neutral-400">End Run</span>
+      <span class="text-xs font-medium text-neutral-400">End Run Operation</span>
       <button type="button" onclick="this.closest('.tf-sub-item').remove()" class="tf-remove-btn">×</button>
     </div>
     <div class="tf-row">
@@ -972,13 +1020,13 @@ function addEndRunOperation(container, prefix, mainIdx, subIdx, endIdx, data = {
           ${itemTypes.map(t => `<option value="${t.value}" ${data.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
         </select>
       </div>
-      <div class="tf-field-long dynamic-end" id="dynamic-end-${prefix}-${mainIdx}-${subIdx}"></div>
+      <div class="tf-field-long dynamic-end" id="dynamic-end-${prefix}-${mainIdx}-${subIdx}-${endIdx}"></div>
     </div>
   `;
   container.appendChild(div);
 
   const select = div.querySelector(".end-type-select");
-  const containerEnd = div.querySelector(`#dynamic-end-${prefix}-${mainIdx}-${subIdx}`);
+  const containerEnd = div.querySelector(`#dynamic-end-${prefix}-${mainIdx}-${subIdx}-${endIdx}`);
   renderSubDynamicFields(mainIdx, subIdx, data.type || "command", data, `${prefix}[${mainIdx}].operations[${subIdx}].endRun`);
   select.addEventListener("change", () => {
     renderSubDynamicFields(mainIdx, subIdx, select.value, {}, `${prefix}[${mainIdx}].operations[${subIdx}].endRun`);
@@ -1018,7 +1066,7 @@ function addAction(a = {}) {
 
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
 
-  refreshTerminalActionOptions(); // refresh after adding action
+  refreshTerminalActionOptions();
 }
 
 function removeAction(btn) {
@@ -1057,7 +1105,64 @@ function addInstallStep(s = {}) {
   div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
 }
 
-// ====================== TERMINAL CONDITIONS (dynamic Attach Action) ======================
+// ====================== PORTS ======================
+function addPort(p = {}) {
+  const idx = portIndex++;
+  const div = document.createElement("div");
+  div.className = "tf-card";
+  div.innerHTML = `
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Internal Port</label>
+        <input type="number" name="environment.ports[${idx}].internal" value="${p.internal || ''}" class="tf-input" placeholder="25565">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">External Port</label>
+        <input type="number" name="environment.ports[${idx}].external" value="${p.external || ''}" class="tf-input" placeholder="25565">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Protocol</label>
+        <select name="environment.ports[${idx}].protocol" class="tf-input">
+          <option value="tcp" ${p.protocol === "tcp" ? "selected" : ""}>TCP</option>
+          <option value="udp" ${p.protocol === "udp" ? "selected" : ""}>UDP</option>
+          <option value="both" ${p.protocol === "both" ? "selected" : ""}>TCP+UDP</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+  `;
+  document.getElementById("portsContainer").appendChild(div);
+}
+
+// ====================== VOLUMES ======================
+function addVolume(v = {}) {
+  const idx = volumeIndex++;
+  const div = document.createElement("div");
+  div.className = "tf-card";
+  div.innerHTML = `
+    <div class="tf-row">
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Host Path</label>
+        <input type="text" name="environment.volumes[${idx}].host" value="${v.host || ''}" class="tf-input" placeholder="/data/server">
+      </div>
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Container Path</label>
+        <input type="text" name="environment.volumes[${idx}].container" value="${v.container || ''}" class="tf-input" placeholder="/data">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Mode</label>
+        <select name="environment.volumes[${idx}].mode" class="tf-input">
+          <option value="rw" ${v.mode === "rw" ? "selected" : ""}>Read/Write</option>
+          <option value="ro" ${v.mode === "ro" ? "selected" : ""}>Read Only</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+  `;
+  document.getElementById("volumesContainer").appendChild(div);
+}
+
+// ====================== TERMINAL CONDITIONS ======================
 function getCurrentActions() {
   const actions = [];
   document.querySelectorAll('#actionsContainer .tf-card').forEach(card => {
@@ -1086,9 +1191,7 @@ function refreshTerminalActionOptions() {
       opt.textContent = `${act.name} (${act.id})`;
       select.appendChild(opt);
     });
-    if (currentValue && currentActions.some(a => a.id === currentValue)) {
-      select.value = currentValue;
-    }
+    if (currentValue && currentActions.some(a => a.id === currentValue)) select.value = currentValue;
   });
 }
 
@@ -1117,7 +1220,6 @@ function addTerminalCondition(c = {}) {
   `;
   document.getElementById("terminalConditionsContainer").appendChild(div);
   
-  // Populate dynamic actions
   const actionSelect = div.querySelector('select[name$=".action"]');
   const currentActions = getCurrentActions();
   actionSelect.innerHTML = `<option value="">Select Action...</option>`;
@@ -1164,12 +1266,12 @@ function addPage(p = {}) {
   document.getElementById("pagesContainer").appendChild(div);
 }
 
-// ====================== COLLECT FORM DATA ======================
+// ====================== COLLECT FORM DATA (now includes new complete fields) ======================
 function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
     meta: {}, 
-    environment: { install_steps: [] }, 
+    environment: { install_steps: [], ports: [], volumes: [], limits: {} }, 
     terminal: { conditions: [] },
     variables: [], 
     actions: [], 
@@ -1189,6 +1291,29 @@ function collectFormData() {
     }
     else if (key === "environment.image") {
       data.environment.image = value;
+    }
+    else if (key === "environment.startup") {
+      data.environment.startup = value;
+    }
+    else if (key.startsWith("environment.ports[")) {
+      const match = key.match(/environment\.ports\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.environment.ports[i]) data.environment.ports[i] = {};
+        data.environment.ports[i][match[2]] = value;
+      }
+    }
+    else if (key.startsWith("environment.volumes[")) {
+      const match = key.match(/environment\.volumes\[(\d+)\]\.(.+)/);
+      if (match) {
+        const i = parseInt(match[1]);
+        if (!data.environment.volumes[i]) data.environment.volumes[i] = {};
+        data.environment.volumes[i][match[2]] = value;
+      }
+    }
+    else if (key.startsWith("environment.limits.")) {
+      const field = key.split(".")[2];
+      data.environment.limits[field] = value;
     }
     else if (key.startsWith("terminal.")) {
       if (key.includes("conditions[")) {
@@ -1222,16 +1347,14 @@ function collectFormData() {
       }
     }
     else if (key.startsWith("actions[")) {
-      // Handle endRun
       const endMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.endRun\.(.+)/);
       if (endMatch) {
         const i = parseInt(endMatch[1]), j = parseInt(endMatch[2]);
         if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
-        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = { endRun: {} };
+        if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
         if (!data.actions[i].operations[j].endRun) data.actions[i].operations[j].endRun = {};
         data.actions[i].operations[j].endRun[endMatch[3]] = value;
       }
-      // Normal operation
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch && !key.includes(".endRun.")) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
@@ -1277,10 +1400,12 @@ function collectFormData() {
   data.variables = data.variables.filter(Boolean);
   data.actions = data.actions.filter(Boolean);
   data.environment.install_steps = data.environment.install_steps.filter(Boolean);
+  data.environment.ports = data.environment.ports.filter(Boolean);
+  data.environment.volumes = data.environment.volumes.filter(Boolean);
   data.pages = data.pages.filter(Boolean);
   data.terminal.conditions = data.terminal.conditions.filter(Boolean);
 
-  // Clean nested
+  // Clean nested arrays
   data.actions.forEach(a => { 
     if (a.operations) a.operations = a.operations.filter(Boolean); 
   });
@@ -1303,8 +1428,26 @@ function fillForm(data) {
   document.querySelector('[name="category"]').value = data.category || "";
   document.querySelector('[name="environment.instance_type"]').value = data.environment?.instance_type || "docker";
   document.querySelector('[name="environment.image"]').value = data.environment?.image || "";
+  document.querySelector('[name="environment.startup"]').value = data.environment?.startup || "";
   document.querySelector('[name="terminal.maximum"]').value = data.terminal?.maximum || "5";
   document.querySelector('[name="terminal.input_able"]').value = data.terminal?.input_able || "true";
+
+  // Resource limits
+  if (data.environment?.limits) {
+    document.querySelector('[name="environment.limits.memory"]').value = data.environment.limits.memory || "4096";
+    document.querySelector('[name="environment.limits.cpu"]').value = data.environment.limits.cpu || "200";
+    document.querySelector('[name="environment.limits.disk"]').value = data.environment.limits.disk || "20";
+  }
+
+  // Ports
+  document.getElementById("portsContainer").innerHTML = "";
+  portIndex = 0;
+  (data.environment?.ports || []).forEach(p => addPort(p));
+
+  // Volumes
+  document.getElementById("volumesContainer").innerHTML = "";
+  volumeIndex = 0;
+  (data.environment?.volumes || []).forEach(v => addVolume(v));
 
   // Terminal conditions
   document.getElementById("terminalConditionsContainer").innerHTML = "";
@@ -1340,7 +1483,7 @@ function loadDefaultForm() {
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
   
-  // Default actions
+  // Default actions with Instance Control
   addAction({ id: "start", name: "Start Server", operations: [{ type: "instance", command: "start" }] });
   addAction({ id: "restart", name: "Restart Server", operations: [{ type: "instance", command: "restart" }] });
   addAction({ id: "stop", name: "Stop Server", operations: [{ type: "instance", command: "stop" }] });
@@ -1368,12 +1511,22 @@ function loadDefaultForm() {
   document.getElementById("pagesContainer").innerHTML = "";
   pageIndex = 0;
 
+  // Default ports & volumes for game servers
+  document.getElementById("portsContainer").innerHTML = "";
+  portIndex = 0;
+  addPort({ internal: 25565, external: 25565, protocol: "tcp" });
+
+  document.getElementById("volumesContainer").innerHTML = "";
+  volumeIndex = 0;
+  addVolume({ host: "/data/server", container: "/data", mode: "rw" });
+
   document.querySelector('[name="environment.instance_type"]').value = "docker";
   document.querySelector('[name="environment.image"]').value = "eclipse-temurin:21-jre";
+  document.querySelector('[name="environment.startup"]').value = "java -Xms4G -Xmx4G -jar server.jar --nogui";
   document.querySelector('[name="terminal.maximum"]').value = "5";
   document.querySelector('[name="terminal.input_able"]').value = "true";
 
-  // Default condition
+  // Default terminal condition
   document.getElementById("terminalConditionsContainer").innerHTML = "";
   conditionIndex = 0;
   addTerminalCondition({ action: "start", when: "running" });
@@ -1418,6 +1571,8 @@ document.getElementById("btnAddVar").onclick = () => addVariable();
 document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddPage").onclick = () => addPage();
+document.getElementById("btnAddPort").onclick = () => addPort();
+document.getElementById("btnAddVolume").onclick = () => addVolume();
 
 document.getElementById("btnAddCategory").onclick = async () => {
   const name = prompt("New category name:");
