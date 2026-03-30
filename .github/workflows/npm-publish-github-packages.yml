@@ -15,16 +15,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Completely remove old wings folder
-        run: rm -rf wings
+      - name: Completely remove old wings (from disk and Git)
+        run: |
+          rm -rf wings
+          git rm -r --ignore-unmatch wings || true
 
-      - name: Git clone ks-wings (fresh copy)
+      - name: Git clone fresh ks-wings
         run: git clone --depth 1 https://github.com/kswarrior/ks-wings.git ks-wings
 
       - name: Rename to wings
         run: mv ks-wings wings
 
-      - name: Force commit and push new wings folder
+      - name: Force add and push new wings folder
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -36,5 +38,5 @@ jobs:
           else
             git commit -m "Replace wings folder with fresh copy from https://github.com/kswarrior/ks-wings"
             git push
-            echo "✅ Old wings deleted and new wings folder successfully uploaded!"
+            echo "✅ Old wings completely removed and new wings folder uploaded successfully!"
           fi
