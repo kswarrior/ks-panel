@@ -10,16 +10,7 @@ const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = requi
 const { getPaginatedNodes, invalidateCache } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
-// Cloudflare Configuration (use environment variables)
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const CLOUDFLARE_ZONE_ID = process.env.CLOUDFLARE_ZONE_ID;
-const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-
-if (!CLOUDFLARE_API_TOKEN || !CLOUDFLARE_ACCOUNT_ID) {
-  log.warn("Cloudflare credentials not set. Tunnel support disabled.");
-}
-
-// ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + Cloudflare Tunnel + All Extras) ====================
+// ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + All Extras) ====================
 
 router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -51,14 +42,8 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
       }
 
       try {
-        // Smart URL: supports Cloudflare Tunnel (HTTPS, no port) + normal HTTP/HTTPS nodes
-        let monitorUrl;
-        if (node.useCloudflareTunnel && node.tunnelPublicHostname) {
-          monitorUrl = `https://${node.tunnelPublicHostname}/resourceMonitor`;
-        } else {
-          const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-          monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
-        }
+        const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
+        const monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
 
         const response = await axios.get(monitorUrl, { timeout: 4000 });
         node.resources = response.data;
@@ -88,7 +73,7 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   res.render("admin/nodes/overview", {
   req,
   user: req.user,
-  nodes: nodesWithResources,   // ← use this instead of nodes
+  nodes: nodesWithResources,
   set,
   pagination: nodesResult.pagination,
   locations,
@@ -150,7 +135,7 @@ router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
 
   let set = { [id]: instanceCount };
 
-  res.render("admin/nodes/stats", {   // ← FIXED: removed leading slash
+  res.render("admin/nodes/stats", {
     req,
     user: req.user,
     stats,
@@ -160,13 +145,14 @@ router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
   });
 });
 
-// ==================== CREATE NODE - ALL FIELDS (Pterodactyl + Cloudflare Tunnel + Extras) ====================
+// ==================== CREATE NODE - ALL FIELDS (Pterodactyl + FTP + Extras) ====================
 router.post("/admin/nodes/create", isAdmin, async (req, res) => {
   const {
     name,
     address,
     port,
     sftpPort,
+    ftp,
     location,
     resourceMode,
     ram,
@@ -176,8 +162,6 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     uploadSize = 500,
     behindProxy = false,
     connectionProtocol = "http",
-    useCloudflareTunnel = false,
-    tunnelPublicHostname,
     allocIp,
     allocAlias,
     portsInput
@@ -207,105 +191,17 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
   const nodeId = uuidv4();
   const configureKey = uuidv4();
 
-  let tunnelId = null;
-  let tunnelToken = null;
-  let tunnelPublicHostnameFinal = null;
-
-  // Implement Cloudflare Tunnel Support if enabled
-  if (useCloudflareTunnel === true || useCloudflareTunnel === "true") {
-    if (!CLOUDFLARE_API_TOKEN || !CLOUDFLARE_ACCOUNT_ID) {
-      return res.status(500).json({ error: "Cloudflare credentials not configured. Cannot create tunnel." });
-    }
-
-    if (!tunnelPublicHostname || !tunnelPublicHostname.trim()) {
-      return res.status(400).json({ error: "Public hostname is required when using Cloudflare Tunnel." });
-    }
-
-    try {
-      tunnelPublicHostnameFinal = tunnelPublicHostname.trim();
-
-      // Step 1: Create Tunnel
-      const createTunnelResponse = await axios.post(
-        `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel`,
-        {
-          name: `tunnel-${nodeId.substring(0, 8)}`, // Unique name
-          config_src: "cloudflare"
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      const tunnelData = createTunnelResponse.data.result;
-      tunnelId = tunnelData.id;
-      tunnelToken = tunnelData.token;
-
-      log.info(`Created Cloudflare Tunnel ${tunnelId} for node ${nodeId}`);
-
-      // Step 2: Configure Public Hostname (Ingress Rule)
-      const configPayload = {
-        config: {
-          ingress: [
-            {
-              hostname: tunnelPublicHostnameFinal,
-              service: `http://localhost:${port}`, // Point to daemon port
-              originRequest: {}
-            },
-            { service: "http_status:404" } // Catch-all rule
-          ]
-        }
-      };
-
-      await axios.put(
-        `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${tunnelId}/configurations`,
-        configPayload,
-        {
-          headers: {
-            'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      // Step 3: Create CNAME DNS Record
-      const dnsPayload = {
-        type: "CNAME",
-        proxied: true,
-        name: tunnelPublicHostnameFinal.split('.').slice(0, -1).join('.'), // Subdomain part
-        content: `${tunnelId}.cfargotunnel.com`,
-        ttl: 1,
-        comment: `Tunnel for KS Panel Node ${nodeId.substring(0, 8)}`
-      };
-
-      await axios.post(
-        `https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records`,
-        dnsPayload,
-        {
-          headers: {
-            'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      log.info(`Configured tunnel ${tunnelId} with hostname ${tunnelPublicHostnameFinal} for node ${nodeId}`);
-
-    } catch (tunnelError) {
-      log.error(`Failed to create Cloudflare Tunnel for node ${nodeId}: ${tunnelError.message}`);
-      return res.status(500).json({ error: `Failed to create Cloudflare Tunnel: ${tunnelError.response?.data?.errors?.[0]?.message || tunnelError.message}` });
-    }
-  }
-
   const node = {
     id: nodeId,
     name: name.trim(),
     description: "",
-    address: tunnelId ? tunnelPublicHostnameFinal : address.trim(), // Use tunnel hostname if tunnel enabled
+    address: address.trim(),
     port: parseInt(port),
     sftpPort: parseInt(sftpPort || 2022),
+    ftp: {
+      ip: (ftp && ftp.ip) ? ftp.ip.trim() : "0.0.0.0",
+      port: parseInt((ftp && ftp.port) || 3003)
+    },
     location: location || null,
     ram: finalRam,
     disk: finalDisk,
@@ -313,20 +209,16 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     diskOverallocate: parseInt(diskOverallocate),
     uploadSize: parseInt(uploadSize),
     behindProxy: behindProxy === true || behindProxy === "true",
-    connectionProtocol: connectionProtocol, // http or https for SSL communication
-    resourceMode: resourceMode, // auto or manual
-    useCloudflareTunnel: useCloudflareTunnel === true || useCloudflareTunnel === "true",
-    tunnelId, // Store tunnel ID
-    tunnelToken, // Store token for daemon setup
-    tunnelPublicHostname: tunnelPublicHostnameFinal,
+    connectionProtocol: connectionProtocol,
+    resourceMode: resourceMode,
     serverFileDirectory: "/var/lib/kswings/volumes",
-    publicIp: address.trim(), // Original IP/FQDN
+    publicIp: address.trim(),
     maintenanceMode: false,
-    connectionType: "Direct", // Default
-    maxServers: 50, // Default
+    connectionType: "Direct",
+    maxServers: 50,
     healthCheckUrl: "",
     tags: [],
-    trustedProxies: behindProxy ? ["127.0.0.1"] : [], // Auto-add if behind proxy
+    trustedProxies: behindProxy ? ["127.0.0.1"] : [],
     apiKey: null,
     configureKey,
     status: "Unconfigured",
@@ -440,25 +332,6 @@ router.post("/admin/nodes/delete", isAdmin, async (req, res) => {
       }
     }
 
-    // If Cloudflare Tunnel is enabled, delete the tunnel
-    if (node.useCloudflareTunnel && node.tunnelId && CLOUDFLARE_API_TOKEN) {
-      try {
-        await axios.delete(
-          `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${node.tunnelId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        log.info(`Deleted Cloudflare Tunnel ${node.tunnelId} for node ${nodeId}`);
-      } catch (tunnelDeleteError) {
-        log.error(`Failed to delete Cloudflare Tunnel ${node.tunnelId}: ${tunnelDeleteError.message}`);
-        // Don't fail deletion due to tunnel cleanup failure
-      }
-    }
-
     await db.delete(node.id + "_node");
     nodes.splice(nodes.indexOf(node.id), 1);
     await db.set("nodes", nodes);
@@ -500,12 +373,6 @@ router.post("/admin/nodes/configure", async (req, res) => {
     foundNode.status = "Configured";
     foundNode.configureKey = null;
 
-    // If Cloudflare Tunnel is enabled, provide tunnel token in configure instructions (handled client-side or in daemon)
-    if (foundNode.useCloudflareTunnel && foundNode.tunnelToken) {
-      // Optionally, send tunnelToken to daemon during configuration
-      log.info(`Node ${foundNode.id} configured with Cloudflare Tunnel ${foundNode.tunnelId}`);
-    }
-
     await db.set(foundNode.id + "_node", foundNode);
     invalidateNodeCache(foundNode.id);
 
@@ -532,12 +399,7 @@ router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) 
 
     const panelUrl = `${req.protocol}://${req.get('host')}`;
 
-    let configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
-
-    // If Cloudflare Tunnel enabled, append tunnel setup
-    if (node.useCloudflareTunnel && node.tunnelToken) {
-      configureCommand += ` --tunnel-token ${node.tunnelToken}`;
-    }
+    const configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
 
     res.json({
       nodeId: id,
@@ -561,6 +423,12 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   if (req.body.address) node.address = req.body.address;
   if (req.body.port) node.port = parseInt(req.body.port);
   if (req.body.sftpPort) node.sftpPort = parseInt(req.body.sftpPort);
+  if (req.body.ftp) {
+    node.ftp = {
+      ip: (req.body.ftp.ip) ? req.body.ftp.ip.trim() : node.ftp?.ip || "0.0.0.0",
+      port: parseInt(req.body.ftp.port) || node.ftp?.port || 3003
+    };
+  }
   if (req.body.location !== undefined) node.location = req.body.location || null;
   if (req.body.ram !== undefined) node.ram = parseInt(req.body.ram);
   if (req.body.disk !== undefined) node.disk = parseInt(req.body.disk);
@@ -570,15 +438,6 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   if (req.body.behindProxy !== undefined) node.behindProxy = req.body.behindProxy === "true" || req.body.behindProxy === true;
   if (req.body.connectionProtocol !== undefined) node.connectionProtocol = req.body.connectionProtocol;
   if (req.body.resourceMode !== undefined) node.resourceMode = req.body.resourceMode;
-  if (req.body.useCloudflareTunnel !== undefined) {
-    const newTunnelEnabled = req.body.useCloudflareTunnel === "true" || req.body.useCloudflareTunnel === true;
-    if (newTunnelEnabled && !node.useCloudflareTunnel) {
-      // Enable tunnel - trigger creation (simplified; in full impl, call create tunnel API)
-      return res.status(400).json({ error: "Enabling tunnel requires recreating the node or manual setup." });
-    }
-    node.useCloudflareTunnel = newTunnelEnabled;
-  }
-  if (req.body.tunnelPublicHostname !== undefined) node.tunnelPublicHostname = req.body.tunnelPublicHostname.trim();
   if (req.body.serverFileDirectory) node.serverFileDirectory = req.body.serverFileDirectory.trim();
   if (req.body.publicIp !== undefined) node.publicIp = req.body.publicIp.trim() || node.address;
   if (req.body.maintenanceMode !== undefined) node.maintenanceMode = req.body.maintenanceMode === "true" || req.body.maintenanceMode === true;
@@ -656,15 +515,8 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
   if (!node) return res.status(404).json({ error: "Node not found" });
 
   try {
-    // Use connectionProtocol for protocol (http/https)
-    let monitorUrl;
-    if (node.useCloudflareTunnel && node.tunnelPublicHostname) {
-      monitorUrl = `https://${node.tunnelPublicHostname}/resourceMonitor`; // Tunnel = HTTPS + no port
-    } else {
-      const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-      const targetAddress = node.address;
-      monitorUrl = `${protocol}://${targetAddress}:${node.port}/resourceMonitor`;
-    }
+    const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
+    const monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
 
     const response = await axios.get(monitorUrl, {
       auth: {
@@ -672,8 +524,7 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
         password: node.apiKey,
       },
       timeout: 5000,
-      // If behind proxy or tunnel, add headers if needed
-      ...( (node.behindProxy || node.useCloudflareTunnel) && { headers: { 'X-Forwarded-Proto': 'https' } }),
+      ...(node.behindProxy && { headers: { 'X-Forwarded-Proto': 'https' } }),
     });
 
     // If resourceMode is auto and ram/disk are 0, update them with fetched values
