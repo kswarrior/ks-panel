@@ -80,7 +80,6 @@ chmod +x "$BIN_PATH"
 
 success "Command installed"
 echo ""
-log "» Run: kspanel install"
-log "» For DB: kspanel database"
+log "» Run: kspanel"
 echo ""
 success "Installation complete"
