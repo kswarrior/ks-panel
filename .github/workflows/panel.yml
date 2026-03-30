@@ -31,7 +31,7 @@ jobs:
           TAR_NAME="panel.tar.xz"
           echo "Creating tar.xz file $TAR_NAME"
           cd panel
-          tar -cJf "../$TAR_NAME" . --exclude=".git"
+          tar --exclude='.git' -cJf "../$TAR_NAME" .
           cd ..
           echo "TAR_NAME=$TAR_NAME" >> $GITHUB_ENV
 
