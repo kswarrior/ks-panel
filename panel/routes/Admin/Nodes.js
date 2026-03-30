@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
+const crypto = require("crypto");                    // ← REQUIRED FOR ACCESS KEY GENERATION
 const { db } = require("../../handlers/db.js");
 const { parsePorts } = require('../../utils/dbHelper.js');
 const { logAudit } = require("../../handlers/auditLog.js");
@@ -355,12 +356,12 @@ router.post("/admin/nodes/delete", isAdmin, async (req, res) => {
   }
 });
 
-// ==================== CONFIGURE ENDPOINT - NOW RETURNS FULL CONFIG (as requested) ====================
+// ==================== CONFIGURE ENDPOINT - NOW RETURNS FULL CONFIG (FIXED FOR NEW DAEMON) ====================
 router.post("/admin/nodes/configure", async (req, res) => {
-  const { configureKey, accessKey } = req.query;
+  const { configureKey } = req.query;
 
-  if (!configureKey || !accessKey) {
-    return res.status(400).json({ error: "Missing configureKey or accessKey" });
+  if (!configureKey) {
+    return res.status(400).json({ error: "Missing configureKey" });
   }
 
   try {
@@ -378,9 +379,12 @@ router.post("/admin/nodes/configure", async (req, res) => {
       return res.status(404).json({ error: "Node not found" });
     }
 
-    foundNode.apiKey = accessKey;
+    // Generate real access key (daemon will receive this as "key")
+    const newAccessKey = crypto.randomBytes(32).toString("hex");
+
+    foundNode.apiKey = newAccessKey;
     foundNode.status = "Configured";
-    // configureKey is kept (fixed token) - do NOT set to null
+    // configureKey stays fixed forever - do NOT set to null
 
     await db.set(foundNode.id + "_node", foundNode);
     invalidateNodeCache(foundNode.id);
@@ -391,7 +395,7 @@ router.post("/admin/nodes/configure", async (req, res) => {
     const fullConfig = {
       "_note1": "WARNING: You do not need to touch the following values. KS Daemon will automatically set them.",
       "remote": panelUrl,
-      "key": accessKey,
+      "key": newAccessKey,
       "_note3": "Other configuration options below. Hostname must be set for FTP to return the correct info.",
       "port": foundNode.port,
       "version": "1.0.0",
