@@ -19,55 +19,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: 'wings/go.mod'
-          cache-dependency-path: 'wings/go.sum'
-
-      - name: Get version
+      - name: Get version from package.json
         id: version
         run: |
-          # Option 1: If you add "version": "x.y.z" to wings/package.json (recommended for consistency with Panel)
-          if [ -f wings/package.json ]; then
-            VERSION=$(jq -r .version wings/package.json)
-          else
-            # Option 2: Fallback - read from go.mod (module path usually ends with version in forks)
-            VERSION=$(grep '^module' wings/go.mod | awk '{print $2}' | sed 's|.*/||' || echo "v0.0.0")
-          fi
-
+          VERSION=$(jq -r .version wings/package.json)
           echo "Version found: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Build Wings binaries
-        working-directory: ./wings
+      - name: Create zip of repository
         run: |
-          echo "Building Wings binaries for amd64 and arm64..."
-
-          # Build amd64
-          GOOS=linux GOARCH=amd64 go build -o ../wings_linux_amd64 -ldflags="-s -w -X main.version=${{ env.VERSION }}" .
-
-          # Build arm64
-          GOOS=linux GOARCH=arm64 go build -o ../wings_linux_arm64 -ldflags="-s -w -X main.version=${{ env.VERSION }}" .
-
-          chmod +x ../wings_linux_amd64 ../wings_linux_arm64
+          ZIP_NAME="wings.zip"
+          echo "Creating zip file $ZIP_NAME"
+          cd wings
+          zip -r "../$ZIP_NAME" . -x ".git/*"
+          cd ..
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Ensure release exists
         run: |
           if ! gh release view "$VERSION" > /dev/null 2>&1; then
             echo "Release $VERSION not found, creating..."
-            gh release create "$VERSION" -t "$VERSION" -n "Automated release for Wings version $VERSION"
+            gh release create "$VERSION" -t "$VERSION" -n "Automated release for version $VERSION"
           else
             echo "Release $VERSION already exists."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload binaries to release
+      - name: Upload zip to release
         run: |
-          gh release upload "$VERSION" \
-            wings_linux_amd64 \
-            wings_linux_arm64 \
-            --clobber
+          gh release upload "$VERSION" "$ZIP_NAME" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
