@@ -1,72 +1,13 @@
-<div style="position: relative; background: #0f172a; color: #e2e8f0; padding: 24px; border-radius: 12px; font-family: monospace; margin: 20px 0;">
-  <button onclick="copyLicense()" 
-          style="position: absolute; top: 12px; right: 12px; 
-                 background: #3b82f6; color: white; border: none; 
-                 padding: 8px 16px; border-radius: 6px; cursor: pointer; 
-                 font-size: 14px; font-weight: 600;">
-    📋 Copy License
-  </button>
-
-  <pre style="margin: 0; white-space: pre-wrap; overflow-x: auto; font-size: 14px; line-height: 1.5;">
-<strong>KS Panel License – 2026</strong>
-
-We are excited to share KS Panel with the world!
-
-Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software (the "Software"), to use it without restriction for both 
-personal and commercial purposes.
-
+# KS Panel License – 2026
+I am excited to share KS Panel with the world!
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software (the "Software"), to use it without restriction for both personal and commercial purposes.
 You are warmly encouraged to:
-• Use KS Panel on your own servers
-• Modify and customize it for your personal needs
-• Build amazing things with it
-
-What we kindly ask:
-• Please do not fork, clone, redistribute, or rebrand KS Panel as your own project.
-• Please do not sell KS Panel itself as a standalone product.
-• Please keep the original copyright notices intact.
-
-This software is provided “as is”, without warranty of any kind. 
-The authors shall not be held liable for any claims or damages arising from its use.
-
-We hope KS Panel brings you joy, productivity, and success in all your projects! ❤️
-  </pre>
-</div>
-
-<script>
-function copyLicense() {
-  const text = `KS Panel License – 2026
-
-We are excited to share KS Panel with the world!
-
-Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software (the "Software"), to use it without restriction for both 
-personal and commercial purposes.
-
-You are warmly encouraged to:
-• Use KS Panel on your own servers
-• Modify and customize it for your personal needs
-• Build amazing things with it
-
-What we kindly ask:
-• Please do not fork, clone, redistribute, or rebrand KS Panel as your own project.
-• Please do not sell KS Panel itself as a standalone product.
-• Please keep the original copyright notices intact.
-
-This software is provided “as is”, without warranty of any kind. 
-The authors shall not be held liable for any claims or damages arising from its use.
-
-We hope KS Panel brings you joy, productivity, and success in all your projects! ❤️`;
-
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('button[onclick="copyLicense()"]');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '✅ Copied!';
-    btn.style.background = '#22c55e';
-    setTimeout(() => {
-      btn.innerHTML = originalText;
-      btn.style.background = '#3b82f6';
-    }, 2000);
-  });
-}
-</script>
+Use KS Panel on your own servers
+Modify and customize it for your personal needs
+Build amazing things with it
+What I kindly ask:
+Please do not fork, clone, redistribute, or rebrand KS Panel as your own project.
+Please do not sell KS Panel itself as a standalone product.
+Please keep the original copyright notices intact.
+This software is provided “as is”, without warranty of any kind. The author shall not be held liable for any claims or damages arising from its use.
+I hope KS Panel brings you joy, productivity, and success in all your projects! ❤️
