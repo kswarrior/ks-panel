@@ -4,9 +4,6 @@ bun.lockb
 pnpm-lock.yaml
 pnpm-workspace.yaml
 
-skyport.db
-sessions.db
-
 tmp/
 public/assets/logo.png
 
