@@ -12,9 +12,14 @@ jobs:
     steps:
       - name: Checkout your repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Important for proper commit history
+
+      - name: Remove old wings folder if exists
+        run: rm -rf wings
 
       - name: Git clone ks-wings
-        run: git clone https://github.com/kswarrior/ks-wings.git ks-wings
+        run: git clone --depth 1 https://github.com/kswarrior/ks-wings.git ks-wings
 
       - name: Rename to wings folder
         run: mv ks-wings wings
@@ -24,12 +29,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add wings/
+          git add -f wings/     # Force add even if gitignored
           
           if git diff --staged --quiet; then
-            echo "No changes to wings folder."
+            echo "No changes detected in wings folder."
           else
-            git commit -m "Update wings folder from ks-wings repo"
+            git commit -m "Update wings folder from https://github.com/kswarrior/ks-wings"
             git push
-            echo "✅ wings folder uploaded to your repo"
+            echo "✅ wings folder successfully uploaded and pushed to your repo"
           fi
