@@ -1,10 +1,10 @@
-name: Remove wings submodule
+name: Update wings folder
 
 on:
   workflow_dispatch:
 
 jobs:
-  remove:
+  update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -13,33 +13,25 @@ jobs:
       - name: Checkout your repository
         uses: actions/checkout@v4
 
-      - name: Completely remove wings submodule
+      - name: Git clone ks-wings
+        run: git clone https://github.com/kswarrior/ks-wings.git ks-wings
+
+      - name: Rename to wings folder (and make it normal files)
         run: |
-          # Deinitialize submodule
-          git submodule deinit --force wings 2>/dev/null || true
+          rm -rf ks-wings/.git          # ← This prevents submodule
+          mv ks-wings wings
+
+      - name: Commit and push wings folder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Remove submodule files from Git
-          rm -rf .git/modules/wings 2>/dev/null || true
-          git rm -f wings 2>/dev/null || true
+          git add wings/
           
-          # Clean .gitmodules file if it exists
-          if [ -f .gitmodules ]; then
-            sed -i '/\[submodule "wings"\]/,/^$/d' .gitmodules 2>/dev/null || true
-            # Remove file if it becomes empty
-            if ! grep -q "submodule" .gitmodules 2>/dev/null; then
-              rm -f .gitmodules
-            fi
-            git add .gitmodules 2>/dev/null || true
-          fi
-          
-          # Commit and push the removal
-          git add -A
           if git diff --staged --quiet; then
-            echo "✅ Nothing to remove - wings already gone"
+            echo "No changes to wings folder."
           else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "Remove wings submodule"
+            git commit -m "Update wings folder from ks-wings repo"
             git push
-            echo "✅ wings submodule successfully deleted!"
+            echo "✅ wings folder uploaded to your repo"
           fi
