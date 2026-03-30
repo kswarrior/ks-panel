@@ -26,14 +26,14 @@ jobs:
           echo "Version found: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Create zip of repository
+      - name: Create tar.xz of repository
         run: |
-          ZIP_NAME="panel.zip"
-          echo "Creating zip file $ZIP_NAME"
+          TAR_NAME="panel.tar.xz"
+          echo "Creating tar.xz file $TAR_NAME"
           cd panel
-          zip -r "../$ZIP_NAME" . -x ".git/*"
+          tar -cJf "../$TAR_NAME" . --exclude=".git"
           cd ..
-          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          echo "TAR_NAME=$TAR_NAME" >> $GITHUB_ENV
 
       - name: Ensure release exists
         run: |
@@ -46,8 +46,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload zip to release
+      - name: Upload tar.xz to release
         run: |
-          gh release upload "$VERSION" "$ZIP_NAME" --clobber
+          gh release upload "$VERSION" "$TAR_NAME" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
