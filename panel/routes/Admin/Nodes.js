@@ -10,7 +10,7 @@ const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = requi
 const { getPaginatedNodes, invalidateCache } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
-// ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + All Extras) ====================
+// ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + FTP + All Extras) ====================
 
 router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -48,7 +48,7 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
         const response = await axios.get(monitorUrl, { timeout: 4000 });
         node.resources = response.data;
 
-        // Auto-populate RAM/Disk for "auto" mode nodes (same logic as single-node route)
+        // Auto-populate RAM/Disk for "auto" mode nodes
         if (node.resourceMode === 'auto' && node.ram === 0 && response.data?.ram) {
           node.ram = Math.round(parseFloat(response.data.ram.total));
           node.disk = Math.round(parseFloat(response.data.disk.total));
@@ -171,7 +171,7 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     return res.status(400).json({ error: "Form validation failure: Name, Address (FQDN/IP), and Port are required." });
   }
 
-  // Handle resourceMode: if auto, set ram/disk to 0 as flag; else use provided values
+  // Handle resourceMode
   let finalRam = 0;
   let finalDisk = 0;
   if (resourceMode === 'manual') {
@@ -181,15 +181,24 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     finalRam = parseInt(ram);
     finalDisk = parseInt(disk);
   } else if (resourceMode === 'auto') {
-    // Auto-detect flag: will be populated later via resource monitor
     finalRam = 0;
     finalDisk = 0;
   } else {
     return res.status(400).json({ error: "Invalid resourceMode: must be 'auto' or 'manual'." });
   }
 
+  // ==================== FTP VALIDATION LOGIC ====================
+  if (!ftp || typeof ftp.port === 'undefined' || isNaN(parseInt(ftp.port))) {
+    return res.status(400).json({ error: "FTP Port is required and must be a valid number." });
+  }
+  const ftpPortNum = parseInt(ftp.port);
+  if (ftpPortNum < 1 || ftpPortNum > 65535) {
+    return res.status(400).json({ error: "FTP Port must be between 1 and 65535." });
+  }
+  const ftpIpFinal = (ftp.ip || "0.0.0.0").toString().trim();
+
   const nodeId = uuidv4();
-  const configureKey = uuidv4();
+  const configureKey = uuidv4();   // FIXED: generated only once at creation
 
   const node = {
     id: nodeId,
@@ -199,8 +208,8 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     port: parseInt(port),
     sftpPort: parseInt(sftpPort || 2022),
     ftp: {
-      ip: (ftp && ftp.ip) ? ftp.ip.trim() : "0.0.0.0",
-      port: parseInt((ftp && ftp.port) || 3003)
+      ip: ftpIpFinal,
+      port: ftpPortNum
     },
     location: location || null,
     ram: finalRam,
@@ -220,7 +229,7 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     tags: [],
     trustedProxies: behindProxy ? ["127.0.0.1"] : [],
     apiKey: null,
-    configureKey,
+    configureKey,          // FIXED: persistent config token
     status: "Unconfigured",
     createdAt: Date.now()
   };
@@ -232,7 +241,6 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
     await db.set("nodes", nodes);
     invalidateCache("nodes");
 
-    // Handle initial allocations (your existing logic - unchanged)
     if (portsInput && portsInput.trim()) {
       const ports = parsePorts(portsInput);
       if (ports.length > 0) {
@@ -347,6 +355,7 @@ router.post("/admin/nodes/delete", isAdmin, async (req, res) => {
   }
 });
 
+// ==================== CONFIGURE ENDPOINT - NOW RETURNS FULL CONFIG (as requested) ====================
 router.post("/admin/nodes/configure", async (req, res) => {
   const { configureKey, accessKey } = req.query;
 
@@ -371,18 +380,46 @@ router.post("/admin/nodes/configure", async (req, res) => {
 
     foundNode.apiKey = accessKey;
     foundNode.status = "Configured";
-    foundNode.configureKey = null;
+    // configureKey is kept (fixed token) - do NOT set to null
 
     await db.set(foundNode.id + "_node", foundNode);
     invalidateNodeCache(foundNode.id);
 
-    res.status(200).json({ message: "Node configured successfully" });
+    // ==================== FULL CONFIG JSON SENT TO DAEMON ====================
+    const panelUrl = `${req.protocol}://${req.get('host')}`;
+
+    const fullConfig = {
+      "_note1": "WARNING: You do not need to touch the following values. KS Daemon will automatically set them.",
+      "remote": panelUrl,
+      "key": accessKey,
+      "_note3": "Other configuration options below. Hostname must be set for FTP to return the correct info.",
+      "port": foundNode.port,
+      "version": "1.0.0",
+      "mysql": {
+        "host": "localhost",
+        "user": "root",
+        "password": ""
+      },
+      "ftp": {
+        "ip": foundNode.ftp.ip,
+        "port": foundNode.ftp.port
+      },
+      "ssl": {
+        "enabled": foundNode.connectionProtocol === "https",
+        "cert": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/fullchain.pem",
+        "key": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/privkey.pem"
+      },
+      "proxy": foundNode.behindProxy
+    };
+
+    res.status(200).json(fullConfig);
   } catch (error) {
     log.error("Error configuring node:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// ==================== CONFIGURE COMMAND - FIXED TOKEN (no longer changes) ====================
 router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) => {
   const { id } = req.params;
 
@@ -393,9 +430,8 @@ router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) 
       return res.status(404).json({ error: "Node not found" });
     }
 
-    const configureKey = uuidv4();
-    node.configureKey = configureKey;
-    await db.set(id + "_node", node);
+    // FIXED: Do NOT regenerate configureKey - use the existing fixed one
+    const configureKey = node.configureKey;
 
     const panelUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -417,7 +453,6 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   let node = await db.get(id + "_node");
   if (!node) return res.status(404).json({ error: "Node not found" });
 
-  // Merge new values safely (preserves all existing fields)
   if (req.body.name) node.name = req.body.name;
   if (req.body.description !== undefined) node.description = req.body.description.trim();
   if (req.body.address) node.address = req.body.address;
@@ -425,7 +460,7 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   if (req.body.sftpPort) node.sftpPort = parseInt(req.body.sftpPort);
   if (req.body.ftp) {
     node.ftp = {
-      ip: (req.body.ftp.ip) ? req.body.ftp.ip.trim() : node.ftp?.ip || "0.0.0.0",
+      ip: (req.body.ftp.ip || node.ftp?.ip || "0.0.0.0").trim(),
       port: parseInt(req.body.ftp.port) || node.ftp?.port || 3003
     };
   }
@@ -447,7 +482,6 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   if (req.body.tags !== undefined) node.tags = req.body.tags ? req.body.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
   if (req.body.trustedProxies !== undefined) node.trustedProxies = req.body.trustedProxies ? req.body.trustedProxies.split(",").map(t => t.trim()).filter(Boolean) : [];
 
-  // Basic validation for critical fields
   if (!node.name || !node.address || !node.port) {
     return res.status(400).json({ error: "Missing required fields (name, address, port)" });
   }
@@ -527,7 +561,6 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
       ...(node.behindProxy && { headers: { 'X-Forwarded-Proto': 'https' } }),
     });
 
-    // If resourceMode is auto and ram/disk are 0, update them with fetched values
     if (node.resourceMode === 'auto' && node.ram === 0 && response.data?.ram) {
       node.ram = Math.round(parseFloat(response.data.ram.total));
       node.disk = Math.round(parseFloat(response.data.disk.total));
@@ -542,7 +575,7 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
   }
 });
 
-// POST: Add allocations to a node (admin only) - YOUR EXISTING LOGIC
+// POST: Add allocations to a node (admin only)
 router.post('/admin/nodes/overview/:id/allocations', isAdmin, async (req, res) => {
   const { id } = req.params;
   const node = await db.get(`${id}_node`);
@@ -588,7 +621,7 @@ router.post('/admin/nodes/overview/:id/allocations', isAdmin, async (req, res) =
   }
 });
 
-// GET: List available allocations for a node (for select dropdown) - YOUR EXISTING LOGIC
+// GET: List available allocations for a node
 router.get('/admin/nodes/overview/:id/available-allocations', isAdmin, async (req, res) => {
   const { id } = req.params;
   const allocationsKey = `${id}_allocations`;
