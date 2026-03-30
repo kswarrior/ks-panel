@@ -370,6 +370,18 @@
           </div>
 
           <div class="nd-row">
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">FTP IP</label>
+              <input id="ftpIp" type="text" value="0.0.0.0" class="nd-input">
+            </div>
+
+            <div class="nd-field nd-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">FTP Port <span class="text-red-400">*</span></label>
+              <input id="ftpPort" required type="number" value="3003" class="nd-input">
+            </div>
+          </div>
+
+          <div class="nd-row">
             <div class="nd-field nd-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Location <span class="text-red-400">*</span></label>
               <select id="nodeLocation" required class="nd-input">
@@ -558,6 +570,10 @@ document.getElementById('createNodeBtn').addEventListener('click', async () => {
       address: document.getElementById('nodeAddress').value.trim(),
       port: document.getElementById('nodePort').value,
       sftpPort: document.getElementById('nodeSftpPort').value,
+      ftp: {
+        ip: document.getElementById('ftpIp').value.trim(),
+        port: document.getElementById('ftpPort').value
+      },
       location: document.getElementById('nodeLocation').value,
       resourceMode: resourceMode,
       ram: ram,
