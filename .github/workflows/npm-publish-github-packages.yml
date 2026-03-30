@@ -1,10 +1,10 @@
-name: Update wings folder
+name: Remove wings submodule
 
 on:
   workflow_dispatch:
 
 jobs:
-  update:
+  remove:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -12,31 +12,34 @@ jobs:
     steps:
       - name: Checkout your repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Completely remove old wings (from disk and Git)
+      - name: Completely remove wings submodule
         run: |
-          rm -rf wings
-          git rm -r --ignore-unmatch wings || true
-
-      - name: Git clone fresh ks-wings
-        run: git clone --depth 1 https://github.com/kswarrior/ks-wings.git ks-wings
-
-      - name: Rename to wings
-        run: mv ks-wings wings
-
-      - name: Force add and push new wings folder
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Deinitialize submodule
+          git submodule deinit --force wings 2>/dev/null || true
           
-          git add -f wings/
+          # Remove submodule files from Git
+          rm -rf .git/modules/wings 2>/dev/null || true
+          git rm -f wings 2>/dev/null || true
           
+          # Clean .gitmodules file if it exists
+          if [ -f .gitmodules ]; then
+            sed -i '/\[submodule "wings"\]/,/^$/d' .gitmodules 2>/dev/null || true
+            # Remove file if it becomes empty
+            if ! grep -q "submodule" .gitmodules 2>/dev/null; then
+              rm -f .gitmodules
+            fi
+            git add .gitmodules 2>/dev/null || true
+          fi
+          
+          # Commit and push the removal
+          git add -A
           if git diff --staged --quiet; then
-            echo "No changes detected."
+            echo "✅ Nothing to remove - wings already gone"
           else
-            git commit -m "Replace wings folder with fresh copy from https://github.com/kswarrior/ks-wings"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "Remove wings submodule"
             git push
-            echo "✅ Old wings completely removed and new wings folder uploaded successfully!"
+            echo "✅ wings submodule successfully deleted!"
           fi
