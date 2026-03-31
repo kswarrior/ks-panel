@@ -108,7 +108,7 @@
 #resource-dropdown,
 #dropdown-menu {
     backdrop-filter: blur(var(--backdrop-blur));
-    background: rgba(0, 0, 0, 5);
+    background: rgba(0, 0, 0, 1);
 }
       </style>
 
@@ -432,8 +432,8 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
     <rect id="disk-fill" x="17.5" y="20" width="4" height="0" rx="1.5" fill="url(#diskGradient)" class="transition-all duration-500"/>
   </svg>
   
-  <!-- Dropdown Menu -->
-  <div id="resource-dropdown" class="hidden absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50">
+  <!-- Dropdown Menu with animation classes -->
+  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-lg font-bold text-white tracking-wide">Resource Monitor</h2>
       <div class="flex gap-1">
@@ -443,7 +443,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       </div>
     </div>
     
-    <div class="mb-5">
+    <div class="mb-5 metric-row opacity-0 translate-x-4 transition-all duration-300 delay-100">
       <div class="flex justify-between items-center mb-2">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -454,11 +454,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         <p id="ram-used" class="text-green-400 text-sm font-mono font-semibold"></p>
       </div>
       <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden">
-        <div id="ram-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
+        <div id="ram-bar" class="h-full rounded-full bg-green-500 transition-all duration-500 w-0" style="width: 0%;"></div>
       </div>
     </div>
     
-    <div class="mb-5">
+    <div class="mb-5 metric-row opacity-0 translate-x-4 transition-all duration-300 delay-200">
       <div class="flex justify-between items-center mb-2">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
@@ -469,11 +469,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         <p id="cpu-percent" class="text-blue-400 text-sm font-mono font-semibold"></p>
       </div>
       <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden">
-        <div id="cpu-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
+        <div id="cpu-bar" class="h-full rounded-full bg-green-500 transition-all duration-500 w-0" style="width: 0%;"></div>
       </div>
     </div>
     
-    <div class="mb-2">
+    <div class="mb-2 metric-row opacity-0 translate-x-4 transition-all duration-300 delay-300">
       <div class="flex justify-between items-center mb-2">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
@@ -484,11 +484,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         <p id="disk-used" class="text-purple-400 text-sm font-mono font-semibold"></p>
       </div>
       <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden">
-        <div id="disk-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
+        <div id="disk-bar" class="h-full rounded-full bg-green-500 transition-all duration-500 w-0" style="width: 0%;"></div>
       </div>
     </div>
     
-    <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500">
+    <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500 metric-row opacity-0 translate-x-4 transition-all duration-300 delay-400">
       <span>System Status</span>
       <span class="flex items-center gap-1">
         <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
@@ -497,6 +497,165 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
     </div>
   </div>
 </div>
+
+<script>
+  function getColor(percent) {
+    if (percent > 95) return '#ef4444';
+    if (percent > 75) return '#eab308';
+    return '#22c55e';
+  }
+
+  function getColorClass(percent) {
+    if (percent > 95) return 'bg-red-500';
+    if (percent > 75) return 'bg-yellow-500';
+    return 'bg-green-500';
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const dropdown = document.getElementById('resource-dropdown');
+    const link = document.getElementById('resource-link');
+    const metricRows = document.querySelectorAll('.metric-row');
+    let isDropdownOpen = false;
+    let currentData = null;
+
+    // Toggle dropdown on click
+    link.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isDropdownOpen = !isDropdownOpen;
+      
+      if (isDropdownOpen) {
+        // Open animation
+        dropdown.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+        dropdown.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+        
+        // Animate metric rows with stagger
+        metricRows.forEach((row, index) => {
+          setTimeout(() => {
+            row.classList.remove('opacity-0', 'translate-x-4');
+            row.classList.add('opacity-100', 'translate-x-0');
+          }, index * 50);
+        });
+        
+        // Animate progress bars after dropdown opens
+        if (currentData) {
+          setTimeout(() => {
+            updateProgressBars(currentData);
+          }, 150);
+        }
+      } else {
+        // Close animation
+        closeDropdown();
+      }
+    });
+
+    function closeDropdown() {
+      // Reverse animate rows
+      metricRows.forEach((row) => {
+        row.classList.add('opacity-0', 'translate-x-4');
+        row.classList.remove('opacity-100', 'translate-x-0');
+      });
+      
+      // Reset progress bars
+      document.getElementById('ram-bar').classList.add('w-0');
+      document.getElementById('ram-bar').style.width = '0%';
+      document.getElementById('cpu-bar').classList.add('w-0');
+      document.getElementById('cpu-bar').style.width = '0%';
+      document.getElementById('disk-bar').classList.add('w-0');
+      document.getElementById('disk-bar').style.width = '0%';
+      
+      // Close dropdown after animation
+      setTimeout(() => {
+        dropdown.classList.add('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+        dropdown.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+      }, 200);
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!link.contains(e.target) && isDropdownOpen) {
+        isDropdownOpen = false;
+        closeDropdown();
+      }
+    });
+
+    function updateProgressBars(data) {
+      // Update text
+      document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;
+      document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;
+      document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;
+      
+      // Animate bars width
+      const ramBar = document.getElementById('ram-bar');
+      const cpuBar = document.getElementById('cpu-bar');
+      const diskBar = document.getElementById('disk-bar');
+      
+      ramBar.className = `h-full rounded-full transition-all duration-700 ease-out ${getColorClass(data.ram.percent)}`;
+      cpuBar.className = `h-full rounded-full transition-all duration-700 ease-out ${getColorClass(data.cpu.percent)}`;
+      diskBar.className = `h-full rounded-full transition-all duration-700 ease-out ${getColorClass(data.disk.percent)}`;
+      
+      // Remove w-0 to trigger animation, then set actual width
+      requestAnimationFrame(() => {
+        ramBar.classList.remove('w-0');
+        cpuBar.classList.remove('w-0');
+        diskBar.classList.remove('w-0');
+        
+        ramBar.style.width = `${data.ram.percent}%`;
+        cpuBar.style.width = `${data.cpu.percent}%`;
+        diskBar.style.width = `${data.disk.percent}%`;
+      });
+    }
+
+    async function updateResourceData() {
+      try {
+        const response = await fetch('/resourceMonitor');
+        const data = await response.json();
+        currentData = data;
+
+        const maxHeight = 17;
+        const baseY = 20;
+
+        // Update RAM icon
+        let ramHeight = (data.ram.percent / 100) * maxHeight;
+        let ramY = baseY - ramHeight;
+        const ramFill = document.getElementById('ram-fill');
+        ramFill.setAttribute('y', ramY);
+        ramFill.setAttribute('height', ramHeight);
+        ramFill.setAttribute('fill', getColor(data.ram.percent));
+
+        // Update CPU icon
+        let cpuHeight = (data.cpu.percent / 100) * maxHeight;
+        let cpuY = baseY - cpuHeight;
+        const cpuFill = document.getElementById('cpu-fill');
+        cpuFill.setAttribute('y', cpuY);
+        cpuFill.setAttribute('height', cpuHeight);
+        cpuFill.setAttribute('fill', getColor(data.cpu.percent));
+
+        // Update Disk icon
+        let diskHeight = (data.disk.percent / 100) * maxHeight;
+        let diskY = baseY - diskHeight;
+        const diskFill = document.getElementById('disk-fill');
+        diskFill.setAttribute('y', diskY);
+        diskFill.setAttribute('height', diskHeight);
+        diskFill.setAttribute('fill', getColor(data.disk.percent));
+
+        // Update dropdown content if visible
+        if (isDropdownOpen) {
+          updateProgressBars(data);
+        }
+
+      } catch (error) {
+        console.error('Error fetching resource data:', error);
+      }
+    }
+
+    // Run immediately once
+    updateResourceData();
+
+    // Run every 2.5 seconds
+    setInterval(updateResourceData, 2500);
+  });
+</script>
+
 
    <!--
      
@@ -884,103 +1043,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Run every 5 seconds
   setInterval(checkVersion, 5000);
 });
-</script>
-
-<script>
-  function getColor(percent) {
-    if (percent > 95) return '#ef4444';
-    if (percent > 75) return '#eab308';
-    return '#22c55e';
-  }
-
-  function getGradientId(percent, type) {
-    if (percent > 95) return `url(#${type}GradientRed)` || '#ef4444';
-    if (percent > 75) return `url(#${type}GradientYellow)` || '#eab308';
-    return `url(#${type}Gradient)`;
-  }
-
-  function getColorClass(percent) {
-    if (percent > 95) return 'bg-red-500';
-    if (percent > 75) return 'bg-yellow-500';
-    return 'bg-green-500';
-  }
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    const dropdown = document.getElementById('resource-dropdown');
-    const link = document.getElementById('resource-link');
-    let isDropdownOpen = false;
-
-    // Toggle dropdown on click
-    link.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isDropdownOpen = !isDropdownOpen;
-      dropdown.classList.toggle('hidden', !isDropdownOpen);
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!link.contains(e.target) && isDropdownOpen) {
-        isDropdownOpen = false;
-        dropdown.classList.add('hidden');
-      }
-    });
-
-    async function updateResourceData() {
-      try {
-        const response = await fetch('/resourceMonitor');
-        const data = await response.json();
-
-        const maxHeight = 17;
-        const baseY = 20;
-
-        // Update RAM icon
-        let ramHeight = (data.ram.percent / 100) * maxHeight;
-        let ramY = baseY - ramHeight;
-        const ramFill = document.getElementById('ram-fill');
-        ramFill.setAttribute('y', ramY);
-        ramFill.setAttribute('height', ramHeight);
-        ramFill.setAttribute('fill', getColor(data.ram.percent));
-
-        // Update CPU icon
-        let cpuHeight = (data.cpu.percent / 100) * maxHeight;
-        let cpuY = baseY - cpuHeight;
-        const cpuFill = document.getElementById('cpu-fill');
-        cpuFill.setAttribute('y', cpuY);
-        cpuFill.setAttribute('height', cpuHeight);
-        cpuFill.setAttribute('fill', getColor(data.cpu.percent));
-
-        // Update Disk icon
-        let diskHeight = (data.disk.percent / 100) * maxHeight;
-        let diskY = baseY - diskHeight;
-        const diskFill = document.getElementById('disk-fill');
-        diskFill.setAttribute('y', diskY);
-        diskFill.setAttribute('height', diskHeight);
-        diskFill.setAttribute('fill', getColor(data.disk.percent));
-
-        // Update dropdown content if visible
-        if (isDropdownOpen) {
-          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;
-          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;
-          document.getElementById('ram-bar').className = `h-full rounded-full transition-all duration-500 ${getColorClass(data.ram.percent)}`;
-
-          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;
-          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;
-          document.getElementById('cpu-bar').className = `h-full rounded-full transition-all duration-500 ${getColorClass(data.cpu.percent)}`;
-
-          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;
-          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;
-          document.getElementById('disk-bar').className = `h-full rounded-full transition-all duration-500 ${getColorClass(data.disk.percent)}`;
-        }
-
-      } catch (error) {
-        console.error('Error fetching resource data:', error);
-      }
-    }
-
-    // Run immediately once
-    updateResourceData();
-
-    // Run every 2.5 seconds
-    setInterval(updateResourceData, 2500);
-  });
 </script>
