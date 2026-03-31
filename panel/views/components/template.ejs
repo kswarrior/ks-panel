@@ -581,9 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
    
    
    <!-- Ping Display -->
-<span id="pingDisplay"
-      class="flex flex-col items-center text-white bg-transparent w-fit">
-
+<span id="pingDisplay" class="flex flex-col items-center text-white bg-transparent w-fit self-center">
   <!-- SVG WiFi Icon -->
   <svg id="pingIcon"
        width="20"
@@ -628,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </span>
    <!-- Resource Monitor -->
-   <div id="resource-link" class="relative cursor-pointer group">
+   <div id="resource-link" class="relative cursor-pointer group self-center">
   <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 text-neutral-400 transition-all duration-300 group-hover:text-white group-hover:scale-110">
     <defs>
       <linearGradient id="ramGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -889,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
    DROPDOWN PROFILE
      
    -->
-   <div class="relative">
+   <div class="relative self-center">
      <div type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="14" cy="14" r="11.5" stroke="#ffffff" stroke-width="2.4"/>
