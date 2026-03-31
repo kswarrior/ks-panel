@@ -886,7 +886,87 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script>  
-  // Replace your click event section with this (keep everything else same)
+  function getColor(percent) {  
+    if (percent > 95) return '#ef4444'; // red  
+    if (percent > 75) return '#eab308'; // yellow  
+    return '#22c55e'; // green  
+  }  
+  
+  function getColorClass(percent) {  
+    if (percent > 95) return 'bg-red-500';  
+    if (percent > 75) return 'bg-yellow-500';  
+    return 'bg-green-500';  
+  }  
+  
+  document.addEventListener('DOMContentLoaded', async () => {  
+
+    async function updateResourceData() {
+      try {  
+        const response = await fetch('/resourceMonitor');  
+        const data = await response.json();  
+
+        const maxHeight = 16;  
+
+        // Update RAM icon  
+        let ramHeight = (data.ram.percent / 100) * maxHeight;  
+        let ramY = 2 + (maxHeight - ramHeight);  
+        const ramFill = document.getElementById('ram-fill');  
+        ramFill.setAttribute('y', ramY);  
+        ramFill.setAttribute('height', ramHeight);  
+        ramFill.setAttribute('fill', getColor(data.ram.percent));  
+
+        // Update CPU icon  
+        let cpuHeight = (data.cpu.percent / 100) * maxHeight;  
+        let cpuY = 2 + (maxHeight - cpuHeight);  
+        const cpuFill = document.getElementById('cpu-fill');  
+        cpuFill.setAttribute('y', cpuY);  
+        cpuFill.setAttribute('height', cpuHeight);  
+        cpuFill.setAttribute('fill', getColor(data.cpu.percent));  
+
+        // Update Disk icon  
+        let diskHeight = (data.disk.percent / 100) * maxHeight;  
+        let diskY = 2 + (maxHeight - diskHeight);  
+        const diskFill = document.getElementById('disk-fill');  
+        diskFill.setAttribute('y', diskY);  
+        diskFill.setAttribute('height', diskHeight);  
+        diskFill.setAttribute('fill', getColor(data.disk.percent));  
+
+        // Add click event to show dropdown  
+        const link = document.getElementById('resource-link');  
+        link.addEventListener('click', () => {  
+          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;  
+          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;  
+          document.getElementById('ram-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('ram-bar').classList.add(getColorClass(data.ram.percent));  
+
+          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;  
+          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;  
+          document.getElementById('cpu-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('cpu-bar').classList.add(getColorClass(data.cpu.percent));  
+
+          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;  
+          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;  
+          document.getElementById('disk-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('disk-bar').classList.add(getColorClass(data.disk.percent));  
+
+          document.getElementById('resource-dropdown').classList.toggle('hidden');  
+        });  
+
+      } catch (error) {  
+        console.error('Error fetching resource data:', error);  
+      }
+    }
+
+    // Run immediately once
+    updateResourceData();
+
+    // Run every 2.5 seconds
+    setInterval(updateResourceData, 1000);
+
+  });  
+</script>
+<script>
+// Replace your click event section with this (keep everything else same)
 const link = document.getElementById('resource-link');
 const dropdown = document.getElementById('resource-dropdown');
 
