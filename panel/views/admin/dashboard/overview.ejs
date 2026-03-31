@@ -1,1151 +1,708 @@
 <%- include('../../components/template') %>
 
 <style>
-/* ============================================
-   MODERN DASHBOARD - OPTIMISED STYLES
-   Preserving original colors & glassmorphism
-   ============================================ */
-
-/* CSS Variables for consistent theming */
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: blur(20px);
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: all 0.5s cubic-bezier(0.25, 1.8, 0.45, 1.35);
-  --radius-sm: 10px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
-  --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.05);
-  --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-/* Base container refinements */
-#content {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: clamp(0.75rem, 2vw, 2rem);
-  padding-bottom: clamp(1.5rem, 4vh, 3rem);
-}
-
-/* ============================================
-   LOG TERMINAL - ENHANCED
-   ============================================ */
-.log-terminal {
-  background: #0f172a;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: clamp(0.75rem, 2vw, 1.25rem);
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
-  line-height: 1.7;
-  color: #94a3b8;
-  max-height: min(50vh, 420px);
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.15) transparent;
-  position: relative;
-}
-
-.log-terminal::-webkit-scrollbar {
-  width: 6px;
-}
-
-.log-terminal::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.log-terminal::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
-  border-radius: 3px;
-}
-
-.log-terminal::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-/* Log entry styling */
-.log-entry {
-  padding: 2px 0;
-  border-left: 2px solid transparent;
-  padding-left: 8px;
-  margin: 2px 0;
-  animation: fadeInSlide 0.3s ease forwards;
-  opacity: 0;
-  transform: translateX(-10px);
-}
-
-.log-entry:nth-child(1) { animation-delay: 0ms; }
-.log-entry:nth-child(2) { animation-delay: 50ms; }
-.log-entry:nth-child(3) { animation-delay: 100ms; }
-
-@keyframes fadeInSlide {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.log-entry:hover {
-  background: rgba(255,255,255,0.03);
-  border-left-color: rgba(255,255,255,0.2);
-}
-
-/* ============================================
-   BAR GRAPH - OPTIMISED ANIMATION
-   ============================================ */
-.bar-graph {
+/* === PREMIUM GLASSMORPHIC CARDS (from Database Overview) === */
+.stat-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 1.75rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  height: 100%;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: clamp(1px, 0.5vw, 3px);
-  height: clamp(40px, 8vh, 70px);
-  background: rgba(255,255,255,0.03);
-  border-radius: var(--radius-md);
-  padding: clamp(4px, 1vw, 8px);
+  flex-direction: column;
+  position: relative;
   overflow: hidden;
-  position: relative;
 }
 
-.bar-graph::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%);
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-.bar-graph .bar {
-  flex: 1;
-  min-width: 2px;
-  max-width: 12px;
-  background: linear-gradient(to bottom, currentColor 0%, rgba(255,255,255,0.1) 100%);
-  border-radius: 9999px;
-  transition: height 600ms cubic-bezier(0.34, 1.56, 0.64, 1), 
-              opacity 300ms ease;
-  opacity: 0.9;
-  position: relative;
-  will-change: height;
-}
-
-.bar-graph .bar::after {
+.stat-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 30%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
-  border-radius: 9999px 9999px 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
 }
 
-.bar-graph .bar:hover {
-  opacity: 1;
-  filter: brightness(1.2);
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(255,255,255,0.25);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-/* ============================================
-   GLASS PANEL - ENHANCED
-   ============================================ */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-glow), 0 4px 24px rgba(0,0,0,0.1);
-  transition: var(--transition-smooth);
-}
-
-.glass-panel:hover {
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: var(--shadow-glow), 0 8px 32px rgba(0,0,0,0.15);
-}
-
-/* ============================================
-   RESOURCE CARDS - MODERNISED
-   ============================================ */
-.resource-card {
-  position: relative;
-  overflow: hidden;
-  transition: var(--transition-smooth);
-}
-
-.resource-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  transition: left 0.7s ease;
-}
-
-.resource-card:hover::before {
-  left: 100%;
-}
-
-.resource-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--shadow-elevated);
-}
-
-/* Metric value styling */
-.metric-value {
-  font-variant-numeric: tabular-nums;
+.stat-number {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
   letter-spacing: -0.02em;
+  margin-top: 0.75rem;
+  word-break: break-word;
   background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ============================================
-   BUTTONS - ENHANCED INTERACTIONS
-   ============================================ */
-.btn {
+.stat-icon {
+  width: clamp(2.75rem, 6vw, 3.5rem);
+  height: clamp(2.75rem, 6vw, 3.5rem);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  transition: var(--transition-smooth);
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  font-weight: 500;
-  letter-spacing: 0.01em;
 }
 
-.btn::before {
+.stat-icon::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
+  inset: 0;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
 }
 
-.btn:active::before {
-  width: 300px;
-  height: 300px;
+.stat-card:hover .stat-icon::before {
+  opacity: 0.25;
 }
 
-.btn:active {
-  transform: scale(0.96);
+.stat-icon svg {
+  width: 55%;
+  height: 55%;
+  stroke-width: 1.75;
+  position: relative;
+  z-index: 1;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
+/* === DASHBOARD STYLES (Resources + Logs) === */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px);
 }
 
-/* Button variants */
-.btn-primary {
-  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
-  border: 1px solid rgba(255,255,255,0.15);
+.glass-panel, .resource-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
 }
 
-.btn-primary:hover {
-  background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%);
-  border-color: rgba(255,255,255,0.25);
-  transform: translateY(-1px);
+.log-terminal {
+  background: #0f172a;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+  line-height: 1.7;
+  color: #94a3b8;
+  max-height: 420px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.btn-action {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  border: none;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+.bar-graph {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3px;
+  height: 70px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 8px;
 }
 
-.btn-action:hover {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+.bar-graph .bar {
+  flex: 1;
+  background: linear-gradient(to bottom, currentColor, rgba(255,255,255,0.2));
+  border-radius: 9999px;
+  transition: height 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #a1a1aa;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.refresh-btn:hover {
+  background: rgba(255,255,255,0.15);
   transform: translateY(-2px);
 }
 
-.btn-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border: none;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.btn-success:hover {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border: none;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-}
-
-.btn-danger:hover {
-  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
-}
-
-/* ============================================
-   LIVE INDICATOR - ENHANCED
-   ============================================ */
-.live-indicator {
+.live-badge {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  background: rgba(16,185,129,0.1);
+  color: #10b981;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  font-weight: 600;
 }
 
 .live-dot {
-  width: 8px;
-  height: 8px;
-  background: #34d399;
+  width: 10px;
+  height: 10px;
+  background: #10b981;
   border-radius: 50%;
-  position: relative;
-  box-shadow: 0 0 10px #34d399;
-}
-
-.live-dot::before,
-.live-dot::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid #34d399;
-  opacity: 0;
-  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
-
-.live-dot::after {
-  animation-delay: 0.5s;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(0.5); opacity: 1; }
+  0% { transform: scale(0.8); opacity: 1; }
   100% { transform: scale(2.5); opacity: 0; }
 }
 
-/* ============================================
-   VERSION BADGE - MODERNISED
-   ============================================ */
-.version-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: clamp(4px, 1vw, 6px) clamp(10px, 2vw, 16px);
-  border-radius: 9999px;
-  font-size: clamp(0.7rem, 1.5vw, 0.875rem);
-  font-weight: 600;
-  transition: var(--transition-smooth);
-  backdrop-filter: blur(10px);
-}
-
-.badge-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.badge-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.badge-error {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-/* ============================================
-   SVG ICONS - CONSISTENT SIZING
-   ============================================ */
-.icon {
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  vertical-align: middle;
-  flex-shrink: 0;
-}
-
-.icon-lg {
-  width: clamp(2rem, 5vw, 3.5rem);
-  height: clamp(2rem, 5vw, 3.5rem);
-}
-
-.icon-xl {
-  width: clamp(2.5rem, 6vw, 4.5rem);
-  height: clamp(2.5rem, 6vw, 4.5rem);
-}
-
-/* Icon colors matching original emoji colors */
-.icon-orange { color: #fb923c; }
-.icon-blue { color: #60a5fa; }
-.icon-emerald { color: #34d399; }
-.icon-amber { color: #fbbf24; }
-
-/* ============================================
-   HEADER - RESPONSIVE OPTIMISATIONS
-   ============================================ */
-.dashboard-header {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(0.75rem, 2vw, 1.5rem);
-  padding: clamp(1rem, 3vw, 1.5rem) 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-@media (min-width: 640px) {
-  .dashboard-header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.header-title {
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.header-subtitle {
-  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
-  color: #94a3b8;
-  margin-top: 0.25rem;
-}
-
-/* ============================================
-   GRID LAYOUT - MODERN RESPONSIVE
-   ============================================ */
-.resources-grid {
-  display: grid;
-  gap: clamp(0.75rem, 2vw, 1.5rem);
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 768px) {
-  .resources-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .resources-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* ============================================
-   STATUS TEXT - ANIMATED
-   ============================================ */
-.status-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: clamp(0.7rem, 1.4vw, 0.8rem);
-  font-weight: 500;
-  transition: var(--transition-smooth);
-}
-
-.status-warning {
-  color: #fbbf24;
-  animation: pulse-warning 2s ease-in-out infinite;
-}
-
-@keyframes pulse-warning {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-/* ============================================
-   SCROLLBAR STYLING FOR WEBKIT
-   ============================================ */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.2);
-}
-
-/* ============================================
-   LOADING SKELETON
-   ============================================ */
-.skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite;
-  border-radius: 4px;
-}
-
-@keyframes skeleton-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ============================================
-   FOCUS STATES FOR ACCESSIBILITY
-   ============================================ */
-button:focus-visible,
-.btn:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.5);
-  outline-offset: 2px;
-}
-
-/* ============================================
-   REDUCED MOTION SUPPORT
-   ============================================ */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ============================================
-   UTILITY CLASSES
-   ============================================ */
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gap-responsive {
-  gap: clamp(0.5rem, 1.5vw, 1rem);
-}
-
-.p-responsive {
-  padding: clamp(0.75rem, 2vw, 1.5rem);
-}
-
-.rounded-responsive {
-  border-radius: clamp(10px, 2vw, 16px);
+/* Mobile & Tablet fixes */
+@media (max-width: 640px) {
+  .stat-card, .resource-card, .glass-panel { padding: 1.25rem; }
+  .stat-number { font-size: 1.75rem; }
 }
 </style>
 
-<main id="content">
-  
-  <!-- Header -->
-  <header class="dashboard-header">
-    <div class="text-center sm:text-left">
-      <h1 class="header-title">Dashboard</h1>
-      <p class="header-subtitle">
-        Real-time CPU • RAM • Disk + Live logs
-      </p>
+<main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
+
+  <!-- HEADER (Combined) -->
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Dashboard</h1>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Users • Instances • Nodes • Database • Resources • Live Logs</p>
     </div>
-    
-    <div class="flex items-center justify-center sm:justify-end gap-responsive">
-      <div class="glass-panel px-4 py-2 flex items-center gap-2">
-        <div class="live-indicator">
-          <div class="live-dot"></div>
-          <span class="text-xs font-semibold text-emerald-400 tracking-wider">LIVE</span>
-        </div>
+
+    <div class="flex items-center gap-3 header-actions">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span>LIVE</span>
       </div>
-      <span id="static-version" class="glass-panel px-4 py-2 text-xs text-neutral-400 font-mono">
-        v<%= version %>
-      </span>
+
+      <button onclick="refreshAll()" class="refresh-btn">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <span>Refresh All</span>
+      </button>
+
+      <span class="version-badge bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap border border-white/5">v<%= version %></span>
     </div>
   </header>
 
-  <!-- VERSION CONTROL + DYNAMIC ACTION BUTTON -->
-  <div class="glass-panel p-responsive mt-6 sm:mt-8">
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-4 text-center sm:text-left w-full sm:w-auto">
-        <div class="p-3 rounded-xl bg-white/5">
-          <svg class="icon icon-lg text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
-          </svg>
-        </div>
-        <div>
-          <p class="text-xs text-neutral-400 uppercase tracking-wider font-medium">Current Version</p>
-          <p id="current-version" class="text-xl sm:text-2xl font-bold text-white font-mono mt-0.5">v<%= version %></p>
-        </div>
-        <div id="version-badge-container" class="hidden sm:block">
-          <div id="version-badge" class="version-badge badge-success">
-            <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-            <span>Up to date</span>
+  <!-- DATABASE STATISTICS (Exact original 8 cards) -->
+  <section class="mt-6 sm:mt-10">
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-semibold text-white">Database Statistics</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-6">
+      
+      <!-- Users -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Users</p>
+            <p id="users-text" class="stat-number text-blue-400"><%= usersTotal %></p>
+          </div>
+          <div class="stat-icon bg-blue-500/10 text-blue-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           </div>
         </div>
-      </div>
-      
-      <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
-        <button onclick="checkForUpdate()" 
-                id="check-btn"
-                class="btn btn-primary flex-1 sm:flex-none px-5 py-2.5 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2">
-          <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          <span>Check</span>
-        </button>
-        
-        <button onclick="performAction()" 
-                id="action-btn"
-                class="btn btn-action flex-1 sm:flex-none px-5 py-2.5 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2 text-white font-medium">
-          <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-          <span>Reinstall</span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Mobile version badge (shown only on small screens) -->
-    <div id="version-badge-mobile" class="sm:hidden mt-3 flex justify-center">
-      <div class="version-badge badge-success">
-        <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-        </svg>
-        <span>Up to date</span>
-      </div>
-    </div>
-  </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          Admins: <span id="admins-text" class="text-emerald-400 font-semibold"><%= adminsTotal %></span>
+        </p>
+      </article>
 
-  <!-- LIVE PM2 LOGS - TOP -->
-  <div class="glass-panel p-responsive mt-6 sm:mt-8 flex flex-col">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-lg bg-white/5">
-          <svg class="icon w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
+      <!-- Instances -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Instances</p>
+            <p id="instances-text" class="stat-number text-purple-400"><%= instancesTotal %></p>
+          </div>
+          <div class="stat-icon bg-purple-500/10 text-purple-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
         </div>
-        <h2 class="text-lg sm:text-xl font-semibold text-white">KS Panel Log</h2>
-      </div>
-      
-      <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
-        <button onclick="clearLogs()" 
-                class="btn btn-primary flex-1 sm:flex-none px-4 py-2 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2">
-          <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-          <span class="hidden sm:inline">Clear</span>
-        </button>
-        <button onclick="toggleStream()" id="log-btn"
-                class="btn btn-danger flex-1 sm:flex-none px-4 py-2 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2 text-white">
-          <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="6" y="4" width="4" height="16" rx="1"/>
-            <rect x="14" y="4" width="4" height="16" rx="1"/>
-          </svg>
-          <span>Stop</span>
-        </button>
-      </div>
-    </div>
-    
-    <div id="logs" class="log-terminal flex-1">
-      <div class="text-neutral-500 italic flex items-center gap-2">
-        <svg class="icon w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Connecting to PM2 logs...
-      </div>
-    </div>
-  </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+          Suspended: <span id="suspended-text" class="text-red-400 font-semibold"><%= suspendedTotal %></span>
+        </p>
+      </article>
 
-  <!-- RESOURCES MONITOR -->
+      <!-- Nodes -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Nodes</p>
+            <p id="nodes-text" class="stat-number text-orange-400"><%= nodesTotal %></p>
+          </div>
+          <div class="stat-icon bg-orange-500/10 text-orange-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+          </div>
+        </div>
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex flex-col sm:flex-row sm:justify-between gap-2">
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Online: <span id="online-text" class="text-emerald-400 font-semibold"><%= onlineNodes %></span></span>
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Offline: <span id="offline-text" class="text-red-400 font-semibold"><%= offlineNodes %></span></span>
+        </div>
+      </article>
+
+      <!-- Templates -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Templates</p>
+            <p id="templates-text" class="stat-number text-cyan-400"><%= templatesTotal %></p>
+          </div>
+          <div class="stat-icon bg-cyan-500/10 text-cyan-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Available configurations</p>
+      </article>
+
+      <!-- Locations -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Locations</p>
+            <p id="locations-text" class="stat-number text-amber-400"><%= locationsTotal %></p>
+          </div>
+          <div class="stat-icon bg-amber-500/10 text-amber-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Global regions</p>
+      </article>
+
+      <!-- API Keys -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">API Keys</p>
+            <p id="apikeys-text" class="stat-number text-pink-400"><%= apiKeysTotal %></p>
+          </div>
+          <div class="stat-icon bg-pink-500/10 text-pink-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Active credentials</p>
+      </article>
+
+      <!-- Plugins -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Plugins</p>
+            <p id="plugins-text" class="stat-number text-violet-400"><%= pluginsTotal %></p>
+          </div>
+          <div class="stat-icon bg-violet-500/10 text-violet-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Installed modules</p>
+      </article>
+
+      <!-- Requests -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Requests</p>
+            <p id="requests-text" class="stat-number text-emerald-400"><%= totalRequests %></p>
+          </div>
+          <div class="stat-icon bg-emerald-500/10 text-emerald-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+        </div>
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>Visitors:</span>
+            <span id="visitors-text" class="text-white font-semibold"><%= uniqueVisitors %></span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>Avg/hour:</span>
+            <span id="avg-text" class="text-white font-semibold"><%= avgRequestsPerHour %></span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- DATABASE INFORMATION (Exact original 5 cards) -->
+  <section class="mt-8 sm:mt-12">
+    <h2 class="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">Database Information</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+
+      <!-- DB Type -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Type</p>
+            <p id="dbtype-text" class="stat-number text-emerald-400 break-text"><%= dbType %></p>
+          </div>
+          <div class="stat-icon bg-emerald-500/10 text-emerald-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Storage engine</p>
+      </article>
+
+      <!-- Size -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Size</p>
+            <p id="dbsize-text" class="stat-number text-cyan-400"><%= dbSize %></p>
+          </div>
+          <div class="stat-icon bg-cyan-500/10 text-cyan-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Storage used</p>
+      </article>
+
+      <!-- URL -->
+      <article class="stat-card sm:col-span-2 lg:col-span-1 xl:col-span-1">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Connection URL</p>
+            <p id="dburl-text" class="mt-2 sm:mt-4 font-mono text-xs sm:text-sm text-amber-400 break-all leading-relaxed bg-black/20 p-2 rounded-lg"><%= dbUrlMasked %></p>
+          </div>
+          <div class="stat-icon bg-amber-500/10 text-amber-400 flex-shrink-0">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+        </div>
+      </article>
+
+      <!-- Table -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Table Name</p>
+            <p id="dbtable-text" class="stat-number text-violet-400 break-text"><%= dbTable %></p>
+          </div>
+          <div class="stat-icon bg-violet-500/10 text-violet-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7-8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Primary collection</p>
+      </article>
+
+      <!-- Total Keys -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Keys</p>
+            <p id="dbkeys-text" class="stat-number text-pink-400"><%= totalKeys %></p>
+          </div>
+          <div class="stat-icon bg-pink-500/10 text-pink-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Stored entries</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- RESOURCES MONITOR (Exact original) -->
   <div class="mt-8 sm:mt-12">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
       <div class="flex items-center gap-3">
         <div class="p-2 rounded-lg bg-white/5">
-          <svg class="icon w-5 h-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-          </svg>
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </div>
         <h2 class="text-lg sm:text-xl font-semibold text-white">Resources Monitor</h2>
       </div>
-      
-      <button onclick="refreshResources()" 
-              class="btn btn-primary flex items-center gap-2 text-xs sm:text-sm px-4 py-2 rounded-[10px] disabled:opacity-50 disabled:cursor-not-allowed group"
-              id="refreshBtn">
-        <svg class="icon w-4 h-4 transition-transform duration-700 ease-in-out group-disabled:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        <span>Refresh Now</span>
-      </button>
+      <button onclick="refreshResources()" class="refresh-btn" id="refreshBtn">Refresh Now</button>
     </div>
 
-    <div class="resources-grid">
-      
-      <!-- CPU Card -->
-      <div class="resource-card glass-panel p-responsive lg:p-8">
-        <div class="flex items-center gap-4 mb-4 sm:mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- CPU -->
+      <div class="resource-card glass-panel p-6">
+        <div class="flex items-center gap-4 mb-4">
           <div class="p-3 rounded-xl bg-orange-500/10">
-            <svg class="icon icon-xl icon-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
+            <svg class="w-9 h-9 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-neutral-400 text-xs sm:text-sm font-medium uppercase tracking-wider">CPU Usage</p>
-            <p id="cpu-text" class="metric-value text-4xl sm:text-5xl lg:text-6xl font-bold text-orange-400 mt-1">0%</p>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-sm">CPU Usage</p>
+            <p id="cpu-text" class="text-5xl font-bold text-orange-400">0%</p>
           </div>
         </div>
         <div id="cpu-graph" class="bar-graph text-orange-400"></div>
-        <div class="flex items-center justify-between mt-4 sm:mt-6">
-          <p id="cpu-status" class="status-text text-neutral-500">
-            <svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Normal
-          </p>
-          <span class="text-xs text-neutral-600 font-mono" id="cpu-cores"></span>
+        <div class="mt-4 flex justify-between text-xs">
+          <p id="cpu-status" class="text-neutral-400">Normal</p>
+          <span id="cpu-cores" class="font-mono text-neutral-400"></span>
         </div>
       </div>
 
-      <!-- RAM Card -->
-      <div class="resource-card glass-panel p-responsive lg:p-8">
-        <div class="flex items-center gap-4 mb-4 sm:mb-6">
+      <!-- RAM -->
+      <div class="resource-card glass-panel p-6">
+        <div class="flex items-center gap-4 mb-4">
           <div class="p-3 rounded-xl bg-blue-500/10">
-            <svg class="icon icon-xl icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
+            <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-neutral-400 text-xs sm:text-sm font-medium uppercase tracking-wider">RAM Usage</p>
-            <p id="ram-text" class="metric-value text-4xl sm:text-5xl lg:text-6xl font-bold text-blue-400 mt-1">0%</p>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-sm">RAM Usage</p>
+            <p id="ram-text" class="text-5xl font-bold text-blue-400">0%</p>
           </div>
         </div>
         <div id="ram-graph" class="bar-graph text-blue-400"></div>
-        <div class="flex justify-between items-center mt-4 sm:mt-6 pt-4 border-t border-white/5">
-          <span id="ram-used" class="text-xs sm:text-sm text-neutral-400 font-mono">0 GB</span>
-          <div class="h-1 flex-1 mx-3 bg-white/10 rounded-full overflow-hidden">
-            <div id="ram-bar" class="h-full bg-blue-400/50 rounded-full transition-all duration-500" style="width: 0%"></div>
-          </div>
-          <span id="ram-total" class="text-xs sm:text-sm text-neutral-400 font-mono">0 GB</span>
+        <div class="mt-4 flex justify-between text-xs text-neutral-400">
+          <span id="ram-used">0 GB</span>
+          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="ram-bar" class="h-full bg-blue-400 rounded-full" style="width:0%"></div></div>
+          <span id="ram-total">0 GB</span>
         </div>
       </div>
 
-      <!-- Disk Card -->
-      <div class="resource-card glass-panel p-responsive lg:p-8 md:col-span-2 lg:col-span-1">
-        <div class="flex items-center gap-4 mb-4 sm:mb-6">
+      <!-- Disk -->
+      <div class="resource-card glass-panel p-6">
+        <div class="flex items-center gap-4 mb-4">
           <div class="p-3 rounded-xl bg-emerald-500/10">
-            <svg class="icon icon-xl icon-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
-            </svg>
+            <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-neutral-400 text-xs sm:text-sm font-medium uppercase tracking-wider">Disk Usage</p>
-            <p id="disk-text" class="metric-value text-4xl sm:text-5xl lg:text-6xl font-bold text-emerald-400 mt-1">0%</p>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-sm">Disk Usage</p>
+            <p id="disk-text" class="text-5xl font-bold text-emerald-400">0%</p>
           </div>
         </div>
         <div id="disk-graph" class="bar-graph text-emerald-400"></div>
-        <div class="flex justify-between items-center mt-4 sm:mt-6 pt-4 border-t border-white/5">
-          <span id="disk-used" class="text-xs sm:text-sm text-neutral-400 font-mono">0 GB</span>
-          <div class="h-1 flex-1 mx-3 bg-white/10 rounded-full overflow-hidden">
-            <div id="disk-bar" class="h-full bg-emerald-400/50 rounded-full transition-all duration-500" style="width: 0%"></div>
-          </div>
-          <span id="disk-total" class="text-xs sm:text-sm text-neutral-400 font-mono">0 GB</span>
+        <div class="mt-4 flex justify-between text-xs text-neutral-400">
+          <span id="disk-used">0 GB</span>
+          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="disk-bar" class="h-full bg-emerald-400 rounded-full" style="width:0%"></div></div>
+          <span id="disk-total">0 GB</span>
         </div>
       </div>
-
     </div>
+  </div>
+
+  <!-- LIVE PM2 LOGS (Exact original) -->
+  <div class="mt-8 sm:mt-12 glass-panel p-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-lg bg-white/5">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h2 class="text-lg sm:text-xl font-semibold text-white">KS Panel Live Logs</h2>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="clearLogs()" class="refresh-btn text-xs px-4">Clear Logs</button>
+        <button onclick="toggleStream()" id="log-btn" class="refresh-btn bg-red-500 text-white text-xs px-4">Stop Stream</button>
+      </div>
+    </div>
+    <div id="logs" class="log-terminal"></div>
   </div>
 
 </main>
 
+<!-- Notification (from original) -->
+<div id="notification" class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm">
+  <svg id="notification-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+  <span id="notification-text" class="break-text"></span>
+</div>
+
 <script>
-  // ==========================================
-  // SVG ICONS LIBRARY (for dynamic injection)
-  // ==========================================
-  const Icons = {
-    check: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`,
-    warning: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`,
-    error: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`,
-    refresh: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>`,
-    play: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-    stop: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
-    trash: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
-    rocket: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
-    update: `<svg class="icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>`
+// DOM Elements cache
+let els = {};
+
+// Update all stats (Database + Dashboard)
+function updateStats(data) {
+  // Database Statistics
+  els.users.textContent = data.usersTotal;
+  els.admins.textContent = data.adminsTotal;
+  els.instances.textContent = data.instancesTotal;
+  els.suspended.textContent = data.suspendedTotal;
+  els.templates.textContent = data.templatesTotal;
+  els.nodes.textContent = data.nodesTotal;
+  els.online.textContent = data.onlineNodes;
+  els.offline.textContent = data.offlineNodes;
+  els.locations.textContent = data.locationsTotal;
+  els.apikeys.textContent = data.apiKeysTotal;
+  els.plugins.textContent = data.pluginsTotal;
+  els.requests.textContent = data.totalRequests;
+  els.visitors.textContent = data.uniqueVisitors;
+  els.avg.textContent = data.avgRequestsPerHour;
+
+  // Database Information
+  els.dbtype.textContent = data.dbType;
+  els.dbsize.textContent = data.dbSize;
+  els.dburl.textContent = data.dbUrlMasked;
+  els.dbtable.textContent = data.dbTable;
+  els.dbkeys.textContent = data.totalKeys;
+}
+
+// Fetch full dashboard stats
+async function fetchDashboardStats() {
+  try {
+    const res = await fetch('/admin/dashboard/api/stats');
+    const data = await res.json();
+    updateStats(data);
+    return true;
+  } catch (e) {
+    console.error("Dashboard stats failed", e);
+    return false;
+  }
+}
+
+// Resources Monitor
+async function fetchResources() {
+  try {
+    const res = await fetch('/resourceMonitor');
+    const data = await res.json();
+
+    // CPU
+    const cpuPercent = Math.round(data.cpu?.percent || 0);
+    document.getElementById('cpu-text').textContent = cpuPercent + '%';
+    document.getElementById('cpu-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${cpuPercent}%"></div>`).join('');
+    document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
+
+    // RAM
+    const ramPercent = Math.round(data.ram?.percent || 0);
+    document.getElementById('ram-text').textContent = ramPercent + '%';
+    document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
+    document.getElementById('ram-total').textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
+    document.getElementById('ram-bar').style.width = ramPercent + '%';
+    document.getElementById('ram-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${ramPercent}%"></div>`).join('');
+
+    // Disk
+    const diskPercent = Math.round(data.disk?.percent || 0);
+    document.getElementById('disk-text').textContent = diskPercent + '%';
+    document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
+    document.getElementById('disk-total').textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
+    document.getElementById('disk-bar').style.width = diskPercent + '%';
+    document.getElementById('disk-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${diskPercent}%"></div>`).join('');
+  } catch (e) {
+    console.error("Resources failed", e);
+  }
+}
+
+// Live PM2 Logs
+let eventSource = null;
+let isStreaming = true;
+let logBuffer = [];
+
+function createLogEntry(text) {
+  const div = document.createElement('div');
+  div.className = 'py-px border-l-2 border-transparent hover:border-blue-400 pl-2';
+  const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  div.innerHTML = `<span class="text-neutral-500 text-xs">[${time}]</span> ${text}`;
+  return div;
+}
+
+function flushLogs() {
+  const container = document.getElementById('logs');
+  logBuffer.forEach(text => container.appendChild(createLogEntry(text)));
+  logBuffer = [];
+  if (container.scrollHeight - container.scrollTop < 300) container.scrollTop = container.scrollHeight;
+}
+
+function startStream() {
+  if (eventSource) eventSource.close();
+  document.getElementById('logs').innerHTML = '<div class="text-neutral-400 italic">Connecting to live logs...</div>';
+
+  eventSource = new EventSource('/admin/dashboard/api/server-logs/stream');
+  eventSource.onmessage = e => logBuffer.push(e.data);
+  eventSource.onerror = () => logBuffer.push('<span class="text-red-400">[Stream disconnected – retrying...]</span>');
+
+  setInterval(flushLogs, 80);
+}
+
+function toggleStream() {
+  const btn = document.getElementById('log-btn');
+  if (isStreaming) {
+    eventSource?.close();
+    btn.textContent = 'Resume Stream';
+    btn.classList.remove('bg-red-500');
+    btn.classList.add('bg-emerald-500');
+  } else {
+    startStream();
+    btn.textContent = 'Stop Stream';
+    btn.classList.remove('bg-emerald-500');
+    btn.classList.add('bg-red-500');
+  }
+  isStreaming = !isStreaming;
+}
+
+function clearLogs() {
+  document.getElementById('logs').innerHTML = '<div class="text-neutral-400 italic p-2">Logs cleared • Waiting for new data...</div>';
+  logBuffer = [];
+}
+
+// Full refresh
+async function refreshAll() {
+  const btns = document.querySelectorAll('button');
+  btns.forEach(b => b.style.opacity = '0.6');
+  await Promise.all([fetchDashboardStats(), fetchResources()]);
+  btns.forEach(b => b.style.opacity = '1');
+  showNotification('All data refreshed!', 'success');
+}
+
+function showNotification(message, type = 'success') {
+  const notif = document.getElementById('notification');
+  document.getElementById('notification-text').textContent = message;
+  notif.className = type === 'success' 
+    ? 'fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm' 
+    : 'fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 bg-red-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm';
+  notif.classList.remove('hidden');
+  setTimeout(() => notif.classList.add('hidden'), 3000);
+}
+
+// Init everything
+window.onload = async () => {
+  // Cache all elements
+  els = {
+    users: document.getElementById('users-text'),
+    admins: document.getElementById('admins-text'),
+    instances: document.getElementById('instances-text'),
+    suspended: document.getElementById('suspended-text'),
+    templates: document.getElementById('templates-text'),
+    nodes: document.getElementById('nodes-text'),
+    online: document.getElementById('online-text'),
+    offline: document.getElementById('offline-text'),
+    locations: document.getElementById('locations-text'),
+    apikeys: document.getElementById('apikeys-text'),
+    plugins: document.getElementById('plugins-text'),
+    requests: document.getElementById('requests-text'),
+    visitors: document.getElementById('visitors-text'),
+    avg: document.getElementById('avg-text'),
+    dbtype: document.getElementById('dbtype-text'),
+    dbsize: document.getElementById('dbsize-text'),
+    dburl: document.getElementById('dburl-text'),
+    dbtable: document.getElementById('dbtable-text'),
+    dbkeys: document.getElementById('dbkeys-text')
   };
 
-  // ==========================================
-  // DYNAMIC BAR GRAPH (Auto-scaling)
-  // ==========================================
-  function updateBarGraph(graphId, percent, colorClass) {
-    const graph = document.getElementById(graphId);
-    const targetHeight = Math.max(8, Math.min(100, Math.round(percent || 0))) + '%';
-    
-    // Calculate optimal bar count based on container width
-    const calculateBarCount = () => {
-      const paddingTotal = 16;
-      const availableWidth = Math.max(200, graph.clientWidth - paddingTotal);
-      const barWidthWithGap = 6 + 2; // 6px bar + 2px gap
-      let count = Math.floor(availableWidth / barWidthWithGap);
-      return Math.max(8, Math.min(50, count));
-    };
+  // Load everything
+  await fetchDashboardStats();
+  await fetchResources();
+  startStream();
 
-    // Initialize bars if empty or resize detected
-    if (graph.children.length === 0 || graph.dataset.barCount !== String(calculateBarCount())) {
-      graph.innerHTML = '';
-      graph.dataset.barCount = calculateBarCount();
-      const numBars = parseInt(graph.dataset.barCount);
-      const fragment = document.createDocumentFragment();
-      
-      for (let i = 0; i < numBars; i++) {
-        const bar = document.createElement('div');
-        bar.className = `bar ${colorClass}`;
-        // Staggered animation delay for wave effect
-        bar.style.transitionDelay = `${i * 15}ms`;
-        // Random initial height for visual interest
-        bar.style.height = `${Math.random() * 20 + 10}%`;
-        fragment.appendChild(bar);
-      }
-      graph.appendChild(fragment);
-      
-      // Trigger reflow for animation
-      requestAnimationFrame(() => {
-        Array.from(graph.children).forEach(bar => {
-          bar.style.height = targetHeight;
-        });
-      });
-    } else {
-      // Update existing bars with smooth transition
-      Array.from(graph.children).forEach(bar => {
-        bar.style.height = targetHeight;
-      });
-    }
-  }
-
-  // ==========================================
-  // RESOURCES MONITOR (Optimised)
-  // ==========================================
-  let cpuEl, ramTextEl, ramUsedEl, ramTotalEl, diskTextEl, diskUsedEl, diskTotalEl, cpuStatusEl, ramBar, diskBar;
-
-  async function fetchResources() {
-    try {
-      const res = await fetch('/resourceMonitor');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      // CPU Update
-      const cpuPercent = Math.round(data.cpu?.percent || 0);
-      cpuEl.textContent = cpuPercent + '%';
-      
-      const isHighLoad = cpuPercent > 85;
-      cpuStatusEl.className = isHighLoad ? 'status-text status-warning' : 'status-text text-neutral-500';
-      cpuStatusEl.innerHTML = isHighLoad ? 
-        `${Icons.warning} <span>HIGH LOAD</span>` : 
-        `${Icons.check} <span>Normal</span>`;
-      
-      updateBarGraph('cpu-graph', cpuPercent, 'text-orange-400');
-      
-      if (data.cpu?.cores) {
-        document.getElementById('cpu-cores').textContent = `${data.cpu.cores} Cores`;
-      }
-
-      // RAM Update
-      const ramPercent = Math.round(data.ram?.percent || 0);
-      ramTextEl.textContent = ramPercent + '%';
-      ramUsedEl.textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
-      ramTotalEl.textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
-      if (ramBar) ramBar.style.width = ramPercent + '%';
-      updateBarGraph('ram-graph', ramPercent, 'text-blue-400');
-
-      // Disk Update
-      const diskPercent = Math.round(data.disk?.percent || 0);
-      diskTextEl.textContent = diskPercent + '%';
-      diskUsedEl.textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
-      diskTotalEl.textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
-      if (diskBar) diskBar.style.width = diskPercent + '%';
-      updateBarGraph('disk-graph', diskPercent, 'text-emerald-400');
-
-    } catch (e) {
-      console.error("Resource monitor failed:", e);
-      // Show error state gracefully
-      cpuStatusEl.innerHTML = `${Icons.error} <span>Connection Error</span>`;
-      cpuStatusEl.className = 'status-text text-red-400';
-    }
-  }
-
-  function refreshResources() {
-    const btn = document.getElementById('refreshBtn');
-    btn.disabled = true;
-    fetchResources().finally(() => {
-      setTimeout(() => btn.disabled = false, 500);
-    });
-  }
-
-  // ==========================================
-  // VERSION CHECK + DYNAMIC ACTION
-  // ==========================================
-  let isOutdated = false;
-
-  function updateBadge(status, text, version = '') {
-    const desktopBadge = document.getElementById('version-badge');
-    const mobileBadge = document.getElementById('version-badge-mobile')?.firstElementChild;
-    
-    const badges = [desktopBadge, mobileBadge].filter(Boolean);
-    
-    badges.forEach(badge => {
-      badge.className = `version-badge badge-${status}`;
-      if (status === 'warning' && version) {
-        badge.innerHTML = `${Icons.update} <span>Update v${version}</span>`;
-      } else if (status === 'success') {
-        badge.innerHTML = `${Icons.check} <span>${text}</span>`;
-      } else {
-        badge.innerHTML = `${Icons.error} <span>${text}</span>`;
-      }
-    });
-  }
-
-  async function checkForUpdate() {
-    const checkBtn = document.getElementById('check-btn');
-    const originalHTML = checkBtn.innerHTML;
-    checkBtn.innerHTML = `<svg class="icon w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> <span>Checking...</span>`;
-    checkBtn.disabled = true;
-
-    try {
-      const res = await fetch('/version');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      document.getElementById('current-version').textContent = `v${data.currentVersion}`;
-      const actionBtn = document.getElementById('action-btn');
-
-      if (data.status === 'outdated') {
-        isOutdated = true;
-        updateBadge('warning', 'Update', data.latestVersion);
-        actionBtn.innerHTML = `${Icons.update} <span>Update</span>`;
-        actionBtn.className = 'btn btn-success flex-1 sm:flex-none px-5 py-2.5 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2 text-white font-medium';
-      } else {
-        isOutdated = false;
-        updateBadge('success', 'Up to date');
-        actionBtn.innerHTML = `${Icons.rocket} <span>Reinstall</span>`;
-        actionBtn.className = 'btn btn-action flex-1 sm:flex-none px-5 py-2.5 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2 text-white font-medium';
-      }
-    } catch (e) {
-      console.error("Version check failed:", e);
-      updateBadge('error', 'Failed');
-    }
-
-    checkBtn.innerHTML = originalHTML;
-    checkBtn.disabled = false;
-  }
-
-  async function performAction() {
-    const action = isOutdated ? 'Update' : 'Reinstall';
-    if (!confirm(`Start ${action}? This will run the update script and restart services.`)) return;
-
-    const btn = document.getElementById('action-btn');
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = `<svg class="icon w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> <span>${action}ing...</span>`;
-    btn.disabled = true;
-
-    try {
-      const res = await fetch('/reinstall');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      alert(`✅ ${action} started! Page will auto-reload in 8 seconds...`);
-      setTimeout(() => location.reload(true), 8000);
-    } catch (e) {
-      alert(`${action} trigger failed. Check console.`);
-      console.error(e);
-      btn.innerHTML = originalHTML;
-      btn.disabled = false;
-    }
-  }
-
-  // ==========================================
-  // LIVE LOGS STREAM (Enhanced)
-  // ==========================================
-  let eventSource = null;
-  let isStreaming = true;
-  let logBuffer = [];
-  let flushInterval = null;
-
-  function createLogEntry(text) {
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    
-    // Add timestamp
-    const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    
-    // Color coding based on log level
-    let colorClass = 'text-neutral-400';
-    if (text.includes('ERROR') || text.includes('error')) colorClass = 'text-red-400';
-    else if (text.includes('WARN')) colorClass = 'text-amber-400';
-    else if (text.includes('INFO')) colorClass = 'text-blue-400';
-    else if (text.includes('SUCCESS')) colorClass = 'text-emerald-400';
-    
-    entry.innerHTML = `<span class="text-neutral-600 text-xs">[${time}]</span> <span class="${colorClass}">${escapeHtml(text)}</span>`;
-    return entry;
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  function flushLogs() {
-    const logsDiv = document.getElementById('logs');
-    if (logBuffer.length === 0) return;
-    
-    const fragment = document.createDocumentFragment();
-    logBuffer.forEach(text => {
-      fragment.appendChild(createLogEntry(text));
-    });
-    logBuffer = [];
-    
-    logsDiv.appendChild(fragment);
-    
-    // Auto-scroll if near bottom
-    const isNearBottom = logsDiv.scrollHeight - logsDiv.scrollTop - logsDiv.clientHeight < 100;
-    if (isNearBottom) {
-      logsDiv.scrollTop = logsDiv.scrollHeight;
-    }
-    
-    // Limit entries for performance
-    while (logsDiv.children.length > 500) {
-      logsDiv.removeChild(logsDiv.firstChild);
-    }
-  }
-
-  function startStream() {
-    if (eventSource) eventSource.close();
-    
-    const logsDiv = document.getElementById('logs');
-    if (logsDiv.children.length === 0 || logsDiv.textContent.includes('Connecting')) {
-      logsDiv.innerHTML = '';
-    }
-
-    eventSource = new EventSource('/admin/dashboard/api/server-logs/stream');
-    
-    eventSource.onmessage = (e) => {
-      logBuffer.push(e.data);
-    };
-
-    eventSource.onerror = () => {
-      logBuffer.push('[Stream disconnected - Retrying...]');
-      // Auto-reconnect after 3 seconds
-      setTimeout(() => {
-        if (isStreaming) startStream();
-      }, 3000);
-    };
-
-    // Flush buffer every 100ms for smooth rendering
-    if (!flushInterval) {
-      flushInterval = setInterval(flushLogs, 100);
-    }
-  }
-
-  function toggleStream() {
-    const btn = document.getElementById('log-btn');
-    if (isStreaming) {
-      eventSource?.close();
-      clearInterval(flushInterval);
-      flushInterval = null;
-      btn.innerHTML = `${Icons.play} <span>Resume</span>`;
-      btn.className = 'btn btn-success flex-1 sm:flex-none px-4 py-2 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2 text-white';
-      logBuffer.push('[Stream paused by user]');
-      flushLogs();
-    } else {
-      startStream();
-      btn.innerHTML = `${Icons.stop} <span>Stop</span>`;
-      btn.className = 'btn btn-danger flex-1 sm:flex-none px-4 py-2 rounded-[10px] text-xs sm:text-sm flex items-center justify-center gap-2 text-white';
-    }
-    isStreaming = !isStreaming;
-  }
-
-  function clearLogs() {
-    const logsDiv = document.getElementById('logs');
-    logsDiv.innerHTML = `<div class="log-entry text-neutral-500 italic">Logs cleared. Waiting for new entries...</div>`;
-    logBuffer = [];
-  }
-
-  // ==========================================
-  // RESPONSIVE HANDLING
-  // ==========================================
-  function handleResize() {
-    // Debounced resize handler
-    clearTimeout(window.resizeTimer);
-    window.resizeTimer = setTimeout(() => {
-      // Clear graphs to recalculate bar counts
-      ['cpu-graph', 'ram-graph', 'disk-graph'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = '';
-      });
-      fetchResources();
-    }, 250);
-  }
-
-  // ==========================================
-  // INITIALISATION
-  // ==========================================
-  window.addEventListener('DOMContentLoaded', () => {
-    // Cache DOM elements
-    cpuEl = document.getElementById('cpu-text');
-    ramTextEl = document.getElementById('ram-text');
-    ramUsedEl = document.getElementById('ram-used');
-    ramTotalEl = document.getElementById('ram-total');
-    diskTextEl = document.getElementById('disk-text');
-    diskUsedEl = document.getElementById('disk-used');
-    diskTotalEl = document.getElementById('disk-total');
-    cpuStatusEl = document.getElementById('cpu-status');
-    ramBar = document.getElementById('ram-bar');
-    diskBar = document.getElementById('disk-bar');
-
-    // Initial data fetch
-    fetchResources();
-    checkForUpdate();
-
-    // Periodic updates
-    setInterval(fetchResources, 2800);
-
-    // Start log stream
-    startStream();
-
-    // Responsive handling
-    window.addEventListener('resize', handleResize, { passive: true });
-
-    // Visibility API - pause/resume when tab hidden
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        // Reduce update frequency when hidden
-        window.slowMode = true;
-      } else {
-        window.slowMode = false;
-        fetchResources(); // Immediate refresh when visible
-      }
-    });
-  });
-
-  // Cleanup
-  window.addEventListener('beforeunload', () => {
-    if (eventSource) eventSource.close();
-    if (flushInterval) clearInterval(flushInterval);
-  });
+  // Fast live updates
+  setInterval(fetchDashboardStats, 10000);   // every 10s
+  setInterval(fetchResources, 2500);         // every 2.5s (fast resources)
+};
 </script>
+
+<%- include('../../components/template') %>
