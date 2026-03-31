@@ -330,23 +330,23 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
             
             
 <div class="flex items-center gap-x-2">
-  <div class="relative cursor-pointer group" id="update-manager-container">
-    <!-- Modern Animated SVG Icon -->
-    <svg id="update-icon"
+  <div class="relative cursor-pointer group" id="upd-mgr-container">
+    <!-- Animated SVG Icon -->
+    <svg id="upd-mgr-icon"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       class="w-6 h-6 text-neutral-400 transition-all duration-300 group-hover:text-white group-hover:scale-110">
       
       <defs>
-        <linearGradient id="updateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="upd-mgr-grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
         </linearGradient>
-        <linearGradient id="successGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="upd-mgr-grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
         </linearGradient>
-        <linearGradient id="warningGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="upd-mgr-grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
         </linearGradient>
@@ -356,15 +356,15 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.2"/>
       
       <!-- Rotating outer ring -->
-      <g class="origin-center" style="animation: updateSpin 8s linear infinite;">
-        <circle cx="12" cy="12" r="9" fill="none" stroke="url(#updateGrad)" stroke-width="1.5" stroke-dasharray="40 20" stroke-linecap="round"/>
+      <g style="transform-origin: center; animation: upd-mgr-spin 8s linear infinite;">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="url(#upd-mgr-grad-blue)" stroke-width="1.5" stroke-dasharray="40 20" stroke-linecap="round"/>
       </g>
       
       <!-- Inner ring -->
       <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
       
       <!-- Sync arrows -->
-      <g id="update-arrows">
+      <g>
         <path d="M12 6v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         <path d="M9 9l3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 18v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -372,11 +372,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       </g>
       
       <!-- Status indicator -->
-      <circle id="update-status-dot" cx="20" cy="4" r="2.5" fill="#9ca3af" class="transition-all duration-300"/>
+      <circle id="upd-mgr-status-dot" cx="20" cy="4" r="2.5" fill="#9ca3af" class="transition-all duration-300"/>
     </svg>
     
-    <!-- Dropdown - Positioned right-aligned but within viewport -->
-    <div id="update-dropdown" class="fixed right-4 sm:right-6 lg:right-8 top-16 w-80 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-[100] transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
+    <!-- Dropdown Menu -->
+    <div id="upd-mgr-dropdown" class="absolute right-0 mt-3 w-80 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
       
       <!-- Header -->
       <div class="flex items-center justify-between mb-5">
@@ -388,7 +388,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
           </div>
           <div>
             <h2 class="text-lg font-bold text-white tracking-wide">Update Manager</h2>
-            <p id="update-status-text" class="text-xs text-neutral-400">Checking...</p>
+            <p id="upd-mgr-status-text" class="text-xs text-neutral-400">Checking...</p>
           </div>
         </div>
         <div class="flex gap-1">
@@ -399,75 +399,73 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       </div>
       
       <!-- Version Info -->
-      <div id="update-version-card" class="opacity-0 translate-x-4 transition-all duration-300 bg-neutral-800/50 rounded-lg p-4 mb-4 border border-white/5">
+      <div id="upd-mgr-version-card" class="opacity-0 translate-x-4 transition-all duration-300 bg-neutral-800/50 rounded-lg p-4 mb-4 border border-white/5">
         <div class="flex justify-between items-center mb-2">
           <span class="text-neutral-400 text-sm">Current</span>
-          <span id="update-current-ver" class="text-white font-mono font-semibold text-sm">--</span>
+          <span id="upd-mgr-current-ver" class="text-white font-mono font-semibold text-sm">--</span>
         </div>
         <div class="flex justify-between items-center mb-2">
           <span class="text-neutral-400 text-sm">Latest</span>
-          <span id="update-latest-ver" class="text-blue-400 font-mono font-semibold text-sm">--</span>
+          <span id="upd-mgr-latest-ver" class="text-blue-400 font-mono font-semibold text-sm">--</span>
         </div>
         <div class="mt-3 pt-2 border-t border-white/5 flex items-center gap-2">
-          <div id="update-indicator" class="w-2 h-2 rounded-full bg-neutral-500"></div>
-          <span id="update-message" class="text-xs text-neutral-400">Checking status...</span>
+          <div id="upd-mgr-indicator" class="w-2 h-2 rounded-full bg-neutral-500"></div>
+          <span id="upd-mgr-message" class="text-xs text-neutral-400">Checking status...</span>
         </div>
       </div>
       
       <!-- Progress -->
-      <div id="update-progress-wrap" class="opacity-0 translate-x-4 transition-all duration-300 hidden mb-4">
+      <div id="upd-mgr-progress-wrap" class="opacity-0 translate-x-4 transition-all duration-300 hidden mb-4">
         <div class="flex justify-between items-center mb-2">
           <span class="text-neutral-400 text-xs">Progress</span>
-          <span id="update-progress-text" class="text-blue-400 text-xs font-mono">0%</span>
+          <span id="upd-mgr-progress-text" class="text-blue-400 text-xs font-mono">0%</span>
         </div>
         <div class="w-full bg-neutral-800/80 h-2 rounded-full overflow-hidden">
-          <div id="update-progress-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-500 w-0"></div>
+          <div id="upd-mgr-progress-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-500 w-0"></div>
         </div>
       </div>
       
       <!-- Action Button -->
-      <button id="update-action-btn" class="opacity-0 translate-x-4 transition-all duration-300 w-full relative overflow-hidden rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-white/10 hover:border-blue-500/50 transition-all duration-300 py-3 px-4 disabled:opacity-50 disabled:cursor-not-allowed group/btn">
+      <button id="upd-mgr-action-btn" class="opacity-0 translate-x-4 transition-all duration-300 w-full relative overflow-hidden rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-white/10 hover:border-blue-500/50 py-3 px-4 disabled:opacity-50 disabled:cursor-not-allowed group/btn">
         <div class="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/10 to-blue-600/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
         <div class="flex items-center justify-center gap-2 relative z-10">
-          <svg id="update-btn-icon" class="w-4 h-4 text-neutral-400 group-hover/btn:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg id="upd-mgr-btn-icon" class="w-4 h-4 text-neutral-400 group-hover/btn:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          <span id="update-btn-text" class="text-neutral-300 group-hover/btn:text-white font-medium text-sm transition-colors">Loading...</span>
+          <span id="upd-mgr-btn-text" class="text-neutral-300 group-hover/btn:text-white font-medium text-sm transition-colors">Loading...</span>
         </div>
       </button>
       
       <!-- Footer -->
-      <div id="update-footer" class="opacity-0 translate-x-4 transition-all duration-300 mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500">
+      <div id="upd-mgr-footer" class="opacity-0 translate-x-4 transition-all duration-300 mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500">
         <span>Checked</span>
-        <span id="update-last-check" class="font-mono">--:--:--</span>
+        <span id="upd-mgr-last-check" class="font-mono">--:--:--</span>
       </div>
     </div>
   </div>
 </div>
 
 <style>
-  @keyframes updateSpin {
+  @keyframes upd-mgr-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
-  #update-manager-container {
+  #upd-mgr-container {
     position: relative;
     display: inline-flex;
   }
-  #update-dropdown {
-    position: fixed;
-    top: 4rem;
-    right: 1rem;
-    max-width: calc(100vw - 2rem);
+  #upd-mgr-dropdown {
+    right: 0;
+    left: auto;
+    transform-origin: top right;
   }
-  @media (min-width: 640px) {
-    #update-dropdown {
-      right: 1.5rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    #update-dropdown {
-      right: 2rem;
+  @media (max-width: 640px) {
+    #upd-mgr-dropdown {
+      position: fixed;
+      right: 1rem;
+      left: 1rem;
+      width: auto;
+      top: 4rem;
     }
   }
 </style>
@@ -476,31 +474,33 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
 (function() {
   'use strict';
   
-  const container = document.getElementById('update-manager-container');
-  const dropdown = document.getElementById('update-dropdown');
-  const actionBtn = document.getElementById('update-action-btn');
-  const btnText = document.getElementById('update-btn-text');
-  const btnIcon = document.getElementById('update-btn-icon');
-  const statusDot = document.getElementById('update-status-dot');
-  const statusText = document.getElementById('update-status-text');
-  const indicator = document.getElementById('update-indicator');
-  const message = document.getElementById('update-message');
-  const currentVer = document.getElementById('update-current-ver');
-  const latestVer = document.getElementById('update-latest-ver');
-  const lastCheck = document.getElementById('update-last-check');
-  const versionCard = document.getElementById('update-version-card');
-  const progressWrap = document.getElementById('update-progress-wrap');
-  const progressBar = document.getElementById('update-progress-bar');
-  const progressText = document.getElementById('update-progress-text');
-  const footer = document.getElementById('update-footer');
-  
-  let isOpen = false;
-  let updateData = null;
-  let isProcessing = false;
-  let checkInterval = null;
+  // Strictly scoped variables with unique prefix
+  const _updMgr = {
+    container: document.getElementById('upd-mgr-container'),
+    dropdown: document.getElementById('upd-mgr-dropdown'),
+    actionBtn: document.getElementById('upd-mgr-action-btn'),
+    btnText: document.getElementById('upd-mgr-btn-text'),
+    btnIcon: document.getElementById('upd-mgr-btn-icon'),
+    statusDot: document.getElementById('upd-mgr-status-dot'),
+    statusText: document.getElementById('upd-mgr-status-text'),
+    indicator: document.getElementById('upd-mgr-indicator'),
+    message: document.getElementById('upd-mgr-message'),
+    currentVer: document.getElementById('upd-mgr-current-ver'),
+    latestVer: document.getElementById('upd-mgr-latest-ver'),
+    lastCheck: document.getElementById('upd-mgr-last-check'),
+    versionCard: document.getElementById('upd-mgr-version-card'),
+    progressWrap: document.getElementById('upd-mgr-progress-wrap'),
+    progressBar: document.getElementById('upd-mgr-progress-bar'),
+    progressText: document.getElementById('upd-mgr-progress-text'),
+    footer: document.getElementById('upd-mgr-footer'),
+    isOpen: false,
+    data: null,
+    processing: false,
+    interval: null
+  };
 
-  function animateElements(show) {
-    const elements = [versionCard, progressWrap, actionBtn, footer];
+  function _updMgrAnimateElements(show) {
+    const elements = [_updMgr.versionCard, _updMgr.progressWrap, _updMgr.actionBtn, _updMgr.footer];
     elements.forEach((el, idx) => {
       if (!el) return;
       setTimeout(() => {
@@ -515,128 +515,130 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
     });
   }
 
-  function openDropdown() {
-    dropdown.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
-    dropdown.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
-    animateElements(true);
+  function _updMgrOpen() {
+    _updMgr.dropdown.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+    _updMgr.dropdown.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    _updMgrAnimateElements(true);
   }
 
-  function closeDropdown() {
-    animateElements(false);
+  function _updMgrClose() {
+    _updMgrAnimateElements(false);
     setTimeout(() => {
-      dropdown.classList.add('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
-      dropdown.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+      _updMgr.dropdown.classList.add('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+      _updMgr.dropdown.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
     }, 200);
   }
 
-  container.addEventListener('click', function(e) {
-    e.preventDefault();
+  _updMgr.container.addEventListener('click', function(e) {
     e.stopPropagation();
-    isOpen = !isOpen;
-    if (isOpen) {
-      openDropdown();
+    e.preventDefault();
+    _updMgr.isOpen = !_updMgr.isOpen;
+    if (_updMgr.isOpen) {
+      _updMgrOpen();
     } else {
-      closeDropdown();
+      _updMgrClose();
     }
   });
 
-  document.addEventListener('click', function(e) {
-    if (isOpen && !container.contains(e.target)) {
-      isOpen = false;
-      closeDropdown();
+  // Use named function for removal if needed
+  function _updMgrDocClick(e) {
+    if (_updMgr.isOpen && !_updMgr.container.contains(e.target)) {
+      _updMgr.isOpen = false;
+      _updMgrClose();
     }
-  });
+  }
+  document.addEventListener('click', _updMgrDocClick);
 
-  function setStatus(state) {
-    const ring = container.querySelector('circle[r="9"]');
+  function _updMgrSetStatus(state) {
+    const ring = _updMgr.container.querySelector('circle[r="9"]');
     
     switch(state) {
       case 'outdated':
-        statusDot.setAttribute('fill', '#fbbf24');
-        statusDot.classList.add('animate-pulse');
-        if (ring) ring.setAttribute('stroke', 'url(#warningGrad)');
-        statusText.textContent = 'Update available';
-        statusText.className = 'text-xs text-amber-400';
-        indicator.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        message.textContent = 'New version ready';
-        message.className = 'text-xs text-amber-400';
-        btnText.textContent = `Update to v${updateData.latestVersion}`;
-        btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>';
-        actionBtn.classList.remove('bg-neutral-800', 'hover:bg-neutral-700');
-        actionBtn.classList.add('bg-amber-500/20', 'hover:bg-amber-500/30', 'border-amber-500/50');
+        _updMgr.statusDot.setAttribute('fill', '#fbbf24');
+        _updMgr.statusDot.classList.add('animate-pulse');
+        if (ring) ring.setAttribute('stroke', 'url(#upd-mgr-grad-amber)');
+        _updMgr.statusText.textContent = 'Update available';
+        _updMgr.statusText.className = 'text-xs text-amber-400';
+        _updMgr.indicator.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        _updMgr.message.textContent = 'New version ready';
+        _updMgr.message.className = 'text-xs text-amber-400';
+        _updMgr.btnText.textContent = 'Update to v' + _updMgr.data.latestVersion;
+        _updMgr.btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>';
+        _updMgr.actionBtn.classList.remove('bg-neutral-800', 'hover:bg-neutral-700');
+        _updMgr.actionBtn.classList.add('bg-amber-500/20', 'hover:bg-amber-500/30', 'border-amber-500/50');
         break;
         
       case 'current':
-        statusDot.setAttribute('fill', '#4ade80');
-        statusDot.classList.remove('animate-pulse');
-        if (ring) ring.setAttribute('stroke', 'url(#successGrad)');
-        statusText.textContent = 'Up to date';
-        statusText.className = 'text-xs text-green-400';
-        indicator.className = 'w-2 h-2 rounded-full bg-green-400';
-        message.textContent = 'Latest version running';
-        message.className = 'text-xs text-green-400';
-        btnText.textContent = 'Reinstall v' + updateData.currentVersion;
-        btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>';
-        actionBtn.classList.remove('bg-amber-500/20', 'hover:bg-amber-500/30', 'border-amber-500/50');
-        actionBtn.classList.add('bg-neutral-800', 'hover:bg-neutral-700');
+        _updMgr.statusDot.setAttribute('fill', '#4ade80');
+        _updMgr.statusDot.classList.remove('animate-pulse');
+        if (ring) ring.setAttribute('stroke', 'url(#upd-mgr-grad-green)');
+        _updMgr.statusText.textContent = 'Up to date';
+        _updMgr.statusText.className = 'text-xs text-green-400';
+        _updMgr.indicator.className = 'w-2 h-2 rounded-full bg-green-400';
+        _updMgr.message.textContent = 'Latest version running';
+        _updMgr.message.className = 'text-xs text-green-400';
+        _updMgr.btnText.textContent = 'Reinstall v' + _updMgr.data.currentVersion;
+        _updMgr.btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>';
+        _updMgr.actionBtn.classList.remove('bg-amber-500/20', 'hover:bg-amber-500/30', 'border-amber-500/50');
+        _updMgr.actionBtn.classList.add('bg-neutral-800', 'hover:bg-neutral-700');
         break;
         
       case 'error':
-        statusDot.setAttribute('fill', '#ef4444');
-        statusDot.classList.add('animate-pulse');
-        statusText.textContent = 'Connection error';
-        statusText.className = 'text-xs text-red-400';
-        indicator.className = 'w-2 h-2 rounded-full bg-red-400';
-        message.textContent = 'Cannot reach server';
-        message.className = 'text-xs text-red-400';
-        btnText.textContent = 'Retry';
+        _updMgr.statusDot.setAttribute('fill', '#ef4444');
+        _updMgr.statusDot.classList.add('animate-pulse');
+        _updMgr.statusText.textContent = 'Connection error';
+        _updMgr.statusText.className = 'text-xs text-red-400';
+        _updMgr.indicator.className = 'w-2 h-2 rounded-full bg-red-400';
+        _updMgr.message.textContent = 'Cannot reach server';
+        _updMgr.message.className = 'text-xs text-red-400';
+        _updMgr.btnText.textContent = 'Retry';
         break;
         
       default:
-        statusDot.setAttribute('fill', '#9ca3af');
+        _updMgr.statusDot.setAttribute('fill', '#9ca3af');
     }
   }
 
-  function updateUI(data) {
-    updateData = data;
-    currentVer.textContent = 'v' + data.currentVersion;
-    latestVer.textContent = 'v' + data.latestVersion;
-    lastCheck.textContent = new Date().toLocaleTimeString();
-    setStatus(data.status);
+  function _updMgrUpdateUI(data) {
+    _updMgr.data = data;
+    _updMgr.currentVer.textContent = 'v' + data.currentVersion;
+    _updMgr.latestVer.textContent = 'v' + data.latestVersion;
+    _updMgr.lastCheck.textContent = new Date().toLocaleTimeString();
+    _updMgrSetStatus(data.status);
   }
 
-  function performAction() {
-    if (isProcessing || !updateData) return;
+  function _updMgrPerformAction() {
+    if (_updMgr.processing || !_updMgr.data) return;
     
-    const isUpdate = updateData.status === 'outdated';
-    if (!confirm(`Confirm ${isUpdate ? 'update' : 'reinstall'}? Server may restart.`)) return;
+    const isUpdate = _updMgr.data.status === 'outdated';
+    if (!confirm('Confirm ' + (isUpdate ? 'update' : 'reinstall') + '? Server may restart.')) return;
     
-    isProcessing = true;
-    actionBtn.disabled = true;
-    btnText.textContent = isUpdate ? 'Updating...' : 'Reinstalling...';
+    _updMgr.processing = true;
+    _updMgr.actionBtn.disabled = true;
+    _updMgr.btnText.textContent = isUpdate ? 'Updating...' : 'Reinstalling...';
     
-    progressWrap.classList.remove('hidden');
+    _updMgr.progressWrap.classList.remove('hidden');
     setTimeout(() => {
-      progressWrap.classList.remove('opacity-0', 'translate-x-4');
-      progressWrap.classList.add('opacity-100', 'translate-x-0');
+      _updMgr.progressWrap.classList.remove('opacity-0', 'translate-x-4');
+      _updMgr.progressWrap.classList.add('opacity-100', 'translate-x-0');
     }, 50);
     
     let progress = 0;
     const interval = setInterval(() => {
       progress += Math.random() * 10;
       if (progress > 90) progress = 90;
-      progressBar.style.width = progress + '%';
-      progressText.textContent = Math.round(progress) + '%';
+      _updMgr.progressBar.style.width = progress + '%';
+      _updMgr.progressText.textContent = Math.round(progress) + '%';
     }, 400);
     
     fetch('/reinstall', { method: 'GET' })
       .then(res => {
         clearInterval(interval);
-        progressBar.style.width = '100%';
-        progressText.textContent = '100%';
+        _updMgr.progressBar.style.width = '100%';
+        _updMgr.progressText.textContent = '100%';
         
         if (res.ok) {
-          btnText.textContent = 'Done!';
+          _updMgr.btnText.textContent = 'Done!';
           setTimeout(() => alert((isUpdate ? 'Update' : 'Reinstall') + ' complete!'), 300);
         } else {
           throw new Error('Failed');
@@ -644,32 +646,33 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       })
       .catch(err => {
         clearInterval(interval);
-        isProcessing = false;
-        actionBtn.disabled = false;
-        btnText.textContent = 'Failed - Retry';
+        _updMgr.processing = false;
+        _updMgr.actionBtn.disabled = false;
+        _updMgr.btnText.textContent = 'Failed - Retry';
         alert('Error: ' + err.message);
       });
   }
 
-  actionBtn.addEventListener('click', function(e) {
+  _updMgr.actionBtn.addEventListener('click', function(e) {
     e.stopPropagation();
-    performAction();
+    _updMgrPerformAction();
   });
 
-  function checkVersion() {
+  function _updMgrCheckVersion() {
     fetch('/version')
       .then(r => r.json())
-      .then(data => updateUI(data))
-      .catch(() => setStatus('error'));
+      .then(data => _updMgrUpdateUI(data))
+      .catch(() => _updMgrSetStatus('error'));
   }
 
   // Initialize
-  checkVersion();
-  checkInterval = setInterval(checkVersion, 5000);
+  _updMgrCheckVersion();
+  _updMgr.interval = setInterval(_updMgrCheckVersion, 5000);
   
-  // Cleanup on page unload
+  // Cleanup
   window.addEventListener('beforeunload', function() {
-    if (checkInterval) clearInterval(checkInterval);
+    if (_updMgr.interval) clearInterval(_updMgr.interval);
+    document.removeEventListener('click', _updMgrDocClick);
   });
 })();
 </script>
