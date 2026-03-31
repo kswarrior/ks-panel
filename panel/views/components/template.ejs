@@ -628,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </span>
   
   <!-- Ping Dropdown Menu -->
-  <div id="ping-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
+  <div id="ping-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-lg font-bold text-white tracking-wide">Ping Monitor</h2>
       <div class="flex gap-1">
@@ -689,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </svg>
   
   <!-- Dropdown Menu with animation classes -->
-  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
+  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-lg font-bold text-white tracking-wide">Resource Monitor</h2>
       <div class="flex gap-1">
@@ -935,7 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
      DROPDOWN MENU LANGUAGES SELECTOR (now same stylish dark theme)
      
      -->
-     <div id="dropdown-menu" class="hidden absolute right-0 z-50 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
+     <div id="dropdown-menu" class="absolute right-0 z-50 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
        <div class="flex items-center justify-between mb-5">
          <h2 class="text-lg font-bold text-white tracking-wide">Language</h2>
          <div class="flex gap-1">
@@ -944,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
            <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse delay-150"></div>
          </div>
        </div>
-       <div class="py-1 px-1">
+       <div class="py-1 px-1 metric-row opacity-0 translate-x-4 transition-all duration-300 delay-100">
          <div class="relative">
            <select id="language-selector" class="appearance-none w-full bg-neutral-800 border border-white/20 text-white rounded-2xl py-3 px-4 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="changeLanguage(this.value)">
              
@@ -975,29 +975,53 @@ document.addEventListener('DOMContentLoaded', () => {
  </style>
  
  <script>
-   function toggleDropdown() {
-     const dropdownMenu = document.getElementById('dropdown-menu');
-     dropdownMenu.classList.toggle('hidden');
-     if (!dropdownMenu.classList.contains('hidden')) {
-       setTimeout(() => {
-         dropdownMenu.style.transform = 'scale(1)';
-         dropdownMenu.style.opacity = '1';
-       }, 10);
-     } else {
-       dropdownMenu.style.transform = 'scale(0.95)';
-       dropdownMenu.style.opacity = '0';
-     }
-   }
+document.addEventListener('DOMContentLoaded', () => {
+  const userMenuButton = document.getElementById('user-menu-button');
+  const dropdownMenu = document.getElementById('dropdown-menu');
+  let isDropdownOpen = false;
+  const metricRows = dropdownMenu.querySelectorAll('.metric-row');
 
-   window.addEventListener('click', function(e) {
-     const userMenuButton = document.getElementById('user-menu-button');
-     const dropdownMenu = document.getElementById('dropdown-menu');
-     if (!userMenuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-       dropdownMenu.classList.add('hidden');
-       dropdownMenu.style.transform = 'scale(0.95)';
-       dropdownMenu.style.opacity = '0';
-     }
-   });
+  function toggleDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+    
+    if (isDropdownOpen) {
+      dropdownMenu.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+      dropdownMenu.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+      
+      metricRows.forEach((row, index) => {
+        setTimeout(() => {
+          row.classList.remove('opacity-0', 'translate-x-4');
+          row.classList.add('opacity-100', 'translate-x-0');
+        }, index * 50);
+      });
+    } else {
+      closeDropdown();
+    }
+  }
+
+  function closeDropdown() {
+    metricRows.forEach((row) => {
+      row.classList.add('opacity-0', 'translate-x-4');
+      row.classList.remove('opacity-100', 'translate-x-0');
+    });
+    
+    setTimeout(() => {
+      dropdownMenu.classList.add('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+      dropdownMenu.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    }, 200);
+  }
+
+  // Make toggleDropdown globally available for the onclick attribute
+  window.toggleDropdown = toggleDropdown;
+
+  // Click outside to close (same behavior as other menus)
+  document.addEventListener('click', function(e) {
+    if (!userMenuButton.contains(e.target) && !dropdownMenu.contains(e.target) && isDropdownOpen) {
+      isDropdownOpen = false;
+      closeDropdown();
+    }
+  });
+});
  </script>
            <script src="/javascript/language/index.js"></script>
          </div>
