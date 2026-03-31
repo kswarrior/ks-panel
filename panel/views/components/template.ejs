@@ -403,60 +403,37 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
 </span>
    <!-- Resource Monitor -->
    <div id="resource-link" class="relative cursor-pointer group">
-  <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 text-neutral-400 transition-all duration-300 group-hover:text-white group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+  <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 text-neutral-400 transition-all duration-300 group-hover:text-white group-hover:scale-110">
     <defs>
-      <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <linearGradient id="ramGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
         <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
       </linearGradient>
-      <linearGradient id="barGradientHover" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+      <linearGradient id="cpuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
       </linearGradient>
-      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
+      <linearGradient id="diskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#9333ea;stop-opacity:1" />
+      </linearGradient>
     </defs>
     
-    <!-- RAM bar with rounded top -->
-    <rect x="2" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke stroke-width="0.8" stroke-opacity="0.4"/>
-    <rect id="ram-fill" x="2" y="20" width="4" height="0" rx="1" fill="url(#barGradient)" class="transition-all duration-500 ease-out">
-      <animate attributeName="fill" values="url(#barGradient);url(#barGradientHover);url(#barGradient)" dur="2s" repeatCount="indefinite" begin="0s"/>
-    </rect>
+    <!-- RAM bar -->
+    <rect x="2" y="3" width="5" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+    <rect id="ram-fill" x="2.5" y="20" width="4" height="0" rx="1.5" fill="url(#ramGradient)" class="transition-all duration-500"/>
     
-    <!-- CPU bar with rounded top -->
-    <rect x="10" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.4"/>
-    <rect id="cpu-fill" x="10" y="20" width="4" height="0" rx="1" fill="url(#barGradient)" class="transition-all duration-500 ease-out">
-      <animate attributeName="fill" values="url(#barGradient);url(#barGradientHover);url(#barGradient)" dur="2s" repeatCount="indefinite" begin="0.3s"/>
-    </rect>
+    <!-- CPU bar -->
+    <rect x="9.5" y="3" width="5" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+    <rect id="cpu-fill" x="10" y="20" width="4" height="0" rx="1.5" fill="url(#cpuGradient)" class="transition-all duration-500"/>
     
-    <!-- Disk bar with rounded top -->
-    <rect x="18" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.4"/>
-    <rect id="disk-fill" x="18" y="20" width="4" height="0" rx="1" fill="url(#barGradient)" class="transition-all duration-500 ease-out">
-      <animate attributeName="fill" values="url(#barGradient);url(#barGradientHover);url(#barGradient)" dur="2s" repeatCount="indefinite" begin="0.6s"/>
-    </rect>
-    
-    <!-- Pulse effect circles at bottom of bars -->
-    <circle cx="4" cy="19" r="0" fill="#22c55e" opacity="0.6">
-      <animate attributeName="r" values="0;2;0" dur="1.5s" repeatCount="indefinite" begin="0s"/>
-      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" begin="0s"/>
-    </circle>
-    <circle cx="12" cy="19" r="0" fill="#22c55e" opacity="0.6">
-      <animate attributeName="r" values="0;2;0" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-    </circle>
-    <circle cx="20" cy="19" r="0" fill="#22c55e" opacity="0.6">
-      <animate attributeName="r" values="0;2;0" dur="1.5s" repeatCount="indefinite" begin="1s"/>
-      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" begin="1s"/>
-    </circle>
+    <!-- Disk bar -->
+    <rect x="17" y="3" width="5" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+    <rect id="disk-fill" x="17.5" y="20" width="4" height="0" rx="1.5" fill="url(#diskGradient)" class="transition-all duration-500"/>
   </svg>
   
   <!-- Dropdown Menu -->
-  <div id="resource-dropdown" class="hidden absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl transform transition-all duration-300 origin-top-right scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 z-50">
+  <div id="resource-dropdown" class="hidden absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-lg font-bold text-white tracking-wide">Resource Monitor</h2>
       <div class="flex gap-1">
@@ -466,7 +443,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
       </div>
     </div>
     
-    <div class="mb-5 group/metric">
+    <div class="mb-5">
       <div class="flex justify-between items-center mb-2">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -476,12 +453,12 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         </div>
         <p id="ram-used" class="text-green-400 text-sm font-mono font-semibold"></p>
       </div>
-      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden shadow-inner">
-        <div id="ram-bar" class="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="width: 0%;"></div>
+      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden">
+        <div id="ram-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
       </div>
     </div>
     
-    <div class="mb-5 group/metric">
+    <div class="mb-5">
       <div class="flex justify-between items-center mb-2">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
@@ -491,12 +468,12 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         </div>
         <p id="cpu-percent" class="text-blue-400 text-sm font-mono font-semibold"></p>
       </div>
-      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden shadow-inner">
-        <div id="cpu-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="width: 0%;"></div>
+      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden">
+        <div id="cpu-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
       </div>
     </div>
     
-    <div class="mb-2 group/metric">
+    <div class="mb-2">
       <div class="flex justify-between items-center mb-2">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
@@ -506,12 +483,11 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         </div>
         <p id="disk-used" class="text-purple-400 text-sm font-mono font-semibold"></p>
       </div>
-      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden shadow-inner">
-        <div id="disk-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-violet-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]" style="width: 0%;"></div>
+      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden">
+        <div id="disk-bar" class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: 0%;"></div>
       </div>
     </div>
     
-    <!-- Decorative bottom line -->
     <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500">
       <span>System Status</span>
       <span class="flex items-center gap-1">
@@ -909,75 +885,95 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(checkVersion, 5000);
 });
 </script>
-<script>  
-  function getColor(percent) {  
-    if (percent > 95) return '#ef4444'; // red  
-    if (percent > 75) return '#eab308'; // yellow  
-    return '#22c55e'; // green  
-  }  
-  
-  function getColorClass(percent) {  
-    if (percent > 95) return 'bg-red-500';  
-    if (percent > 75) return 'bg-yellow-500';  
-    return 'bg-green-500';  
-  }  
-  
-  document.addEventListener('DOMContentLoaded', async () => {  
+
+<script>
+  function getColor(percent) {
+    if (percent > 95) return '#ef4444';
+    if (percent > 75) return '#eab308';
+    return '#22c55e';
+  }
+
+  function getGradientId(percent, type) {
+    if (percent > 95) return `url(#${type}GradientRed)` || '#ef4444';
+    if (percent > 75) return `url(#${type}GradientYellow)` || '#eab308';
+    return `url(#${type}Gradient)`;
+  }
+
+  function getColorClass(percent) {
+    if (percent > 95) return 'bg-red-500';
+    if (percent > 75) return 'bg-yellow-500';
+    return 'bg-green-500';
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const dropdown = document.getElementById('resource-dropdown');
+    const link = document.getElementById('resource-link');
+    let isDropdownOpen = false;
+
+    // Toggle dropdown on click
+    link.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isDropdownOpen = !isDropdownOpen;
+      dropdown.classList.toggle('hidden', !isDropdownOpen);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!link.contains(e.target) && isDropdownOpen) {
+        isDropdownOpen = false;
+        dropdown.classList.add('hidden');
+      }
+    });
 
     async function updateResourceData() {
-      try {  
-        const response = await fetch('/resourceMonitor');  
-        const data = await response.json();  
+      try {
+        const response = await fetch('/resourceMonitor');
+        const data = await response.json();
 
-        const maxHeight = 16;  
+        const maxHeight = 17;
+        const baseY = 20;
 
-        // Update RAM icon  
-        let ramHeight = (data.ram.percent / 100) * maxHeight;  
-        let ramY = 2 + (maxHeight - ramHeight);  
-        const ramFill = document.getElementById('ram-fill');  
-        ramFill.setAttribute('y', ramY);  
-        ramFill.setAttribute('height', ramHeight);  
-        ramFill.setAttribute('fill', getColor(data.ram.percent));  
+        // Update RAM icon
+        let ramHeight = (data.ram.percent / 100) * maxHeight;
+        let ramY = baseY - ramHeight;
+        const ramFill = document.getElementById('ram-fill');
+        ramFill.setAttribute('y', ramY);
+        ramFill.setAttribute('height', ramHeight);
+        ramFill.setAttribute('fill', getColor(data.ram.percent));
 
-        // Update CPU icon  
-        let cpuHeight = (data.cpu.percent / 100) * maxHeight;  
-        let cpuY = 2 + (maxHeight - cpuHeight);  
-        const cpuFill = document.getElementById('cpu-fill');  
-        cpuFill.setAttribute('y', cpuY);  
-        cpuFill.setAttribute('height', cpuHeight);  
-        cpuFill.setAttribute('fill', getColor(data.cpu.percent));  
+        // Update CPU icon
+        let cpuHeight = (data.cpu.percent / 100) * maxHeight;
+        let cpuY = baseY - cpuHeight;
+        const cpuFill = document.getElementById('cpu-fill');
+        cpuFill.setAttribute('y', cpuY);
+        cpuFill.setAttribute('height', cpuHeight);
+        cpuFill.setAttribute('fill', getColor(data.cpu.percent));
 
-        // Update Disk icon  
-        let diskHeight = (data.disk.percent / 100) * maxHeight;  
-        let diskY = 2 + (maxHeight - diskHeight);  
-        const diskFill = document.getElementById('disk-fill');  
-        diskFill.setAttribute('y', diskY);  
-        diskFill.setAttribute('height', diskHeight);  
-        diskFill.setAttribute('fill', getColor(data.disk.percent));  
+        // Update Disk icon
+        let diskHeight = (data.disk.percent / 100) * maxHeight;
+        let diskY = baseY - diskHeight;
+        const diskFill = document.getElementById('disk-fill');
+        diskFill.setAttribute('y', diskY);
+        diskFill.setAttribute('height', diskHeight);
+        diskFill.setAttribute('fill', getColor(data.disk.percent));
 
-        // Add click event to show dropdown  
-        const link = document.getElementById('resource-link');  
-        link.addEventListener('click', () => {  
-          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;  
-          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;  
-          document.getElementById('ram-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
-          document.getElementById('ram-bar').classList.add(getColorClass(data.ram.percent));  
+        // Update dropdown content if visible
+        if (isDropdownOpen) {
+          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;
+          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;
+          document.getElementById('ram-bar').className = `h-full rounded-full transition-all duration-500 ${getColorClass(data.ram.percent)}`;
 
-          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;  
-          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;  
-          document.getElementById('cpu-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
-          document.getElementById('cpu-bar').classList.add(getColorClass(data.cpu.percent));  
+          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;
+          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;
+          document.getElementById('cpu-bar').className = `h-full rounded-full transition-all duration-500 ${getColorClass(data.cpu.percent)}`;
 
-          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;  
-          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;  
-          document.getElementById('disk-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
-          document.getElementById('disk-bar').classList.add(getColorClass(data.disk.percent));  
+          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;
+          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;
+          document.getElementById('disk-bar').className = `h-full rounded-full transition-all duration-500 ${getColorClass(data.disk.percent)}`;
+        }
 
-          document.getElementById('resource-dropdown').classList.toggle('hidden');  
-        });  
-
-      } catch (error) {  
-        console.error('Error fetching resource data:', error);  
+      } catch (error) {
+        console.error('Error fetching resource data:', error);
       }
     }
 
@@ -986,6 +982,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run every 2.5 seconds
     setInterval(updateResourceData, 2500);
-
-  });  
+  });
 </script>
