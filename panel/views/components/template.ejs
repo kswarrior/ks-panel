@@ -326,28 +326,340 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
                <div id="searchResults" class="absolute bg-white w-[12.5rem] rounded-xl shadow-lg hidden mt-20 px-2 pb-2">
                </div>
             </div>
+            
+            
+            
 <div class="flex items-center gap-x-2">
-   <div class="relative cursor-pointer">
-   <svg id="update-icon"
-     xmlns="http://www.w3.org/2000/svg"
-     width="24"
-     height="24"
-     viewBox="0 0 24 24"
-     fill="none"
-     stroke="#808080"
-     stroke-width="2"
-     stroke-linecap="round"
-     stroke-linejoin="round">
+  <div class="relative cursor-pointer group" id="update-link">
+    <!-- Modern Animated SVG Icon -->
+    <svg id="update-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      class="w-6 h-6 text-neutral-400 transition-all duration-300 group-hover:text-white group-hover:scale-110 group-hover:rotate-12">
+      
+      <defs>
+        <linearGradient id="updateGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="warningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      
+      <!-- Background glow circle -->
+      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.2" class="animate-pulse"/>
+      
+      <!-- Outer rotating ring -->
+      <circle cx="12" cy="12" r="9" fill="none" stroke="url(#updateGradient)" stroke-width="1.5" 
+        stroke-dasharray="40 20" stroke-linecap="round" class="origin-center animate-spin" style="animation-duration: 8s;"/>
+      
+      <!-- Inner static ring -->
+      <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+      
+      <!-- Update arrows -->
+      <g id="arrows-group" class="transition-transform duration-500">
+        <!-- Up arrow -->
+        <path d="M12 6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="transition-all duration-300"/>
+        <path d="M9 9l3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-all duration-300"/>
+        
+        <!-- Down arrow -->
+        <path d="M12 18v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="transition-all duration-300"/>
+        <path d="M9 15l3 3 3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-all duration-300"/>
+      </g>
+      
+      <!-- Status dot -->
+      <circle id="status-dot" cx="20" cy="4" r="2.5" fill="#ef4444" class="transition-all duration-300 animate-pulse"/>
+    </svg>
+    
+    <!-- Dropdown Menu -->
+    <div id="update-dropdown" class="absolute right-0 mt-3 w-80 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center border border-blue-500/20">
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white tracking-wide">Update Manager</h2>
+            <p id="status-text" class="text-xs text-neutral-400">Checking for updates...</p>
+          </div>
+        </div>
+        <div class="flex gap-1">
+          <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+          <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse delay-75"></div>
+          <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse delay-150"></div>
+        </div>
+      </div>
+      
+      <!-- Version Info Card -->
+      <div class="metric-row opacity-0 translate-x-4 transition-all duration-300 delay-100 bg-neutral-800/50 rounded-lg p-4 mb-4 border border-white/5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-neutral-400 text-sm">Current Version</span>
+          <span id="current-version" class="text-white font-mono font-semibold text-sm">--</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-neutral-400 text-sm">Latest Version</span>
+          <span id="latest-version" class="text-blue-400 font-mono font-semibold text-sm">--</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
+          <div id="status-indicator" class="w-2 h-2 rounded-full bg-neutral-500"></div>
+          <span id="status-message" class="text-xs text-neutral-400">Checking...</span>
+        </div>
+      </div>
+      
+      <!-- Progress Bar (hidden by default) -->
+      <div id="progress-container" class="metric-row opacity-0 translate-x-4 transition-all duration-300 delay-200 hidden mb-4">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-neutral-400 text-xs">Update Progress</span>
+          <span id="progress-text" class="text-blue-400 text-xs font-mono">0%</span>
+        </div>
+        <div class="w-full bg-neutral-800/80 h-2 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-500 w-0"></div>
+        </div>
+      </div>
+      
+      <!-- Action Button -->
+      <button id="action-button" class="metric-row opacity-0 translate-x-4 transition-all duration-300 delay-300 w-full group/btn relative overflow-hidden rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-white/10 hover:border-blue-500/50 transition-all duration-300 py-3 px-4 disabled:opacity-50 disabled:cursor-not-allowed">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/10 to-blue-600/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
+        <div class="flex items-center justify-center gap-2 relative z-10">
+          <svg id="btn-icon" class="w-4 h-4 text-neutral-400 group-hover/btn:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span id="btn-text" class="text-neutral-300 group-hover/btn:text-white font-medium text-sm transition-colors">Loading...</span>
+        </div>
+      </button>
+      
+      <!-- Footer -->
+      <div class="metric-row opacity-0 translate-x-4 transition-all duration-300 delay-400 mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500">
+        <span>Last checked</span>
+        <span id="last-checked" class="font-mono">Just now</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <path d="M21 4v6h-6"/>
-  <path d="M3 20v-6h6"/>
-  <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
-</svg>
-   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
-     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
-     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
-   </div>
-   </div>
+<style>
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+  .delay-75 { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const link = document.getElementById('update-link');
+  const icon = document.getElementById('update-icon');
+  const dropdown = document.getElementById('update-dropdown');
+  const actionButton = document.getElementById('action-button');
+  const btnText = document.getElementById('btn-text');
+  const btnIcon = document.getElementById('btn-icon');
+  const statusDot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+  const statusIndicator = document.getElementById('status-indicator');
+  const statusMessage = document.getElementById('status-message');
+  const currentVersionEl = document.getElementById('current-version');
+  const latestVersionEl = document.getElementById('latest-version');
+  const lastCheckedEl = document.getElementById('last-checked');
+  const metricRows = dropdown.querySelectorAll('.metric-row');
+  
+  let isDropdownOpen = false;
+  let updateData = null;
+  let isUpdating = false;
+
+  // Toggle dropdown
+  link.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isDropdownOpen = !isDropdownOpen;
+    
+    if (isDropdownOpen) {
+      openDropdown();
+    } else {
+      closeDropdown();
+    }
+  });
+
+  function openDropdown() {
+    dropdown.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+    dropdown.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    
+    // Animate metric rows
+    metricRows.forEach((row, index) => {
+      setTimeout(() => {
+        row.classList.remove('opacity-0', 'translate-x-4');
+        row.classList.add('opacity-100', 'translate-x-0');
+      }, index * 50 + 100);
+    });
+  }
+
+  function closeDropdown() {
+    metricRows.forEach((row) => {
+      row.classList.add('opacity-0', 'translate-x-4');
+      row.classList.remove('opacity-100', 'translate-x-0');
+    });
+    
+    setTimeout(() => {
+      dropdown.classList.add('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+      dropdown.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    }, 200);
+  }
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!link.contains(e.target) && isDropdownOpen) {
+      isDropdownOpen = false;
+      closeDropdown();
+    }
+  });
+
+  function updateUI(data) {
+    updateData = data;
+    currentVersionEl.textContent = `v${data.currentVersion}`;
+    latestVersionEl.textContent = `v${data.latestVersion}`;
+    lastCheckedEl.textContent = new Date().toLocaleTimeString();
+    
+    if (data.status === 'outdated') {
+      // Update available state
+      statusDot.setAttribute('fill', '#fbbf24');
+      statusDot.classList.remove('animate-pulse');
+      void statusDot.offsetWidth; // Trigger reflow
+      statusDot.classList.add('animate-pulse');
+      
+      icon.querySelector('circle[r="9"]').setAttribute('stroke', 'url(#warningGradient)');
+      statusText.textContent = 'Update available';
+      statusText.className = 'text-xs text-amber-400';
+      statusIndicator.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+      statusMessage.textContent = 'New version available';
+      statusMessage.className = 'text-xs text-amber-400';
+      
+      btnText.textContent = `Update to v${data.latestVersion}`;
+      btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>';
+      
+      actionButton.classList.remove('bg-neutral-800', 'hover:bg-neutral-700');
+      actionButton.classList.add('bg-amber-500/20', 'hover:bg-amber-500/30', 'border-amber-500/50');
+    } else {
+      // Up to date state
+      statusDot.setAttribute('fill', '#4ade80');
+      
+      icon.querySelector('circle[r="9"]').setAttribute('stroke', 'url(#successGradient)');
+      statusText.textContent = 'Up to date';
+      statusText.className = 'text-xs text-green-400';
+      statusIndicator.className = 'w-2 h-2 rounded-full bg-green-400';
+      statusMessage.textContent = 'Running latest version';
+      statusMessage.className = 'text-xs text-green-400';
+      
+      btnText.textContent = 'Reinstall Current Version';
+      btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>';
+      
+      actionButton.classList.remove('bg-amber-500/20', 'hover:bg-amber-500/30', 'border-amber-500/50');
+      actionButton.classList.add('bg-neutral-800', 'hover:bg-neutral-700');
+    }
+  }
+
+  function performAction() {
+    if (isUpdating) return;
+    
+    const isUpdate = updateData && updateData.status === 'outdated';
+    const action = isUpdate ? 'update' : 'reinstall';
+    
+    if (confirm(`Are you sure you want to ${action} the server? This may cause temporary downtime.`)) {
+      isUpdating = true;
+      actionButton.disabled = true;
+      btnText.textContent = isUpdate ? 'Updating...' : 'Reinstalling...';
+      
+      // Show progress
+      const progressContainer = document.getElementById('progress-container');
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      
+      progressContainer.classList.remove('hidden');
+      setTimeout(() => {
+        progressContainer.classList.remove('opacity-0', 'translate-x-4');
+        progressContainer.classList.add('opacity-100', 'translate-x-0');
+      }, 50);
+      
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+      }, 500);
+      
+      fetch('/reinstall', { method: 'GET' })
+        .then(res => {
+          clearInterval(progressInterval);
+          progressBar.style.width = '100%';
+          progressText.textContent = '100%';
+          
+          if (res.ok) {
+            btnText.textContent = 'Completed!';
+            setTimeout(() => {
+              alert(isUpdate ? 'Update completed successfully!' : 'Reinstall completed successfully!');
+              location.reload();
+            }, 500);
+          } else {
+            throw new Error('Server returned error');
+          }
+        })
+        .catch(error => {
+          clearInterval(progressInterval);
+          isUpdating = false;
+          actionButton.disabled = false;
+          btnText.textContent = 'Error - Try Again';
+          alert('Error: ' + error.message);
+        });
+    }
+  }
+
+  actionButton.addEventListener('click', performAction);
+
+  function checkVersion() {
+    fetch('/version')
+      .then(response => response.json())
+      .then(data => {
+        updateUI(data);
+      })
+      .catch(error => {
+        console.error('Error fetching version:', error);
+        statusDot.setAttribute('fill', '#ef4444');
+        statusText.textContent = 'Connection error';
+        statusText.className = 'text-xs text-red-400';
+        btnText.textContent = 'Retry Connection';
+      });
+  }
+
+  // Initial check
+  checkVersion();
+  
+  // Check every 5 seconds
+  setInterval(checkVersion, 5000);
+});
+</script>
+
+   
+   
+   
+   
+   
+   
    <!-- Ping Display -->
 <span id="pingDisplay"
       class="flex flex-col items-center text-white bg-transparent w-fit">
@@ -972,69 +1284,5 @@ document.addEventListener('DOMContentLoaded', () => {
   measurePing();
   setInterval(measurePing, 2500);
 
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-  const icon = document.getElementById('update-icon');
-  const paths = icon.querySelectorAll('path');
-  const dropdown = document.getElementById('update-dropdown');
-  const actionButton = document.getElementById('action-button');
-
-  function toggleUpdateDropdown() {
-    dropdown.classList.toggle('hidden');
-  }
-
-  icon.addEventListener('click', toggleUpdateDropdown);
-
-  window.addEventListener('click', (e) => {
-    if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.add('hidden');
-    }
-  });
-
-  function performAction() {
-    if (confirm('Are you sure? This may restart the server.')) {
-      fetch('/reinstall', { method: 'GET' })
-        .then(res => {
-          if (res.ok) {
-            alert('Reinstall started');
-          } else {
-            alert('Error starting reinstall');
-          }
-        })
-        .catch(error => {
-          alert('Error: ' + error.message);
-        });
-    }
-  }
-
-  actionButton.addEventListener('click', performAction);
-
-  function checkVersion() {
-    fetch('/version')
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'outdated') {
-          paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
-          actionButton.textContent = `Auto Update (v${data.currentVersion} -> v${data.latestVersion})`;
-        } else {
-          paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
-          actionButton.textContent = `Auto Reinstall (v${data.currentVersion})`;
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching version status:', error);
-        paths.forEach(path => path.setAttribute('stroke', '#808080'));
-        actionButton.textContent = 'Error loading version';
-      });
-  }
-
-  // Run immediately
-  checkVersion();
-
-  // Run every 5 seconds
-  setInterval(checkVersion, 5000);
 });
 </script>
