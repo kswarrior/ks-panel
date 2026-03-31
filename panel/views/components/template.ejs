@@ -110,6 +110,63 @@
     backdrop-filter: blur(var(--backdrop-blur));
     background: rgba(0, 0, 0, 0.4);
 }
+
+/* Add to your existing CSS */
+#resource-dropdown {
+    backdrop-filter: blur(var(--backdrop-blur));
+    background: rgba(0, 0, 0, 0.4);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: top right;
+}
+
+#resource-dropdown.hidden {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+    pointer-events: none;
+}
+
+#resource-dropdown:not(.hidden) {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* SVG bar animations */
+#ram-fill, #cpu-fill, #disk-fill {
+    transition: y 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                height 0.4s cubic-bezier(0.34, 1.56,, 1.56, 0.64, 1),
+                fill 0.3s ease;
+}
+
+/* Progress bar animations */
+#ram-bar, #cpu-bar, #disk-bar {
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                background-color 0.3s ease;
+}
+
+/* Icon hover effect */
+#resource-link {
+    transition: transform 0.15s ease;
+}
+
+#resource-link:hover {
+    transform: scale(1.05);
+}
+
+#resource-link:active {
+    transform: scale(0.95);
+}
+
+/* Dropdown items stagger */
+#resource-dropdown > div {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#resource-dropdown:not(.hidden) > div:nth-child(2) { transition-delay: 0.05s; opacity: 1; transform: translateX(0); }
+#resource-dropdown:not(.hidden) > div:nth-child(3) { transition-delay: 0.1s; opacity: 1; transform: translateX(0); }
+#resource-dropdown:not(.hidden) > div:nth-child(4) { transition-delay: 0.15s; opacity: 1; transform: translateX(0); }
+
       </style>
 
 
@@ -829,82 +886,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script>  
-  function getColor(percent) {  
-    if (percent > 95) return '#ef4444'; // red  
-    if (percent > 75) return '#eab308'; // yellow  
-    return '#22c55e'; // green  
-  }  
-  
-  function getColorClass(percent) {  
-    if (percent > 95) return 'bg-red-500';  
-    if (percent > 75) return 'bg-yellow-500';  
-    return 'bg-green-500';  
-  }  
-  
-  document.addEventListener('DOMContentLoaded', async () => {  
+  // Replace your click event section with this (keep everything else same)
+const link = document.getElementById('resource-link');
+const dropdown = document.getElementById('resource-dropdown');
 
-    async function updateResourceData() {
-      try {  
-        const response = await fetch('/resourceMonitor');  
-        const data = await response.json();  
+// Move click listener outside update function to prevent duplicates
+link.addEventListener('click', (e) => {
+    e.stopPropagation();
+    
+    // Update values before showing
+    document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;
+    document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;
+    document.getElementById('ram-bar').className = `h-4 rounded ${getColorClass(data.ram.percent)}`;
 
-        const maxHeight = 16;  
+    document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;
+    document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;
+    document.getElementById('cpu-bar').className = `h-4 rounded ${getColorClass(data.cpu.percent)}`;
 
-        // Update RAM icon  
-        let ramHeight = (data.ram.percent / 100) * maxHeight;  
-        let ramY = 2 + (maxHeight - ramHeight);  
-        const ramFill = document.getElementById('ram-fill');  
-        ramFill.setAttribute('y', ramY);  
-        ramFill.setAttribute('height', ramHeight);  
-        ramFill.setAttribute('fill', getColor(data.ram.percent));  
+    document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;
+    document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;
+    document.getElementById('disk-bar').className = `h-4 rounded ${getColorClass(data.disk.percent)}`;
 
-        // Update CPU icon  
-        let cpuHeight = (data.cpu.percent / 100) * maxHeight;  
-        let cpuY = 2 + (maxHeight - cpuHeight);  
-        const cpuFill = document.getElementById('cpu-fill');  
-        cpuFill.setAttribute('y', cpuY);  
-        cpuFill.setAttribute('height', cpuHeight);  
-        cpuFill.setAttribute('fill', getColor(data.cpu.percent));  
+    dropdown.classList.toggle('hidden');
+});
 
-        // Update Disk icon  
-        let diskHeight = (data.disk.percent / 100) * maxHeight;  
-        let diskY = 2 + (maxHeight - diskHeight);  
-        const diskFill = document.getElementById('disk-fill');  
-        diskFill.setAttribute('y', diskY);  
-        diskFill.setAttribute('height', diskHeight);  
-        diskFill.setAttribute('fill', getColor(data.disk.percent));  
-
-        // Add click event to show dropdown  
-        const link = document.getElementById('resource-link');  
-        link.addEventListener('click', () => {  
-          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;  
-          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;  
-          document.getElementById('ram-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
-          document.getElementById('ram-bar').classList.add(getColorClass(data.ram.percent));  
-
-          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;  
-          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;  
-          document.getElementById('cpu-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
-          document.getElementById('cpu-bar').classList.add(getColorClass(data.cpu.percent));  
-
-          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;  
-          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;  
-          document.getElementById('disk-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
-          document.getElementById('disk-bar').classList.add(getColorClass(data.disk.percent));  
-
-          document.getElementById('resource-dropdown').classList.toggle('hidden');  
-        });  
-
-      } catch (error) {  
-        console.error('Error fetching resource data:', error);  
-      }
+// Close on outside click
+document.addEventListener('click', (e) => {
+    if (!link.contains(e.target) && !dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
     }
+});
 
-    // Run immediately once
-    updateResourceData();
-
-    // Run every 2.5 seconds
-    setInterval(updateResourceData, 2500);
-
-  });  
 </script>
