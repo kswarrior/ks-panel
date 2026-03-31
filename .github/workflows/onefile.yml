@@ -1,0 +1,78 @@
+name: Panel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'panel/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(jq -r .version panel/package.json)
+          echo "Version found: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'          # Matches your engines requirement (>=18)
+          cache: 'npm'
+          cache-dependency-path: panel/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./panel
+        run: npm install
+
+      - name: Build single executable binaries (pkg)
+        working-directory: ./panel
+        run: |
+          echo "Building Linux x64 binary..."
+          npx pkg index.js \
+            --target node20-linux-x64 \
+            --output ../ks-panel-${{ env.VERSION }}-linux-x64 \
+            --assets "public/**" \
+            --compress GZip
+
+          echo "Building Linux arm64 binary..."
+          npx pkg index.js \
+            --target node20-linux-arm64 \
+            --output ../ks-panel-${{ env.VERSION }}-linux-arm64 \
+            --assets "public/**" \
+            --compress GZip
+
+          # Make binaries executable
+          chmod +x ../ks-panel-${{ env.VERSION }}-linux-*
+
+      - name: Ensure release exists
+        run: |
+          if ! gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION not found, creating..."
+            gh release create "$VERSION" -t "$VERSION" -n "Automated release for version $VERSION"
+          else
+            echo "Release $VERSION already exists."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binaries to release
+        run: |
+          gh release upload "$VERSION" \
+            ks-panel-${{ env.VERSION }}-linux-x64 \
+            ks-panel-${{ env.VERSION }}-linux-arm64 \
+            --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
