@@ -326,28 +326,209 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
                <div id="searchResults" class="absolute bg-white w-[12.5rem] rounded-xl shadow-lg hidden mt-20 px-2 pb-2">
                </div>
             </div>
+            
+            
+            
 <div class="flex items-center gap-x-2">
-   <div class="relative cursor-pointer">
-   <svg id="update-icon"
-     xmlns="http://www.w3.org/2000/svg"
-     width="24"
-     height="24"
-     viewBox="0 0 24 24"
-     fill="none"
-     stroke="#808080"
-     stroke-width="2"
-     stroke-linecap="round"
-     stroke-linejoin="round">
+  <div id="update-link" class="relative cursor-pointer group">
+    <svg id="update-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#808080"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="transition-all duration-300 group-hover:scale-110 group-hover:stroke-white">
 
-  <path d="M21 4v6h-6"/>
-  <path d="M3 20v-6h6"/>
-  <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
-</svg>
-   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
-     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
-     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
-   </div>
-   </div>
+      <path d="M21 4v6h-6" class="transition-all duration-500"/>
+      <path d="M3 20v-6h6" class="transition-all duration-500"/>
+      <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9" class="transition-all duration-500"/>
+    </svg>
+    
+    <div id="update-dropdown" class="absolute right-0 mt-3 w-64 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-bold text-white tracking-wide">Update Manager</h2>
+        <div class="flex gap-1">
+          <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+          <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse delay-75"></div>
+        </div>
+      </div>
+      
+      <div class="mb-4 content-row opacity-0 translate-x-4 transition-all duration-300 delay-100">
+        <div class="flex items-center gap-3 mb-3">
+          <div id="status-indicator" class="w-3 h-3 rounded-full bg-gray-500 transition-colors duration-500"></div>
+          <span id="version-text" class="text-neutral-400 text-sm">Checking...</span>
+        </div>
+      </div>
+      
+      <div class="content-row opacity-0 translate-x-4 transition-all duration-300 delay-200">
+        <button id="action-button" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40">
+          Loading...
+        </button>
+      </div>
+      
+      <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500 content-row opacity-0 translate-x-4 transition-all duration-300 delay-300">
+        <span>Last checked</span>
+        <span id="last-checked">Just now</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const link = document.getElementById('update-link');
+  const icon = document.getElementById('update-icon');
+  const paths = icon.querySelectorAll('path');
+  const dropdown = document.getElementById('update-dropdown');
+  const actionButton = document.getElementById('action-button');
+  const statusIndicator = document.getElementById('status-indicator');
+  const versionText = document.getElementById('version-text');
+  const contentRows = document.querySelectorAll('.content-row');
+  const lastChecked = document.getElementById('last-checked');
+  
+  let isDropdownOpen = false;
+  let currentData = null;
+
+  function toggleUpdateDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+    
+    if (isDropdownOpen) {
+      // Open animation
+      dropdown.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+      dropdown.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+      
+      // Animate content rows with stagger
+      contentRows.forEach((row, index) => {
+        setTimeout(() => {
+          row.classList.remove('opacity-0', 'translate-x-4');
+          row.classList.add('opacity-100', 'translate-x-0');
+        }, index * 80);
+      });
+      
+      // Update last checked time
+      updateLastChecked();
+    } else {
+      closeDropdown();
+    }
+  }
+
+  function closeDropdown() {
+    contentRows.forEach((row) => {
+      row.classList.add('opacity-0', 'translate-x-4');
+      row.classList.remove('opacity-100', 'translate-x-0');
+    });
+    
+    setTimeout(() => {
+      dropdown.classList.add('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
+      dropdown.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    }, 200);
+  }
+
+  function updateLastChecked() {
+    const now = new Date();
+    lastChecked.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  link.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleUpdateDropdown();
+  });
+
+  window.addEventListener('click', (e) => {
+    if (!link.contains(e.target) && isDropdownOpen) {
+      isDropdownOpen = false;
+      closeDropdown();
+    }
+  });
+
+  function performAction() {
+    // Button press animation
+    actionButton.classList.add('scale-95');
+    setTimeout(() => actionButton.classList.remove('scale-95'), 150);
+    
+    if (confirm('Are you sure? This may restart the server.')) {
+      actionButton.textContent = 'Processing...';
+      actionButton.disabled = true;
+      actionButton.classList.add('opacity-75', 'cursor-not-allowed');
+      
+      fetch('/reinstall', { method: 'GET' })
+        .then(res => {
+          if (res.ok) {
+            actionButton.textContent = 'Reinstalling...';
+            actionButton.classList.remove('from-blue-600', 'to-blue-500');
+            actionButton.classList.add('from-yellow-600', 'to-yellow-500');
+            alert('Reinstall started');
+          } else {
+            throw new Error('Server error');
+          }
+        })
+        .catch(error => {
+          actionButton.textContent = 'Error - Retry';
+          actionButton.classList.remove('from-blue-600', 'to-blue-500');
+          actionButton.classList.add('from-red-600', 'to-red-500');
+          actionButton.disabled = false;
+          actionButton.classList.remove('opacity-75', 'cursor-not-allowed');
+          alert('Error: ' + error.message);
+        });
+    }
+  }
+
+  actionButton.addEventListener('click', performAction);
+
+  function checkVersion() {
+    fetch('/version')
+      .then(response => response.json())
+      .then(data => {
+        currentData = data;
+        
+        if (data.status === 'outdated') {
+          paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
+          statusIndicator.className = 'w-3 h-3 rounded-full bg-yellow-500 animate-pulse transition-colors duration-500';
+          versionText.textContent = `v${data.currentVersion} → v${data.latestVersion}`;
+          versionText.className = 'text-yellow-400 text-sm font-medium';
+          actionButton.textContent = `Update to v${data.latestVersion}`;
+          actionButton.classList.remove('from-blue-600', 'to-blue-500', 'from-green-600', 'to-green-500');
+          actionButton.classList.add('from-yellow-600', 'to-yellow-500', 'shadow-yellow-500/25');
+        } else {
+          paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
+          statusIndicator.className = 'w-3 h-3 rounded-full bg-green-500 transition-colors duration-500';
+          versionText.textContent = `v${data.currentVersion} (Latest)`;
+          versionText.className = 'text-green-400 text-sm font-medium';
+          actionButton.textContent = 'Reinstall Current';
+          actionButton.classList.remove('from-blue-600', 'to-blue-500', 'from-yellow-600', 'to-yellow-500');
+          actionButton.classList.add('from-green-600', 'to-green-500', 'shadow-green-500/25');
+        }
+        
+        if (isDropdownOpen) updateLastChecked();
+      })
+      .catch(error => {
+        console.error('Error fetching version status:', error);
+        paths.forEach(path => path.setAttribute('stroke', '#ef4444'));
+        statusIndicator.className = 'w-3 h-3 rounded-full bg-red-500 transition-colors duration-500';
+        versionText.textContent = 'Connection Error';
+        versionText.className = 'text-red-400 text-sm';
+        actionButton.textContent = 'Retry Connection';
+        actionButton.classList.remove('from-blue-600', 'to-blue-500');
+        actionButton.classList.add('from-red-600', 'to-red-500');
+      });
+  }
+
+  // Run immediately
+  checkVersion();
+
+  // Run every 5 seconds
+  setInterval(checkVersion, 5000);
+});
+</script>
+
+   
+   
+   
+   
    <!-- Ping Display -->
 <span id="pingDisplay"
       class="flex flex-col items-center text-white bg-transparent w-fit">
@@ -427,7 +608,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
   </svg>
   
   <!-- Dropdown Menu with animation classes -->
-  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
+  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-3xl: border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible ">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-lg font-bold text-white tracking-wide">Resource Monitor</h2>
       <div class="flex gap-1">
@@ -972,69 +1153,5 @@ document.addEventListener('DOMContentLoaded', () => {
   measurePing();
   setInterval(measurePing, 2500);
 
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-  const icon = document.getElementById('update-icon');
-  const paths = icon.querySelectorAll('path');
-  const dropdown = document.getElementById('update-dropdown');
-  const actionButton = document.getElementById('action-button');
-
-  function toggleUpdateDropdown() {
-    dropdown.classList.toggle('hidden');
-  }
-
-  icon.addEventListener('click', toggleUpdateDropdown);
-
-  window.addEventListener('click', (e) => {
-    if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.add('hidden');
-    }
-  });
-
-  function performAction() {
-    if (confirm('Are you sure? This may restart the server.')) {
-      fetch('/reinstall', { method: 'GET' })
-        .then(res => {
-          if (res.ok) {
-            alert('Reinstall started');
-          } else {
-            alert('Error starting reinstall');
-          }
-        })
-        .catch(error => {
-          alert('Error: ' + error.message);
-        });
-    }
-  }
-
-  actionButton.addEventListener('click', performAction);
-
-  function checkVersion() {
-    fetch('/version')
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'outdated') {
-          paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
-          actionButton.textContent = `Auto Update (v${data.currentVersion} -> v${data.latestVersion})`;
-        } else {
-          paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
-          actionButton.textContent = `Auto Reinstall (v${data.currentVersion})`;
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching version status:', error);
-        paths.forEach(path => path.setAttribute('stroke', '#808080'));
-        actionButton.textContent = 'Error loading version';
-      });
-  }
-
-  // Run immediately
-  checkVersion();
-
-  // Run every 5 seconds
-  setInterval(checkVersion, 5000);
 });
 </script>
