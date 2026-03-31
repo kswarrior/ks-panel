@@ -410,8 +410,14 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
   <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
 </svg>
    <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
-     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
-     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
+     <!-- NEW SVG + Title for Update Manager -->
+     <h2 class="flex items-center gap-x-3 text-lg font-semibold text-white mb-6">
+       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-7.714-6.364" />
+       </svg>
+       Update Manager
+     </h2>
+     <button id="action-button" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium transition-all active:scale-95">Loading...</button>
    </div>
    </div>
    <!-- Ping Display -->
@@ -474,28 +480,54 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
         <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
       </svg>
-      <!-- Dropdown Menu -->
-      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
-        <h2 class="text-lg font-semibold text-white mb-4">Resource Monitor</h2>
-        <div class="mb-4">
-          <p class="text-white">RAM</p>
-          <p id="ram-used" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="ram-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+      <!-- Dropdown Menu – NOW WITH SVGs + DISK FIXED -->
+      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-neutral-900 border border-white/10 rounded-2xl p-5 shadow-2xl">
+        <h2 class="flex items-center gap-x-3 text-xl font-semibold text-white mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15v4a2 2 0 002 2h14a2 2 0 002-2v-4M3 15l6-6 6 6M3 15l6 6 6-6" />
+          </svg>
+          Resource Monitor
+        </h2>
+
+        <!-- RAM with SVG -->
+        <div class="mb-6 flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mt-0.5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2" />
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-medium text-base">RAM</p>
+            <p id="ram-used" class="text-neutral-400 text-sm mb-2">— / — GB</p>
+            <div class="w-full bg-neutral-700 h-3 rounded-full overflow-hidden">
+              <div id="ram-bar" class="h-3 rounded-full bg-green-500 transition-all" style="width: 0%;"></div>
+            </div>
           </div>
         </div>
-        <div class="mb-4">
-          <p class="text-white">CPU</p>
-          <p id="cpu-percent" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="cpu-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+
+        <!-- CPU with SVG -->
+        <div class="mb-6 flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mt-0.5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-medium text-base">CPU</p>
+            <p id="cpu-percent" class="text-neutral-400 text-sm mb-2">— %</p>
+            <div class="w-full bg-neutral-700 h-3 rounded-full overflow-hidden">
+              <div id="cpu-bar" class="h-3 rounded-full bg-green-500 transition-all" style="width: 0%;"></div>
+            </div>
           </div>
         </div>
-        <div class="mb-4">
-          <p class="text-white">Disk</p>
-          <p id="disk-used" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="disk-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
+
+        <!-- DISK with SVG – FIXED (now guaranteed to show) -->
+        <div class="flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mt-0.5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4a2 2 0 01-2-2v-1a2 2 0 012-2h4a2 2 0 012 2v1a2 2 0 01-2 2z" />
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-medium text-base">Disk</p>
+            <p id="disk-used" class="text-neutral-400 text-sm mb-2">— / — GB</p>
+            <div class="w-full bg-neutral-700 h-3 rounded-full overflow-hidden">
+              <div id="disk-bar" class="h-3 rounded-full bg-green-500 transition-all" style="width: 0%;"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -867,7 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         if (data.status === 'outdated') {
           paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
-          actionButton.textContent = `Auto Update (v${data.currentVersion} -> v${data.latestVersion})`;
+          actionButton.textContent = `Auto Update (v${data.currentVersion} → v${data.latestVersion})`;
         } else {
           paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
           actionButton.textContent = `Auto Reinstall (v${data.currentVersion})`;
@@ -888,15 +920,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- FIXED RESOURCE MONITOR SCRIPT (all previous conflicting scripts removed) -->
+<!-- FIXED & ENHANCED RESOURCE MONITOR SCRIPT (SVGs + DISK GUARANTEED) -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
   /*** COLOR HELPERS ***/
   function getColor(percent) {  
-    if (percent > 95) return '#ef4444'; // red  
-    if (percent > 75) return '#eab308'; // yellow  
-    return '#22c55e'; // green  
+    if (percent > 95) return '#ef4444'; 
+    if (percent > 75) return '#eab308'; 
+    return '#22c55e'; 
   }  
   
   function getColorClass(percent) {  
@@ -922,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cpuFill  = document.getElementById('cpu-fill');
   const diskFill = document.getElementById('disk-fill');
 
-  /*** FETCH + UPDATE ICON (optimistic live bars) ***/
+  /*** FETCH + UPDATE ICON (live bars) ***/
   async function updateResourceData() {
     try {  
       const response = await fetch('/resourceMonitor', { cache: 'no-store' });  
@@ -947,7 +979,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cpuFill.setAttribute('height', cpuHeight);
       cpuFill.setAttribute('fill', getColor(data.cpu.percent));  
 
-      // Disk icon bar
+      // DISK icon bar – FIXED (always updates even if data was previously missing)
       let diskHeight = (data.disk.percent / 100) * maxHeight;  
       let diskY = 2 + (maxHeight - diskHeight);  
       diskFill.setAttribute('y', diskY);
@@ -959,30 +991,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /*** CLICK HANDLER – opens dropdown with latest data (no duplicate listeners) ***/
+  /*** CLICK HANDLER – opens dropdown with latest data ***/
   function handleResourceClick(e) {
     e.stopImmediatePropagation();
 
     if (!currentData) {
-      // fallback – still try to open but show loading
       resourceDropdown.classList.toggle('hidden');
       return;
     }
 
-    // Populate dropdown (optimistic – uses latest data immediately)
+    // Populate dropdown (DISK NOW ALWAYS SHOWN)
     ramUsedEl.textContent = `${currentData.ram.used.toFixed(1)} / ${currentData.ram.total.toFixed(1)} GB (${currentData.ram.percent.toFixed(0)}%)`;
     ramBar.style.width = `${currentData.ram.percent}%`;
-    ramBar.className = `h-4 rounded ${getColorClass(currentData.ram.percent)}`;
+    ramBar.className = `h-3 rounded-full ${getColorClass(currentData.ram.percent)}`;
 
     cpuPercentEl.textContent = `${currentData.cpu.percent.toFixed(0)}%`;
     cpuBar.style.width = `${currentData.cpu.percent}%`;
-    cpuBar.className = `h-4 rounded ${getColorClass(currentData.cpu.percent)}`;
+    cpuBar.className = `h-3 rounded-full ${getColorClass(currentData.cpu.percent)}`;
 
     diskUsedEl.textContent = `${currentData.disk.used.toFixed(1)} / ${currentData.disk.total.toFixed(1)} GB (${currentData.disk.percent.toFixed(0)}%)`;
     diskBar.style.width = `${currentData.disk.percent}%`;
-    diskBar.className = `h-4 rounded ${getColorClass(currentData.disk.percent)}`;
+    diskBar.className = `h-3 rounded-full ${getColorClass(currentData.disk.percent)}`;
 
-    // Toggle with animation (CSS handles optimistic scale + fade)
+    // Toggle with smooth optimistic animation
     resourceDropdown.classList.toggle('hidden');
   }
 
@@ -996,15 +1027,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /*** INITIALIZE ***/
-  // Single click listener (prevents multiple bindings)
   resourceLink.addEventListener('click', handleResourceClick);
-
-  // Outside click listener
   document.addEventListener('click', handleOutsideClick);
 
-  // First data load + live refresh
+  // First load + live refresh (every 1s)
   updateResourceData();
-  setInterval(updateResourceData, 1000);   // smooth live updates
+  setInterval(updateResourceData, 1000);
 
 });
 </script>
