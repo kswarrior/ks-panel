@@ -29,9 +29,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'          # Matches your engines requirement (>=18)
-          cache: 'npm'
-          cache-dependency-path: panel/package-lock.json
+          node-version: '20'          # Matches your engines requirement
+          # Cache removed because there is no package-lock.json in the repo
 
       - name: Install dependencies
         working-directory: ./panel
@@ -44,14 +43,14 @@ jobs:
           npx pkg index.js \
             --target node20-linux-x64 \
             --output ../ks-panel-${{ env.VERSION }}-linux-x64 \
-            --assets "public/**" \
+            --assets "public/**,views/**,lang/**" \
             --compress GZip
 
           echo "Building Linux arm64 binary..."
           npx pkg index.js \
             --target node20-linux-arm64 \
             --output ../ks-panel-${{ env.VERSION }}-linux-arm64 \
-            --assets "public/**" \
+            --assets "public/**,views/**,lang/**" \
             --compress GZip
 
           # Make binaries executable
