@@ -29,31 +29,37 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'          # Matches engines requirement (>=18) and intended runtime
+          node-version: '20'
 
       - name: Install dependencies
         working-directory: ./panel
-        run: npm install
+        run: npm ci --omit=optional   # faster + cleaner than npm install
 
       - name: Build single executable binaries (@yao-pkg/pkg)
         working-directory: ./panel
         run: |
+          echo "Installing latest pkg fork..."
+          npm install --no-save @yao-pkg/pkg@latest
+
           echo "Building Linux x64 binary..."
-          npx @yao-pkg/pkg@latest index.js \
+          npx pkg index.js \
             --target node20-linux-x64 \
             --output ../ks-panel-${{ env.VERSION }}-linux-x64 \
-            --assets "public/**,views/**,lang/**" \
+            --assets "public/**,views/**,lang/**,handlers/**,lib/**,plugins/**,routes/**,utils/**,config/**,**/*.json,**/*.ejs" \
             --compress GZip
 
           echo "Building Linux arm64 binary..."
-          npx @yao-pkg/pkg@latest index.js \
+          npx pkg index.js \
             --target node20-linux-arm64 \
             --output ../ks-panel-${{ env.VERSION }}-linux-arm64 \
-            --assets "public/**,views/**,lang/**" \
+            --assets "public/**,views/**,lang/**,handlers/**,lib/**,plugins/**,routes/**,utils/**,config/**,**/*.json,**/*.ejs" \
             --compress GZip
 
           # Make binaries executable
           chmod +x ../ks-panel-${{ env.VERSION }}-linux-*
+
+      - name: List built binaries (debug)
+        run: ls -la ks-panel-*
 
       - name: Ensure release exists
         run: |
