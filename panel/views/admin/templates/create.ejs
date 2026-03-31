@@ -505,12 +505,14 @@
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Instance Type <span class="text-red-400">*</span></label>
               <select name="environment.instance_type" id="instanceTypeSelect" required class="tf-input">
                 <option value="docker">Docker</option>
+                <option value="lxd">LXD</option>
                 <option value="multipass">Multipass</option>
+                <option value="kvm">KVM</option>
+                <option value="proxmox">Proxmox</option>
               </select>
             </div>
             <div class="tf-field-long" id="imageFieldContainer">
-              <label id="imageLabel" class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
-              <input type="text" name="environment.image" id="imageInput" required placeholder="eclipse-temurin:21-jre" class="tf-input">
+              <!-- Dynamically populated by updateImageField() -->
             </div>
           </div>
 
@@ -665,7 +667,7 @@
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0, conditionIndex = 0, portIndex = 0, volumeIndex = 0, allowedCommandIndex = 0;
 
-// ====================== DISTRIBUTION CONFIG (for Multipass) ======================
+// ====================== DISTRIBUTION CONFIG (for Multipass + LXD) ======================
 const distributionConfig = {
   ubuntu: { label: "Ubuntu", defaultVersion: "24.04" },
   debian: { label: "Debian", defaultVersion: "12" },
@@ -749,24 +751,39 @@ modeSelect.onchange = () => {
   submitSection.style.display = "flex";
 };
 
-// ====================== DYNAMIC IMAGE FIELD FOR MULTIPASS ======================
+// ====================== DYNAMIC IMAGE FIELD FOR ALL 5 INSTANCE TYPES ======================
 const instanceTypeSelect = document.getElementById("instanceTypeSelect");
 const imageFieldContainer = document.getElementById("imageFieldContainer");
 
 function updateImageField() {
-  const isMultipass = instanceTypeSelect.value === "multipass";
+  const type = instanceTypeSelect.value;
   const currentImageValue = document.getElementById("imageInput") ? document.getElementById("imageInput").value : "";
 
   imageFieldContainer.innerHTML = "";
 
-  if (!isMultipass) {
+  if (type === "docker" || type === "kvm" || type === "proxmox") {
+    let labelText = "Image";
+    let placeholder = "eclipse-temurin:21-jre";
+
+    if (type === "kvm") {
+      labelText = "VM Image / Cloud Image";
+      placeholder = "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img";
+    } else if (type === "proxmox") {
+      labelText = "Proxmox Template";
+      placeholder = "local:vztmpl/ubuntu-24.04-standard_24.04-1_amd64.tar.zst";
+    }
+
     imageFieldContainer.innerHTML = `
-      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label>
-      <input type="text" name="environment.image" id="imageInput" required placeholder="eclipse-temurin:21-jre" class="tf-input" value="${currentImageValue}">
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">${labelText} <span class="text-red-400">*</span></label>
+      <input type="text" name="environment.image" id="imageInput" required placeholder="${placeholder}" class="tf-input" value="${currentImageValue}">
     `;
   } else {
+    // LXD or Multipass - both use distribution + version
+    const isMultipass = type === "multipass";
+    const labelPrefix = isMultipass ? "Multipass" : "LXD";
+
     const distributionSelectHTML = `
-      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Distribution <span class="text-red-400">*</span></label>
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">${labelPrefix} Distribution <span class="text-red-400">*</span></label>
       <select name="environment.distribution" id="distributionSelect" class="tf-input">
         ${Object.keys(distributionConfig).map(key => {
           const config = distributionConfig[key];
@@ -776,7 +793,7 @@ function updateImageField() {
     `;
 
     const versionInputHTML = `
-      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mt-3">Version <span class="text-red-400">*</span></label>
+      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mt-3">${labelPrefix} Version <span class="text-red-400">*</span></label>
       <input type="text" name="environment.image" id="imageInput" required class="tf-input" value="24.04">
     `;
 
@@ -1120,9 +1137,6 @@ function addAction(a = {}) {
     const subIdx = subActionsList.children.length;
     const subDiv = document.createElement("div");
     subDiv.className = "tf-card";
-    // We reuse the same addAction logic but adjust names manually for nesting
-    // For simplicity we call addAction but then move it - however to keep clean we duplicate minimal structure
-    // Since user asked for full action functions as sub, we simply call a helper
     addNestedAction(subActionsList, idx, subIdx);
   };
 
