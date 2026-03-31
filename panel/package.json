@@ -68,6 +68,16 @@
   },
   "pkg": {
     "scripts": ["**/*.js"],
-    "assets": ["**/*"]
+    "config": ["**/*.json"],
+    "exec": ["**/*"],
+    "handlers": ["**/*"],
+    "lang": ["**/*"],
+    "lib": ["**/*"],
+    "plugins": ["**/*"],
+    "public": ["**/*"],
+    "routes": ["**/*"],
+    "storage": ["**/*"],
+    "utils": ["**/*"],
+    "views": ["**/*"]
   }
 }
