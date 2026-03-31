@@ -105,68 +105,11 @@
   }
 }
 #update-dropdown,
-#resource-dropdown {
+#resource-dropdown,
+#dropdown-menu {
     backdrop-filter: blur(var(--backdrop-blur));
     background: rgba(0, 0, 0, 0.4);
 }
-
-/* OPTIMISTIC ANIMATIONS FOR ALL DROPDOWNS – MATCHING LANGUAGE SELECTOR STYLE */
-#update-dropdown,
-#resource-dropdown {
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: top right;
-}
-
-#update-dropdown.hidden,
-#resource-dropdown.hidden {
-    opacity: 0;
-    transform: scale(0.95) translateY(-8px);
-    pointer-events: none;
-}
-
-#update-dropdown:not(.hidden),
-#resource-dropdown:not(.hidden) {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-}
-
-/* Resource dropdown items stagger + optimistic bar fill */
-#resource-dropdown > div {
-    opacity: 0;
-    transform: translateX(-12px);
-    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-#resource-dropdown:not(.hidden) > div:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateX(0); }
-#resource-dropdown:not(.hidden) > div:nth-child(2) { transition-delay: 0.10s; opacity: 1; transform: translateX(0); }
-#resource-dropdown:not(.hidden) > div:nth-child(3) { transition-delay: 0.15s; opacity: 1; transform: translateX(0); }
-
-/* Progress bars inside dropdown get their own optimistic animation */
-#ram-bar, #cpu-bar, #disk-bar {
-    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* SVG bar animations (icon) */
-#ram-fill, #cpu-fill, #disk-fill {
-    transition: y 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-                fill 0.3s ease;
-}
-
-/* Icon hover effect */
-#resource-link {
-    transition: transform 0.15s ease;
-}
-
-#resource-link:hover {
-    transform: scale(1.05);
-}
-
-#resource-link:active {
-    transform: scale(0.95);
-}
-
       </style>
 
 
@@ -298,7 +241,7 @@
                         </li>
                        <li>
                            <a href="/admin/templates/overview" class="transition-all duration-300 ease-in-out nav-link mt-1 text-neutral-400 px-4 mx-4 group flex gap-x-3 py-1.5 rounded-xl text-sm leading-6 font-normal">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm6 4v3h-6v-3h6z"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 2v3h12V6H6zm0 5v9h4v-9H6zm6 0v4h6v-4h-6zm0 6v3h6v-3h-6z"/></svg>
                               <span class="lg:group-[.collapsed]:hidden"><%= req.translations.templates %></span>
                            </a>
                         </li>
@@ -407,16 +350,9 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
   <path d="M3 20v-6h6"/>
   <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
 </svg>
-   <!-- UPDATE MANAGER DROPDOWN – NOW WITH EXACT SAME ANIMATION AS LANGUAGE SELECTOR -->
-   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm transform opacity-0 scale-95 transition-all duration-200 ease-out">
-     <!-- NEW SVG + Title for Update Manager -->
-     <h2 class="flex items-center gap-x-3 text-lg font-semibold text-white mb-6">
-       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-7.714-6.364" />
-       </svg>
-       Update Manager
-     </h2>
-     <button id="action-button" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium transition-all active:scale-95">Loading...</button>
+   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm">
+     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
+     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
    </div>
    </div>
    <!-- Ping Display -->
@@ -466,7 +402,7 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
   </span>
 
 </span>
-   <!-- Resource Monitor – DISK NOW 100% GUARANTEED -->
+   <!-- Resource Monitor -->
    <div id="resource-link" class="relative cursor-pointer">
       <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-400">
         <!-- RAM bar -->
@@ -479,54 +415,28 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
         <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
         <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
       </svg>
-      <!-- DROPDOWN – EXACT SAME ANIMATION PATTERN AS LANGUAGE SELECTOR -->
-      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-neutral-900 border border-white/10 rounded-2xl p-5 shadow-2xl transform opacity-0 scale-95 transition-all duration-200 ease-out">
-        <h2 class="flex items-center gap-x-3 text-xl font-semibold text-white mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15v4a2 2 0 002 2h14a2 2 0 002-2v-4M3 15l6-6 6 6M3 15l6 6 6-6" />
-          </svg>
-          Resource Monitor
-        </h2>
-
-        <!-- RAM with SVG -->
-        <div class="mb-6 flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mt-0.5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2" />
-          </svg>
-          <div class="flex-1 min-w-0">
-            <p class="text-white font-medium text-base">RAM</p>
-            <p id="ram-used" class="text-neutral-400 text-sm mb-2">— / — GB</p>
-            <div class="w-full bg-neutral-700 h-3 rounded-full overflow-hidden">
-              <div id="ram-bar" class="h-3 rounded-full bg-green-500 transition-all" style="width: 0%;"></div>
-            </div>
+      <!-- Dropdown Menu -->
+      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
+        <h2 class="text-lg font-semibold text-white mb-4">Resource Monitor</h2>
+        <div class="mb-4">
+          <p class="text-white">RAM</p>
+          <p id="ram-used" class="text-neutral-400 text-sm"></p>
+          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
+            <div id="ram-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
           </div>
         </div>
-
-        <!-- CPU with SVG -->
-        <div class="mb-6 flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mt-0.5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-          </svg>
-          <div class="flex-1 min-w-0">
-            <p class="text-white font-medium text-base">CPU</p>
-            <p id="cpu-percent" class="text-neutral-400 text-sm mb-2">— %</p>
-            <div class="w-full bg-neutral-700 h-3 rounded-full overflow-hidden">
-              <div id="cpu-bar" class="h-3 rounded-full bg-green-500 transition-all" style="width: 0%;"></div>
-            </div>
+        <div class="mb-4">
+          <p class="text-white">CPU</p>
+          <p id="cpu-percent" class="text-neutral-400 text-sm"></p>
+          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
+            <div id="cpu-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
           </div>
         </div>
-
-        <!-- DISK – ALWAYS VISIBLE (fixed) -->
-        <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mt-0.5 text-neutral-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4a2 2 0 01-2-2v-1a2 2 0 012-2h4a2 2 0 012 2v1a2 2 0 01-2 2z" />
-          </svg>
-          <div class="flex-1 min-w-0">
-            <p class="text-white font-medium text-base">Disk</p>
-            <p id="disk-used" class="text-neutral-400 text-sm mb-2">— / — GB</p>
-            <div class="w-full bg-neutral-700 h-3 rounded-full overflow-hidden">
-              <div id="disk-bar" class="h-3 rounded-full bg-green-500 transition-all" style="width: 0%;"></div>
-            </div>
+        <div class="mb-4">
+          <p class="text-white">Disk</p>
+          <p id="disk-used" class="text-neutral-400 text-sm"></p>
+          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
+            <div id="disk-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
           </div>
         </div>
       </div>
@@ -862,18 +772,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropdown = document.getElementById('update-dropdown');
   const actionButton = document.getElementById('action-button');
 
-  // MATCHING LANGUAGE SELECTOR ANIMATION
   function toggleUpdateDropdown() {
     dropdown.classList.toggle('hidden');
-    if (!dropdown.classList.contains('hidden')) {
-      setTimeout(() => {
-        dropdown.style.transform = 'scale(1)';
-        dropdown.style.opacity = '1';
-      }, 10);
-    } else {
-      dropdown.style.transform = 'scale(0.95)';
-      dropdown.style.opacity = '0';
-    }
   }
 
   icon.addEventListener('click', toggleUpdateDropdown);
@@ -881,8 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('click', (e) => {
     if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.add('hidden');
-      dropdown.style.transform = 'scale(0.95)';
-      dropdown.style.opacity = '0';
     }
   });
 
@@ -910,7 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         if (data.status === 'outdated') {
           paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
-          actionButton.textContent = `Auto Update (v${data.currentVersion} → v${data.latestVersion})`;
+          actionButton.textContent = `Auto Update (v${data.currentVersion} -> v${data.latestVersion})`;
         } else {
           paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
           actionButton.textContent = `Auto Reinstall (v${data.currentVersion})`;
@@ -930,16 +828,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(checkVersion, 5000);
 });
 </script>
-
-<!-- FIXED & OPTIMIZED RESOURCE MONITOR SCRIPT – DISK IS NOW 100% GUARANTEED TO SHOW -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-  /*** COLOR HELPERS ***/
+<script>  
   function getColor(percent) {  
-    if (percent > 95) return '#ef4444'; 
-    if (percent > 75) return '#eab308'; 
-    return '#22c55e'; 
+    if (percent > 95) return '#ef4444'; // red  
+    if (percent > 75) return '#eab308'; // yellow  
+    return '#22c55e'; // green  
   }  
   
   function getColorClass(percent) {  
@@ -947,127 +840,71 @@ document.addEventListener('DOMContentLoaded', () => {
     if (percent > 75) return 'bg-yellow-500';  
     return 'bg-green-500';  
   }  
+  
+  document.addEventListener('DOMContentLoaded', async () => {  
 
-  /*** STATE ***/
-  let currentData = null;
+    async function updateResourceData() {
+      try {  
+        const response = await fetch('/resourceMonitor');  
+        const data = await response.json();  
 
-  /*** DOM REFERENCES ***/
-  const resourceLink     = document.getElementById('resource-link');
-  const resourceDropdown = document.getElementById('resource-dropdown');
-  const ramUsedEl        = document.getElementById('ram-used');
-  const cpuPercentEl     = document.getElementById('cpu-percent');
-  const diskUsedEl       = document.getElementById('disk-used');
-  const ramBar           = document.getElementById('ram-bar');
-  const cpuBar           = document.getElementById('cpu-bar');
-  const diskBar          = document.getElementById('disk-bar');
+        const maxHeight = 16;  
 
-  const ramFill  = document.getElementById('ram-fill');
-  const cpuFill  = document.getElementById('cpu-fill');
-  const diskFill = document.getElementById('disk-fill');
+        // Update RAM icon  
+        let ramHeight = (data.ram.percent / 100) * maxHeight;  
+        let ramY = 2 + (maxHeight - ramHeight);  
+        const ramFill = document.getElementById('ram-fill');  
+        ramFill.setAttribute('y', ramY);  
+        ramFill.setAttribute('height', ramHeight);  
+        ramFill.setAttribute('fill', getColor(data.ram.percent));  
 
-  /*** FETCH + UPDATE ICON (live bars) – DISK 100% GUARANTEED ***/
-  async function updateResourceData() {
-    try {  
-      const response = await fetch('/resourceMonitor', { cache: 'no-store' });  
-      if (!response.ok) throw new Error('Resource fetch failed');
-      
-      const data = await response.json();  
-      currentData = data;
+        // Update CPU icon  
+        let cpuHeight = (data.cpu.percent / 100) * maxHeight;  
+        let cpuY = 2 + (maxHeight - cpuHeight);  
+        const cpuFill = document.getElementById('cpu-fill');  
+        cpuFill.setAttribute('y', cpuY);  
+        cpuFill.setAttribute('height', cpuHeight);  
+        cpuFill.setAttribute('fill', getColor(data.cpu.percent));  
 
-      const maxHeight = 16;  
+        // Update Disk icon  
+        let diskHeight = (data.disk.percent / 100) * maxHeight;  
+        let diskY = 2 + (maxHeight - diskHeight);  
+        const diskFill = document.getElementById('disk-fill');  
+        diskFill.setAttribute('y', diskY);  
+        diskFill.setAttribute('height', diskHeight);  
+        diskFill.setAttribute('fill', getColor(data.disk.percent));  
 
-      // ALWAYS use safe defaults – this fixes "Disk not showing"
-      const ramData   = data.ram   || { percent: 0 };
-      const cpuData   = data.cpu   || { percent: 0 };
-      const diskData  = data.disk  || { percent: 0 };
+        // Add click event to show dropdown  
+        const link = document.getElementById('resource-link');  
+        link.addEventListener('click', () => {  
+          document.getElementById('ram-used').textContent = `${data.ram.used.toFixed(1)} / ${data.ram.total.toFixed(1)} GB (${data.ram.percent.toFixed(0)}%)`;  
+          document.getElementById('ram-bar').style.width = `${data.ram.percent}%`;  
+          document.getElementById('ram-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('ram-bar').classList.add(getColorClass(data.ram.percent));  
 
-      // RAM icon bar
-      let ramHeight = (ramData.percent / 100) * maxHeight;  
-      let ramY = 2 + (maxHeight - ramHeight);  
-      ramFill.setAttribute('y', ramY);
-      ramFill.setAttribute('height', ramHeight);
-      ramFill.setAttribute('fill', getColor(ramData.percent));  
+          document.getElementById('cpu-percent').textContent = `${data.cpu.percent.toFixed(0)}%`;  
+          document.getElementById('cpu-bar').style.width = `${data.cpu.percent}%`;  
+          document.getElementById('cpu-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('cpu-bar').classList.add(getColorClass(data.cpu.percent));  
 
-      // CPU icon bar
-      let cpuHeight = (cpuData.percent / 100) * maxHeight;  
-      let cpuY = 2 + (maxHeight - cpuHeight);  
-      cpuFill.setAttribute('y', cpuY);
-      cpuFill.setAttribute('height', cpuHeight);
-      cpuFill.setAttribute('fill', getColor(cpuData.percent));  
+          document.getElementById('disk-used').textContent = `${data.disk.used.toFixed(1)} / ${data.disk.total.toFixed(1)} GB (${data.disk.percent.toFixed(0)}%)`;  
+          document.getElementById('disk-bar').style.width = `${data.disk.percent}%`;  
+          document.getElementById('disk-bar').classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');  
+          document.getElementById('disk-bar').classList.add(getColorClass(data.disk.percent));  
 
-      // DISK icon bar – ALWAYS updated (even if backend omits disk)
-      let diskHeight = (diskData.percent / 100) * maxHeight;  
-      let diskY = 2 + (maxHeight - diskHeight);  
-      diskFill.setAttribute('y', diskY);
-      diskFill.setAttribute('height', diskHeight);
-      diskFill.setAttribute('fill', getColor(diskData.percent));  
+          document.getElementById('resource-dropdown').classList.toggle('hidden');  
+        });  
 
-    } catch (error) {  
-      console.error('Error fetching resource data:', error);  
-      // Graceful fallback – keep outline visible
-      ramFill.setAttribute('height', '0');
-      cpuFill.setAttribute('height', '0');
-      diskFill.setAttribute('height', '0');
-    }
-  }
-
-  /*** CLICK HANDLER – ALWAYS shows Disk with beautiful fallback ***/
-  function handleResourceClick(e) {
-    e.stopImmediatePropagation();
-
-    // MATCHING LANGUAGE SELECTOR ANIMATION
-    resourceDropdown.classList.toggle('hidden');
-    if (!resourceDropdown.classList.contains('hidden')) {
-      setTimeout(() => {
-        resourceDropdown.style.transform = 'scale(1)';
-        resourceDropdown.style.opacity = '1';
-      }, 10);
-    } else {
-      resourceDropdown.style.transform = 'scale(0.95)';
-      resourceDropdown.style.opacity = '0';
+      } catch (error) {  
+        console.error('Error fetching resource data:', error);  
+      }
     }
 
-    // Always populate – even if no data yet
-    const ramData   = (currentData && currentData.ram)   || { used: 0, total: 0, percent: 0 };
-    const cpuData   = (currentData && currentData.cpu)   || { percent: 0 };
-    const diskData  = (currentData && currentData.disk)  || { used: 0, total: 0, percent: 0 };
+    // Run immediately once
+    updateResourceData();
 
-    // RAM
-    ramUsedEl.textContent = `${ramData.used.toFixed(1)} / ${ramData.total.toFixed(1)} GB (${ramData.percent.toFixed(0)}%)`;
-    ramBar.style.width = `${ramData.percent}%`;
-    ramBar.className = `h-3 rounded-full ${getColorClass(ramData.percent)}`;
+    // Run every 1.5 seconds
+    setInterval(updateResourceData, 1500);
 
-    // CPU
-    cpuPercentEl.textContent = `${cpuData.percent.toFixed(0)}%`;
-    cpuBar.style.width = `${cpuData.percent}%`;
-    cpuBar.className = `h-3 rounded-full ${getColorClass(cpuData.percent)}`;
-
-    // DISK – always visible
-    diskUsedEl.textContent = `${diskData.used.toFixed(1)} / ${diskData.total.toFixed(1)} GB (${diskData.percent.toFixed(0)}%)`;
-    diskBar.style.width = `${diskData.percent}%`;
-    diskBar.className = `h-3 rounded-full ${getColorClass(diskData.percent)}`;
-  }
-
-  /*** OUTSIDE CLICK TO CLOSE ***/
-  function handleOutsideClick(e) {
-    if (!resourceLink.contains(e.target) && 
-        !resourceDropdown.contains(e.target) && 
-        !resourceDropdown.classList.contains('hidden')) {
-      resourceDropdown.classList.add('hidden');
-      resourceDropdown.style.transform = 'scale(0.95)';
-      resourceDropdown.style.opacity = '0';
-    }
-  }
-
-  /*** INITIALIZE ***/
-  resourceLink.addEventListener('click', handleResourceClick);
-  document.addEventListener('click', handleOutsideClick);
-
-  // First load + live refresh (every 1s)
-  updateResourceData();
-  setInterval(updateResourceData, 1000);
-
-});
+  });  
 </script>
-
-      </div>
