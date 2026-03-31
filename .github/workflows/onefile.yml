@@ -29,25 +29,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'          # Matches your engines requirement
-          # Cache removed because there is no package-lock.json in the repo
+          node-version: '20'          # Matches engines requirement (>=18) and intended runtime
 
       - name: Install dependencies
         working-directory: ./panel
         run: npm install
 
-      - name: Build single executable binaries (pkg)
+      - name: Build single executable binaries (@yao-pkg/pkg)
         working-directory: ./panel
         run: |
           echo "Building Linux x64 binary..."
-          npx pkg index.js \
+          npx @yao-pkg/pkg@latest index.js \
             --target node20-linux-x64 \
             --output ../ks-panel-${{ env.VERSION }}-linux-x64 \
             --assets "public/**,views/**,lang/**" \
             --compress GZip
 
           echo "Building Linux arm64 binary..."
-          npx pkg index.js \
+          npx @yao-pkg/pkg@latest index.js \
             --target node20-linux-arm64 \
             --output ../ks-panel-${{ env.VERSION }}-linux-arm64 \
             --assets "public/**,views/**,lang/**" \
