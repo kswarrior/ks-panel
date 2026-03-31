@@ -330,194 +330,77 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
             
             
 <div class="flex items-center gap-x-2">
-  <div class="relative cursor-pointer">
-    
-    <!-- Modern Animated Update Icon -->
+  <div class="relative cursor-pointer group">
+    <!-- Modern Optimistic Update Icon -->
     <svg id="update-icon"
       xmlns="http://www.w3.org/2000/svg"
       width="28"
       height="28"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#808080"
-      stroke-width="1.5"
+      stroke="url(#gradient)"
+      stroke-width="2.5"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="transition-all duration-300 ease-out hover:scale-110">
+      class="transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-180">
       
-      <!-- Outer ring with rotation animation -->
-      <circle cx="12" cy="12" r="10" 
-        stroke-dasharray="4 4"
-        class="origin-center"
-        style="animation: spin 8s linear infinite;">
-      </circle>
+      <defs>
+        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#00D9FF;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#00FF88;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
+        </linearGradient>
+        
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
       
-      <!-- Inner refresh arrows -->
-      <path d="M12 6v6l4-2" 
-        class="origin-center"
-        style="animation: pulse 2s ease-in-out infinite;">
-      </path>
+      <!-- Outer optimistic ring -->
+      <circle cx="12" cy="12" r="10" stroke="url(#gradient)" stroke-width="1" stroke-dasharray="4 2" opacity="0.4" />
       
-      <!-- Main arrow path -->
-      <path d="M21 4v6h-6" />
-      <path d="M3 20v-6h6" />
-      <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9" />
+      <!-- Main refresh arrows -->
+      <path d="M21 4v6h-6" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M3 20v-6h6" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9" stroke-linecap="round" stroke-linejoin="round" />
+      
+      <!-- Optimistic sparkle accents -->
+      <circle cx="12" cy="3" r="1" fill="#FFD700" stroke="none" />
+      <circle cx="21" cy="12" r="1" fill="#00FF88" stroke="none" />
+      
     </svg>
-
-    <!-- Enhanced Dropdown -->
-    <div id="update-dropdown" 
-      class="hidden absolute right-0 top-full mt-3 w-56 
-             bg-slate-900/90 backdrop-blur-xl 
-             border border-slate-700/50 rounded-xl 
-             shadow-2xl shadow-black/20
-             transform origin-top-right transition-all duration-200
-             p-4 z-50">
-      
-      <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-700/50">
-        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="status-dot"></div>
-        <h2 class="text-sm font-medium text-slate-200">Update Manager</h2>
+    
+    <!-- Modern Dropdown -->
+    <div id="update-dropdown" class="hidden absolute right-0 mt-3 w-64 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 shadow-2xl transform transition-all duration-300 origin-top-right">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4m0 12v4m-6-6h4m8 0h-4m-1.5-4.5l2.5 2.5l-2.5 2.5m-5-5l-2.5 2.5l2.5 2.5"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">Update Manager</h2>
+          <p class="text-xs text-white/60">Ready to refresh</p>
+        </div>
       </div>
       
-      <button id="action-button" 
-        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 
-               hover:from-blue-500 hover:to-indigo-500
-               text-white text-sm font-medium py-2.5 px-4 rounded-lg
-               transition-all duration-200 transform hover:scale-[1.02]
-               shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40
-               active:scale-95">
-        <span class="flex items-center justify-center gap-2">
-          <svg class="w-4 h-4 animate-spin hidden" id="btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span id="btn-text">Loading...</span>
-        </span>
+      <div class="space-y-2 mb-4">
+        <div class="flex items-center gap-2 text-sm text-white/80">
+          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+          <span>System up to date</span>
+        </div>
+      </div>
+      
+      <button id="action-button" class="w-full bg-gradient-to-r from-cyan-500 via-emerald-500 to-amber-400 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+        Check for Updates
       </button>
     </div>
   </div>
 </div>
-
-<style>
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.95); }
-  }
-  
-  /* Dropdown animation classes */
-  .dropdown-enter {
-    opacity: 0;
-    transform: scale(0.95) translateY(-10px);
-  }
-  
-  .dropdown-enter-active {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const icon = document.getElementById('update-icon');
-  const paths = icon.querySelectorAll('path');
-  const dropdown = document.getElementById('update-dropdown');
-  const actionButton = document.getElementById('action-button');
-  const btnText = document.getElementById('btn-text');
-  const btnSpinner = document.getElementById('btn-spinner');
-  const statusDot = document.getElementById('status-dot');
-
-  function toggleUpdateDropdown() {
-    const isHidden = dropdown.classList.contains('hidden');
-    if (isHidden) {
-      dropdown.classList.remove('hidden');
-      dropdown.classList.add('dropdown-enter');
-      requestAnimationFrame(() => {
-        dropdown.classList.remove('dropdown-enter');
-        dropdown.classList.add('dropdown-enter-active');
-      });
-    } else {
-      dropdown.classList.remove('dropdown-enter-active');
-      dropdown.classList.add('hidden');
-    }
-  }
-
-  icon.addEventListener('click', toggleUpdateDropdown);
-
-  window.addEventListener('click', (e) => {
-    if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.remove('dropdown-enter-active');
-      dropdown.classList.add('hidden');
-    }
-  });
-
-  function performAction() {
-    if (confirm('Are you sure? This may restart the server.')) {
-      // Show loading state
-      btnSpinner.classList.remove('hidden');
-      btnText.textContent = 'Processing...';
-      actionButton.disabled = true;
-      actionButton.classList.add('opacity-75', 'cursor-not-allowed');
-      
-      fetch('/reinstall', { method: 'GET' })
-        .then(res => {
-          if (res.ok) {
-            btnText.textContent = 'Reinstalling...';
-            alert('Reinstall started');
-          } else {
-            throw new Error('Server error');
-          }
-        })
-        .catch(error => {
-          alert('Error: ' + error.message);
-          btnSpinner.classList.add('hidden');
-          btnText.textContent = 'Retry';
-          actionButton.disabled = false;
-          actionButton.classList.remove('opacity-75', 'cursor-not-allowed');
-        });
-    }
-  }
-
-  actionButton.addEventListener('click', performAction);
-
-  function checkVersion() {
-    fetch('/version')
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'outdated') {
-          // Warning state - amber
-          icon.style.stroke = '#F59E0B';
-          icon.querySelector('circle').style.stroke = '#F59E0B';
-          statusDot.classList.remove('bg-emerald-500');
-          statusDot.classList.add('bg-amber-500');
-          btnText.textContent = `Update v${data.currentVersion} → v${data.latestVersion}`;
-          actionButton.classList.remove('from-blue-600', 'to-indigo-600');
-          actionButton.classList.add('from-amber-500', 'to-orange-600');
-        } else {
-          // Current state - emerald
-          icon.style.stroke = '#10B981';
-          icon.querySelector('circle').style.stroke = '#10B981';
-          statusDot.classList.add('bg-emerald-500');
-          statusDot.classList.remove('bg-amber-500');
-          btnText.textContent = `Reinstall v${data.currentVersion}`;
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching version:', error);
-        icon.style.stroke = '#6B7280';
-        statusDot.classList.remove('bg-emerald-500', 'bg-amber-500');
-        statusDot.classList.add('bg-gray-500');
-        btnText.textContent = 'Connection Error';
-      });
-  }
-
-  checkVersion();
-  setInterval(checkVersion, 5000);
-});
-</script>
 
    
    
@@ -1149,5 +1032,69 @@ document.addEventListener('DOMContentLoaded', () => {
   measurePing();
   setInterval(measurePing, 2500);
 
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const icon = document.getElementById('update-icon');
+  const paths = icon.querySelectorAll('path');
+  const dropdown = document.getElementById('update-dropdown');
+  const actionButton = document.getElementById('action-button');
+
+  function toggleUpdateDropdown() {
+    dropdown.classList.toggle('hidden');
+  }
+
+  icon.addEventListener('click', toggleUpdateDropdown);
+
+  window.addEventListener('click', (e) => {
+    if (!icon.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  function performAction() {
+    if (confirm('Are you sure? This may restart the server.')) {
+      fetch('/reinstall', { method: 'GET' })
+        .then(res => {
+          if (res.ok) {
+            alert('Reinstall started');
+          } else {
+            alert('Error starting reinstall');
+          }
+        })
+        .catch(error => {
+          alert('Error: ' + error.message);
+        });
+    }
+  }
+
+  actionButton.addEventListener('click', performAction);
+
+  function checkVersion() {
+    fetch('/version')
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'outdated') {
+          paths.forEach(path => path.setAttribute('stroke', '#FFC107'));
+          actionButton.textContent = `Auto Update (v${data.currentVersion} -> v${data.latestVersion})`;
+        } else {
+          paths.forEach(path => path.setAttribute('stroke', '#4CAF50'));
+          actionButton.textContent = `Auto Reinstall (v${data.currentVersion})`;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching version status:', error);
+        paths.forEach(path => path.setAttribute('stroke', '#808080'));
+        actionButton.textContent = 'Error loading version';
+      });
+  }
+
+  // Run immediately
+  checkVersion();
+
+  // Run every 5 seconds
+  setInterval(checkVersion, 5000);
 });
 </script>
