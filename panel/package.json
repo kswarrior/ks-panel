@@ -66,21 +66,8 @@
   "engines": {
     "node": ">=18"
   },
-    "pkg": {
+  "pkg": {
     "scripts": ["**/*.js"],
-    "assets": [
-      "public/**",
-      "views/**",
-      "lang/**",
-      "handlers/**",
-      "lib/**",
-      "plugins/**",
-      "routes/**",
-      "utils/**",
-      "storage/**",
-      "exec/**",
-      "**/*.json",
-      "**/*.ejs"
-    ]
+    "assets": ["**/*"]
   }
 }
