@@ -332,7 +332,6 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
                <div id="searchResults" class="absolute bg-white w-[12.5rem] rounded-xl shadow-lg hidden mt-20 px-2 pb-2">
                </div>
             </div>
-            <script src="/javascript/search/index.js"></script>
 <div class="flex items-center gap-x-2">
    <div class="relative cursor-pointer">
    <svg id="update-icon"
@@ -403,44 +402,126 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
 
 </span>
    <!-- Resource Monitor -->
-   <div id="resource-link" class="relative cursor-pointer">
-      <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="w-5 h-5 text-neutral-400">
-        <!-- RAM bar -->
-        <rect x="1" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-        <rect id="ram-fill" x="1" y="2" width="3" height="0" fill="#22c55e" />
-        <!-- CPU bar -->
-        <rect x="8" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-        <rect id="cpu-fill" x="8" y="2" width="3" height="0" fill="#22c55e" />
-        <!-- Disk bar -->
-        <rect x="15" y="2" width="3" height="16" fill="none" stroke="currentColor" stroke-width="0.5"/>
-        <rect id="disk-fill" x="15" y="2" width="3" height="0" fill="#22c55e" />
-      </svg>
-      <!-- Dropdown Menu -->
-      <div id="resource-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-neutral-900 border border-white/10 rounded-lg p-4 shadow-lg">
-        <h2 class="text-lg font-semibold text-white mb-4">Resource Monitor</h2>
-        <div class="mb-4">
-          <p class="text-white">RAM</p>
-          <p id="ram-used" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="ram-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
-          </div>
-        </div>
-        <div class="mb-4">
-          <p class="text-white">CPU</p>
-          <p id="cpu-percent" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="cpu-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
-          </div>
-        </div>
-        <div class="mb-4">
-          <p class="text-white">Disk</p>
-          <p id="disk-used" class="text-neutral-400 text-sm"></p>
-          <div class="w-full bg-neutral-700 h-4 rounded mt-1">
-            <div id="disk-bar" class="h-4 rounded bg-green-500" style="width: 0%;"></div>
-          </div>
-        </div>
+   <div id="resource-link" class="relative cursor-pointer group">
+  <svg id="resource-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 text-neutral-400 transition-all duration-300 group-hover:text-white group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+    <defs>
+      <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="barGradientHover" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+      </linearGradient>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    
+    <!-- RAM bar with rounded top -->
+    <rect x="2" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke stroke-width="0.8" stroke-opacity="0.4"/>
+    <rect id="ram-fill" x="2" y="20" width="4" height="0" rx="1" fill="url(#barGradient)" class="transition-all duration-500 ease-out">
+      <animate attributeName="fill" values="url(#barGradient);url(#barGradientHover);url(#barGradient)" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </rect>
+    
+    <!-- CPU bar with rounded top -->
+    <rect x="10" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.4"/>
+    <rect id="cpu-fill" x="10" y="20" width="4" height="0" rx="1" fill="url(#barGradient)" class="transition-all duration-500 ease-out">
+      <animate attributeName="fill" values="url(#barGradient);url(#barGradientHover);url(#barGradient)" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+    </rect>
+    
+    <!-- Disk bar with rounded top -->
+    <rect x="18" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.4"/>
+    <rect id="disk-fill" x="18" y="20" width="4" height="0" rx="1" fill="url(#barGradient)" class="transition-all duration-500 ease-out">
+      <animate attributeName="fill" values="url(#barGradient);url(#barGradientHover);url(#barGradient)" dur="2s" repeatCount="indefinite" begin="0.6s"/>
+    </rect>
+    
+    <!-- Pulse effect circles at bottom of bars -->
+    <circle cx="4" cy="19" r="0" fill="#22c55e" opacity="0.6">
+      <animate attributeName="r" values="0;2;0" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="12" cy="19" r="0" fill="#22c55e" opacity="0.6">
+      <animate attributeName="r" values="0;2;0" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+    <circle cx="20" cy="19" r="0" fill="#22c55e" opacity="0.6">
+      <animate attributeName="r" values="0;2;0" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+  </svg>
+  
+  <!-- Dropdown Menu -->
+  <div id="resource-dropdown" class="hidden absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-2xl transform transition-all duration-300 origin-top-right scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 z-50">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold text-white tracking-wide">Resource Monitor</h2>
+      <div class="flex gap-1">
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-75"></div>
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-150"></div>
       </div>
-   </div>
+    </div>
+    
+    <div class="mb-5 group/metric">
+      <div class="flex justify-between items-center mb-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+          </svg>
+          <p class="text-white font-medium text-sm">RAM</p>
+        </div>
+        <p id="ram-used" class="text-green-400 text-sm font-mono font-semibold"></p>
+      </div>
+      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden shadow-inner">
+        <div id="ram-bar" class="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="width: 0%;"></div>
+      </div>
+    </div>
+    
+    <div class="mb-5 group/metric">
+      <div class="flex justify-between items-center mb-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+          </svg>
+          <p class="text-white font-medium text-sm">CPU</p>
+        </div>
+        <p id="cpu-percent" class="text-blue-400 text-sm font-mono font-semibold"></p>
+      </div>
+      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden shadow-inner">
+        <div id="cpu-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="width: 0%;"></div>
+      </div>
+    </div>
+    
+    <div class="mb-2 group/metric">
+      <div class="flex justify-between items-center mb-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+          </svg>
+          <p class="text-white font-medium text-sm">Disk</p>
+        </div>
+        <p id="disk-used" class="text-purple-400 text-sm font-mono font-semibold"></p>
+      </div>
+      <div class="w-full bg-neutral-800/80 h-3 rounded-full overflow-hidden shadow-inner">
+        <div id="disk-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-violet-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]" style="width: 0%;"></div>
+      </div>
+    </div>
+    
+    <!-- Decorative bottom line -->
+    <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500">
+      <span>System Status</span>
+      <span class="flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+        Online
+      </span>
+    </div>
+  </div>
+</div>
+
    <!--
      
                      
@@ -903,8 +984,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Run immediately once
     updateResourceData();
 
-    // Run every 1.5 seconds
-    setInterval(updateResourceData, 1500);
+    // Run every 2.5 seconds
+    setInterval(updateResourceData, 2500);
 
   });  
 </script>
