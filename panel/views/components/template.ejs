@@ -369,11 +369,42 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
           Loading...
         </button>
       </div>
-      
-      <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-neutral-500 content-row opacity-0 translate-x-4 transition-all duration-300 delay-300">
-        <span>Last checked</span>
-        <span id="last-checked">Just now</span>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal Overlay -->
+<div id="confirm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+  <div id="confirm-box" class="bg-neutral-900 border border-white/10 rounded-2xl p-8 w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300 shadow-2xl shadow-black/50">
+    <div class="flex items-center justify-center mb-6">
+      <div class="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
       </div>
+    </div>
+    
+    <h3 class="text-xl font-bold text-white text-center mb-2">Confirm Action</h3>
+    <p class="text-neutral-400 text-center mb-6 text-sm">This action will restart the server. Type <span class="text-yellow-400 font-mono font-bold">ks-panel</span> to confirm.</p>
+    
+    <div class="mb-6">
+      <input 
+        type="text" 
+        id="confirm-input" 
+        placeholder="Type ks-panel here..." 
+        class="w-full bg-neutral-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300 text-center font-mono tracking-wide"
+        autocomplete="off"
+      >
+      <p id="confirm-error" class="text-red-400 text-xs mt-2 text-center hidden">Incorrect confirmation text</p>
+    </div>
+    
+    <div class="flex gap-3">
+      <button id="cancel-btn" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 border border-white/10">
+        Cancel
+      </button>
+      <button id="confirm-btn" class="flex-1 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 opacity-50 cursor-not-allowed" disabled>
+        Confirm
+      </button>
     </div>
   </div>
 </div>
@@ -388,29 +419,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusIndicator = document.getElementById('status-indicator');
   const versionText = document.getElementById('version-text');
   const contentRows = document.querySelectorAll('.content-row');
-  const lastChecked = document.getElementById('last-checked');
+  
+  // Modal elements
+  const confirmModal = document.getElementById('confirm-modal');
+  const confirmBox = document.getElementById('confirm-box');
+  const confirmInput = document.getElementById('confirm-input');
+  const confirmError = document.getElementById('confirm-error');
+  const confirmBtn = document.getElementById('confirm-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
   
   let isDropdownOpen = false;
   let currentData = null;
+  let pendingAction = null;
 
   function toggleUpdateDropdown() {
     isDropdownOpen = !isDropdownOpen;
     
     if (isDropdownOpen) {
-      // Open animation
       dropdown.classList.remove('invisible', 'pointer-events-none', 'opacity-0', 'scale-95', 'translate-y-2');
       dropdown.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
       
-      // Animate content rows with stagger
       contentRows.forEach((row, index) => {
         setTimeout(() => {
           row.classList.remove('opacity-0', 'translate-x-4');
           row.classList.add('opacity-100', 'translate-x-0');
         }, index * 80);
       });
-      
-      // Update last checked time
-      updateLastChecked();
     } else {
       closeDropdown();
     }
@@ -428,11 +462,75 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 200);
   }
 
-  function updateLastChecked() {
-    const now = new Date();
-    lastChecked.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // Modal functions
+  function openModal(action) {
+    pendingAction = action;
+    confirmModal.classList.remove('hidden');
+    confirmModal.classList.add('flex');
+    
+    // Trigger reflow
+    void confirmModal.offsetWidth;
+    
+    confirmModal.classList.remove('opacity-0');
+    confirmBox.classList.remove('scale-95', 'opacity-0');
+    confirmBox.classList.add('scale-100', 'opacity-100');
+    
+    confirmInput.value = '';
+    confirmInput.focus();
+    confirmError.classList.add('hidden');
+    updateConfirmButton();
   }
 
+  function closeModal() {
+    confirmModal.classList.add('opacity-0');
+    confirmBox.classList.remove('scale-100', 'opacity-100');
+    confirmBox.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+      confirmModal.classList.add('hidden');
+      confirmModal.classList.remove('flex');
+      pendingAction = null;
+    }, 300);
+  }
+
+  function updateConfirmButton() {
+    const isValid = confirmInput.value.trim() === 'ks-panel';
+    confirmBtn.disabled = !isValid;
+    confirmBtn.classList.toggle('opacity-50', !isValid);
+    confirmBtn.classList.toggle('cursor-not-allowed', !isValid);
+  }
+
+  function executeAction() {
+    confirmBtn.textContent = 'Processing...';
+    confirmBtn.disabled = true;
+    
+    fetch('/reinstall', { method: 'GET' })
+      .then(res => {
+        if (res.ok) {
+          confirmBtn.textContent = 'Started!';
+          confirmBtn.classList.remove('from-yellow-600', 'to-yellow-500');
+          confirmBtn.classList.add('from-green-600', 'to-green-500');
+          
+          setTimeout(() => {
+            closeModal();
+            actionButton.textContent = 'Reinstalling...';
+          }, 800);
+        } else {
+          throw new Error('Server error');
+        }
+      })
+      .catch(error => {
+        confirmBtn.textContent = 'Error';
+        confirmBtn.classList.remove('from-yellow-600', 'to-yellow-500');
+        confirmBtn.classList.add('from-red-600', 'to-red-500');
+        
+        setTimeout(() => {
+          closeModal();
+        }, 1500);
+      });
+  }
+
+  // Event listeners
   link.addEventListener('click', (e) => {
     e.stopPropagation();
     toggleUpdateDropdown();
@@ -445,39 +543,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function performAction() {
-    // Button press animation
-    actionButton.classList.add('scale-95');
-    setTimeout(() => actionButton.classList.remove('scale-95'), 150);
-    
-    if (confirm('Are you sure? This may restart the server.')) {
-      actionButton.textContent = 'Processing...';
-      actionButton.disabled = true;
-      actionButton.classList.add('opacity-75', 'cursor-not-allowed');
-      
-      fetch('/reinstall', { method: 'GET' })
-        .then(res => {
-          if (res.ok) {
-            actionButton.textContent = 'Reinstalling...';
-            actionButton.classList.remove('from-blue-600', 'to-blue-500');
-            actionButton.classList.add('from-yellow-600', 'to-yellow-500');
-            alert('Reinstall started');
-          } else {
-            throw new Error('Server error');
-          }
-        })
-        .catch(error => {
-          actionButton.textContent = 'Error - Retry';
-          actionButton.classList.remove('from-blue-600', 'to-blue-500');
-          actionButton.classList.add('from-red-600', 'to-red-500');
-          actionButton.disabled = false;
-          actionButton.classList.remove('opacity-75', 'cursor-not-allowed');
-          alert('Error: ' + error.message);
-        });
-    }
-  }
+  actionButton.addEventListener('click', () => {
+    openModal('reinstall');
+  });
 
-  actionButton.addEventListener('click', performAction);
+  cancelBtn.addEventListener('click', closeModal);
+
+  confirmBtn.addEventListener('click', () => {
+    if (confirmInput.value.trim() === 'ks-panel') {
+      executeAction();
+    } else {
+      confirmError.classList.remove('hidden');
+      confirmInput.classList.add('border-red-500', 'ring-2', 'ring-red-500/20');
+      setTimeout(() => {
+        confirmInput.classList.remove('border-red-500', 'ring-2', 'ring-red-500/20');
+      }, 1000);
+    }
+  });
+
+  confirmInput.addEventListener('input', () => {
+    confirmError.classList.add('hidden');
+    updateConfirmButton();
+  });
+
+  confirmInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !confirmBtn.disabled) {
+      executeAction();
+    }
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  // Close modal on backdrop click
+  confirmModal.addEventListener('click', (e) => {
+    if (e.target === confirmModal) {
+      closeModal();
+    }
+  });
 
   function checkVersion() {
     fetch('/version')
@@ -502,8 +605,6 @@ document.addEventListener('DOMContentLoaded', () => {
           actionButton.classList.remove('from-blue-600', 'to-blue-500', 'from-yellow-600', 'to-yellow-500');
           actionButton.classList.add('from-green-600', 'to-green-500', 'shadow-green-500/25');
         }
-        
-        if (isDropdownOpen) updateLastChecked();
       })
       .catch(error => {
         console.error('Error fetching version status:', error);
@@ -512,18 +613,16 @@ document.addEventListener('DOMContentLoaded', () => {
         versionText.textContent = 'Connection Error';
         versionText.className = 'text-red-400 text-sm';
         actionButton.textContent = 'Retry Connection';
-        actionButton.classList.remove('from-blue-600', 'to-blue-500');
+        actionButton.classList.remove('from-blue-600', 'to-blue-500', 'from-green-600', 'to-green-500', 'from-yellow-600', 'to-yellow-500');
         actionButton.classList.add('from-red-600', 'to-red-500');
       });
   }
 
-  // Run immediately
   checkVersion();
-
-  // Run every 5 seconds
   setInterval(checkVersion, 5000);
 });
 </script>
+
 
    
    
@@ -608,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </svg>
   
   <!-- Dropdown Menu with animation classes -->
-  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-3xl: border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible ">
+  <div id="resource-dropdown" class="absolute right-0 mt-3 w-72 bg-neutral-900/95 backdrop-blur-1xl: border border-white/10 rounded-xl p-5 shadow-2xl z-50 origin-top-right transition-all duration-300 ease-out opacity-0 scale-95 translate-y-2 pointer-events-none invisible ">
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-lg font-bold text-white tracking-wide">Resource Monitor</h2>
       <div class="flex gap-1">
