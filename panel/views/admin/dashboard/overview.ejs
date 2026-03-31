@@ -1,7 +1,7 @@
 <%- include('../../components/template') %>
 
 <style>
-/* === PREMIUM GLASSMORPHIC CARDS (from Database Overview) === */
+/* === PREMIUM GLASSMORPHIC CARDS (from your original Database Overview) === */
 .stat-card {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
@@ -179,7 +179,7 @@
   100% { transform: scale(2.5); opacity: 0; }
 }
 
-/* Mobile & Tablet fixes */
+/* Mobile fixes */
 @media (max-width: 640px) {
   .stat-card, .resource-card, .glass-panel { padding: 1.25rem; }
   .stat-number { font-size: 1.75rem; }
@@ -188,14 +188,14 @@
 
 <main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
 
-  <!-- HEADER (Combined) -->
+  <!-- HEADER -->
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10">
     <div class="flex-1 min-w-0">
       <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Dashboard</h1>
-      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Users • Instances • Nodes • Database • Resources • Live Logs</p>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Live Logs • Resources • Statistics • Database</p>
     </div>
 
-    <div class="flex items-center gap-3 header-actions">
+    <div class="flex items-center gap-3">
       <div class="live-badge">
         <div class="live-dot"></div>
         <span>LIVE</span>
@@ -208,17 +208,104 @@
         <span>Refresh All</span>
       </button>
 
-      <span class="version-badge bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap border border-white/5">v<%= version %></span>
+      <span class="bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap border border-white/5">v<%= version %></span>
     </div>
   </header>
 
-  <!-- DATABASE STATISTICS (Exact original 8 cards) -->
-  <section class="mt-6 sm:mt-10">
+  <!-- 1. LIVE LOGS (First as requested) -->
+  <div class="mt-8 glass-panel p-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-lg bg-white/5">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h2 class="text-lg sm:text-xl font-semibold text-white">KS Panel Live Logs</h2>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="clearLogs()" class="refresh-btn text-xs px-4">Clear Logs</button>
+        <button onclick="toggleStream()" id="log-btn" class="refresh-btn bg-red-500 text-white text-xs px-4">Stop Stream</button>
+      </div>
+    </div>
+    <div id="logs" class="log-terminal"></div>
+  </div>
+
+  <!-- 2. RESOURCES MONITOR (Second as requested) -->
+  <div class="mt-8 sm:mt-12">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-lg bg-white/5">
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <h2 class="text-lg sm:text-xl font-semibold text-white">Resources Monitor</h2>
+      </div>
+      <button onclick="refreshResources()" class="refresh-btn" id="refreshBtn">Refresh Now</button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- CPU -->
+      <div class="resource-card glass-panel p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="p-3 rounded-xl bg-orange-500/10">
+            <svg class="w-9 h-9 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-sm">CPU Usage</p>
+            <p id="cpu-text" class="text-5xl font-bold text-orange-400">0%</p>
+          </div>
+        </div>
+        <div id="cpu-graph" class="bar-graph text-orange-400"></div>
+        <div class="mt-4 flex justify-between text-xs">
+          <p id="cpu-status" class="text-neutral-400">Normal</p>
+          <span id="cpu-cores" class="font-mono text-neutral-400"></span>
+        </div>
+      </div>
+
+      <!-- RAM -->
+      <div class="resource-card glass-panel p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="p-3 rounded-xl bg-blue-500/10">
+            <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-sm">RAM Usage</p>
+            <p id="ram-text" class="text-5xl font-bold text-blue-400">0%</p>
+          </div>
+        </div>
+        <div id="ram-graph" class="bar-graph text-blue-400"></div>
+        <div class="mt-4 flex justify-between text-xs text-neutral-400">
+          <span id="ram-used">0 GB</span>
+          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="ram-bar" class="h-full bg-blue-400 rounded-full" style="width:0%"></div></div>
+          <span id="ram-total">0 GB</span>
+        </div>
+      </div>
+
+      <!-- Disk -->
+      <div class="resource-card glass-panel p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="p-3 rounded-xl bg-emerald-500/10">
+            <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-sm">Disk Usage</p>
+            <p id="disk-text" class="text-5xl font-bold text-emerald-400">0%</p>
+          </div>
+        </div>
+        <div id="disk-graph" class="bar-graph text-emerald-400"></div>
+        <div class="mt-4 flex justify-between text-xs text-neutral-400">
+          <span id="disk-used">0 GB</span>
+          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="disk-bar" class="h-full bg-emerald-400 rounded-full" style="width:0%"></div></div>
+          <span id="disk-total">0 GB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. INFORMATION (Database Statistics - 8 cards) -->
+  <section class="mt-8 sm:mt-12">
     <div class="flex items-center justify-between mb-4 sm:mb-6">
-      <h2 class="text-xl sm:text-2xl font-semibold text-white">Database Statistics</h2>
+      <h2 class="text-xl sm:text-2xl font-semibold text-white">Information</h2>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-6">
-      
       <!-- Users -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
@@ -351,7 +438,7 @@
     </div>
   </section>
 
-  <!-- DATABASE INFORMATION (Exact original 5 cards) -->
+  <!-- 4. DATABASE INFORMATION (Last as requested) -->
   <section class="mt-8 sm:mt-12">
     <h2 class="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">Database Information</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
@@ -427,109 +514,20 @@
     </div>
   </section>
 
-  <!-- RESOURCES MONITOR (Exact original) -->
-  <div class="mt-8 sm:mt-12">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-lg bg-white/5">
-          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        </div>
-        <h2 class="text-lg sm:text-xl font-semibold text-white">Resources Monitor</h2>
-      </div>
-      <button onclick="refreshResources()" class="refresh-btn" id="refreshBtn">Refresh Now</button>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- CPU -->
-      <div class="resource-card glass-panel p-6">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="p-3 rounded-xl bg-orange-500/10">
-            <svg class="w-9 h-9 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-sm">CPU Usage</p>
-            <p id="cpu-text" class="text-5xl font-bold text-orange-400">0%</p>
-          </div>
-        </div>
-        <div id="cpu-graph" class="bar-graph text-orange-400"></div>
-        <div class="mt-4 flex justify-between text-xs">
-          <p id="cpu-status" class="text-neutral-400">Normal</p>
-          <span id="cpu-cores" class="font-mono text-neutral-400"></span>
-        </div>
-      </div>
-
-      <!-- RAM -->
-      <div class="resource-card glass-panel p-6">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="p-3 rounded-xl bg-blue-500/10">
-            <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-sm">RAM Usage</p>
-            <p id="ram-text" class="text-5xl font-bold text-blue-400">0%</p>
-          </div>
-        </div>
-        <div id="ram-graph" class="bar-graph text-blue-400"></div>
-        <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <span id="ram-used">0 GB</span>
-          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="ram-bar" class="h-full bg-blue-400 rounded-full" style="width:0%"></div></div>
-          <span id="ram-total">0 GB</span>
-        </div>
-      </div>
-
-      <!-- Disk -->
-      <div class="resource-card glass-panel p-6">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="p-3 rounded-xl bg-emerald-500/10">
-            <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-sm">Disk Usage</p>
-            <p id="disk-text" class="text-5xl font-bold text-emerald-400">0%</p>
-          </div>
-        </div>
-        <div id="disk-graph" class="bar-graph text-emerald-400"></div>
-        <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <span id="disk-used">0 GB</span>
-          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="disk-bar" class="h-full bg-emerald-400 rounded-full" style="width:0%"></div></div>
-          <span id="disk-total">0 GB</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIVE PM2 LOGS (Exact original) -->
-  <div class="mt-8 sm:mt-12 glass-panel p-6">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-lg bg-white/5">
-          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
-        <h2 class="text-lg sm:text-xl font-semibold text-white">KS Panel Live Logs</h2>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="clearLogs()" class="refresh-btn text-xs px-4">Clear Logs</button>
-        <button onclick="toggleStream()" id="log-btn" class="refresh-btn bg-red-500 text-white text-xs px-4">Stop Stream</button>
-      </div>
-    </div>
-    <div id="logs" class="log-terminal"></div>
-  </div>
-
 </main>
 
-<!-- Notification (from original) -->
+<!-- Notification -->
 <div id="notification" class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm">
   <svg id="notification-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
   <span id="notification-text" class="break-text"></span>
 </div>
 
 <script>
-// DOM Elements cache
+// Cache elements
 let els = {};
 
-// Update all stats (Database + Dashboard)
+// Update stats
 function updateStats(data) {
-  // Database Statistics
   els.users.textContent = data.usersTotal;
   els.admins.textContent = data.adminsTotal;
   els.instances.textContent = data.instancesTotal;
@@ -545,7 +543,6 @@ function updateStats(data) {
   els.visitors.textContent = data.uniqueVisitors;
   els.avg.textContent = data.avgRequestsPerHour;
 
-  // Database Information
   els.dbtype.textContent = data.dbType;
   els.dbsize.textContent = data.dbSize;
   els.dburl.textContent = data.dbUrlMasked;
@@ -553,7 +550,7 @@ function updateStats(data) {
   els.dbkeys.textContent = data.totalKeys;
 }
 
-// Fetch full dashboard stats
+// Fetch full stats
 async function fetchDashboardStats() {
   try {
     const res = await fetch('/admin/dashboard/api/stats');
@@ -566,19 +563,17 @@ async function fetchDashboardStats() {
   }
 }
 
-// Resources Monitor
+// Resources
 async function fetchResources() {
   try {
     const res = await fetch('/resourceMonitor');
     const data = await res.json();
 
-    // CPU
     const cpuPercent = Math.round(data.cpu?.percent || 0);
     document.getElementById('cpu-text').textContent = cpuPercent + '%';
     document.getElementById('cpu-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${cpuPercent}%"></div>`).join('');
     document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
 
-    // RAM
     const ramPercent = Math.round(data.ram?.percent || 0);
     document.getElementById('ram-text').textContent = ramPercent + '%';
     document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
@@ -586,7 +581,6 @@ async function fetchResources() {
     document.getElementById('ram-bar').style.width = ramPercent + '%';
     document.getElementById('ram-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${ramPercent}%"></div>`).join('');
 
-    // Disk
     const diskPercent = Math.round(data.disk?.percent || 0);
     document.getElementById('disk-text').textContent = diskPercent + '%';
     document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
@@ -598,7 +592,7 @@ async function fetchResources() {
   }
 }
 
-// Live PM2 Logs
+// Live Logs
 let eventSource = null;
 let isStreaming = true;
 let logBuffer = [];
@@ -656,22 +650,10 @@ async function refreshAll() {
   btns.forEach(b => b.style.opacity = '0.6');
   await Promise.all([fetchDashboardStats(), fetchResources()]);
   btns.forEach(b => b.style.opacity = '1');
-  showNotification('All data refreshed!', 'success');
 }
 
-function showNotification(message, type = 'success') {
-  const notif = document.getElementById('notification');
-  document.getElementById('notification-text').textContent = message;
-  notif.className = type === 'success' 
-    ? 'fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm' 
-    : 'fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-3 bg-red-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm';
-  notif.classList.remove('hidden');
-  setTimeout(() => notif.classList.add('hidden'), 3000);
-}
-
-// Init everything
+// Init
 window.onload = async () => {
-  // Cache all elements
   els = {
     users: document.getElementById('users-text'),
     admins: document.getElementById('admins-text'),
@@ -694,15 +676,12 @@ window.onload = async () => {
     dbkeys: document.getElementById('dbkeys-text')
   };
 
-  // Load everything
   await fetchDashboardStats();
   await fetchResources();
   startStream();
 
   // Fast live updates
-  setInterval(fetchDashboardStats, 10000);   // every 10s
-  setInterval(fetchResources, 2500);         // every 2.5s (fast resources)
+  setInterval(fetchDashboardStats, 10000);
+  setInterval(fetchResources, 2500);
 };
 </script>
-
-<%- include('../../components/template') %>
