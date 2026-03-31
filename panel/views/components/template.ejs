@@ -330,78 +330,27 @@ class="ml-2 lg:-ml-2 flex items-center w-fit mt-3.5 px-4 py-2 h-10 rounded-xl bo
             
             
 <div class="flex items-center gap-x-2">
-  <div class="relative cursor-pointer group">
-    <!-- Modern Optimistic Update Icon -->
-    <svg id="update-icon"
-      xmlns="http://www.w3.org/2000/svg"
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="url(#gradient)"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-180">
-      
-      <defs>
-        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#00D9FF;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#00FF88;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
-        </linearGradient>
-        
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      
-      <!-- Outer optimistic ring -->
-      <circle cx="12" cy="12" r="10" stroke="url(#gradient)" stroke-width="1" stroke-dasharray="4 2" opacity="0.4" />
-      
-      <!-- Main refresh arrows -->
-      <path d="M21 4v6h-6" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M3 20v-6h6" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9" stroke-linecap="round" stroke-linejoin="round" />
-      
-      <!-- Optimistic sparkle accents -->
-      <circle cx="12" cy="3" r="1" fill="#FFD700" stroke="none" />
-      <circle cx="21" cy="12" r="1" fill="#00FF88" stroke="none" />
-      
-    </svg>
-    
-    <!-- Modern Dropdown -->
-    <div id="update-dropdown" class="hidden absolute right-0 mt-3 w-64 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 shadow-2xl transform transition-all duration-300 origin-top-right">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v4m0 12v4m-6-6h4m8 0h-4m-1.5-4.5l2.5 2.5l-2.5 2.5m-5-5l-2.5 2.5l2.5 2.5"/>
-          </svg>
-        </div>
-        <div>
-          <h2 class="text-lg font-bold bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">Update Manager</h2>
-          <p class="text-xs text-white/60">Ready to refresh</p>
-        </div>
-      </div>
-      
-      <div class="space-y-2 mb-4">
-        <div class="flex items-center gap-2 text-sm text-white/80">
-          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-          <span>System up to date</span>
-        </div>
-      </div>
-      
-      <button id="action-button" class="w-full bg-gradient-to-r from-cyan-500 via-emerald-500 to-amber-400 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
-        Check for Updates
-      </button>
-    </div>
-  </div>
-</div>
+   <div class="relative cursor-pointer">
+   <svg id="update-icon"
+     xmlns="http://www.w3.org/2000/svg"
+     width="24"
+     height="24"
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="#808080"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round">
 
+  <path d="M21 4v6h-6"/>
+  <path d="M3 20v-6h6"/>
+  <path d="M21 10a9 9 0 0 1 -9 9a9 9 0 0 1 -9 -9a9 9 0 0 1 9 -9"/>
+</svg>
+   <div id="update-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 lg:p-12 shadow-sm mx-4 sm:mx-6 lg:mx-8 mt-6 sm:mt-8 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-md">
+     <h2 class="text-lg font-semibold text-white mb-4">Update Manager</h2>
+     <button id="action-button" class="w-full bg-blue-500 text-white py-2 rounded">Loading...</button>
+   </div>
+   </div>
    
    
    
