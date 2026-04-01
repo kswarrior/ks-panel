@@ -158,26 +158,64 @@ router.get("/admin/dashboard/api/server-logs/stream", isAdmin, (req, res) => {
 });
 
 // =====================
-// MAIN DASHBOARD PAGE
+// MAIN CONSOLE PAGE (formerly Overview)
 // =====================
-router.get("/admin/dashboard/overview", isAdmin, async (req, res) => {
+router.get("/admin/dashboard/console", isAdmin, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
-    res.render("admin/dashboard/overview", {
+    res.render("admin/dashboard/console", {
       req,
       user: req.user,
       version: config.version,
       ...stats
     });
   } catch (error) {
-    console.error('Dashboard Overview error:', error);
+    console.error('Console page error:', error);
     res.status(500).send("Failed to retrieve dashboard statistics.");
   }
 });
 
 // =====================
-// LIVE STATS API (for frontend auto-refresh)
+// ANALYTICS PAGE (New)
+// =====================
+router.get("/admin/dashboard/analytics", isAdmin, async (req, res) => {
+  try {
+    const stats = await getDashboardStats();
+
+    res.render("admin/dashboard/analytics", {
+      req,
+      user: req.user,
+      version: config.version,
+      ...stats
+    });
+  } catch (error) {
+    console.error('Analytics page error:', error);
+    res.status(500).send("Failed to retrieve analytics data.");
+  }
+});
+
+// =====================
+// DATABASE PAGE (New)
+// =====================
+router.get("/admin/dashboard/database", isAdmin, async (req, res) => {
+  try {
+    const stats = await getDashboardStats();
+
+    res.render("admin/dashboard/database", {
+      req,
+      user: req.user,
+      version: config.version,
+      ...stats
+    });
+  } catch (error) {
+    console.error('Database page error:', error);
+    res.status(500).send("Failed to retrieve database information.");
+  }
+});
+
+// =====================
+// LIVE STATS API (for frontend auto-refresh - works for all pages)
 // =====================
 router.get("/admin/dashboard/api/stats", isAdmin, async (req, res) => {
   try {
