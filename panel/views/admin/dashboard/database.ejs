@@ -1,7 +1,141 @@
 <%- include('../../components/template') %>
 
 <style>
-/* [Exact same full <style> block as console.ejs] */
+/* === CSS VARIABLES (Preserving your glassmorphic colors) === */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px);
+  --color-cpu: #fb923c;
+  --color-ram: #60a5fa;
+  --color-disk: #34d399;
+}
+
+/* === PREMIUM GLASSMORPHIC CARDS (REDUCED SHADOW FOR PERFORMANCE) === */
+.stat-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(255,255,255,0.25);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-number {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-top: 0.5rem;
+  word-break: break-word;
+  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-icon {
+  width: clamp(2.5rem, 6vw, 3rem);
+  height: clamp(2.5rem, 6vw, 3rem);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover .stat-icon::before {
+  opacity: 0.25;
+}
+
+.stat-icon svg {
+  width: 55%;
+  height: 55%;
+  stroke-width: 1.75;
+  position: relative;
+  z-index: 1;
+}
+
+/* === DASHBOARD LAYOUT === */
+.dashboard-grid {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
+  .dashboard-grid .col-span-2 { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .stat-card { padding: 1rem; }
+  .stat-number { font-size: 1.5rem; }
+}
+
+/* === CONTROLS === */
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #a1a1aa;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.refresh-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+
+.break-text {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
 </style>
 
 <main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -10,7 +144,7 @@
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10 mb-6">
     <div class="flex-1 min-w-0">
       <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Database</h1>
-      <p class="mt-1 text-xs sm:text-sm text-neutral-400">PostgreSQL • Storage • Keys • Connection</p>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400">PostgreSQL • Storage • Connection Details</p>
     </div>
 
     <div class="flex items-center gap-3 flex-wrap">
@@ -20,16 +154,85 @@
         </svg>
         <span class="hidden sm:inline">Refresh</span>
       </button>
+
       <span class="bg-white/5 px-3 py-2 rounded-[10px] text-xs text-neutral-400 border border-white/5">v<%= version %></span>
     </div>
   </header>
 
-  <!-- 5. DATABASE INFORMATION (exact same section) -->
+  <!-- DATABASE INFORMATION -->
   <section>
     <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Database Information</h2>
     <div class="dashboard-grid">
-      <!-- [Exact same 5 database cards: Type, Size, URL, Table, Total Keys] -->
-      <!-- (Full HTML copied from original - unchanged) -->
+
+      <!-- Database Type -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-neutral-400 truncate">Database Type</p>
+            <p id="dbtype-text" class="stat-number text-emerald-400 break-text"><%= dbType %></p>
+          </div>
+          <div class="stat-icon bg-emerald-500/10 text-emerald-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 text-xs text-neutral-400">Storage engine</p>
+      </article>
+
+      <!-- Database Size -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-neutral-400 truncate">Database Size</p>
+            <p id="dbsize-text" class="stat-number text-cyan-400"><%= dbSize %></p>
+          </div>
+          <div class="stat-icon bg-cyan-500/10 text-cyan-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 text-xs text-neutral-400">Storage used</p>
+      </article>
+
+      <!-- Connection URL -->
+      <article class="stat-card col-span-2">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-neutral-400 truncate">Connection URL</p>
+            <p id="dburl-text" class="mt-2 font-mono text-xs text-amber-400 break-all leading-relaxed bg-black/20 p-2 rounded-lg"><%= dbUrlMasked %></p>
+          </div>
+          <div class="stat-icon bg-amber-500/10 text-amber-400 flex-shrink-0">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+        </div>
+      </article>
+
+      <!-- Table Name -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-neutral-400 truncate">Table Name</p>
+            <p id="dbtable-text" class="stat-number text-violet-400 break-text"><%= dbTable %></p>
+          </div>
+          <div class="stat-icon bg-violet-500/10 text-violet-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7-8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 text-xs text-neutral-400">Primary collection</p>
+      </article>
+
+      <!-- Total Keys -->
+      <article class="stat-card">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-neutral-400 truncate">Total Keys</p>
+            <p id="dbkeys-text" class="stat-number text-pink-400"><%= totalKeys %></p>
+          </div>
+          <div class="stat-icon bg-pink-500/10 text-pink-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          </div>
+        </div>
+        <p class="mt-4 text-xs text-neutral-400">Stored entries</p>
+      </article>
+
     </div>
   </section>
 
@@ -42,17 +245,48 @@
 </div>
 
 <script>
-// === Database page JS (stats only) ===
-function updateStats(data) { /* exact same updateStats */ }
-async function fetchDashboardStats() { /* exact same */ }
-
-async function refreshAll() {
-  await fetchDashboardStats();
-  showNotification('Database refreshed');
+// === UPDATE DATABASE STATS ===
+function updateStats(data) {
+  if (document.getElementById('dbtype-text')) document.getElementById('dbtype-text').textContent = data.dbType || 'Unknown';
+  if (document.getElementById('dbsize-text')) document.getElementById('dbsize-text').textContent = data.dbSize || 'Unknown';
+  if (document.getElementById('dburl-text')) document.getElementById('dburl-text').textContent = data.dbUrlMasked || 'Not configured';
+  if (document.getElementById('dbtable-text')) document.getElementById('dbtable-text').textContent = data.dbTable || 'kspanel';
+  if (document.getElementById('dbkeys-text')) document.getElementById('dbkeys-text').textContent = data.totalKeys || 0;
 }
 
+function showNotification(text) {
+  const notif = document.getElementById('notification');
+  const notifText = document.getElementById('notification-text');
+  notifText.textContent = text;
+  notif.classList.remove('hidden');
+  setTimeout(() => notif.classList.add('hidden'), 3000);
+}
+
+// === FETCH STATS ===
+async function fetchDashboardStats() {
+  try {
+    const res = await fetch('/admin/dashboard/api/stats');
+    const data = await res.json();
+    updateStats(data);
+    return true;
+  } catch (e) {
+    console.error("Database stats fetch failed", e);
+    return false;
+  }
+}
+
+// === REFRESH ===
+async function refreshAll() {
+  const btns = document.querySelectorAll('button');
+  btns.forEach(b => b.style.opacity = '0.6');
+  await fetchDashboardStats();
+  btns.forEach(b => b.style.opacity = '1');
+  showNotification('Database information refreshed');
+}
+
+// === INITIAL LOAD ===
 window.onload = async () => {
   await fetchDashboardStats();
-  setInterval(fetchDashboardStats, 10000);
+  setInterval(fetchDashboardStats, 10000);   // auto-refresh every 10 seconds
 };
 </script>
