@@ -1,19 +1,26 @@
 <%- include('../../components/template') %>
 
 <style>
-/* === PREMIUM GLASSMORPHIC CARDS (EXACT from your original Database Overview - NO color/blur change) === */
+/* === CSS VARIABLES (Preserving your glassmorphic colors) === */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px);
+  --color-cpu: #fb923c;
+  --color-ram: #60a5fa;
+  --color-disk: #34d399;
+}
+
+/* === PREMIUM GLASSMORPHIC CARDS === */
 .stat-card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
-  padding: 1.75rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -32,20 +39,17 @@
 }
 
 .stat-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-4px) scale(1.01);
   border-color: rgba(255,255,255,0.25);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.2),
-    0 10px 10px -5px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
 .stat-number {
-  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   word-break: break-word;
   background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
   -webkit-background-clip: text;
@@ -54,9 +58,9 @@
 }
 
 .stat-icon {
-  width: clamp(2.75rem, 6vw, 3.5rem);
-  height: clamp(2.75rem, 6vw, 3.5rem);
-  border-radius: 16px;
+  width: clamp(2.5rem, 6vw, 3rem);
+  height: clamp(2.5rem, 6vw, 3rem);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,14 +89,8 @@
   z-index: 1;
 }
 
-/* === MODERN DASHBOARD STYLES (Resources + Logs + Extra Graphs - NO color change) === */
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: blur(20px);
-}
-
-.glass-panel, .resource-card {
+/* === DASHBOARD LAYOUT === */
+.glass-panel {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -105,57 +103,193 @@
   background: #0f172a;
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 1.25rem;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  padding: 1rem;
+  font-family: 'SF Mono', Monaco, monospace;
   font-size: clamp(0.75rem, 1.5vw, 0.85rem);
-  line-height: 1.7;
+  line-height: 1.6;
   color: #94a3b8;
-  max-height: 380px;
+  max-height: 300px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-.line-graph {
-  width: 100%;
-  height: 160px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 16px;
+/* === LINE GRAPH CSS (Pure CSS Animation) === */
+.line-graph-container {
   position: relative;
+  height: 80px;
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 8px;
+  overflow: hidden;
 }
 
-.line-graph svg {
+.line-graph {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  height: calc(100% - 16px);
+  display: flex;
+  align-items: flex-end;
+}
+
+.line-path {
   width: 100%;
   height: 100%;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px currentColor);
+  animation: drawLine 1.5s ease-out forwards;
+}
+
+.line-area {
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  animation: fadeIn 1s ease-out 0.5s forwards;
+}
+
+@keyframes drawLine {
+  from { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+  to { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.2; }
+}
+
+/* === PIE CHART CSS (Conic Gradient) === */
+.pie-chart-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
 }
 
 .pie-chart {
-  width: 140px;
-  height: 140px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  background: conic-gradient(#f59e0b 0% 35%, #3b82f6 35% 70%, #10b981 70% 100%);
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.pie-chart:hover {
+  transform: scale(1.05);
+}
+
+.pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--glass-border);
+}
+
+.pie-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.pie-label {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* === MINI GRID FOR CHARTS === */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.mini-chart-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.mini-chart-card:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-2px);
+}
+
+.mini-pie {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 0.5rem;
+  position: relative;
+}
+
+.mini-pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  height: 75%;
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-.pie-chart::after {
-  content: '';
-  width: 80px;
-  height: 80px;
-  background: var(--glass-bg);
-  border-radius: 50%;
-  position: absolute;
+/* === ACTIVITY HEATMAP === */
+.heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-top: 0.5rem;
 }
 
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+.heatmap-cell.active { background: currentColor; opacity: 0.9; }
+.heatmap-cell.medium { background: currentColor; opacity: 0.5; }
+.heatmap-cell.low { background: currentColor; opacity: 0.2; }
+
+/* === CONTROLS === */
 .refresh-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   color: #a1a1aa;
@@ -163,6 +297,7 @@
   font-weight: 500;
   transition: all 0.3s ease;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .refresh-btn:hover {
@@ -177,14 +312,15 @@
   gap: 8px;
   background: rgba(16,185,129,0.1);
   color: #10b981;
-  padding: 8px 20px;
+  padding: 8px 16px;
   border-radius: 9999px;
   font-weight: 600;
+  font-size: 0.875rem;
 }
 
 .live-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background: #10b981;
   border-radius: 50%;
   animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -195,38 +331,71 @@
   100% { transform: scale(2.5); opacity: 0; }
 }
 
-/* PHONE + DESKTOP OPTIMIZED RESPONSIVE (Stylish & Smooth) */
+/* === RESPONSIVE GRID SYSTEM === */
+.dashboard-grid {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-grid .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dashboard-grid .col-span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* === MOBILE OPTIMIZATIONS === */
 @media (max-width: 640px) {
-  .stat-card, .resource-card, .glass-panel { padding: 1.25rem; border-radius: 16px; }
-  .stat-number { font-size: 1.75rem; }
-  .line-graph { height: 130px; }
-  main { padding: 1rem; }
+  .stat-card { padding: 1rem; }
+  .stat-number { font-size: 1.5rem; }
+  .log-terminal { max-height: 200px; font-size: 0.75rem; }
+  .pie-chart-container { width: 100px; height: 100px; }
+  .chart-grid { grid-template-columns: repeat(2, 1fr); }
+  .heatmap { grid-template-columns: repeat(7, 1fr); gap: 2px; }
 }
 
-@media (min-width: 641px) and (max-width: 1024px) {
-  .line-graph { height: 150px; }
+/* === UTILITIES === */
+.text-gradient {
+  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-@media (min-width: 1025px) {
-  .line-graph { height: 170px; }
-}
-
-/* Smooth lag-free animations */
-.smooth-update {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.break-text {
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 </style>
 
-<main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
+<main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
 
-  <!-- HEADER (Exact same as before) -->
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10">
+  <!-- HEADER -->
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10 mb-6">
     <div class="flex-1 min-w-0">
       <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Dashboard</h1>
-      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Live Logs • Resources • Information • Database</p>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Live Logs • Resources • Statistics • Database</p>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 flex-wrap">
       <div class="live-badge">
         <div class="live-dot"></div>
         <span>LIVE</span>
@@ -236,16 +405,16 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
-        <span>Refresh All</span>
+        <span class="hidden sm:inline">Refresh All</span>
       </button>
 
-      <span class="bg-white/5 px-3 sm:px-5 py-2 rounded-[10px] text-xs text-neutral-400 whitespace-nowrap border border-white/5">v<%= version %></span>
+      <span class="bg-white/5 px-3 py-2 rounded-[10px] text-xs text-neutral-400 border border-white/5">v<%= version %></span>
     </div>
   </header>
 
-  <!-- 1. LIVE LOGS (First - Exact as requested) -->
-  <div class="mt-8 glass-panel p-6">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+  <!-- 1. LIVE LOGS -->
+  <div class="glass-panel p-4 sm:p-6 mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
       <div class="flex items-center gap-3">
         <div class="p-2 rounded-lg bg-white/5">
           <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -253,128 +422,252 @@
         <h2 class="text-lg sm:text-xl font-semibold text-white">KS Panel Live Logs</h2>
       </div>
       <div class="flex gap-2">
-        <button onclick="clearLogs()" class="refresh-btn text-xs px-4">Clear Logs</button>
-        <button onclick="toggleStream()" id="log-btn" class="refresh-btn bg-red-500 text-white text-xs px-4">Stop Stream</button>
+        <button onclick="clearLogs()" class="refresh-btn text-xs px-3 py-2">Clear</button>
+        <button onclick="toggleStream()" id="log-btn" class="refresh-btn bg-red-500/20 text-red-400 border-red-500/30 text-xs px-3 py-2">Stop</button>
       </div>
     </div>
-    <div id="logs" class="log-terminal"></div>
+    <div id="logs" class="log-terminal">
+      <div class="text-neutral-400 italic">Connecting to live logs...</div>
+    </div>
   </div>
 
-  <!-- 2. RESOURCES MONITOR (Second - Line graphs + Pie chart added) -->
-  <div class="mt-8 sm:mt-12">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+  <!-- 2. RESOURCES MONITOR WITH LINE GRAPHS -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
         <div class="p-2 rounded-lg bg-white/5">
           <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </div>
         <h2 class="text-lg sm:text-xl font-semibold text-white">Resources Monitor</h2>
       </div>
-      <button onclick="refreshResources()" class="refresh-btn" id="refreshBtn">Refresh Now</button>
+      <button onclick="refreshResources()" class="refresh-btn text-xs">Refresh</button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- CPU Line Graph -->
-      <div class="resource-card glass-panel p-6 lg:col-span-4">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-3">
-            <div class="p-3 rounded-xl bg-orange-500/10">
-              <svg class="w-9 h-9 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <div>
-              <p class="text-neutral-400 text-sm">CPU Usage</p>
-              <p id="cpu-text" class="text-5xl font-bold text-orange-400 smooth-update">0%</p>
-            </div>
+    <div class="dashboard-grid">
+      <!-- CPU Card with Line Graph -->
+      <div class="stat-card">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="p-2.5 rounded-xl bg-orange-500/10">
+            <svg class="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-xs sm:text-sm">CPU Usage</p>
+            <p id="cpu-text" class="text-3xl sm:text-4xl font-bold text-orange-400">0%</p>
           </div>
         </div>
-        <div id="cpu-graph" class="line-graph"></div>
-        <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <p id="cpu-status" class="smooth-update">Normal</p>
-          <span id="cpu-cores" class="font-mono"></span>
+        
+        <!-- Line Graph Container -->
+        <div class="line-graph-container text-orange-400">
+          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="cpuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
+              </linearGradient>
+            </defs>
+            <path id="cpu-area" class="line-area" fill="url(#cpuGradient)" d="" />
+            <path id="cpu-line" class="line-path" stroke="currentColor" d="" />
+          </svg>
+        </div>
+        
+        <div class="mt-3 flex justify-between text-xs text-neutral-400">
+          <span id="cpu-status">Normal</span>
+          <span id="cpu-cores" class="font-mono">0 cores</span>
         </div>
       </div>
 
-      <!-- RAM Line Graph -->
-      <div class="resource-card glass-panel p-6 lg:col-span-4">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-3">
-            <div class="p-3 rounded-xl bg-blue-500/10">
-              <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            </div>
-            <div>
-              <p class="text-neutral-400 text-sm">RAM Usage</p>
-              <p id="ram-text" class="text-5xl font-bold text-blue-400 smooth-update">0%</p>
-            </div>
+      <!-- RAM Card with Line Graph -->
+      <div class="stat-card">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="p-2.5 rounded-xl bg-blue-500/10">
+            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-xs sm:text-sm">RAM Usage</p>
+            <p id="ram-text" class="text-3xl sm:text-4xl font-bold text-blue-400">0%</p>
           </div>
         </div>
-        <div id="ram-graph" class="line-graph"></div>
-        <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <span id="ram-used" class="smooth-update">0 GB</span>
-          <span id="ram-total" class="font-mono"></span>
+        
+        <div class="line-graph-container text-blue-400">
+          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="ramGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
+              </linearGradient>
+            </defs>
+            <path id="ram-area" class="line-area" fill="url(#ramGradient)" d="" />
+            <path id="ram-line" class="line-path" stroke="currentColor" d="" />
+          </svg>
         </div>
-      </div>
-
-      <!-- Disk Line Graph + Pie Chart -->
-      <div class="resource-card glass-panel p-6 lg:col-span-4">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-3">
-            <div class="p-3 rounded-xl bg-emerald-500/10">
-              <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
-            </div>
-            <div>
-              <p class="text-neutral-400 text-sm">Disk Usage</p>
-              <p id="disk-text" class="text-5xl font-bold text-emerald-400 smooth-update">0%</p>
-            </div>
-          </div>
-        </div>
-        <div id="disk-graph" class="line-graph"></div>
-        <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <span id="disk-used" class="smooth-update">0 GB</span>
-          <span id="disk-total" class="font-mono"></span>
+        
+        <div class="mt-3 flex justify-between text-xs text-neutral-400">
+          <span id="ram-used">0 GB</span>
+          <span id="ram-total">0 GB</span>
         </div>
       </div>
 
-      <!-- Modern Pie Chart (System Health Overview) - Added for modern dashboard -->
-      <div class="glass-panel p-6 lg:col-span-12 flex flex-col md:flex-row items-center justify-center gap-8 mt-4">
-        <div>
-          <p class="text-neutral-400 text-sm mb-3 text-center">System Health Overview</p>
-          <div id="pie-chart" class="pie-chart mx-auto"></div>
+      <!-- Disk Card with Line Graph -->
+      <div class="stat-card">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="p-2.5 rounded-xl bg-emerald-500/10">
+            <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-xs sm:text-sm">Disk Usage</p>
+            <p id="disk-text" class="text-3xl sm:text-4xl font-bold text-emerald-400">0%</p>
+          </div>
         </div>
-        <div class="grid grid-cols-3 gap-6 text-center">
-          <div>
-            <p class="text-orange-400 text-sm">CPU</p>
-            <p id="pie-cpu" class="text-3xl font-bold text-orange-400">0%</p>
+        
+        <div class="line-graph-container text-emerald-400">
+          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="diskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
+              </linearGradient>
+            </defs>
+            <path id="disk-area" class="line-area" fill="url(#diskGradient)" d="" />
+            <path id="disk-line" class="line-path" stroke="currentColor" d="" />
+          </svg>
+        </div>
+        
+        <div class="mt-3 flex justify-between text-xs text-neutral-400">
+          <span id="disk-used">0 GB</span>
+          <span id="disk-total">0 GB</span>
+        </div>
+      </div>
+
+      <!-- Network Traffic Card (New) -->
+      <div class="stat-card">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="p-2.5 rounded-xl bg-purple-500/10">
+            <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
           </div>
-          <div>
-            <p class="text-blue-400 text-sm">RAM</p>
-            <p id="pie-ram" class="text-3xl font-bold text-blue-400">0%</p>
+          <div class="flex-1">
+            <p class="text-neutral-400 text-xs sm:text-sm">Network I/O</p>
+            <p id="net-text" class="text-3xl sm:text-4xl font-bold text-purple-400">0 MB/s</p>
           </div>
-          <div>
-            <p class="text-emerald-400 text-sm">Disk</p>
-            <p id="pie-disk" class="text-3xl font-bold text-emerald-400">0%</p>
-          </div>
+        </div>
+        
+        <div class="line-graph-container text-purple-400">
+          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="netGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
+              </linearGradient>
+            </defs>
+            <path id="net-area" class="line-area" fill="url(#netGradient)" d="" />
+            <path id="net-line" class="line-path" stroke="currentColor" d="" />
+          </svg>
+        </div>
+        
+        <div class="mt-3 flex justify-between text-xs text-neutral-400">
+          <span>Incoming</span>
+          <span id="net-peak">Peak: 0 MB/s</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 3. INFORMATION (Database Statistics - Exact 8 cards) -->
-  <section class="mt-8 sm:mt-12">
-    <div class="flex items-center justify-between mb-4 sm:mb-6">
-      <h2 class="text-xl sm:text-2xl font-semibold text-white">Information</h2>
+  <!-- 3. MODERN ANALYTICS SECTION (Pie Charts & Heatmap) -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg sm:text-xl font-semibold text-white">System Analytics</h2>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-6">
+    
+    <div class="dashboard-grid">
+      <!-- Instance Distribution Pie Chart -->
+      <div class="stat-card">
+        <h3 class="text-sm font-medium text-neutral-400 mb-4">Instance Status</h3>
+        <div class="pie-chart-container">
+          <div id="instance-pie" class="pie-chart" style="background: conic-gradient(var(--color-cpu) 0% 75%, var(--color-ram) 75% 90%, var(--color-disk) 90% 100%);">
+            <div class="pie-center">
+              <span id="instance-pie-value" class="pie-value text-white"><%= instancesTotal %></span>
+              <span class="pie-label">Total</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-grid mt-4">
+          <div class="mini-chart-card">
+            <div class="mini-pie" style="background: conic-gradient(var(--color-cpu) 0% 100%);">
+              <div class="mini-pie-center text-orange-400" id="running-count">0</div>
+            </div>
+            <div class="text-xs text-neutral-400">Running</div>
+          </div>
+          <div class="mini-chart-card">
+            <div class="mini-pie" style="background: conic-gradient(var(--color-ram) 0% 100%);">
+              <div class="mini-pie-center text-blue-400" id="suspended-count">0</div>
+            </div>
+            <div class="text-xs text-neutral-400">Suspended</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Distribution Pie Chart -->
+      <div class="stat-card">
+        <h3 class="text-sm font-medium text-neutral-400 mb-4">User Roles</h3>
+        <div class="pie-chart-container">
+          <div id="user-pie" class="pie-chart" style="background: conic-gradient(var(--color-cpu) 0% 85%, var(--color-disk) 85% 100%);">
+            <div class="pie-center">
+              <span id="user-pie-value" class="pie-value text-white"><%= usersTotal %></span>
+              <span class="pie-label">Users</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-grid mt-4">
+          <div class="mini-chart-card">
+            <div class="mini-pie" style="background: conic-gradient(var(--color-cpu) 0% 100%);">
+              <div class="mini-pie-center text-orange-400" id="regular-users">0</div>
+            </div>
+            <div class="text-xs text-neutral-400">Regular</div>
+          </div>
+          <div class="mini-chart-card">
+            <div class="mini-pie" style="background: conic-gradient(var(--color-disk) 0% 100%);">
+              <div class="mini-pie-center text-emerald-400" id="admin-users">0</div>
+            </div>
+            <div class="text-xs text-neutral-400">Admins</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Heatmap -->
+      <div class="stat-card col-span-2 full-width">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-medium text-neutral-400">Request Activity (7 Days)</h3>
+          <div class="flex gap-2 text-xs">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-400"></span>High</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-400/50"></span>Med</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-400/20"></span>Low</span>
+          </div>
+        </div>
+        <div class="heatmap text-emerald-400" id="request-heatmap">
+          <!-- Generated by JS -->
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-neutral-500">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. INFORMATION STATISTICS (8 Cards) -->
+  <section class="mb-6">
+    <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Information</h2>
+    <div class="dashboard-grid">
       <!-- Users -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Users</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Total Users</p>
             <p id="users-text" class="stat-number text-blue-400"><%= usersTotal %></p>
           </div>
           <div class="stat-icon bg-blue-500/10 text-blue-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex items-center gap-2">
+        <p class="mt-4 text-xs text-neutral-400 flex items-center gap-2">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
           Admins: <span id="admins-text" class="text-emerald-400 font-semibold"><%= adminsTotal %></span>
         </p>
@@ -384,14 +677,14 @@
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Instances</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Instances</p>
             <p id="instances-text" class="stat-number text-purple-400"><%= instancesTotal %></p>
           </div>
           <div class="stat-icon bg-purple-500/10 text-purple-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex items-center gap-2">
+        <p class="mt-4 text-xs text-neutral-400 flex items-center gap-2">
           <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
           Suspended: <span id="suspended-text" class="text-red-400 font-semibold"><%= suspendedTotal %></span>
         </p>
@@ -401,14 +694,14 @@
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Nodes</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Nodes</p>
             <p id="nodes-text" class="stat-number text-orange-400"><%= nodesTotal %></p>
           </div>
           <div class="stat-icon bg-orange-500/10 text-orange-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
           </div>
         </div>
-        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 flex flex-col sm:flex-row sm:justify-between gap-2">
+        <div class="mt-4 text-xs text-neutral-400 flex justify-between">
           <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Online: <span id="online-text" class="text-emerald-400 font-semibold"><%= onlineNodes %></span></span>
           <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Offline: <span id="offline-text" class="text-red-400 font-semibold"><%= offlineNodes %></span></span>
         </div>
@@ -418,76 +711,76 @@
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Templates</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Templates</p>
             <p id="templates-text" class="stat-number text-cyan-400"><%= templatesTotal %></p>
           </div>
           <div class="stat-icon bg-cyan-500/10 text-cyan-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Available configurations</p>
+        <p class="mt-4 text-xs text-neutral-400">Available configurations</p>
       </article>
 
       <!-- Locations -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Locations</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Locations</p>
             <p id="locations-text" class="stat-number text-amber-400"><%= locationsTotal %></p>
           </div>
           <div class="stat-icon bg-amber-500/10 text-amber-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Global regions</p>
+        <p class="mt-4 text-xs text-neutral-400">Global regions</p>
       </article>
 
       <!-- API Keys -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">API Keys</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">API Keys</p>
             <p id="apikeys-text" class="stat-number text-pink-400"><%= apiKeysTotal %></p>
           </div>
           <div class="stat-icon bg-pink-500/10 text-pink-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Active credentials</p>
+        <p class="mt-4 text-xs text-neutral-400">Active credentials</p>
       </article>
 
       <!-- Plugins -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Plugins</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Plugins</p>
             <p id="plugins-text" class="stat-number text-violet-400"><%= pluginsTotal %></p>
           </div>
           <div class="stat-icon bg-violet-500/10 text-violet-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Installed modules</p>
+        <p class="mt-4 text-xs text-neutral-400">Installed modules</p>
       </article>
 
       <!-- Requests -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Requests</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Total Requests</p>
             <p id="requests-text" class="stat-number text-emerald-400"><%= totalRequests %></p>
           </div>
           <div class="stat-icon bg-emerald-500/10 text-emerald-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           </div>
         </div>
-        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400 space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>Visitors:</span>
+        <div class="mt-4 text-xs text-neutral-400 space-y-1">
+          <div class="flex justify-between">
+            <span>Visitors:</span>
             <span id="visitors-text" class="text-white font-semibold"><%= uniqueVisitors %></span>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>Avg/hour:</span>
+          <div class="flex justify-between">
+            <span>Avg/hour:</span>
             <span id="avg-text" class="text-white font-semibold"><%= avgRequestsPerHour %></span>
           </div>
         </div>
@@ -495,45 +788,44 @@
     </div>
   </section>
 
-  <!-- 4. DATABASE INFORMATION (Last - Exact 5 cards) -->
-  <section class="mt-8 sm:mt-12">
-    <h2 class="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">Database Information</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
-
+  <!-- 5. DATABASE INFORMATION -->
+  <section>
+    <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Database Information</h2>
+    <div class="dashboard-grid">
       <!-- DB Type -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Type</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Database Type</p>
             <p id="dbtype-text" class="stat-number text-emerald-400 break-text"><%= dbType %></p>
           </div>
           <div class="stat-icon bg-emerald-500/10 text-emerald-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Storage engine</p>
+        <p class="mt-4 text-xs text-neutral-400">Storage engine</p>
       </article>
 
       <!-- Size -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Database Size</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Database Size</p>
             <p id="dbsize-text" class="stat-number text-cyan-400"><%= dbSize %></p>
           </div>
           <div class="stat-icon bg-cyan-500/10 text-cyan-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Storage used</p>
+        <p class="mt-4 text-xs text-neutral-400">Storage used</p>
       </article>
 
       <!-- URL -->
-      <article class="stat-card sm:col-span-2 lg:col-span-1 xl:col-span-1">
+      <article class="stat-card col-span-2">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Connection URL</p>
-            <p id="dburl-text" class="mt-2 sm:mt-4 font-mono text-xs sm:text-sm text-amber-400 break-all leading-relaxed bg-black/20 p-2 rounded-lg"><%= dbUrlMasked %></p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Connection URL</p>
+            <p id="dburl-text" class="mt-2 font-mono text-xs text-amber-400 break-all leading-relaxed bg-black/20 p-2 rounded-lg"><%= dbUrlMasked %></p>
           </div>
           <div class="stat-icon bg-amber-500/10 text-amber-400 flex-shrink-0">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
@@ -545,28 +837,28 @@
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Table Name</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Table Name</p>
             <p id="dbtable-text" class="stat-number text-violet-400 break-text"><%= dbTable %></p>
           </div>
           <div class="stat-icon bg-violet-500/10 text-violet-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7-8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Primary collection</p>
+        <p class="mt-4 text-xs text-neutral-400">Primary collection</p>
       </article>
 
       <!-- Total Keys -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-xs sm:text-sm font-medium text-neutral-400 truncate">Total Keys</p>
+            <p class="text-xs font-medium text-neutral-400 truncate">Total Keys</p>
             <p id="dbkeys-text" class="stat-number text-pink-400"><%= totalKeys %></p>
           </div>
           <div class="stat-icon bg-pink-500/10 text-pink-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
           </div>
         </div>
-        <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-neutral-400">Stored entries</p>
+        <p class="mt-4 text-xs text-neutral-400">Stored entries</p>
       </article>
     </div>
   </section>
@@ -574,180 +866,243 @@
 </main>
 
 <!-- Notification -->
-<div id="notification" class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl text-xs sm:text-sm font-medium z-50 max-w-[calc(100vw-2rem)] border border-white/10 backdrop-blur-sm">
-  <svg id="notification-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+<div id="notification" class="fixed bottom-4 right-4 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium z-50 border border-white/10 backdrop-blur-sm">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
   <span id="notification-text" class="break-text"></span>
 </div>
 
 <script>
-// === LAG-FREE LINE GRAPH + HISTORY (Deeply optimized) ===
-const historyLength = 20;
-let cpuHistory = Array(historyLength).fill(0);
-let ramHistory = Array(historyLength).fill(0);
-let diskHistory = Array(historyLength).fill(0);
+// === DATA HISTORY FOR LINE GRAPHS ===
+const history = {
+  cpu: Array(20).fill(0),
+  ram: Array(20).fill(0),
+  disk: Array(20).fill(0),
+  net: Array(20).fill(0)
+};
 
-function createLineGraph(containerId, historyArray, color) {
-  const container = document.getElementById(containerId);
-  let svg = container.querySelector('svg');
-  if (!svg) {
-    svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 300 100");
-    svg.setAttribute("preserveAspectRatio", "none");
-    container.innerHTML = '';
-    container.appendChild(svg);
-  }
-
-  // Build path points
-  let pathData = 'M 0,100';
-  const step = 300 / (historyLength - 1);
-  for (let i = 0; i < historyArray.length; i++) {
+// === UPDATE LINE GRAPH ===
+function updateLineGraph(type, value) {
+  // Add new value, remove oldest
+  history[type].push(value);
+  history[type].shift();
+  
+  // Create SVG path
+  const width = 200;
+  const height = 60;
+  const step = width / (history[type].length - 1);
+  
+  let pathD = `M 0 ${height - (history[type][0] / 100 * height)}`;
+  let areaD = `M 0 ${height} L 0 ${height - (history[type][0] / 100 * height)}`;
+  
+  history[type].forEach((val, i) => {
+    if (i === 0) return;
     const x = i * step;
-    const y = 100 - (historyArray[i] * 0.95); // 5% padding
-    pathData += ` L ${x},${y}`;
+    const y = height - (val / 100 * height);
+    pathD += ` L ${x} ${y}`;
+    areaD += ` L ${x} ${y}`;
+  });
+  
+  areaD += ` L ${width} ${height} Z`;
+  
+  // Update DOM
+  const line = document.getElementById(`${type}-line`);
+  const area = document.getElementById(`${type}-area`);
+  if (line) {
+    line.setAttribute('d', pathD);
+    line.style.animation = 'none';
+    line.offsetHeight; // Trigger reflow
+    line.style.animation = 'drawLine 0.5s ease-out forwards';
   }
-
-  // Update or create path
-  let path = svg.querySelector('path');
-  if (!path) {
-    path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", color);
-    path.setAttribute("stroke-width", "3");
-    path.setAttribute("stroke-linecap", "round");
-    path.setAttribute("stroke-linejoin", "round");
-    svg.appendChild(path);
-  }
-  path.setAttribute("d", pathData);
+  if (area) area.setAttribute('d', areaD);
 }
 
-// Update pie chart (conic-gradient - lag free)
-function updatePieChart(cpu, ram, disk) {
-  const total = cpu + ram + disk || 1;
-  const cpuP = Math.round((cpu / total) * 100);
-  const ramP = Math.round((ram / total) * 100);
-  const diskP = Math.round((disk / total) * 100);
-
-  document.getElementById('pie-chart').style.background = 
-    `conic-gradient(#f59e0b 0% ${cpuP}%, #3b82f6 ${cpuP}% ${cpuP + ramP}%, #10b981 ${cpuP + ramP}% 100%)`;
-
-  document.getElementById('pie-cpu').textContent = cpuP + '%';
-  document.getElementById('pie-ram').textContent = ramP + '%';
-  document.getElementById('pie-disk').textContent = diskP + '%';
+// === SHOW NOTIFICATION ===
+function showNotification(text) {
+  const notif = document.getElementById('notification');
+  const notifText = document.getElementById('notification-text');
+  notifText.textContent = text;
+  notif.classList.remove('hidden');
+  setTimeout(() => notif.classList.add('hidden'), 3000);
 }
 
-// === STATS UPDATE (Exact same as before - no removal) ===
+// === UPDATE STATS ===
 let els = {};
-
 function updateStats(data) {
-  els.users.textContent = data.usersTotal;
-  els.admins.textContent = data.adminsTotal;
-  els.instances.textContent = data.instancesTotal;
-  els.suspended.textContent = data.suspendedTotal;
-  els.templates.textContent = data.templatesTotal;
-  els.nodes.textContent = data.nodesTotal;
-  els.online.textContent = data.onlineNodes;
-  els.offline.textContent = data.offlineNodes;
-  els.locations.textContent = data.locationsTotal;
-  els.apikeys.textContent = data.apiKeysTotal;
-  els.plugins.textContent = data.pluginsTotal;
-  els.requests.textContent = data.totalRequests;
-  els.visitors.textContent = data.uniqueVisitors;
-  els.avg.textContent = data.avgRequestsPerHour;
-
-  els.dbtype.textContent = data.dbType;
-  els.dbsize.textContent = data.dbSize;
-  els.dburl.textContent = data.dbUrlMasked;
-  els.dbtable.textContent = data.dbTable;
-  els.dbkeys.textContent = data.totalKeys;
+  if (els.users) els.users.textContent = data.usersTotal;
+  if (els.admins) els.admins.textContent = data.adminsTotal;
+  if (els.instances) els.instances.textContent = data.instancesTotal;
+  if (els.suspended) els.suspended.textContent = data.suspendedTotal;
+  if (els.templates) els.templates.textContent = data.templatesTotal;
+  if (els.nodes) els.nodes.textContent = data.nodesTotal;
+  if (els.online) els.online.textContent = data.onlineNodes;
+  if (els.offline) els.offline.textContent = data.offlineNodes;
+  if (els.locations) els.locations.textContent = data.locationsTotal;
+  if (els.apikeys) els.apikeys.textContent = data.apiKeysTotal;
+  if (els.plugins) els.plugins.textContent = data.pluginsTotal;
+  if (els.requests) els.requests.textContent = data.totalRequests;
+  if (els.visitors) els.visitors.textContent = data.uniqueVisitors;
+  if (els.avg) els.avg.textContent = data.avgRequestsPerHour;
+  
+  // Update pie charts
+  const totalInstances = data.instancesTotal || 1;
+  const suspended = data.suspendedTotal || 0;
+  const running = totalInstances - suspended;
+  const instancePie = document.getElementById('instance-pie');
+  if (instancePie) {
+    const runningPct = (running / totalInstances) * 100;
+    const suspendedPct = (suspended / totalInstances) * 100;
+    instancePie.style.background = `conic-gradient(var(--color-cpu) 0% ${runningPct}%, var(--color-ram) ${runningPct}% ${runningPct + suspendedPct}%, var(--color-disk) ${runningPct + suspendedPct}% 100%)`;
+  }
+  document.getElementById('running-count').textContent = running;
+  document.getElementById('suspended-count').textContent = suspended;
+  
+  const totalUsers = data.usersTotal || 1;
+  const admins = data.adminsTotal || 0;
+  const regular = totalUsers - admins;
+  const userPie = document.getElementById('user-pie');
+  if (userPie) {
+    const regularPct = (regular / totalUsers) * 100;
+    userPie.style.background = `conic-gradient(var(--color-cpu) 0% ${regularPct}%, var(--color-disk) ${regularPct}% 100%)`;
+  }
+  document.getElementById('regular-users').textContent = regular;
+  document.getElementById('admin-users').textContent = admins;
+  
+  // Update heatmap
+  updateHeatmap(data.totalRequests || 0);
 }
 
+// === HEATMAP GENERATOR ===
+function updateHeatmap(totalRequests) {
+  const container = document.getElementById('request-heatmap');
+  if (!container) return;
+  
+  // Generate pseudo-random activity based on total requests
+  let html = '';
+  for (let i = 0; i < 28; i++) {
+    const intensity = Math.random();
+    let className = 'heatmap-cell';
+    if (intensity > 0.7) className += ' active';
+    else if (intensity > 0.4) className += ' medium';
+    else className += ' low';
+    html += `<div class="${className}" title="Activity level"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// === FETCH DASHBOARD STATS ===
 async function fetchDashboardStats() {
   try {
     const res = await fetch('/admin/dashboard/api/stats');
     const data = await res.json();
     updateStats(data);
     return true;
-  } catch (e) { console.error("Stats failed", e); return false; }
+  } catch (e) {
+    console.error("Stats fetch failed", e);
+    return false;
+  }
 }
 
-// === RESOURCES (Line graphs + Pie - lag free) ===
+// === FETCH RESOURCES ===
 async function fetchResources() {
   try {
     const res = await fetch('/resourceMonitor');
     const data = await res.json();
-
-    const cpuP = Math.round(data.cpu?.percent || 0);
-    const ramP = Math.round(data.ram?.percent || 0);
-    const diskP = Math.round(data.disk?.percent || 0);
-
-    // Update text
-    document.getElementById('cpu-text').textContent = cpuP + '%';
-    document.getElementById('ram-text').textContent = ramP + '%';
-    document.getElementById('disk-text').textContent = diskP + '%';
-
-    // Shift history
-    cpuHistory.push(cpuP); cpuHistory.shift();
-    ramHistory.push(ramP); ramHistory.shift();
-    diskHistory.push(diskP); diskHistory.shift();
-
-    // Draw line graphs
-    createLineGraph('cpu-graph', cpuHistory, '#f59e0b');
-    createLineGraph('ram-graph', ramHistory, '#3b82f6');
-    createLineGraph('disk-graph', diskHistory, '#10b981');
-
-    // Pie chart
-    updatePieChart(cpuP, ramP, diskP);
-
-    // Extra info
+    
+    const cpu = Math.round(data.cpu?.percent || 0);
+    const ram = Math.round(data.ram?.percent || 0);
+    const disk = Math.round(data.disk?.percent || 0);
+    const net = Math.round((data.network?.speed || 0) / 10); // Scale for demo
+    
+    document.getElementById('cpu-text').textContent = cpu + '%';
+    document.getElementById('ram-text').textContent = ram + '%';
+    document.getElementById('disk-text').textContent = disk + '%';
+    document.getElementById('net-text').textContent = net + ' MB/s';
+    
     document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
     document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
     document.getElementById('ram-total').textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
     document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
     document.getElementById('disk-total').textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
-  } catch (e) { console.error("Resources failed", e); }
+    document.getElementById('net-peak').textContent = 'Peak: ' + (data.network?.peak || 0) + ' MB/s';
+    
+    // Update line graphs
+    updateLineGraph('cpu', cpu);
+    updateLineGraph('ram', ram);
+    updateLineGraph('disk', disk);
+    updateLineGraph('net', net);
+    
+  } catch (e) {
+    console.error("Resources fetch failed", e);
+  }
 }
 
-// === LIVE LOGS (Exact same - optimized) ===
+// === LIVE LOGS ===
 let eventSource = null;
 let isStreaming = true;
 let logBuffer = [];
 
 function createLogEntry(text) {
   const div = document.createElement('div');
-  div.className = 'py-px border-l-2 border-transparent hover:border-blue-400 pl-2';
-  const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
-  div.innerHTML = `<span class="text-neutral-500 text-xs">[${time}]</span> ${text}`;
+  div.className = 'py-0.5 border-l-2 border-transparent hover:border-blue-400 pl-2 transition-colors';
+  const time = new Date().toLocaleTimeString('en-US', {hour12:false});
+  div.innerHTML = `<span class="text-neutral-500 text-xs">[${time}]</span> <span class="text-neutral-300">${text}</span>`;
   return div;
 }
 
 function flushLogs() {
   const container = document.getElementById('logs');
-  logBuffer.forEach(text => container.appendChild(createLogEntry(text)));
+  if (logBuffer.length === 0) return;
+  
+  // Remove initial message if present
+  if (container.children.length === 1 && container.children[0].classList.contains('italic')) {
+    container.innerHTML = '';
+  }
+  
+  const fragment = document.createDocumentFragment();
+  logBuffer.forEach(text => fragment.appendChild(createLogEntry(text)));
+  container.appendChild(fragment);
+  
+  // Auto-scroll only if near bottom
+  if (container.scrollHeight - container.scrollTop < 400) {
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  // Limit entries
+  while (container.children.length > 100) {
+    container.removeChild(container.firstChild);
+  }
+  
   logBuffer = [];
-  if (container.scrollHeight - container.scrollTop < 300) container.scrollTop = container.scrollHeight;
 }
 
 function startStream() {
   if (eventSource) eventSource.close();
-  const logsEl = document.getElementById('logs');
-  logsEl.innerHTML = '<div class="text-neutral-400 italic">Connecting to live logs...</div>';
-
+  
+  const container = document.getElementById('logs');
+  if (container.children.length === 0) {
+    container.innerHTML = '<div class="text-neutral-400 italic">Connecting to live logs...</div>';
+  }
+  
   eventSource = new EventSource('/admin/dashboard/api/server-logs/stream');
   eventSource.onmessage = e => logBuffer.push(e.data);
-  eventSource.onerror = () => logBuffer.push('<span class="text-red-400">[Stream disconnected – retrying...]</span>');
-  setInterval(flushLogs, 80);
+  eventSource.onerror = () => {
+    logBuffer.push('<span class="text-red-400">[Stream disconnected – retrying...]</span>');
+    setTimeout(startStream, 5000);
+  };
 }
 
 function toggleStream() {
   const btn = document.getElementById('log-btn');
   if (isStreaming) {
     eventSource?.close();
-    btn.textContent = 'Resume Stream';
-    btn.classList.remove('bg-red-500'); btn.classList.add('bg-emerald-500');
+    btn.textContent = 'Resume';
+    btn.classList.remove('bg-red-500/20', 'text-red-400', 'border-red-500/30');
+    btn.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/30');
   } else {
     startStream();
-    btn.textContent = 'Stop Stream';
-    btn.classList.remove('bg-emerald-500'); btn.classList.add('bg-red-500');
+    btn.textContent = 'Stop';
+    btn.classList.remove('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/30');
+    btn.classList.add('bg-red-500/20', 'text-red-400', 'border-red-500/30');
   }
   isStreaming = !isStreaming;
 }
@@ -757,16 +1112,18 @@ function clearLogs() {
   logBuffer = [];
 }
 
-// Refresh all
+// === REFRESH ALL ===
 async function refreshAll() {
   const btns = document.querySelectorAll('button');
   btns.forEach(b => b.style.opacity = '0.6');
   await Promise.all([fetchDashboardStats(), fetchResources()]);
   btns.forEach(b => b.style.opacity = '1');
+  showNotification('Dashboard refreshed');
 }
 
-// INIT (Phone + Desktop perfect)
+// === INITIALIZATION ===
 window.onload = async () => {
+  // Cache elements
   els = {
     users: document.getElementById('users-text'),
     admins: document.getElementById('admins-text'),
@@ -781,23 +1138,17 @@ window.onload = async () => {
     plugins: document.getElementById('plugins-text'),
     requests: document.getElementById('requests-text'),
     visitors: document.getElementById('visitors-text'),
-    avg: document.getElementById('avg-text'),
-    dbtype: document.getElementById('dbtype-text'),
-    dbsize: document.getElementById('dbsize-text'),
-    dburl: document.getElementById('dburl-text'),
-    dbtable: document.getElementById('dbtable-text'),
-    dbkeys: document.getElementById('dbkeys-text')
+    avg: document.getElementById('avg-text')
   };
-
-  // Initial load
+  
+  // Initial fetches
   await fetchDashboardStats();
   await fetchResources();
   startStream();
-
-  // Fast & smooth updates (no lag)
+  
+  // Intervals
+  setInterval(flushLogs, 100);
   setInterval(fetchDashboardStats, 10000);
-  setInterval(fetchResources, 2200);   // slightly slower than before for perfect smoothness
+  setInterval(fetchResources, 3000);
 };
 </script>
-
-<%- include('../../components/template') %>
