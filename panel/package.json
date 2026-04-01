@@ -67,17 +67,31 @@
     "node": ">=18"
   },
   "pkg": {
-    "scripts": ["**/*.js"],
-    "config": ["**/*.json"],
-    "exec": ["**/*"],
-    "handlers": ["**/*"],
-    "lang": ["**/*"],
-    "lib": ["**/*"],
-    "plugins": ["**/*"],
-    "public": ["**/*"],
-    "routes": ["**/*"],
-    "storage": ["**/*"],
-    "utils": ["**/*"],
-    "views": ["**/*"]
-  }
+  "scripts": [
+    "./**/*.js"
+  ],
+  "assets": [
+    "./**/*.ejs",
+    "./**/*.css",
+    "./**/*.json",
+    "./**/*.txt",
+    "./**/*.html",
+    "./public/**/*",
+    "./views/**/*",
+    "./handlers/**/*",
+    "./lang/**/*",
+    "./storage/**/*",
+    "./plugins/**/*",
+    "./lib/**/*",
+    "./utils/**/*",
+    "./routes/**/*",
+    "./exec/**/*",
+    "./*.env",
+    "./config.json",
+    "./LICENSE"
+  ],
+  "targets": [
+    "linux-x64",
+    "linux-arm64"
+  ]
 }
