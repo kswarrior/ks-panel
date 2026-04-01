@@ -480,6 +480,33 @@
         </div>
       </div>
 
+      <!-- NEW: Nodes Distribution (Pie Chart like User & Instance) -->
+      <div class="stat-card">
+        <h3 class="text-sm font-medium text-neutral-400 mb-4">Nodes Status</h3>
+        <div class="pie-chart-container">
+          <div id="nodes-pie" class="pie-chart" style="background: conic-gradient(#10b981 0% 70%, #ef4444 70% 100%);">
+            <div class="pie-center">
+              <span id="nodes-pie-value" class="pie-value text-white"><%= nodesTotal %></span>
+              <span class="pie-label">Nodes</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-grid mt-4">
+          <div class="mini-chart-card">
+            <div class="mini-pie" style="background: conic-gradient(#10b981 0% 100%);">
+              <div class="mini-pie-center text-emerald-400" id="online-nodes-count">0</div>
+            </div>
+            <div class="text-xs text-neutral-400">Online</div>
+          </div>
+          <div class="mini-chart-card">
+            <div class="mini-pie" style="background: conic-gradient(#ef4444 0% 100%);">
+              <div class="mini-pie-center text-red-400" id="offline-nodes-count">0</div>
+            </div>
+            <div class="text-xs text-neutral-400">Offline</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Request Activity Heatmap + NUMERICAL VALUE -->
       <div class="stat-card col-span-2 full-width">
         <div class="flex items-center justify-between mb-4">
@@ -496,7 +523,6 @@
         <div class="flex justify-between mt-2 text-xs text-neutral-500">
           <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
         </div>
-        <!-- Numerical display -->
         <div class="mt-4 flex justify-center">
           <div class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500/10 text-emerald-400 text-sm font-semibold rounded-3xl border border-emerald-400/20">
             <span class="font-mono text-lg" id="heatmap-total-requests">0</span>
@@ -695,6 +721,18 @@ function updateStats(data) {
   }
   document.getElementById('regular-users').textContent = regular;
   document.getElementById('admin-users').textContent = admins;
+
+  // NEW: Nodes pie (exactly like User & Instance)
+  const totalNodes = data.nodesTotal || 1;
+  const onlineNodes = data.onlineNodes || 0;
+  const offlineNodes = data.offlineNodes || 0;
+  const nodesPie = document.getElementById('nodes-pie');
+  if (nodesPie) {
+    const onlinePct = (onlineNodes / totalNodes) * 100;
+    nodesPie.style.background = `conic-gradient(#10b981 0% ${onlinePct}%, #ef4444 ${onlinePct}% 100%)`;
+  }
+  document.getElementById('online-nodes-count').textContent = onlineNodes;
+  document.getElementById('offline-nodes-count').textContent = offlineNodes;
 
   // Heatmap
   updateHeatmap(data.totalRequests || 0);
