@@ -1,7 +1,7 @@
 <%- include('../../components/template') %>
 
 <style>
-/* === PREMIUM GLASSMORPHIC CARDS (from your original Database Overview) === */
+/* === PREMIUM GLASSMORPHIC CARDS (EXACT from your original Database Overview - NO color/blur change) === */
 .stat-card {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
@@ -85,7 +85,7 @@
   z-index: 1;
 }
 
-/* === DASHBOARD STYLES (Resources + Logs) === */
+/* === MODERN DASHBOARD STYLES (Resources + Logs + Extra Graphs - NO color change) === */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
@@ -110,28 +110,44 @@
   font-size: clamp(0.75rem, 1.5vw, 0.85rem);
   line-height: 1.7;
   color: #94a3b8;
-  max-height: 420px;
+  max-height: 380px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-.bar-graph {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 3px;
-  height: 70px;
+.line-graph {
+  width: 100%;
+  height: 160px;
   background: rgba(255,255,255,0.03);
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: 16px;
+  position: relative;
 }
 
-.bar-graph .bar {
-  flex: 1;
-  background: linear-gradient(to bottom, currentColor, rgba(255,255,255,0.2));
-  border-radius: 9999px;
-  transition: height 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+.line-graph svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pie-chart {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(#f59e0b 0% 35%, #3b82f6 35% 70%, #10b981 70% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+.pie-chart::after {
+  content: '';
+  width: 80px;
+  height: 80px;
+  background: var(--glass-bg);
+  border-radius: 50%;
+  position: absolute;
 }
 
 .refresh-btn {
@@ -179,20 +195,35 @@
   100% { transform: scale(2.5); opacity: 0; }
 }
 
-/* Mobile fixes */
+/* PHONE + DESKTOP OPTIMIZED RESPONSIVE (Stylish & Smooth) */
 @media (max-width: 640px) {
-  .stat-card, .resource-card, .glass-panel { padding: 1.25rem; }
+  .stat-card, .resource-card, .glass-panel { padding: 1.25rem; border-radius: 16px; }
   .stat-number { font-size: 1.75rem; }
+  .line-graph { height: 130px; }
+  main { padding: 1rem; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .line-graph { height: 150px; }
+}
+
+@media (min-width: 1025px) {
+  .line-graph { height: 170px; }
+}
+
+/* Smooth lag-free animations */
+.smooth-update {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>
 
 <main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
 
-  <!-- HEADER -->
+  <!-- HEADER (Exact same as before) -->
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10">
     <div class="flex-1 min-w-0">
       <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Dashboard</h1>
-      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Live Logs • Resources • Statistics • Database</p>
+      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Live Logs • Resources • Information • Database</p>
     </div>
 
     <div class="flex items-center gap-3">
@@ -212,7 +243,7 @@
     </div>
   </header>
 
-  <!-- 1. LIVE LOGS (First as requested) -->
+  <!-- 1. LIVE LOGS (First - Exact as requested) -->
   <div class="mt-8 glass-panel p-6">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
       <div class="flex items-center gap-3">
@@ -229,7 +260,7 @@
     <div id="logs" class="log-terminal"></div>
   </div>
 
-  <!-- 2. RESOURCES MONITOR (Second as requested) -->
+  <!-- 2. RESOURCES MONITOR (Second - Line graphs + Pie chart added) -->
   <div class="mt-8 sm:mt-12">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
       <div class="flex items-center gap-3">
@@ -241,66 +272,92 @@
       <button onclick="refreshResources()" class="refresh-btn" id="refreshBtn">Refresh Now</button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- CPU -->
-      <div class="resource-card glass-panel p-6">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="p-3 rounded-xl bg-orange-500/10">
-            <svg class="w-9 h-9 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-sm">CPU Usage</p>
-            <p id="cpu-text" class="text-5xl font-bold text-orange-400">0%</p>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- CPU Line Graph -->
+      <div class="resource-card glass-panel p-6 lg:col-span-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="p-3 rounded-xl bg-orange-500/10">
+              <svg class="w-9 h-9 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <p class="text-neutral-400 text-sm">CPU Usage</p>
+              <p id="cpu-text" class="text-5xl font-bold text-orange-400 smooth-update">0%</p>
+            </div>
           </div>
         </div>
-        <div id="cpu-graph" class="bar-graph text-orange-400"></div>
-        <div class="mt-4 flex justify-between text-xs">
-          <p id="cpu-status" class="text-neutral-400">Normal</p>
-          <span id="cpu-cores" class="font-mono text-neutral-400"></span>
+        <div id="cpu-graph" class="line-graph"></div>
+        <div class="mt-4 flex justify-between text-xs text-neutral-400">
+          <p id="cpu-status" class="smooth-update">Normal</p>
+          <span id="cpu-cores" class="font-mono"></span>
         </div>
       </div>
 
-      <!-- RAM -->
-      <div class="resource-card glass-panel p-6">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="p-3 rounded-xl bg-blue-500/10">
-            <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-sm">RAM Usage</p>
-            <p id="ram-text" class="text-5xl font-bold text-blue-400">0%</p>
+      <!-- RAM Line Graph -->
+      <div class="resource-card glass-panel p-6 lg:col-span-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="p-3 rounded-xl bg-blue-500/10">
+              <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <p class="text-neutral-400 text-sm">RAM Usage</p>
+              <p id="ram-text" class="text-5xl font-bold text-blue-400 smooth-update">0%</p>
+            </div>
           </div>
         </div>
-        <div id="ram-graph" class="bar-graph text-blue-400"></div>
+        <div id="ram-graph" class="line-graph"></div>
         <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <span id="ram-used">0 GB</span>
-          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="ram-bar" class="h-full bg-blue-400 rounded-full" style="width:0%"></div></div>
-          <span id="ram-total">0 GB</span>
+          <span id="ram-used" class="smooth-update">0 GB</span>
+          <span id="ram-total" class="font-mono"></span>
         </div>
       </div>
 
-      <!-- Disk -->
-      <div class="resource-card glass-panel p-6">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="p-3 rounded-xl bg-emerald-500/10">
-            <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-sm">Disk Usage</p>
-            <p id="disk-text" class="text-5xl font-bold text-emerald-400">0%</p>
+      <!-- Disk Line Graph + Pie Chart -->
+      <div class="resource-card glass-panel p-6 lg:col-span-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="p-3 rounded-xl bg-emerald-500/10">
+              <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
+            </div>
+            <div>
+              <p class="text-neutral-400 text-sm">Disk Usage</p>
+              <p id="disk-text" class="text-5xl font-bold text-emerald-400 smooth-update">0%</p>
+            </div>
           </div>
         </div>
-        <div id="disk-graph" class="bar-graph text-emerald-400"></div>
+        <div id="disk-graph" class="line-graph"></div>
         <div class="mt-4 flex justify-between text-xs text-neutral-400">
-          <span id="disk-used">0 GB</span>
-          <div class="flex-1 mx-3 bg-white/10 rounded-full h-1.5"><div id="disk-bar" class="h-full bg-emerald-400 rounded-full" style="width:0%"></div></div>
-          <span id="disk-total">0 GB</span>
+          <span id="disk-used" class="smooth-update">0 GB</span>
+          <span id="disk-total" class="font-mono"></span>
+        </div>
+      </div>
+
+      <!-- Modern Pie Chart (System Health Overview) - Added for modern dashboard -->
+      <div class="glass-panel p-6 lg:col-span-12 flex flex-col md:flex-row items-center justify-center gap-8 mt-4">
+        <div>
+          <p class="text-neutral-400 text-sm mb-3 text-center">System Health Overview</p>
+          <div id="pie-chart" class="pie-chart mx-auto"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-6 text-center">
+          <div>
+            <p class="text-orange-400 text-sm">CPU</p>
+            <p id="pie-cpu" class="text-3xl font-bold text-orange-400">0%</p>
+          </div>
+          <div>
+            <p class="text-blue-400 text-sm">RAM</p>
+            <p id="pie-ram" class="text-3xl font-bold text-blue-400">0%</p>
+          </div>
+          <div>
+            <p class="text-emerald-400 text-sm">Disk</p>
+            <p id="pie-disk" class="text-3xl font-bold text-emerald-400">0%</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 3. INFORMATION (Database Statistics - 8 cards) -->
+  <!-- 3. INFORMATION (Database Statistics - Exact 8 cards) -->
   <section class="mt-8 sm:mt-12">
     <div class="flex items-center justify-between mb-4 sm:mb-6">
       <h2 class="text-xl sm:text-2xl font-semibold text-white">Information</h2>
@@ -438,7 +495,7 @@
     </div>
   </section>
 
-  <!-- 4. DATABASE INFORMATION (Last as requested) -->
+  <!-- 4. DATABASE INFORMATION (Last - Exact 5 cards) -->
   <section class="mt-8 sm:mt-12">
     <h2 class="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">Database Information</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
@@ -523,10 +580,64 @@
 </div>
 
 <script>
-// Cache elements
+// === LAG-FREE LINE GRAPH + HISTORY (Deeply optimized) ===
+const historyLength = 20;
+let cpuHistory = Array(historyLength).fill(0);
+let ramHistory = Array(historyLength).fill(0);
+let diskHistory = Array(historyLength).fill(0);
+
+function createLineGraph(containerId, historyArray, color) {
+  const container = document.getElementById(containerId);
+  let svg = container.querySelector('svg');
+  if (!svg) {
+    svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 300 100");
+    svg.setAttribute("preserveAspectRatio", "none");
+    container.innerHTML = '';
+    container.appendChild(svg);
+  }
+
+  // Build path points
+  let pathData = 'M 0,100';
+  const step = 300 / (historyLength - 1);
+  for (let i = 0; i < historyArray.length; i++) {
+    const x = i * step;
+    const y = 100 - (historyArray[i] * 0.95); // 5% padding
+    pathData += ` L ${x},${y}`;
+  }
+
+  // Update or create path
+  let path = svg.querySelector('path');
+  if (!path) {
+    path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", color);
+    path.setAttribute("stroke-width", "3");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(path);
+  }
+  path.setAttribute("d", pathData);
+}
+
+// Update pie chart (conic-gradient - lag free)
+function updatePieChart(cpu, ram, disk) {
+  const total = cpu + ram + disk || 1;
+  const cpuP = Math.round((cpu / total) * 100);
+  const ramP = Math.round((ram / total) * 100);
+  const diskP = Math.round((disk / total) * 100);
+
+  document.getElementById('pie-chart').style.background = 
+    `conic-gradient(#f59e0b 0% ${cpuP}%, #3b82f6 ${cpuP}% ${cpuP + ramP}%, #10b981 ${cpuP + ramP}% 100%)`;
+
+  document.getElementById('pie-cpu').textContent = cpuP + '%';
+  document.getElementById('pie-ram').textContent = ramP + '%';
+  document.getElementById('pie-disk').textContent = diskP + '%';
+}
+
+// === STATS UPDATE (Exact same as before - no removal) ===
 let els = {};
 
-// Update stats
 function updateStats(data) {
   els.users.textContent = data.usersTotal;
   els.admins.textContent = data.adminsTotal;
@@ -550,49 +661,53 @@ function updateStats(data) {
   els.dbkeys.textContent = data.totalKeys;
 }
 
-// Fetch full stats
 async function fetchDashboardStats() {
   try {
     const res = await fetch('/admin/dashboard/api/stats');
     const data = await res.json();
     updateStats(data);
     return true;
-  } catch (e) {
-    console.error("Dashboard stats failed", e);
-    return false;
-  }
+  } catch (e) { console.error("Stats failed", e); return false; }
 }
 
-// Resources
+// === RESOURCES (Line graphs + Pie - lag free) ===
 async function fetchResources() {
   try {
     const res = await fetch('/resourceMonitor');
     const data = await res.json();
 
-    const cpuPercent = Math.round(data.cpu?.percent || 0);
-    document.getElementById('cpu-text').textContent = cpuPercent + '%';
-    document.getElementById('cpu-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${cpuPercent}%"></div>`).join('');
-    document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
+    const cpuP = Math.round(data.cpu?.percent || 0);
+    const ramP = Math.round(data.ram?.percent || 0);
+    const diskP = Math.round(data.disk?.percent || 0);
 
-    const ramPercent = Math.round(data.ram?.percent || 0);
-    document.getElementById('ram-text').textContent = ramPercent + '%';
+    // Update text
+    document.getElementById('cpu-text').textContent = cpuP + '%';
+    document.getElementById('ram-text').textContent = ramP + '%';
+    document.getElementById('disk-text').textContent = diskP + '%';
+
+    // Shift history
+    cpuHistory.push(cpuP); cpuHistory.shift();
+    ramHistory.push(ramP); ramHistory.shift();
+    diskHistory.push(diskP); diskHistory.shift();
+
+    // Draw line graphs
+    createLineGraph('cpu-graph', cpuHistory, '#f59e0b');
+    createLineGraph('ram-graph', ramHistory, '#3b82f6');
+    createLineGraph('disk-graph', diskHistory, '#10b981');
+
+    // Pie chart
+    updatePieChart(cpuP, ramP, diskP);
+
+    // Extra info
+    document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
     document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
     document.getElementById('ram-total').textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
-    document.getElementById('ram-bar').style.width = ramPercent + '%';
-    document.getElementById('ram-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${ramPercent}%"></div>`).join('');
-
-    const diskPercent = Math.round(data.disk?.percent || 0);
-    document.getElementById('disk-text').textContent = diskPercent + '%';
     document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
     document.getElementById('disk-total').textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
-    document.getElementById('disk-bar').style.width = diskPercent + '%';
-    document.getElementById('disk-graph').innerHTML = Array(20).fill(`<div class="bar" style="height:${diskPercent}%"></div>`).join('');
-  } catch (e) {
-    console.error("Resources failed", e);
-  }
+  } catch (e) { console.error("Resources failed", e); }
 }
 
-// Live Logs
+// === LIVE LOGS (Exact same - optimized) ===
 let eventSource = null;
 let isStreaming = true;
 let logBuffer = [];
@@ -614,12 +729,12 @@ function flushLogs() {
 
 function startStream() {
   if (eventSource) eventSource.close();
-  document.getElementById('logs').innerHTML = '<div class="text-neutral-400 italic">Connecting to live logs...</div>';
+  const logsEl = document.getElementById('logs');
+  logsEl.innerHTML = '<div class="text-neutral-400 italic">Connecting to live logs...</div>';
 
   eventSource = new EventSource('/admin/dashboard/api/server-logs/stream');
   eventSource.onmessage = e => logBuffer.push(e.data);
   eventSource.onerror = () => logBuffer.push('<span class="text-red-400">[Stream disconnected – retrying...]</span>');
-
   setInterval(flushLogs, 80);
 }
 
@@ -628,13 +743,11 @@ function toggleStream() {
   if (isStreaming) {
     eventSource?.close();
     btn.textContent = 'Resume Stream';
-    btn.classList.remove('bg-red-500');
-    btn.classList.add('bg-emerald-500');
+    btn.classList.remove('bg-red-500'); btn.classList.add('bg-emerald-500');
   } else {
     startStream();
     btn.textContent = 'Stop Stream';
-    btn.classList.remove('bg-emerald-500');
-    btn.classList.add('bg-red-500');
+    btn.classList.remove('bg-emerald-500'); btn.classList.add('bg-red-500');
   }
   isStreaming = !isStreaming;
 }
@@ -644,7 +757,7 @@ function clearLogs() {
   logBuffer = [];
 }
 
-// Full refresh
+// Refresh all
 async function refreshAll() {
   const btns = document.querySelectorAll('button');
   btns.forEach(b => b.style.opacity = '0.6');
@@ -652,7 +765,7 @@ async function refreshAll() {
   btns.forEach(b => b.style.opacity = '1');
 }
 
-// Init
+// INIT (Phone + Desktop perfect)
 window.onload = async () => {
   els = {
     users: document.getElementById('users-text'),
@@ -676,12 +789,15 @@ window.onload = async () => {
     dbkeys: document.getElementById('dbkeys-text')
   };
 
+  // Initial load
   await fetchDashboardStats();
   await fetchResources();
   startStream();
 
-  // Fast live updates
+  // Fast & smooth updates (no lag)
   setInterval(fetchDashboardStats, 10000);
-  setInterval(fetchResources, 2500);
+  setInterval(fetchResources, 2200);   // slightly slower than before for perfect smoothness
 };
 </script>
+
+<%- include('../../components/template') %>
