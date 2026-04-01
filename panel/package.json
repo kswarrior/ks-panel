@@ -15,7 +15,9 @@
     "watch": "browser-sync start --config bs-config.js",
     "seed": "node exec/seed.js",
     "create:user": "node exec/createUser.js",
-    "build:css": "npx @tailwindcss/cli -i ./public/tw.conf -o ./public/assets/tailwind.css --watch"
+    "build:css": "npx @tailwindcss/cli -i ./public/tw.conf -o ./public/assets/tailwind.css --watch",
+    "build": "pkg .",
+    "build:linux": "pkg . --targets linux-x64,linux-arm64"
   },
   "author": "ks-panel",
   "license": "MIT",
@@ -67,31 +69,35 @@
     "node": ">=18"
   },
   "pkg": {
-  "scripts": [
-    "./**/*.js"
-  ],
-  "assets": [
-    "./**/*.ejs",
-    "./**/*.css",
-    "./**/*.json",
-    "./**/*.txt",
-    "./**/*.html",
-    "./public/**/*",
-    "./views/**/*",
-    "./handlers/**/*",
-    "./lang/**/*",
-    "./storage/**/*",
-    "./plugins/**/*",
-    "./lib/**/*",
-    "./utils/**/*",
-    "./routes/**/*",
-    "./exec/**/*",
-    "./*.env",
-    "./config.json",
-    "./LICENSE"
-  ],
-  "targets": [
-    "linux-x64",
-    "linux-arm64"
-  ]
+    "scripts": [
+      "./**/*.js"
+    ],
+    "assets": [
+      "./**/*.ejs",
+      "./**/*.css",
+      "./**/*.json",
+      "./**/*.txt",
+      "./**/*.html",
+      "./**/*.md",
+      "./public/**/*",
+      "./views/**/*",
+      "./handlers/**/*",
+      "./lang/**/*",
+      "./storage/**/*",
+      "./plugins/**/*",
+      "./lib/**/*",
+      "./utils/**/*",
+      "./routes/**/*",
+      "./exec/**/*",
+      "./*.env",
+      "./config.json",
+      "./LICENSE",
+      "./README.md",
+      "./kspanel.sh"
+    ],
+    "targets": [
+      "linux-x64",
+      "linux-arm64"
+    ]
+  }
 }
