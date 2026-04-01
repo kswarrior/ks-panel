@@ -1,0 +1,78 @@
+name: Panel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'panel/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(jq -r .version panel/package.json)
+          echo "Version found: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./panel
+        run: npm install
+
+      - name: Build single executable binaries (using npm run build)
+        working-directory: ./panel
+        run: |
+          echo "Installing pkg CLI (required for npm run build)..."
+          npm install --no-save pkg@latest
+
+          echo "Building Linux x64 + arm64 binaries..."
+          npm run build:linux
+
+          echo "Renaming binaries to include version..."
+          mv ks-panel-linux-x64 ../ks-panel-${{ env.VERSION }}-linux-x64 2>/dev/null || echo "→ ks-panel-linux-x64 not found (pkg may have used different name)"
+          mv ks-panel-linux-arm64 ../ks-panel-${{ env.VERSION }}-linux-arm64 2>/dev/null || echo "→ ks-panel-linux-arm64 not found (pkg may have used different name)"
+
+          # Fallback rename in case pkg named them differently (very common with "bin" field)
+          mv ks-panel ../ks-panel-${{ env.VERSION }}-linux-x64 2>/dev/null || true
+          mv ks-panel-linux-arm64 ../ks-panel-${{ env.VERSION }}-linux-arm64 2>/dev/null || true
+
+          chmod +x ../ks-panel-${{ env.VERSION }}-linux-*
+
+      - name: List built binaries (debug)
+        run: ls -la ks-panel-*
+
+      - name: Ensure release exists
+        run: |
+          if ! gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION not found, creating..."
+            gh release create "$VERSION" -t "$VERSION" -n "Automated release for version $VERSION"
+          else
+            echo "Release $VERSION already exists."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binaries to release
+        run: |
+          gh release upload "$VERSION" \
+            ks-panel-${{ env.VERSION }}-linux-x64 \
+            ks-panel-${{ env.VERSION }}-linux-arm64 \
+            --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
