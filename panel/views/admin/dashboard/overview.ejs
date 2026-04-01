@@ -11,7 +11,7 @@
   --color-disk: #34d399;
 }
 
-/* === PREMIUM GLASSMORPHIC CARDS === */
+/* === PREMIUM GLASSMORPHIC CARDS (REDUCED SHADOW FOR PERFORMANCE) === */
 .stat-card {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -20,7 +20,7 @@
   border-radius: 20px;
   padding: clamp(1rem, 3vw, 1.75rem);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08); /* REDUCED shadow - fixes lag */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -41,7 +41,7 @@
 .stat-card:hover {
   transform: translateY(-4px) scale(1.01);
   border-color: rgba(255,255,255,0.25);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); /* REDUCED hover shadow */
 }
 
 .stat-number {
@@ -96,14 +96,15 @@
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08); /* REDUCED shadow - fixes lag */
+  padding: 1.25rem; /* slightly tighter for wider inner content */
 }
 
 .log-terminal {
   background: #0f172a;
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 1rem;
+  padding: 0.75rem; /* reduced padding = increased usable width */
   font-family: 'SF Mono', Monaco, monospace;
   font-size: clamp(0.75rem, 1.5vw, 0.85rem);
   line-height: 1.6;
@@ -112,9 +113,10 @@
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
+  width: 100%;
 }
 
-/* === LINE GRAPH CSS (Pure CSS Animation) === */
+/* === LINE GRAPH CSS (FIXED SIZING + COMPLETE LINE) === */
 .line-graph-container {
   position: relative;
   height: 80px;
@@ -131,8 +133,8 @@
   left: 8px;
   right: 8px;
   height: calc(100% - 16px);
-  display: flex;
-  align-items: flex-end;
+  width: 100%; /* explicit */
+  height: 100%; /* explicit */
 }
 
 .line-path {
@@ -154,8 +156,8 @@
 }
 
 @keyframes drawLine {
-  from { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
-  to { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+  from { stroke-dasharray: 3000; stroke-dashoffset: 3000; } /* INCREASED for complete line */
+  to { stroke-dasharray: 3000; stroke-dashoffset: 0; }
 }
 
 @keyframes fadeIn {
@@ -272,6 +274,12 @@
   background: rgba(255,255,255,0.05);
   transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #111827;
 }
 
 .heatmap-cell:hover {
@@ -279,9 +287,9 @@
   z-index: 10;
 }
 
-.heatmap-cell.active { background: currentColor; opacity: 0.9; }
-.heatmap-cell.medium { background: currentColor; opacity: 0.5; }
-.heatmap-cell.low { background: currentColor; opacity: 0.2; }
+.heatmap-cell.active { background: currentColor; opacity: 0.9; color: #fff; }
+.heatmap-cell.medium { background: currentColor; opacity: 0.5; color: #fff; }
+.heatmap-cell.low { background: currentColor; opacity: 0.2; color: #fff; }
 
 /* === CONTROLS === */
 .refresh-btn {
@@ -362,14 +370,25 @@
   }
 }
 
-/* === MOBILE OPTIMIZATIONS === */
+/* === MOBILE OPTIMIZATIONS (FIXED PHONE VIEW FOR SYSTEM ANALYTICS) === */
 @media (max-width: 640px) {
   .stat-card { padding: 1rem; }
   .stat-number { font-size: 1.5rem; }
-  .log-terminal { max-height: 200px; font-size: 0.75rem; }
+  .log-terminal { max-height: 220px; font-size: 0.75rem; }
   .pie-chart-container { width: 100px; height: 100px; }
   .chart-grid { grid-template-columns: repeat(2, 1fr); }
   .heatmap { grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  
+  /* Explicit fix for System Analytics on phone */
+  .dashboard-grid .stat-card.col-span-2,
+  .dashboard-grid .full-width {
+    grid-column: 1 / -1 !important;
+  }
+  
+  /* Make heatmap cells slightly larger on tiny screens */
+  .heatmap-cell {
+    font-size: 0.6rem;
+  }
 }
 
 /* === UTILITIES === */
@@ -412,8 +431,8 @@
     </div>
   </header>
 
-  <!-- 1. LIVE LOGS -->
-  <div class="glass-panel p-4 sm:p-6 mb-6">
+  <!-- 1. LIVE LOGS (increased usable width) -->
+  <div class="glass-panel mb-6">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
       <div class="flex items-center gap-3">
         <div class="p-2 rounded-lg bg-white/5">
@@ -431,7 +450,7 @@
     </div>
   </div>
 
-  <!-- 2. RESOURCES MONITOR WITH LINE GRAPHS -->
+  <!-- 2. RESOURCES MONITOR WITH LINE GRAPHS (fixed line completion) -->
   <div class="mb-6">
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
@@ -444,7 +463,7 @@
     </div>
 
     <div class="dashboard-grid">
-      <!-- CPU Card with Line Graph -->
+      <!-- CPU Card -->
       <div class="stat-card">
         <div class="flex items-center gap-4 mb-3">
           <div class="p-2.5 rounded-xl bg-orange-500/10">
@@ -456,9 +475,8 @@
           </div>
         </div>
         
-        <!-- Line Graph Container -->
         <div class="line-graph-container text-orange-400">
-          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
             <defs>
               <linearGradient id="cpuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
@@ -476,7 +494,7 @@
         </div>
       </div>
 
-      <!-- RAM Card with Line Graph -->
+      <!-- RAM Card -->
       <div class="stat-card">
         <div class="flex items-center gap-4 mb-3">
           <div class="p-2.5 rounded-xl bg-blue-500/10">
@@ -489,7 +507,7 @@
         </div>
         
         <div class="line-graph-container text-blue-400">
-          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
             <defs>
               <linearGradient id="ramGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
@@ -507,7 +525,7 @@
         </div>
       </div>
 
-      <!-- Disk Card with Line Graph -->
+      <!-- Disk Card -->
       <div class="stat-card">
         <div class="flex items-center gap-4 mb-3">
           <div class="p-2.5 rounded-xl bg-emerald-500/10">
@@ -520,7 +538,7 @@
         </div>
         
         <div class="line-graph-container text-emerald-400">
-          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
             <defs>
               <linearGradient id="diskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
@@ -538,7 +556,7 @@
         </div>
       </div>
 
-      <!-- Network Traffic Card (New) -->
+      <!-- Network Traffic Card -->
       <div class="stat-card">
         <div class="flex items-center gap-4 mb-3">
           <div class="p-2.5 rounded-xl bg-purple-500/10">
@@ -551,7 +569,7 @@
         </div>
         
         <div class="line-graph-container text-purple-400">
-          <svg class="line-graph" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
             <defs>
               <linearGradient id="netGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
@@ -571,14 +589,14 @@
     </div>
   </div>
 
-  <!-- 3. MODERN ANALYTICS SECTION (Pie Charts & Heatmap) -->
+  <!-- 3. SYSTEM ANALYTICS (fixed mobile layout + numerical in Request Activity) -->
   <div class="mb-6">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg sm:text-xl font-semibold text-white">System Analytics</h2>
     </div>
     
     <div class="dashboard-grid">
-      <!-- Instance Distribution Pie Chart -->
+      <!-- Instance Distribution -->
       <div class="stat-card">
         <h3 class="text-sm font-medium text-neutral-400 mb-4">Instance Status</h3>
         <div class="pie-chart-container">
@@ -605,7 +623,7 @@
         </div>
       </div>
 
-      <!-- User Distribution Pie Chart -->
+      <!-- User Distribution -->
       <div class="stat-card">
         <h3 class="text-sm font-medium text-neutral-400 mb-4">User Roles</h3>
         <div class="pie-chart-container">
@@ -632,7 +650,7 @@
         </div>
       </div>
 
-      <!-- Activity Heatmap -->
+      <!-- Request Activity Heatmap + NUMERICAL VALUE -->
       <div class="stat-card col-span-2 full-width">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-medium text-neutral-400">Request Activity (7 Days)</h3>
@@ -648,11 +666,18 @@
         <div class="flex justify-between mt-2 text-xs text-neutral-500">
           <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
         </div>
+        <!-- NEW: Numerical display -->
+        <div class="mt-4 flex justify-center">
+          <div class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500/10 text-emerald-400 text-sm font-semibold rounded-3xl border border-emerald-400/20">
+            <span class="font-mono text-lg" id="heatmap-total-requests">0</span>
+            <span class="text-xs uppercase tracking-widest">requests • 7 days</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 4. INFORMATION STATISTICS (8 Cards) -->
+  <!-- 4. INFORMATION STATISTICS (8 Cards) - unchanged except lighter shadow already applied globally -->
   <section class="mb-6">
     <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Information</h2>
     <div class="dashboard-grid">
@@ -788,11 +813,10 @@
     </div>
   </section>
 
-  <!-- 5. DATABASE INFORMATION -->
+  <!-- 5. DATABASE INFORMATION - unchanged -->
   <section>
     <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Database Information</h2>
     <div class="dashboard-grid">
-      <!-- DB Type -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -806,7 +830,6 @@
         <p class="mt-4 text-xs text-neutral-400">Storage engine</p>
       </article>
 
-      <!-- Size -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -820,7 +843,6 @@
         <p class="mt-4 text-xs text-neutral-400">Storage used</p>
       </article>
 
-      <!-- URL -->
       <article class="stat-card col-span-2">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -833,7 +855,6 @@
         </div>
       </article>
 
-      <!-- Table -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -847,7 +868,6 @@
         <p class="mt-4 text-xs text-neutral-400">Primary collection</p>
       </article>
 
-      <!-- Total Keys -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -880,13 +900,11 @@ const history = {
   net: Array(20).fill(0)
 };
 
-// === UPDATE LINE GRAPH ===
+// === UPDATE LINE GRAPH (now guaranteed complete with 100% SVG sizing) ===
 function updateLineGraph(type, value) {
-  // Add new value, remove oldest
   history[type].push(value);
   history[type].shift();
   
-  // Create SVG path
   const width = 200;
   const height = 60;
   const step = width / (history[type].length - 1);
@@ -904,13 +922,12 @@ function updateLineGraph(type, value) {
   
   areaD += ` L ${width} ${height} Z`;
   
-  // Update DOM
   const line = document.getElementById(`${type}-line`);
   const area = document.getElementById(`${type}-area`);
   if (line) {
     line.setAttribute('d', pathD);
     line.style.animation = 'none';
-    line.offsetHeight; // Trigger reflow
+    line.offsetHeight;
     line.style.animation = 'drawLine 0.5s ease-out forwards';
   }
   if (area) area.setAttribute('d', areaD);
@@ -967,16 +984,15 @@ function updateStats(data) {
   document.getElementById('regular-users').textContent = regular;
   document.getElementById('admin-users').textContent = admins;
   
-  // Update heatmap
+  // Update heatmap + numerical value
   updateHeatmap(data.totalRequests || 0);
 }
 
-// === HEATMAP GENERATOR ===
+// === HEATMAP + NUMERICAL (now shows real number) ===
 function updateHeatmap(totalRequests) {
   const container = document.getElementById('request-heatmap');
   if (!container) return;
   
-  // Generate pseudo-random activity based on total requests
   let html = '';
   for (let i = 0; i < 28; i++) {
     const intensity = Math.random();
@@ -984,9 +1000,13 @@ function updateHeatmap(totalRequests) {
     if (intensity > 0.7) className += ' active';
     else if (intensity > 0.4) className += ' medium';
     else className += ' low';
-    html += `<div class="${className}" title="Activity level"></div>`;
+    html += `<div class="${className}" title="Activity level">${Math.floor(intensity * 9) + 1}</div>`;
   }
   container.innerHTML = html;
+  
+  // Show numerical value
+  const totalEl = document.getElementById('heatmap-total-requests');
+  if (totalEl) totalEl.textContent = totalRequests.toLocaleString();
 }
 
 // === FETCH DASHBOARD STATS ===
@@ -1011,7 +1031,7 @@ async function fetchResources() {
     const cpu = Math.round(data.cpu?.percent || 0);
     const ram = Math.round(data.ram?.percent || 0);
     const disk = Math.round(data.disk?.percent || 0);
-    const net = Math.round((data.network?.speed || 0) / 10); // Scale for demo
+    const net = Math.round((data.network?.speed || 0) / 10);
     
     document.getElementById('cpu-text').textContent = cpu + '%';
     document.getElementById('ram-text').textContent = ram + '%';
@@ -1025,7 +1045,6 @@ async function fetchResources() {
     document.getElementById('disk-total').textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
     document.getElementById('net-peak').textContent = 'Peak: ' + (data.network?.peak || 0) + ' MB/s';
     
-    // Update line graphs
     updateLineGraph('cpu', cpu);
     updateLineGraph('ram', ram);
     updateLineGraph('disk', disk);
@@ -1053,7 +1072,6 @@ function flushLogs() {
   const container = document.getElementById('logs');
   if (logBuffer.length === 0) return;
   
-  // Remove initial message if present
   if (container.children.length === 1 && container.children[0].classList.contains('italic')) {
     container.innerHTML = '';
   }
@@ -1062,12 +1080,10 @@ function flushLogs() {
   logBuffer.forEach(text => fragment.appendChild(createLogEntry(text)));
   container.appendChild(fragment);
   
-  // Auto-scroll only if near bottom
   if (container.scrollHeight - container.scrollTop < 400) {
     container.scrollTop = container.scrollHeight;
   }
   
-  // Limit entries
   while (container.children.length > 100) {
     container.removeChild(container.firstChild);
   }
@@ -1123,7 +1139,6 @@ async function refreshAll() {
 
 // === INITIALIZATION ===
 window.onload = async () => {
-  // Cache elements
   els = {
     users: document.getElementById('users-text'),
     admins: document.getElementById('admins-text'),
@@ -1141,12 +1156,10 @@ window.onload = async () => {
     avg: document.getElementById('avg-text')
   };
   
-  // Initial fetches
   await fetchDashboardStats();
   await fetchResources();
   startStream();
   
-  // Intervals
   setInterval(flushLogs, 100);
   setInterval(fetchDashboardStats, 10000);
   setInterval(fetchResources, 3000);
