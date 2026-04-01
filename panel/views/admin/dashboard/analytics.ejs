@@ -537,57 +537,6 @@
   <section class="mb-6">
     <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Information</h2>
     <div class="dashboard-grid">
-      <!-- Users -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Total Users</p>
-            <p id="users-text" class="stat-number text-blue-400"><%= usersTotal %></p>
-          </div>
-          <div class="stat-icon bg-blue-500/10 text-blue-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-          </div>
-        </div>
-        <p class="mt-4 text-xs text-neutral-400 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          Admins: <span id="admins-text" class="text-emerald-400 font-semibold"><%= adminsTotal %></span>
-        </p>
-      </article>
-
-      <!-- Instances -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Instances</p>
-            <p id="instances-text" class="stat-number text-purple-400"><%= instancesTotal %></p>
-          </div>
-          <div class="stat-icon bg-purple-500/10 text-purple-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-          </div>
-        </div>
-        <p class="mt-4 text-xs text-neutral-400 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-          Suspended: <span id="suspended-text" class="text-red-400 font-semibold"><%= suspendedTotal %></span>
-        </p>
-      </article>
-
-      <!-- Nodes -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Nodes</p>
-            <p id="nodes-text" class="stat-number text-orange-400"><%= nodesTotal %></p>
-          </div>
-          <div class="stat-icon bg-orange-500/10 text-orange-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
-          </div>
-        </div>
-        <div class="mt-4 text-xs text-neutral-400 flex justify-between">
-          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Online: <span id="online-text" class="text-emerald-400 font-semibold"><%= onlineNodes %></span></span>
-          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Offline: <span id="offline-text" class="text-red-400 font-semibold"><%= offlineNodes %></span></span>
-        </div>
-      </article>
-
       <!-- Templates -->
       <article class="stat-card">
         <div class="flex items-start justify-between gap-3">
@@ -600,20 +549,6 @@
           </div>
         </div>
         <p class="mt-4 text-xs text-neutral-400">Available configurations</p>
-      </article>
-
-      <!-- Locations -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Locations</p>
-            <p id="locations-text" class="stat-number text-amber-400"><%= locationsTotal %></p>
-          </div>
-          <div class="stat-icon bg-amber-500/10 text-amber-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-        </div>
-        <p class="mt-4 text-xs text-neutral-400">Global regions</p>
       </article>
 
       <!-- API Keys -->
@@ -642,29 +577,6 @@
           </div>
         </div>
         <p class="mt-4 text-xs text-neutral-400">Installed modules</p>
-      </article>
-
-      <!-- Requests -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Total Requests</p>
-            <p id="requests-text" class="stat-number text-emerald-400"><%= totalRequests %></p>
-          </div>
-          <div class="stat-icon bg-emerald-500/10 text-emerald-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-        </div>
-        <div class="mt-4 text-xs text-neutral-400 space-y-1">
-          <div class="flex justify-between">
-            <span>Visitors:</span>
-            <span id="visitors-text" class="text-white font-semibold"><%= uniqueVisitors %></span>
-          </div>
-          <div class="flex justify-between">
-            <span>Avg/hour:</span>
-            <span id="avg-text" class="text-white font-semibold"><%= avgRequestsPerHour %></span>
-          </div>
-        </div>
       </article>
     </div>
   </section>
