@@ -5,7 +5,7 @@
   "domain": "localhost",
   "mode": "production",
   "version": "1.0.0",
-  "databaseURL": "postgresql://neondb_owner:npg_bcFdtq8NZ0Dm@ep-sparkling-king-amu1bax6.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require",
+  "databaseURL": "postgres://ksuser:your_secure_password@localhost:5432/kspanel",
   "databaseTable": "kspanel",
   "saltRounds": 10,
   "ogTitle": "KS Panel",
