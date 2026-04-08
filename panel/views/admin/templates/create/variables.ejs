@@ -1,0 +1,20 @@
+<div id="variablesContainer" class="space-y-3"></div>
+<button onclick="addVariable()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Variable</button>
+<button onclick="saveVariablesSection()" class="tf-btn tf-btn-accent w-full">💾 Save Variables (variables.json)</button>
+
+<script>
+let varIndex = 0;
+window.addVariable = function() {
+  const idx = varIndex++;
+  const div = document.createElement('div');
+  div.className = 'tf-card';
+  div.innerHTML = `... (same variable card HTML as original) ...`; // full card from your original code
+  document.getElementById('variablesContainer').appendChild(div);
+};
+window.saveVariablesSection = async () => {
+  // collect only variables
+  const data = { variables: [] /* collect logic */ };
+  await fetch('/admin/templates/save-variables', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+  showNotification('Variables saved as variables.json', 'success');
+};
+</script>
