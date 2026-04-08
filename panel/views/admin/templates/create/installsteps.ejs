@@ -1,0 +1,12 @@
+<div id="installStepsContainer" class="space-y-3"></div>
+<button onclick="addInstallStep()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Step</button>
+<button onclick="saveInstallStepsSection()" class="tf-btn tf-btn-accent w-full">💾 Save Install Steps (installsteps.json)</button>
+
+<script>
+// full install step logic
+window.saveInstallStepsSection = async () => {
+  const data = { install_steps: [] };
+  await fetch('/admin/templates/save-installsteps', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+  showNotification('Install steps saved as installsteps.json', 'success');
+};
+</script>
