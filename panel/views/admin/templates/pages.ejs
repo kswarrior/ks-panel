@@ -1,0 +1,12 @@
+<div id="pagesContainer" class="space-y-3"></div>
+<button onclick="addPage()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Page</button>
+<button onclick="savePagesSection()" class="tf-btn tf-btn-accent w-full">💾 Save Pages (pages.json)</button>
+
+<script>
+// full page logic
+window.savePagesSection = async () => {
+  const data = { pages: [] };
+  await fetch('/admin/templates/save-pages', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+  showNotification('Pages saved as pages.json', 'success');
+};
+</script>
