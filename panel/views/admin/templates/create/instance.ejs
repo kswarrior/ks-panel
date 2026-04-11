@@ -4,56 +4,71 @@
       <div class="tf-field-short">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Instance Type <span class="text-red-400">*</span></label>
         <select id="instanceType" class="tf-input">
-          <option value="docker">Docker</option>
-          <option value="lxd">LXD</option>
-          <option value="multipass">Multipass</option>
-          <option value="kvm">KVM</option>
-          <option value="proxmox">Proxmox</option>
+          <option value="docker">Docker (Container)</option>
+          <option value="lxd">LXD (Container)</option>
+          <option value="multipass">Multipass (VM)</option>
+          <option value="kvm">KVM (VM)</option>
+          <option value="proxmox">Proxmox (VM/LXC)</option>
         </select>
       </div>
-      <div class="tf-field-long" id="imageContainer"></div>
+      <div class="tf-field-long" id="imageContainer">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label>
+        <input id="environment-image" type="text" class="tf-input" placeholder="ghcr.io/parkervcp/yolks:debian">
+      </div>
     </div>
   </div>
 
   <div class="tf-card">
-    <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Resource Limits</h3>
-    <div class="tf-row">
-      <div class="tf-field-short"><label>Memory (MB)</label><input id="limits-memory" type="number" value="4096" class="tf-input"></div>
-      <div class="tf-field-short"><label>CPU Threads</label><input id="limits-cpu" type="number" value="200" class="tf-input"></div>
-      <div class="tf-field-short"><label>Disk (GB)</label><input id="limits-disk" type="number" value="20" class="tf-input"></div>
+    <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Lifecycle Commands</h3>
+    <div class="space-y-4">
+      <div class="tf-field-long">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Start Command</label>
+        <input id="environment-start_command" type="text" class="tf-input font-mono" placeholder="java -Xms128M -Xmx{{SERVER_MEMORY}}M -jar {{SERVER_JARFILE}}">
+        <p class="text-[10px] text-neutral-500 mt-1">Use {{VARIABLE_NAME}} to reference variables.</p>
+      </div>
+      <div class="tf-row">
+        <div class="tf-field-short">
+          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Stop Command</label>
+          <input id="environment-stop_command" type="text" class="tf-input font-mono" placeholder="stop">
+        </div>
+        <div class="tf-field-short">
+          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Stop Signal</label>
+          <input id="environment-stop_signal" type="text" class="tf-input font-mono" placeholder="SIGINT" value="SIGINT">
+        </div>
+      </div>
     </div>
   </div>
 
-  <button onclick="saveInstanceSection()" class="tf-btn tf-btn-accent w-full">💾 Save Environment (environment.json)</button>
+  <div class="tf-card">
+    <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Resource Limits (Default)</h3>
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Memory (MB)</label>
+        <input id="limits-memory" type="number" value="1024" class="tf-input">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">CPU Threads (%)</label>
+        <input id="limits-cpu" type="number" value="100" class="tf-input">
+      </div>
+      <div class="tf-field-short">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Disk (MB)</label>
+        <input id="limits-disk" type="number" value="5120" class="tf-input">
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 function updateImageField() {
-  // same logic as before (kept short for brevity)
   const type = document.getElementById('instanceType').value;
   const container = document.getElementById('imageContainer');
-  container.innerHTML = type === 'docker' || type === 'kvm' || type === 'proxmox' 
-    ? `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label><input id="environment-image" type="text" class="tf-input" placeholder="eclipse-temurin:21-jre">`
-    : `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Distribution</label><select id="environment-distribution" class="tf-input"><option value="ubuntu">Ubuntu</option></select>`;
+  if (type === 'docker') {
+    container.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label><input id="environment-image" type="text" class="tf-input" placeholder="ghcr.io/parkervcp/yolks:debian">`;
+  } else if (type === 'lxd' || type === 'multipass') {
+    container.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Distribution</label><select id="environment-distribution" class="tf-input"><option value="ubuntu:22.04">Ubuntu 22.04</option><option value="ubuntu:20.04">Ubuntu 20.04</option><option value="debian:11">Debian 11</option></select>`;
+  } else {
+    container.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ISO / Image Path</label><input id="environment-image" type="text" class="tf-input" placeholder="/var/lib/vz/template/iso/ubuntu.iso">`;
+  }
 }
 document.getElementById('instanceType').addEventListener('change', updateImageField);
-updateImageField();
-
-window.saveInstanceSection = async () => {
-  const data = {
-    instance_type: document.getElementById('instanceType').value,
-    image: document.getElementById('environment-image') ? document.getElementById('environment-image').value : '',
-    limits: {
-      memory: parseInt(document.getElementById('limits-memory').value),
-      cpu: parseInt(document.getElementById('limits-cpu').value),
-      disk: parseInt(document.getElementById('limits-disk').value)
-    }
-  };
-  await fetch('/admin/templates/save-environment', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(data)
-  });
-  showNotification('Environment saved as environment.json', 'success');
-};
 </script>

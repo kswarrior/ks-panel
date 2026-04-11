@@ -1,12 +1,137 @@
-<div id="pagesContainer" class="space-y-3"></div>
-<button onclick="addPage()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Page</button>
-<button onclick="savePagesSection()" class="tf-btn tf-btn-accent w-full">💾 Save Pages (pages.json)</button>
+<div id="pagesContainer" class="space-y-4 mb-6"></div>
+<button type="button" onclick="addPage()" class="tf-btn tf-btn-secondary text-xs">+ Add Custom Page</button>
+
+<template id="pageTemplate">
+  <div class="tf-card group">
+    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">×</button>
+    <div class="tf-row mb-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Page ID (slug)</label>
+        <input type="text" name="page-id" class="tf-input font-mono" placeholder="console" required>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">EJS Content</label>
+        <textarea name="page-ejs" class="tf-input h-48 font-mono text-xs" placeholder="<div>Your HTML/EJS here</div>"></textarea>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">JS Logic (Optional)</label>
+        <textarea name="page-js" class="tf-input h-48 font-mono text-xs" placeholder="// Your client-side JS here"></textarea>
+      </div>
+    </div>
+  </div>
+</template>
 
 <script>
-// full page logic
-window.savePagesSection = async () => {
-  const data = { pages: [] };
-  await fetch('/admin/templates/save-pages', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-  showNotification('Pages saved as pages.json', 'success');
-};
+function addPage() {
+  const container = document.getElementById('pagesContainer');
+  const temp = document.getElementById('pageTemplate');
+  container.appendChild(temp.content.cloneNode(true));
+}
+
+async function submitTemplate() {
+  const meta = {
+    id: document.getElementById('meta-id').value,
+    name: document.getElementById('meta-display_name').value || document.getElementById('meta-id').value,
+    description: document.getElementById('meta-description').value,
+    author: document.getElementById('meta-author').value,
+    version: "1.0.0"
+  };
+
+  if (!meta.id) return showNotification("Template ID is required", "error");
+
+  const category = document.getElementById('meta-category').value;
+
+  const environment = {
+    instance_type: document.getElementById('instanceType').value,
+    image: document.getElementById('environment-image')?.value || "",
+    distribution: document.getElementById('environment-distribution')?.value || "",
+    start_command: document.getElementById('environment-start_command').value,
+    stop_command: document.getElementById('environment-stop_command').value,
+    stop_signal: document.getElementById('environment-stop_signal').value,
+    limits: {
+      memory: parseInt(document.getElementById('limits-memory').value),
+      cpu: parseInt(document.getElementById('limits-cpu').value),
+      disk: parseInt(document.getElementById('limits-disk').value)
+    }
+  };
+
+  const variables = Array.from(document.querySelectorAll('#variablesContainer .tf-card')).map(card => ({
+    id: card.querySelector('[name="id"]').value,
+    name: card.querySelector('[name="name"]').value,
+    description: card.querySelector('[name="description"]').value,
+    default_value: card.querySelector('[name="default_value"]').value,
+    user_viewable: card.querySelector('[name="user_viewable"]').checked,
+    user_editable: card.querySelector('[name="user_editable"]').checked,
+    required: card.querySelector('[name="required"]').checked
+  }));
+
+  const actions = Array.from(document.querySelectorAll('#actionsContainer > .tf-card')).map(card => ({
+    trigger: card.querySelector('[name="trigger"]').value,
+    name: card.querySelector('[name="name"]').value,
+    operations: Array.from(card.querySelectorAll('[name="operationsContainer"] > div')).map(op => {
+      const type = op.querySelector('[name="type"]').value;
+      const data = { type };
+      if (type === 'file_edit') {
+        data.file = op.querySelector('[name="file"]').value;
+        data.find = op.querySelector('[name="find"]').value;
+      } else {
+        data.value = op.querySelector('[name="value"]').value;
+      }
+      return data;
+    })
+  }));
+
+  const install_steps = Array.from(document.querySelectorAll('#installStepsContainer .tf-card')).map(card => {
+    const type = card.querySelector('[name="type"]').value;
+    const data = { type };
+    if (type === 'download') {
+      data.url = card.querySelector('[name="url"]').value;
+      data.output = card.querySelector('[name="output"]').value;
+    } else if (type === 'extract' || type === 'write') {
+      data.path = card.querySelector('[name="path"]').value;
+      if (type === 'write') data.content = card.querySelector('[name="content"]').value;
+    } else {
+      data.command = card.querySelector('[name="command"]').value;
+    }
+    return data;
+  });
+
+  const pages = Array.from(document.querySelectorAll('#pagesContainer .tf-card')).map(card => ({
+    id: card.querySelector('[name="page-id"]').value,
+    ejsContent: card.querySelector('[name="page-ejs"]').value,
+    jsContent: card.querySelector('[name="page-js"]').value
+  }));
+
+  const payload = {
+    meta,
+    category,
+    environment: {
+      ...environment,
+      docker_image: environment.image || environment.distribution // support legacy
+    },
+    variables,
+    actions,
+    install_steps,
+    pages
+  };
+
+  try {
+    const res = await fetch('/admin/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.success) {
+      showNotification("Template created successfully!", "success");
+      setTimeout(() => window.location.href = '/admin/templates/overview', 1500);
+    } else {
+      showNotification(result.error || "Failed to create template", "error");
+    }
+  } catch (err) {
+    showNotification("Network error", "error");
+  }
+}
 </script>

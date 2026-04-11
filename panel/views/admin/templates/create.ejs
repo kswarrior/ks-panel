@@ -32,27 +32,45 @@
     <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
       <div>
         <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Template</h1>
-        <p class="mt-1 text-sm text-neutral-400">Each section saves its own separate JSON file</p>
+        <p class="mt-1 text-sm text-neutral-400">Define your server template with metadata, environment, variables, and more.</p>
       </div>
       <div class="flex gap-3">
         <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary">← Back</a>
       </div>
     </header>
 
-    <form id="templateForm" class="space-y-8 mt-8">
+    <form id="templateForm" class="space-y-8 mt-8 pb-20">
 
-      <!-- General Information (always visible) -->
+      <!-- General Information -->
       <div class="tf-section-divider"><h2>General Information</h2></div>
-      <div class="tf-row">
-        <div class="tf-field-long">
-          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ID <span class="text-red-400">*</span></label>
-          <input type="text" id="meta-id" required class="tf-input font-mono" placeholder="my-template-id">
+      <div class="tf-card space-y-4">
+        <div class="tf-row">
+          <div class="tf-field-long">
+            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Template ID <span class="text-red-400">*</span></label>
+            <input type="text" id="meta-id" required class="tf-input font-mono" placeholder="minecraft-paper-1.20">
+          </div>
+          <div class="tf-field-long">
+            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
+            <input type="text" id="meta-display_name" class="tf-input" placeholder="Minecraft Paper 1.20">
+          </div>
         </div>
-      </div>
-      <div class="tf-row">
+        <div class="tf-row">
+          <div class="tf-field-long">
+            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category</label>
+            <select id="meta-category" class="tf-input">
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat %>"><%= cat %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="tf-field-long">
+            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Author</label>
+            <input type="text" id="meta-author" class="tf-input" value="<%= user.username %>">
+          </div>
+        </div>
         <div class="tf-field-long">
-          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
-          <input type="text" id="meta-display_name" class="tf-input" placeholder="My Awesome Server">
+          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Description</label>
+          <textarea id="meta-description" class="tf-input h-20" placeholder="A high-performance Minecraft server using PaperMC."></textarea>
         </div>
       </div>
 
@@ -82,10 +100,14 @@
       <div id="installContent"><%- include('create/installsteps') %></div>
 
       <div class="tf-section-divider">
-        <h2>Pages</h2>
+        <h2>Custom Pages</h2>
         <button type="button" onclick="toggleSection('pagesContent', this)" class="tf-btn tf-btn-secondary text-xs">Hide</button>
       </div>
       <div id="pagesContent"><%- include('create/pages') %></div>
+
+      <div class="pt-10 border-t border-white/10">
+        <button type="button" onclick="submitTemplate()" class="tf-btn tf-btn-accent w-full py-4 text-base shadow-lg shadow-emerald-500/20">🚀 Create & Save Template</button>
+      </div>
 
     </form>
   </div>

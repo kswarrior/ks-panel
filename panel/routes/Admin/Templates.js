@@ -173,7 +173,7 @@ router.post("/admin/templates/category", isAdmin, (req, res) => {
 
 router.post("/admin/templates", isAdmin, (req, res) => {
   try {
-    const { meta, category, environment, variables = [], actions = [], pages = [] } = req.body;
+    const { meta, category, environment, variables = [], actions = [], install_steps = [], pages = [] } = req.body;
 
     if (!meta?.name?.trim() || !category || !environment?.docker_image) {
       return res.status(400).json({ error: "Missing required fields: name, category, docker_image" });
@@ -199,7 +199,8 @@ router.post("/admin/templates", isAdmin, (req, res) => {
       category,
       environment,
       variables,
-      actions
+      actions,
+      install_steps
     });
 
     // Save page files
@@ -246,7 +247,7 @@ router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    const { meta, category, environment, variables = [], actions = [], pages = [] } = req.body;
+    const { meta, category, environment, variables = [], actions = [], install_steps = [], pages = [] } = req.body;
 
     if (!meta?.name?.trim()) {
       return res.status(400).json({ error: "Template name is required" });
@@ -276,7 +277,8 @@ router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
       category,
       environment,
       variables,
-      actions
+      actions,
+      install_steps
     });
 
     // Clear old page files
