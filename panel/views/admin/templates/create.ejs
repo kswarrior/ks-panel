@@ -1,138 +1,321 @@
 <%- include('../../components/template') %>
 
 <style>
-/* ====================== SCOPED STYLES - ONLY AFFECT #templateForm ====================== */
-#templateForm .tf-input { width: 100%; padding: 0.875rem 1rem; background-color: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; color: white; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; font-size: 0.9375rem; line-height: 1.5; font-family: inherit; }
-#templateForm .tf-input::placeholder { color: rgba(255,255,255,0.35); }
-#templateForm .tf-input:focus { border-color: rgba(255,255,255,0.4); box-shadow: 0 0 0 2px rgba(255,255,255,0.08); }
-#templateForm select.tf-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.25rem; padding-right: 2.5rem; }
+/* ====================== POWER UI STYLES ====================== */
+#templateForm .tf-input { width: 100%; padding: 0.75rem 1rem; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: white; outline: none; transition: all 0.2s; box-sizing: border-box; font-size: 0.875rem; line-height: 1.5; }
+#templateForm .tf-input:focus { border-color: rgba(255,255,255,0.3); background-color: rgba(255,255,255,0.05); }
+#templateForm select.tf-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.25rem; }
+#templateForm .tf-card { border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); border-radius: 0.75rem; padding: 1.25rem; position: relative; }
+#templateForm .tf-section-divider { display: flex; align-items: center; gap: 1rem; margin: 3rem 0 1.5rem; }
+#templateForm .tf-section-divider::before, #templateForm .tf-section-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); }
+#templateForm .tf-section-divider h2 { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; margin: 0; }
+#templateForm .tf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
+#templateForm .tf-btn-secondary { background: rgba(255,255,255,0.05); color: white; border-color: rgba(255,255,255,0.1); }
+#templateForm .tf-btn-accent { background: #10b981; color: white; }
+#templateForm .tf-remove-btn { position: absolute; top: 0.5rem; right: 0.5rem; color: #ef4444; opacity: 0.5; cursor: pointer; font-size: 1.25rem; }
 #templateForm .tf-row { display: flex; flex-wrap: wrap; gap: 1rem; width: 100%; }
 #templateForm .tf-field-long, #templateForm .tf-field-short { display: flex; flex-direction: column; gap: 0.375rem; flex: 1 1 100%; min-width: 0; }
-#templateForm .tf-card { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 0.75rem; padding: 1.25rem; position: relative; transition: border-color 0.2s; }
-#templateForm .tf-card:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); }
-#templateForm .tf-section-divider { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1.5rem; }
-#templateForm .tf-section-divider::before, #templateForm .tf-section-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); }
-#templateForm .tf-section-divider h2 { font-size: 0.875rem; font-weight: 600; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; margin: 0; }
-#templateForm .tf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; border: 1px solid transparent; cursor: pointer; min-height: 2.5rem; background: none; font-family: inherit; }
-#templateForm .tf-btn-secondary { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white; }
-#templateForm .tf-btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-#templateForm .tf-btn-accent { background: rgba(16,185,129,0.9); color: white; }
-#templateForm .tf-btn-accent:hover { background: rgba(16,185,129,1); }
-#templateForm .tf-remove-btn { position: absolute; top: 0.75rem; right: 0.75rem; width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; background: rgba(239,68,68,0.1); color: #ef4444; border: none; border-radius: 0.375rem; font-size: 1.125rem; cursor: pointer; }
-#templateForm .tf-hidden { display: none !important; }
 
-/* Notification */
-#tf-notification { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; max-width: calc(100vw - 2rem); display: none; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-#tf-notification.tf-show { display: flex; }
+#tf-notification { position: fixed; bottom: 2rem; right: 2rem; z-index: 100; display: none; padding: 1rem 1.5rem; border-radius: 0.75rem; color: white; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+#tf-notification.show { display: block; animation: slideIn 0.3s ease-out; }
+@keyframes slideIn { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 
 <main id="content" class="min-h-screen">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     
-    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/5">
       <div>
-        <h1 class="text-2xl font-semibold text-white tracking-tight">Create New Template</h1>
-        <p class="mt-1 text-sm text-neutral-400">Define your server template with metadata, environment, variables, and more.</p>
+        <h1 class="text-3xl font-bold text-white tracking-tight">Create Power Template</h1>
+        <p class="mt-2 text-neutral-400">Design powerful templates with custom consoles, security rules, and multi-infra support.</p>
       </div>
       <div class="flex gap-3">
-        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary">← Back</a>
+        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary px-6 py-2.5">Cancel</a>
+        <button type="button" onclick="submitTemplate()" class="tf-btn tf-btn-accent px-8 py-2.5 shadow-lg shadow-emerald-500/20">🚀 Publish Template</button>
       </div>
     </header>
 
-    <form id="templateForm" class="space-y-8 mt-8 pb-20">
+    <form id="templateForm" class="mt-12 pb-32">
 
-      <!-- General Information -->
+      <!-- 1. General Info -->
       <div class="tf-section-divider"><h2>General Information</h2></div>
-      <div class="tf-card space-y-4">
-        <div class="tf-row">
+      <div class="tf-card space-y-4 shadow-xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="tf-field-long">
-            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Template ID <span class="text-red-400">*</span></label>
-            <input type="text" id="meta-id" required class="tf-input font-mono" placeholder="minecraft-paper-1.20">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase">Template ID (Unique)</label>
+            <input type="text" id="meta-id" required class="tf-input font-mono" placeholder="my-awesome-template">
           </div>
           <div class="tf-field-long">
-            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
-            <input type="text" id="meta-display_name" class="tf-input" placeholder="Minecraft Paper 1.20">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+            <input type="text" id="meta-display_name" class="tf-input" placeholder="My Awesome Template">
           </div>
         </div>
-        <div class="tf-row">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="tf-field-long">
-            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category</label>
+            <label class="text-[10px] font-bold text-neutral-500 uppercase">Category</label>
             <select id="meta-category" class="tf-input">
-              <% categories.forEach(cat => { %>
-                <option value="<%= cat %>"><%= cat %></option>
-              <% }) %>
+              <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
             </select>
           </div>
           <div class="tf-field-long">
-            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Author</label>
-            <input type="text" id="meta-author" class="tf-input" value="<%= user.username %>">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase">Template Type</label>
+            <select id="meta-type" class="tf-input">
+              <option value="app">Standard Application</option>
+              <option value="game">Game Server</option>
+              <option value="db">Database Engine</option>
+              <option value="custom">Custom Power Template</option>
+            </select>
           </div>
         </div>
-        <div class="tf-field-long">
-          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Description</label>
-          <textarea id="meta-description" class="tf-input h-20" placeholder="A high-performance Minecraft server using PaperMC."></textarea>
+      </div>
+
+      <!-- 2. Environment & Infra -->
+      <div class="tf-section-divider"><h2>Infrastructure & Environment</h2></div>
+      <%- include('create/instance') %>
+
+      <!-- 3. Dynamic Variables -->
+      <div class="tf-section-divider"><h2>Environment Variables</h2></div>
+      <%- include('create/variables') %>
+
+      <!-- 4. Lifecycle & Install -->
+      <div class="tf-section-divider"><h2>Automation Workflow</h2></div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-[10px] font-bold text-neutral-400 mb-4 uppercase tracking-widest">Lifecycle Actions (Triggers)</h3>
+          <%- include('create/actions') %>
+        </div>
+        <div>
+          <h3 class="text-[10px] font-bold text-neutral-400 mb-4 uppercase tracking-widest">Installation Steps</h3>
+          <%- include('create/installsteps') %>
         </div>
       </div>
 
-      <!-- Toggleable Sections -->
-      <div class="tf-section-divider">
-        <h2>Environment</h2>
-        <button type="button" onclick="toggleSection('instanceContent', this)" class="tf-btn tf-btn-secondary text-xs">Hide</button>
+      <!-- 5. Security & Blocks -->
+      <div class="tf-section-divider"><h2>Security Constraints</h2></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- File Security -->
+        <div class="tf-card">
+           <div class="flex justify-between items-center mb-4">
+             <h3 class="text-[10px] font-bold text-neutral-400 uppercase">File Access Rules</h3>
+             <button type="button" onclick="addFileRule()" class="tf-btn tf-btn-secondary py-1 text-[9px]">+ Add Rule</button>
+           </div>
+           <div id="fileRulesContainer" class="space-y-2"></div>
+        </div>
+        <!-- Port Security -->
+        <div class="tf-card">
+           <div class="flex justify-between items-center mb-4">
+             <h3 class="text-[10px] font-bold text-neutral-400 uppercase">Network Restrictions</h3>
+             <button type="button" onclick="addPortRule()" class="tf-btn tf-btn-secondary py-1 text-[9px]">+ Add Rule</button>
+           </div>
+           <div id="portRulesContainer" class="space-y-2"></div>
+        </div>
       </div>
-      <div id="instanceContent"><%- include('create/instance') %></div>
 
-      <div class="tf-section-divider">
-        <h2>Variables</h2>
-        <button type="button" onclick="toggleSection('variablesContent', this)" class="tf-btn tf-btn-secondary text-xs">Hide</button>
-      </div>
-      <div id="variablesContent"><%- include('create/variables') %></div>
-
-      <div class="tf-section-divider">
-        <h2>Actions</h2>
-        <button type="button" onclick="toggleSection('actionsContent', this)" class="tf-btn tf-btn-secondary text-xs">Hide</button>
-      </div>
-      <div id="actionsContent"><%- include('create/actions') %></div>
-
-      <div class="tf-section-divider">
-        <h2>Install Steps</h2>
-        <button type="button" onclick="toggleSection('installContent', this)" class="tf-btn tf-btn-secondary text-xs">Hide</button>
-      </div>
-      <div id="installContent"><%- include('create/installsteps') %></div>
-
-      <div class="tf-section-divider">
-        <h2>Custom Pages</h2>
-        <button type="button" onclick="toggleSection('pagesContent', this)" class="tf-btn tf-btn-secondary text-xs">Hide</button>
-      </div>
-      <div id="pagesContent"><%- include('create/pages') %></div>
-
-      <div class="pt-10 border-t border-white/10">
-        <button type="button" onclick="submitTemplate()" class="tf-btn tf-btn-accent w-full py-4 text-base shadow-lg shadow-emerald-500/20">🚀 Create & Save Template</button>
-      </div>
+      <!-- 6. Custom Pages & Advanced UI -->
+      <div class="tf-section-divider"><h2>Advanced User Interface</h2></div>
+      <%- include('create/pages') %>
 
     </form>
   </div>
 </main>
 
-<div id="tf-notification"><span id="tf-notification-text"></span></div>
+<div id="tf-notification"></div>
+
+<!-- Security Templates -->
+<template id="fileRuleTemplate">
+  <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg border border-white/5 relative">
+    <div class="flex-1"><input type="text" name="rule-path" class="tf-input py-1 text-xs" placeholder="e.g. config/*.env"></div>
+    <div class="w-32">
+      <select name="rule-mode" class="tf-input py-1 text-xs">
+        <option value="block">Block Full</option>
+        <option value="readonly">Read Only</option>
+        <option value="hide">Hide completely</option>
+      </select>
+    </div>
+    <button type="button" class="text-neutral-500 px-1" onclick="this.parentElement.remove()">×</button>
+  </div>
+</template>
+
+<template id="portRuleTemplate">
+  <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg border border-white/5 relative">
+    <div class="flex-1"><input type="text" name="rule-range" class="tf-input py-1 text-xs" placeholder="e.g. 80, 443, 3000-4000"></div>
+    <div class="w-32">
+      <select name="rule-policy" class="tf-input py-1 text-xs">
+        <option value="deny">Deny / Block</option>
+        <option value="allow">Allow Only</option>
+      </select>
+    </div>
+    <button type="button" class="text-neutral-500 px-1" onclick="this.parentElement.remove()">×</button>
+  </div>
+</template>
 
 <script>
-function toggleSection(id, btn) {
-  const content = document.getElementById(id);
-  if (content.style.display === 'none') {
-    content.style.display = 'block';
-    btn.textContent = 'Hide';
-  } else {
-    content.style.display = 'none';
-    btn.textContent = 'Show';
-  }
+function addFileRule() {
+  document.getElementById('fileRulesContainer').appendChild(document.getElementById('fileRuleTemplate').content.cloneNode(true));
+}
+function addPortRule() {
+  document.getElementById('portRulesContainer').appendChild(document.getElementById('portRuleTemplate').content.cloneNode(true));
 }
 
 function showNotification(msg, type = 'success') {
   const n = document.getElementById('tf-notification');
-  document.getElementById('tf-notification-text').textContent = msg;
-  n.className = `fixed flex items-center gap-3 px-4 py-3 rounded-lg shadow-2xl text-sm font-medium z-[9999] transition-all duration-300 ${type === 'error' ? 'bg-red-600' : 'bg-emerald-600'} text-white`;
-  n.classList.add('tf-show');
-  setTimeout(() => n.classList.remove('tf-show'), 2800);
+  n.textContent = msg;
+  n.className = `fixed bottom-8 right-8 px-6 py-3 rounded-xl shadow-2xl text-sm font-semibold z-[100] ${type === 'error' ? 'bg-red-600' : 'bg-emerald-600'} text-white show`;
+  setTimeout(() => n.classList.remove('show'), 3000);
+}
+
+async function submitTemplate() {
+  const meta = {
+    id: document.getElementById('meta-id').value,
+    name: document.getElementById('meta-display_name').value || document.getElementById('meta-id').value,
+    category: document.getElementById('meta-category').value,
+    type: document.getElementById('meta-type').value,
+    author: "<%= user.username %>",
+    version: "1.0.0"
+  };
+
+  if (!meta.id) return showNotification("Template ID is required", "error");
+
+  const environment = {
+    instance_type: document.getElementById('instanceType').value,
+    image: document.getElementById('environment-image')?.value || "",
+    distribution: document.getElementById('environment-distribution')?.value || "",
+    start_command: document.getElementById('environment-start_command').value,
+    stop_command: document.getElementById('environment-stop_command').value,
+    stop_signal: document.getElementById('environment-stop_signal').value,
+    limits: {
+      memory: parseInt(document.getElementById('limits-memory').value),
+      cpu: parseInt(document.getElementById('limits-cpu').value),
+      disk: parseInt(document.getElementById('limits-disk').value),
+      swap: parseInt(document.getElementById('limits-swap').value)
+    },
+    ports: Array.from(document.querySelectorAll('#portsContainer > div')).map(row => ({
+      host: parseInt(row.querySelector('[name="port-host"]').value),
+      guest: parseInt(row.querySelector('[name="port-guest"]').value),
+      protocol: row.querySelector('[name="port-protocol"]').value
+    })),
+    mounts: Array.from(document.querySelectorAll('#mountsContainer > div')).map(row => ({
+      source: row.querySelector('[name="mount-source"]').value,
+      target: row.querySelector('[name="mount-target"]').value,
+      mode: row.querySelector('[name="mount-mode"]').value
+    }))
+  };
+
+  const variables = Array.from(document.querySelectorAll('#variablesContainer .tf-card')).map(card => ({
+    id: card.querySelector('[name="id"]').value,
+    name: card.querySelector('[name="name"]').value,
+    description: card.querySelector('[name="description"]').value,
+    default_value: card.querySelector('[name="default_value"]').value,
+    user_viewable: card.querySelector('[name="user_viewable"]').checked,
+    user_editable: card.querySelector('[name="user_editable"]').checked,
+    required: card.querySelector('[name="required"]').checked
+  }));
+
+  const actions = Array.from(document.querySelectorAll('#actionsContainer > .tf-card')).map(card => ({
+    trigger: card.querySelector('[name="trigger"]').value,
+    name: card.querySelector('[name="name"]').value,
+    operations: Array.from(card.querySelectorAll('[name="operationsContainer"] > div')).map(op => {
+      const type = op.querySelector('[name="type"]').value;
+      const data = { type };
+      if (type === 'file_edit') {
+        data.file = op.querySelector('[name="file"]').value;
+        data.find = op.querySelector('[name="find"]').value;
+      } else {
+        data.value = op.querySelector('[name="value"]').value;
+      }
+      return data;
+    })
+  }));
+
+  const install_steps = Array.from(document.querySelectorAll('#installStepsContainer .tf-card')).map(card => {
+    const type = card.querySelector('[name="type"]').value;
+    const data = { type };
+    if (type === 'download') {
+      data.url = card.querySelector('[name="url"]').value;
+      data.output = card.querySelector('[name="output"]').value;
+    } else if (type === 'extract' || type === 'write') {
+      data.path = card.querySelector('[name="path"]').value;
+      if (type === 'write') data.content = card.querySelector('[name="content"]').value;
+    } else {
+      data.command = card.querySelector('[name="command"]').value;
+    }
+    return data;
+  });
+
+  const security = {
+    file_rules: Array.from(document.querySelectorAll('#fileRulesContainer > div')).map(row => ({
+      path: row.querySelector('[name="rule-path"]').value,
+      mode: row.querySelector('[name="rule-mode"]').value
+    })),
+    port_rules: Array.from(document.querySelectorAll('#portRulesContainer > div')).map(row => ({
+      range: row.querySelector('[name="rule-range"]').value,
+      policy: row.querySelector('[name="rule-policy"]').value
+    }))
+  };
+
+  const pages = Array.from(document.querySelectorAll('#pagesContainer > div.tf-card')).map(card => {
+    const type = card.querySelector('[name="page-type"]').value;
+    const p = {
+      id: card.querySelector('[name="page-id"]').value,
+      name: card.querySelector('[name="page-name"]').value,
+      type: type,
+      ejsContent: card.querySelector('[name="page-ejs"]')?.value || "",
+      jsContent: card.querySelector('[name="page-js"]')?.value || "",
+      config: {}
+    };
+
+    if (type === 'console') {
+      p.config = {
+        buttons: Array.from(card.querySelectorAll('.console-btns-container > div')).map(row => ({
+          label: row.querySelector('[name="btn-label"]').value,
+          command: row.querySelector('[name="btn-cmd"]').value,
+          type: row.querySelector('[name="btn-type"]').value,
+          style: row.querySelector('[name="btn-style"]').value
+        })),
+        macros: Array.from(card.querySelectorAll('.quick-codes-container > div')).map(row => ({
+          name: row.querySelector('[name="code-name"]').value,
+          body: row.querySelector('[name="code-body"]').value
+        })),
+        conditions: {
+          overload: card.querySelector('[name="overload-condition"]').value,
+          log_trigger: card.querySelector('[name="log-trigger"]').value
+        },
+        features: {
+           graphs: card.querySelector('[name="show-graphs"]').checked,
+           info: card.querySelector('[name="show-info"]').checked
+        }
+      };
+    }
+    return p;
+  });
+
+  const payload = {
+    meta,
+    category: meta.category,
+    environment: { ...environment, docker_image: environment.image || environment.distribution },
+    variables,
+    actions,
+    install_steps,
+    security,
+    pages
+  };
+
+  try {
+    const res = await fetch('/admin/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.success) {
+      showNotification("Template published successfully!");
+      setTimeout(() => window.location.href = '/admin/templates/overview', 1000);
+    } else {
+      showNotification(result.error || "Publication failed", "error");
+    }
+  } catch (err) {
+    showNotification("Network error", "error");
+  }
 }
 </script>
 

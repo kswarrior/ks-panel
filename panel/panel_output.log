@@ -1,0 +1,27 @@
+ 04/11 17:45:04   info    Config updated with random values.
+    __ _______    ____                   __
+   / //_/ ___/   / __ \____ _____  ___  / /
+  / ,<  \__ \   / /_/ / __ `/ __ \/ _ \/ /
+ / /| |___/ /  / ____/ /_/ / / / /  __/ /
+/_/ |_/____/  /_/    \__,_/_/ /_/\___/_/
+
+❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version v1.0.0
+
+ 04/11 17:45:05   info    KS Panel is listening on port 8080
+ 04/11 17:45:05   debug   Server ready - routes loaded
+ 04/11 17:45:05   info    Loading plugins...
+ 04/11 17:45:05   info    Loading plugin 'example_plugin', enabled: false
+ 04/11 17:45:05   warn    Module not found for plugin 'example_plugin' in '/app/database/plugins/example_plugin'. Attempting to install 'find'...
+ 04/11 17:45:05   info    KS Panel init complete!
+ 04/11 17:45:06   info    Successfully installed module find.
+ 04/11 17:45:06   error   Validation error in plugin 'example_plugin': Main file 'main.js' not found in '/app/database/plugins/example_plugin'.
+ 04/11 17:45:06   error   Plugin 'example_plugin' has validation errors but will still be listed.
+ 04/11 17:45:06   error   Error loading plugin 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+Require stack:
+- /app/panel/plugins/pluginManager.js
+- /app/panel/index.js.
+ 04/11 17:45:06   info    plugins.json successfully written.
+ 04/11 17:45:06   error   Errors occurred while loading plugins: Validation errors in 'example_plugin', Loading error in 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+Require stack:
+- /app/panel/plugins/pluginManager.js
+- /app/panel/index.js

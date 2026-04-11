@@ -173,7 +173,7 @@ router.post("/admin/templates/category", isAdmin, (req, res) => {
 
 router.post("/admin/templates", isAdmin, (req, res) => {
   try {
-    const { meta, category, environment, variables = [], actions = [], install_steps = [], pages = [] } = req.body;
+    const { meta, category, environment, variables = [], actions = [], install_steps = [], security = {}, pages = [] } = req.body;
 
     if (!meta?.name?.trim() || !category || !environment?.docker_image) {
       return res.status(400).json({ error: "Missing required fields: name, category, docker_image" });
@@ -193,17 +193,19 @@ router.post("/admin/templates", isAdmin, (req, res) => {
     fs.mkdirSync(dirPath, { recursive: true });
     fs.mkdirSync(path.join(dirPath, "pages"), { recursive: true });
 
-    // Save main.json (without pages array)
+    // Save main.json
     writeJson(path.join(dirPath, "main.json"), {
       meta,
       category,
       environment,
       variables,
       actions,
-      install_steps
+      install_steps,
+      security,
+      pages: pages.map(p => ({ id: p.id, type: p.type, name: p.name, config: p.config })) // Metadata only
     });
 
-    // Save page files
+    // Save page files (EJS/JS)
     pages.forEach(p => {
       if (!p.id?.trim()) return;
       const safeId = p.id.trim().replace(/[^a-z0-9_-]/gi, "");
@@ -247,7 +249,7 @@ router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
       return res.status(404).json({ error: "Template not found" });
     }
 
-    const { meta, category, environment, variables = [], actions = [], install_steps = [], pages = [] } = req.body;
+    const { meta, category, environment, variables = [], actions = [], install_steps = [], security = {}, pages = [] } = req.body;
 
     if (!meta?.name?.trim()) {
       return res.status(400).json({ error: "Template name is required" });
@@ -278,7 +280,9 @@ router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
       environment,
       variables,
       actions,
-      install_steps
+      install_steps,
+      security,
+      pages: pages.map(p => ({ id: p.id, type: p.type, name: p.name, config: p.config }))
     });
 
     // Clear old page files
