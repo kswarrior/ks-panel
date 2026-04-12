@@ -1,24 +1,103 @@
 <div class="tf-card mb-6 border-blue-500/20 bg-blue-500/5">
   <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-wider">Core Features (Enable/Disable)</h3>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Console -->
     <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
       <div>
         <p class="text-xs font-bold text-white">Power Console</p>
-        <p class="text-[10px] text-neutral-500">Real-time terminal & stats</p>
+        <p class="text-[10px] text-neutral-500">Terminal & Power</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" id="toggle-console" name="feature-console" checked class="sr-only peer" onchange="syncCorePage('console')">
         <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
       </label>
     </div>
+    <!-- Files -->
     <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
       <div>
         <p class="text-xs font-bold text-white">File Manager</p>
-        <p class="text-[10px] text-neutral-500">Full file system access</p>
+        <p class="text-[10px] text-neutral-500">File Access</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" id="toggle-files" name="feature-files" class="sr-only peer" onchange="syncCorePage('files')">
         <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+      </label>
+    </div>
+    <!-- Ports -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Network (Ports)</p>
+        <p class="text-[10px] text-neutral-500">Port Allocations</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-ports" name="feature-ports" class="sr-only peer" onchange="syncCorePage('ports')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+      </label>
+    </div>
+    <!-- Databases -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Databases</p>
+        <p class="text-[10px] text-neutral-500">DB Management</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-databases" name="feature-databases" class="sr-only peer" onchange="syncCorePage('databases')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+      </label>
+    </div>
+    <!-- Backups -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Backups</p>
+        <p class="text-[10px] text-neutral-500">Snapshots</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-backups" name="feature-backups" class="sr-only peer" onchange="syncCorePage('backups')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+      </label>
+    </div>
+    <!-- Users -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Sub-Users</p>
+        <p class="text-[10px] text-neutral-500">Access Control</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-users" name="feature-users" class="sr-only peer" onchange="syncCorePage('users')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+      </label>
+    </div>
+    <!-- Schedules -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Schedules</p>
+        <p class="text-[10px] text-neutral-500">Automation</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-schedules" name="feature-schedules" class="sr-only peer" onchange="syncCorePage('schedules')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+      </label>
+    </div>
+    <!-- Startup -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Startup</p>
+        <p class="text-[10px] text-neutral-500">Boot Settings</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-startup" name="feature-startup" class="sr-only peer" onchange="syncCorePage('startup')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+      </label>
+    </div>
+    <!-- Settings -->
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Settings</p>
+        <p class="text-[10px] text-neutral-500">Server Info</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-settings" name="feature-settings" class="sr-only peer" onchange="syncCorePage('settings')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-600"></div>
       </label>
     </div>
   </div>
@@ -31,7 +110,14 @@
     <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-neutral-900 border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
       <button type="button" onclick="addPage('generic')" class="w-full text-left px-4 py-2 text-[10px] text-neutral-300 hover:bg-white/5 hover:text-white uppercase font-bold tracking-widest border-b border-white/5">Custom Page</button>
       <button type="button" onclick="addPage('console')" class="w-full text-left px-4 py-2 text-[10px] text-emerald-400 hover:bg-white/5 hover:text-emerald-300 uppercase font-bold tracking-widest border-b border-white/5">⚡ Power Console</button>
-      <button type="button" onclick="addPage('files')" class="w-full text-left px-4 py-2 text-[10px] text-blue-400 hover:bg-white/5 hover:text-blue-300 uppercase font-bold tracking-widest">📁 File Manager</button>
+      <button type="button" onclick="addPage('files')" class="w-full text-left px-4 py-2 text-[10px] text-blue-400 hover:bg-white/5 hover:text-blue-300 uppercase font-bold tracking-widest border-b border-white/5">📁 File Manager</button>
+      <button type="button" onclick="addPage('ports')" class="w-full text-left px-4 py-2 text-[10px] text-amber-400 hover:bg-white/5 hover:text-amber-300 uppercase font-bold tracking-widest border-b border-white/5">🌐 Network</button>
+      <button type="button" onclick="addPage('databases')" class="w-full text-left px-4 py-2 text-[10px] text-red-400 hover:bg-white/5 hover:text-red-300 uppercase font-bold tracking-widest border-b border-white/5">💾 Databases</button>
+      <button type="button" onclick="addPage('backups')" class="w-full text-left px-4 py-2 text-[10px] text-purple-400 hover:bg-white/5 hover:text-purple-300 uppercase font-bold tracking-widest border-b border-white/5">🗄️ Backups</button>
+      <button type="button" onclick="addPage('users')" class="w-full text-left px-4 py-2 text-[10px] text-cyan-400 hover:bg-white/5 hover:text-cyan-300 uppercase font-bold tracking-widest border-b border-white/5">👥 Sub-Users</button>
+      <button type="button" onclick="addPage('schedules')" class="w-full text-left px-4 py-2 text-[10px] text-orange-400 hover:bg-white/5 hover:text-orange-300 uppercase font-bold tracking-widest border-b border-white/5">⏰ Schedules</button>
+      <button type="button" onclick="addPage('startup')" class="w-full text-left px-4 py-2 text-[10px] text-indigo-400 hover:bg-white/5 hover:text-indigo-300 uppercase font-bold tracking-widest border-b border-white/5">🚀 Startup</button>
+      <button type="button" onclick="addPage('settings')" class="w-full text-left px-4 py-2 text-[10px] text-slate-400 hover:bg-white/5 hover:text-slate-300 uppercase font-bold tracking-widest">⚙️ Settings</button>
     </div>
   </div>
 </div>
@@ -51,6 +137,146 @@
       <div class="tf-field-long">
         <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
         <input type="text" name="page-name" class="tf-input" value="File Manager">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="schedulesPageTemplate">
+  <div class="tf-card border-orange-500/20 bg-orange-500/5" data-core-type="schedules">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-orange-400 uppercase tracking-tighter">Schedules & Tasks</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('schedules')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="schedules">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="schedules" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Schedules">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="startupPageTemplate">
+  <div class="tf-card border-indigo-500/20 bg-indigo-500/5" data-core-type="startup">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-tighter">Startup Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('startup')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="startup">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="startup" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Startup Settings">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="settingsPageTemplate">
+  <div class="tf-card border-slate-500/20 bg-slate-500/5" data-core-type="settings">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-slate-400 uppercase tracking-tighter">Server Settings</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('settings')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="settings">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="settings" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Settings">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="portsPageTemplate">
+  <div class="tf-card border-amber-500/20 bg-amber-500/5" data-core-type="ports">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-amber-400 uppercase tracking-tighter">Network Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('ports')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="ports">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="network" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Network Allocations">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="databasesPageTemplate">
+  <div class="tf-card border-red-500/20 bg-red-500/5" data-core-type="databases">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-red-400 uppercase tracking-tighter">Database Management</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('databases')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="databases">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="databases" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Databases">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="backupsPageTemplate">
+  <div class="tf-card border-purple-500/20 bg-purple-500/5" data-core-type="backups">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-purple-400 uppercase tracking-tighter">Backup Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('backups')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="backups">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="backups" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Backups">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="usersPageTemplate">
+  <div class="tf-card border-cyan-500/20 bg-cyan-500/5" data-core-type="users">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-tighter">Sub-User Management</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('users')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="users">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="users" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Users & Permissions">
       </div>
     </div>
   </div>
@@ -202,17 +428,25 @@ function confirmRemoval(btn) {
 function addPage(type) {
   const container = document.getElementById('pagesContainer');
   const existing = container.querySelector(`[data-core-type="${type}"]`);
-  if ((type === 'console' || type === 'files') && existing) return;
+  const coreTypes = ['console', 'files', 'ports', 'databases', 'backups', 'users', 'schedules', 'startup', 'settings'];
+  if (coreTypes.includes(type) && existing) return;
 
   let tempId = 'genericPageTemplate';
   if (type === 'console') tempId = 'consolePageTemplate';
-  if (type === 'files') tempId = 'filesPageTemplate';
+  else if (type === 'files') tempId = 'filesPageTemplate';
+  else if (type === 'ports') tempId = 'portsPageTemplate';
+  else if (type === 'databases') tempId = 'databasesPageTemplate';
+  else if (type === 'backups') tempId = 'backupsPageTemplate';
+  else if (type === 'users') tempId = 'usersPageTemplate';
+  else if (type === 'schedules') tempId = 'schedulesPageTemplate';
+  else if (type === 'startup') tempId = 'startupPageTemplate';
+  else if (type === 'settings') tempId = 'settingsPageTemplate';
 
   const clone = document.getElementById(tempId).content.cloneNode(true);
   container.appendChild(clone);
 
-  if (type === 'files') {
-    const toggle = document.getElementById('toggle-files');
+  if (coreTypes.includes(type)) {
+    const toggle = document.getElementById(`toggle-${type}`);
     if (toggle) toggle.checked = true;
   }
 
@@ -249,6 +483,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     syncCorePage('console');
     syncCorePage('files');
+    syncCorePage('ports');
+    syncCorePage('databases');
+    syncCorePage('backups');
+    syncCorePage('users');
+    syncCorePage('schedules');
+    syncCorePage('startup');
+    syncCorePage('settings');
   }, 100);
 });
 

@@ -245,10 +245,15 @@ async function submitTemplate() {
     image: document.getElementById('environment-image')?.value || "",
     distribution: document.getElementById('environment-distribution')?.value || "",
     limits: {
-      memory: parseInt(document.getElementById('limits-memory').value),
-      cpu: parseInt(document.getElementById('limits-cpu').value),
-      disk: parseInt(document.getElementById('limits-disk').value),
-      swap: parseInt(document.getElementById('limits-swap').value)
+      memory: parseInt(document.getElementById('limits-memory').value) || 0,
+      cpu: parseInt(document.getElementById('limits-cpu').value) || 0,
+      disk: parseInt(document.getElementById('limits-disk').value) || 0,
+      swap: parseInt(document.getElementById('limits-swap').value) || 0
+    },
+    feature_limits: {
+      databases: parseInt(document.getElementById('limits-databases').value) || 0,
+      backups: parseInt(document.getElementById('limits-backups').value) || 0,
+      allocations: parseInt(document.getElementById('limits-allocations').value) || 0
     },
     ports: Array.from(document.querySelectorAll('#portsContainer > div')).map(row => ({
       host: parseInt(row.querySelector('[name="port-host"]').value),
@@ -323,13 +328,26 @@ async function submitTemplate() {
     return p;
   });
 
+  const features = {
+    console: document.getElementById('toggle-console')?.checked || false,
+    files: document.getElementById('toggle-files')?.checked || false,
+    ports: document.getElementById('toggle-ports')?.checked || false,
+    databases: document.getElementById('toggle-databases')?.checked || false,
+    backups: document.getElementById('toggle-backups')?.checked || false,
+    users: document.getElementById('toggle-users')?.checked || false,
+    schedules: document.getElementById('toggle-schedules')?.checked || false,
+    startup: document.getElementById('toggle-startup')?.checked || false,
+    settings: document.getElementById('toggle-settings')?.checked || false
+  };
+
   const payload = {
     meta,
     category: meta.category,
     environment: { ...environment, docker_image: environment.image || environment.distribution },
     variables,
     install_steps,
-    pages
+    pages,
+    features
   };
 
   try {

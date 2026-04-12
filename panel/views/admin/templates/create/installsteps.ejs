@@ -39,30 +39,40 @@ function confirmRemoval(btn) {
   }
 }
 
-function addInstallStep() {
+function addInstallStep(data = {}) {
   const container = document.getElementById('installStepsContainer');
   const temp = document.getElementById('installStepTemplate');
-  container.appendChild(temp.content.cloneNode(true));
+  const clone = temp.content.cloneNode(true);
+  const card = clone.querySelector('.tf-card');
+
+  if (data.type) {
+    const select = card.querySelector('[name="type"]');
+    select.value = data.type;
+    updateInstallFields(select, data);
+  }
+
+  container.appendChild(clone);
   if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
 
-function updateInstallFields(select) {
+function updateInstallFields(select, data = {}) {
+function updateInstallFields(select, data = {}) {
   const container = select.parentElement.nextElementSibling;
   const type = select.value;
   if (type === 'download') {
     container.innerHTML = `<div class="grid grid-cols-2 gap-2">
-      <div><label class="text-[10px] text-neutral-500 uppercase">URL</label><input type="text" name="url" class="tf-input py-2 text-xs" placeholder="https://example.com/file.jar"></div>
-      <div><label class="text-[10px] text-neutral-500 uppercase">Output Name</label><input type="text" name="output" class="tf-input py-2 text-xs" placeholder="server.jar"></div>
+      <div><label class="text-[10px] text-neutral-500 uppercase">URL</label><input type="text" name="url" value="${data.url || ''}" class="tf-input py-2 text-xs" placeholder="https://example.com/file.jar"></div>
+      <div><label class="text-[10px] text-neutral-500 uppercase">Output Name</label><input type="text" name="output" value="${data.output || ''}" class="tf-input py-2 text-xs" placeholder="server.jar"></div>
     </div>`;
-  } else if (type === 'extract') {
-    container.innerHTML = `<label class="text-[10px] text-neutral-500 uppercase">Archive Path</label><input type="text" name="path" class="tf-input py-2 text-xs" placeholder="server.zip">`;
+  } else if (type === 'extract' || type === 'copy') {
+    container.innerHTML = `<label class="text-[10px] text-neutral-500 uppercase">${type === 'extract' ? 'Archive' : 'Source'} Path</label><input type="text" name="path" value="${data.path || ''}" class="tf-input py-2 text-xs" placeholder="server.zip">`;
   } else if (type === 'write') {
     container.innerHTML = `<div class="space-y-2">
-      <input type="text" name="path" class="tf-input py-1 text-xs" placeholder="eula.txt">
-      <textarea name="content" class="tf-input py-2 text-xs h-20" placeholder="eula=true"></textarea>
+      <input type="text" name="path" value="${data.path || ''}" class="tf-input py-1 text-xs" placeholder="eula.txt">
+      <textarea name="content" class="tf-input py-2 text-xs h-20" placeholder="eula=true">${data.content || ''}</textarea>
     </div>`;
   } else {
-    container.innerHTML = `<label class="text-[10px] font-semibold text-neutral-500 uppercase">Shell Command</label><input type="text" name="command" class="tf-input font-mono" placeholder="bash scripts/install.sh">`;
+    container.innerHTML = `<label class="text-[10px] font-semibold text-neutral-500 uppercase">Shell Command</label><input type="text" name="command" value="${data.command || ''}" class="tf-input font-mono" placeholder="bash scripts/install.sh">`;
   }
 }
 </script>
