@@ -1,12 +1,78 @@
-<div id="installStepsContainer" class="space-y-3"></div>
-<button onclick="addInstallStep()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Step</button>
-<button onclick="saveInstallStepsSection()" class="tf-btn tf-btn-accent w-full">💾 Save Install Steps (installsteps.json)</button>
+<div id="installStepsContainer" class="space-y-4 mb-6"></div>
+<button onclick="addInstallStep()" class="tf-btn tf-btn-secondary text-xs">+ Add Install Step</button>
+
+<template id="installStepTemplate">
+  <div class="tf-card group">
+    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Step Type</label>
+        <select name="type" class="tf-input searchable-select text-sm" onchange="updateInstallFields(this)">
+          <option value="shell">Shell Command</option>
+          <option value="download">Download File</option>
+          <option value="extract">Extract Archive</option>
+          <option value="copy">Move/Copy File</option>
+          <option value="write">Write File</option>
+        </select>
+      </div>
+      <div class="tf-field-long" name="stepFields">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Command</label>
+        <input type="text" name="command" class="tf-input font-mono" placeholder="apt-get update && apt-get install -y git">
+      </div>
+    </div>
+  </div>
+</template>
 
 <script>
-// full install step logic
-window.saveInstallStepsSection = async () => {
-  const data = { install_steps: [] };
-  await fetch('/admin/templates/save-installsteps', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-  showNotification('Install steps saved as installsteps.json', 'success');
-};
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
+function addInstallStep(data = {}) {
+  const container = document.getElementById('installStepsContainer');
+  const temp = document.getElementById('installStepTemplate');
+  const clone = temp.content.cloneNode(true);
+  const card = clone.querySelector('.tf-card');
+
+  if (data.type) {
+    const select = card.querySelector('[name="type"]');
+    select.value = data.type;
+    updateInstallFields(select, data);
+  }
+
+  container.appendChild(clone);
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
+}
+
+function updateInstallFields(select, data = {}) {
+function updateInstallFields(select, data = {}) {
+  const container = select.parentElement.nextElementSibling;
+  const type = select.value;
+  if (type === 'download') {
+    container.innerHTML = `<div class="grid grid-cols-2 gap-2">
+      <div><label class="text-[10px] text-neutral-500 uppercase">URL</label><input type="text" name="url" value="${data.url || ''}" class="tf-input py-2 text-xs" placeholder="https://example.com/file.jar"></div>
+      <div><label class="text-[10px] text-neutral-500 uppercase">Output Name</label><input type="text" name="output" value="${data.output || ''}" class="tf-input py-2 text-xs" placeholder="server.jar"></div>
+    </div>`;
+  } else if (type === 'extract' || type === 'copy') {
+    container.innerHTML = `<label class="text-[10px] text-neutral-500 uppercase">${type === 'extract' ? 'Archive' : 'Source'} Path</label><input type="text" name="path" value="${data.path || ''}" class="tf-input py-2 text-xs" placeholder="server.zip">`;
+  } else if (type === 'write') {
+    container.innerHTML = `<div class="space-y-2">
+      <input type="text" name="path" value="${data.path || ''}" class="tf-input py-1 text-xs" placeholder="eula.txt">
+      <textarea name="content" class="tf-input py-2 text-xs h-20" placeholder="eula=true">${data.content || ''}</textarea>
+    </div>`;
+  } else {
+    container.innerHTML = `<label class="text-[10px] font-semibold text-neutral-500 uppercase">Shell Command</label><input type="text" name="command" value="${data.command || ''}" class="tf-input font-mono" placeholder="bash scripts/install.sh">`;
+  }
+}
 </script>
