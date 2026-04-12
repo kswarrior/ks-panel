@@ -1,14 +1,66 @@
-<div id="pagesContainer" class="space-y-6 mb-6"></div>
-<div class="flex gap-3">
-  <button type="button" onclick="addPage('generic')" class="tf-btn tf-btn-secondary text-xs">+ Custom Page</button>
-  <button type="button" onclick="addPage('console')" class="tf-btn tf-btn-accent text-xs">⚡ Add Power Console Page</button>
+<div class="tf-card mb-6 border-blue-500/20 bg-blue-500/5">
+  <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-wider">Core Features (Enable/Disable)</h3>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">Power Console</p>
+        <p class="text-[10px] text-neutral-500">Real-time terminal & stats</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-console" name="feature-console" checked class="sr-only peer" onchange="syncCorePage('console')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+      </label>
+    </div>
+    <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+      <div>
+        <p class="text-xs font-bold text-white">File Manager</p>
+        <p class="text-[10px] text-neutral-500">Full file system access</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="toggle-files" name="feature-files" class="sr-only peer" onchange="syncCorePage('files')">
+        <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+      </label>
+    </div>
+  </div>
 </div>
 
+<div id="pagesContainer" class="space-y-6 mb-6"></div>
+<div class="flex gap-3">
+  <div class="relative group inline-block">
+    <button type="button" class="tf-btn tf-btn-accent text-xs">+ Add New Page</button>
+    <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-neutral-900 border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
+      <button type="button" onclick="addPage('generic')" class="w-full text-left px-4 py-2 text-[10px] text-neutral-300 hover:bg-white/5 hover:text-white uppercase font-bold tracking-widest border-b border-white/5">Custom Page</button>
+      <button type="button" onclick="addPage('console')" class="w-full text-left px-4 py-2 text-[10px] text-emerald-400 hover:bg-white/5 hover:text-emerald-300 uppercase font-bold tracking-widest border-b border-white/5">⚡ Power Console</button>
+      <button type="button" onclick="addPage('files')" class="w-full text-left px-4 py-2 text-[10px] text-blue-400 hover:bg-white/5 hover:text-blue-300 uppercase font-bold tracking-widest">📁 File Manager</button>
+    </div>
+  </div>
+</div>
+
+<template id="filesPageTemplate">
+  <div class="tf-card border-blue-500/20 bg-blue-500/5" data-core-type="files">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-blue-400 uppercase tracking-tighter">File Manager Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('files')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="files">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="files" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="File Manager">
+      </div>
+    </div>
+  </div>
+</template>
+
 <template id="consolePageTemplate">
-  <div class="tf-card border-emerald-500/20 bg-emerald-500/5">
+  <div class="tf-card border-emerald-500/20 bg-emerald-500/5" data-core-type="console">
     <div class="flex justify-between items-start mb-4">
       <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-tighter">Power Console Configuration</h3>
-      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="this.parentElement.parentElement.remove()">×</button>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="confirmRemoval(this)">×</button>
     </div>
 
     <input type="hidden" name="page-type" value="console">
@@ -73,7 +125,7 @@
 
 <template id="genericPageTemplate">
   <div class="tf-card group">
-    <button type="button" class="tf-remove-btn" onclick="this.parentElement.remove()">×</button>
+    <button type="button" class="tf-remove-btn" onclick="confirmRemoval(this)">×</button>
     <input type="hidden" name="page-type" value="generic">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div class="tf-field-long">
@@ -103,7 +155,7 @@
     <div class="flex-1 space-y-2">
       <div class="flex gap-2">
         <input type="text" name="btn-label" class="tf-input py-1 text-xs" placeholder="Label">
-        <select name="btn-type" class="tf-input py-1 text-xs w-28">
+        <select name="btn-type" class="tf-input searchable-select py-1 text-xs w-28">
           <option value="click">Click Action</option>
           <option value="timer">Timer (Recurring)</option>
           <option value="menu">Dropdown Menu</option>
@@ -111,13 +163,13 @@
       </div>
       <input type="text" name="btn-cmd" class="tf-input py-1 text-xs font-mono" placeholder="Command (or JSON for menu)">
     </div>
-    <select name="btn-style" class="tf-input py-1 text-xs w-24">
+    <select name="btn-style" class="tf-input searchable-select py-1 text-xs w-24">
       <option value="blue">Blue</option>
       <option value="red">Red</option>
       <option value="green">Green</option>
       <option value="gray">Gray</option>
     </select>
-    <button type="button" class="text-neutral-500 hover:text-red-400 px-1 mt-1" onclick="this.parentElement.remove()">×</button>
+    <button type="button" class="text-neutral-500 hover:text-red-400 px-1 mt-1" onclick="confirmRemoval(this)">×</button>
   </div>
 </template>
 
@@ -125,20 +177,85 @@
   <div class="flex flex-col gap-1 bg-white/5 p-2 rounded-lg border border-white/5">
     <input type="text" name="code-name" class="tf-input py-1 text-[10px]" placeholder="Name (e.g. Restart App)">
     <textarea name="code-body" class="tf-input py-1 text-[10px] font-mono h-12" placeholder="pm2 restart all"></textarea>
-    <button type="button" class="text-right text-[10px] text-neutral-600 hover:text-red-400" onclick="this.parentElement.remove()">Remove</button>
+    <button type="button" class="text-right text-[10px] text-neutral-600 hover:text-red-400" onclick="confirmRemoval(this)">Remove</button>
   </div>
 </template>
 
 <script>
+function confirmRemoval(btn) {
+  const target = btn.classList.contains('tf-remove-btn') || btn.parentElement.classList.contains('tf-card') ? btn.closest('.tf-card') : btn.parentElement;
+  if (btn.dataset.confirmed === "true") {
+    target.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = oldHtml;
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
 function addPage(type) {
   const container = document.getElementById('pagesContainer');
-  const tempId = type === 'console' ? 'consolePageTemplate' : 'genericPageTemplate';
-  container.appendChild(document.getElementById(tempId).content.cloneNode(true));
+  const existing = container.querySelector(`[data-core-type="${type}"]`);
+  if ((type === 'console' || type === 'files') && existing) return;
+
+  let tempId = 'genericPageTemplate';
+  if (type === 'console') tempId = 'consolePageTemplate';
+  if (type === 'files') tempId = 'filesPageTemplate';
+
+  const clone = document.getElementById(tempId).content.cloneNode(true);
+  container.appendChild(clone);
+
+  if (type === 'files') {
+    const toggle = document.getElementById('toggle-files');
+    if (toggle) toggle.checked = true;
+  }
+
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
+
+function syncCorePage(type) {
+  const toggle = document.getElementById(`toggle-${type}`);
+  if (!toggle) return;
+  const isChecked = toggle.checked;
+  const container = document.getElementById('pagesContainer');
+  const existing = container.querySelector(`[data-core-type="${type}"]`);
+
+  if (isChecked) {
+    if (!existing) addPage(type);
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+function toggleOffFeature(type) {
+  const toggle = document.getElementById(`toggle-${type}`);
+  if (toggle) {
+    toggle.checked = false;
+    syncCorePage(type);
+  } else {
+    const existing = document.getElementById('pagesContainer').querySelector(`[data-core-type="${type}"]`);
+    if (existing) existing.remove();
+  }
+}
+
+// Ensure initial setup
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    syncCorePage('console');
+    syncCorePage('files');
+  }, 100);
+});
 
 function addConsoleBtn(btn) {
   const container = btn.parentElement.nextElementSibling;
   container.appendChild(document.getElementById('consoleBtnTemplate').content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
 
 function addQuickCode(btn) {

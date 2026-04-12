@@ -1,6 +1,18 @@
 <%- include('../../components/template') %>
 
+<!-- Choices.js for Searchable Selects -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
 <style>
+/* Choices.js Custom Overrides for Dark UI */
+.choices { margin-bottom: 0; }
+.choices__inner { background-color: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 0.5rem !important; color: white !important; min-height: 42px !important; padding: 4px 10px !important; }
+.choices__list--dropdown, .choices__list[aria-expanded] { background-color: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 50 !important; }
+.choices__list--dropdown .choices__item--selectable.is-highlighted { background-color: rgba(255,255,255,0.1) !important; }
+.choices__input { background-color: transparent !important; color: white !important; }
+.choices__item { color: white !important; }
+
 /* ====================== SCOPED STYLES - ONLY AFFECT #templateForm ====================== */
 
 #templateForm .tf-input {
@@ -462,16 +474,32 @@
 
           <div class="tf-row">
             <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category <span class="text-red-400">*</span></label>
-              <div class="flex gap-2">
-                <select name="category" required class="tf-input">
-                  <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
-                </select>
-                <button type="button" id="btnAddCategory" class="tf-btn tf-btn-secondary whitespace-nowrap">
-                  + Add
-                </button>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-[10px] font-bold text-neutral-500 uppercase">Category <span class="text-red-400">*</span></label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="deleteCategory()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                  <button type="button" onclick="addCategory()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+                </div>
               </div>
+              <select id="meta-category" name="category" required class="tf-input searchable-select">
+                <% categories.forEach(cat => { %><option value="<%= cat %>" <%= template.category === cat ? 'selected' : '' %>><%= cat %></option><% }) %>
+              </select>
             </div>
+            <div class="tf-field-long">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-[10px] font-bold text-neutral-500 uppercase">Template Type</label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="deleteType()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                  <button type="button" onclick="addType()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+                </div>
+              </div>
+              <select id="meta-type" name="meta.type" class="tf-input searchable-select">
+                <% types.forEach(t => { %><option value="<%= t %>" <%= template.meta.type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div class="tf-row">
             <div class="tf-field-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label>
               <input type="text" name="environment.docker_image" required placeholder="eclipse-temurin:21-jre" class="tf-input">
@@ -556,6 +584,114 @@
 </div>
 
 <script>
+// Initialize Choices.js
+let choiceInstances = {};
+function initSearchableSelects() {
+  document.querySelectorAll('.searchable-select').forEach(el => {
+    if (el.dataset.choicesInit) return;
+    const instance = new Choices(el, {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false,
+      removeItemButton: false,
+    });
+    choiceInstances[el.id || el.name] = instance;
+    el.dataset.choicesInit = "true";
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initSearchableSelects);
+
+async function addCategory() {
+  const name = prompt("Enter new Category name:");
+  if (!name?.trim()) return;
+
+  try {
+    const res = await fetch('/admin/templates/category', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('meta-category');
+      choiceInstances['meta-category'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
+      showNotification("Category added!");
+    } else {
+      showNotification(data.error || "Failed to add category", "error");
+    }
+  } catch (e) {
+    showNotification("Network error", "error");
+  }
+}
+
+async function deleteCategory() {
+  const select = document.getElementById('meta-category');
+  const name = select.value;
+  if (!name || !confirm(`Delete category "${name}"?`)) return;
+
+  try {
+    const res = await fetch('/admin/templates/category', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      choiceInstances['meta-category'].removeActiveItems();
+      choiceInstances['meta-category'].setChoices(data.categories.map(c => ({ value: c, label: c })), 'value', 'label', true);
+      showNotification("Category deleted");
+    }
+  } catch (e) {
+    showNotification("Delete failed", "error");
+  }
+}
+
+async function deleteType() {
+  const select = document.getElementById('meta-type');
+  const name = select.value;
+  if (!name || !confirm(`Delete type "${name}"?`)) return;
+
+  try {
+    const res = await fetch('/admin/templates/type', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      choiceInstances['meta-type'].removeActiveItems();
+      choiceInstances['meta-type'].setChoices(data.types.map(t => ({ value: t, label: t })), 'value', 'label', true);
+      showNotification("Type deleted");
+    }
+  } catch (e) {
+    showNotification("Delete failed", "error");
+  }
+}
+
+async function addType() {
+  const name = prompt("Enter new Template Type name:");
+  if (!name?.trim()) return;
+
+  try {
+    const res = await fetch('/admin/templates/type', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('meta-type');
+      choiceInstances['meta-type'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
+      showNotification("Template Type added!");
+    } else {
+      showNotification(data.error || "Failed to add type", "error");
+    }
+  } catch (e) {
+    showNotification("Network error", "error");
+  }
+}
+
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0;
 let isInitialLoad = true;
@@ -1136,30 +1272,6 @@ document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddPage").onclick = () => addPage();
 
-document.getElementById("btnAddCategory").onclick = async () => {
-  const name = prompt("New category name:");
-  if (!name?.trim()) return;
-  
-  try {
-    const res = await fetch("/admin/templates/category", { 
-      method: "POST", 
-      headers: {"Content-Type": "application/json"}, 
-      body: JSON.stringify({name: name.trim()}) 
-    });
-    
-    if (res.ok) {
-      const {categories} = await res.json();
-      const select = document.querySelector('[name="category"]');
-      select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
-      select.value = name.trim();
-      showNotification("Category added!", "success");
-    } else {
-      showNotification("Failed to add category", "error");
-    }
-  } catch (err) {
-    showNotification("Network error!", "error");
-  }
-};
 
 // ====================== IMPORT JSON ======================
 document.getElementById("btnImportJson").onclick = () => {

@@ -1,6 +1,18 @@
 <%- include('../../components/template') %>
 
+<!-- Choices.js for Searchable Selects -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
 <style>
+/* Choices.js Custom Overrides for Dark UI */
+.choices { margin-bottom: 0; }
+.choices__inner { background-color: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 0.5rem !important; color: white !important; min-height: 42px !important; padding: 4px 10px !important; }
+.choices__list--dropdown, .choices__list[aria-expanded] { background-color: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 50 !important; }
+.choices__list--dropdown .choices__item--selectable.is-highlighted { background-color: rgba(255,255,255,0.1) !important; }
+.choices__input { background-color: transparent !important; color: white !important; }
+.choices__item { color: white !important; }
+
 /* ====================== POWER UI STYLES ====================== */
 #templateForm .tf-input { width: 100%; padding: 0.75rem 1rem; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: white; outline: none; transition: all 0.2s; box-sizing: border-box; font-size: 0.875rem; line-height: 1.5; }
 #templateForm .tf-input:focus { border-color: rgba(255,255,255,0.3); background-color: rgba(255,255,255,0.05); }
@@ -27,7 +39,7 @@
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/5">
       <div>
         <h1 class="text-3xl font-bold text-white tracking-tight">Create Power Template</h1>
-        <p class="mt-2 text-neutral-400">Design powerful templates with custom consoles, security rules, and multi-infra support.</p>
+        <p class="mt-2 text-neutral-400">Design powerful templates with custom consoles and multi-infra support.</p>
       </div>
       <div class="flex gap-3">
         <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary px-6 py-2.5">Cancel</a>
@@ -52,18 +64,27 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="tf-field-long">
-            <label class="text-[10px] font-bold text-neutral-500 uppercase">Category</label>
-            <select id="meta-category" class="tf-input">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase">Category</label>
+              <div class="flex gap-2">
+                <button type="button" onclick="deleteCategory()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                <button type="button" onclick="addCategory()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+              </div>
+            </div>
+            <select id="meta-category" class="tf-input searchable-select">
               <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
             </select>
           </div>
           <div class="tf-field-long">
-            <label class="text-[10px] font-bold text-neutral-500 uppercase">Template Type</label>
-            <select id="meta-type" class="tf-input">
-              <option value="app">Standard Application</option>
-              <option value="game">Game Server</option>
-              <option value="db">Database Engine</option>
-              <option value="custom">Custom Power Template</option>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase">Template Type</label>
+              <div class="flex gap-2">
+                <button type="button" onclick="deleteType()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                <button type="button" onclick="addType()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+              </div>
+            </div>
+            <select id="meta-type" class="tf-input searchable-select">
+              <% types.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
             </select>
           </div>
         </div>
@@ -77,41 +98,11 @@
       <div class="tf-section-divider"><h2>Environment Variables</h2></div>
       <%- include('create/variables') %>
 
-      <!-- 4. Lifecycle & Install -->
-      <div class="tf-section-divider"><h2>Automation Workflow</h2></div>
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div>
-          <h3 class="text-[10px] font-bold text-neutral-400 mb-4 uppercase tracking-widest">Lifecycle Actions (Triggers)</h3>
-          <%- include('create/actions') %>
-        </div>
-        <div>
-          <h3 class="text-[10px] font-bold text-neutral-400 mb-4 uppercase tracking-widest">Installation Steps</h3>
-          <%- include('create/installsteps') %>
-        </div>
-      </div>
+      <!-- 4. Automation Workflow -->
+      <div class="tf-section-divider"><h2>Installation Workflow</h2></div>
+      <%- include('create/installsteps') %>
 
-      <!-- 5. Security & Blocks -->
-      <div class="tf-section-divider"><h2>Security Constraints</h2></div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- File Security -->
-        <div class="tf-card">
-           <div class="flex justify-between items-center mb-4">
-             <h3 class="text-[10px] font-bold text-neutral-400 uppercase">File Access Rules</h3>
-             <button type="button" onclick="addFileRule()" class="tf-btn tf-btn-secondary py-1 text-[9px]">+ Add Rule</button>
-           </div>
-           <div id="fileRulesContainer" class="space-y-2"></div>
-        </div>
-        <!-- Port Security -->
-        <div class="tf-card">
-           <div class="flex justify-between items-center mb-4">
-             <h3 class="text-[10px] font-bold text-neutral-400 uppercase">Network Restrictions</h3>
-             <button type="button" onclick="addPortRule()" class="tf-btn tf-btn-secondary py-1 text-[9px]">+ Add Rule</button>
-           </div>
-           <div id="portRulesContainer" class="space-y-2"></div>
-        </div>
-      </div>
-
-      <!-- 6. Custom Pages & Advanced UI -->
+      <!-- 5. Custom Pages & Advanced UI -->
       <div class="tf-section-divider"><h2>Advanced User Interface</h2></div>
       <%- include('create/pages') %>
 
@@ -121,40 +112,113 @@
 
 <div id="tf-notification"></div>
 
-<!-- Security Templates -->
-<template id="fileRuleTemplate">
-  <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg border border-white/5 relative">
-    <div class="flex-1"><input type="text" name="rule-path" class="tf-input py-1 text-xs" placeholder="e.g. config/*.env"></div>
-    <div class="w-32">
-      <select name="rule-mode" class="tf-input py-1 text-xs">
-        <option value="block">Block Full</option>
-        <option value="readonly">Read Only</option>
-        <option value="hide">Hide completely</option>
-      </select>
-    </div>
-    <button type="button" class="text-neutral-500 px-1" onclick="this.parentElement.remove()">×</button>
-  </div>
-</template>
-
-<template id="portRuleTemplate">
-  <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg border border-white/5 relative">
-    <div class="flex-1"><input type="text" name="rule-range" class="tf-input py-1 text-xs" placeholder="e.g. 80, 443, 3000-4000"></div>
-    <div class="w-32">
-      <select name="rule-policy" class="tf-input py-1 text-xs">
-        <option value="deny">Deny / Block</option>
-        <option value="allow">Allow Only</option>
-      </select>
-    </div>
-    <button type="button" class="text-neutral-500 px-1" onclick="this.parentElement.remove()">×</button>
-  </div>
-</template>
-
 <script>
-function addFileRule() {
-  document.getElementById('fileRulesContainer').appendChild(document.getElementById('fileRuleTemplate').content.cloneNode(true));
+// Initialize Choices.js
+let choiceInstances = {};
+function initSearchableSelects() {
+  document.querySelectorAll('.searchable-select').forEach(el => {
+    if (el.dataset.choicesInit) return;
+    const instance = new Choices(el, {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false,
+      removeItemButton: false,
+    });
+    choiceInstances[el.id] = instance;
+    el.dataset.choicesInit = "true";
+  });
 }
-function addPortRule() {
-  document.getElementById('portRulesContainer').appendChild(document.getElementById('portRuleTemplate').content.cloneNode(true));
+
+document.addEventListener('DOMContentLoaded', initSearchableSelects);
+
+async function addCategory() {
+  const name = prompt("Enter new Category name:");
+  if (!name?.trim()) return;
+
+  try {
+    const res = await fetch('/admin/templates/category', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('meta-category');
+      choiceInstances['meta-category'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
+      showNotification("Category added!");
+    } else {
+      showNotification(data.error || "Failed to add category", "error");
+    }
+  } catch (e) {
+    showNotification("Network error", "error");
+  }
+}
+
+async function deleteCategory() {
+  const select = document.getElementById('meta-category');
+  const name = select.value;
+  if (!name || !confirm(`Delete category "${name}"?`)) return;
+
+  try {
+    const res = await fetch('/admin/templates/category', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      choiceInstances['meta-category'].removeActiveItems();
+      choiceInstances['meta-category'].setChoices(data.categories.map(c => ({ value: c, label: c })), 'value', 'label', true);
+      showNotification("Category deleted");
+    }
+  } catch (e) {
+    showNotification("Delete failed", "error");
+  }
+}
+
+async function deleteType() {
+  const select = document.getElementById('meta-type');
+  const name = select.value;
+  if (!name || !confirm(`Delete type "${name}"?`)) return;
+
+  try {
+    const res = await fetch('/admin/templates/type', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      choiceInstances['meta-type'].removeActiveItems();
+      choiceInstances['meta-type'].setChoices(data.types.map(t => ({ value: t, label: t })), 'value', 'label', true);
+      showNotification("Type deleted");
+    }
+  } catch (e) {
+    showNotification("Delete failed", "error");
+  }
+}
+
+async function addType() {
+  const name = prompt("Enter new Template Type name:");
+  if (!name?.trim()) return;
+
+  try {
+    const res = await fetch('/admin/templates/type', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('meta-type');
+      choiceInstances['meta-type'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
+      showNotification("Template Type added!");
+    } else {
+      showNotification(data.error || "Failed to add type", "error");
+    }
+  } catch (e) {
+    showNotification("Network error", "error");
+  }
 }
 
 function showNotification(msg, type = 'success') {
@@ -180,9 +244,6 @@ async function submitTemplate() {
     instance_type: document.getElementById('instanceType').value,
     image: document.getElementById('environment-image')?.value || "",
     distribution: document.getElementById('environment-distribution')?.value || "",
-    start_command: document.getElementById('environment-start_command').value,
-    stop_command: document.getElementById('environment-stop_command').value,
-    stop_signal: document.getElementById('environment-stop_signal').value,
     limits: {
       memory: parseInt(document.getElementById('limits-memory').value),
       cpu: parseInt(document.getElementById('limits-cpu').value),
@@ -211,22 +272,6 @@ async function submitTemplate() {
     required: card.querySelector('[name="required"]').checked
   }));
 
-  const actions = Array.from(document.querySelectorAll('#actionsContainer > .tf-card')).map(card => ({
-    trigger: card.querySelector('[name="trigger"]').value,
-    name: card.querySelector('[name="name"]').value,
-    operations: Array.from(card.querySelectorAll('[name="operationsContainer"] > div')).map(op => {
-      const type = op.querySelector('[name="type"]').value;
-      const data = { type };
-      if (type === 'file_edit') {
-        data.file = op.querySelector('[name="file"]').value;
-        data.find = op.querySelector('[name="find"]').value;
-      } else {
-        data.value = op.querySelector('[name="value"]').value;
-      }
-      return data;
-    })
-  }));
-
   const install_steps = Array.from(document.querySelectorAll('#installStepsContainer .tf-card')).map(card => {
     const type = card.querySelector('[name="type"]').value;
     const data = { type };
@@ -241,17 +286,6 @@ async function submitTemplate() {
     }
     return data;
   });
-
-  const security = {
-    file_rules: Array.from(document.querySelectorAll('#fileRulesContainer > div')).map(row => ({
-      path: row.querySelector('[name="rule-path"]').value,
-      mode: row.querySelector('[name="rule-mode"]').value
-    })),
-    port_rules: Array.from(document.querySelectorAll('#portRulesContainer > div')).map(row => ({
-      range: row.querySelector('[name="rule-range"]').value,
-      policy: row.querySelector('[name="rule-policy"]').value
-    }))
-  };
 
   const pages = Array.from(document.querySelectorAll('#pagesContainer > div.tf-card')).map(card => {
     const type = card.querySelector('[name="page-type"]').value;
@@ -294,9 +328,7 @@ async function submitTemplate() {
     category: meta.category,
     environment: { ...environment, docker_image: environment.image || environment.distribution },
     variables,
-    actions,
     install_steps,
-    security,
     pages
   };
 

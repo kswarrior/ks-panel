@@ -15,12 +15,22 @@ if (!fs.existsSync(TEMPLATES_DIR)) {
 }
 
 const CATEGORIES_FILE = path.join(TEMPLATES_DIR, "categories.json");
+const TYPES_FILE = path.join(TEMPLATES_DIR, "types.json");
 
 // Initialize default categories
 if (!fs.existsSync(CATEGORIES_FILE)) {
   fs.writeFileSync(
     CATEGORIES_FILE,
     JSON.stringify(["Minecraft", "Node.js", "Python", "Other"], null, 2),
+    "utf8"
+  );
+}
+
+// Initialize default types
+if (!fs.existsSync(TYPES_FILE)) {
+  fs.writeFileSync(
+    TYPES_FILE,
+    JSON.stringify(["Standard Application", "Game Server", "Database Engine", "Custom Power Template"], null, 2),
     "utf8"
   );
 }
@@ -95,6 +105,7 @@ function loadTemplate(dirName) {
 
 router.get("/admin/templates/overview", isAdmin, (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
+  const types = readJson(TYPES_FILE) || [];
 
   const dirs = fs.readdirSync(TEMPLATES_DIR).filter(entry => {
     return fs.statSync(path.join(TEMPLATES_DIR, entry)).isDirectory();
@@ -108,7 +119,8 @@ router.get("/admin/templates/overview", isAdmin, (req, res) => {
     req,
     user: req.user,
     templates,
-    categories
+    categories,
+    types
   });
 });
 
@@ -118,7 +130,8 @@ router.get("/admin/templates/overview", isAdmin, (req, res) => {
 
 router.get("/admin/templates/create", isAdmin, (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
-  res.render("admin/templates/create", { req, user: req.user, categories });
+  const types = readJson(TYPES_FILE) || [];
+  res.render("admin/templates/create", { req, user: req.user, categories, types });
 });
 
 // ────────────────────────────────────────────────
@@ -134,14 +147,62 @@ router.get("/admin/templates/edit/:dirName", isAdmin, (req, res) => {
   }
 
   const categories = readJson(CATEGORIES_FILE) || [];
+  const types = readJson(TYPES_FILE) || [];
 
   res.render("admin/templates/edit", {
     req,
     user: req.user,
     template,
     categories,
+    types,
     filename: dirName   // folder name
   });
+});
+
+// ────────────────────────────────────────────────
+// ADD / CREATE TYPE
+// ────────────────────────────────────────────────
+
+router.post("/admin/templates/type", isAdmin, (req, res) => {
+  const { name } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: "Name required" });
+
+  let types = readJson(TYPES_FILE) || [];
+  const trimmed = name.trim();
+
+  if (types.includes(trimmed)) {
+    return res.status(400).json({ error: "Type already exists" });
+  }
+
+  types.push(trimmed);
+  writeJson(TYPES_FILE, types);
+
+  logAudit(req.user.userId, req.user.username, "template:type:add", req.ip);
+
+  res.json({ success: true, types: types });
+});
+
+// ────────────────────────────────────────────────
+// DELETE TYPE
+// ────────────────────────────────────────────────
+
+router.delete("/admin/templates/type", isAdmin, (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Name required" });
+
+  let types = readJson(TYPES_FILE) || [];
+  const index = types.indexOf(name);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Type not found" });
+  }
+
+  types.splice(index, 1);
+  writeJson(TYPES_FILE, types);
+
+  logAudit(req.user.userId, req.user.username, "template:type:delete", req.ip);
+
+  res.json({ success: true, types: types });
 });
 
 // ────────────────────────────────────────────────
@@ -163,6 +224,29 @@ router.post("/admin/templates/category", isAdmin, (req, res) => {
   writeJson(CATEGORIES_FILE, cats);
 
   logAudit(req.user.userId, req.user.username, "template:category:add", req.ip);
+
+  res.json({ success: true, categories: cats });
+});
+
+// ────────────────────────────────────────────────
+// DELETE CATEGORY
+// ────────────────────────────────────────────────
+
+router.delete("/admin/templates/category", isAdmin, (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Name required" });
+
+  let cats = readJson(CATEGORIES_FILE) || [];
+  const index = cats.indexOf(name);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Category not found" });
+  }
+
+  cats.splice(index, 1);
+  writeJson(CATEGORIES_FILE, cats);
+
+  logAudit(req.user.userId, req.user.username, "template:category:delete", req.ip);
 
   res.json({ success: true, categories: cats });
 });

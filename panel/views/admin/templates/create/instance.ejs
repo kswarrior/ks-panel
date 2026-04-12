@@ -4,7 +4,7 @@
     <div class="tf-row">
       <div class="tf-field-short">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Infrastructure <span class="text-red-400">*</span></label>
-        <select id="instanceType" class="tf-input" onchange="updateEnvUI()">
+        <select id="instanceType" class="tf-input searchable-select" onchange="updateEnvUI()">
           <option value="docker">Docker (Containers)</option>
           <option value="multipass">Multipass (Ubuntu VMs)</option>
           <option value="kvm">KVM (General VMs)</option>
@@ -43,36 +43,14 @@
     <div id="mountsContainer" class="space-y-2"></div>
   </div>
 
-  <!-- Lifecycle & Resources -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <div class="tf-card">
-      <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Lifecycle Commands</h3>
-      <div class="space-y-3">
-        <div class="tf-field-long">
-          <label class="text-[10px] text-neutral-500 uppercase">Start Command</label>
-          <input id="environment-start_command" type="text" class="tf-input font-mono text-xs" placeholder="java -jar server.jar">
-        </div>
-        <div class="tf-row">
-          <div class="tf-field-short">
-            <label class="text-[10px] text-neutral-500 uppercase">Stop Command</label>
-            <input id="environment-stop_command" type="text" class="tf-input font-mono text-xs" placeholder="stop">
-          </div>
-          <div class="tf-field-short">
-            <label class="text-[10px] text-neutral-500 uppercase">Stop Signal</label>
-            <input id="environment-stop_signal" type="text" class="tf-input font-mono text-xs" value="SIGINT">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tf-card">
-      <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Resource Limits</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">RAM (MB)</label><input id="limits-memory" type="number" value="1024" class="tf-input text-sm"></div>
-        <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">CPU (%)</label><input id="limits-cpu" type="number" value="100" class="tf-input text-sm"></div>
-        <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">Disk (MB)</label><input id="limits-disk" type="number" value="5120" class="tf-input text-sm"></div>
-        <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">Swap (MB)</label><input id="limits-swap" type="number" value="0" class="tf-input text-sm"></div>
-      </div>
+  <!-- Resources -->
+  <div class="tf-card">
+    <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Resource Limits</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">RAM (MB)</label><input id="limits-memory" type="number" value="1024" class="tf-input text-sm"></div>
+      <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">CPU (%)</label><input id="limits-cpu" type="number" value="100" class="tf-input text-sm"></div>
+      <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">Disk (MB)</label><input id="limits-disk" type="number" value="5120" class="tf-input text-sm"></div>
+      <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase">Swap (MB)</label><input id="limits-swap" type="number" value="0" class="tf-input text-sm"></div>
     </div>
   </div>
 </div>
@@ -83,12 +61,12 @@
     <div class="text-neutral-500">:</div>
     <div class="flex-1"><input type="number" name="port-guest" class="tf-input py-1 text-xs" placeholder="Guest Port"></div>
     <div class="w-24">
-      <select name="port-protocol" class="tf-input py-1 text-xs">
+      <select name="port-protocol" class="tf-input searchable-select py-1 text-xs">
         <option value="tcp">TCP</option>
         <option value="udp">UDP</option>
       </select>
     </div>
-    <button type="button" class="text-neutral-500 hover:text-red-400 px-2" onclick="this.parentElement.remove()">×</button>
+    <button type="button" class="text-neutral-500 hover:text-red-400 px-2 transition-all duration-200" onclick="confirmRemoval(this)">×</button>
   </div>
 </template>
 
@@ -98,16 +76,31 @@
     <div class="text-neutral-500">→</div>
     <div class="flex-1"><input type="text" name="mount-target" class="tf-input py-1 text-xs" placeholder="/path/in/container"></div>
     <div class="w-24">
-      <select name="mount-mode" class="tf-input py-1 text-xs">
+      <select name="mount-mode" class="tf-input searchable-select py-1 text-xs">
         <option value="rw">R/W</option>
         <option value="ro">R/O</option>
       </select>
     </div>
-    <button type="button" class="text-neutral-500 hover:text-red-400 px-2" onclick="this.parentElement.remove()">×</button>
+    <button type="button" class="text-neutral-500 hover:text-red-400 px-2 transition-all duration-200" onclick="confirmRemoval(this)">×</button>
   </div>
 </template>
 
 <script>
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
 function updateEnvUI() {
   const type = document.getElementById('instanceType').value;
   const note = document.getElementById('vmPortNote');
@@ -119,7 +112,8 @@ function updateEnvUI() {
   } else {
     note.classList.remove('tf-hidden');
     if (type === 'multipass') {
-      imgContainer.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Ubuntu Version</label><select id="environment-distribution" class="tf-input"><option value="22.04">Jammy (22.04 LTS)</option><option value="20.04">Focal (20.04 LTS)</option></select>`;
+      imgContainer.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Ubuntu Version</label><select id="environment-distribution" class="tf-input searchable-select"><option value="22.04">Jammy (22.04 LTS)</option><option value="20.04">Focal (20.04 LTS)</option></select>`;
+      if (typeof initSearchableSelects === 'function') initSearchableSelects();
     } else {
       imgContainer.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ISO / OS Template Path</label><input id="environment-image" type="text" class="tf-input font-mono" placeholder="/var/lib/vz/template/iso/ubuntu.iso">`;
     }
@@ -129,16 +123,18 @@ function updateEnvUI() {
 function addPortMapping() {
   const container = document.getElementById('portsContainer');
   container.appendChild(document.getElementById('portTemplate').content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
 
 function addMount() {
   const container = document.getElementById('mountsContainer');
   container.appendChild(document.getElementById('mountTemplate').content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
 
 // Initial setup
 document.addEventListener('DOMContentLoaded', () => {
   updateEnvUI();
-  addPortMapping(); // Add one default port row
+  addPortMapping();
 });
 </script>

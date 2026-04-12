@@ -3,11 +3,11 @@
 
 <template id="installStepTemplate">
   <div class="tf-card group">
-    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">×</button>
+    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
     <div class="tf-row">
       <div class="tf-field-short">
         <label class="text-[10px] font-semibold text-neutral-500 uppercase">Step Type</label>
-        <select name="type" class="tf-input text-sm" onchange="updateInstallFields(this)">
+        <select name="type" class="tf-input searchable-select text-sm" onchange="updateInstallFields(this)">
           <option value="shell">Shell Command</option>
           <option value="download">Download File</option>
           <option value="extract">Extract Archive</option>
@@ -24,10 +24,26 @@
 </template>
 
 <script>
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
 function addInstallStep() {
   const container = document.getElementById('installStepsContainer');
   const temp = document.getElementById('installStepTemplate');
   container.appendChild(temp.content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
 
 function updateInstallFields(select) {

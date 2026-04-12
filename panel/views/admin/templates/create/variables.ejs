@@ -6,7 +6,7 @@
 
 <template id="variableTemplate">
   <div class="tf-card group">
-    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">×</button>
+    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="tf-field-long">
         <label class="text-[10px] font-semibold text-neutral-500 uppercase">Variable Name (ID)</label>
@@ -43,6 +43,21 @@
 </template>
 
 <script>
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
 function addVariable(data = {}) {
   const container = document.getElementById('variablesContainer');
   const temp = document.getElementById('variableTemplate');
