@@ -473,6 +473,7 @@ function showNotification(text) {
 }
 
 // === FETCH RESOURCES ===
+let netPeak = 0;
 async function fetchResources() {
   try {
     const res = await fetch('/resourceMonitor');
@@ -481,24 +482,30 @@ async function fetchResources() {
     const cpu = Math.round(data.cpu?.percent || 0);
     const ram = Math.round(data.ram?.percent || 0);
     const disk = Math.round(data.disk?.percent || 0);
-    const net = Math.round((data.network?.speed || 0) / 10);
+
+    // Convert bytes/s to MB/s
+    const rxMB = (data.network?.rx || 0) / (1024 * 1024);
+    const txMB = (data.network?.tx || 0) / (1024 * 1024);
+    const totalSpeed = rxMB + txMB;
+
+    if (totalSpeed > netPeak) netPeak = totalSpeed;
     
     document.getElementById('cpu-text').textContent = cpu + '%';
     document.getElementById('ram-text').textContent = ram + '%';
     document.getElementById('disk-text').textContent = disk + '%';
-    document.getElementById('net-text').textContent = net + ' MB/s';
+    document.getElementById('net-text').textContent = totalSpeed.toFixed(2) + ' MB/s';
     
     document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
     document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
     document.getElementById('ram-total').textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
     document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
     document.getElementById('disk-total').textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
-    document.getElementById('net-peak').textContent = 'Peak: ' + (data.network?.peak || 0) + ' MB/s';
+    document.getElementById('net-peak').textContent = 'Peak: ' + netPeak.toFixed(2) + ' MB/s';
     
     updateLineGraph('cpu', cpu);
     updateLineGraph('ram', ram);
     updateLineGraph('disk', disk);
-    updateLineGraph('net', net);
+    updateLineGraph('net', Math.min(100, (totalSpeed / 10) * 100)); // Normalize 10MB/s as 100% for graph
   } catch (e) {
     console.error("Resources fetch failed", e);
   }

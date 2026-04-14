@@ -227,6 +227,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
     const wingsPayload = {
       Id,
       Name: name,
+      InstanceType: template.environment?.instance_type || 'docker',
       Image: template.environment?.docker_image || template.docker_image || template.image,
       Cmd: startupCmd ? startupCmd.trim().split(/\s+/) : undefined,
       Env: [

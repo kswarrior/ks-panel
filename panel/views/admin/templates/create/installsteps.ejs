@@ -1,5 +1,5 @@
 <div id="installStepsContainer" class="space-y-4 mb-6"></div>
-<button onclick="addInstallStep()" class="tf-btn tf-btn-secondary text-xs">+ Add Install Step</button>
+<button type="button" onclick="addInstallStep()" class="tf-btn tf-btn-secondary text-xs">+ Add Install Step</button>
 
 <template id="installStepTemplate">
   <div class="tf-card group">
@@ -55,7 +55,6 @@ function addInstallStep(data = {}) {
   if (typeof initSearchableSelects === 'function') initSearchableSelects();
 }
 
-function updateInstallFields(select, data = {}) {
 function updateInstallFields(select, data = {}) {
   const container = select.parentElement.nextElementSibling;
   const type = select.value;

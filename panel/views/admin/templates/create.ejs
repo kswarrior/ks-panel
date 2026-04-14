@@ -22,8 +22,9 @@
 #templateForm .tf-section-divider::before, #templateForm .tf-section-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); }
 #templateForm .tf-section-divider h2 { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; margin: 0; }
 #templateForm .tf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
-#templateForm .tf-btn-secondary { background: rgba(255,255,255,0.05); color: white; border-color: rgba(255,255,255,0.1); }
-#templateForm .tf-btn-accent { background: #10b981; color: white; }
+#templateForm .tf-btn-secondary { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.2); }
+#templateForm .tf-btn-secondary:hover { border-color: rgba(255,255,255,0.4); }
+#templateForm .tf-btn-accent { background: #10b981; color: white; border: 1px solid rgba(255,255,255,0.1); }
 #templateForm .tf-remove-btn { position: absolute; top: 0.5rem; right: 0.5rem; color: #ef4444; opacity: 0.5; cursor: pointer; font-size: 1.25rem; }
 #templateForm .tf-row { display: flex; flex-wrap: wrap; gap: 1rem; width: 100%; }
 #templateForm .tf-field-long, #templateForm .tf-field-short { display: flex; flex-direction: column; gap: 0.375rem; flex: 1 1 100%; min-width: 0; }
@@ -41,9 +42,26 @@
         <h1 class="text-3xl font-bold text-white tracking-tight">Create Power Template</h1>
         <p class="mt-2 text-neutral-400">Design powerful templates with custom consoles and multi-infra support.</p>
       </div>
-      <div class="flex gap-3">
-        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary px-6 py-2.5">Cancel</a>
-        <button type="button" onclick="submitTemplate()" class="tf-btn tf-btn-accent px-8 py-2.5 shadow-lg shadow-emerald-500/20">🚀 Publish Template</button>
+      <div class="grid grid-cols-2 md:flex md:flex-wrap items-center gap-3 w-full md:w-auto">
+        <button type="button" onclick="importJson()" class="tf-btn tf-btn-secondary justify-center py-3">
+          <span>📥</span>
+          <span class="hidden sm:inline ml-1">Import JSON</span>
+          <span class="sm:hidden ml-1">Import</span>
+        </button>
+        <button type="button" onclick="exportJson()" class="tf-btn tf-btn-secondary justify-center py-3">
+          <span>📤</span>
+          <span class="hidden sm:inline ml-1">Export JSON</span>
+          <span class="sm:hidden ml-1">Export</span>
+        </button>
+        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary justify-center py-3">
+          <span>❌</span>
+          <span class="ml-1">Cancel</span>
+        </a>
+        <button type="button" onclick="submitTemplate()" class="tf-btn tf-btn-accent justify-center py-3 shadow-lg shadow-emerald-500/20 col-span-2 md:col-span-1">
+          <span>🚀</span>
+          <span class="hidden sm:inline ml-1">Publish Template</span>
+          <span class="sm:hidden ml-1">Publish</span>
+        </button>
       </div>
     </header>
 
@@ -55,7 +73,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="tf-field-long">
             <label class="text-[10px] font-bold text-neutral-500 uppercase">Template ID (Unique)</label>
-            <input type="text" id="meta-id" required class="tf-input font-mono" placeholder="my-awesome-template">
+            <input type="text" id="meta-id" class="tf-input font-mono" placeholder="my-awesome-template">
           </div>
           <div class="tf-field-long">
             <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
@@ -105,6 +123,12 @@
       <!-- 5. Custom Pages & Advanced UI -->
       <div class="tf-section-divider"><h2>Advanced User Interface</h2></div>
       <%- include('create/pages') %>
+
+      <!-- SUBMIT AT BOTTOM -->
+      <div class="pt-10 border-t border-white/5 flex flex-col sm:flex-row justify-end gap-3 mt-10">
+        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary px-8 py-3">Cancel</a>
+        <button type="button" onclick="submitTemplate()" class="tf-btn tf-btn-accent px-12 py-3 shadow-lg shadow-emerald-500/20 text-sm">🚀 Publish Template</button>
+      </div>
 
     </form>
   </div>
@@ -228,6 +252,230 @@ function showNotification(msg, type = 'success') {
   setTimeout(() => n.classList.remove('show'), 3000);
 }
 
+function exportJson() {
+  const meta = {
+    id: document.getElementById('meta-id').value,
+    name: document.getElementById('meta-display_name').value || document.getElementById('meta-id').value,
+    category: document.getElementById('meta-category').value,
+    type: document.getElementById('meta-type').value,
+    author: "<%= user.username %>",
+    version: "1.0.0"
+  };
+
+  const environment = {
+    instance_type: document.getElementById('instanceType').value,
+    image: document.getElementById('environment-image')?.value || "",
+    distribution: document.getElementById('environment-distribution')?.value || "",
+    limits: {
+      memory: parseInt(document.getElementById('limits-memory').value) || 0,
+      cpu: parseInt(document.getElementById('limits-cpu').value) || 0,
+      disk: parseInt(document.getElementById('limits-disk').value) || 0,
+      swap: parseInt(document.getElementById('limits-swap').value) || 0
+    },
+    feature_limits: {
+      databases: parseInt(document.getElementById('limits-databases').value) || 0,
+      backups: parseInt(document.getElementById('limits-backups').value) || 0,
+      allocations: parseInt(document.getElementById('limits-allocations').value) || 0
+    },
+    ports: Array.from(document.querySelectorAll('#portsContainer > div')).map(row => ({
+      host: parseInt(row.querySelector('[name="port-host"]').value),
+      guest: parseInt(row.querySelector('[name="port-guest"]').value),
+      protocol: row.querySelector('[name="port-protocol"]').value
+    })),
+    mounts: Array.from(document.querySelectorAll('#mountsContainer > div')).map(row => ({
+      source: row.querySelector('[name="mount-source"]').value,
+      target: row.querySelector('[name="mount-target"]').value,
+      mode: row.querySelector('[name="mount-mode"]').value
+    }))
+  };
+
+  const variables = Array.from(document.querySelectorAll('#variablesContainer .tf-card')).map(card => ({
+    id: card.querySelector('[name="id"]').value,
+    name: card.querySelector('[name="name"]').value,
+    description: card.querySelector('[name="description"]').value,
+    default_value: card.querySelector('[name="default_value"]').value,
+    user_viewable: card.querySelector('[name="user_viewable"]').checked,
+    user_editable: card.querySelector('[name="user_editable"]').checked,
+    required: card.querySelector('[name="required"]').checked
+  }));
+
+  const install_steps = Array.from(document.querySelectorAll('#installStepsContainer .tf-card')).map(card => {
+    const type = card.querySelector('[name="type"]').value;
+    const data = { type };
+    if (type === 'download') {
+      data.url = card.querySelector('[name="url"]').value;
+      data.output = card.querySelector('[name="output"]').value;
+    } else if (type === 'extract' || type === 'write') {
+      data.path = card.querySelector('[name="path"]').value;
+      if (type === 'write') data.content = card.querySelector('[name="content"]').value;
+    } else {
+      data.command = card.querySelector('[name="command"]').value;
+    }
+    return data;
+  });
+
+  const pages = Array.from(document.querySelectorAll('#pagesContainer > div.tf-card')).map(card => {
+    const type = card.querySelector('[name="page-type"]').value;
+    const p = {
+      id: card.querySelector('[name="page-id"]').value,
+      name: card.querySelector('[name="page-name"]').value,
+      type: type,
+      ejsContent: card.querySelector('[name="page-ejs"]')?.value || "",
+      jsContent: card.querySelector('[name="page-js"]')?.value || "",
+      config: {}
+    };
+
+    if (type === 'console') {
+      p.config = {
+        buttons: Array.from(card.querySelectorAll('.console-btns-container > div')).map(row => ({
+          label: row.querySelector('[name="btn-label"]').value,
+          command: row.querySelector('[name="btn-cmd"]').value,
+          type: row.querySelector('[name="btn-type"]').value,
+          style: row.querySelector('[name="btn-style"]').value
+        })),
+        macros: Array.from(card.querySelectorAll('.quick-codes-container > div')).map(row => ({
+          name: row.querySelector('[name="code-name"]').value,
+          body: row.querySelector('[name="code-body"]').value
+        })),
+        conditions: {
+          overload: card.querySelector('[name="overload-condition"]').value,
+          log_trigger: card.querySelector('[name="log-trigger"]').value
+        },
+        features: {
+           graphs: card.querySelector('[name="show-graphs"]').checked,
+           info: card.querySelector('[name="show-info"]').checked
+        }
+      };
+    }
+    return p;
+  });
+
+  const features = {};
+  ['console', 'files', 'users', 'network', 'archives', 'automations', 'db', 'ftp', 'settings', 'startup'].forEach(f => {
+    features[f] = document.getElementById(`toggle-${f}`)?.checked || false;
+  });
+
+  const payload = {
+    meta,
+    category: meta.category,
+    environment: { ...environment, docker_image: environment.image || environment.distribution },
+    variables,
+    install_steps,
+    pages,
+    features
+  };
+
+  const filename = (meta.id || 'template') + '.json';
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotification("Template exported!");
+}
+
+function importJson() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json,application/json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+
+        if (data.meta) {
+          document.getElementById('meta-id').value = data.meta.id || '';
+          document.getElementById('meta-display_name').value = data.meta.name || '';
+          if (data.meta.category) {
+            choiceInstances['meta-category'].setChoiceByValue(data.meta.category);
+          }
+          if (data.meta.type) {
+            choiceInstances['meta-type'].setChoiceByValue(data.meta.type);
+          }
+        }
+
+        if (data.environment) {
+          if (data.environment.instance_type) {
+            choiceInstances['instanceType'].setChoiceByValue(data.environment.instance_type);
+            updateEnvUI();
+          }
+          if (data.environment.docker_image || data.environment.image) {
+            const img = document.getElementById('environment-image');
+            if (img) img.value = data.environment.docker_image || data.environment.image;
+          }
+          if (data.environment.limits) {
+            document.getElementById('limits-memory').value = data.environment.limits.memory || 1024;
+            document.getElementById('limits-cpu').value = data.environment.limits.cpu || 100;
+            document.getElementById('limits-disk').value = data.environment.limits.disk || 5120;
+            document.getElementById('limits-swap').value = data.environment.limits.swap || 0;
+          }
+          if (data.environment.feature_limits) {
+            document.getElementById('limits-databases').value = data.environment.feature_limits.databases || 0;
+            document.getElementById('limits-backups').value = data.environment.feature_limits.backups || 0;
+            document.getElementById('limits-allocations').value = data.environment.feature_limits.allocations || 1;
+          }
+
+          if (Array.isArray(data.environment.ports)) {
+            document.getElementById('portsContainer').innerHTML = '';
+            data.environment.ports.forEach(p => {
+               addPortMapping();
+               const rows = document.querySelectorAll('#portsContainer > div');
+               const last = rows[rows.length-1];
+               last.querySelector('[name="port-host"]').value = p.host;
+               last.querySelector('[name="port-guest"]').value = p.guest;
+               last.querySelector('[name="port-protocol"]').value = p.protocol;
+            });
+          }
+        }
+
+        if (Array.isArray(data.variables)) {
+          document.getElementById('variablesContainer').innerHTML = '';
+          data.variables.forEach(v => addVariable(v));
+        }
+
+        if (Array.isArray(data.install_steps)) {
+          document.getElementById('installStepsContainer').innerHTML = '';
+          data.install_steps.forEach(s => addInstallStep(s));
+        }
+
+        if (Array.isArray(data.pages)) {
+           document.getElementById('pagesContainer').innerHTML = '';
+           data.pages.forEach(p => addPage(p.type));
+           // Note: Deep config population not fully implemented here but core features will toggle correctly
+        }
+
+        if (data.features) {
+          Object.keys(data.features).forEach(f => {
+            const toggle = document.getElementById(`toggle-${f}`);
+            if (toggle) {
+              toggle.checked = !!data.features[f];
+              const tile = document.getElementById(`tile-${f}`);
+              if (tile) {
+                tile.classList.toggle('active', !!data.features[f]);
+                tile.querySelector('.tile-status').textContent = data.features[f] ? 'ENABLED' : 'DISABLED';
+              }
+              syncCorePage(f);
+            }
+          });
+        }
+
+        showNotification("JSON imported successfully!", "success");
+      } catch(e) {
+        console.error(e);
+        showNotification("Invalid JSON file!", "error");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
 async function submitTemplate() {
   const meta = {
     id: document.getElementById('meta-id').value,
@@ -328,17 +576,10 @@ async function submitTemplate() {
     return p;
   });
 
-  const features = {
-    console: document.getElementById('toggle-console')?.checked || false,
-    files: document.getElementById('toggle-files')?.checked || false,
-    ports: document.getElementById('toggle-ports')?.checked || false,
-    databases: document.getElementById('toggle-databases')?.checked || false,
-    backups: document.getElementById('toggle-backups')?.checked || false,
-    users: document.getElementById('toggle-users')?.checked || false,
-    schedules: document.getElementById('toggle-schedules')?.checked || false,
-    startup: document.getElementById('toggle-startup')?.checked || false,
-    settings: document.getElementById('toggle-settings')?.checked || false
-  };
+  const features = {};
+  ['console', 'files', 'users', 'network', 'archives', 'automations', 'db', 'ftp', 'settings', 'startup'].forEach(f => {
+    features[f] = document.getElementById(`toggle-${f}`)?.checked || false;
+  });
 
   const payload = {
     meta,
