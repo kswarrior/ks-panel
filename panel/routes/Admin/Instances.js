@@ -14,7 +14,7 @@ const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkMultipleNodesStatus } = require("../../utils/nodeHelper.js");
-const { getPaginatedInstances, invalidateCache } = require("../../utils/dbHelper.js");
+const { getPaginatedInstances, invalidateCache, paginate } = require("../../utils/dbHelper.js");
 const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require("uuid");
@@ -75,12 +75,45 @@ function deleteWorkflowFromFile(instanceId) {
 // ────────────────────────────────────────────────
 // GET /admin/instances/overview → list only (unchanged)
 // ────────────────────────────────────────────────
-router.get("/admin/instances/overview", isAdmin, async (req, res) => {
+router.get("/admin/instances/overview", hasPermission('all'), async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
+    const search = req.query.search || "";
+    const category = req.query.category || "";
 
-    const instancesResult = await getPaginatedInstances(page, pageSize);
+    let instances = (await db.get("instances")) || [];
+
+    // Load templates to get categories
+    let templateCats = {};
+    if (fs.existsSync(TEMPLATES_DIR)) {
+      const dirs = fs.readdirSync(TEMPLATES_DIR)
+        .filter(f => fs.statSync(path.join(TEMPLATES_DIR, f)).isDirectory());
+      dirs.forEach(dir => {
+        const mainPath = path.join(TEMPLATES_DIR, dir, "main.json");
+        try {
+          const content = JSON.parse(fs.readFileSync(mainPath, "utf8"));
+          templateCats[dir] = content.category || "Other";
+        } catch (e) {}
+      });
+    }
+
+    // Apply filters
+    if (search || category) {
+      instances = instances.filter(inst => {
+        const matchesSearch = !search ||
+          inst.Name.toLowerCase().includes(search.toLowerCase()) ||
+          inst.Id.toLowerCase().includes(search.toLowerCase()) ||
+          inst.ContainerId.toLowerCase().includes(search.toLowerCase());
+
+        const instCat = templateCats[inst.TemplateFilename] || "Other";
+        const matchesCategory = !category || instCat === category;
+
+        return matchesSearch && matchesCategory;
+      });
+    }
+
+    const instancesResult = paginate(instances, page, pageSize);
 
     let nodes = (await db.get("nodes")) || [];
     nodes = await checkMultipleNodesStatus(nodes);
@@ -88,6 +121,14 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
     let users = (await db.get("users")) || [];
 
     let templates = [];
+    const CATEGORIES_FILE = path.join(TEMPLATES_DIR, "categories.json");
+    let categories = [];
+    if (fs.existsSync(CATEGORIES_FILE)) {
+      try {
+        categories = JSON.parse(fs.readFileSync(CATEGORIES_FILE, "utf8"));
+      } catch (e) {}
+    }
+
     try {
       if (fs.existsSync(TEMPLATES_DIR)) {
         const dirs = fs.readdirSync(TEMPLATES_DIR)
@@ -120,6 +161,8 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
       nodes,
       users,
       templates,
+      categories,
+      filters: { search, category },
       images: []
     });
   } catch (err) {
@@ -131,7 +174,7 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
 // ────────────────────────────────────────────────
 // GET /admin/instances/create → create form (unchanged)
 // ────────────────────────────────────────────────
-router.get("/admin/instances/create", isAdmin, async (req, res) => {
+router.get("/admin/instances/create", hasPermission('create_instances'), async (req, res) => {
   try {
     let nodes = (await db.get("nodes")) || [];
     nodes = await checkMultipleNodesStatus(nodes);
@@ -318,7 +361,7 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
     // checkContainerState removed (it was the cause of the problem)
     // Wings already set its own state to STOPPED and container is running idle
 
-    logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
+    logAudit(req.user.userId, req.user.username, "instance:create", req.ip, { name, user: userId, nodeId, templateFilename });
 
     res.status(201).json({
       message: "Instance created successfully (STOPPED state)",
@@ -339,7 +382,7 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
 // All other routes (unchanged)
 // ────────────────────────────────────────────────
 
-router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
+router.get("/admin/instances/:id/edit", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   const instance = await db.get(`${id}_instance`);
   let users = (await db.get("users")) || [];
@@ -354,14 +397,14 @@ router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
   });
 });
 
-router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
+router.get("/admin/instance/delete/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
     if (!instance) return res.redirect("/admin/instances");
 
     await deleteInstance(instance);
-    logAudit(req.user.userId, req.user.username, "instance:delete", req.ip);
+    logAudit(req.user.userId, req.user.username, "instance:delete", req.ip, { instanceId: id, name: instance.Name });
     res.redirect("/admin/instances");
   } catch (error) {
     log.error("Delete error:", error);
@@ -369,7 +412,7 @@ router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
+router.get("/admin/instances/purge/all", hasPermission('all'), async (req, res) => {
   try {
     const instances = (await db.get("instances")) || [];
     for (const inst of instances) {
@@ -383,7 +426,7 @@ router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
+router.post("/admin/instances/suspend/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
@@ -400,7 +443,7 @@ router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
     invalidateCache("instances");
     invalidateCache(`${id}_instance`);
 
-    logAudit(req.user.userId, req.user.username, "instance:suspend", req.ip);
+    logAudit(req.user.userId, req.user.username, "instance:suspend", req.ip, { instanceId: id, name: instance.Name });
     res.redirect("/admin/instances");
   } catch (error) {
     log.error("Suspend error:", error);
@@ -408,7 +451,7 @@ router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
+router.post("/admin/instances/unsuspend/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
@@ -428,7 +471,7 @@ router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
     invalidateCache("instances");
     invalidateCache(`${id}_instance`);
 
-    logAudit(req.user.userId, req.user.username, "instance:unsuspend", req.ip);
+    logAudit(req.user.userId, req.user.username, "instance:unsuspend", req.ip, { instanceId: id, name: instance.Name });
     res.redirect("/admin/instances");
   } catch (error) {
     log.error("Unsuspend error:", error);

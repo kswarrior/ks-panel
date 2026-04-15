@@ -106,21 +106,38 @@ function loadTemplate(dirName) {
 router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
+  const search = req.query.search || "";
+  const category = req.query.category || "";
+  const type = req.query.type || "";
 
   const dirs = fs.readdirSync(TEMPLATES_DIR).filter(entry => {
     return fs.statSync(path.join(TEMPLATES_DIR, entry)).isDirectory();
   });
 
-  const templates = dirs
+  let templates = dirs
     .map(dir => loadTemplate(dir))
     .filter(Boolean);
+
+  if (search || category || type) {
+    templates = templates.filter(t => {
+      const matchesSearch = !search ||
+        (t.meta?.name || "").toLowerCase().includes(search.toLowerCase()) ||
+        (t.meta?.display_name || "").toLowerCase().includes(search.toLowerCase());
+
+      const matchesCategory = !category || t.category === category;
+      const matchesType = !type || (t.meta?.type || t.type) === type;
+
+      return matchesSearch && matchesCategory && matchesType;
+    });
+  }
 
   res.render("admin/templates/overview", {
     req,
     user: req.user,
     templates,
     categories,
-    types
+    types,
+    filters: { search, category, type }
   });
 });
 
@@ -128,7 +145,7 @@ router.get("/admin/templates/overview", hasPermission("manage_templates"), (req,
 // CREATE page
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/create", isAdmin, (req, res) => {
+router.get("/admin/templates/create", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
   res.render("admin/templates/create", { req, user: req.user, categories, types });
@@ -138,7 +155,7 @@ router.get("/admin/templates/create", isAdmin, (req, res) => {
 // EDIT page ─ loads full content (main + pages/*.ejs & .js)
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/edit/:dirName", isAdmin, (req, res) => {
+router.get("/admin/templates/edit/:dirName", hasPermission("manage_templates"), (req, res) => {
   const { dirName } = req.params;
   const template = loadTemplate(dirName);
 
@@ -163,7 +180,7 @@ router.get("/admin/templates/edit/:dirName", isAdmin, (req, res) => {
 // ADD / CREATE TYPE
 // ────────────────────────────────────────────────
 
-router.post("/admin/templates/type", isAdmin, (req, res) => {
+router.post("/admin/templates/type", hasPermission("manage_templates"), (req, res) => {
   const { name } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: "Name required" });
 
@@ -186,7 +203,7 @@ router.post("/admin/templates/type", isAdmin, (req, res) => {
 // DELETE TYPE
 // ────────────────────────────────────────────────
 
-router.delete("/admin/templates/type", isAdmin, (req, res) => {
+router.delete("/admin/templates/type", hasPermission("manage_templates"), (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Name required" });
 
@@ -209,7 +226,7 @@ router.delete("/admin/templates/type", isAdmin, (req, res) => {
 // ADD / CREATE CATEGORY
 // ────────────────────────────────────────────────
 
-router.post("/admin/templates/category", isAdmin, (req, res) => {
+router.post("/admin/templates/category", hasPermission("manage_templates"), (req, res) => {
   const { name } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: "Name required" });
 
@@ -232,7 +249,7 @@ router.post("/admin/templates/category", isAdmin, (req, res) => {
 // DELETE CATEGORY
 // ────────────────────────────────────────────────
 
-router.delete("/admin/templates/category", isAdmin, (req, res) => {
+router.delete("/admin/templates/category", hasPermission("manage_templates"), (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Name required" });
 
@@ -255,7 +272,7 @@ router.delete("/admin/templates/category", isAdmin, (req, res) => {
 // CREATE new template (folder + main.json + pages files)
 // ────────────────────────────────────────────────
 
-router.post("/admin/templates", isAdmin, (req, res) => {
+router.post("/admin/templates", hasPermission("manage_templates"), (req, res) => {
   try {
     const { meta, category, environment, variables = [], actions = [], install_steps = [], security = {}, pages = [], features = {} } = req.body;
 
@@ -312,7 +329,7 @@ router.post("/admin/templates", isAdmin, (req, res) => {
       }
     });
 
-    logAudit(req.user.userId, req.user.username, "template:create", req.ip);
+    logAudit(req.user.userId, req.user.username, "template:create", req.ip, { name: meta.name, category });
 
     res.json({ success: true, filename: dirName });
   } catch (err) {
@@ -325,7 +342,7 @@ router.post("/admin/templates", isAdmin, (req, res) => {
 // UPDATE template (rename folder if needed + rewrite pages)
 // ────────────────────────────────────────────────
 
-router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
+router.put("/admin/templates/:dirName", hasPermission("manage_templates"), (req, res) => {
   try {
     const oldDirName = req.params.dirName;
     const oldDirPath = path.join(TEMPLATES_DIR, oldDirName);
@@ -400,7 +417,7 @@ router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
       }
     });
 
-    logAudit(req.user.userId, req.user.username, "template:update", req.ip);
+    logAudit(req.user.userId, req.user.username, "template:update", req.ip, { name: meta.name, category });
 
     res.json({ success: true, filename: newDirName });
   } catch (err) {
@@ -413,7 +430,7 @@ router.put("/admin/templates/:dirName", isAdmin, (req, res) => {
 // DELETE entire template folder
 // ────────────────────────────────────────────────
 
-router.delete("/admin/templates/:dirName", isAdmin, (req, res) => {
+router.delete("/admin/templates/:dirName", hasPermission("manage_templates"), (req, res) => {
   const dirPath = path.join(TEMPLATES_DIR, req.params.dirName);
 
   if (!fs.existsSync(dirPath)) {
@@ -422,7 +439,7 @@ router.delete("/admin/templates/:dirName", isAdmin, (req, res) => {
 
   try {
     fs.rmSync(dirPath, { recursive: true, force: true });
-    logAudit(req.user.userId, req.user.username, "template:delete", req.ip);
+    logAudit(req.user.userId, req.user.username, "template:delete", req.ip, { name: req.params.dirName });
     res.json({ success: true });
   } catch (err) {
     log.error("Delete failed", err);
@@ -434,7 +451,7 @@ router.delete("/admin/templates/:dirName", isAdmin, (req, res) => {
 // DOWNLOAD main.json only (for backward compatibility / simple export)
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/download/:dirName", isAdmin, (req, res) => {
+router.get("/admin/templates/download/:dirName", hasPermission("manage_templates"), (req, res) => {
   const mainPath = path.join(TEMPLATES_DIR, req.params.dirName, "main.json");
 
   if (fs.existsSync(mainPath)) {

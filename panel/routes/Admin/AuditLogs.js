@@ -34,18 +34,21 @@ router.get("/admin/auditlogs", hasPermission("view_audit_logs"), async (req, res
       });
     }
 
+    const totalCount = audits.length;
+
     // Use pagination for audit logs
     const result = paginate(audits, page, pageSize);
 
     // Get unique actions for filter dropdown
     const allAudits = await db.get("audits");
     const allAuditsArray = allAudits ? JSON.parse(allAudits) : [];
-    const actions = [...new Set(allAuditsArray.map(audit => audit.action))];
+    const actions = [...new Set(allAuditsArray.map(audit => audit.action))].sort();
 
     res.render("admin/auditlogs", {
       req,
       user: req.user,
       audits: result.data,
+      totalCount,
       pagination: result.pagination,
       actions,
       actionFilter,

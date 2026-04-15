@@ -2,27 +2,26 @@ const { db } = require("../handlers/db.js");
 
 /**
  * Middleware to check if a user has a specific permission.
- * Admins (admin: true), Owners (owner: true) and hardcoded users (admin, kshosting) have all permissions.
+ * Owners (owner: true) and Admins (admin: true) have all permissions.
  * Also checks permissions from assigned Roles.
  */
 function hasPermission(permission) {
   return async (req, res, next) => {
     if (!req.user) return res.redirect("/login");
 
-    const username = req.user.username;
-
-    // Safety fallback for primary accounts
-    if (username === 'admin' || username === 'kshosting') {
+    // Use session data for immediate checks (Owner/Admin)
+    if (req.user.owner === true || req.user.admin === true || String(req.user.admin) === 'true') {
       return next();
     }
 
     try {
+      // Fetch ONLY the current user from DB for fresh permissions check
       const users = await db.get("users") || [];
-      const dbUser = users.find(u => u.username === username);
+      const dbUser = users.find(u => u.userId === req.user.userId);
 
       if (!dbUser) return res.redirect("/login");
 
-      // Owner or Full admin check
+      // Verify Owner/Admin status from DB
       if (dbUser.owner === true || dbUser.admin === true || String(dbUser.admin) === 'true') {
         return next();
       }
@@ -43,10 +42,6 @@ function hasPermission(permission) {
 
     } catch (err) {
       console.error("Permission check failed:", err);
-      // Fallback to session data if DB is unreachable
-      if (req.user.admin === true || String(req.user.admin) === 'true') {
-        return next();
-      }
     }
 
     // If no permission, redirect to dashboard

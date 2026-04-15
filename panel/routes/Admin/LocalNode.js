@@ -2,11 +2,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 const localNodeExec = require('../../exec/localnode');
 
-router.get("/admin/nodes/localnode", isAdmin, async (req, res) => {
+router.get("/admin/nodes/localnode", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const nodeIds = await db.get("nodes") || [];
     const nodes = await Promise.all(nodeIds.map(id => db.get(`${id}_node`)));
@@ -21,7 +21,7 @@ router.get("/admin/nodes/localnode", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/install", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/install", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const { output, code } = await localNodeExec.install();
     let finalOutput = output;
@@ -37,7 +37,7 @@ router.post("/admin/nodes/localnode/install", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/configure", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/configure", hasPermission('manage_nodes'), async (req, res) => {
   const config = req.body.configuration || '';
   try {
     const { output, code } = await localNodeExec.configure(config);
@@ -54,7 +54,7 @@ router.post("/admin/nodes/localnode/configure", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/start", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/start", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const { output, code } = await localNodeExec.start();
     res.json({ log: output + `\nExit code: ${code}` });
@@ -63,7 +63,7 @@ router.post("/admin/nodes/localnode/start", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/stop", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/stop", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const { output, code } = await localNodeExec.stop();
     res.json({ log: output + `\nExit code: ${code}` });
@@ -72,7 +72,7 @@ router.post("/admin/nodes/localnode/stop", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/restart", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/restart", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const { output, code } = await localNodeExec.restart();
     res.json({ log: output + `\nExit code: ${code}` });
@@ -81,7 +81,7 @@ router.post("/admin/nodes/localnode/restart", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/reinstall", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/reinstall", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const { output, code } = await localNodeExec.reinstall();
     let finalOutput = output;
@@ -97,7 +97,7 @@ router.post("/admin/nodes/localnode/reinstall", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/localnode/logs", isAdmin, async (req, res) => {
+router.post("/admin/nodes/localnode/logs", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const { output, code } = await localNodeExec.logs();
     let finalOutput = output;

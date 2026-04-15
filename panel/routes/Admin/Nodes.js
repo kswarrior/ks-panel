@@ -8,7 +8,7 @@ const { parsePorts } = require('../../utils/dbHelper.js');
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
-const { getPaginatedNodes, invalidateCache } = require("../../utils/dbHelper.js");
+const { getPaginatedNodes, invalidateCache, paginate } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
 // ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + FTP + All Extras) ====================
@@ -16,9 +16,35 @@ const log = new (require("cat-loggr"))();
 router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
+  const search = req.query.search || "";
+  const locationId = req.query.location || "";
+  const category = req.query.category || "";
 
-  const nodesResult = await getPaginatedNodes(page, pageSize);
-  let nodeIds = nodesResult.data;
+  let nodeIds = (await db.get("nodes")) || [];
+
+  // Fetch all nodes first to filter
+  let allNodes = [];
+  for (const id of nodeIds) {
+    const node = await db.get(id + "_node");
+    if (node) allNodes.push(node);
+  }
+
+  if (search || locationId || category) {
+    allNodes = allNodes.filter(n => {
+      const matchesSearch = !search ||
+        n.name.toLowerCase().includes(search.toLowerCase()) ||
+        n.address.toLowerCase().includes(search.toLowerCase()) ||
+        n.id.toLowerCase().includes(search.toLowerCase());
+
+      const matchesLocation = !locationId || n.location === locationId;
+      const matchesCategory = !category || n.category === category;
+
+      return matchesSearch && matchesLocation && matchesCategory;
+    });
+  }
+
+  const nodesResult = paginate(allNodes, page, pageSize);
+  nodeIds = nodesResult.data.map(n => n.id);
   
   let instances = (await db.get("instances")) || [];
   let set = {};
@@ -71,14 +97,18 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
     if (loc) locations.push(loc);
   }
 
+  const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
   res.render("admin/nodes/overview", {
-  req,
-  user: req.user,
-  nodes: nodesWithResources,
-  set,
-  pagination: nodesResult.pagination,
-  locations,
-});
+    req,
+    user: req.user,
+    nodes: nodesWithResources,
+    set,
+    pagination: nodesResult.pagination,
+    locations,
+    categories,
+    filters: { search, locationId, category }
+  });
 });
 
 // ==================== NEW: CREATE NODE PAGE (create.ejs) ====================
@@ -302,7 +332,7 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
       }
     }
 
-    logAudit(req.user.userId, req.user.username, "node:create", req.ip);
+    logAudit(req.user.userId, req.user.username, "node:create", req.ip, { name, address });
     res.status(201).json({ ...node, configureKey });
   } catch (err) {
     log.error("Error creating node:", err);
@@ -393,7 +423,7 @@ router.post("/admin/nodes/delete", hasPermission('manage_nodes'), async (req, re
     invalidateNodeCache(node.id);
     invalidateCache("nodes");
 
-    logAudit(req.user.userId, req.user.username, "node:delete", req.ip);
+    logAudit(req.user.userId, req.user.username, "node:delete", req.ip, { nodeId, name: node.name });
     res.status(200).json({ success: true });
   } catch (error) {
     log.error("Error deleting node:", error);
@@ -469,6 +499,11 @@ router.post("/admin/nodes/configure", async (req, res) => {
 });
 
 // ==================== CONFIGURE COMMAND - FIXED TOKEN (no longer changes) ====================
+router.post("/admin/nodes/status", hasPermission('manage_nodes'), async (req, res) => {
+  // Mock/Helper for frontend checkStatus
+  res.json({ running: true, pid: process.pid });
+});
+
 router.get("/admin/nodes/node/:id/configure-command", hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
 
@@ -538,7 +573,7 @@ router.post("/admin/nodes/node/:id", hasPermission('manage_nodes'), async (req, 
   await db.set(id + "_node", node);
   const updatedNode = await checkNodeStatus(node);
   invalidateCache("nodes");
-  logAudit(req.user.userId, req.user.username, "node:update", req.ip);
+  logAudit(req.user.userId, req.user.username, "node:update", req.ip, { nodeId: id, name: node.name });
   res.status(200).json(updatedNode);
 });
 
@@ -661,7 +696,7 @@ router.post('/admin/nodes/overview/:id/allocations', hasPermission('manage_nodes
     await db.set(allocationsKey, allocations);
 
     invalidateNodeCache(id);
-    logAudit(req.user.userId, req.user.username, 'node:allocation:add', req.ip);
+    logAudit(req.user.userId, req.user.username, 'node:allocation:add', req.ip, { nodeId: id, count: newAllocs.length });
 
     res.status(201).json({ message: `${newAllocs.length} allocations added`, allocations: newAllocs });
   } catch (err) {
