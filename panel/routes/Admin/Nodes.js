@@ -6,14 +6,14 @@ const crypto = require("crypto");                    // ← REQUIRED FOR ACCESS 
 const { db } = require("../../handlers/db.js");
 const { parsePorts } = require('../../utils/dbHelper.js');
 const { logAudit } = require("../../handlers/auditLog.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
 const { getPaginatedNodes, invalidateCache } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
 // ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + FTP + All Extras) ====================
 
-router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
+router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
 
@@ -82,7 +82,7 @@ router.get("/admin/nodes/overview", isAdmin, async (req, res) => {
 });
 
 // ==================== NEW: CREATE NODE PAGE (create.ejs) ====================
-router.get("/admin/nodes/create", isAdmin, async (req, res) => {
+router.get("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res) => {
   const locationIds = (await db.get("locations")) || [];
   const locations = [];
   for (const locId of locationIds) {
@@ -90,14 +90,56 @@ router.get("/admin/nodes/create", isAdmin, async (req, res) => {
     if (loc) locations.push(loc);
   }
 
+  const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
   res.render("admin/nodes/create", {
     req,
     user: req.user,
     locations,
+    categories
   });
 });
 
-router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
+// Location CRUD
+router.post("/admin/nodes/locations/create", hasPermission('manage_nodes'), async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Name required" });
+  const id = uuidv4();
+  const loc = { id, name };
+  await db.set(`${id}_location`, loc);
+  const ids = await db.get("locations") || [];
+  ids.push(id);
+  await db.set("locations", ids);
+  res.json(loc);
+});
+
+router.post("/admin/nodes/locations/delete", hasPermission('manage_nodes'), async (req, res) => {
+  const { id } = req.body;
+  await db.delete(`${id}_location`);
+  const ids = await db.get("locations") || [];
+  const newIds = ids.filter(i => i !== id);
+  await db.set("locations", newIds);
+  res.json({ success: true });
+});
+
+// Category CRUD
+router.post("/admin/nodes/categories/create", hasPermission('manage_nodes'), async (req, res) => {
+  const { name } = req.body;
+  const cats = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+  if (!cats.includes(name)) cats.push(name);
+  await db.set("node_categories", cats);
+  res.json({ categories: cats });
+});
+
+router.post("/admin/nodes/categories/delete", hasPermission('manage_nodes'), async (req, res) => {
+  const { name } = req.body;
+  const cats = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+  const newCats = cats.filter(c => c !== name);
+  await db.set("node_categories", newCats);
+  res.json({ categories: newCats });
+});
+
+router.get("/admin/nodes/node/:id/stats", hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
 
   let node = await db.get(id + "_node");
@@ -147,7 +189,7 @@ router.get("/admin/nodes/node/:id/stats", isAdmin, async (req, res) => {
 });
 
 // ==================== CREATE NODE - ALL FIELDS (Pterodactyl + FTP + Extras) ====================
-router.post("/admin/nodes/create", isAdmin, async (req, res) => {
+router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res) => {
   const {
     name,
     address,
@@ -201,6 +243,8 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
   const nodeId = uuidv4();
   const configureKey = uuidv4();   // FIXED: generated only once at creation
 
+  const { category } = req.body;
+
   const node = {
     id: nodeId,
     name: name.trim(),
@@ -213,6 +257,7 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
       port: ftpPortNum
     },
     location: location || null,
+    category: category || "Default",
     ram: finalRam,
     disk: finalDisk,
     memoryOverallocate: parseInt(memoryOverallocate),
@@ -265,7 +310,7 @@ router.post("/admin/nodes/create", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/nodes/delete", isAdmin, async (req, res) => {
+router.post("/admin/nodes/delete", hasPermission('manage_nodes'), async (req, res) => {
   const { nodeId } = req.body;
   if (!nodeId) {
     return res.status(400).json({ error: "Missing nodeId" });
@@ -424,7 +469,7 @@ router.post("/admin/nodes/configure", async (req, res) => {
 });
 
 // ==================== CONFIGURE COMMAND - FIXED TOKEN (no longer changes) ====================
-router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) => {
+router.get("/admin/nodes/node/:id/configure-command", hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -452,7 +497,7 @@ router.get("/admin/nodes/node/:id/configure-command", isAdmin, async (req, res) 
 });
 
 // ==================== UPDATE NODE - FULLY SUPPORTS ALL NEW FIELDS (NO DATA LOSS) ====================
-router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
+router.post("/admin/nodes/node/:id", hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
   let node = await db.get(id + "_node");
   if (!node) return res.status(404).json({ error: "Node not found" });
@@ -497,7 +542,7 @@ router.post("/admin/nodes/node/:id", isAdmin, async (req, res) => {
   res.status(200).json(updatedNode);
 });
 
-router.post("/admin/nodes/overview/radar/check", isAdmin, async (req, res) => {
+router.post("/admin/nodes/overview/radar/check", hasPermission('manage_nodes'), async (req, res) => {
   try {
     const nodes = (await db.get("nodes")) || [];
     let instances = (await db.get("instances")) || [];
@@ -547,7 +592,7 @@ router.post("/admin/nodes/overview/radar/check", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) => {
+router.get("/admin/nodes/node/:id/resourceMonitor", hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
   const node = await db.get(id + "_node");
   if (!node) return res.status(404).json({ error: "Node not found" });
@@ -580,7 +625,7 @@ router.get("/admin/nodes/node/:id/resourceMonitor", isAdmin, async (req, res) =>
 });
 
 // POST: Add allocations to a node (admin only)
-router.post('/admin/nodes/overview/:id/allocations', isAdmin, async (req, res) => {
+router.post('/admin/nodes/overview/:id/allocations', hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
   const node = await db.get(`${id}_node`);
   if (!node) {
@@ -626,7 +671,7 @@ router.post('/admin/nodes/overview/:id/allocations', isAdmin, async (req, res) =
 });
 
 // GET: List available allocations for a node
-router.get('/admin/nodes/overview/:id/available-allocations', isAdmin, async (req, res) => {
+router.get('/admin/nodes/overview/:id/available-allocations', hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
   const allocationsKey = `${id}_allocations`;
   const allocations = (await db.get(allocationsKey)) || [];

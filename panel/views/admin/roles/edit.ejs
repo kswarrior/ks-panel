@@ -1,0 +1,89 @@
+<%- include('../../components/template') %>
+
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+      <a href="/admin/roles" class="text-sm text-neutral-500 hover:text-white flex items-center gap-2 mb-4 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Back to roles
+      </a>
+      <h1 class="text-3xl font-black text-white tracking-tight">Edit Role: <%= role.name %></h1>
+      <p class="text-neutral-400 mt-1">Modify permissions and appearance for this role</p>
+    </div>
+
+    <form action="/admin/roles/edit/<%= role.id %>" method="POST" class="space-y-6">
+      <div class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div>
+            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Role Name</label>
+            <input type="text" name="name" required value="<%= role.name %>"
+                   class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white focus:outline-none focus:border-blue-500 transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Role Color</label>
+            <div class="flex gap-3">
+              <input type="color" name="color" value="<%= role.color %>"
+                     class="h-12 w-12 rounded-xl bg-transparent border-none cursor-pointer">
+              <input type="text" id="color-hex" value="<%= role.color %>" readonly
+                     class="flex-1 px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white font-mono text-sm">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Permissions</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <% systemPermissions.forEach(perm => { %>
+              <% const isChecked = role.permissions && (role.permissions[perm.id] === 'true' || role.permissions[perm.id] === true); %>
+              <div class="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors flex items-start gap-4 cursor-pointer group" onclick="toggleCheck('<%= perm.id %>')">
+                <div class="mt-1">
+                  <div class="relative w-5 h-5 rounded-md border-2 transition-all <%= isChecked ? 'border-blue-500 bg-blue-500/10' : 'border-white/20' %> group-hover:border-blue-500/50" id="box-<%= perm.id %>">
+                    <svg class="absolute inset-0 w-full h-full text-blue-500 transition-transform duration-200 <%= isChecked ? '' : 'scale-0' %>" id="check-<%= perm.id %>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <input type="checkbox" name="permissions[<%= perm.id %>]" id="input-<%= perm.id %>" value="true" class="hidden" <%= isChecked ? 'checked' : '' %>>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white"><%= perm.name %></h4>
+                  <p class="text-xs text-neutral-500 leading-relaxed"><%= perm.description %></p>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4">
+        <a href="/admin/roles" class="px-8 py-3 rounded-xl text-sm font-bold text-neutral-400 hover:text-white transition-colors">Cancel</a>
+        <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  function toggleCheck(id) {
+    const input = document.getElementById('input-' + id);
+    const box = document.getElementById('box-' + id);
+    const check = document.getElementById('check-' + id);
+
+    input.checked = !input.checked;
+
+    if (input.checked) {
+      box.classList.add('border-blue-500', 'bg-blue-500/10');
+      box.classList.remove('border-white/20');
+      check.classList.remove('scale-0');
+    } else {
+      box.classList.remove('border-blue-500', 'bg-blue-500/10');
+      box.classList.add('border-white/20');
+      check.classList.add('scale-0');
+    }
+  }
+
+  document.querySelector('input[type="color"]').addEventListener('input', (e) => {
+    document.getElementById('color-hex').value = e.target.value;
+  });
+</script>
+
+<%- include('../components/footer') %>

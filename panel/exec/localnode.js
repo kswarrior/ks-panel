@@ -5,7 +5,7 @@ const path = require('path');
 const log = new (require("cat-loggr"))();
 
 const baseDir = path.join(__dirname, '..', '..');
-const localNodeDir = path.join(baseDir, 'database', 'localnode');
+const localNodeDir = path.join(baseDir, 'wings');
 
 // We keep pidFile path for backward compatibility / manual checks, but we no longer rely on it for PM2 operations
 const pidFile = path.join(baseDir, 'database', 'localnode.pid');
@@ -50,11 +50,10 @@ exports.install = async () => {
     return runCommand('npm install --prefer-offline --no-audit --no-fund');
   }
 
-  log.info('Cloning ks-wings repository...');
-  fs.mkdirSync(path.join(baseDir, 'database'), { recursive: true });
+  log.info('Cloning ks-wings repository into wings folder...');
 
-  const cloneCmd = 'git clone https://github.com/kswarrior/ks-wings localnode && cd localnode && npm install --prefer-offline --no-audit --no-fund';
-  return runCommand(cloneCmd, { cwd: path.join(baseDir, 'database') });
+  const cloneCmd = 'git clone https://github.com/kswarrior/ks-wings wings && cd wings && npm install --prefer-offline --no-audit --no-fund';
+  return runCommand(cloneCmd, { cwd: baseDir });
 };
 
 exports.configure = async (config) => {

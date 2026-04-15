@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 
 const log = new (require("cat-loggr"))();
@@ -103,7 +103,7 @@ function loadTemplate(dirName) {
 // OVERVIEW ─ list all templates
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/overview", isAdmin, (req, res) => {
+router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
 

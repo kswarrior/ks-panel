@@ -12,7 +12,7 @@ const router = express.Router();
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkMultipleNodesStatus } = require("../../utils/nodeHelper.js");
 const { getPaginatedInstances, invalidateCache } = require("../../utils/dbHelper.js");
 const fs = require("fs");
@@ -180,7 +180,7 @@ router.get("/admin/instances/create", isAdmin, async (req, res) => {
 // ────────────────────────────────────────────────
 // POST /admin/instances/create → FULLY UPDATED + STOPPED FIX
 // ────────────────────────────────────────────────
-router.post("/admin/instances/create", isAdmin, async (req, res) => {
+router.post("/admin/instances/create", hasPermission('create_instances'), async (req, res) => {
   const {
     name,
     user: userId,

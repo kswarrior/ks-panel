@@ -100,13 +100,24 @@
           <!-- Configure -->
           <div class="space-y-2">
             <label class="text-xs font-medium text-neutral-400 block">
-              Configure Command (from node setup)
+              Select Node for Configuration
+            </label>
+            <select id="nodeSelect" class="input-field mb-2" onchange="updateConfigCommand()">
+              <option value="">-- Select a Node --</option>
+              <% nodes.forEach(node => { %>
+                <option value="<%= node.id %>" data-config="npm run configure -- --panel <%= req.protocol + '://' + req.get('host') %> --key <%= node.configureKey %>">
+                  <%= node.name %> (<%= node.address %>)
+                </option>
+              <% }) %>
+            </select>
+            <label class="text-xs font-medium text-neutral-400 block">
+              Configure Command
             </label>
             <input id="configuration" type="text" 
                    class="input-field font-mono text-xs sm:text-sm" 
                    placeholder="npm run configure -- --panel https://yourpanel.com --key xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
             <p class="text-xs text-neutral-500 leading-relaxed">
-              Paste the full command shown in Admin → Nodes → [Your Node] → Configure
+              Selected node's configuration will be automatically populated.
             </p>
           </div>
 
@@ -222,6 +233,18 @@
     } else {
       indicator.className = 'w-3 h-3 rounded-full bg-red-500 flex-shrink-0';
       text.textContent = 'Stopped';
+    }
+  }
+
+  function updateConfigCommand() {
+    const select = document.getElementById('nodeSelect');
+    const option = select.options[select.selectedIndex];
+    const configInput = document.getElementById('configuration');
+
+    if (option && option.dataset.config) {
+      configInput.value = option.dataset.config;
+    } else {
+      configInput.value = '';
     }
   }
 

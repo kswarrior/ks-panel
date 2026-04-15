@@ -1,600 +1,200 @@
 <%- include('../../components/template') %>
 
-<style>
-/* === CSS VARIABLES (Preserving your glassmorphic colors) === */
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: blur(20px);
-  --color-cpu: #fb923c;
-  --color-ram: #60a5fa;
-  --color-disk: #34d399;
-}
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-[1600px] mx-auto">
 
-/* === PREMIUM GLASSMORPHIC CARDS (REDUCED SHADOW FOR PERFORMANCE) === */
-.stat-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: clamp(1rem, 3vw, 1.75rem);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-}
-
-.stat-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: rgba(255,255,255,0.25);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-}
-
-.stat-number {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-top: 0.5rem;
-  word-break: break-word;
-  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.stat-icon {
-  width: clamp(2.5rem, 6vw, 3rem);
-  height: clamp(2.5rem, 6vw, 3rem);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.15;
-  transition: opacity 0.3s ease;
-}
-
-.stat-card:hover .stat-icon::before {
-  opacity: 0.25;
-}
-
-.stat-icon svg {
-  width: 55%;
-  height: 55%;
-  stroke-width: 1.75;
-  position: relative;
-  z-index: 1;
-}
-
-/* === DASHBOARD LAYOUT === */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  padding: 1.25rem;
-}
-
-.log-terminal {
-  background: #0f172a;
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 0.75rem;
-  font-family: 'SF Mono', Monaco, monospace;
-  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
-  line-height: 1.6;
-  color: #94a3b8;
-  max-height: 300px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  width: 100%;
-}
-
-/* === LINE GRAPH CSS (FIXED SIZING + COMPLETE LINE) === */
-.line-graph-container {
-  position: relative;
-  height: 80px;
-  width: 100%;
-  background: rgba(255,255,255,0.03);
-  border-radius: 12px;
-  padding: 8px;
-  overflow: hidden;
-}
-
-.line-graph {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
-  height: calc(100% - 16px);
-  width: 100%;
-}
-
-.line-path {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 4px currentColor);
-  animation: drawLine 1.5s ease-out forwards;
-}
-
-.line-area {
-  width: 100%;
-  height: 100%;
-  opacity: 0.2;
-  animation: fadeIn 1s ease-out 0.5s forwards;
-}
-
-@keyframes drawLine {
-  from { stroke-dasharray: 3000; stroke-dashoffset: 3000; }
-  to { stroke-dasharray: 3000; stroke-dashoffset: 0; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 0.2; }
-}
-
-/* === RESPONSIVE GRID SYSTEM === */
-.dashboard-grid {
-  display: grid;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (min-width: 1024px) {
-  .dashboard-grid { grid-template-columns: repeat(4, 1fr); }
-}
-
-@media (max-width: 640px) {
-  .stat-card { padding: 1rem; }
-  .log-terminal { max-height: 220px; font-size: 0.75rem; }
-}
-
-/* === CONTROLS === */
-.refresh-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #a1a1aa;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.refresh-btn:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-2px);
-}
-
-.live-badge {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(16,185,129,0.1);
-  color: #10b981;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  background: #10b981;
-  border-radius: 50%;
-  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.6) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-</style>
-
-<main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-
-  <!-- HEADER -->
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10 mb-6">
-    <div class="flex-1 min-w-0">
-      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Console</h1>
-      <p class="mt-1 text-xs sm:text-sm text-neutral-400">Live Logs • Resources Monitor</p>
-    </div>
-
-    <div class="flex items-center gap-3 flex-wrap">
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        <span>LIVE</span>
-      </div>
-
-      <button onclick="refreshAll()" class="refresh-btn">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        <span class="hidden sm:inline">Refresh All</span>
-      </button>
-
-      <span class="bg-white/5 px-3 py-2 rounded-[10px] text-xs text-neutral-400 border border-white/5">v<%= version %></span>
-    </div>
-  </header>
-<%- include('../../components/dashboard') %>
-  <!-- 1. LIVE LOGS -->
-  <div class="glass-panel mb-6">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-lg bg-white/5">
-          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <!-- Header -->
+    <header class="mb-10 pb-8 border-b border-white/5 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <h1 class="text-3xl font-bold text-white tracking-tight truncate">System Console</h1>
+            <div class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+              Live Stream
+            </div>
+          </div>
+          <p class="text-neutral-400">Monitor real-time system logs and resource utilization across the panel.</p>
         </div>
-        <h2 class="text-lg sm:text-xl font-semibold text-white">KS Panel Live Logs</h2>
+
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button onclick="clearLogs()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/5 text-white font-bold text-xs sm:text-sm border border-white/10 hover:bg-white/10 transition-all">
+            Clear
+          </button>
+          <button id="log-btn" onclick="toggleStream()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white text-black font-bold text-xs sm:text-sm shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap">
+            Stop Stream
+          </button>
+        </div>
       </div>
-      <div class="flex gap-2">
-        <button onclick="clearLogs()" class="refresh-btn text-xs px-3 py-2">Clear</button>
-        <button onclick="toggleStream()" id="log-btn" class="refresh-btn bg-red-500/20 text-red-400 border-red-500/30 text-xs px-3 py-2">Stop</button>
+
+      <%- include('../../components/dashboard') %>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
+
+      <!-- Terminal View -->
+      <div class="lg:col-span-3 order-2 lg:order-1">
+        <div class="bg-[#0a0a0a]/80 backdrop-blur-2xl rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl flex flex-col h-[400px] sm:h-[600px] lg:h-[700px]">
+          <div class="px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border-b border-white/5 flex items-center justify-between">
+            <div class="flex gap-1 sm:gap-1.5">
+              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/50"></div>
+              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/50"></div>
+              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/50"></div>
+            </div>
+            <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate ml-2">daemon.log</span>
+          </div>
+          <div id="logs" class="flex-1 p-3 sm:p-6 overflow-y-auto font-mono text-[10px] sm:text-xs md:text-sm leading-relaxed scrollbar-thin">
+            <div class="text-neutral-500 italic">Initializing connection...</div>
+          </div>
+        </div>
+        <input id="input" type="text" placeholder="Type a command..." autocomplete="off"
+               class="mt-4 w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-mono text-sm">
       </div>
-    </div>
-    <div id="logs" class="log-terminal">
-      <div class="text-neutral-400 italic">Connecting to live logs...</div>
+
+      <!-- Resource Sidebar -->
+      <div class="space-y-4 sm:space-y-6 order-1 lg:order-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6">
+          <!-- CPU -->
+          <div class="bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 shadow-xl">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+              <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">CPU Load</span>
+              <span class="text-base sm:text-lg font-bold text-orange-400" id="cpu-text">0%</span>
+            </div>
+            <div class="h-1.5 sm:h-2 w-full bg-white/5 rounded-full overflow-hidden mb-2">
+              <div id="cpu-bar" class="h-full bg-orange-400 transition-all duration-500 shadow-[0_0_10px_rgba(251,146,60,0.5)]" style="width: 0%"></div>
+            </div>
+            <p class="text-[9px] sm:text-[10px] text-neutral-500 text-right" id="cpu-cores">0 Cores Active</p>
+          </div>
+
+          <!-- RAM -->
+          <div class="bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 shadow-xl">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+              <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Memory</span>
+              <span class="text-base sm:text-lg font-bold text-blue-400" id="ram-text">0%</span>
+            </div>
+            <div class="h-1.5 sm:h-2 w-full bg-white/5 rounded-full overflow-hidden mb-2">
+              <div id="ram-bar" class="h-full bg-blue-400 transition-all duration-500 shadow-[0_0_10px_rgba(96,165,250,0.5)]" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[9px] sm:text-[10px] font-medium">
+              <span class="text-neutral-500" id="ram-used">0 GB</span>
+              <span class="text-neutral-500" id="ram-total">0 GB</span>
+            </div>
+          </div>
+
+          <!-- Disk -->
+          <div class="bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 shadow-xl">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+              <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Disk Usage</span>
+              <span class="text-base sm:text-lg font-bold text-emerald-400" id="disk-text">0%</span>
+            </div>
+            <div class="h-1.5 sm:h-2 w-full bg-white/5 rounded-full overflow-hidden mb-2">
+              <div id="disk-bar" class="h-full bg-emerald-400 transition-all duration-500 shadow-[0_0_10px_rgba(52,211,153,0.5)]" style="width: 0%"></div>
+            </div>
+            <p class="text-[9px] sm:text-[10px] text-neutral-500 text-right truncate" id="disk-used">0 GB / 0 GB</p>
+          </div>
+
+          <!-- Network -->
+          <div class="bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 shadow-xl sm:col-span-2 lg:col-span-1">
+            <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-3 sm:mb-4">Network I/O</span>
+            <div class="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-4">
+              <div class="p-2 sm:p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex-shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-lg sm:text-xl font-bold text-white truncate" id="net-text">0 MB/s</p>
+                <p class="text-[9px] sm:text-[10px] text-neutral-500 uppercase tracking-widest font-bold truncate" id="net-peak">Peak: 0 MB/s</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <!-- 2. RESOURCES MONITOR -->
-  <div class="mb-6">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-lg bg-white/5">
-          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        </div>
-        <h2 class="text-lg sm:text-xl font-semibold text-white">Resources Monitor</h2>
-      </div>
-      <button onclick="refreshResources()" class="refresh-btn text-xs">Refresh</button>
-    </div>
-
-    <div class="dashboard-grid">
-      <!-- CPU Card -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-3">
-          <div class="p-2.5 rounded-xl bg-orange-500/10">
-            <svg class="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-xs sm:text-sm">CPU Usage</p>
-            <p id="cpu-text" class="text-3xl sm:text-4xl font-bold text-orange-400">0%</p>
-          </div>
-        </div>
-        <div class="line-graph-container text-orange-400">
-          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="cpuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
-                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
-              </linearGradient>
-            </defs>
-            <path id="cpu-area" class="line-area" fill="url(#cpuGradient)" d="" />
-            <path id="cpu-line" class="line-path" stroke="currentColor" d="" />
-          </svg>
-        </div>
-        <div class="mt-3 flex justify-between text-xs text-neutral-400">
-          <span id="cpu-status">Normal</span>
-          <span id="cpu-cores" class="font-mono">0 cores</span>
-        </div>
-      </div>
-
-      <!-- RAM Card -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-3">
-          <div class="p-2.5 rounded-xl bg-blue-500/10">
-            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-xs sm:text-sm">RAM Usage</p>
-            <p id="ram-text" class="text-3xl sm:text-4xl font-bold text-blue-400">0%</p>
-          </div>
-        </div>
-        <div class="line-graph-container text-blue-400">
-          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="ramGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
-                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
-              </linearGradient>
-            </defs>
-            <path id="ram-area" class="line-area" fill="url(#ramGradient)" d="" />
-            <path id="ram-line" class="line-path" stroke="currentColor" d="" />
-          </svg>
-        </div>
-        <div class="mt-3 flex justify-between text-xs text-neutral-400">
-          <span id="ram-used">0 GB</span>
-          <span id="ram-total">0 GB</span>
-        </div>
-      </div>
-
-      <!-- Disk Card -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-3">
-          <div class="p-2.5 rounded-xl bg-emerald-500/10">
-            <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-xs sm:text-sm">Disk Usage</p>
-            <p id="disk-text" class="text-3xl sm:text-4xl font-bold text-emerald-400">0%</p>
-          </div>
-        </div>
-        <div class="line-graph-container text-emerald-400">
-          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="diskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
-                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
-              </linearGradient>
-            </defs>
-            <path id="disk-area" class="line-area" fill="url(#diskGradient)" d="" />
-            <path id="disk-line" class="line-path" stroke="currentColor" d="" />
-          </svg>
-        </div>
-        <div class="mt-3 flex justify-between text-xs text-neutral-400">
-          <span id="disk-used">0 GB</span>
-          <span id="disk-total">0 GB</span>
-        </div>
-      </div>
-
-      <!-- Network Traffic Card -->
-      <div class="stat-card">
-        <div class="flex items-center gap-4 mb-3">
-          <div class="p-2.5 rounded-xl bg-purple-500/10">
-            <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-neutral-400 text-xs sm:text-sm">Network I/O</p>
-            <p id="net-text" class="text-3xl sm:text-4xl font-bold text-purple-400">0 MB/s</p>
-          </div>
-        </div>
-        <div class="line-graph-container text-purple-400">
-          <svg class="line-graph" width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="netGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:currentColor;stop-opacity:0.3" />
-                <stop offset="100%" style="stop-color:currentColor;stop-opacity:0" />
-              </linearGradient>
-            </defs>
-            <path id="net-area" class="line-area" fill="url(#netGradient)" d="" />
-            <path id="net-line" class="line-path" stroke="currentColor" d="" />
-          </svg>
-        </div>
-        <div class="mt-3 flex justify-between text-xs text-neutral-400">
-          <span>Incoming</span>
-          <span id="net-peak">Peak: 0 MB/s</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </main>
 
-<!-- Notification -->
-<div id="notification" class="fixed bottom-4 right-4 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium z-50 border border-white/10 backdrop-blur-sm">
-  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-  <span id="notification-text" class="break-text"></span>
-</div>
-
 <script>
-// === DATA HISTORY FOR LINE GRAPHS ===
-const history = {
-  cpu: Array(20).fill(0),
-  ram: Array(20).fill(0),
-  disk: Array(20).fill(0),
-  net: Array(20).fill(0)
-};
-
-function updateLineGraph(type, value) {
-  history[type].push(value);
-  history[type].shift();
-  const width = 200;
-  const height = 60;
-  const step = width / (history[type].length - 1);
-  
-  let pathD = `M 0 ${height - (history[type][0] / 100 * height)}`;
-  let areaD = `M 0 ${height} L 0 ${height - (history[type][0] / 100 * height)}`;
-  
-  history[type].forEach((val, i) => {
-    if (i === 0) return;
-    const x = i * step;
-    const y = height - (val / 100 * height);
-    pathD += ` L ${x} ${y}`;
-    areaD += ` L ${x} ${y}`;
-  });
-  
-  areaD += ` L ${width} ${height} Z`;
-  
-  const line = document.getElementById(`${type}-line`);
-  const area = document.getElementById(`${type}-area`);
-  if (line) {
-    line.setAttribute('d', pathD);
-    line.style.animation = 'none';
-    line.offsetHeight;
-    line.style.animation = 'drawLine 0.5s ease-out forwards';
-  }
-  if (area) area.setAttribute('d', areaD);
-}
-
-function showNotification(text) {
-  const notif = document.getElementById('notification');
-  const notifText = document.getElementById('notification-text');
-  notifText.textContent = text;
-  notif.classList.remove('hidden');
-  setTimeout(() => notif.classList.add('hidden'), 3000);
-}
-
-// === FETCH RESOURCES ===
-let netPeak = 0;
-async function fetchResources() {
-  try {
-    const res = await fetch('/resourceMonitor');
-    const data = await res.json();
-    
-    const cpu = Math.round(data.cpu?.percent || 0);
-    const ram = Math.round(data.ram?.percent || 0);
-    const disk = Math.round(data.disk?.percent || 0);
-
-    // Convert bytes/s to MB/s
-    const rxMB = (data.network?.rx || 0) / (1024 * 1024);
-    const txMB = (data.network?.tx || 0) / (1024 * 1024);
-    const totalSpeed = rxMB + txMB;
-
-    if (totalSpeed > netPeak) netPeak = totalSpeed;
-    
-    document.getElementById('cpu-text').textContent = cpu + '%';
-    document.getElementById('ram-text').textContent = ram + '%';
-    document.getElementById('disk-text').textContent = disk + '%';
-    document.getElementById('net-text').textContent = totalSpeed.toFixed(2) + ' MB/s';
-    
-    document.getElementById('cpu-cores').textContent = `${data.cpu?.cores || 0} cores`;
-    document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
-    document.getElementById('ram-total').textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
-    document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' GB';
-    document.getElementById('disk-total').textContent = (data.disk?.total || 0).toFixed(1) + ' GB';
-    document.getElementById('net-peak').textContent = 'Peak: ' + netPeak.toFixed(2) + ' MB/s';
-    
-    updateLineGraph('cpu', cpu);
-    updateLineGraph('ram', ram);
-    updateLineGraph('disk', disk);
-    updateLineGraph('net', Math.min(100, (totalSpeed / 10) * 100)); // Normalize 10MB/s as 100% for graph
-  } catch (e) {
-    console.error("Resources fetch failed", e);
-  }
-}
-
-// === LIVE LOGS ===
 let eventSource = null;
 let isStreaming = true;
-let logBuffer = [];
 
-function createLogEntry(text) {
-  const div = document.createElement('div');
-  div.className = 'py-0.5 border-l-2 border-transparent hover:border-blue-400 pl-2 transition-colors';
-  const time = new Date().toLocaleTimeString('en-US', {hour12:false});
-  div.innerHTML = `<span class="text-neutral-500 text-xs">[${time}]</span> <span class="text-neutral-300">${text}</span>`;
-  return div;
-}
-
-function flushLogs() {
+function appendLog(text) {
   const container = document.getElementById('logs');
-  if (!container || logBuffer.length === 0) return;
+  if(container.children.length === 1 && container.innerText.includes('Initializing')) container.innerHTML = '';
   
-  if (container.children.length === 1 && container.children[0].classList.contains('italic')) {
-    container.innerHTML = '';
-  }
+  const div = document.createElement('div');
+  div.className = 'mb-1 flex gap-3 sm:gap-4 hover:bg-white/5 transition-colors px-1 sm:px-2 py-0.5 sm:py-1 rounded group';
+  const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+  div.innerHTML = `<span class="text-neutral-600 flex-shrink-0 font-bold group-hover:text-neutral-400 transition-colors whitespace-nowrap">${time}</span><span class="text-neutral-300 break-all">${text}</span>`;
+  container.appendChild(div);
   
-  const fragment = document.createDocumentFragment();
-  logBuffer.forEach(text => fragment.appendChild(createLogEntry(text)));
-  container.appendChild(fragment);
-  
-  if (container.scrollHeight - container.scrollTop < 400) container.scrollTop = container.scrollHeight;
-  
-  while (container.children.length > 100) container.removeChild(container.firstChild);
-  logBuffer = [];
+  if (container.scrollHeight - container.scrollTop < 800) container.scrollTop = container.scrollHeight;
+  while (container.children.length > 500) container.removeChild(container.firstChild);
 }
 
 function startStream() {
   if (eventSource) eventSource.close();
-  const container = document.getElementById('logs');
-  if (container && container.children.length === 0) {
-    container.innerHTML = '<div class="text-neutral-400 italic">Connecting to live logs...</div>';
-  }
-  
   eventSource = new EventSource('/admin/dashboard/api/server-logs/stream');
-  eventSource.onmessage = e => logBuffer.push(e.data);
+  eventSource.onmessage = e => appendLog(e.data);
   eventSource.onerror = () => {
-    logBuffer.push('<span class="text-red-400">[Stream disconnected – retrying...]</span>');
-    setTimeout(startStream, 5000);
+    appendLog('<span class="text-red-500 font-bold">[!] Reconnecting...</span>');
+    setTimeout(startStream, 3000);
   };
 }
 
 function toggleStream() {
   const btn = document.getElementById('log-btn');
-  if (!btn) return;
   if (isStreaming) {
     eventSource?.close();
     btn.textContent = 'Resume';
-    btn.classList.remove('bg-red-500/20', 'text-red-400', 'border-red-500/30');
-    btn.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/30');
+    btn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all";
   } else {
     startStream();
     btn.textContent = 'Stop';
-    btn.classList.remove('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/30');
-    btn.classList.add('bg-red-500/20', 'text-red-400', 'border-red-500/30');
+    btn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white text-black font-bold text-xs sm:text-sm shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all";
   }
   isStreaming = !isStreaming;
 }
 
 function clearLogs() {
-  const container = document.getElementById('logs');
-  if (container) container.innerHTML = '<div class="text-neutral-400 italic p-2">Logs cleared • Waiting for new data...</div>';
-  logBuffer = [];
+  document.getElementById('logs').innerHTML = '<div class="text-neutral-500 italic text-center py-10 text-xs sm:text-sm">Console buffer cleared.</div>';
 }
 
-// === REFRESH ALL ===
-async function refreshAll() {
-  const btns = document.querySelectorAll('button');
-  btns.forEach(b => b.style.opacity = '0.6');
-  await fetchResources();
-  btns.forEach(b => b.style.opacity = '1');
-  showNotification('Console refreshed');
+let netPeak = 0;
+async function fetchResources() {
+  try {
+    const res = await fetch('/resourceMonitor');
+    const data = await res.json();
+
+    const cpu = Math.round(data.cpu?.percent || 0);
+    const ram = Math.round(data.ram?.percent || 0);
+    const disk = Math.round(data.disk?.percent || 0);
+    const net = ((data.network?.rx || 0) + (data.network?.tx || 0)) / (1024 * 1024);
+
+    if(net > netPeak) netPeak = net;
+
+    document.getElementById('cpu-text').textContent = cpu + '%';
+    document.getElementById('cpu-bar').style.width = cpu + '%';
+    document.getElementById('cpu-cores').textContent = (data.cpu?.cores || 0) + ' Cores Active';
+
+    document.getElementById('ram-text').textContent = ram + '%';
+    document.getElementById('ram-bar').style.width = ram + '%';
+    document.getElementById('ram-used').textContent = (data.ram?.used || 0).toFixed(1) + ' GB';
+    document.getElementById('ram-total').textContent = (data.ram?.total || 0).toFixed(1) + ' GB';
+
+    document.getElementById('disk-text').textContent = disk + '%';
+    document.getElementById('disk-bar').style.width = disk + '%';
+    document.getElementById('disk-used').textContent = (data.disk?.used || 0).toFixed(1) + ' / ' + (data.disk?.total || 0).toFixed(1) + ' GB';
+
+    document.getElementById('net-text').textContent = net.toFixed(2) + ' MB/s';
+    document.getElementById('net-peak').textContent = 'Peak: ' + netPeak.toFixed(2) + ' MB/s';
+  } catch (e) { console.error(e); }
 }
 
-// === INITIALIZATION ===
-window.onload = async () => {
-  await fetchResources();
+window.onload = () => {
   startStream();
-  
-  setInterval(flushLogs, 100);
+  fetchResources();
   setInterval(fetchResources, 3000);
 };
 </script>
+
+<%- include('../../components/footer') %>

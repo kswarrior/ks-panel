@@ -8,9 +8,12 @@ const localNodeExec = require('../../exec/localnode');
 
 router.get("/admin/nodes/localnode", isAdmin, async (req, res) => {
   try {
+    const nodeIds = await db.get("nodes") || [];
+    const nodes = await Promise.all(nodeIds.map(id => db.get(`${id}_node`)));
     res.render("admin/nodes/localnode", {
       req,
       user: req.user,
+      nodes: nodes.filter(Boolean)
     });
   } catch (err) {
     log.error("Error rendering localnode page:", err);

@@ -1,91 +1,113 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-6">
-  <div class="max-w-2xl mx-auto">
-    <div class="space-y-5 bg-neutral-800/30 border border-white/10 rounded-2xl p-6 md:p-8">
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-4xl mx-auto">
 
-      <!-- Form Header -->
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-          </svg>
+    <header class="mb-10">
+      <h1 class="text-3xl font-bold text-white tracking-tight">Create New User</h1>
+      <p class="mt-2 text-neutral-400">Add a member to your panel and assign them a system or custom role.</p>
+    </header>
+
+    <div class="glass rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl">
+      <form id="createUserForm" class="space-y-10">
+
+        <!-- Identity -->
+        <section class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="h-px flex-1 bg-white/10"></div>
+            <h2 class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em]">Identity</h2>
+            <div class="h-px flex-1 bg-white/10"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Username</label>
+              <input id="userName" type="text" required placeholder="kswarrior"
+                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
+              <input id="email" type="email" required placeholder="user@ksmail.com"
+                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Password</label>
+              <input id="userPass" type="password" required placeholder="••••••••••••"
+                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            </div>
+          </div>
+        </section>
+
+        <!-- Role & Status -->
+        <section class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="h-px flex-1 bg-white/10"></div>
+            <h2 class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em]">Role & Access</h2>
+            <div class="h-px flex-1 bg-white/10"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Assigned Role</label>
+              <select id="userRole" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none transition-all">
+                <optgroup label="System Roles" class="bg-[#0a0a0a]">
+                  <option value="user">Regular User</option>
+                  <option value="admin">Administrator</option>
+                </optgroup>
+                <% if (roles.length > 0) { %>
+                <optgroup label="Custom Roles" class="bg-[#0a0a0a]">
+                  <% roles.forEach(role => { %>
+                    <option value="<%= role.id %>"><%= role.name %></option>
+                  <% }) %>
+                </optgroup>
+                <% } %>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Verification</label>
+              <select id="userVerified" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none transition-all">
+                <option value="true" class="bg-[#0a0a0a]">Automatically Verified</option>
+                <option value="false" class="bg-[#0a0a0a]">Require Email Check</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <div class="flex flex-col sm:flex-row gap-4 pt-10 border-t border-white/5">
+          <button id="createBtn" type="button"
+                  class="flex-1 bg-white text-black font-bold py-4 rounded-2xl shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <%= req.translations.create %>
+          </button>
+          <a href="/admin/users"
+             class="flex-1 bg-white/5 text-white font-bold py-4 rounded-2xl border border-white/10 text-center hover:bg-white/10 transition-all">
+            <%= req.translations.cancel %>
+          </a>
         </div>
-        <h2 class="text-lg font-semibold text-white"><%= req.translations.createUserButton %></h2>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="md:col-span-2">
-          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.username %></label>
-          <input id="userName" type="text" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition" placeholder="kswarrior">
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.email %></label>
-          <input id="email" type="email" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition" placeholder="kswarrior@ksmail.io">
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.passwordLabel %></label>
-          <input id="userPass" type="password" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/5 transition" placeholder="kswarrior#123">
-        </div>
-
-        <div>
-          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.admin %></label>
-          <select id="userAdmin" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition">
-            <option value="true"><%= req.translations.true %></option>
-            <option value="false" selected><%= req.translations.false %></option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm text-neutral-400 mb-2"><%= req.translations.verifiedStatus %></label>
-          <select id="userVerified" class="w-full rounded-xl bg-neutral-800/40 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition">
-            <option value="true"><%= req.translations.true %></option>
-            <option value="false" selected><%= req.translations.false %></option>
-          </select>
-        </div>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-3 pt-4">
-        <button id="createNodeBtn" type="button" class="flex-1 rounded-xl bg-white text-black px-5 py-2.5 text-sm font-medium shadow transition hover:bg-neutral-200 active:scale-95">
-          <%= req.translations.create %>
-        </button>
-        <a href="/admin/users" 
-           class="flex-1 sm:flex-initial rounded-xl bg-neutral-800 text-white border border-white/10 px-5 py-2.5 text-sm font-medium transition hover:bg-neutral-700 flex items-center justify-center">
-          <%= req.translations.cancel || 'Cancel' %>
-        </a>
-      </div>
-
+      </form>
     </div>
   </div>
 </main>
 
-<!-- Create script -->
 <script>
-  document.getElementById("createNodeBtn").addEventListener("click", function () {
-    const username = document.getElementById("userName").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("userPass").value;
-    const admin = document.getElementById("userAdmin").value === "true";
-    const verified = document.getElementById("userVerified").value === "true";
+  document.getElementById("createBtn").addEventListener("click", function () {
+    const data = {
+      username: document.getElementById("userName").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("userPass").value,
+      roleId: document.getElementById("userRole").value,
+      verified: document.getElementById("userVerified").value === "true"
+    };
 
-    const nodeData = { username, email, password, admin, verified };
+    if(!data.username || !data.email || !data.password) return alert('All fields are required.');
 
     fetch("/users/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nodeData),
+      body: JSON.stringify(data),
     })
-    .then((response) => {
-      if (response.ok) return response.json();
-      throw new Error("Failed to create user");
-    })
-    .then((data) => {
-      alert('<%= req.translations.userCreatedSuccess %>');
-      window.location.href = "/admin/users";
-    })
-    .catch((error) => alert('<%= req.translations.userCreateError %>: ' + error.message));
+    .then(res => res.ok ? (alert('User created successfully!'), window.location.href = "/admin/users") : alert('Creation failed.'))
+    .catch(err => alert('Error: ' + err.message));
   });
 </script>
 

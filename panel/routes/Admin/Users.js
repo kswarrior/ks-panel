@@ -4,13 +4,22 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { getPaginatedUsers, invalidateCache } = require("../../utils/dbHelper.js");
 const cache = require("../../utils/cache.js");
 
 const saltRounds = 10;
 
-// ==================== EXISTENCE CHECKS ====================
+// Defined system permissions (Internal)
+const SYSTEM_PERMISSIONS = [
+  { id: 'create_instances', name: 'Create Instances', description: 'Allow user to create new instances' },
+  { id: 'manage_nodes', name: 'Manage Nodes', description: 'Full access to node settings and creation' },
+  { id: 'manage_users', name: 'Manage Users', description: 'Create, edit, and delete other users' },
+  { id: 'manage_templates', name: 'Manage Templates', description: 'Edit and create server templates' },
+  { id: 'view_audit_logs', name: 'View Audit Logs', description: 'Access to system-wide audit records' },
+  { id: 'manage_settings', name: 'System Settings', description: 'Change panel appearance and SMTP settings' }
+];
+
 async function doesUserExist(username) {
   const users = await db.get("users");
   return users ? users.some((user) => user.username === username) : false;
@@ -21,52 +30,49 @@ async function doesEmailExist(email) {
   return users ? users.some((user) => user.email === email) : false;
 }
 
-// ==================== ROUTES ====================
-
-// ── OVERVIEW (List) ──
-router.get("/admin/users", isAdmin, async (req, res) => {
+router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
-
   const usersResult = await getPaginatedUsers(page, pageSize);
+  const roles = await db.get("roles") || [];
 
   res.render("admin/users/overview", {
     req,
     user: req.user,
     users: usersResult.data,
     pagination: usersResult.pagination,
+    roles
   });
 });
 
-// ── CREATE FORM PAGE ── (NEW ROUTE)
-router.get("/admin/users/create", isAdmin, (req, res) => {
+router.get("/admin/users/create", isAdmin, async (req, res) => {
+  const roles = await db.get("roles") || [];
   res.render("admin/users/create", {
     req,
     user: req.user,
+    roles
   });
 });
 
-// ── CREATE USER (API) ──
-router.post("/users/create", isAdmin, async (req, res) => {
-  const { username, email, password, admin, verified } = req.body;
+router.post("/users/create", hasPermission("manage_users"), async (req, res) => {
+  const { username, email, password, roleId, verified } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).send("Username, email, and password are required.");
   }
 
-  if (typeof admin !== "boolean") {
-    return res.status(400).send("Admin field must be true or false.");
-  }
-
-  if (await doesUserExist(username)) {
-    return res.status(400).send("User already exists.");
-  }
-  if (await doesEmailExist(email)) {
-    return res.status(400).send("Email already exists.");
-  }
+  if (await doesUserExist(username)) return res.status(400).send("User already exists.");
+  if (await doesEmailExist(email)) return res.status(400).send("Email already exists.");
 
   const userId = uuidv4();
   const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const users = (await db.get("users")) || [];
+  const isOwner = users.length === 0;
+
+  // Role Logic: Admin roleId is reserved, User is default
+  let userAdmin = false;
+  if (roleId === 'admin') userAdmin = true;
 
   const newUser = {
     userId,
@@ -74,11 +80,13 @@ router.post("/users/create", isAdmin, async (req, res) => {
     email,
     password: hashedPassword,
     accessTo: [],
-    admin,
+    admin: isOwner || userAdmin,
     verified: verified || false,
+    roleId: (roleId === 'admin' || roleId === 'user') ? null : roleId,
+    owner: isOwner,
+    permissions: {} // Legacy support
   };
 
-  let users = (await db.get("users")) || [];
   users.push(newUser);
   await db.set("users", users);
 
@@ -86,17 +94,19 @@ router.post("/users/create", isAdmin, async (req, res) => {
   cache.delete("apiKeys_list");
   logAudit(req.user.userId, req.user.username, "user:create", req.ip);
 
-  res.status(201).json(newUser); // Changed to .json() for cleaner frontend handling
+  res.status(201).json(newUser);
 });
 
-// ── DELETE USER ──
 router.delete("/user/delete", isAdmin, async (req, res) => {
   const userId = req.body.userId;
-  const users = (await db.get("users")) || [];
-
+  let users = (await db.get("users")) || [];
   const userIndex = users.findIndex((user) => user.userId === userId);
-  if (userIndex === -1) {
-    return res.status(400).send("The specified user does not exist");
+
+  if (userIndex === -1) return res.status(400).send("The specified user does not exist");
+
+  // Protect Owner
+  if (users[userIndex].owner) {
+    return res.status(403).send("Cannot delete the panel owner.");
   }
 
   users.splice(userIndex, 1);
@@ -106,64 +116,65 @@ router.delete("/user/delete", isAdmin, async (req, res) => {
   res.status(204).send();
 });
 
-// ── EDIT FORM PAGE ── (Updated render path to match new structure)
 router.get("/admin/users/edit/:userId", isAdmin, async (req, res) => {
   const userId = req.params.userId;
   const users = (await db.get("users")) || [];
   const editUser = users.find((user) => user.userId === userId);
 
-  if (!editUser) {
-    return res.status(404).send("User not found");
+  if (!editUser) return res.status(404).send("User not found");
+
+  // Protect Owner: Only owner can edit themselves
+  if (editUser.owner && req.user.userId !== userId) {
+    return res.status(403).send("Only the owner can edit their own profile.");
   }
+
+  const roles = await db.get("roles") || [];
 
   res.render("admin/users/edit", {
     req,
     user: req.user,
     editUser,
+    roles
   });
 });
 
-// ── EDIT USER (POST) ──
 router.post("/admin/users/edit/:userId", isAdmin, async (req, res, next) => {
   const userId = req.params.userId;
-  const { username, email, password, admin, verified } = req.body;
+  const { username, email, password, roleId, verified } = req.body;
 
-  if (!username || !email) {
-    return res.status(400).send("Username and email are required.");
-  }
-
-  const users = (await db.get("users")) || [];
+  let users = (await db.get("users")) || [];
   const userIndex = users.findIndex((user) => user.userId === userId);
 
-  if (userIndex === -1) {
-    return res.status(404).send("User not found");
-  }
+  if (userIndex === -1) return res.status(404).send("User not found");
 
-  const usernameTaken = users.some(
-    (u) => u.username === username && u.userId !== userId
-  );
-  const emailTaken = users.some(
-    (u) => u.email === email && u.userId !== userId
-  );
+  const usernameTaken = users.some((u) => u.username === username && u.userId !== userId);
+  const emailTaken = users.some((u) => u.email === email && u.userId !== userId);
 
   if (usernameTaken) return res.status(400).send("Username already exists.");
   if (emailTaken) return res.status(400).send("Email already exists.");
 
-  // Update fields
-  users[userIndex].username = username;
-  users[userIndex].email = email;
-  users[userIndex].admin = admin === "true";
-  users[userIndex].verified = verified === "true";
+  // Protect Owner profile from being downgraded or modified by others
+  if (users[userIndex].owner) {
+    if (req.user.userId !== userId) {
+      return res.status(403).send("Forbidden.");
+    }
+    users[userIndex].username = username;
+    users[userIndex].email = email;
+  } else {
+    users[userIndex].username = username;
+    users[userIndex].email = email;
+    users[userIndex].admin = roleId === 'admin';
+    users[userIndex].verified = verified === "true" || verified === true;
+    users[userIndex].roleId = (roleId === 'admin' || roleId === 'user') ? null : roleId;
+  }
 
   if (password && password.trim() !== "") {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    users[userIndex].password = hashedPassword;
+    users[userIndex].password = await bcrypt.hash(password, saltRounds);
   }
 
   await db.set("users", users);
   logAudit(req.user.userId, req.user.username, "user:edit", req.ip);
 
-  // If the admin edited themselves → force re-login
   if (req.user.userId === userId) {
     return req.logout((err) => {
       if (err) return next(err);
