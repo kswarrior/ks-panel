@@ -17,6 +17,8 @@ const crypto = require("node:crypto");
 const PgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
 
+const { isAdmin, hasPermission, checkPermission } = require("./utils/isAdmin.js");
+
 const { loadPlugins } = require("./plugins/loadPls.js");
 let plugins = loadPlugins(path.join(__dirname, "./plugins"));
 plugins = Object.values(plugins).map((plugin) => plugin.config);
@@ -168,14 +170,47 @@ app.use(async (req, res, next) => {
   }
 });
 
-// ====================== GLOBAL BACKGROUND THEME LOADER ======================
-// Makes "theme" available on EVERY page (fixes "theme is not defined" error)
+// ====================== GLOBAL VIEW LOCALS ======================
 app.use(async (req, res, next) => {
   try {
-    res.locals.theme = (await db.get("theme")) || {};
+    const [theme, users, roles] = await Promise.all([
+      db.get("theme") || {},
+      db.get("users") || [],
+      db.get("roles") || []
+    ]);
+
+    res.locals.theme = theme;
+
+    // Permission helper for EJS
+    res.locals.hasPerm = (perm) => {
+      if (!req.user) return false;
+      const dbUser = users.find(u => u.userId === req.user.userId);
+      if (!dbUser) return false;
+      return checkPermission(dbUser, roles, perm);
+    };
+
+    // Helper to check if user has ANY admin permission
+    res.locals.anyAdminPerm = () => {
+      if (!req.user) return false;
+      const dbUser = users.find(u => u.userId === req.user.userId);
+      if (!dbUser) return false;
+
+      if (dbUser.owner === true || dbUser.admin === true || String(dbUser.admin) === 'true') {
+        return true;
+      }
+
+      const adminPerms = [
+        'create_instances', 'manage_nodes', 'manage_users',
+        'manage_templates', 'view_audit_logs', 'manage_settings'
+      ];
+      return adminPerms.some(p => checkPermission(dbUser, roles, p));
+    };
+
   } catch (err) {
-    log.error("Theme middleware error:", err);
+    log.error("Middleware error:", err);
     res.locals.theme = {};
+    res.locals.hasPerm = () => false;
+    res.locals.anyAdminPerm = () => false;
   }
   next();
 });

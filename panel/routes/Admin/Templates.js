@@ -106,21 +106,44 @@ function loadTemplate(dirName) {
 router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
+  const search = req.query.search || "";
+  const categoryFilter = req.query.category || "";
+  const typeFilter = req.query.type || "";
 
   const dirs = fs.readdirSync(TEMPLATES_DIR).filter(entry => {
     return fs.statSync(path.join(TEMPLATES_DIR, entry)).isDirectory();
   });
 
-  const templates = dirs
+  let templates = dirs
     .map(dir => loadTemplate(dir))
     .filter(Boolean);
+
+  // Apply filters
+  if (search || categoryFilter || typeFilter) {
+    templates = templates.filter(t => {
+      const searchMatch = !search ||
+        t.meta.name.toLowerCase().includes(search.toLowerCase()) ||
+        t.filename.toLowerCase().includes(search.toLowerCase());
+      const categoryMatch = !categoryFilter || t.category === categoryFilter;
+      const typeMatch = !typeFilter || t.meta.type === typeFilter;
+      return searchMatch && categoryMatch && typeMatch;
+    });
+  }
+
+  // Handle pagination for templates
+  const page = req.query.page ? parseInt(req.query.page) : 1;
+  const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 12;
+  const { paginate } = require("../../utils/dbHelper.js");
+  const result = paginate(templates, page, pageSize);
 
   res.render("admin/templates/overview", {
     req,
     user: req.user,
-    templates,
+    templates: result.data,
+    pagination: result.pagination,
     categories,
-    types
+    types,
+    filters: { search, category: categoryFilter, type: typeFilter }
   });
 });
 

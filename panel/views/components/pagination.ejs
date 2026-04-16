@@ -3,8 +3,11 @@
   function buildPageUrl(pageNum) {
     const params = new URLSearchParams();
     params.set('page', pageNum);
-    if (filters && filters.action) params.set('action', filters.action);
-    if (filters && filters.dateRange) params.set('dateRange', filters.dateRange);
+    if (typeof filters !== 'undefined' && filters) {
+      Object.keys(filters).forEach(key => {
+        if (filters[key]) params.set(key, filters[key]);
+      });
+    }
     return '?' + params.toString();
   }
 %>

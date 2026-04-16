@@ -33,15 +33,45 @@ async function doesEmailExist(email) {
 router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
-  const usersResult = await getPaginatedUsers(page, pageSize);
+  const search = req.query.search || "";
+  const roleFilter = req.query.role || "";
+  const statusFilter = req.query.status || "";
+
+  let allUsers = await db.get("users") || [];
   const roles = await db.get("roles") || [];
+
+  // Apply filters
+  if (search || roleFilter || statusFilter) {
+    allUsers = allUsers.filter(u => {
+      const searchMatch = !search ||
+        u.username.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase()) ||
+        u.userId.includes(search);
+
+      let roleMatch = true;
+      if (roleFilter === 'owner') roleMatch = u.owner;
+      else if (roleFilter === 'admin') roleMatch = u.admin && !u.owner;
+      else if (roleFilter === 'user') roleMatch = !u.admin && !u.roleId;
+      else if (roleFilter) roleMatch = u.roleId === roleFilter;
+
+      let statusMatch = true;
+      if (statusFilter === 'verified') statusMatch = u.verified;
+      else if (statusFilter === 'unverified') statusMatch = !u.verified;
+
+      return searchMatch && roleMatch && statusMatch;
+    });
+  }
+
+  const { paginate } = require("../../utils/dbHelper.js");
+  const usersResult = paginate(allUsers, page, pageSize);
 
   res.render("admin/users/overview", {
     req,
     user: req.user,
     users: usersResult.data,
     pagination: usersResult.pagination,
-    roles
+    roles,
+    filters: { search, role: roleFilter, status: statusFilter }
   });
 });
 

@@ -1,7 +1,7 @@
 {
   "_note1": "WARNING: You do not need to touch the following values. KS Daemon will automatically set them.",
-  "remote": "https://panel.example.com",
-  "key": "examplekey",
+  "remote": "https://jules.ksweb.qzz.io",
+  "key": "3c96162796282cb4f72254799d46a7ac7d22535b33e5a53d90f885acba5a46d6",
   "_note3": "Other configuration options below. Hostname must be set for FTP to return the correct info.",
   "port": 3002,
   "version": "1.0.0",
@@ -15,8 +15,7 @@
     "port": 3003
   },
   "ssl": {
-    "enabled": true,
-    "port": 443,
+    "enabled": false,
     "cert": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/fullchain.pem",
     "key": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/privkey.pem"
   },

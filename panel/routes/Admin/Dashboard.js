@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
 const config = require("../../config.json");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, anyAdminPerm } = require("../../utils/isAdmin.js");
 const { Client } = require("pg");
 
 // =====================
@@ -129,7 +129,7 @@ async function getDashboardStats() {
 // =====================
 const { spawn } = require("child_process");
 
-router.get("/admin/dashboard/api/server-logs/stream", isAdmin, (req, res) => {
+router.get("/admin/dashboard/api/server-logs/stream", anyAdminPerm, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -160,7 +160,7 @@ router.get("/admin/dashboard/api/server-logs/stream", isAdmin, (req, res) => {
 // =====================
 // MAIN CONSOLE PAGE (formerly Overview)
 // =====================
-router.get("/admin/dashboard/console", isAdmin, async (req, res) => {
+router.get("/admin/dashboard/console", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
@@ -179,7 +179,7 @@ router.get("/admin/dashboard/console", isAdmin, async (req, res) => {
 // =====================
 // ANALYTICS PAGE (New)
 // =====================
-router.get("/admin/dashboard/analytics", isAdmin, async (req, res) => {
+router.get("/admin/dashboard/analytics", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
@@ -198,7 +198,7 @@ router.get("/admin/dashboard/analytics", isAdmin, async (req, res) => {
 // =====================
 // DATABASE PAGE (New)
 // =====================
-router.get("/admin/dashboard/database", isAdmin, async (req, res) => {
+router.get("/admin/dashboard/database", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
@@ -217,7 +217,7 @@ router.get("/admin/dashboard/database", isAdmin, async (req, res) => {
 // =====================
 // LIVE STATS API (for frontend auto-refresh - works for all pages)
 // =====================
-router.get("/admin/dashboard/api/stats", isAdmin, async (req, res) => {
+router.get("/admin/dashboard/api/stats", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
     res.json(stats);

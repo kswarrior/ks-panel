@@ -16,8 +16,31 @@ const log = new (require("cat-loggr"))();
 router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
+  const search = req.query.search || "";
+  const locationFilter = req.query.location || "";
+  const categoryFilter = req.query.category || "";
 
-  const nodesResult = await getPaginatedNodes(page, pageSize);
+  let allNodeIds = await db.get("nodes") || [];
+
+  // Fetch all node objects for filtering
+  let allNodes = await Promise.all(allNodeIds.map(id => db.get(id + "_node")));
+  allNodes = allNodes.filter(Boolean);
+
+  // Apply filters
+  if (search || locationFilter || categoryFilter) {
+    allNodes = allNodes.filter(n => {
+      const searchMatch = !search ||
+        n.name.toLowerCase().includes(search.toLowerCase()) ||
+        n.address.toLowerCase().includes(search.toLowerCase()) ||
+        n.id.includes(search);
+      const locationMatch = !locationFilter || n.location === locationFilter;
+      const categoryMatch = !categoryFilter || n.category === categoryFilter;
+      return searchMatch && locationMatch && categoryMatch;
+    });
+  }
+
+  const { paginate } = require("../../utils/dbHelper.js");
+  const nodesResult = paginate(allNodes.map(n => n.id), page, pageSize);
   let nodeIds = nodesResult.data;
   
   let instances = (await db.get("instances")) || [];
@@ -72,13 +95,15 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
   }
 
   res.render("admin/nodes/overview", {
-  req,
-  user: req.user,
-  nodes: nodesWithResources,
-  set,
-  pagination: nodesResult.pagination,
-  locations,
-});
+    req,
+    user: req.user,
+    nodes: nodesWithResources,
+    set,
+    pagination: nodesResult.pagination,
+    locations,
+    categories: await db.get("node_categories") || ["Default", "High Performance", "Storage"],
+    filters: { search, location: locationFilter, category: categoryFilter }
+  });
 });
 
 // ==================== NEW: CREATE NODE PAGE (create.ejs) ====================
