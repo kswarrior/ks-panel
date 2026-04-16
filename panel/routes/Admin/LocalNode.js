@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
+const { db } = require("../../handlers/db.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 const localNodeExec = require('../../exec/localnode');
@@ -17,7 +18,7 @@ router.get("/admin/nodes/localnode", hasPermission('manage_nodes'), async (req, 
     });
   } catch (err) {
     log.error("Error rendering localnode page:", err);
-    res.status(500).render("error", { message: "Failed to load local node setup" });
+    res.status(500).send("Failed to load local node setup: " + err.message);
   }
 });
 
