@@ -429,44 +429,6 @@
       </div>
     </header>
 
-    <!-- Search & Filters -->
-    <section class="mt-6">
-      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-sm">
-        <div class="flex flex-col lg:flex-row gap-4">
-          <div class="flex-1 relative group">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-4 w-4 text-neutral-500 group-focus-within:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input type="text" id="searchInput" value="<%= filters.search %>" placeholder="Search templates..."
-                   class="block w-full pl-10 pr-3 py-2 bg-neutral-600/10 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/10 transition-all">
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-4">
-            <div class="w-full lg:w-48">
-              <select id="categoryFilter" class="block w-full px-3 py-2 bg-neutral-600/10 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/10 transition-all appearance-none">
-                <option value="">All Categories</option>
-                <% categories.forEach(cat => { %>
-                  <option value="<%= cat %>" <%= filters.category === cat ? 'selected' : '' %>><%= cat %></option>
-                <% }); %>
-              </select>
-            </div>
-            <div class="w-full lg:w-48">
-              <select id="typeFilter" class="block w-full px-3 py-2 bg-neutral-600/10 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/10 transition-all appearance-none">
-                <option value="">All Types</option>
-                <% types.forEach(t => { %>
-                  <option value="<%= t %>" <%= filters.type === t ? 'selected' : '' %>><%= t %></option>
-                <% }); %>
-              </select>
-            </div>
-            <button onclick="applyFilters()" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-lg transition-all active:scale-95">
-              Apply
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Stats -->
     <section id="stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
       <article class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 transition-all duration-200 hover:border-white/20 group shadow-sm">
@@ -674,23 +636,6 @@
 </main>
 
 <script>
-function applyFilters() {
-  const search = document.getElementById('searchInput').value;
-  const category = document.getElementById('categoryFilter').value;
-  const type = document.getElementById('typeFilter').value;
-  const params = new URLSearchParams(window.location.search);
-
-  if (search) params.set('search', search); else params.delete('search');
-  if (category) params.set('category', category); else params.delete('category');
-  if (type) params.set('type', type); else params.delete('type');
-
-  window.location.href = '/admin/templates/overview?' + params.toString();
-}
-
-document.getElementById('searchInput').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') applyFilters();
-});
-
 function showNotification(message, type = 'success') {
   const el = document.getElementById('notification');
   const text = document.getElementById('notification-text');

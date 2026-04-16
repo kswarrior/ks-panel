@@ -1,85 +1,41 @@
 <%
-  // Build query string with all current filters
+  // Build query string with filters if they exist
   function buildPageUrl(pageNum) {
-    const params = new URLSearchParams(req.query);
+    const params = new URLSearchParams();
     params.set('page', pageNum);
+    if (filters && filters.action) params.set('action', filters.action);
+    if (filters && filters.dateRange) params.set('dateRange', filters.dateRange);
     return '?' + params.toString();
   }
 %>
 
 <% if (pagination && pagination.totalPages > 1) { %>
-<div class="mt-10 flex items-center justify-center gap-6 border-t border-white/10 px-4 py-8 sm:px-6">
-  <!-- Previous Button -->
+<div class="mt-8 flex items-center justify-center gap-4 border-t border-white/5 px-4 py-4 sm:px-6">
+  <!-- Previous/Next buttons -->
   <% if (pagination.hasPreviousPage) { %>
-    <a href="<%= buildPageUrl(pagination.currentPage - 1) %>"
-       class="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-95 shadow-lg">
-      <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-      </svg>
-      <span>Previous</span>
+    <a href="<%= buildPageUrl(pagination.currentPage - 1) %>" class="relative inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+      ← Previous
     </a>
   <% } else { %>
-    <span class="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/5 bg-white/[0.02] text-sm font-semibold text-neutral-600 cursor-not-allowed">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-      </svg>
-      <span>Previous</span>
+    <span class="relative inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-neutral-500 cursor-not-allowed">
+      ← Previous
     </span>
   <% } %>
 
-  <!-- Page Indicators (Desktop) -->
-  <div class="hidden sm:flex items-center gap-2">
-    <%
-      let startPage = Math.max(1, pagination.currentPage - 2);
-      let endPage = Math.min(pagination.totalPages, startPage + 4);
-      if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-    %>
-
-    <% if (startPage > 1) { %>
-      <a href="<%= buildPageUrl(1) %>" class="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/10 transition-all">1</a>
-      <% if (startPage > 2) { %>
-        <span class="text-neutral-600 px-1">...</span>
-      <% } %>
-    <% } %>
-
-    <% for(let i = startPage; i <= endPage; i++) { %>
-      <% if (i === pagination.currentPage) { %>
-        <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-black text-sm font-bold shadow-xl shadow-white/10 scale-110"><%= i %></span>
-      <% } else { %>
-        <a href="<%= buildPageUrl(i) %>" class="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/10 transition-all"><%= i %></a>
-      <% } %>
-    <% } %>
-
-    <% if (endPage < pagination.totalPages) { %>
-      <% if (endPage < pagination.totalPages - 1) { %>
-        <span class="text-neutral-600 px-1">...</span>
-      <% } %>
-      <a href="<%= buildPageUrl(pagination.totalPages) %>" class="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/10 transition-all"><%= pagination.totalPages %></a>
-    <% } %>
-  </div>
-
-  <!-- Mobile Simple Text -->
-  <div class="sm:hidden text-center">
-    <p class="text-xs font-bold text-neutral-500 uppercase tracking-widest">
-      <span class="text-white"><%= pagination.currentPage %></span> / <%= pagination.totalPages %>
+  <!-- Page info -->
+  <div class="text-center">
+    <p class="text-sm text-neutral-400">
+      Page <span class="font-medium"><%= pagination.currentPage %></span> / <span class="font-medium"><%= pagination.totalPages %></span>
     </p>
   </div>
 
-  <!-- Next Button -->
   <% if (pagination.hasNextPage) { %>
-    <a href="<%= buildPageUrl(pagination.currentPage + 1) %>"
-       class="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-95 shadow-lg">
-      <span>Next</span>
-      <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-      </svg>
+    <a href="<%= buildPageUrl(pagination.currentPage + 1) %>" class="relative inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+      Next →
     </a>
   <% } else { %>
-    <span class="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/5 bg-white/[0.02] text-sm font-semibold text-neutral-600 cursor-not-allowed">
-      <span>Next</span>
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-      </svg>
+    <span class="relative inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-neutral-500 cursor-not-allowed">
+      Next →
     </span>
   <% } %>
 </div>

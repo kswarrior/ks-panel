@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
-const { getPaginatedUsers, invalidateCache, paginate } = require("../../utils/dbHelper.js");
+const { getPaginatedUsers, invalidateCache } = require("../../utils/dbHelper.js");
 const cache = require("../../utils/cache.js");
 
 const saltRounds = 10;
@@ -33,29 +33,7 @@ async function doesEmailExist(email) {
 router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
-  const search = req.query.search || "";
-  const roleId = req.query.role || "";
-
-  let users = (await db.get("users")) || [];
-
-  if (search || roleId) {
-    users = users.filter(u => {
-      const matchesSearch = !search ||
-        u.username.toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase()) ||
-        u.userId.toLowerCase().includes(search.toLowerCase());
-
-      let matchesRole = !roleId;
-      if (roleId === 'admin') matchesRole = u.admin && !u.owner;
-      else if (roleId === 'owner') matchesRole = u.owner;
-      else if (roleId === 'user') matchesRole = !u.admin && !u.owner && !u.roleId;
-      else matchesRole = u.roleId === roleId;
-
-      return matchesSearch && matchesRole;
-    });
-  }
-
-  const usersResult = paginate(users, page, pageSize);
+  const usersResult = await getPaginatedUsers(page, pageSize);
   const roles = await db.get("roles") || [];
 
   res.render("admin/users/overview", {
@@ -63,8 +41,7 @@ router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
     user: req.user,
     users: usersResult.data,
     pagination: usersResult.pagination,
-    roles,
-    filters: { search, roleId }
+    roles
   });
 });
 
@@ -115,7 +92,7 @@ router.post("/users/create", hasPermission("manage_users"), async (req, res) => 
 
   invalidateCache("users");
   cache.delete("apiKeys_list");
-  logAudit(req.user.userId, req.user.username, "user:create", req.ip, { username, email, roleId });
+  logAudit(req.user.userId, req.user.username, "user:create", req.ip);
 
   res.status(201).json(newUser);
 });
@@ -132,11 +109,10 @@ router.delete("/user/delete", hasPermission("manage_users"), async (req, res) =>
     return res.status(403).send("Cannot delete the panel owner.");
   }
 
-  const deletedUser = users[userIndex];
   users.splice(userIndex, 1);
   await db.set("users", users);
 
-  logAudit(req.user.userId, req.user.username, "user:delete", req.ip, { userId, username: deletedUser.username });
+  logAudit(req.user.userId, req.user.username, "user:delete", req.ip);
   res.status(204).send();
 });
 
@@ -197,7 +173,7 @@ router.post("/admin/users/edit/:userId", hasPermission("manage_users"), async (r
   }
 
   await db.set("users", users);
-  logAudit(req.user.userId, req.user.username, "user:edit", req.ip, { userId, username, email, roleId });
+  logAudit(req.user.userId, req.user.username, "user:edit", req.ip);
 
   if (req.user.userId === userId) {
     return req.logout((err) => {

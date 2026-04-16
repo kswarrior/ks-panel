@@ -106,38 +106,21 @@ function loadTemplate(dirName) {
 router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
-  const search = req.query.search || "";
-  const category = req.query.category || "";
-  const type = req.query.type || "";
 
   const dirs = fs.readdirSync(TEMPLATES_DIR).filter(entry => {
     return fs.statSync(path.join(TEMPLATES_DIR, entry)).isDirectory();
   });
 
-  let templates = dirs
+  const templates = dirs
     .map(dir => loadTemplate(dir))
     .filter(Boolean);
-
-  if (search || category || type) {
-    templates = templates.filter(t => {
-      const matchesSearch = !search ||
-        (t.meta?.name || "").toLowerCase().includes(search.toLowerCase()) ||
-        (t.meta?.display_name || "").toLowerCase().includes(search.toLowerCase());
-
-      const matchesCategory = !category || t.category === category;
-      const matchesType = !type || (t.meta?.type || t.type) === type;
-
-      return matchesSearch && matchesCategory && matchesType;
-    });
-  }
 
   res.render("admin/templates/overview", {
     req,
     user: req.user,
     templates,
     categories,
-    types,
-    filters: { search, category, type }
+    types
   });
 });
 
@@ -329,7 +312,7 @@ router.post("/admin/templates", hasPermission("manage_templates"), (req, res) =>
       }
     });
 
-    logAudit(req.user.userId, req.user.username, "template:create", req.ip, { name: meta.name, category });
+    logAudit(req.user.userId, req.user.username, "template:create", req.ip);
 
     res.json({ success: true, filename: dirName });
   } catch (err) {
@@ -417,7 +400,7 @@ router.put("/admin/templates/:dirName", hasPermission("manage_templates"), (req,
       }
     });
 
-    logAudit(req.user.userId, req.user.username, "template:update", req.ip, { name: meta.name, category });
+    logAudit(req.user.userId, req.user.username, "template:update", req.ip);
 
     res.json({ success: true, filename: newDirName });
   } catch (err) {
@@ -439,7 +422,7 @@ router.delete("/admin/templates/:dirName", hasPermission("manage_templates"), (r
 
   try {
     fs.rmSync(dirPath, { recursive: true, force: true });
-    logAudit(req.user.userId, req.user.username, "template:delete", req.ip, { name: req.params.dirName });
+    logAudit(req.user.userId, req.user.username, "template:delete", req.ip);
     res.json({ success: true });
   } catch (err) {
     log.error("Delete failed", err);
