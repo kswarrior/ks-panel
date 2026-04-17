@@ -520,7 +520,7 @@ router.get("/admin/nodes/node/:id/configure-command", hasPermission('manage_node
 
     const panelUrl = `${req.protocol}://${req.get('host')}`;
 
-    const configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
+    const configureCommand = `./kswings --configure --panel ${panelUrl} --key ${configureKey}`;
 
     res.json({
       nodeId: id,

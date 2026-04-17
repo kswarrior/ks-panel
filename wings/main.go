@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,11 +33,25 @@ func main() {
 		FullTimestamp: true,
 	})
 
+	// Flags
+	panelURL := flag.String("panel", "", "The URL of the panel to fetch configuration from")
+	configKey := flag.String("key", "", "The configuration key for the node")
+	doConfigure := flag.Bool("configure", false, "Run the configuration process")
+	flag.Parse()
+
+	if *doConfigure {
+		if *panelURL == "" || *configKey == "" {
+			log.Fatal("Panel URL and configuration key are required for configuration.")
+		}
+		runConfiguration(*panelURL, *configKey)
+		return
+	}
+
 	// Load Config
 	cfgPath := "config.json"
 	cfg, err := config.LoadConfig(cfgPath)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		log.Fatalf("Failed to load config (run with --configure if needed): %v", err)
 	}
 
 	log.Infof("Starting KS Wings Go version v%s", cfg.Version)
@@ -143,6 +161,46 @@ func handleStats(c *gin.Context) {
 			},
 		},
 	})
+}
+
+func runConfiguration(panelURL, configKey string) {
+	log.Infof("Fetching configuration from %s...", panelURL)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	reqURL := fmt.Sprintf("%s/admin/nodes/configure?configureKey=%s", panelURL, configKey)
+
+	resp, err := client.Post(reqURL, "application/json", nil)
+	if err != nil {
+		log.Fatalf("Failed to connect to panel: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		log.Fatalf("Panel returned error (%d): %s", resp.StatusCode, string(body))
+	}
+
+	configData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Failed to read configuration data: %v", err)
+	}
+
+	// Validate JSON
+	var js json.RawMessage
+	if err := json.Unmarshal(configData, &js); err != nil {
+		log.Fatalf("Received invalid JSON from panel: %v", err)
+	}
+
+	// Pretty print
+	var out bytes.Buffer
+	json.Indent(&out, configData, "", "  ")
+
+	err = os.WriteFile("config.json", out.Bytes(), 0644)
+	if err != nil {
+		log.Fatalf("Failed to save config.json: %v", err)
+	}
+
+	log.Info("Configuration successfully fetched and saved to config.json")
 }
 
 func handleResourceMonitor(c *gin.Context) {

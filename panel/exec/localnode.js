@@ -76,7 +76,7 @@ exports.start = async () => {
   }
 
   // We use PM2 to run the Go binary
-  const startCmd = 'npx pm2 start ./kswings --name localnode';
+  const startCmd = 'npx pm2 start ./kswings --name localnode --interpreter none';
 
   const result = await runCommand(startCmd);
 
