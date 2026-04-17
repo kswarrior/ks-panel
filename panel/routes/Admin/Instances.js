@@ -12,7 +12,7 @@ const router = express.Router();
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
-const { isAdmin, hasPermission, anyAdminPerm } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkMultipleNodesStatus } = require("../../utils/nodeHelper.js");
 const { getPaginatedInstances, invalidateCache } = require("../../utils/dbHelper.js");
 const fs = require("fs");
@@ -75,7 +75,7 @@ function deleteWorkflowFromFile(instanceId) {
 // ────────────────────────────────────────────────
 // GET /admin/instances/overview → list only (unchanged)
 // ────────────────────────────────────────────────
-router.get("/admin/instances/overview", anyAdminPerm, async (req, res) => {
+router.get("/admin/instances/overview", hasPermission('all'), async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
@@ -359,7 +359,7 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
 // All other routes (unchanged)
 // ────────────────────────────────────────────────
 
-router.get("/admin/instances/:id/edit", hasPermission('create_instances'), async (req, res) => {
+router.get("/admin/instances/:id/edit", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   const instance = await db.get(`${id}_instance`);
   let users = (await db.get("users")) || [];
@@ -374,7 +374,7 @@ router.get("/admin/instances/:id/edit", hasPermission('create_instances'), async
   });
 });
 
-router.get("/admin/instance/delete/:id", hasPermission('create_instances'), async (req, res) => {
+router.get("/admin/instance/delete/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
@@ -389,7 +389,7 @@ router.get("/admin/instance/delete/:id", hasPermission('create_instances'), asyn
   }
 });
 
-router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
+router.get("/admin/instances/purge/all", hasPermission('all'), async (req, res) => {
   try {
     const instances = (await db.get("instances")) || [];
     for (const inst of instances) {
@@ -403,7 +403,7 @@ router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/instances/suspend/:id", hasPermission('create_instances'), async (req, res) => {
+router.post("/admin/instances/suspend/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
@@ -428,7 +428,7 @@ router.post("/admin/instances/suspend/:id", hasPermission('create_instances'), a
   }
 });
 
-router.post("/admin/instances/unsuspend/:id", hasPermission('create_instances'), async (req, res) => {
+router.post("/admin/instances/unsuspend/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);

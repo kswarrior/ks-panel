@@ -1,0 +1,104 @@
+[TAILING] Tailing last 50 lines for [ks-panel] process (change the value with --lines option)
+/home/jules/.pm2/logs/ks-panel-out.log last 50 lines:
+0|ks-panel |   / ,<  \__ \   / /_/ / __ `/ __ \/ _ \/ /
+0|ks-panel |  / /| |___/ /  / ____/ /_/ / / / /  __/ /
+0|ks-panel | /_/ |_/____/  /_/    \__,_/_/ /_/\___/_/
+0|ks-panel |
+0|ks-panel | ❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version v1.0.0
+0|ks-panel |
+0|ks-panel |  04/16 02:35:51   info    KS Panel is listening on port 8080
+0|ks-panel |  04/16 02:35:51   debug   Server ready - routes loaded
+0|ks-panel |  04/16 02:35:51   info    Loading plugins...
+0|ks-panel |  04/16 02:35:51   info    Loading plugin 'example_plugin', enabled: false
+0|ks-panel |  04/16 02:35:51   info    KS Panel init complete!
+0|ks-panel |  04/16 02:35:54   info    Successfully installed module find.
+0|ks-panel |  04/16 02:35:54   info    plugins.json successfully written.
+0|ks-panel |  04/16 02:47:30   info    Running configure command: npm run configure -- --panel https://jules.ksweb.qzz.io --key d089919b-157d-453d-9c45-ac2e493dd7ad
+0|ks-panel |  04/16 10:19:10   info    Config updated with random values.
+0|ks-panel |     __ _______    ____                   __
+0|ks-panel |    / //_/ ___/   / __ \____ _____  ___  / /
+0|ks-panel |   / ,<  \__ \   / /_/ / __ `/ __ \/ _ \/ /
+0|ks-panel |  / /| |___/ /  / ____/ /_/ / / / /  __/ /
+0|ks-panel | /_/ |_/____/  /_/    \__,_/_/ /_/\___/_/
+0|ks-panel |
+0|ks-panel | ❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version v1.0.0
+0|ks-panel |
+0|ks-panel |  04/16 10:19:10   info    KS Panel is listening on port 8080
+0|ks-panel |  04/16 10:19:10   debug   Server ready - routes loaded
+0|ks-panel |  04/16 10:19:10   info    Loading plugins...
+0|ks-panel |  04/16 10:19:10   info    Loading plugin 'example_plugin', enabled: false
+0|ks-panel |  04/16 10:19:11   info    KS Panel init complete!
+0|ks-panel |  04/16 10:19:14   info    Successfully installed module find.
+0|ks-panel |  04/16 10:19:14   info    plugins.json successfully written.
+0|ks-panel |  04/16 10:23:46   info    Config updated with random values.
+0|ks-panel |     __ _______    ____                   __
+0|ks-panel |    / //_/ ___/   / __ \____ _____  ___  / /
+0|ks-panel |   / ,<  \__ \   / /_/ / __ `/ __ \/ _ \/ /
+0|ks-panel |  / /| |___/ /  / ____/ /_/ / / / /  __/ /
+0|ks-panel | /_/ |_/____/  /_/    \__,_/_/ /_/\___/_/
+0|ks-panel |
+0|ks-panel | ❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version v1.0.0
+0|ks-panel |
+0|ks-panel |  04/16 10:23:46   info    KS Panel is listening on port 8080
+0|ks-panel |  04/16 10:23:46   debug   Server ready - routes loaded
+0|ks-panel |  04/16 10:23:47   info    Loading plugins...
+0|ks-panel |  04/16 10:23:47   info    Loading plugin 'example_plugin', enabled: false
+0|ks-panel |  04/16 10:23:47   info    KS Panel init complete!
+0|ks-panel |  04/16 10:23:48   info    Successfully installed module find.
+0|ks-panel |  04/16 10:23:48   info    plugins.json successfully written.
+0|ks-panel |  04/16 10:32:28   info    AuditLogs: action=, dateRange=null, page=1
+0|ks-panel |  04/17 00:46:34   info    AuditLogs: action=, dateRange=null, page=1
+0|ks-panel |  04/17 00:47:32   info    AuditLogs: action=, dateRange=null, page=1
+0|ks-panel |  04/17 00:47:52   info    Running configure command: npm run configure -- --panel https://jules.ksweb.qzz.io --key d089919b-157d-453d-9c45-ac2e493dd7ad
+
+/home/jules/.pm2/logs/ks-panel-error.log last 50 lines:
+0|ks-panel |
+0|ks-panel | /app/panel/views/components/template.ejs:188
+0|ks-panel |     186|
+0|ks-panel |     187|                <!-- Admin Section -->
+0|ks-panel |  >> 188|                <% if (anyAdminPerm()) { %>
+0|ks-panel |     189|                <div class="pt-4 border-t border-white/5">
+0|ks-panel |     190|                   <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Administration</p>
+0|ks-panel |     191|
+0|ks-panel |
+0|ks-panel | anyAdminPerm is not defined
+0|ks-panel |     at eval ("/app/panel/views/components/template.ejs":46:8)
+0|ks-panel |     at template (/app/panel/node_modules/ejs/lib/ejs.js:703:17)
+0|ks-panel |     at include (/app/panel/node_modules/ejs/lib/ejs.js:701:39)
+0|ks-panel |     at eval ("/app/panel/views/instances.ejs":10:17)
+0|ks-panel |     at instances (/app/panel/node_modules/ejs/lib/ejs.js:703:17)
+0|ks-panel |     at tryHandleCache (/app/panel/node_modules/ejs/lib/ejs.js:274:36)
+0|ks-panel |     at exports.renderFile [as engine] (/app/panel/node_modules/ejs/lib/ejs.js:491:10)
+0|ks-panel |     at View.render (/app/panel/node_modules/express/lib/view.js:135:8)
+0|ks-panel |     at tryRender (/app/panel/node_modules/express/lib/application.js:657:10)
+0|ks-panel |     at Function.render (/app/panel/node_modules/express/lib/application.js:609:3)
+0|ks-panel |  04/16 10:19:10   warn    Module not found for plugin 'example_plugin' in '/app/database/plugins/example_plugin'. Attempting to install 'find'...
+0|ks-panel |  04/16 10:19:14   error   Validation error in plugin 'example_plugin': Main file 'main.js' not found in '/app/database/plugins/example_plugin'.
+0|ks-panel |  04/16 10:19:14   error   Plugin 'example_plugin' has validation errors but will still be listed.
+0|ks-panel |  04/16 10:19:14   error   Error loading plugin 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+0|ks-panel | Require stack:
+0|ks-panel | - /app/panel/plugins/pluginManager.js
+0|ks-panel | - /app/panel/index.js.
+0|ks-panel |  04/16 10:19:14   error   Errors occurred while loading plugins: Validation errors in 'example_plugin', Loading error in 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+0|ks-panel | Require stack:
+0|ks-panel | - /app/panel/plugins/pluginManager.js
+0|ks-panel | - /app/panel/index.js
+0|ks-panel |  04/16 10:23:47   warn    Module not found for plugin 'example_plugin' in '/app/database/plugins/example_plugin'. Attempting to install 'find'...
+0|ks-panel |  04/16 10:23:48   error   Validation error in plugin 'example_plugin': Main file 'main.js' not found in '/app/database/plugins/example_plugin'.
+0|ks-panel |  04/16 10:23:48   error   Plugin 'example_plugin' has validation errors but will still be listed.
+0|ks-panel |  04/16 10:23:48   error   Error loading plugin 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+0|ks-panel | Require stack:
+0|ks-panel | - /app/panel/plugins/pluginManager.js
+0|ks-panel | - /app/panel/index.js.
+0|ks-panel |  04/16 10:23:48   error   Errors occurred while loading plugins: Validation errors in 'example_plugin', Loading error in 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+0|ks-panel | Require stack:
+0|ks-panel | - /app/panel/plugins/pluginManager.js
+0|ks-panel | - /app/panel/index.js
+0|ks-panel |  04/16 10:32:13   error   Resource monitor failed for node ec7b6f51-89c3-407d-8416-df0a40a57820: Request failed with status code 401
+0|ks-panel |  04/16 10:33:15   error   Resource monitor failed for node ec7b6f51-89c3-407d-8416-df0a40a57820: Request failed with status code 401
+0|ks-panel |  04/17 00:46:49   error   Resource monitor failed for node ec7b6f51-89c3-407d-8416-df0a40a57820: Request failed with status code 401
+0|ks-panel |  04/17 00:47:40   error   Resource monitor failed for node ec7b6f51-89c3-407d-8416-df0a40a57820: Request failed with status code 401
+0|ks-panel |  04/17 00:48:13   error   Error checking status for node ec7b6f51-89c3-407d-8416-df0a40a57820:
+0|ks-panel |  04/17 00:48:14   error   Resource monitor fetch failed for node ec7b6f51-89c3-407d-8416-df0a40a57820:
+0|ks-panel |  04/17 02:13:34   error   Resource monitor failed for node ec7b6f51-89c3-407d-8416-df0a40a57820: Request failed with status code 401
+0|ks-panel |  04/17 02:56:59   error   Resource monitor failed for node ec7b6f51-89c3-407d-8416-df0a40a57820: Request failed with status code 401

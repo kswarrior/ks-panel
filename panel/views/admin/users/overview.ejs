@@ -41,66 +41,94 @@
     <!-- Header -->
     <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
       <div>
-        <h1 class="text-3xl font-bold text-white tracking-tight"><%= req.translations.users %></h1>
-        <p class="mt-2 text-neutral-400">Manage user accounts, roles, and administrative access levels.</p>
+        <h1 class="text-4xl font-black text-white tracking-tight">User Management</h1>
+        <p class="mt-2 text-neutral-400 font-medium">Oversee accounts, assigned roles, and security policies.</p>
       </div>
 
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Search & Filter Toggles -->
+        <div class="flex bg-white/5 border border-white/10 rounded-2xl p-1.5 mr-2">
+          <button onclick="toggleSearchBar()" id="searchToggle"
+                  class="p-2.5 rounded-xl transition-all hover:bg-white/5 <%= filters.search ? 'text-blue-400 bg-blue-400/10' : 'text-neutral-400' %>">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </button>
+          <button onclick="toggleFilterBar()" id="filterToggle"
+                  class="p-2.5 rounded-xl transition-all hover:bg-white/5 <%= (filters.role || filters.status) ? 'text-emerald-400 bg-emerald-400/10' : 'text-neutral-400' %>">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+          </button>
+        </div>
+
         <a href="/admin/roles"
-           class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-all">
+           class="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-all">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
-          Manage Roles
+          Roles
         </a>
         <a href="/admin/users/create"
-           class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-black font-bold text-sm shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all">
+           class="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm shadow-xl shadow-blue-600/20 hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] transition-all">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
-          <%= req.translations.createUserButton %>
+          New User
         </a>
       </div>
     </header>
 
-    <!-- Search and Filters -->
-    <div class="glass-panel p-4 mb-8">
-      <form action="/admin/users" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Search -->
-        <div class="relative group">
-          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="text" name="search" value="<%= filters.search %>" placeholder="Search by name, email, ID..."
-                 class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-white/20 transition-all">
-        </div>
-
-        <!-- Role Filter -->
-        <select name="role" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer">
-          <option value="" class="bg-[#111]">All Roles</option>
-          <option value="owner" <%= filters.role === 'owner' ? 'selected' : '' %> class="bg-[#111]">Owner</option>
-          <option value="admin" <%= filters.role === 'admin' ? 'selected' : '' %> class="bg-[#111]">Administrator</option>
-          <option value="user" <%= filters.role === 'user' ? 'selected' : '' %> class="bg-[#111]">Standard User</option>
-          <% roles.forEach(role => { %>
-            <option value="<%= role.id %>" <%= filters.role === role.id ? 'selected' : '' %> class="bg-[#111]"><%= role.name %></option>
-          <% }) %>
-        </select>
-
-        <!-- Status Filter -->
-        <select name="status" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer">
-          <option value="" class="bg-[#111]">All Statuses</option>
-          <option value="verified" <%= filters.status === 'verified' ? 'selected' : '' %> class="bg-[#111]">Verified</option>
-          <option value="unverified" <%= filters.status === 'unverified' ? 'selected' : '' %> class="bg-[#111]">Unverified</option>
-        </select>
-
-        <!-- Filter Action -->
-        <div class="flex gap-2">
-          <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold transition-all">
-            Filter
-          </button>
-          <a href="/admin/users" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-all">
-            Reset
+    <!-- Search Bar (Collapsible) -->
+    <div id="searchBar" class="<%= filters.search ? 'block' : 'hidden' %> animate-fade-in mb-6">
+      <form action="/admin/users" method="GET" class="relative group">
+        <input type="hidden" name="role" value="<%= filters.role %>">
+        <input type="hidden" name="status" value="<%= filters.status %>">
+        <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" name="search" value="<%= filters.search %>" placeholder="Search by name, email, or unique ID..."
+               class="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all shadow-2xl">
+        <% if (filters.search) { %>
+          <a href="/admin/users?role=<%= filters.role %>&status=<%= filters.status %>" class="absolute right-5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-white/10 text-neutral-400 hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </a>
-        </div>
+        <% } %>
       </form>
+    </div>
+
+    <!-- Filter Bar (Collapsible) -->
+    <div id="filterBar" class="<%= (filters.role || filters.status) ? 'block' : 'hidden' %> animate-fade-in mb-8">
+      <div class="glass-panel p-6 shadow-2xl">
+        <form action="/admin/users" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <input type="hidden" name="search" value="<%= filters.search %>">
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Account Role</label>
+            <select name="role" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer">
+              <option value="" class="bg-[#111]">All Roles</option>
+              <option value="owner" <%= filters.role === 'owner' ? 'selected' : '' %> class="bg-[#111]">Owner</option>
+              <option value="admin" <%= filters.role === 'admin' ? 'selected' : '' %> class="bg-[#111]">Administrator</option>
+              <option value="user" <%= filters.role === 'user' ? 'selected' : '' %> class="bg-[#111]">Standard User</option>
+              <% roles.forEach(role => { %>
+                <option value="<%= role.id %>" <%= filters.role === role.id ? 'selected' : '' %> class="bg-[#111]"><%= role.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Status</label>
+            <select name="status" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer">
+              <option value="" class="bg-[#111]">All Statuses</option>
+              <option value="verified" <%= filters.status === 'verified' ? 'selected' : '' %> class="bg-[#111]">Verified</option>
+              <option value="unverified" <%= filters.status === 'unverified' ? 'selected' : '' %> class="bg-[#111]">Unverified</option>
+            </select>
+          </div>
+
+          <div class="flex items-end gap-3">
+            <button type="submit" class="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all shadow-lg shadow-blue-600/20">
+              Apply Filters
+            </button>
+            <a href="/admin/users" class="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-all">
+              Reset
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Desktop Table -->
@@ -253,6 +281,41 @@
 </main>
 
 <script>
+  function toggleSearchBar() {
+    const bar = document.getElementById('searchBar');
+    const toggle = document.getElementById('searchToggle');
+    const isHidden = bar.classList.contains('hidden');
+
+    // Close other bars
+    document.getElementById('filterBar').classList.add('hidden');
+
+    if(isHidden) {
+      bar.classList.remove('hidden');
+      bar.querySelector('input[name="search"]').focus();
+      toggle.classList.add('text-blue-400', 'bg-blue-400/10');
+    } else {
+      bar.classList.add('hidden');
+      if(!'<%= filters.search %>') toggle.classList.remove('text-blue-400', 'bg-blue-400/10');
+    }
+  }
+
+  function toggleFilterBar() {
+    const bar = document.getElementById('filterBar');
+    const toggle = document.getElementById('filterToggle');
+    const isHidden = bar.classList.contains('hidden');
+
+    // Close other bars
+    document.getElementById('searchBar').classList.add('hidden');
+
+    if(isHidden) {
+      bar.classList.remove('hidden');
+      toggle.classList.add('text-emerald-400', 'bg-emerald-400/10');
+    } else {
+      bar.classList.add('hidden');
+      if(!'<%= filters.role %>' && !'<%= filters.status %>') toggle.classList.remove('text-emerald-400', 'bg-emerald-400/10');
+    }
+  }
+
   document.querySelectorAll('.removeButton').forEach(button => {
     button.addEventListener('click', function() {
       const userId = this.dataset.userId;

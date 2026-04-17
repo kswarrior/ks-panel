@@ -152,69 +152,6 @@ app.get("/setLanguage", async (req, res) => {
   }
 });
 
-app.use(async (req, res, next) => {
-  try {
-    const settings = await db.get("settings");
-
-    res.locals.languages = getLanguages();
-    res.locals.ogTitle = config.ogTitle;
-    res.locals.ogDescription = config.ogDescription;
-    res.locals.footer = settings.footer;
-    res.locals.name = settings.name;
-    res.locals.logo = settings.logo;
-    res.locals.plugins = plugins;
-    next();
-  } catch (error) {
-    log.error("Error fetching settings:", error);
-    next(error);
-  }
-});
-
-// ====================== GLOBAL VIEW LOCALS ======================
-app.use(async (req, res, next) => {
-  try {
-    const [theme, users, roles] = await Promise.all([
-      db.get("theme") || {},
-      db.get("users") || [],
-      db.get("roles") || []
-    ]);
-
-    res.locals.theme = theme;
-
-    // Permission helper for EJS
-    res.locals.hasPerm = (perm) => {
-      if (!req.user) return false;
-      const dbUser = users.find(u => u.userId === req.user.userId);
-      if (!dbUser) return false;
-      return checkPermission(dbUser, roles, perm);
-    };
-
-    // Helper to check if user has ANY admin permission
-    res.locals.anyAdminPerm = () => {
-      if (!req.user) return false;
-      const dbUser = users.find(u => u.userId === req.user.userId);
-      if (!dbUser) return false;
-
-      if (dbUser.owner === true || dbUser.admin === true || String(dbUser.admin) === 'true') {
-        return true;
-      }
-
-      const adminPerms = [
-        'create_instances', 'manage_nodes', 'manage_users',
-        'manage_templates', 'view_audit_logs', 'manage_settings'
-      ];
-      return adminPerms.some(p => checkPermission(dbUser, roles, p));
-    };
-
-  } catch (err) {
-    log.error("Middleware error:", err);
-    res.locals.theme = {};
-    res.locals.hasPerm = () => false;
-    res.locals.anyAdminPerm = () => false;
-  }
-  next();
-});
-
 if (config.mode === "production" || false) {
   app.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store");
@@ -243,6 +180,57 @@ app.use(express.static("public"));
  * Logs the loaded routes and mounts them to the Express application under the root path. This allows for
  * modular route definitions that can be independently maintained and easily scaled.
  */
+
+// ====================== GLOBAL VIEW LOCALS & SETTINGS ======================
+app.use(async (req, res, next) => {
+  try {
+    const [settings, theme, users, roles] = await Promise.all([
+      db.get("settings") || {},
+      db.get("theme") || {},
+      db.get("users") || [],
+      db.get("roles") || []
+    ]);
+
+    res.locals.languages = getLanguages();
+    res.locals.ogTitle = config.ogTitle;
+    res.locals.ogDescription = config.ogDescription;
+    res.locals.footer = settings.footer || "";
+    res.locals.name = settings.name || "KS Panel";
+    res.locals.logo = settings.logo || "/assets/logo.webp";
+    res.locals.plugins = plugins;
+    res.locals.theme = theme;
+
+    // Permission helper for EJS
+    res.locals.hasPerm = (perm) => {
+      if (!req.user) return false;
+      const dbUser = users.find(u => u.userId === req.user.userId);
+      return checkPermission(dbUser, roles, perm);
+    };
+
+    // Helper to check if user has ANY admin permission
+    res.locals.anyAdminPerm = () => {
+      if (!req.user) return false;
+      const dbUser = users.find(u => u.userId === req.user.userId);
+      if (dbUser && (dbUser.owner || dbUser.admin)) return true;
+
+      const adminPerms = [
+        'create_instances', 'manage_nodes', 'manage_users',
+        'manage_templates', 'view_audit_logs', 'manage_settings'
+      ];
+      return adminPerms.some(p => checkPermission(dbUser, roles, p));
+    };
+
+  } catch (err) {
+    log.error("Global locals middleware error:", err);
+    res.locals.languages = getLanguages();
+    res.locals.theme = {};
+    res.locals.hasPerm = () => false;
+    res.locals.anyAdminPerm = () => false;
+    res.locals.name = "KS Panel";
+    res.locals.plugins = plugins;
+  }
+  next();
+});
 
 const routesDir = path.join(__dirname, "routes");
 function loadRoutes(directory) {

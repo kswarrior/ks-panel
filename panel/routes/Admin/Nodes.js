@@ -69,7 +69,13 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
         const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
         const monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
 
-        const response = await axios.get(monitorUrl, { timeout: 4000 });
+        const response = await axios.get(monitorUrl, {
+          auth: {
+            username: "kspanel",
+            password: node.apiKey,
+          },
+          timeout: 4000
+        });
         node.resources = response.data;
 
         // Auto-populate RAM/Disk for "auto" mode nodes

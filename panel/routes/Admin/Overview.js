@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
 const config = require("../../config.json");
-const { isAdmin, anyAdminPerm } = require("../../utils/isAdmin.js");
+const { isAdmin } = require("../../utils/isAdmin.js");
 
 // Required for live PM2 logs
 const fs = require("fs");
@@ -10,7 +10,7 @@ const os = require("os");
 const path = require("path");
 const { spawn } = require("child_process");
 
-router.get("/admin/overview", anyAdminPerm, async (req, res) => {
+router.get("/admin/overview", isAdmin, async (req, res) => {
   try {
     const [users, nodesIds, images, instances, analyticsRaw] = await Promise.all([
       db.get("users").then(data => data || []),
@@ -84,7 +84,7 @@ router.get("/admin/overview", anyAdminPerm, async (req, res) => {
   }
 });
 
-router.get("/api/analytics", anyAdminPerm, async (req, res) => {
+router.get("/api/analytics", isAdmin, async (req, res) => {
   try {
     const analytics = (await db.get("analytics")) || [];
     const totalRequests = analytics.length;
@@ -130,7 +130,7 @@ router.get("/api/analytics", anyAdminPerm, async (req, res) => {
 // =====================
 // TRUE LIVE PM2 LOG STREAM USING `npx pm2 logs kspanel`
 // =====================
-router.get("/admin/api/server-logs/stream", anyAdminPerm, (req, res) => {
+router.get("/admin/api/server-logs/stream", isAdmin, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");

@@ -1,7 +1,7 @@
 {
   "baseUri": "http://localhost:8080",
   "port": 8080,
-  "session_secret": "2b48b76635c2c888",
+  "session_secret": "eebcd04904649f24",
   "domain": "localhost",
   "mode": "production",
   "version": "1.0.0",

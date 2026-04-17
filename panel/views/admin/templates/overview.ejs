@@ -429,44 +429,6 @@
       </div>
     </header>
 
-    <!-- Search and Filters -->
-    <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 mt-8">
-      <form action="/admin/templates/overview" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Search -->
-        <div class="relative group">
-          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="text" name="search" value="<%= filters.search %>" placeholder="Search by name..."
-                 class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-white/20 transition-all">
-        </div>
-
-        <!-- Category Filter -->
-        <select name="category" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer">
-          <option value="" class="bg-[#111]">All Categories</option>
-          <% categories.forEach(cat => { %>
-            <option value="<%= cat %>" <%= filters.category === cat ? 'selected' : '' %> class="bg-[#111]"><%= cat %></option>
-          <% }) %>
-        </select>
-
-        <!-- Type Filter -->
-        <select name="type" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer">
-          <option value="" class="bg-[#111]">All Types</option>
-          <% types.forEach(t => { %>
-            <option value="<%= t %>" <%= filters.type === t ? 'selected' : '' %> class="bg-[#111]"><%= t %></option>
-          <% }) %>
-        </select>
-
-        <!-- Filter Action -->
-        <div class="flex gap-2">
-          <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold transition-all">
-            Filter
-          </button>
-          <a href="/admin/templates/overview" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-all">
-            Reset
-          </a>
-        </div>
-      </form>
-    </div>
-
     <!-- Stats -->
     <section id="stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
       <article class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-6 transition-all duration-200 hover:border-white/20 group shadow-sm">
@@ -591,10 +553,6 @@
         <% } %>
       </div>
     </section>
-
-    <div class="mt-8">
-      <%- include('../../components/pagination', { pagination }) %>
-    </div>
 
     <!-- Hidden table for reference (kept in DOM but not displayed) -->
     <div class="templates-table-wrapper">
