@@ -7,7 +7,7 @@ const https = require("https");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 const { sendTestEmail } = require("../../handlers/email.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 
 // ====================== MULTER FOR LOGO (unchanged) ======================
@@ -148,12 +148,12 @@ router.post(
 
 // ====================== EXISTING ROUTES (unchanged) ======================
 
-router.get("/admin/settings", isAdmin, async (req, res) => {
+router.get("/admin/settings", hasPermission('manage_settings'), async (req, res) => {
   const settingsData = await fetchCommonSettings(req);
   res.render("admin/settings/appearance", { ...settingsData, pageType: "admin" });
 });
 
-router.get("/admin/settings/smtp", isAdmin, async (req, res) => {
+router.get("/admin/settings/smtp", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settingsData = await fetchCommonSettings(req);
     const smtpSettings = (await db.get("smtp_settings")) || {};
@@ -166,7 +166,7 @@ router.get("/admin/settings/smtp", isAdmin, async (req, res) => {
 
 router.post(
   "/admin/settings/toggle/force-verify",
-  isAdmin,
+  hasPermission('manage_settings'),
   async (req, res) => {
     try {
       const settings = (await db.get("settings")) || {};
@@ -181,7 +181,7 @@ router.post(
   }
 );
 
-router.post("/admin/settings/change/name", isAdmin, async (req, res) => {
+router.post("/admin/settings/change/name", hasPermission('manage_settings'), async (req, res) => {
   const { name } = req.body;
   try {
     const settings = (await db.get("settings")) || {};
@@ -195,7 +195,7 @@ router.post("/admin/settings/change/name", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/settings/saveSmtpSettings", isAdmin, async (req, res) => {
+router.post("/admin/settings/saveSmtpSettings", hasPermission('manage_settings'), async (req, res) => {
   const {
     smtpServer,
     smtpPort,
@@ -222,7 +222,7 @@ router.post("/admin/settings/saveSmtpSettings", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/sendTestEmail", isAdmin, async (req, res) => {
+router.post("/sendTestEmail", hasPermission('manage_settings'), async (req, res) => {
   try {
     const { recipientEmail } = req.body;
     await sendTestEmail(recipientEmail);
@@ -235,7 +235,7 @@ router.post("/sendTestEmail", isAdmin, async (req, res) => {
 
 router.post(
   "/admin/settings/change/logo",
-  isAdmin,
+  hasPermission('manage_settings'),
   upload.single("logo"),
   async (req, res) => {
     const { type } = req.body;
@@ -271,7 +271,7 @@ router.post(
   }
 );
 
-router.post("/admin/settings/toggle/register", isAdmin, async (req, res) => {
+router.post("/admin/settings/toggle/register", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settings = (await db.get("settings")) || {};
     settings.register = !settings.register;

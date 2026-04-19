@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 
 // ====================== Theme Routes ======================
 
 // GET - Render Theme Customization Page
-router.get("/admin/settings/theme", isAdmin, async (req, res) => {
+router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settings = (await db.get("settings")) || {};
     let theme = (await db.get("theme")) || {};
@@ -44,7 +44,7 @@ router.get("/admin/settings/theme", isAdmin, async (req, res) => {
 });
 
 // POST - Save Theme to Database
-router.post("/admin/settings/theme/save", isAdmin, async (req, res) => {
+router.post("/admin/settings/theme/save", hasPermission('manage_settings'), async (req, res) => {
   try {
     const themeData = req.body;
 
@@ -60,7 +60,7 @@ router.post("/admin/settings/theme/save", isAdmin, async (req, res) => {
 });
 
 // (Optional but recommended) Reset to Default
-router.post("/admin/settings/theme/reset", isAdmin, async (req, res) => {
+router.post("/admin/settings/theme/reset", hasPermission('manage_settings'), async (req, res) => {
   try {
     const defaultTheme = {
       primary: "#3b82f6",

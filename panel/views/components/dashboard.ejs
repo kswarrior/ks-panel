@@ -1,64 +1,27 @@
-<!-- ===================== DASHBOARD NAVIGATION ===================== -->
 <style>
-  /* ===== DASHBOARD NAVIGATION - ISOLATED STYLES ===== */
-  .dash-nav-wrapper {
-    margin-top: 1.5rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  @media (min-width: 640px) {
-    .dash-nav-wrapper {
-      margin-left: 2rem;
-      margin-right: 2rem;
-    }
-  }
-
-  .dash-nav-scroll {
+  .dash-nav-container {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1.25rem;
+    padding: 6px;
     position: relative;
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    scroll-snap-type: x mandatory;
+    overflow: hidden;
   }
 
-  .dash-nav-scroll::-webkit-scrollbar { display: none; }
-
-  .dash-nav {
-    display: flex;
-    position: relative;
-    min-width: max-content;
-    padding: 0.25rem;
-    gap: 0.5rem;
-  }
-
-  @media (min-width: 1024px) {
-    .dash-nav { gap: 0.75rem; }
-  }
-
-  .dash-nav-bg {
+  .dash-nav-indicator {
     position: absolute;
-    height: 2.5rem;
-    top: 0.25rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 9999px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
+    height: calc(100% - 12px);
+    background: white;
+    border-radius: 0.875rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 0;
-    opacity: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
-
-  .dash-nav-bg.active { opacity: 1; }
 
   .dash-nav-list {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -66,141 +29,107 @@
     z-index: 1;
   }
 
-  .dash-nav-item { flex-shrink: 0; }
-
   .dash-nav-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: rgb(163, 163, 163);
+    gap: 0.625rem;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.4);
     text-decoration: none;
     white-space: nowrap;
-    border-radius: 9999px;
-    transition: all 0.2s ease;
-    position: relative;
-  }
-
-  .dash-nav-link:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    transition: color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .dash-nav-link.is-active {
-    color: white;
-    font-weight: 600;
+    color: black;
+  }
+
+  .dash-nav-link:hover:not(.is-active) {
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .dash-nav-icon {
     width: 1.125rem;
     height: 1.125rem;
-    flex-shrink: 0;
+    stroke-width: 2.5;
+  }
+
+  @media (max-width: 640px) {
+    .dash-nav-container {
+      width: 100%;
+      border-radius: 1rem;
+      padding: 4px;
+    }
+    .dash-nav-list {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .dash-nav-link {
+      padding: 0.625rem 0.75rem;
+      font-size: 0.65rem;
+      flex: 1;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .dash-nav-indicator {
+      height: calc(100% - 8px);
+    }
   }
 </style>
 
-<div class="dash-nav-wrapper">
-  <div class="dash-nav-scroll" id="dash-nav-scroll">
-    <nav class="dash-nav">
-      <div class="dash-nav-bg" id="dash-nav-bg"></div>
-      <ul class="dash-nav-list">
-        <!-- Console -->
-        <li class="dash-nav-item">
-          <a href="/admin/dashboard/console" class="dash-nav-link" data-dash-link="console">
-            <svg xmlns="http://www.w3.org/2000/svg" class="dash-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <span>Console</span>
-          </a>
-        </li>
-
-        <!-- Analytics -->
-        <li class="dash-nav-item">
-          <a href="/admin/dashboard/analytics" class="dash-nav-link" data-dash-link="analytics">
-            <svg xmlns="http://www.w3.org/2000/svg" class="dash-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-9 9-4-4-6 6"/>
-            </svg>
-            <span>Analytics</span>
-          </a>
-        </li>
-
-        <!-- Database -->
-        <li class="dash-nav-item">
-          <a href="/admin/dashboard/database" class="dash-nav-link" data-dash-link="database">
-            <svg xmlns="http://www.w3.org/2000/svg" class="dash-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
-            </svg>
-            <span>Database</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
+<div class="dash-nav-container" id="dash-nav-container">
+  <div class="dash-nav-indicator" id="dash-nav-indicator"></div>
+  <ul class="dash-nav-list">
+    <li>
+      <a href="/admin/dashboard/console" class="dash-nav-link" id="link-console">
+        <svg xmlns="http://www.w3.org/2000/svg" class="dash-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Console</span>
+      </a>
+    </li>
+    <li>
+      <a href="/admin/dashboard/analytics" class="dash-nav-link" id="link-analytics">
+        <svg xmlns="http://www.w3.org/2000/svg" class="dash-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-9 9-4-4-6 6"/></svg>
+        <span>Analytics</span>
+      </a>
+    </li>
+    <li>
+      <a href="/admin/dashboard/database" class="dash-nav-link" id="link-database">
+        <svg xmlns="http://www.w3.org/2000/svg" class="dash-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        <span>Database</span>
+      </a>
+    </li>
+  </ul>
 </div>
 
 <script>
-  // Dashboard Navigation Script (isolated)
   (function() {
-    const navScroll = document.getElementById('dash-nav-scroll');
-    const navBg = document.getElementById('dash-nav-bg');
-    const links = document.querySelectorAll('.dash-nav-link');
-    const currentPath = window.location.pathname;
-
-    if (!navScroll || !navBg) return;
-
-    function updateActive() {
+    function updateIndicator() {
+      const container = document.getElementById('dash-nav-container');
+      const indicator = document.getElementById('dash-nav-indicator');
+      const current = window.location.pathname;
       let activeLink = null;
 
-      links.forEach(link => {
-        const href = link.getAttribute('href');
-        link.classList.remove('is-active');
+      if(current.includes('console')) activeLink = document.getElementById('link-console');
+      else if(current.includes('analytics')) activeLink = document.getElementById('link-analytics');
+      else if(current.includes('database')) activeLink = document.getElementById('link-database');
 
-        if (currentPath === href || currentPath.startsWith(href + '/')) {
-          activeLink = link;
-        }
-      });
-
-      if (activeLink) {
+      if(activeLink) {
         activeLink.classList.add('is-active');
-
         const rect = activeLink.getBoundingClientRect();
-        const navRect = activeLink.closest('.dash-nav').getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
-        navBg.style.width = `${rect.width}px`;
-        navBg.style.transform = `translateX(${rect.left - navRect.left}px)`;
-        navBg.classList.add('active');
-      } else {
-        navBg.classList.remove('active');
+        indicator.style.width = `${rect.width}px`;
+        indicator.style.left = `${rect.left - containerRect.left}px`;
+        indicator.style.opacity = '1';
       }
     }
 
-    // Initial activation
-    updateActive();
-
-    // Click handler
-    links.forEach(link => {
-      link.addEventListener('click', () => {
-        links.forEach(l => l.classList.remove('is-active'));
-        link.classList.add('is-active');
-
-        const rect = link.getBoundingClientRect();
-        const navRect = link.closest('.dash-nav').getBoundingClientRect();
-
-        navBg.style.width = `${rect.width}px`;
-        navBg.style.transform = `translateX(${rect.left - navRect.left}px)`;
-      });
-    });
-
-    // Mobile scroll fade (optional)
-    function updateScrollFade() {
-      const scrollLeft = navScroll.scrollLeft;
-      const maxScroll = navScroll.scrollWidth - navScroll.clientWidth;
-      navScroll.classList.toggle('has-left', scrollLeft > 10);
-      navScroll.classList.toggle('has-right', scrollLeft < maxScroll - 10);
-    }
-
-    navScroll.addEventListener('scroll', updateScrollFade, { passive: true });
-    window.addEventListener('resize', updateActive);
+    window.addEventListener('load', updateIndicator);
+    window.addEventListener('resize', updateIndicator);
+    updateIndicator();
   })();
 </script>

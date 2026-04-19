@@ -1,6 +1,68 @@
 <%- include('../../components/template') %>
 
+<!-- Choices.js for Searchable Selects -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
 <style>
+.feature-tile {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.feature-tile:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.feature-tile.active {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02));
+}
+
+.feature-tile.active .tile-status {
+  color: #34d399;
+}
+
+.feature-tile.active .tile-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tile-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: #10b981;
+  color: white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.3s ease;
+  font-size: 0.6rem;
+  font-weight: bold;
+}
+
+/* Choices.js Custom Overrides for Dark UI */
+.choices { margin-bottom: 0; }
+.choices__inner { background-color: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 0.5rem !important; color: white !important; min-height: 42px !important; padding: 4px 10px !important; }
+.choices__list--dropdown, .choices__list[aria-expanded] { background-color: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 50 !important; }
+.choices__list--dropdown .choices__item--selectable.is-highlighted { background-color: rgba(255,255,255,0.1) !important; }
+.choices__input { background-color: transparent !important; color: white !important; }
+.choices__item { color: white !important; }
+
 /* ====================== SCOPED STYLES - ONLY AFFECT #templateForm ====================== */
 
 #templateForm .tf-input {
@@ -403,21 +465,31 @@
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
     <!-- Header -->
-    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/5">
       <div>
-        <h1 class="text-xl sm:text-2xl font-semibold text-white tracking-tight">Edit Template</h1>
-        <p class="mt-1 text-sm text-neutral-400">Powerful Pterodactyl / PufferPanel-style templates</p>
+        <h1 class="text-3xl font-bold text-white tracking-tight">Edit Power Template</h1>
+        <p class="mt-2 text-neutral-400">Design powerful templates with custom consoles and multi-infra support.</p>
       </div>
-
-      <div class="tf-page-header">
-        <button id="btnImportJson" type="button" class="tf-btn tf-btn-secondary">
+      <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
+        <button id="btnImportJson" type="button" class="tf-btn tf-btn-secondary justify-center py-2.5 sm:py-3 px-3 sm:px-4">
           <span>📥</span>
-          <span class="hidden sm:inline">Import JSON</span>
-          <span class="sm:hidden">Import</span>
+          <span class="hidden md:inline ml-1">Import JSON</span>
+          <span class="md:hidden ml-1 text-[10px]">Import</span>
         </button>
-        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary">
-          ← Back
+        <button id="btnExportJson" type="button" class="tf-btn tf-btn-secondary justify-center py-2.5 sm:py-3 px-3 sm:px-4">
+          <span>📤</span>
+          <span class="hidden md:inline ml-1">Export JSON</span>
+          <span class="md:hidden ml-1 text-[10px]">Export</span>
+        </button>
+        <a href="/admin/templates/overview" class="tf-btn tf-btn-secondary justify-center py-2.5 sm:py-3 px-3 sm:px-4">
+          <span>❌</span>
+          <span class="ml-1 text-[10px] md:text-sm">Cancel</span>
         </a>
+        <button id="btnSaveTemplate" type="button" class="tf-btn tf-btn-accent justify-center py-2.5 sm:py-3 px-3 sm:px-6 shadow-lg shadow-emerald-500/20">
+          <span>🚀</span>
+          <span class="hidden md:inline ml-1">Update Template</span>
+          <span class="md:hidden ml-1 text-[10px]">Update</span>
+        </button>
       </div>
     </header>
 
@@ -457,23 +529,49 @@
 
           <!-- ENVIRONMENT -->
           <div class="tf-section-divider">
-            <h2>Environment</h2>
+            <h2>Environment & Infrastructure</h2>
           </div>
 
           <div class="tf-row">
             <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category <span class="text-red-400">*</span></label>
-              <div class="flex gap-2">
-                <select name="category" required class="tf-input">
-                  <% categories.forEach(cat => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
-                </select>
-                <button type="button" id="btnAddCategory" class="tf-btn tf-btn-secondary whitespace-nowrap">
-                  + Add
-                </button>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-[10px] font-bold text-neutral-500 uppercase">Category <span class="text-red-400">*</span></label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="deleteCategory()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                  <button type="button" onclick="addCategory()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+                </div>
               </div>
+              <select id="meta-category" name="category" required class="tf-input searchable-select">
+                <% categories.forEach(cat => { %><option value="<%= cat %>" <%= template.category === cat ? 'selected' : '' %>><%= cat %></option><% }) %>
+              </select>
             </div>
             <div class="tf-field-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-[10px] font-bold text-neutral-500 uppercase">Template Type</label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="deleteType()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                  <button type="button" onclick="addType()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+                </div>
+              </div>
+              <select id="meta-type" name="meta.type" class="tf-input searchable-select">
+                <% types.forEach(t => { %><option value="<%= t %>" <%= template.meta.type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div class="tf-row">
+            <div class="tf-field-short">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Infrastructure <span class="text-red-400">*</span></label>
+              <select name="environment.instance_type" class="tf-input searchable-select">
+                <option value="docker" <%= template.environment?.instance_type === 'docker' ? 'selected' : '' %>>Docker (Containers)</option>
+                <option value="multipass" <%= template.environment?.instance_type === 'multipass' ? 'selected' : '' %>>Multipass (Ubuntu VMs)</option>
+                <option value="kvm" <%= template.environment?.instance_type === 'kvm' ? 'selected' : '' %>>KVM (General VMs)</option>
+                <option value="lxd" <%= template.environment?.instance_type === 'lxd' ? 'selected' : '' %>>LXD (System Containers)</option>
+                <option value="proxmox" <%= template.environment?.instance_type === 'proxmox' ? 'selected' : '' %>>Proxmox (LXC/VM)</option>
+              </select>
+            </div>
+            <div class="tf-field-long">
+              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image / ISO <span class="text-red-400">*</span></label>
               <input type="text" name="environment.docker_image" required placeholder="eclipse-temurin:21-jre" class="tf-input">
             </div>
           </div>
@@ -482,6 +580,27 @@
             <div class="tf-field-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Start Code <span class="text-red-400">*</span></label>
               <input type="text" name="environment.start_code" required placeholder="java -Xms4G -Xmx4G -jar server.jar --nogui" class="tf-input">
+            </div>
+          </div>
+
+          <!-- RESOURCES & LIMITS -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div class="tf-card bg-blue-500/5 border-blue-500/10">
+              <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-wider">Hardware Limits</h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">Memory (MB)</label><input type="number" name="environment.limits.memory" value="<%= template.environment?.limits?.memory || 1024 %>" class="tf-input text-sm font-mono"></div>
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">CPU Limit (%)</label><input type="number" name="environment.limits.cpu" value="<%= template.environment?.limits?.cpu || 100 %>" class="tf-input text-sm font-mono"></div>
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">Disk Space (MB)</label><input type="number" name="environment.limits.disk" value="<%= template.environment?.limits?.disk || 5120 %>" class="tf-input text-sm font-mono"></div>
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">Swap (MB)</label><input type="number" name="environment.limits.swap" value="<%= template.environment?.limits?.swap || 0 %>" class="tf-input text-sm font-mono"></div>
+              </div>
+            </div>
+            <div class="tf-card bg-emerald-500/5 border-emerald-500/10">
+              <h3 class="text-xs font-bold text-emerald-400 uppercase mb-4 tracking-wider">Feature Allowances</h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">Databases</label><input type="number" name="environment.feature_limits.databases" value="<%= template.environment?.feature_limits?.databases || 0 %>" class="tf-input text-sm font-mono"></div>
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">Backups</label><input type="number" name="environment.feature_limits.backups" value="<%= template.environment?.feature_limits?.backups || 0 %>" class="tf-input text-sm font-mono"></div>
+                <div class="tf-field-short"><label class="text-[10px] text-neutral-500 uppercase font-bold">Allocations</label><input type="number" name="environment.feature_limits.allocations" value="<%= template.environment?.feature_limits?.allocations || 1 %>" class="tf-input text-sm font-mono"></div>
+              </div>
             </div>
           </div>
 
@@ -512,15 +631,60 @@
           </div>
           <div id="installStepsContainer" class="space-y-3"></div>
 
+          <!-- CORE FEATURES -->
+          <div class="tf-section-divider">
+            <h2>Core Features</h2>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+            <%
+              const coreFeaturesList = [
+                { id: 'console', name: 'Console', icon: '⚡' },
+                { id: 'files', name: 'Files', icon: '📁' },
+                { id: 'users', name: 'Users', icon: '👥' },
+                { id: 'ports', name: 'Network', icon: '🌐' },
+                { id: 'backups', name: 'Archives', icon: '🗄️' },
+                { id: 'schedules', name: 'Automations', icon: '⏰' },
+                { id: 'databases', name: 'Databases', icon: '💾' },
+                { id: 'ftp', name: 'FTP', icon: '📤' },
+                { id: 'settings', name: 'Settings', icon: '⚙️' },
+                { id: 'startup', name: 'Startup', icon: '🚀' }
+              ];
+            %>
+            <% coreFeaturesList.forEach(f => {
+                let isChecked = template.features?.[f.id];
+                if (f.id === 'network') isChecked = isChecked || template.features?.ports;
+                if (f.id === 'archives') isChecked = isChecked || template.features?.backups;
+                if (f.id === 'automations') isChecked = isChecked || template.features?.schedules;
+                if (f.id === 'db') isChecked = isChecked || template.features?.databases;
+            %>
+              <div onclick="toggleTile('<%= f.id %>')" id="tile-<%= f.id %>" class="feature-tile p-4 flex flex-col items-center justify-center gap-2 <%= isChecked ? 'active' : '' %>">
+                <div class="tile-check">✓</div>
+                <span class="text-2xl mb-1"><%= f.icon %></span>
+                <div class="text-center">
+                  <p class="text-[10px] font-bold text-white uppercase tracking-tighter"><%= f.name %></p>
+                  <p class="tile-status text-[9px] text-neutral-500 font-medium transition-colors"><%= isChecked ? 'ENABLED' : 'DISABLED' %></p>
+                </div>
+                <input type="checkbox" id="toggle-<%= f.id %>" name="features.<%= f.id %>" <%= isChecked ? 'checked' : '' %> class="hidden" onchange="syncCorePage('<%= f.id %>')">
+              </div>
+            <% }) %>
+          </div>
+
           <!-- CUSTOM PAGES -->
           <div class="tf-section-header">
             <div class="flex items-center gap-2">
-              <h2>Custom Pages</h2>
-              <span class="text-xs text-amber-400/80">(sidebar navigation)</span>
+              <h2>Page Configurations</h2>
+              <span class="text-xs text-amber-400/80">(visual layout)</span>
             </div>
-            <button type="button" id="btnAddPage" class="tf-btn tf-btn-accent text-xs">
-              + Add Page
-            </button>
+            <div class="relative group inline-block">
+              <button type="button" class="tf-btn tf-btn-accent text-xs">+ Add New Page</button>
+              <div class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 bg-neutral-900 border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
+                <button type="button" onclick="addPage('generic')" class="w-full text-left px-4 py-2 text-[10px] text-neutral-300 hover:bg-white/5 hover:text-white uppercase font-bold tracking-widest border-b border-white/5">Custom Generic Page</button>
+                <% coreFeaturesList.forEach(f => { %>
+                  <button type="button" onclick="addPage('<%= f.id %>')" class="w-full text-left px-4 py-2 text-[10px] text-emerald-400 hover:bg-white/5 hover:text-emerald-300 uppercase font-bold tracking-widest border-b border-white/5"><%= f.name %></button>
+                <% }) %>
+              </div>
+            </div>
           </div>
           <div id="pagesContainer" class="space-y-3"></div>
 
@@ -537,7 +701,7 @@
             <button id="btnCancelForm" type="button" class="tf-btn tf-btn-secondary flex-1">
               Cancel
             </button>
-            <button id="btnSaveTemplate" type="button" class="tf-btn tf-btn-primary flex-1">
+            <button id="btnSaveTemplateBottom" type="button" class="tf-btn tf-btn-primary flex-1">
               Update Template
             </button>
           </div>
@@ -556,6 +720,114 @@
 </div>
 
 <script>
+// Initialize Choices.js
+let choiceInstances = {};
+function initSearchableSelects() {
+  document.querySelectorAll('.searchable-select').forEach(el => {
+    if (el.dataset.choicesInit) return;
+    const instance = new Choices(el, {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false,
+      removeItemButton: false,
+    });
+    choiceInstances[el.id || el.name] = instance;
+    el.dataset.choicesInit = "true";
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initSearchableSelects);
+
+async function addCategory() {
+  const name = prompt("Enter new Category name:");
+  if (!name?.trim()) return;
+
+  try {
+    const res = await fetch('/admin/templates/category', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('meta-category');
+      choiceInstances['meta-category'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
+      showNotification("Category added!");
+    } else {
+      showNotification(data.error || "Failed to add category", "error");
+    }
+  } catch (e) {
+    showNotification("Network error", "error");
+  }
+}
+
+async function deleteCategory() {
+  const select = document.getElementById('meta-category');
+  const name = select.value;
+  if (!name || !confirm(`Delete category "${name}"?`)) return;
+
+  try {
+    const res = await fetch('/admin/templates/category', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      choiceInstances['meta-category'].removeActiveItems();
+      choiceInstances['meta-category'].setChoices(data.categories.map(c => ({ value: c, label: c })), 'value', 'label', true);
+      showNotification("Category deleted");
+    }
+  } catch (e) {
+    showNotification("Delete failed", "error");
+  }
+}
+
+async function deleteType() {
+  const select = document.getElementById('meta-type');
+  const name = select.value;
+  if (!name || !confirm(`Delete type "${name}"?`)) return;
+
+  try {
+    const res = await fetch('/admin/templates/type', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      choiceInstances['meta-type'].removeActiveItems();
+      choiceInstances['meta-type'].setChoices(data.types.map(t => ({ value: t, label: t })), 'value', 'label', true);
+      showNotification("Type deleted");
+    }
+  } catch (e) {
+    showNotification("Delete failed", "error");
+  }
+}
+
+async function addType() {
+  const name = prompt("Enter new Template Type name:");
+  if (!name?.trim()) return;
+
+  try {
+    const res = await fetch('/admin/templates/type', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('meta-type');
+      choiceInstances['meta-type'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
+      showNotification("Template Type added!");
+    } else {
+      showNotification(data.error || "Failed to add type", "error");
+    }
+  } catch (e) {
+    showNotification("Network error", "error");
+  }
+}
+
 // ====================== CONFIG ======================
 let varIndex = 0, actionIndex = 0, installIndex = 0, pageIndex = 0;
 let isInitialLoad = true;
@@ -729,7 +1001,7 @@ function addVariable(v = {}) {
       </div>
       <div id="default-section-${idx}" class="tf-field-long">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Default Value</label>
-        <input type="text" name="variables[${idx}].default" value="${v.default||''}" class="tf-input" placeholder="Default value">
+        <input type="text" name="variables[${idx}].default_value" value="${v.default_value || v.default || ''}" class="tf-input" placeholder="Default value">
       </div>
     </div>
 
@@ -867,6 +1139,200 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   });
 }
 
+// ====================== TEMPLATES FOR CORE PAGES ======================
+const coreTemplates = {
+  console: `
+    <div class="tf-card border-emerald-500/20 bg-emerald-500/5" data-core-type="console">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-tighter">Console Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('console')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="console">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="console" required>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Console">
+        </div>
+      </div>
+    </div>
+  `,
+  files: `
+    <div class="tf-card border-blue-500/20 bg-blue-500/5" data-core-type="files">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-blue-400 uppercase tracking-tighter">Files Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('files')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="files">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="files" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Files">
+        </div>
+      </div>
+    </div>
+  `,
+  users: `
+    <div class="tf-card border-cyan-500/20 bg-cyan-500/5" data-core-type="users">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-tighter">Users Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('users')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="users">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="users" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Users">
+        </div>
+      </div>
+    </div>
+  `,
+  network: `
+    <div class="tf-card border-amber-500/20 bg-amber-500/5" data-core-type="network">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-amber-400 uppercase tracking-tighter">Network Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('network')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="network">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="network" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Network">
+        </div>
+      </div>
+    </div>
+  `,
+  archives: `
+    <div class="tf-card border-purple-500/20 bg-purple-500/5" data-core-type="archives">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-purple-400 uppercase tracking-tighter">Archives Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('archives')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="archives">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="archives" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Archives">
+        </div>
+      </div>
+    </div>
+  `,
+  automations: `
+    <div class="tf-card border-orange-500/20 bg-orange-500/5" data-core-type="automations">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-orange-400 uppercase tracking-tighter">Automations Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('automations')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="automations">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="automations" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Automations">
+        </div>
+      </div>
+    </div>
+  `,
+  db: `
+    <div class="tf-card border-red-500/20 bg-red-500/5" data-core-type="db">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-red-400 uppercase tracking-tighter">Databases Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('db')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="db">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="db" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Databases">
+        </div>
+      </div>
+    </div>
+  `,
+  ftp: `
+    <div class="tf-card border-blue-300/20 bg-blue-300/5" data-core-type="ftp">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-blue-300 uppercase tracking-tighter">FTP Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('ftp')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="ftp">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="ftp" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="FTP">
+        </div>
+      </div>
+    </div>
+  `,
+  settings: `
+    <div class="tf-card border-slate-500/20 bg-slate-500/5" data-core-type="settings">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-tighter">Settings Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('settings')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="settings">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="settings" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Settings">
+        </div>
+      </div>
+    </div>
+  `,
+  startup: `
+    <div class="tf-card border-indigo-500/20 bg-indigo-500/5" data-core-type="startup">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-tighter">Startup Configuration</h3>
+        <button type="button" class="tf-remove-btn" onclick="toggleOffFeature('startup')">×</button>
+      </div>
+      <input type="hidden" name="pages[IDX].type" value="startup">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+          <input type="text" name="pages[IDX].id" class="tf-input font-mono" value="startup" readonly>
+        </div>
+        <div class="tf-field-long">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+          <input type="text" name="pages[IDX].name" class="tf-input" value="Startup">
+        </div>
+      </div>
+    </div>
+  `
+};
+
 // ====================== ADD ACTION / INSTALL STEP ======================
 function addAction(a = {}) {
   const idx = actionIndex++;
@@ -931,37 +1397,121 @@ function addInstallStep(s = {}) {
 }
 
 // ====================== CUSTOM PAGES (FIXED - no escaping) ======================
+function toggleTile(id) {
+  const checkbox = document.getElementById(`toggle-${id}`);
+  checkbox.checked = !checkbox.checked;
+  checkbox.dispatchEvent(new Event('change'));
+
+  const tile = document.getElementById(`tile-${id}`);
+  const status = tile.querySelector('.tile-status');
+
+  if (checkbox.checked) {
+    tile.classList.add('active');
+    status.textContent = 'ENABLED';
+  } else {
+    tile.classList.remove('active');
+    status.textContent = 'DISABLED';
+  }
+}
+
 function addPage(p = {}) {
+  const container = document.getElementById('pagesContainer');
+  let type = p.type || (typeof p === 'string' ? p : 'generic');
+
+  // Backward compatibility / normalization
+  if (type === 'ports') type = 'network';
+  if (type === 'backups') type = 'archives';
+  if (type === 'schedules') type = 'automations';
+  if (type === 'databases') type = 'db';
+
+  const existing = container.querySelector(`[data-core-type="${type}"]`);
+  const coreKeys = Object.keys(coreTemplates);
+
+  if (coreKeys.includes(type) && existing) return;
+
   const idx = pageIndex++;
   const div = document.createElement("div");
-  div.className = "tf-card tf-page-card";
-  div.innerHTML = `
-    <div class="tf-row">
-      <div class="tf-field-short">
-        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Page ID <span class="text-red-400">*</span></label>
-        <input type="text" name="pages[${idx}].id" value="${p.id || ''}" required class="tf-input font-mono" placeholder="plugins">
+
+  if (coreKeys.includes(type)) {
+    div.innerHTML = coreTemplates[type].replace(/IDX/g, idx);
+    const card = div.firstElementChild;
+    if (typeof p === 'object' && p.id) {
+       const idField = card.querySelector('[name*=".id"]');
+       if (idField) idField.value = p.id;
+       const nameField = card.querySelector('[name*=".name"]');
+       if (nameField) nameField.value = p.name || nameField.value;
+    }
+    container.appendChild(card);
+    const toggle = document.getElementById(`toggle-${type}`);
+    if (toggle) {
+      toggle.checked = true;
+      const tile = document.getElementById(`tile-${type}`);
+      if (tile) {
+        tile.classList.add('active');
+        tile.querySelector('.tile-status').textContent = 'ENABLED';
+      }
+    }
+  } else {
+    div.className = "tf-card tf-page-card group";
+    div.innerHTML = `
+      <div class="tf-row">
+        <div class="tf-field-short">
+          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Page ID <span class="text-red-400">*</span></label>
+          <input type="text" name="pages[${idx}].id" value="${p.id || ''}" required class="tf-input font-mono" placeholder="plugins">
+        </div>
+        <div class="tf-field-long">
+          <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
+          <input type="text" name="pages[${idx}].name" value="${p.name || ''}" class="tf-input" placeholder="Plugin Manager">
+        </div>
       </div>
-      <div class="tf-field-long">
-        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Display Name</label>
-        <input type="text" name="pages[${idx}].name" value="${p.name || ''}" class="tf-input" placeholder="Plugin Manager">
+      <div class="mt-4">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">EJS Content (HTML)</label>
+        <textarea name="pages[${idx}].ejsContent" rows="10" class="tf-input" placeholder="<div>Your HTML</div>">${p.ejsContent || ''}</textarea>
       </div>
-    </div>
+      <div class="mt-4">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">JS Handler (Optional)</label>
+        <textarea name="pages[${idx}].jsContent" rows="6" class="tf-input" placeholder="module.exports = {};">${p.jsContent || ''}</textarea>
+      </div>
+      <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
+    `;
+    container.appendChild(div);
+  }
+}
 
-    <div class="mt-4">
-      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">EJS Content (HTML)</label>
-      <textarea name="pages[${idx}].ejsContent" rows="10" class="tf-input" placeholder="<div class=&quot;page-content&quot;>&#10;  <h2>My Page</h2>&#10;</div>">${p.ejsContent || ''}</textarea>
-      <p class="tf-note">Saved as pages/&lt;id&gt;.ejs • Access via /instance/:id/page/:id</p>
-    </div>
+function syncCorePage(type) {
+  let targetType = type;
+  if (type === 'ports') targetType = 'network';
+  if (type === 'backups') targetType = 'archives';
+  if (type === 'schedules') targetType = 'automations';
+  if (type === 'databases') targetType = 'db';
 
-    <div class="mt-4">
-      <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2">JS Handler (Optional)</label>
-      <textarea name="pages[${idx}].jsContent" rows="6" class="tf-input" placeholder="module.exports = {&#10;  getData: async (instance) => ({})&#10;};">${p.jsContent || ''}</textarea>
-      <p class="tf-note">Backend logic • Leave empty for static pages</p>
-    </div>
+  const toggle = document.getElementById(`toggle-${type}`);
+  if (!toggle) return;
+  const isChecked = toggle.checked;
+  const container = document.getElementById('pagesContainer');
+  const existing = container.querySelector(`[data-core-type="${targetType}"]`);
 
-    <button type="button" onclick="this.closest('.tf-card').remove()" class="tf-remove-btn">×</button>
-  `;
-  document.getElementById("pagesContainer").appendChild(div);
+  if (isChecked) {
+    if (!existing) addPage(targetType);
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+function toggleOffFeature(type) {
+  const toggle = document.getElementById(`toggle-${type}`);
+  if (toggle) {
+    toggle.checked = false;
+    const tile = document.getElementById(`tile-${type}`);
+    if (tile) {
+      tile.classList.remove('active');
+      tile.querySelector('.tile-status').textContent = 'DISABLED';
+    }
+    syncCorePage(type);
+  } else {
+    const existing = document.getElementById('pagesContainer').querySelector(`[data-core-type="${type}"]`);
+    if (existing) existing.remove();
+  }
 }
 
 // ====================== COLLECT FORM DATA ======================
@@ -969,10 +1519,12 @@ function collectFormData() {
   const fd = new FormData(document.getElementById("templateForm"));
   const data = { 
     meta: {}, 
-    environment: { install_steps: [] }, 
+    environment: { limits: {}, feature_limits: {} },
+    install_steps: [],
     variables: [], 
     actions: [], 
     pages: [], 
+    features: {},
     category: "" 
   };
 
@@ -983,8 +1535,17 @@ function collectFormData() {
     else if (key === "category") {
       data.category = value;
     }
+    else if (key.startsWith("environment.limits.")) {
+       data.environment.limits[key.split("limits.")[1]] = parseInt(value) || 0;
+    }
+    else if (key.startsWith("environment.feature_limits.")) {
+       data.environment.feature_limits[key.split("feature_limits.")[1]] = parseInt(value) || 0;
+    }
     else if (key === "environment.docker_image") {
       data.environment.docker_image = value;
+    }
+    else if (key === "environment.instance_type") {
+      data.environment.instance_type = value;
     }
     else if (key === "environment.start_code") {
       data.environment.start_code = value;
@@ -1027,15 +1588,15 @@ function collectFormData() {
       const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
-        if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
-        if (!data.environment.install_steps[i].operations[j]) data.environment.install_steps[i].operations[j] = {};
-        data.environment.install_steps[i].operations[j][opMatch[3]] = value;
+        if (!data.install_steps[i]) data.install_steps[i] = { name: "", operations: [] };
+        if (!data.install_steps[i].operations[j]) data.install_steps[i].operations[j] = {};
+        data.install_steps[i].operations[j][opMatch[3]] = value;
       } else {
         const simpleMatch = key.match(/install_steps\[(\d+)\]\.(.+)/);
         if (simpleMatch) {
           const i = parseInt(simpleMatch[1]);
-          if (!data.environment.install_steps[i]) data.environment.install_steps[i] = { name: "", operations: [] };
-          data.environment.install_steps[i][simpleMatch[2]] = value;
+          if (!data.install_steps[i]) data.install_steps[i] = { name: "", operations: [] };
+          data.install_steps[i][simpleMatch[2]] = value;
         }
       }
     }
@@ -1048,6 +1609,12 @@ function collectFormData() {
       }
     }
   }
+
+  // Features (checkboxes not in FormData if unchecked)
+  ['console', 'files', 'users', 'network', 'archives', 'automations', 'db', 'ftp', 'settings', 'startup'].forEach(f => {
+    const el = document.getElementById(`toggle-${f}`);
+    if (el) data.features[f] = el.checked;
+  });
 
   // Clean arrays
   data.variables = data.variables.filter(Boolean);
@@ -1070,24 +1637,72 @@ function collectFormData() {
 }
 
 function fillForm(data) { 
-  document.querySelector('[name="meta.name"]').value = data.meta?.name || "";
-  document.querySelector('[name="meta.display_name"]').value = data.meta?.display_name || "";
-  document.querySelector('[name="meta.description"]').value = data.meta?.description || "";
+  // Robust field mapping for old templates
+  const meta = data.meta || {};
+  document.querySelector('[name="meta.name"]').value = meta.name || data.name || "";
+  document.querySelector('[name="meta.display_name"]').value = meta.display_name || meta.name || data.name || "";
+  document.querySelector('[name="meta.description"]').value = meta.description || data.description || "";
   document.querySelector('[name="category"]').value = data.category || "";
-  document.querySelector('[name="environment.docker_image"]').value = data.environment?.docker_image || "";
-  document.querySelector('[name="environment.start_code"]').value = data.environment?.start_code || "";
+
+  const env = data.environment || {};
+  document.querySelector('[name="environment.instance_type"]').value = env.instance_type || "docker";
+  document.querySelector('[name="environment.docker_image"]').value = env.docker_image || data.docker_image || data.image || "";
+  document.querySelector('[name="environment.start_code"]').value = env.start_code || data.startup || "";
+
+  // Fill limits with fallbacks
+  const limits = env.limits || data.limits || {};
+  document.querySelector('[name="environment.limits.memory"]').value = limits.memory || data.memory || 1024;
+  document.querySelector('[name="environment.limits.cpu"]').value = limits.cpu || data.cpu || 100;
+  document.querySelector('[name="environment.limits.disk"]').value = limits.disk || data.disk || 5120;
+  document.querySelector('[name="environment.limits.swap"]').value = limits.swap || data.swap || 0;
+
+  const fLimits = env.feature_limits || data.feature_limits || {};
+  document.querySelector('[name="environment.feature_limits.databases"]').value = fLimits.databases || data.databases || 0;
+  document.querySelector('[name="environment.feature_limits.backups"]').value = fLimits.backups || data.backups || 0;
+  document.querySelector('[name="environment.feature_limits.allocations"]').value = fLimits.allocations || data.allocations || 1;
+
+  // Fill features
+  if (data.features) {
+    Object.keys(data.features).forEach(f => {
+      let featureId = f;
+      // Map old feature keys to new IDs
+      if (f === 'ports') featureId = 'network';
+      if (f === 'backups') featureId = 'archives';
+      if (f === 'schedules') featureId = 'automations';
+      if (f === 'databases') featureId = 'db';
+
+      const toggle = document.getElementById(`toggle-${featureId}`);
+      if (toggle) {
+        // If multiple old keys map to one new key (unlikely but safe), respect any true value
+        if (!!data.features[f]) {
+          toggle.checked = true;
+          const tile = document.getElementById(`tile-${featureId}`);
+          if (tile) {
+             tile.classList.add('active');
+             tile.querySelector('.tile-status').textContent = 'ENABLED';
+          }
+        }
+      }
+    });
+  }
 
   document.getElementById("variablesContainer").innerHTML = "";
   varIndex = 0;
-  (data.variables || []).forEach(v => addVariable(v));
+  let vars = data.variables || [];
+  if (vars && !Array.isArray(vars)) vars = Object.entries(vars).map(([id, v]) => ({ id, ...v }));
+  (vars || []).forEach(v => addVariable(v));
 
   document.getElementById("actionsContainer").innerHTML = "";
   actionIndex = 0;
-  (data.actions || []).forEach(a => addAction(a));
+  let actions = data.actions || [];
+  if (actions && !Array.isArray(actions)) actions = Object.entries(actions).map(([id, a]) => ({ id, ...a }));
+  (actions || []).forEach(a => addAction(a));
 
   document.getElementById("installStepsContainer").innerHTML = "";
   installIndex = 0;
-  (data.environment?.install_steps || []).forEach(s => addInstallStep(s));
+  let installSteps = data.install_steps || (data.environment && data.environment.install_steps) || [];
+  if (installSteps && !Array.isArray(installSteps)) installSteps = Object.values(installSteps);
+  (installSteps || []).forEach(s => addInstallStep(s));
 
   document.getElementById("pagesContainer").innerHTML = "";
   pageIndex = 0;
@@ -1097,7 +1712,7 @@ function fillForm(data) {
 }
 
 // ====================== SAVE ======================
-document.getElementById("btnSaveTemplate").onclick = async () => {
+const handleSave = async () => {
   let payload;
   try {
     payload = modeSelect.value === "json" ? JSON.parse(jsonEditor.value) : collectFormData();
@@ -1129,6 +1744,10 @@ document.getElementById("btnSaveTemplate").onclick = async () => {
   }
 };
 
+document.getElementById("btnSaveTemplate").onclick = handleSave;
+const bottomBtn = document.getElementById("btnSaveTemplateBottom");
+if (bottomBtn) bottomBtn.onclick = handleSave;
+
 // ====================== BUTTON HANDLERS ======================
 document.getElementById("btnCancelForm").onclick = hideForm;
 document.getElementById("btnAddVar").onclick = () => addVariable();
@@ -1136,30 +1755,6 @@ document.getElementById("btnAddAction").onclick = () => addAction();
 document.getElementById("btnAddInstallStep").onclick = () => addInstallStep();
 document.getElementById("btnAddPage").onclick = () => addPage();
 
-document.getElementById("btnAddCategory").onclick = async () => {
-  const name = prompt("New category name:");
-  if (!name?.trim()) return;
-  
-  try {
-    const res = await fetch("/admin/templates/category", { 
-      method: "POST", 
-      headers: {"Content-Type": "application/json"}, 
-      body: JSON.stringify({name: name.trim()}) 
-    });
-    
-    if (res.ok) {
-      const {categories} = await res.json();
-      const select = document.querySelector('[name="category"]');
-      select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join("");
-      select.value = name.trim();
-      showNotification("Category added!", "success");
-    } else {
-      showNotification("Failed to add category", "error");
-    }
-  } catch (err) {
-    showNotification("Network error!", "error");
-  }
-};
 
 // ====================== IMPORT JSON ======================
 document.getElementById("btnImportJson").onclick = () => {
@@ -1174,9 +1769,7 @@ document.getElementById("btnImportJson").onclick = () => {
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
-        modeSelect.value = "json";
-        modeSelect.onchange();
-        jsonEditor.value = JSON.stringify(data, null, 2);
+        fillForm(data);
         showNotification("JSON imported successfully!", "success");
       } catch(e) {
         showNotification("Invalid JSON file!", "error");
@@ -1186,6 +1779,29 @@ document.getElementById("btnImportJson").onclick = () => {
   };
   input.click();
 };
+
+document.getElementById("btnExportJson").onclick = () => {
+  const data = collectFormData();
+  const filename = (data.meta?.name || 'template') + '.json';
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotification("Template exported!");
+};
+
+// Ensure initial setup
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    ['console', 'files', 'users', 'ports', 'backups', 'schedules', 'databases', 'ftp', 'settings', 'startup', 'network', 'archives', 'automations', 'db'].forEach(t => {
+      const toggle = document.getElementById(`toggle-${t}`);
+      if (toggle && toggle.checked) syncCorePage(t);
+    });
+  }, 100);
+});
 
 // ====================== INIT + LOAD TEMPLATE.JSON ======================
 const templateData = <%= JSON.stringify(template) %>;

@@ -12,7 +12,7 @@ const router = express.Router();
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkMultipleNodesStatus } = require("../../utils/nodeHelper.js");
 const { getPaginatedInstances, invalidateCache } = require("../../utils/dbHelper.js");
 const fs = require("fs");
@@ -75,12 +75,31 @@ function deleteWorkflowFromFile(instanceId) {
 // ────────────────────────────────────────────────
 // GET /admin/instances/overview → list only (unchanged)
 // ────────────────────────────────────────────────
-router.get("/admin/instances/overview", isAdmin, async (req, res) => {
+router.get("/admin/instances/overview", hasPermission('all'), async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
+    const search = req.query.search || "";
+    const nodeFilter = req.query.node || "";
+    const userFilter = req.query.user || "";
 
-    const instancesResult = await getPaginatedInstances(page, pageSize);
+    let allInstances = await db.get("instances") || [];
+
+    // Apply filters
+    if (search || nodeFilter || userFilter) {
+      allInstances = allInstances.filter(i => {
+        const searchMatch = !search ||
+          i.Name.toLowerCase().includes(search.toLowerCase()) ||
+          i.Id.includes(search) ||
+          i.ContainerId.includes(search);
+        const nodeMatch = !nodeFilter || i.Node.id === nodeFilter;
+        const userMatch = !userFilter || i.User === userFilter;
+        return searchMatch && nodeMatch && userMatch;
+      });
+    }
+
+    const { paginate } = require("../../utils/dbHelper.js");
+    const instancesResult = paginate(allInstances, page, pageSize);
 
     let nodes = (await db.get("nodes")) || [];
     nodes = await checkMultipleNodesStatus(nodes);
@@ -120,7 +139,8 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
       nodes,
       users,
       templates,
-      images: []
+      images: [],
+      filters: { search, node: nodeFilter, user: userFilter }
     });
   } catch (err) {
     log.error("Error loading /admin/instances/overview:", err);
@@ -131,7 +151,7 @@ router.get("/admin/instances/overview", isAdmin, async (req, res) => {
 // ────────────────────────────────────────────────
 // GET /admin/instances/create → create form (unchanged)
 // ────────────────────────────────────────────────
-router.get("/admin/instances/create", isAdmin, async (req, res) => {
+router.get("/admin/instances/create", hasPermission('create_instances'), async (req, res) => {
   try {
     let nodes = (await db.get("nodes")) || [];
     nodes = await checkMultipleNodesStatus(nodes);
@@ -180,7 +200,7 @@ router.get("/admin/instances/create", isAdmin, async (req, res) => {
 // ────────────────────────────────────────────────
 // POST /admin/instances/create → FULLY UPDATED + STOPPED FIX
 // ────────────────────────────────────────────────
-router.post("/admin/instances/create", isAdmin, async (req, res) => {
+router.post("/admin/instances/create", hasPermission('create_instances'), async (req, res) => {
   const {
     name,
     user: userId,
@@ -227,6 +247,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
     const wingsPayload = {
       Id,
       Name: name,
+      InstanceType: template.environment?.instance_type || 'docker',
       Image: template.environment?.docker_image || template.docker_image || template.image,
       Cmd: startupCmd ? startupCmd.trim().split(/\s+/) : undefined,
       Env: [
@@ -338,7 +359,7 @@ router.post("/admin/instances/create", isAdmin, async (req, res) => {
 // All other routes (unchanged)
 // ────────────────────────────────────────────────
 
-router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
+router.get("/admin/instances/:id/edit", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   const instance = await db.get(`${id}_instance`);
   let users = (await db.get("users")) || [];
@@ -353,7 +374,7 @@ router.get("/admin/instances/:id/edit", isAdmin, async (req, res) => {
   });
 });
 
-router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
+router.get("/admin/instance/delete/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
@@ -368,7 +389,7 @@ router.get("/admin/instance/delete/:id", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
+router.get("/admin/instances/purge/all", hasPermission('all'), async (req, res) => {
   try {
     const instances = (await db.get("instances")) || [];
     for (const inst of instances) {
@@ -382,7 +403,7 @@ router.get("/admin/instances/purge/all", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
+router.post("/admin/instances/suspend/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);
@@ -407,7 +428,7 @@ router.post("/admin/instances/suspend/:id", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/admin/instances/unsuspend/:id", isAdmin, async (req, res) => {
+router.post("/admin/instances/unsuspend/:id", hasPermission('all'), async (req, res) => {
   const { id } = req.params;
   try {
     const instance = await db.get(`${id}_instance`);

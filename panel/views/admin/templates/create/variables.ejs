@@ -1,20 +1,100 @@
-<div id="variablesContainer" class="space-y-3"></div>
-<button onclick="addVariable()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Variable</button>
-<button onclick="saveVariablesSection()" class="tf-btn tf-btn-accent w-full">💾 Save Variables (variables.json)</button>
+<div id="variablesContainer" class="space-y-4 mb-6"></div>
+<div class="flex gap-3">
+  <button type="button" onclick="addVariable()" class="tf-btn tf-btn-secondary text-xs">+ Add Variable</button>
+  <button type="button" onclick="importPterodactylVars()" class="tf-btn tf-btn-secondary text-xs">Import from Pterodactyl JSON</button>
+</div>
+
+<template id="variableTemplate">
+  <div class="tf-card group">
+    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Variable Name (ID)</label>
+        <input type="text" name="id" class="tf-input font-mono" placeholder="SERVER_JARFILE" required>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Display Label</label>
+        <input type="text" name="name" class="tf-input" placeholder="Server Jar File">
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Description</label>
+        <input type="text" name="description" class="tf-input text-sm" placeholder="The name of the jar file to run.">
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Default Value</label>
+        <input type="text" name="default_value" class="tf-input font-mono" placeholder="server.jar">
+      </div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-4 border-t border-white/5 pt-4">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" name="user_viewable" checked class="rounded border-white/10 bg-white/5">
+        <span class="text-xs text-neutral-400">User Viewable</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" name="user_editable" checked class="rounded border-white/10 bg-white/5">
+        <span class="text-xs text-neutral-400">User Editable</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" name="required" checked class="rounded border-white/10 bg-white/5">
+        <span class="text-xs text-neutral-400">Required</span>
+      </label>
+    </div>
+  </div>
+</template>
 
 <script>
-let varIndex = 0;
-window.addVariable = function() {
-  const idx = varIndex++;
-  const div = document.createElement('div');
-  div.className = 'tf-card';
-  div.innerHTML = `... (same variable card HTML as original) ...`; // full card from your original code
-  document.getElementById('variablesContainer').appendChild(div);
-};
-window.saveVariablesSection = async () => {
-  // collect only variables
-  const data = { variables: [] /* collect logic */ };
-  await fetch('/admin/templates/save-variables', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-  showNotification('Variables saved as variables.json', 'success');
-};
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
+function addVariable(data = {}) {
+  const container = document.getElementById('variablesContainer');
+  const temp = document.getElementById('variableTemplate');
+  const clone = temp.content.cloneNode(true);
+
+  if (data.id) {
+    clone.querySelector('[name="id"]').value = data.id;
+    clone.querySelector('[name="name"]').value = data.name || '';
+    clone.querySelector('[name="description"]').value = data.description || '';
+    clone.querySelector('[name="default_value"]').value = data.default_value || '';
+    clone.querySelector('[name="user_viewable"]').checked = data.user_viewable !== false;
+    clone.querySelector('[name="user_editable"]').checked = data.user_editable !== false;
+    clone.querySelector('[name="required"]').checked = data.required !== false;
+  }
+
+  container.appendChild(clone);
+}
+
+function importPterodactylVars() {
+  const input = prompt("Paste Pterodactyl Egg 'variables' array JSON here:");
+  if (!input) return;
+  try {
+    const vars = JSON.parse(input);
+    vars.forEach(v => {
+      addVariable({
+        id: v.env_variable,
+        name: v.name,
+        description: v.description,
+        default_value: v.default_value,
+        user_viewable: v.user_viewable === 1,
+        user_editable: v.user_editable === 1,
+        required: v.rules.includes('required')
+      });
+    });
+    showNotification(`Imported ${vars.length} variables`, 'success');
+  } catch (e) {
+    showNotification("Invalid JSON format", "error");
+  }
+}
 </script>

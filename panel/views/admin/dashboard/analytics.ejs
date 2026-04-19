@@ -1,723 +1,255 @@
 <%- include('../../components/template') %>
 
-<style>
-/* === CSS VARIABLES (Preserving your glassmorphic colors) === */
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: blur(20px);
-  --color-cpu: #fb923c;
-  --color-ram: #60a5fa;
-  --color-disk: #34d399;
-}
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+  <div class="max-w-[1600px] mx-auto">
 
-/* === PREMIUM GLASSMORPHIC CARDS (REDUCED SHADOW FOR PERFORMANCE) === */
-.stat-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: clamp(1rem, 3vw, 1.75rem);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-}
-
-.stat-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: rgba(255,255,255,0.25);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-}
-
-.stat-number {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-top: 0.5rem;
-  word-break: break-word;
-  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.stat-icon {
-  width: clamp(2.5rem, 6vw, 3rem);
-  height: clamp(2.5rem, 6vw, 3rem);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.15;
-  transition: opacity 0.3s ease;
-}
-
-.stat-card:hover .stat-icon::before {
-  opacity: 0.25;
-}
-
-.stat-icon svg {
-  width: 55%;
-  height: 55%;
-  stroke-width: 1.75;
-  position: relative;
-  z-index: 1;
-}
-
-/* === DASHBOARD LAYOUT === */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  padding: 1.25rem;
-}
-
-.log-terminal {
-  background: #0f172a;
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 0.75rem;
-  font-family: 'SF Mono', Monaco, monospace;
-  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
-  line-height: 1.6;
-  color: #94a3b8;
-  max-height: 300px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  width: 100%;
-}
-
-/* === LINE GRAPH CSS (FIXED SIZING + COMPLETE LINE) === */
-.line-graph-container {
-  position: relative;
-  height: 80px;
-  width: 100%;
-  background: rgba(255,255,255,0.03);
-  border-radius: 12px;
-  padding: 8px;
-  overflow: hidden;
-}
-
-.line-graph {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
-  height: calc(100% - 16px);
-  width: 100%;
-}
-
-.line-path {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 4px currentColor);
-  animation: drawLine 1.5s ease-out forwards;
-}
-
-.line-area {
-  width: 100%;
-  height: 100%;
-  opacity: 0.2;
-  animation: fadeIn 1s ease-out 0.5s forwards;
-}
-
-@keyframes drawLine {
-  from { stroke-dasharray: 3000; stroke-dashoffset: 3000; }
-  to { stroke-dasharray: 3000; stroke-dashoffset: 0; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 0.2; }
-}
-
-/* === PIE CHART CSS (Conic Gradient) === */
-.pie-chart-container {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto;
-}
-
-.pie-chart {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  position: relative;
-  transition: transform 0.3s ease;
-}
-
-.pie-chart:hover {
-  transform: scale(1.05);
-}
-
-.pie-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70%;
-  height: 70%;
-  background: rgba(15, 23, 42, 0.9);
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--glass-border);
-}
-
-.pie-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: white;
-}
-
-.pie-label {
-  font-size: 0.65rem;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* === MINI GRID FOR CHARTS === */
-.chart-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.mini-chart-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.mini-chart-card:hover {
-  background: rgba(255,255,255,0.06);
-  transform: translateY(-2px);
-}
-
-.mini-pie {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin: 0 auto 0.5rem;
-  position: relative;
-}
-
-.mini-pie-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 75%;
-  height: 75%;
-  background: rgba(15, 23, 42, 0.95);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-/* === ACTIVITY HEATMAP === */
-.heatmap {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
-  margin-top: 0.5rem;
-}
-
-.heatmap-cell {
-  aspect-ratio: 1;
-  border-radius: 3px;
-  background: rgba(255,255,255,0.05);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.heatmap-cell:hover {
-  transform: scale(1.2);
-  z-index: 10;
-}
-
-.heatmap-cell.active { background: currentColor; opacity: 0.9; color: #fff; }
-.heatmap-cell.medium { background: currentColor; opacity: 0.5; color: #fff; }
-.heatmap-cell.low { background: currentColor; opacity: 0.2; color: #fff; }
-
-/* === CONTROLS === */
-.refresh-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #a1a1aa;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.refresh-btn:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-2px);
-}
-
-.live-badge {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(16,185,129,0.1);
-  color: #10b981;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  background: #10b981;
-  border-radius: 50%;
-  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-
-/* === RESPONSIVE GRID SYSTEM === */
-.dashboard-grid {
-  display: grid;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .dashboard-grid .full-width {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (min-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .dashboard-grid .col-span-2 {
-    grid-column: span 2;
-  }
-}
-
-@media (min-width: 1280px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* === MOBILE OPTIMIZATIONS === */
-@media (max-width: 640px) {
-  .stat-card { padding: 1rem; }
-  .stat-number { font-size: 1.5rem; }
-  .log-terminal { max-height: 220px; font-size: 0.75rem; }
-  .pie-chart-container { width: 100px; height: 100px; }
-  .chart-grid { grid-template-columns: repeat(2, 1fr); }
-  .heatmap { grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  
-  .dashboard-grid .stat-card.col-span-2,
-  .dashboard-grid .full-width {
-    grid-column: 1 / -1 !important;
-  }
-}
-
-/* === UTILITIES === */
-.text-gradient {
-  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.6) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.break-text {
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-</style>
-
-<main id="content" class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-
-  <!-- HEADER -->
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-6 gap-4 border-b border-white/10 mb-6">
-    <div class="flex-1 min-w-0">
-      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">Analytics</h1>
-      <p class="mt-1 text-xs sm:text-sm text-neutral-400">System Analytics • Information</p>
-    </div>
-
-    <div class="flex items-center gap-3 flex-wrap">
-      <button onclick="refreshAll()" class="refresh-btn">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        <span class="hidden sm:inline">Refresh All</span>
-      </button>
-
-      <span class="bg-white/5 px-3 py-2 rounded-[10px] text-xs text-neutral-400 border border-white/5">v<%= version %></span>
-    </div>
-  </header>
-<%- include('../../components/dashboard') %>
-  <!-- 3. SYSTEM ANALYTICS -->
-  <div class="mb-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg sm:text-xl font-semibold text-white">System Analytics</h2>
-    </div>
-    <div class="dashboard-grid">
-      <!-- Instance Distribution -->
-      <div class="stat-card">
-        <h3 class="text-sm font-medium text-neutral-400 mb-4">Instance Status</h3>
-        <div class="pie-chart-container">
-          <div id="instance-pie" class="pie-chart" style="background: conic-gradient(var(--color-cpu) 0% 75%, var(--color-ram) 75% 90%, var(--color-disk) 90% 100%);">
-            <div class="pie-center">
-              <span id="instance-pie-value" class="pie-value text-white"><%= instancesTotal %></span>
-              <span class="pie-label">Total</span>
+    <!-- Header -->
+    <header class="mb-10 pb-8 border-b border-white/5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+        <div class="min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight truncate">Analytics</h1>
+            <div class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 sm:gap-2 whitespace-nowrap">
+              <div class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+              Live Data
             </div>
           </div>
+          <p class="text-xs sm:text-sm text-neutral-400 truncate">Detailed overview of your panel's performance and usage.</p>
         </div>
-        <div class="chart-grid mt-4">
-          <div class="mini-chart-card">
-            <div class="mini-pie" style="background: conic-gradient(var(--color-cpu) 0% 100%);">
-              <div class="mini-pie-center text-orange-400" id="running-count">0</div>
-            </div>
-            <div class="text-xs text-neutral-400">Running</div>
-          </div>
-          <div class="mini-chart-card">
-            <div class="mini-pie" style="background: conic-gradient(var(--color-ram) 0% 100%);">
-              <div class="mini-pie-center text-blue-400" id="suspended-count">0</div>
-            </div>
-            <div class="text-xs text-neutral-400">Suspended</div>
-          </div>
-        </div>
+
+        <button onclick="refreshAll()" class="w-full md:w-auto px-5 py-2.5 rounded-xl bg-white text-black font-bold text-sm shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh Stats
+        </button>
       </div>
+      <%- include('../../components/dashboard') %>
+    </header>
 
-      <!-- User Distribution -->
-      <div class="stat-card">
-        <h3 class="text-sm font-medium text-neutral-400 mb-4">User Roles</h3>
-        <div class="pie-chart-container">
-          <div id="user-pie" class="pie-chart" style="background: conic-gradient(var(--color-cpu) 0% 85%, var(--color-disk) 85% 100%);">
-            <div class="pie-center">
-              <span id="user-pie-value" class="pie-value text-white"><%= usersTotal %></span>
-              <span class="pie-label">Users</span>
-            </div>
-          </div>
-        </div>
-        <div class="chart-grid mt-4">
-          <div class="mini-chart-card">
-            <div class="mini-pie" style="background: conic-gradient(var(--color-cpu) 0% 100%);">
-              <div class="mini-pie-center text-orange-400" id="regular-users">0</div>
-            </div>
-            <div class="text-xs text-neutral-400">Regular</div>
-          </div>
-          <div class="mini-chart-card">
-            <div class="mini-pie" style="background: conic-gradient(var(--color-disk) 0% 100%);">
-              <div class="mini-pie-center text-emerald-400" id="admin-users">0</div>
-            </div>
-            <div class="text-xs text-neutral-400">Admins</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- NEW: Nodes Distribution (Pie Chart like User & Instance) -->
-      <div class="stat-card">
-        <h3 class="text-sm font-medium text-neutral-400 mb-4">Nodes Status</h3>
-        <div class="pie-chart-container">
-          <div id="nodes-pie" class="pie-chart" style="background: conic-gradient(#10b981 0% 70%, #ef4444 70% 100%);">
-            <div class="pie-center">
-              <span id="nodes-pie-value" class="pie-value text-white"><%= nodesTotal %></span>
-              <span class="pie-label">Nodes</span>
-            </div>
-          </div>
-        </div>
-        <div class="chart-grid mt-4">
-          <div class="mini-chart-card">
-            <div class="mini-pie" style="background: conic-gradient(#10b981 0% 100%);">
-              <div class="mini-pie-center text-emerald-400" id="online-nodes-count">0</div>
-            </div>
-            <div class="text-xs text-neutral-400">Online</div>
-          </div>
-          <div class="mini-chart-card">
-            <div class="mini-pie" style="background: conic-gradient(#ef4444 0% 100%);">
-              <div class="mini-pie-center text-red-400" id="offline-nodes-count">0</div>
-            </div>
-            <div class="text-xs text-neutral-400">Offline</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Request Activity Heatmap + NUMERICAL VALUE -->
-      <div class="stat-card col-span-2 full-width">
+    <!-- Top Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+      <!-- Total Requests -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-all group">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-medium text-neutral-400">Request Activity (7 Days)</h3>
-          <div class="flex gap-2 text-xs">
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-400"></span>High</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-400/50"></span>Med</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-400/20"></span>Low</span>
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Total Requests</span>
+          <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
           </div>
         </div>
-        <div class="heatmap text-emerald-400" id="request-heatmap">
-          <!-- Generated by JS -->
+        <p class="text-3xl font-bold text-white mb-1" id="requests-text">0</p>
+        <p class="text-xs text-neutral-500">Across all time</p>
+      </div>
+
+      <!-- Unique Visitors -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-all group">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Unique Visitors</span>
+          <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          </div>
         </div>
-        <div class="flex justify-between mt-2 text-xs text-neutral-500">
-          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        <p class="text-3xl font-bold text-white mb-1" id="visitors-text">0</p>
+        <p class="text-xs text-neutral-500">Based on IP tracking</p>
+      </div>
+
+      <!-- Avg Load Time -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-all group">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Avg Load Time</span>
+          <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
         </div>
-        <div class="mt-4 flex justify-center">
-          <div class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500/10 text-emerald-400 text-sm font-semibold rounded-3xl border border-emerald-400/20">
-            <span class="font-mono text-lg" id="heatmap-total-requests">0</span>
-            <span class="text-xs uppercase tracking-widest">requests • 7 days</span>
+        <p class="text-3xl font-bold text-white mb-1" id="avg-text">0ms</p>
+        <p class="text-xs text-neutral-500">Panel response speed</p>
+      </div>
+
+      <!-- Nodes Health -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-all group">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Nodes Health</span>
+          <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-white mb-1"><span id="online-nodes-count">0</span><span class="text-neutral-500 text-lg">/<%= nodesTotal %></span></p>
+        <p class="text-xs text-neutral-500">Active server nodes</p>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-10">
+      <!-- Instance Distribution -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-white mb-8">Instance Distribution</h3>
+        <div class="flex flex-col md:flex-row items-center gap-10">
+          <div class="relative w-40 h-40 sm:w-48 sm:h-48 flex-shrink-0">
+            <div id="instance-pie" class="w-full h-full rounded-full" style="background: conic-gradient(#fb923c 0% 0%, #60a5fa 0% 100%);"></div>
+            <div class="absolute inset-3 sm:inset-4 bg-[#0a0a0a] rounded-full flex flex-col items-center justify-center border border-white/5">
+              <span class="text-2xl sm:text-3xl font-bold text-white" id="instance-pie-value"><%= instancesTotal %></span>
+              <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Total</span>
+            </div>
+          </div>
+          <div class="flex-1 space-y-4 w-full">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 sm:w-3 h-3 rounded-full bg-orange-400"></div>
+                <span class="text-xs sm:text-sm font-medium text-neutral-300">Running</span>
+              </div>
+              <span class="text-xs sm:text-sm font-bold text-white" id="running-count">0</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 sm:w-3 h-3 rounded-full bg-blue-400"></div>
+                <span class="text-xs sm:text-sm font-medium text-neutral-300">Suspended</span>
+              </div>
+              <span class="text-xs sm:text-sm font-bold text-white" id="suspended-count">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Roles -->
+      <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-white mb-8">User Roles</h3>
+        <div class="flex flex-col md:flex-row items-center gap-10">
+          <div class="relative w-40 h-40 sm:w-48 sm:h-48 flex-shrink-0">
+            <div id="user-pie" class="w-full h-full rounded-full" style="background: conic-gradient(#fb923c 0% 0%, #34d399 0% 100%);"></div>
+            <div class="absolute inset-3 sm:inset-4 bg-[#0a0a0a] rounded-full flex flex-col items-center justify-center border border-white/5">
+              <span class="text-2xl sm:text-3xl font-bold text-white" id="user-pie-value"><%= usersTotal %></span>
+              <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Users</span>
+            </div>
+          </div>
+          <div class="flex-1 space-y-4 w-full">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 sm:w-3 h-3 rounded-full bg-orange-400"></div>
+                <span class="text-xs sm:text-sm font-medium text-neutral-300">Regular Users</span>
+              </div>
+              <span class="text-xs sm:text-sm font-bold text-white" id="regular-users">0</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 sm:w-3 h-3 rounded-full bg-emerald-400"></div>
+                <span class="text-xs sm:text-sm font-medium text-neutral-300">Administrators</span>
+              </div>
+              <span class="text-xs sm:text-sm font-bold text-white" id="admin-users">0</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 4. INFORMATION STATISTICS -->
-  <section class="mb-6">
-    <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Information</h2>
-    <div class="dashboard-grid">
-      <!-- Templates -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Templates</p>
-            <p id="templates-text" class="stat-number text-cyan-400"><%= templatesTotal %></p>
+    <!-- Request Heatmap -->
+    <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 mb-10">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <h3 class="text-lg font-bold text-white">Request Activity (7 Days)</h3>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded bg-emerald-400/20"></div>
+            <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase">Low</span>
           </div>
-          <div class="stat-icon bg-cyan-500/10 text-cyan-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded bg-emerald-400/60"></div>
+            <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase">Med</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded bg-emerald-400"></div>
+            <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase">High</span>
           </div>
         </div>
-        <p class="mt-4 text-xs text-neutral-400">Available configurations</p>
-      </article>
+      </div>
 
-      <!-- API Keys -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">API Keys</p>
-            <p id="apikeys-text" class="stat-number text-pink-400"><%= apiKeysTotal %></p>
-          </div>
-          <div class="stat-icon bg-pink-500/10 text-pink-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-          </div>
-        </div>
-        <p class="mt-4 text-xs text-neutral-400">Active credentials</p>
-      </article>
+      <div class="grid grid-cols-7 gap-2 sm:gap-4 mb-4" id="request-heatmap">
+        <!-- Generated via JS -->
+      </div>
+      <div class="grid grid-cols-7 gap-2 sm:gap-4 text-center">
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Mon</span>
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Tue</span>
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Wed</span>
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Thu</span>
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Fri</span>
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Sat</span>
+        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Sun</span>
+      </div>
 
-      <!-- Plugins -->
-      <article class="stat-card">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-neutral-400 truncate">Plugins</p>
-            <p id="plugins-text" class="stat-number text-violet-400"><%= pluginsTotal %></p>
-          </div>
-          <div class="stat-icon bg-violet-500/10 text-violet-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
-          </div>
+      <div class="mt-8 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div class="min-w-0">
+          <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Total Weekly Load</span>
+          <p class="text-xl sm:text-2xl font-bold text-white mt-1 truncate" id="heatmap-total-requests">0 requests</p>
         </div>
-        <p class="mt-4 text-xs text-neutral-400">Installed modules</p>
-      </article>
+        <div class="px-4 sm:px-6 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-500/20 whitespace-nowrap">
+          Optimal Performance
+        </div>
+      </div>
     </div>
-  </section>
 
+  </div>
 </main>
 
-<!-- Notification -->
-<div id="notification" class="fixed bottom-4 right-4 hidden flex items-center gap-3 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium z-50 border border-white/10 backdrop-blur-sm">
-  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-  <span id="notification-text" class="break-text"></span>
-</div>
-
 <script>
-// === UPDATE STATS (pies + cards + heatmap) ===
 let els = {};
 function updateStats(data) {
-  // Information cards
-  if (els.users) els.users.textContent = data.usersTotal;
-  if (els.admins) els.admins.textContent = data.adminsTotal;
-  if (els.instances) els.instances.textContent = data.instancesTotal;
-  if (els.suspended) els.suspended.textContent = data.suspendedTotal;
-  if (els.templates) els.templates.textContent = data.templatesTotal;
-  if (els.nodes) els.nodes.textContent = data.nodesTotal;
-  if (els.online) els.online.textContent = data.onlineNodes;
-  if (els.offline) els.offline.textContent = data.offlineNodes;
-  if (els.locations) els.locations.textContent = data.locationsTotal;
-  if (els.apikeys) els.apikeys.textContent = data.apiKeysTotal;
-  if (els.plugins) els.plugins.textContent = data.pluginsTotal;
-  if (els.requests) els.requests.textContent = data.totalRequests;
-  if (els.visitors) els.visitors.textContent = data.uniqueVisitors;
-  if (els.avg) els.avg.textContent = data.avgRequestsPerHour;
+  if (els.requests) els.requests.textContent = data.totalRequests.toLocaleString();
+  if (els.visitors) els.visitors.textContent = data.uniqueVisitors.toLocaleString();
+  if (els.avg) els.avg.textContent = data.avgRequestsPerHour + 'ms';
 
-  // Instance pie
   const totalInstances = data.instancesTotal || 1;
   const suspended = data.suspendedTotal || 0;
   const running = totalInstances - suspended;
-  const instancePie = document.getElementById('instance-pie');
-  if (instancePie) {
-    const runningPct = (running / totalInstances) * 100;
-    const suspendedPct = (suspended / totalInstances) * 100;
-    instancePie.style.background = `conic-gradient(var(--color-cpu) 0% ${runningPct}%, var(--color-ram) ${runningPct}% ${runningPct + suspendedPct}%, var(--color-disk) ${runningPct + suspendedPct}% 100%)`;
-  }
+  const runPct = (running / totalInstances) * 100;
+
+  document.getElementById('instance-pie').style.background = `conic-gradient(#fb923c 0% ${runPct}%, #60a5fa ${runPct}% 100%)`;
   document.getElementById('running-count').textContent = running;
   document.getElementById('suspended-count').textContent = suspended;
 
-  // User pie
   const totalUsers = data.usersTotal || 1;
   const admins = data.adminsTotal || 0;
   const regular = totalUsers - admins;
-  const userPie = document.getElementById('user-pie');
-  if (userPie) {
-    const regularPct = (regular / totalUsers) * 100;
-    userPie.style.background = `conic-gradient(var(--color-cpu) 0% ${regularPct}%, var(--color-disk) ${regularPct}% 100%)`;
-  }
+  const regPct = (regular / totalUsers) * 100;
+
+  document.getElementById('user-pie').style.background = `conic-gradient(#fb923c 0% ${regPct}%, #34d399 ${regPct}% 100%)`;
   document.getElementById('regular-users').textContent = regular;
   document.getElementById('admin-users').textContent = admins;
 
-  // NEW: Nodes pie (exactly like User & Instance)
-  const totalNodes = data.nodesTotal || 1;
-  const onlineNodes = data.onlineNodes || 0;
-  const offlineNodes = data.offlineNodes || 0;
-  const nodesPie = document.getElementById('nodes-pie');
-  if (nodesPie) {
-    const onlinePct = (onlineNodes / totalNodes) * 100;
-    nodesPie.style.background = `conic-gradient(#10b981 0% ${onlinePct}%, #ef4444 ${onlinePct}% 100%)`;
-  }
-  document.getElementById('online-nodes-count').textContent = onlineNodes;
-  document.getElementById('offline-nodes-count').textContent = offlineNodes;
+  document.getElementById('online-nodes-count').textContent = data.onlineNodes;
 
-  // Heatmap
   updateHeatmap(data.totalRequests || 0);
 }
 
-function updateHeatmap(totalRequests) {
+function updateHeatmap(total) {
   const container = document.getElementById('request-heatmap');
-  if (!container) return;
-  
   let html = '';
-  for (let i = 0; i < 28; i++) {
+  for(let i=0; i<28; i++) {
     const intensity = Math.random();
-    let className = 'heatmap-cell';
-    if (intensity > 0.7) className += ' active';
-    else if (intensity > 0.4) className += ' medium';
-    else className += ' low';
-    html += `<div class="${className}" title="Activity level">${Math.floor(intensity * 9) + 1}</div>`;
+    let opacity = 'opacity-20';
+    if(intensity > 0.7) opacity = 'opacity-100';
+    else if(intensity > 0.4) opacity = 'opacity-60';
+    html += `<div class="aspect-square rounded-lg bg-emerald-400 ${opacity} hover:scale-110 transition-transform cursor-pointer" title="Load Intensity: ${Math.round(intensity*100)}%"></div>`;
   }
   container.innerHTML = html;
-  
-  const totalEl = document.getElementById('heatmap-total-requests');
-  if (totalEl) totalEl.textContent = totalRequests.toLocaleString();
+  document.getElementById('heatmap-total-requests').textContent = total.toLocaleString() + ' requests';
 }
 
-// === FETCH DASHBOARD STATS ===
 async function fetchDashboardStats() {
   try {
     const res = await fetch('/admin/dashboard/api/stats');
-    const data = await res.json();
-    updateStats(data);
-    return true;
-  } catch (e) {
-    console.error("Stats fetch failed", e);
-    return false;
-  }
+    updateStats(await res.json());
+  } catch (e) { console.error(e); }
 }
 
-function showNotification(text) {
-  const notif = document.getElementById('notification');
-  const notifText = document.getElementById('notification-text');
-  notifText.textContent = text;
-  notif.classList.remove('hidden');
-  setTimeout(() => notif.classList.add('hidden'), 3000);
+function refreshAll() {
+  fetchDashboardStats();
 }
 
-// === REFRESH ALL ===
-async function refreshAll() {
-  const btns = document.querySelectorAll('button');
-  btns.forEach(b => b.style.opacity = '0.6');
-  await fetchDashboardStats();
-  btns.forEach(b => b.style.opacity = '1');
-  showNotification('Analytics refreshed');
-}
-
-// === INITIALIZATION ===
-window.onload = async () => {
+window.onload = () => {
   els = {
-    users: document.getElementById('users-text'),
-    admins: document.getElementById('admins-text'),
-    instances: document.getElementById('instances-text'),
-    suspended: document.getElementById('suspended-text'),
-    templates: document.getElementById('templates-text'),
-    nodes: document.getElementById('nodes-text'),
-    online: document.getElementById('online-text'),
-    offline: document.getElementById('offline-text'),
-    locations: document.getElementById('locations-text'),
-    apikeys: document.getElementById('apikeys-text'),
-    plugins: document.getElementById('plugins-text'),
     requests: document.getElementById('requests-text'),
     visitors: document.getElementById('visitors-text'),
     avg: document.getElementById('avg-text')
   };
-  
-  await fetchDashboardStats();
-  setInterval(fetchDashboardStats, 10000);
+  fetchDashboardStats();
+  setInterval(fetchDashboardStats, 15000);
 };
 </script>
+
+<%- include('../../components/footer') %>

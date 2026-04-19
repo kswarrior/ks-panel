@@ -4,220 +4,145 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= name %> - Login</title>
-  <link href="/css/ks-panel.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 
 <style>
-/* ================= BODY ================= */
-body {
-  color: var(--text);
-  font-family: var(--font-family);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100dvh;
-  user-select: none;
-  margin: var(--margin-body);
-  font-family: 'Public Sans';
-  background:
-    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-    url('https://cdn.discordapp.com/attachments/1315671132203913218/1482722679101456599/image0.gif?ex=69b7fc9a&is=69b6ab1a&hm=8b71dec0f5da4a2fe26d74e104ddb078812e39780e8efbbbdf94517f1a2bfc52&');
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
-}
-
-/* ================= CARD ================= */
-.card {
-  padding: var(--card-padding);
-  width: 100%;
-  max-width: 400px;
-  backdrop-filter: blur(var(--backdrop-blur));
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: var(--card-radius);
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.card h2 {
-  font-size: var(--h2-size);
-  margin-bottom: 8px;
-  font-weight: 800;
-}
-
-.card p {
-  color: var(--muted);
-  font-size: var(--p-size);
-  margin-bottom: 15px;
-}
-
-/* ================= INPUTS ================= */
-.input-group {
-  margin-bottom: 4px;
-}
-
-.input-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: var(--label-size);
-  font-weight: var(--label-font-weight);
-}
-
-.input-field {
-  width: 100%;
-  padding: var(--input-padding);
-  border-radius: var(--input-radius);
-  border: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(var(--backdrop-blur));
-  color: var(--text);
-  transition: all var(--transition);
-  font-size: var(--p-size);
-  margin-bottom: 8px;
-  box-sizing: border-box;
-}
-
-.input-field:focus {
-  border-color: var(--accent);
-  outline: none;
-}
-
-/* ================= CHECKBOX ================= */
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.checkbox-label {
-  font-size: var(--label-size);
-  cursor: pointer;
-  user-select: none;
-}
-
-/* ================= LINKS ================= */
-.link {
-  color: var(--accent);
-  font-size: var(--link-size);
-  text-decoration: none;
-  transition: color 0.3s;
-  display: inline-block;
-}
-
-.link:hover {
-  color: var(--accent-glow);
-}
-
-/* ================= BUTTON ================= */
-.btn {
-  padding: var(--btn-padding);
-  border-radius: var(--btn-radius);
-  border: none;
-  background: var(--accent);
-  color: #000;
-  width: 100%;
-  font-weight: var(--btn-font-weight);
-  cursor: pointer;
-  transition: all var(--transition);
-  box-shadow: var(--btn-shadow);
-}
-
-.btn:hover {
-  transform: scale(1.02);
-  opacity: 0.9;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 480px) {
-  .card {
-    padding: var(--card-padding-mobile);
+  :root {
+    --accent-color: #3b82f6;
+    --glass-bg: rgba(10, 10, 10, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: 16px;
   }
-}
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && theme.backgrounds.login) || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #f8fafc;
+    overflow: hidden;
+  }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+
+  .input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .input-field:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 </style>
 </head>
 
-<body>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-<div class="card">
-  <div>
-    <h2>Sign in to <%= name %></h2>
-    <p>Please enter your account credentials below.</p>
-  </div>
+<div class="w-full max-w-[440px] animate-slide-up">
+  <div class="glass rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden">
+    <!-- Decorative Glows -->
+    <div class="absolute -top-24 -left-24 w-64 h-64 bg-blue-600/20 blur-[120px] rounded-full"></div>
+    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-600/20 blur-[120px] rounded-full"></div>
 
-  <form id="login-form" onsubmit="event.preventDefault(); submitForm();">
-    
-    <div class="input-group">
-      <input class="input-field"
-             placeholder="Username or Email"
-             id="username"
-             autocomplete="username"
-             required>
-    </div>
-
-    <div class="input-group">
-      <input class="input-field"
-             placeholder="Password"
-             id="password"
-             name="password"
-             type="password"
-             autocomplete="current-password"
-             required>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-      <div class="checkbox-wrapper">
-        <input class="checkbox"
-               id="remember-me"
-               name="remember-me"
-               type="checkbox">
-        <label class="checkbox-label" for="remember-me">Remember me</label>
+    <div class="relative z-10">
+      <div class="mb-12 text-center">
+        <% if (typeof logo !== 'undefined' && logo) { %>
+          <div class="relative inline-block mb-6">
+            <div class="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full"></div>
+            <img src="<%= logo %>" class="w-20 h-20 relative z-10 object-contain drop-shadow-2xl" alt="Logo">
+          </div>
+        <% } %>
+        <h1 class="text-4xl font-black tracking-tight text-white mb-3">Portal Login</h1>
+        <p class="text-neutral-400 text-sm font-medium tracking-wide">Enter your credentials to access the grid.</p>
       </div>
-      
-      <a class="link" href="/auth/reset-password">Forgot your password?</a>
-    </div>
 
-    <div style="margin-top: 10px;">
-      <button class="btn" type="button" onclick="submitForm()">Sign in</button>
-    </div>
+      <form id="login-form" class="space-y-7" onsubmit="event.preventDefault(); submitForm();">
+        <div class="space-y-2.5">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Identity Identifier</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </div>
+            <input class="input-field w-full pl-14 pr-6 py-4.5 rounded-2xl text-white placeholder-neutral-600 focus:outline-none text-base"
+                   placeholder="Username or Email"
+                   id="username"
+                   autocomplete="username"
+                   required>
+          </div>
+        </div>
 
-  </form>
+        <div class="space-y-2.5">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Secure Key</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <input class="input-field w-full pl-14 pr-6 py-4.5 rounded-2xl text-white placeholder-neutral-600 focus:outline-none text-base"
+                   placeholder="••••••••••••"
+                   id="password"
+                   name="password"
+                   type="password"
+                   autocomplete="current-password"
+                   required>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest pt-1">
+          <label class="flex items-center gap-2.5 cursor-pointer group">
+            <input type="checkbox" id="remember-me" class="w-4.5 h-4.5 rounded-lg border-white/10 bg-white/5 text-blue-500 focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer">
+            <span class="text-neutral-500 group-hover:text-neutral-300 transition-colors">Stay Connected</span>
+          </label>
+          <a href="/auth/reset-password" class="text-blue-500 hover:text-blue-400 transition-colors">Lost Key?</a>
+        </div>
+
+        <button type="submit" class="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-neutral-200 active:scale-[0.97] transition-all shadow-xl shadow-white/5 text-sm uppercase tracking-widest">
+          Authorize Access
+        </button>
+      </form>
+
+      <div class="mt-12 text-center">
+        <p class="text-neutral-500 text-xs font-bold tracking-wide">
+          NO ACCOUNT? 
+          <a href="/register" class="text-white hover:underline ml-1.5 transition-all">INITIALIZE REGISTRATION</a>
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-document.getElementById('login-form').addEventListener('keypress', function(event) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if (username !== "" && password === "") {
-      document.getElementById("password").focus();
-    } else {
-      submitForm();
-    }
-  }
-});
-
 async function submitForm() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
   if (username === "" || password === "") {
-    document.location.href = `/auth/login?err=InvalidCredentials&state=failed`;
     return;
   }
 
