@@ -1,0 +1,68 @@
+name: AI Panel Coder (Self-Editing)
+on:
+  workflow_dispatch:
+
+jobs:
+  ai-agent:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Important for pushing code back
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Ollama & Python
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          sleep 10
+          sudo apt-get install python3-pip -y
+
+      - name: Pull Qwen Coder
+        run: ollama pull qwen2.5-coder:7b
+
+      - name: Run AI Agent
+        run: |
+          # We tell the AI to use a specific format so the Python script can read it
+          PROMPT=$(cat prompt.txt)
+          SYSTEM_INSTRUCTIONS="You are a senior Node.js/EJS developer. Update the files in the 'panel' folder. 
+          Respond ONLY in this format:
+          FILE: path/to/file.ejs
+          CODE: [your code here]
+          END_FILE"
+
+          ollama run qwen2.5-coder:7b "$SYSTEM_INSTRUCTIONS User Prompt: $PROMPT" > ai_raw_output.txt
+
+      - name: Apply AI Changes to Files
+        run: |
+          python3 - <<EOF
+          import os
+
+          content = open('ai_raw_output.txt', 'r').read()
+          parts = content.split('FILE: ')
+          
+          for part in parts[1:]:
+              try:
+                  file_path, rest = part.split('CODE: ', 1)
+                  file_code = rest.split('END_FILE', 1)[0]
+                  
+                  file_path = file_path.strip()
+                  # Ensure directory exists
+                  os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                  
+                  with open(file_path, 'w') as f:
+                      f.write(file_code.strip())
+                  print(f"Successfully updated {file_path}")
+              except Exception as e:
+                  print(f"Error parsing a file: {e}")
+          EOF
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "KS-AI-Bot"
+          git config --global user.email "bot@github.com"
+          git add .
+          git commit -m "AI Auto-Update: Applied changes from prompt.txt" || echo "No changes"
+          git push
+          
