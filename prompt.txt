@@ -1,1 +1,1 @@
-Redesign the file panel/logo.ejs. Create a complete, stylish, and modern Logo Page. Use a deep black 'Gamer' theme, neon cyan accents, glassmorphism cards, and a high-quality SVG logo in the center. Overwrite the entire file with new, modern code.
+Create a complete, stylish, and modern Logo Page. Use a deep black 'Gamer' theme, neon cyan accents, glassmorphism cards, and a high-quality SVG logo in the center. Overwrite the entire file with new, modern code.
