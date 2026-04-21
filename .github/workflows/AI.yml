@@ -25,7 +25,6 @@ jobs:
 
       - name: Run AI Agent
         run: |
-          # Ensure prompt.txt exists for the script to read
           if [ ! -f prompt.txt ]; then
             echo "Redesign the file panel/logo.ejs. Create a complete, stylish, and modern Logo Page. Use a deep black 'Gamer' theme, neon cyan accents, glassmorphism cards, and a high-quality SVG logo in the center." > prompt.txt
           fi
@@ -35,7 +34,6 @@ jobs:
           import os
           import re
           import sys
-          import textwrap
 
           # Load Prompt
           if not os.path.exists('prompt.txt'):
@@ -45,14 +43,22 @@ jobs:
           with open('prompt.txt', 'r', encoding='utf-8') as f:
               user_prompt = f.read().strip()
 
-          system_prompt = """You are an expert senior full-stack Node.js / EJS developer.
+          # Drastically simplified system prompt for 7B models
+          system_prompt = """You are an expert full-stack Node.js / EJS developer building 'KS Panel'.
           You are ONLY allowed to edit files inside the 'panel' folder.
-          Respond with nothing except the file blocks.
           
-          FILE: panel/path/to/file.ejs
-          CODE:
-          [full content]
-          END_FILE
+          CRITICAL RULES:
+          1. DO NOT include any comments (like , /* */, or //) or metadata in the code. Keep it clean and minimal.
+          2. Respond ONLY with the code wrapped in @@@ delimiters.
+          3. Never add markdown formatting, explanations, or backticks.
+
+          Example format:
+          @@@panel/logo.ejs
+          <!DOCTYPE html>
+          <html>
+          <body>...</body>
+          </html>
+          @@@
           """
 
           payload = {
@@ -62,33 +68,50 @@ jobs:
                   {"role": "user", "content": user_prompt}
               ],
               "stream": False,
-              "options": {"temperature": 0.2, "num_predict": -1}
+              "options": {"temperature": 0.1, "num_predict": 2000}
           }
 
           print("🔌 Calling Ollama API...")
           try:
               resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=600)
+              resp.raise_for_status()
               ai_response = resp.json().get("message", {}).get("content", "").strip()
           except Exception as e:
               print("❌ ERROR:", e)
               sys.exit(1)
 
-          if "NO_CHANGES_NEEDED" in ai_response or len(ai_response) < 20:
-              print("🤖 No changes needed.")
-              sys.exit(0)
+          # --- DEBUGGING: PRINT RAW RESPONSE ---
+          print("\n" + "="*50)
+          print("🤖 RAW AI OUTPUT:")
+          print("="*50)
+          print(ai_response)
+          print("="*50 + "\n")
 
-          pattern = r'FILE:\s*(panel/.+?)\s*CODE:\s*(.*?)\s*END_FILE'
+          # Simpler Regex
+          pattern = r'@@@([\w/.-]+)\n(.*?)@@@'
           matches = re.finditer(pattern, ai_response, re.DOTALL)
 
+          files_updated = 0
           for match in matches:
-              path, code = match.group(1).strip(), match.group(2).strip()
+              path = match.group(1).strip()
+              code = match.group(2).strip()
+              
+              if not path.startswith('panel/'):
+                  continue
+                  
               os.makedirs(os.path.dirname(path), exist_ok=True)
               with open(path, 'w') as f:
-                  f.write(code)
+                  f.write(code + '\n')
               print(f"✅ Updated {path}")
+              files_updated += 1
+              
+          if files_updated == 0:
+              print("⚠️ WARNING: AI did not output any valid @@@ code blocks. Check the RAW AI OUTPUT above.")
+              sys.exit(0)
           PYEOF
           
           python3 /tmp/ai_coder.py
+          
 
       - name: Commit and Push
         run: |
