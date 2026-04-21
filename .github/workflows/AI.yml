@@ -35,7 +35,7 @@ jobs:
           import re
           import sys
 
-          # Load Prompt
+          # --- LOAD USER PROMPT ---
           if not os.path.exists('prompt.txt'):
               print("❌ Error: prompt.txt not found")
               sys.exit(1)
@@ -43,13 +43,38 @@ jobs:
           with open('prompt.txt', 'r', encoding='utf-8') as f:
               user_prompt = f.read().strip()
 
-          # Drastically simplified system prompt for 7B models
+          # --- GATHER PROJECT CONTEXT (Read all files in panel/) ---
+          print("📁 Reading project files for AI context...")
+          context_data = "CURRENT PROJECT FILES (Use these to understand the project structure and styling):\n"
+          files_read = 0
+          
+          if os.path.exists('panel'):
+              for root, dirs, files in os.walk('panel'):
+                  for file in files:
+                      # Only read text/code files to save context space
+                      if file.endswith(('.js', '.ejs', '.html', '.css', '.json')):
+                          file_path = os.path.join(root, file)
+                          try:
+                              with open(file_path, 'r', encoding='utf-8') as file_obj:
+                                  content = file_obj.read()
+                                  context_data += f"\n--- START OF {file_path} ---\n{content}\n--- END OF {file_path} ---\n"
+                                  files_read += 1
+                          except Exception as e:
+                              print(f"⚠️ Could not read {file_path}: {e}")
+          else:
+              context_data += "No files exist in the panel/ directory yet.\n"
+              
+          print(f"✅ Loaded {files_read} files into context.")
+
+          # --- BUILD THE FULL PROMPT ---
+          full_prompt = f"{context_data}\n\nUSER REQUEST TO EXECUTE:\n{user_prompt}"
+
           system_prompt = """You are an expert full-stack Node.js / EJS developer building 'KS Panel'.
-          You are ONLY allowed to edit files inside the 'panel' folder.
+          You have been provided with the current codebase as context above. Read it to understand the layout, CSS, and logic.
           
           CRITICAL RULES:
-          1. DO NOT include any comments (like , /* */, or //) or metadata in the code. Keep it clean and minimal.
-          2. Respond ONLY with the code wrapped in @@@ delimiters.
+          1. DO NOT include any comments (like , /* */, or //) or metadata in the code. Keep it completely clean.
+          2. Respond ONLY with the code for the files you are modifying or creating, wrapped in @@@ delimiters.
           3. Never add markdown formatting, explanations, or backticks.
 
           Example format:
@@ -65,10 +90,10 @@ jobs:
               "model": "qwen2.5-coder:7b",
               "messages": [
                   {"role": "system", "content": system_prompt},
-                  {"role": "user", "content": user_prompt}
+                  {"role": "user", "content": full_prompt}
               ],
               "stream": False,
-              "options": {"temperature": 0.1, "num_predict": 2000}
+              "options": {"temperature": 0.1, "num_predict": 3000, "num_ctx": 8192}
           }
 
           print("🔌 Calling Ollama API...")
@@ -87,7 +112,7 @@ jobs:
           print(ai_response)
           print("="*50 + "\n")
 
-          # Simpler Regex
+          # --- PARSE AND WRITE FILES ---
           pattern = r'@@@([\w/.-]+)\n(.*?)@@@'
           matches = re.finditer(pattern, ai_response, re.DOTALL)
 
@@ -100,7 +125,7 @@ jobs:
                   continue
                   
               os.makedirs(os.path.dirname(path), exist_ok=True)
-              with open(path, 'w') as f:
+              with open(path, 'w', encoding='utf-8') as f:
                   f.write(code + '\n')
               print(f"✅ Updated {path}")
               files_updated += 1
@@ -111,6 +136,7 @@ jobs:
           PYEOF
           
           python3 /tmp/ai_coder.py
+
           
 
       - name: Commit and Push
