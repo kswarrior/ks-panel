@@ -27,123 +27,133 @@ jobs:
       - name: Run AI Agent & Apply Changes (Powerful Version)
         run: |
           cat > /tmp/ai_coder.py << 'PYEOF'
-import requests
-import os
-import re
-import sys
+            import requests
+            import os
+            import re
+            import sys
 
-# ==================== LOAD PROMPT ====================
-with open('prompt.txt', 'r', encoding='utf-8') as f:
-    user_prompt = f.read().strip()
+            # ==================== LOAD PROMPT ====================
+            with open('prompt.txt', 'r', encoding='utf-8') as f:
+                user_prompt = f.read().strip()
 
-# ==================== STRICT SYSTEM PROMPT ====================
-system_prompt = """You are an expert senior full-stack Node.js / EJS developer.
-You are ONLY allowed to edit files inside the 'panel' folder.
+            # ==================== STRICT SYSTEM PROMPT ====================
+            system_prompt = """You are an expert senior full-stack Node.js / EJS developer.
+            You are ONLY allowed to edit files inside the 'panel' folder.
 
-Given the user request, make the exact changes required.
+            Given the user request, make the exact changes required.
 
-**YOU MUST FOLLOW THESE RULES WITH ZERO DEVIATION:**
-- Respond with **nothing** except the file blocks below.
-- Never add explanations, thinking, "Here is the code", markdown, or any other text.
-- Every block must start with "FILE: panel/..." (path must begin with panel/)
-- Use the exact format (including the blank line after CODE:).
-- You may output multiple blocks.
-- If the request is already satisfied or no changes are needed, output exactly this one line and nothing else:
-NO_CHANGES_NEEDED
+            **YOU MUST FOLLOW THESE RULES WITH ZERO DEVIATION:**
+            - Respond with **nothing** except the file blocks below.
+            - Never add explanations, thinking, "Here is the code", markdown, or any other text.
+            - Every block must start with "FILE: panel/..." (path must begin with panel/)
+            - Use the exact format (including the blank line after CODE:).
+            - You may output multiple blocks.
+            - If the request is already satisfied or no changes are needed, output exactly this one line and nothing else:
+            NO_CHANGES_NEEDED
 
-FILE: panel/exact/path/to/file.ejs
-CODE:
-[the complete, full file content here - every single line]
-END_FILE
+            FILE: panel/exact/path/to/file.ejs
+            CODE:
+            [the complete, full file content here - every single line]
+            END_FILE
 
-FILE: panel/another/file.js
-CODE:
-[complete file content]
-END_FILE
+            FILE: panel/another/file.js
+            CODE:
+            [complete file content]
+            END_FILE
 
-User request:
-"""
+            User request:
+            """
 
-# ==================== CALL OLLAMA API (clean JSON, no spinners) ====================
-payload = {
-    "model": "qwen2.5-coder:7b",
-    "messages": [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt}
-    ],
-    "stream": False,
-    "options": {
-        "temperature": 0.0,
-        "top_p": 0.05,
-        "repeat_penalty": 1.1,
-        "num_predict": -1
-    }
-}
+            # ==================== CALL OLLAMA API (clean JSON, no spinners) ====================
+            payload = {
+                "model": "qwen2.5-coder:7b",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "stream": False,
+                "options": {
+                    "temperature": 0.0,
+                    "top_p": 0.05,
+                    "repeat_penalty": 1.1,
+                    "num_predict": -1
+                }
+            }
 
-print("🔌 Calling Ollama API...")
-try:
-    resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=300)
-    resp.raise_for_status()
-    data = resp.json()
-    ai_response = data.get("message", {}).get("content", "").strip()
-except Exception as e:
-    print("❌ ERROR calling Ollama:", e)
-    sys.exit(1)
+            print("🔌 Calling Ollama API...")
+            try:
+                resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=300)
+                resp.raise_for_status()
+                data = resp.json()
+                ai_response = data.get("message", {}).get("content", "").strip()
+            except Exception as e:
+                print("❌ ERROR calling Ollama:", e)
+                sys.exit(1)
 
-# ==================== SAVE & DISPLAY RAW RESPONSE ====================
-print("\n" + "="*60)
-print("🤖 AI RAW RESPONSE")
-print("="*60)
-print(ai_response)
-print("="*60 + "\n")
+            # ==================== SAVE & DISPLAY RAW RESPONSE ====================
+            print("\n" + "="*60)
+            print("🤖 AI RAW RESPONSE")
+            print("="*60)
+            print(ai_response)
+            print("="*60 + "\n")
 
-with open('ai_raw_output.txt', 'w', encoding='utf-8') as f:
-    f.write(ai_response)
+            with open('ai_raw_output.txt', 'w', encoding='utf-8') as f:
+                f.write(ai_response)
 
-# ==================== ROBUST PARSING & FILE WRITING ====================
-if "NO_CHANGES_NEEDED" in ai_response.upper() or len(ai_response.strip()) < 20:
-    print("🤖 AI determined no changes were needed.")
-    sys.exit(0)
+            # ==================== ROBUST PARSING & FILE WRITING ====================
+            if "NO_CHANGES_NEEDED" in ai_response.upper() or len(ai_response.strip()) < 20:
+                print("🤖 AI determined no changes were needed.")
+                sys.exit(0)
 
-# Powerful regex: handles any whitespace, multiple blocks, multi-line code
-pattern = r'FILE:\s*(.+?)\s*CODE:\s*(.*?)\s*END_FILE'
-matches = re.finditer(pattern, ai_response, re.DOTALL | re.IGNORECASE)
+            # Powerful regex: handles any whitespace, multiple blocks, multi-line code
+            pattern = r'FILE:\s*(.+?)\s*CODE:\s*(.*?)\s*END_FILE'
+            matches = re.finditer(pattern, ai_response, re.DOTALL | re.IGNORECASE)
 
-files_updated = 0
-for match in matches:
-    file_path_raw = match.group(1).strip()
-    code_block = match.group(2).strip()
+            files_updated = 0
+            for match in matches:
+                file_path_raw = match.group(1).strip()
+                code_block = match.group(2).strip()
 
-    # Force path to start with panel/
-    if not file_path_raw.startswith('panel/'):
-        if file_path_raw.startswith('/'):
-            file_path_raw = file_path_raw[1:]
-        file_path = os.path.join('panel', file_path_raw)
-    else:
-        file_path = file_path_raw
+                # Force path to start with panel/
+                if not file_path_raw.startswith('panel/'):
+                    if file_path_raw.startswith('/'):
+                        file_path_raw = file_path_raw[1:]
+                    file_path = os.path.join('panel', file_path_raw)
+                else:
+                    file_path = file_path_raw
 
-    # Remove outer ```language blocks if the model added them
-    if code_block.startswith('```'):
-        lines = code_block.splitlines()
-        if len(lines) > 1 and lines[-1].strip().startswith('```'):
-            code_block = '\n'.join(lines[1:-1])
-        else:
-            code_block = '\n'.join(lines[1:])
+                # Remove outer ```language blocks if the model added them
+                if code_block.startswith('```'):
+                    lines = code_block.splitlines()
+                    if len(lines) > 1 and lines[-1].strip().startswith('```'):
+                        code_block = '\n'.join(lines[1:-1])
+                    else:
+                        code_block = '\n'.join(lines[1:])
 
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                # Ensure directory exists
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(code_block.rstrip() + '\n')
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(code_block.rstrip() + '\n')
 
-    print(f"✅ Successfully updated → {file_path}")
-    files_updated += 1
+                print(f"✅ Successfully updated → {file_path}")
+                files_updated += 1
 
-if files_updated == 0:
-    print("⚠️  Warning: No valid FILE blocks found in AI response.")
-else:
-    print(f"🎉 Applied changes to {files_updated} file(s).")
-PYEOF
+            if files_updated == 0:
+                print("⚠️  Warning: No valid FILE blocks found in AI response.")
+            else:
+                print(f"🎉 Applied changes to {files_updated} file(s).")
+          PYEOF
+
+          # Dedent the Python script (remove extra indentation added by YAML)
+          python3 -c '
+import textwrap
+with open("/tmp/ai_coder.py", "r", encoding="utf-8") as f:
+    content = f.read()
+with open("/tmp/ai_coder.py", "w", encoding="utf-8") as f:
+    f.write(textwrap.dedent(content))
+print("✅ Python script dedented and ready.")
+'
 
           python3 /tmp/ai_coder.py
 
