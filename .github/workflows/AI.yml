@@ -147,13 +147,13 @@ jobs:
 
           # Dedent the Python script (remove extra indentation added by YAML)
           python3 -c '
-import textwrap
-with open("/tmp/ai_coder.py", "r", encoding="utf-8") as f:
-    content = f.read()
-with open("/tmp/ai_coder.py", "w", encoding="utf-8") as f:
-    f.write(textwrap.dedent(content))
-print("✅ Python script dedented and ready.")
-'
+          import textwrap
+          with open("/tmp/ai_coder.py", "r", encoding="utf-8") as f:
+              content = f.read()
+          with open("/tmp/ai_coder.py", "w", encoding="utf-8") as f:
+              f.write(textwrap.dedent(content))
+          print("✅ Python script dedented and ready.")
+          '
 
           python3 /tmp/ai_coder.py
 
