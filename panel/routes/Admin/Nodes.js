@@ -67,7 +67,8 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
 
       try {
         const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-        const monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
+        const portString = (protocol === 'https' && node.port === 443) || (protocol === 'http' && node.port === 80) ? '' : `:${node.port}`;
+        const monitorUrl = `${protocol}://${node.address}${portString}/resourceMonitor`;
 
         const response = await axios.get(monitorUrl, {
           auth: {
@@ -635,7 +636,8 @@ router.get("/admin/nodes/node/:id/resourceMonitor", hasPermission('manage_nodes'
 
   try {
     const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-    const monitorUrl = `${protocol}://${node.address}:${node.port}/resourceMonitor`;
+    const portString = (protocol === 'https' && node.port === 443) || (protocol === 'http' && node.port === 80) ? '' : `:${node.port}`;
+    const monitorUrl = `${protocol}://${node.address}${portString}/resourceMonitor`;
 
     const response = await axios.get(monitorUrl, {
       auth: {

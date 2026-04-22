@@ -1,0 +1,200 @@
+<%- include('../components/template') %>
+<main id="content" class="min-h-screen p-4 md:p-8">
+   <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+         <div>
+            <h1 class="text-3xl font-black text-white tracking-tight">Support Center</h1>
+            <p class="text-white/60 mt-1">Need help? Open a ticket or view your history.</p>
+         </div>
+         <button onclick="document.getElementById('createTicketModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-2xl transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            New Ticket
+         </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+         <!-- Ticket List -->
+         <div class="lg:col-span-1 space-y-4">
+            <% if (tickets.length === 0) { %>
+               <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 text-center">
+                  <div class="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                     <svg class="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                     </svg>
+                  </div>
+                  <p class="text-white/40">No active support tickets.</p>
+               </div>
+            <% } else { %>
+               <% tickets.forEach(ticket => { %>
+                  <button onclick="loadTicket('<%= ticket.id %>')" class="w-full text-left backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all group relative overflow-hidden">
+                     <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-widest <%= ticket.status === 'open' ? 'text-green-400' : (ticket.status === 'closed' ? 'text-red-400' : 'text-yellow-400') %>">
+                           <%= ticket.status %>
+                        </span>
+                        <span class="text-[10px] text-white/40 font-mono"><%= ticket.id.substring(0,8) %></span>
+                     </div>
+                     <h3 class="text-white font-bold truncate group-hover:text-blue-400 transition-colors"><%= ticket.subject %></h3>
+                     <p class="text-xs text-white/40 mt-1">Updated <%= new Date(ticket.updatedAt).toLocaleString() %></p>
+                  </button>
+               <% }) %>
+            <% } %>
+         </div>
+
+         <!-- Chat Interface -->
+         <div class="lg:col-span-2">
+            <div id="ticketDisplay" class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl h-[600px] flex flex-col hidden">
+               <!-- Chat Header -->
+               <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                  <div>
+                     <h2 id="displaySubject" class="text-xl font-bold text-white"></h2>
+                     <p id="displayId" class="text-xs text-white/40 font-mono mt-1"></p>
+                  </div>
+                  <span id="displayStatus" class="px-3 py-1 rounded-full text-[10px] font-black uppercase"></span>
+               </div>
+
+               <!-- Messages -->
+               <div id="messageContainer" class="flex-1 overflow-y-auto p-6 space-y-4 bg-black/20"></div>
+
+               <!-- Reply Box -->
+               <form id="replyForm" class="p-6 border-t border-white/10">
+                  <div class="flex gap-4">
+                     <input type="text" id="replyInput" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20">
+                        Send
+                     </button>
+                  </div>
+               </form>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyDisplay" class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl h-[600px] flex items-center justify-center">
+               <div class="text-center">
+                  <div class="bg-white/5 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 transform rotate-12">
+                     <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                     </svg>
+                  </div>
+                  <h2 class="text-xl font-bold text-white mb-2">Select a Ticket</h2>
+                  <p class="text-white/40 max-w-xs">Pick a ticket from the list to view the conversation or create a new one.</p>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Create Modal -->
+   <div id="createTicketModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md hidden p-4">
+      <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl">
+         <h2 class="text-2xl font-black text-white mb-6">Create New Ticket</h2>
+         <form id="createTicketForm" class="space-y-4">
+            <div>
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Subject</label>
+               <input type="text" id="subject" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" placeholder="Brief summary of the issue">
+            </div>
+            <div>
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Priority</label>
+               <select id="priority" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                  <option value="low" class="bg-slate-900">Low Priority</option>
+                  <option value="medium" class="bg-slate-900" selected>Medium Priority</option>
+                  <option value="high" class="bg-slate-900">High Priority</option>
+                  <option value="critical" class="bg-slate-900 text-red-400">Critical (System Down)</option>
+               </select>
+            </div>
+            <div>
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Detailed Message</label>
+               <textarea id="createMessage" rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" placeholder="Explain your problem in detail..."></textarea>
+            </div>
+            <div class="flex gap-3 pt-4">
+               <button type="button" onclick="document.getElementById('createTicketModal').classList.add('hidden')" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-2xl transition-all">Cancel</button>
+               <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all">Open Ticket</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</main>
+
+<script>
+let currentTicketId = null;
+const ticketsData = <%- JSON.stringify(tickets) %>;
+
+function loadTicket(id) {
+   currentTicketId = id;
+   const ticket = ticketsData.find(t => t.id === id);
+   if (!ticket) return;
+
+   document.getElementById('emptyDisplay').classList.add('hidden');
+   document.getElementById('ticketDisplay').classList.remove('hidden');
+
+   document.getElementById('displaySubject').textContent = ticket.subject;
+   document.getElementById('displayId').textContent = `TICKET REF: ${ticket.id}`;
+
+   const statusEl = document.getElementById('displayStatus');
+   statusEl.textContent = ticket.status;
+   statusEl.className = `px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+      ticket.status === 'open' ? 'bg-green-500/20 text-green-400' :
+      (ticket.status === 'closed' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400')
+   }`;
+
+   renderMessages(ticket.messages);
+}
+
+function renderMessages(messages) {
+   const container = document.getElementById('messageContainer');
+   container.innerHTML = messages.map(msg => `
+      <div class="flex flex-col ${msg.senderId === '<%= user.userId %>' ? 'items-end' : 'items-start'}">
+         <div class="max-w-[80%] rounded-2xl px-4 py-3 ${
+            msg.senderId === '<%= user.userId %>'
+            ? 'bg-blue-600 text-white'
+            : 'bg-white/10 text-white'
+         }">
+            <p class="text-sm">${msg.text}</p>
+            <div class="flex items-center gap-2 mt-2 opacity-40">
+               <span class="text-[9px] font-bold uppercase">${msg.senderName} ${msg.isAdmin ? '(Staff)' : ''}</span>
+               <span class="text-[9px]">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+            </div>
+         </div>
+      </div>
+   `).join('');
+   container.scrollTop = container.scrollHeight;
+}
+
+document.getElementById('createTicketForm').addEventListener('submit', async (e) => {
+   e.preventDefault();
+   const payload = {
+      subject: document.getElementById('subject').value,
+      priority: document.getElementById('priority').value,
+      message: document.getElementById('createMessage').value
+   };
+
+   try {
+      const res = await fetch('/tickets/create', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) location.reload();
+   } catch(e) { alert('Error opening ticket'); }
+});
+
+document.getElementById('replyForm').addEventListener('submit', async (e) => {
+   e.preventDefault();
+   if (!currentTicketId) return;
+   const message = document.getElementById('replyInput').value;
+   if (!message) return;
+
+   try {
+      const res = await fetch(`/tickets/reply/${currentTicketId}`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ message })
+      });
+      if (res.ok) {
+         document.getElementById('replyInput').value = '';
+         location.reload(); // Simple reload for demo, ideally we'd use WebSockets
+      }
+   } catch(e) { alert('Error sending reply'); }
+});
+</script>

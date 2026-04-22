@@ -17,7 +17,7 @@ const crypto = require("node:crypto");
 const PgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
 
-const { isAdmin, hasPermission, checkPermission } = require("./utils/isAdmin.js");
+const { isAdmin, hasPermission, checkPermission, anyAdminPerm } = require("./utils/isAdmin.js");
 
 const { loadPlugins } = require("./plugins/loadPls.js");
 let plugins = loadPlugins(path.join(__dirname, "./plugins"));
@@ -72,6 +72,61 @@ app.use(analytics);
 app.use(translationMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
+
+/**
+ * Dynamic Rate Limiter
+ * Fetches settings from DB to allow live updates without restart.
+ */
+let dynamicRateLimit = {
+  windowMs: 5 * 60 * 1000,
+  max: 5000
+};
+
+const rateLimitMiddleware = async (req, res, next) => {
+  try {
+    const security = await db.get("security_settings") || {};
+    if (security.rateLimitWindow && security.rateLimitMax) {
+      dynamicRateLimit.windowMs = parseInt(security.rateLimitWindow) * 60 * 1000;
+      dynamicRateLimit.max = parseInt(security.rateLimitMax);
+    }
+  } catch (e) {}
+
+  return rateLimit({
+    windowMs: dynamicRateLimit.windowMs,
+    max: dynamicRateLimit.max,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Rate limit exceeded. Too many requests from this IP.",
+    keyGenerator: (req) => req.ip
+  })(req, res, next);
+};
+
+app.use(rateLimitMiddleware);
+
+// --- Network Traffic Tracking & Enforcement ---
+let netTraffic = { in: 0, out: 0, limit: 1024 * 1024 * 1024 }; // Default 1GB
+db.get("security_settings").then(s => { if(s && s.networkLimit) netTraffic.limit = s.networkLimit * 1024 * 1024; });
+
+app.use((req, res, next) => {
+  // Block if limit reached
+  if (netTraffic.limit > 0 && (netTraffic.in + netTraffic.out) >= netTraffic.limit) {
+    return res.status(429).send("System Security: Network throughput quota exceeded.");
+  }
+
+  netTraffic.in += parseInt(req.headers['content-length']) || 0;
+  const originalWrite = res.write;
+  const originalEnd = res.end;
+  res.write = function (chunk) {
+    if (chunk && chunk.length) netTraffic.out += chunk.length;
+    return originalWrite.apply(res, arguments);
+  };
+  res.end = function (chunk) {
+    if (chunk && chunk.length) netTraffic.out += chunk.length;
+    return originalEnd.apply(res, arguments);
+  };
+  next();
+});
+app.get("/api/security/traffic", anyAdminPerm, (req, res) => res.json(netTraffic));
 
 const postRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -197,8 +252,11 @@ app.use(async (req, res, next) => {
     res.locals.footer = settings.footer || "";
     res.locals.name = settings.name || "KS Panel";
     res.locals.logo = settings.logo || "/assets/logo.webp";
+    res.locals.notifications = req.user ? (await db.get(`notifications_${req.user.userId}`) || []) : [];
     res.locals.plugins = plugins;
     res.locals.theme = theme;
+    res.locals.userBalance = req.user ? (users.find(u => u.userId === req.user.userId)?.credits || 0) : 0;
+    res.locals.user = req.user;
 
     // Permission helper for EJS
     res.locals.hasPerm = (perm) => {
@@ -215,10 +273,13 @@ app.use(async (req, res, next) => {
 
       const adminPerms = [
         'create_instances', 'manage_nodes', 'manage_users',
-        'manage_templates', 'view_audit_logs', 'manage_settings'
+        'manage_templates', 'view_audit_logs', 'manage_settings', 'view_insights'
       ];
       return adminPerms.some(p => checkPermission(dbUser, roles, p));
     };
+
+    // Helper for path check in templates
+    res.locals.req = req;
 
   } catch (err) {
     log.error("Global locals middleware error:", err);
@@ -232,6 +293,54 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// --- Automated Renewal & Expiry Task ---
+setInterval(async () => {
+  try {
+    const billing = await db.get("billing_settings");
+    if (!billing || !billing.enabled) return;
+
+    const instances = await db.get("instances") || [];
+    const users = await db.get("users") || [];
+
+    for (const inst of instances) {
+      const instance = await db.get(`${inst.Id}_instance`);
+      if (!instance || !instance.expiresAt) continue;
+
+      const expiry = new Date(instance.expiresAt);
+      if (expiry < new Date()) {
+        // Expired! Try to renew automatically if user has credits
+        const userIdx = users.findIndex(u => u.userId === instance.User);
+        const cost = parseFloat(billing.renewalCost) || 10;
+        const interval = parseInt(billing.renewalInterval) || 30;
+        const unit = billing.renewalUnit || 'days';
+
+        let extensionMs = interval * 24 * 60 * 60 * 1000;
+        if (unit === 'hours') extensionMs = interval * 60 * 60 * 1000;
+        else if (unit === 'seconds') extensionMs = interval * 1000;
+
+        if (userIdx !== -1 && (users[userIdx].credits || 0) >= cost) {
+          // Auto-renew
+          users[userIdx].credits -= cost;
+          instance.expiresAt = new Date(Date.now() + extensionMs).toISOString();
+          instance.suspended = false;
+          await db.set(`${instance.Id}_instance`, instance);
+          log.info(`Auto-renewed instance ${instance.Id} for user ${users[userIdx].username}`);
+        } else {
+          // Suspend
+          if (!instance.suspended) {
+            instance.suspended = true;
+            await db.set(`${instance.Id}_instance`, instance);
+            log.warn(`Suspended instance ${instance.Id} due to expiration/insufficient credits`);
+          }
+        }
+      }
+    }
+    await db.set("users", users);
+  } catch (err) {
+    log.error("Renewal task error:", err);
+  }
+}, 60 * 60 * 1000); // Check every hour
+
 const routesDir = path.join(__dirname, "routes");
 function loadRoutes(directory) {
   fs.readdirSync(directory).forEach((file) => {
@@ -241,7 +350,7 @@ function loadRoutes(directory) {
     if (stat.isDirectory()) {
       loadRoutes(fullPath);
     } else if (stat.isFile() && path.extname(file) === ".js") {
-      const route = require(fullPath);
+      console.log('Loading route:', fullPath); const route = require(fullPath);
       expressWs.applyTo(route);
 
       if (fullPath.includes(path.join("routes", "Admin"))) {

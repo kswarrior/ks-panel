@@ -114,6 +114,7 @@ router.post("/users/create", hasPermission("manage_users"), async (req, res) => 
     verified: verified || false,
     roleId: (roleId === 'admin' || roleId === 'user') ? null : roleId,
     owner: isOwner,
+    credits: 0,
     permissions: {} // Legacy support
   };
 
@@ -196,6 +197,7 @@ router.post("/admin/users/edit/:userId", hasPermission("manage_users"), async (r
     users[userIndex].admin = roleId === 'admin';
     users[userIndex].verified = verified === "true" || verified === true;
     users[userIndex].roleId = (roleId === 'admin' || roleId === 'user') ? null : roleId;
+    if (req.body.credits !== undefined) users[userIndex].credits = parseFloat(req.body.credits);
   }
 
   if (password && password.trim() !== "") {

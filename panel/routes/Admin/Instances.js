@@ -300,7 +300,8 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       Disk: parseInt(disk),
       Allocation: { IP: allocationIp, Port: allocationPort },
       TemplateFilename: templateFilename,
-      Primary: true
+      Primary: true,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Default 30 days
     };
 
     let userInstances = (await db.get(`${userId}_instances`)) || [];

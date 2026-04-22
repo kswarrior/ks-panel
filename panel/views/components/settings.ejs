@@ -103,6 +103,12 @@
           <span>Theme</span>
         </a>
       </li>
+      <li>
+        <a href="/admin/settings/dashboard" class="settings-nav-link" id="link-dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" class="settings-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Dashboard</span>
+        </a>
+      </li>
     </ul>
   </div>
 </div>
@@ -118,6 +124,7 @@
       if(current === '/admin/settings') activeLink = document.getElementById('link-general');
       else if(current.includes('smtp')) activeLink = document.getElementById('link-smtp');
       else if(current.includes('theme')) activeLink = document.getElementById('link-theme');
+      else if(current.includes('dashboard')) activeLink = document.getElementById('link-dashboard');
 
       if(activeLink) {
         activeLink.classList.add('is-active');

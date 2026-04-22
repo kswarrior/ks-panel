@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kswarrior/ks-wings/providers/docker"
+	"github.com/sirupsen/logrus"
 )
 
 func RegisterInstanceRoutes(r *gin.RouterGroup, p *docker.Provider) {
@@ -16,7 +17,28 @@ func RegisterInstanceRoutes(r *gin.RouterGroup, p *docker.Provider) {
 	})
 
 	r.POST("/instances/create", func(c *gin.Context) {
-		c.JSON(202, gin.H{"message": "Deployment started (Go Wings Mock)"})
+		var config docker.CreateConfig
+		if err := c.ShouldBindJSON(&config); err != nil {
+			c.JSON(400, gin.H{"error": "Invalid configuration"})
+			return
+		}
+
+		id, err := p.CreateInstance(c.Request.Context(), &config)
+		if err != nil {
+			logrus.Errorf("Failed to create instance: %v", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Auto-start after creation
+		if err := p.StartInstance(c.Request.Context(), id); err != nil {
+			logrus.Errorf("Failed to start instance after creation: %v", err)
+		}
+
+		c.JSON(202, gin.H{
+			"message":     "Instance created and started",
+			"containerId": id,
+		})
 	})
 
 	r.POST("/instances/:id/start", func(c *gin.Context) {

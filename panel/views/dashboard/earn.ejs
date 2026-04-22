@@ -1,0 +1,146 @@
+<%- include('../components/template') %>
+<main id="content" class="min-h-screen p-4 md:p-8">
+   <div class="max-w-7xl mx-auto">
+      <header class="mb-12">
+         <h1 class="text-5xl font-black text-white tracking-tighter">Earn Credits</h1>
+         <p class="text-white/40 mt-2 font-medium text-lg">Power up your hosting for free by completing simple tasks.</p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+         <!-- AFK Earning -->
+         <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl flex flex-col justify-between group">
+            <div>
+               <div class="w-16 h-16 bg-blue-600/20 rounded-[1.5rem] flex items-center justify-center mb-8 border border-blue-600/30">
+                  <svg class="w-8 h-8 text-blue-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               </div>
+               <h2 class="text-3xl font-black text-white mb-2">AFK Miner</h2>
+               <p class="text-neutral-400 text-sm font-medium mb-8">Earn credits automatically just by keeping this page open. No effort required.</p>
+
+               <div class="p-6 rounded-2xl bg-black/40 border border-white/5 mb-8">
+                  <div class="flex justify-between items-center mb-4">
+                     <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Mining Progress</span>
+                     <span id="afkTimer" class="text-xs font-mono text-blue-400">01:00</span>
+                  </div>
+                  <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                     <div id="afkBar" class="h-full bg-blue-600 transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+               <div class="text-left">
+                  <p class="text-[10px] font-black text-neutral-500 uppercase">Rate</p>
+                  <p class="text-xl font-black text-white">0.5 <span class="text-xs opacity-40">CR/min</span></p>
+               </div>
+               <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/10 text-green-400 text-[10px] font-black uppercase border border-green-500/20">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-ping"></span>
+                  Active
+               </span>
+            </div>
+         </div>
+
+         <!-- Video / YouTube Rewards -->
+         <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl flex flex-col justify-between group">
+            <div>
+               <div class="w-16 h-16 bg-red-600/20 rounded-[1.5rem] flex items-center justify-center mb-8 border border-red-600/30">
+                  <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg>
+               </div>
+               <h2 class="text-3xl font-black text-white mb-2">Video Rewards</h2>
+               <p class="text-neutral-400 text-sm font-medium mb-8">Watch a short tutorial or community highlight to receive a credit boost.</p>
+
+               <!-- Simulated Video Embed Placeholder -->
+               <div class="aspect-video rounded-2xl bg-black flex items-center justify-center border border-white/10 overflow-hidden relative group/video">
+                  <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2574&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover/video:scale-110 transition-transform duration-700">
+                  <button id="videoBtn" onclick="watchVideo()" class="relative z-10 bg-white text-black p-4 rounded-full shadow-2xl transform transition-all hover:scale-110 active:scale-95">
+                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                  </button>
+               </div>
+            </div>
+
+            <div class="pt-8 text-right">
+               <p class="text-[10px] font-black text-neutral-500 uppercase mb-1">Reward</p>
+               <p class="text-2xl font-black text-red-500">2.0 <span class="text-xs opacity-40">CR</span></p>
+            </div>
+         </div>
+
+         <!-- Sponsored Ads -->
+         <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl flex flex-col justify-between group">
+            <div>
+               <div class="w-16 h-16 bg-purple-600/20 rounded-[1.5rem] flex items-center justify-center mb-8 border border-purple-600/30">
+                  <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+               </div>
+               <h2 class="text-3xl font-black text-white mb-2">Quick Ads</h2>
+               <p class="text-neutral-400 text-sm font-medium mb-8">Support our infrastructure by viewing a sponsored ad. High payout, low effort.</p>
+
+               <!-- Sponsored Ad Container (HTML/JS code integration point) -->
+               <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center flex flex-col items-center justify-center min-h-[150px]">
+                  <p class="text-[10px] text-white/20 uppercase font-black mb-4">Advertisement Area</p>
+                  <!-- Add your Ad code below (e.g. AdSense, etc) -->
+                  <div id="ad-placeholder" class="bg-white/10 w-full h-24 rounded-xl flex items-center justify-center italic text-white/30 text-xs">
+                     Ad code will be rendered here
+                  </div>
+                  <button onclick="claimAdReward()" class="mt-4 text-[10px] font-black text-blue-400 hover:text-white transition-all uppercase tracking-widest">I've seen the ad</button>
+               </div>
+            </div>
+
+            <div class="pt-8 flex justify-between items-end">
+               <div>
+                  <p class="text-[10px] font-black text-neutral-500 uppercase mb-1">Status</p>
+                  <p class="text-xs font-bold text-neutral-400">AVAILABLE</p>
+               </div>
+               <p class="text-2xl font-black text-purple-400">1.5 <span class="text-xs opacity-40">CR</span></p>
+            </div>
+         </div>
+      </div>
+   </div>
+</main>
+
+<script>
+let afkSeconds = 60;
+function updateAFK() {
+   afkSeconds--;
+   const minutes = Math.floor(afkSeconds / 60);
+   const seconds = afkSeconds % 60;
+   document.getElementById('afkTimer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+   document.getElementById('afkBar').style.width = `${((60 - afkSeconds) / 60) * 100}%`;
+
+   if (afkSeconds <= 0) {
+      claimAFK();
+      afkSeconds = 60;
+   }
+}
+
+async function claimAFK() {
+   const res = await fetch('/billing/earn/afk', { method: 'POST' });
+   if (res.ok) {
+      console.log('AFK credits claimed');
+      // Update global balance if needed
+   }
+}
+
+async function watchVideo() {
+   const btn = document.getElementById('videoBtn');
+   btn.disabled = true;
+   btn.textContent = '...';
+   setTimeout(async () => {
+      const res = await fetch('/billing/earn/video', { method: 'POST' });
+      if (res.ok) {
+         alert('Reward claimed for watching!');
+         location.reload();
+      }
+      btn.disabled = false;
+      btn.textContent = '▶';
+   }, 5000); // 5 sec "watch" time
+}
+
+async function claimAdReward() {
+   // Simulated ad reward (using video route for simplicity)
+   const res = await fetch('/billing/earn/afk', { method: 'POST' });
+   if (res.ok) {
+      alert('Thanks for supporting us! Credits added.');
+      location.reload();
+   }
+}
+
+setInterval(updateAFK, 1000);
+</script>

@@ -284,4 +284,84 @@ router.post("/admin/settings/toggle/register", hasPermission('manage_settings'),
   }
 });
 
+// ====================== DASHBOARD & BILLING SETTINGS ======================
+
+router.get("/admin/settings/dashboard", hasPermission('manage_settings'), async (req, res) => {
+  const [settings, billing, packages, coupons, earnVideos] = await Promise.all([
+    db.get("settings").then(d => d || {}),
+    db.get("billing_settings").then(d => d || {
+      enabled: false,
+      renewalCost: 10,
+      renewalInterval: 30,
+      renewalUnit: 'days',
+      dailyReward: 5,
+      afkReward: 0.5,
+      afkInterval: 60,
+      defaultSlots: 3,
+      defaultRam: 1024,
+      defaultCpu: 100,
+      defaultDisk: 5120
+    }),
+    db.get("billing_packages").then(d => d || []),
+    db.get("coupons").then(d => d || []),
+    db.get("earn_videos").then(d => d || [])
+  ]);
+  res.render("admin/settings/dashboard", { req, user: req.user, settings, billing, packages, coupons, earnVideos, pageType: "admin" });
+});
+
+router.post("/admin/settings/dashboard/billing", hasPermission('manage_settings'), async (req, res) => {
+  const { enabled, renewalCost, renewalInterval, renewalUnit, dailyReward, afkReward, afkInterval, defaultSlots, defaultRam, defaultCpu, defaultDisk } = req.body;
+  await db.set("billing_settings", {
+    enabled: enabled === 'true',
+    renewalCost: parseFloat(renewalCost),
+    renewalInterval: parseInt(renewalInterval) || 30,
+    renewalUnit: renewalUnit || 'days',
+    dailyReward: parseFloat(dailyReward) || 5,
+    afkReward: parseFloat(afkReward) || 0.5,
+    afkInterval: parseInt(afkInterval) || 60,
+    defaultSlots: parseInt(defaultSlots),
+    defaultRam: parseInt(defaultRam),
+    defaultCpu: parseInt(defaultCpu),
+    defaultDisk: parseInt(defaultDisk)
+  });
+  res.redirect("/admin/settings/dashboard?msg=SettingsUpdated");
+});
+
+router.post("/admin/settings/dashboard/earn/videos/add", hasPermission('manage_settings'), async (req, res) => {
+  const { name, link, reward } = req.body;
+  const videos = await db.get("earn_videos") || [];
+  videos.push({ id: uuidv4(), name, link, reward: parseFloat(reward) });
+  await db.set("earn_videos", videos);
+  res.redirect("/admin/settings/dashboard#earn");
+});
+
+router.post("/admin/settings/dashboard/earn/videos/delete", hasPermission('manage_settings'), async (req, res) => {
+  const { id } = req.body;
+  const videos = await db.get("earn_videos") || [];
+  await db.set("earn_videos", videos.filter(v => v.id !== id));
+  res.json({ success: true });
+});
+
+router.post("/admin/settings/dashboard/packages/add", hasPermission('manage_settings'), async (req, res) => {
+  const { name, credits, price } = req.body;
+  const packages = await db.get("billing_packages") || [];
+  packages.push({ id: uuidv4(), name, credits, price });
+  await db.set("billing_packages", packages);
+  res.redirect("/admin/settings/dashboard#packages");
+});
+
+router.post("/admin/settings/dashboard/packages/delete", hasPermission('manage_settings'), async (req, res) => {
+  const { id } = req.body;
+  const packages = await db.get("billing_packages") || [];
+  await db.set("billing_packages", packages.filter(p => p.id !== id));
+  res.json({ success: true });
+});
+
+router.post("/admin/settings/dashboard/coupons/delete", hasPermission('manage_settings'), async (req, res) => {
+  const { id } = req.body;
+  const coupons = await db.get("coupons") || [];
+  await db.set("coupons", coupons.filter(c => c.id !== id));
+  res.json({ success: true });
+});
+
 module.exports = router;

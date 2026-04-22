@@ -204,26 +204,54 @@ func runConfiguration(panelURL, configKey string) {
 }
 
 func handleResourceMonitor(c *gin.Context) {
-	v, _ := mem.VirtualMemory()
-	c_pct, _ := cpu.Percent(time.Second, false)
-	d, _ := disk.Usage("/")
+	v, err := mem.VirtualMemory()
+	if err != nil {
+		log.Errorf("Failed to get RAM info: %v", err)
+	}
+
+	c_pct, err := cpu.Percent(time.Millisecond*500, false)
+	if err != nil {
+		log.Errorf("Failed to get CPU info: %v", err)
+	}
+
+	d, err := disk.Usage("/")
+	if err != nil {
+		log.Errorf("Failed to get Disk info: %v", err)
+	}
 
 	cpu_pct := 0.0
 	if len(c_pct) > 0 {
 		cpu_pct = c_pct[0]
 	}
 
+	// Helper to handle nil values if gopsutil fails
+	var ramPercent, ramUsed, ramTotal float64
+	if v != nil {
+		ramPercent = v.UsedPercent
+		ramUsed = float64(v.Used) / (1024 * 1024 * 1024)
+		ramTotal = float64(v.Total) / (1024 * 1024 * 1024)
+	}
+
+	var diskPercent, diskUsed, diskTotal float64
+	if d != nil {
+		diskPercent = d.UsedPercent
+		diskUsed = float64(d.Used) / (1024 * 1024 * 1024)
+		diskTotal = float64(d.Total) / (1024 * 1024 * 1024)
+	}
+
 	c.JSON(200, gin.H{
-		"cpu": gin.H{"percent": cpu_pct},
+		"cpu": gin.H{
+			"percent": cpu_pct,
+		},
 		"ram": gin.H{
-			"percent": v.UsedPercent,
-			"used":    float64(v.Used) / (1024 * 1024 * 1024),
-			"total":   float64(v.Total) / (1024 * 1024 * 1024),
+			"percent": ramPercent,
+			"used":    ramUsed,
+			"total":   ramTotal,
 		},
 		"disk": gin.H{
-			"percent": d.UsedPercent,
-			"used":    float64(d.Used) / (1024 * 1024 * 1024),
-			"total":   float64(d.Total) / (1024 * 1024 * 1024),
+			"percent": diskPercent,
+			"used":    diskUsed,
+			"total":   diskTotal,
 		},
 	})
 }

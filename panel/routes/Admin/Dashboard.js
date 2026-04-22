@@ -58,6 +58,21 @@ async function getDashboardStats() {
   const avgRequestsPerHour = totalRequests > 0 ? (totalRequests / 24).toFixed(1) : 0;
 
   // =====================
+  // ANALYTICS BREAKDOWN
+  // =====================
+  const topRoutes = analyticsRaw.reduce((acc, item) => {
+    acc[item.path] = (acc[item.path] || 0) + 1;
+    return acc;
+  }, {});
+  const sortedRoutes = Object.entries(topRoutes).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+  const topIPs = analyticsRaw.reduce((acc, item) => {
+    acc[item.ip] = (acc[item.ip] || 0) + 1;
+    return acc;
+  }, {});
+  const sortedIPs = Object.entries(topIPs).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+  // =====================
   // REAL POSTGRESQL DATABASE INFO
   // =====================
   let dbType = "PostgreSQL";
@@ -65,6 +80,7 @@ async function getDashboardStats() {
   let dbSize = "Unknown";
   let dbTable = config.databaseTable || "kspanel";
   let totalKeys = 0;
+  let dbStats = {};
 
   if (config.databaseURL) {
     dbUrlMasked = config.databaseURL.replace(/:\/\/[^:]+:[^@]+@/, '://****:****@');
@@ -72,22 +88,32 @@ async function getDashboardStats() {
       const client = new Client({ connectionString: config.databaseURL });
       await client.connect();
 
-      const sizeRes = await client.query(`SELECT pg_size_pretty(pg_database_size(current_database())) as size`);
-      dbSize = sizeRes.rows[0].size;
+      const [size, keys, health, index] = await Promise.all([
+        client.query(`SELECT pg_size_pretty(pg_database_size(current_database())) as size`),
+        client.query(`SELECT COUNT(*) as count FROM ${dbTable}`),
+        client.query(`SELECT count(*) as active_conns FROM pg_stat_activity WHERE state = 'active'`),
+        client.query(`SELECT relname as table, pg_size_pretty(pg_total_relation_size(relid)) AS total_size FROM pg_catalog.pg_statio_user_tables`)
+      ]);
 
-      const keysRes = await client.query(`SELECT COUNT(*) as count FROM ${dbTable}`);
-      totalKeys = parseInt(keysRes.rows[0].count) || 0;
+      dbSize = size.rows[0].size;
+      totalKeys = parseInt(keys.rows[0].count) || 0;
+      dbStats = {
+        activeConnections: health.rows[0].active_conns,
+        tableSizes: index.rows
+      };
 
       await client.end();
     } catch (err) {
       console.error('DB info query failed:', err);
       dbSize = "Query Error";
-      totalKeys = "Error";
     }
   }
 
   return {
     // Main Stats
+    sortedRoutes,
+    sortedIPs,
+    dbStats,
     usersTotal,
     adminsTotal,
     instancesTotal,
@@ -157,29 +183,11 @@ router.get("/admin/dashboard/api/server-logs/stream", anyAdminPerm, (req, res) =
   });
 });
 
-// =====================
-// MAIN CONSOLE PAGE (formerly Overview)
-// =====================
-router.get("/admin/dashboard/console", anyAdminPerm, async (req, res) => {
-  try {
-    const stats = await getDashboardStats();
-
-    res.render("admin/dashboard/console", {
-      req,
-      user: req.user,
-      version: config.version,
-      ...stats
-    });
-  } catch (error) {
-    console.error('Console page error:', error);
-    res.status(500).send("Failed to retrieve dashboard statistics.");
-  }
-});
 
 // =====================
 // ANALYTICS PAGE (New)
 // =====================
-router.get("/admin/dashboard/analytics", anyAdminPerm, async (req, res) => {
+router.get("/admin/analytics", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
@@ -198,7 +206,7 @@ router.get("/admin/dashboard/analytics", anyAdminPerm, async (req, res) => {
 // =====================
 // DATABASE PAGE (New)
 // =====================
-router.get("/admin/dashboard/database", anyAdminPerm, async (req, res) => {
+router.get("/admin/database", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 

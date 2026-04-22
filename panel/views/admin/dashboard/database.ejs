@@ -1,135 +1,71 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-8">
   <div class="max-w-[1600px] mx-auto">
 
     <!-- Header -->
     <header class="mb-10 pb-8 border-b border-white/5 space-y-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="min-w-0">
-          <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight truncate">Database Stats</h1>
-          <p class="mt-2 text-xs sm:text-sm text-neutral-400 truncate">Detailed metrics and connection information for the primary store.</p>
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-black text-white tracking-tight">Database Infrastructure</h1>
+          <p class="text-neutral-400 mt-2 font-medium">Real-time health monitoring and capacity planning for PostgreSQL.</p>
         </div>
-
-        <button onclick="refreshAll()" class="w-full md:w-auto px-5 py-2.5 rounded-xl bg-white text-black font-bold text-sm shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          Refresh Data
-        </button>
+        <div class="flex gap-3">
+          <div class="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            Healthy Connection
+          </div>
+        </div>
       </div>
-
       <%- include('../../components/dashboard') %>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-
-      <!-- DB Type -->
-      <div class="bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden group hover:bg-white/[0.08] transition-all">
-        <div class="absolute top-0 right-0 p-4 sm:p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-          <svg class="w-20 h-20 sm:w-24 sm:h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 4.02 2 6.5s4.48 4.5 10 4.5 10-2.02 10-4.5S17.52 2 12 2zm0 18c-5.52 0-10-2.02-10-4.5v-3.5c0 2.48 4.48 4.5 10 4.5s10-2.02 10-4.5v3.5c0 2.48-4.48 4.5-10 4.5z"/></svg>
-        </div>
-        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] mb-4 block">Storage Engine</span>
-        <p class="text-2xl sm:text-3xl font-black text-white mb-2 truncate" id="dbtype-text"><%= dbType %></p>
-        <p class="text-[10px] sm:text-xs text-neutral-500 font-medium truncate">Relational Database Management System</p>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+      <div class="glass p-8 rounded-[2.5rem] lg:col-span-1">
+        <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Engine</p>
+        <h3 class="text-3xl font-black text-white"><%= dbType %></h3>
+        <p class="text-xs text-neutral-600 mt-4 font-mono break-all"><%= dbUrlMasked %></p>
       </div>
-
-      <!-- Storage Size -->
-      <div class="bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden group hover:bg-white/[0.08] transition-all">
-        <div class="absolute top-0 right-0 p-4 sm:p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-          <svg class="w-20 h-20 sm:w-24 sm:h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
-        </div>
-        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] mb-4 block">Disk Usage</span>
-        <p class="text-2xl sm:text-3xl font-black text-white mb-2 truncate" id="dbsize-text"><%= dbSize %></p>
-        <p class="text-[10px] sm:text-xs text-neutral-500 font-medium truncate">Total footprint on physical disk</p>
+      <div class="glass p-8 rounded-[2.5rem] lg:col-span-1 border-blue-500/10 bg-blue-600/5">
+        <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Total Size</p>
+        <h3 class="text-3xl font-black text-white"><%= dbSize %></h3>
+        <p class="text-xs text-blue-400 mt-4 font-bold uppercase tracking-widest">Optimized</p>
       </div>
-
-      <!-- Total Keys -->
-      <div class="bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden group hover:bg-white/[0.08] transition-all">
-        <div class="absolute top-0 right-0 p-4 sm:p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-          <svg class="w-20 h-20 sm:w-24 sm:h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 10l-2 2h4l-2-2zm0-8C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-        </div>
-        <span class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] mb-4 block">Stored Records</span>
-        <p class="text-2xl sm:text-3xl font-black text-white mb-2 truncate" id="dbkeys-text"><%= totalKeys %></p>
-        <p class="text-[10px] sm:text-xs text-neutral-500 font-medium truncate">Active entries in the panel table</p>
+      <div class="glass p-8 rounded-[2.5rem] lg:col-span-1">
+        <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Key Count</p>
+        <h3 class="text-3xl font-black text-white"><%= totalKeys %></h3>
+        <p class="text-xs text-neutral-500 mt-4 font-bold uppercase tracking-widest">Records found</p>
       </div>
-
-      <!-- Connection Details -->
-      <div class="md:col-span-2 lg:col-span-3">
-        <div class="bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl">
-          <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
-            <h3 class="text-lg sm:text-xl font-bold text-white">Advanced Parameters</h3>
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
-              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
-              Active & Operational
-            </div>
-          </div>
-
-          <div class="space-y-8">
-            <div class="min-w-0">
-              <label class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-3 block ml-1">Encrypted Connection URI</label>
-              <div class="bg-[#0a0a0a]/60 border border-white/5 rounded-2xl p-4 sm:p-6 font-mono text-[10px] sm:text-xs text-amber-400 break-all leading-relaxed shadow-inner">
-                <span id="dburl-text"><%= dbUrlMasked %></span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 pt-4">
-              <div class="p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/5 min-w-0">
-                <label class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-3 block">Primary Schema</label>
-                <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                  <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 flex-shrink-0">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7-8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"></path></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-base sm:text-lg font-black text-white truncate" id="dbtable-text"><%= dbTable %></p>
-                    <p class="text-[9px] sm:text-[10px] text-neutral-500 font-bold uppercase truncate">Main Table</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/5 min-w-0">
-                <label class="text-[9px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-3 block">Service Health</label>
-                <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                  <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-base sm:text-lg font-black text-white truncate">Operational</p>
-                    <p class="text-[9px] sm:text-[10px] text-neutral-500 font-bold uppercase truncate">Status Check: OK</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="glass p-8 rounded-[2.5rem] lg:col-span-1">
+        <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Active Conns</p>
+        <h3 class="text-3xl font-black text-white"><%= dbStats.activeConnections || 0 %></h3>
+        <p class="text-xs text-neutral-500 mt-4 font-bold uppercase tracking-widest">Live queries</p>
       </div>
-
     </div>
+
+    <div class="glass p-8 rounded-[3rem]">
+      <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-8">Table Distribution</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-white/5">
+              <th class="pb-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Table Identifier</th>
+              <th class="pb-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest text-right">Data Weight</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <% (dbStats.tableSizes || []).forEach(t => { %>
+              <tr class="group hover:bg-white/5 transition-colors">
+                <td class="py-5 font-mono text-sm text-neutral-300 group-hover:text-white transition-colors"><%= t.table %></td>
+                <td class="py-5 text-sm font-black text-white text-right"><%= t.total_size %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
-
-<script>
-function updateStats(data) {
-  if (document.getElementById('dbtype-text')) document.getElementById('dbtype-text').textContent = data.dbType || 'Unknown';
-  if (document.getElementById('dbsize-text')) document.getElementById('dbsize-text').textContent = data.dbSize || 'Unknown';
-  if (document.getElementById('dburl-text')) document.getElementById('dburl-text').textContent = data.dbUrlMasked || 'Not configured';
-  if (document.getElementById('dbtable-text')) document.getElementById('dbtable-text').textContent = data.dbTable || 'kspanel';
-  if (document.getElementById('dbkeys-text')) document.getElementById('dbkeys-text').textContent = data.totalKeys || 0;
-}
-
-async function fetchDashboardStats() {
-  try {
-    const res = await fetch('/admin/dashboard/api/stats');
-    updateStats(await res.json());
-  } catch (e) { console.error(e); }
-}
-
-function refreshAll() {
-  fetchDashboardStats();
-}
-
-window.onload = () => {
-  fetchDashboardStats();
-  setInterval(fetchDashboardStats, 10000);
-};
-</script>
 
 <%- include('../../components/footer') %>

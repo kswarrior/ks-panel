@@ -32,9 +32,13 @@ async function checkNodeStatus(node, skipCache = false) {
   }
 
   try {
+    const protocol = node.connectionProtocol || 'http';
+    const portString = (protocol === 'https' && node.port === 443) || (protocol === 'http' && node.port === 80) ? '' : `:${node.port}`;
+    const url = `${protocol}://${node.address}${portString}/`;
+
     const requestData = {
       method: "get",
-      url: `http://${node.address}:${node.port}/`,
+      url: url,
       auth: {
         username: "kspanel",
         password: node.apiKey,
