@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../handlers/db.js");
+const { db } = require("../../handlers/db.js");
 const { v4: uuidv4 } = require("uuid");
-const { anyAdminPerm } = require("../utils/isAdmin.js");
 
 // =====================
 // USER ROUTES (Support Center)
@@ -82,34 +81,6 @@ router.post("/tickets/reply/:id", async (req, res) => {
   ticket.updatedAt = new Date().toISOString();
   if (!isAdmin) ticket.status = "open";
 
-  await db.set(`${ticketId}_ticket`, ticket);
-  res.json({ success: true });
-});
-
-// =====================
-// ADMIN ROUTES (Ticket Management)
-// =====================
-
-router.get("/admin/tickets", anyAdminPerm, async (req, res) => {
-  const ticketIds = await db.get("tickets") || [];
-  const allTickets = await Promise.all(ticketIds.map(id => db.get(`${id}_ticket`)));
-
-  res.render("admin/tickets", {
-    req,
-    user: req.user,
-    tickets: allTickets.filter(Boolean).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-  });
-});
-
-router.post("/admin/tickets/status/:id", anyAdminPerm, async (req, res) => {
-  const { status } = req.body;
-  const ticketId = req.params.id;
-
-  const ticket = await db.get(`${ticketId}_ticket`);
-  if (!ticket) return res.status(404).json({ error: "Ticket not found" });
-
-  ticket.status = status;
-  ticket.updatedAt = new Date().toISOString();
   await db.set(`${ticketId}_ticket`, ticket);
   res.json({ success: true });
 });
