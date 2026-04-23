@@ -179,16 +179,16 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-group {
     width: 100%;
   }
-  
+
   .filter-group label {
     display: block;
     margin-bottom: 0.5rem;
   }
-  
+
   .filter-group select,
   .filter-group button {
     width: 100%;
@@ -265,7 +265,7 @@ select option {
   .pagination-container {
     gap: 0.25rem;
   }
-  
+
   .pagination-btn {
     min-width: 36px;
     height: 36px;
@@ -340,7 +340,7 @@ select option {
   <div class="px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
     <div class="glass-panel p-4 sm:p-6 shadow-lg">
       <div class="filter-bar">
-        
+
         <!-- Action Filter -->
         <div class="filter-group flex items-center gap-3">
           <label for="actionFilter" class="text-sm text-neutral-300 whitespace-nowrap">
@@ -409,7 +409,7 @@ select option {
       <div class="table-container shadow-lg animate-fade-in">
         <div class="overflow-x-auto">
           <table id="auditTableDesktop" class="min-w-full divide-y divide-white/10">
-            
+
             <thead class="bg-white/5">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider">
@@ -502,11 +502,11 @@ select option {
     <% if (audits && audits.length > 0) { %>
       <div id="auditBodyMobile" class="space-y-4">
         <% audits.forEach(function(audit) { %>
-          <div class="mobile-audit-card animate-fade-in" 
+          <div class="mobile-audit-card animate-fade-in"
                data-timestamp="<%= new Date(audit.timestamp).getTime() %>"
                data-action="<%= audit.action %>"
                data-userid="<%= audit.userId %>">
-            
+
             <!-- Card Header -->
             <div class="flex items-start justify-between mb-3">
               <div class="flex items-center gap-3">

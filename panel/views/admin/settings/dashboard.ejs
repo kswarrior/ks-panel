@@ -1,0 +1,309 @@
+<%- include('../../components/template') %>
+<main id="content" class="min-h-screen p-4 md:p-8">
+   <div class="max-w-7xl mx-auto">
+      <header class="mb-10">
+         <h1 class="text-4xl font-black text-white tracking-tight">Dashboard & Economy</h1>
+         <p class="text-neutral-400 mt-2 font-medium">Configure global resource limits, credit system, and hosting modes.</p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+         <!-- System Toggles & Defaults -->
+         <div class="lg:col-span-2 space-y-6">
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+               <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                  </svg>
+                  Economy Configuration
+               </h2>
+
+               <form action="/admin/settings/dashboard/billing" method="POST" class="space-y-6">
+                  <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                     <div>
+                        <p class="font-bold text-white">Enable Credit System</p>
+                        <p class="text-xs text-white/40">Switch between free/direct hosting and credit-based economy.</p>
+                     </div>
+                     <select name="enabled" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-sm font-bold text-white outline-none">
+                        <option value="true" <%= billing.enabled ? 'selected' : '' %>>Enabled (Economy)</option>
+                        <option value="false" <%= !billing.enabled ? 'selected' : '' %>>Disabled (Free)</option>
+                     </select>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div class="space-y-2">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Renewal Cost (Credits)</label>
+                        <input type="number" name="renewalCost" value="<%= billing.renewalCost %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                     </div>
+                     <div class="space-y-2">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Renewal Interval</label>
+                        <div class="flex gap-2">
+                           <input type="number" name="renewalInterval" value="<%= billing.renewalInterval || 30 %>" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                           <select name="renewalUnit" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold text-white outline-none">
+                              <option value="days" <%= billing.renewalUnit === 'days' ? 'selected' : '' %>>Days</option>
+                              <option value="hours" <%= billing.renewalUnit === 'hours' ? 'selected' : '' %>>Hours</option>
+                              <option value="seconds" <%= billing.renewalUnit === 'seconds' ? 'selected' : '' %>>Seconds</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="space-y-2">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Daily Reward Amount</label>
+                        <input type="number" name="dailyReward" value="<%= billing.dailyReward || 5 %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                     </div>
+                     <div class="space-y-2">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">AFK Reward Amount</label>
+                        <input type="number" step="0.01" name="afkReward" value="<%= billing.afkReward || 0.5 %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                     </div>
+                     <div class="space-y-2">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">AFK Interval (Seconds)</label>
+                        <input type="number" name="afkInterval" value="<%= billing.afkInterval || 60 %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                     </div>
+                     <div class="space-y-2">
+                        <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Default Instance Slots</label>
+                        <input type="number" name="defaultSlots" value="<%= billing.defaultSlots %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                     </div>
+                  </div>
+
+                  <div class="pt-6 border-t border-white/5">
+                     <h3 class="text-sm font-bold text-white/60 mb-4 uppercase tracking-tighter">Default Instance Resources</h3>
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                           <label class="text-[9px] font-bold text-neutral-500 uppercase">RAM (MB)</label>
+                           <input type="number" name="defaultRam" value="<%= billing.defaultRam %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-500">
+                        </div>
+                        <div class="space-y-2">
+                           <label class="text-[9px] font-bold text-neutral-500 uppercase">CPU (%)</label>
+                           <input type="number" name="defaultCpu" value="<%= billing.defaultCpu %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-500">
+                        </div>
+                        <div class="space-y-2">
+                           <label class="text-[9px] font-bold text-neutral-500 uppercase">Disk (MB)</label>
+                           <input type="number" name="defaultDisk" value="<%= billing.defaultDisk %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-500">
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="flex justify-end pt-4">
+                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-3 rounded-2xl transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                        SAVE CONFIGURATION
+                     </button>
+                  </div>
+               </form>
+            </div>
+
+            <!-- Credit Packages -->
+            <div id="packages" class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+               <div class="flex items-center justify-between mb-6">
+                  <h2 class="text-xl font-bold text-white">Purchase Packages</h2>
+                  <button onclick="document.getElementById('addPackageModal').classList.remove('hidden')" class="bg-white/5 hover:bg-white/10 text-white text-xs font-bold px-4 py-2 rounded-xl border border-white/10 transition-all">Add Package</button>
+               </div>
+
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <% packages.forEach(pkg => { %>
+                     <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group">
+                        <div>
+                           <p class="font-bold text-white"><%= pkg.name %></p>
+                           <p class="text-xs text-blue-400 font-black"><%= pkg.credits %> Credits • $<%= pkg.price %></p>
+                        </div>
+                        <button onclick="deletePackage('<%= pkg.id %>')" class="p-2 text-red-400 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 rounded-lg transition-all">
+                           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                     </div>
+                  <% }) %>
+               </div>
+            </div>
+         </div>
+
+         <!-- Quick Stats / Info -->
+         <div class="space-y-6">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+               <div class="relative z-10">
+                  <h3 class="text-lg font-black uppercase tracking-tighter opacity-60">System Mode</h3>
+                  <p class="text-3xl font-black mt-2"><%= billing.enabled ? 'ECONOMY' : 'FREE HOST' %></p>
+                  <div class="mt-8 flex items-center gap-2 text-xs font-bold bg-black/20 backdrop-blur-md rounded-xl px-4 py-2 w-fit">
+                     <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                     LIVE UPDATES ACTIVE
+                  </div>
+               </div>
+               <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div id="earn" class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+               <div class="flex items-center justify-between mb-6">
+                  <h2 class="text-xl font-bold text-white">Earn Videos</h2>
+                  <button onclick="document.getElementById('addVideoModal').classList.remove('hidden')" class="bg-white/5 hover:bg-white/10 text-white text-xs font-bold px-4 py-2 rounded-xl border border-white/10 transition-all">Add Video</button>
+               </div>
+               <div class="space-y-3">
+                  <% if (earnVideos.length === 0) { %>
+                     <p class="text-xs text-white/20 italic">No earn videos configured.</p>
+                  <% } else { %>
+                     <div class="grid grid-cols-1 gap-2">
+                        <% earnVideos.forEach(video => { %>
+                           <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 group">
+                              <div>
+                                 <p class="text-xs font-black text-white"><%= video.name %></p>
+                                 <p class="text-[9px] text-neutral-500 font-bold uppercase truncate max-w-[200px]"><%= video.link %></p>
+                                 <p class="text-[9px] text-blue-400 font-black uppercase"><%= video.reward %> Credits</p>
+                              </div>
+                              <button onclick="deleteVideo('<%= video.id %>')" class="p-1.5 text-red-400 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 rounded-lg transition-all">
+                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                              </button>
+                           </div>
+                        <% }) %>
+                     </div>
+                  <% } %>
+               </div>
+            </div>
+
+            <div id="coupons" class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+               <div class="flex items-center justify-between mb-6">
+                  <h2 class="text-xl font-bold text-white">Coupon Codes</h2>
+                  <button onclick="document.getElementById('addCouponModal').classList.remove('hidden')" class="bg-white/5 hover:bg-white/10 text-white text-xs font-bold px-4 py-2 rounded-xl border border-white/10 transition-all">Create Coupon</button>
+               </div>
+               <div class="space-y-3">
+                  <% if (coupons.length === 0) { %>
+                     <p class="text-xs text-white/20 italic">No active coupons.</p>
+                  <% } else { %>
+                     <div class="grid grid-cols-1 gap-2">
+                        <% coupons.forEach(coupon => { %>
+                           <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 group">
+                              <div>
+                                 <p class="text-xs font-black text-white"><%= coupon.code %></p>
+                                 <p class="text-[9px] text-neutral-500 font-bold uppercase"><%= coupon.amount %> Credits • <%= coupon.uses %> Uses Left</p>
+                              </div>
+                              <button onclick="deleteCoupon('<%= coupon.id %>')" class="p-1.5 text-red-400 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 rounded-lg transition-all">
+                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                              </button>
+                           </div>
+                        <% }) %>
+                     </div>
+                  <% } %>
+               </div>
+            </div>
+
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl">
+               <h3 class="text-sm font-bold text-white/60 mb-4 uppercase tracking-widest">Global Economics</h3>
+               <div class="space-y-4">
+                  <div class="flex justify-between items-center">
+                     <span class="text-xs text-neutral-400">Total Credits Circulating</span>
+                     <span class="text-sm font-black text-white">--</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                     <span class="text-xs text-neutral-400">Avg. Balance/User</span>
+                     <span class="text-sm font-black text-white">--</span>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Add Package Modal -->
+   <div id="addPackageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md hidden p-4">
+      <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+         <h2 class="text-2xl font-black text-white mb-6">Add Credit Bundle</h2>
+         <form action="/admin/settings/dashboard/packages/add" method="POST" class="space-y-4">
+            <div>
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Bundle Name</label>
+               <input type="text" name="name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500" placeholder="e.g. Starter Pack">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+               <div>
+                  <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Credits</label>
+                  <input type="number" name="credits" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+               </div>
+               <div>
+                  <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Price ($)</label>
+                  <input type="number" step="0.01" name="price" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+               </div>
+            </div>
+            <div class="flex gap-3 pt-4">
+               <button type="button" onclick="document.getElementById('addPackageModal').classList.add('hidden')" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-2xl transition-all">Cancel</button>
+               <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all">Create</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</main>
+
+<!-- Add Video Modal -->
+<div id="addVideoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md hidden p-4">
+   <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+      <h2 class="text-2xl font-black text-white mb-6">Add Video</h2>
+      <form action="/admin/settings/dashboard/earn/videos/add" method="POST" class="space-y-4">
+         <div>
+            <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Video Name</label>
+            <input type="text" name="name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500" placeholder="e.g. Intro Video">
+         </div>
+         <div>
+            <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">YouTube Link</label>
+            <input type="text" name="link" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500" placeholder="https://youtube.com/...">
+         </div>
+         <div>
+            <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Reward Amount</label>
+            <input type="number" step="0.01" name="reward" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+         </div>
+         <div class="flex gap-3 pt-4">
+            <button type="button" onclick="document.getElementById('addVideoModal').classList.add('hidden')" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-2xl transition-all">Cancel</button>
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all">Add</button>
+         </div>
+      </form>
+   </div>
+</div>
+
+<!-- Add Coupon Modal -->
+<div id="addCouponModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md hidden p-4">
+   <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+      <h2 class="text-2xl font-black text-white mb-6">Create Coupon</h2>
+      <form action="/admin/billing/coupons/add" method="POST" class="space-y-4">
+         <div>
+            <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Code</label>
+            <input type="text" name="code" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500" placeholder="SUMMER2026">
+         </div>
+         <div class="grid grid-cols-2 gap-4">
+            <div>
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Amount</label>
+               <input type="number" name="amount" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+            </div>
+            <div>
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Uses</label>
+               <input type="number" name="uses" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+            </div>
+         </div>
+         <div class="flex gap-3 pt-4">
+            <button type="button" onclick="document.getElementById('addCouponModal').classList.add('hidden')" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-2xl transition-all">Cancel</button>
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all">Create</button>
+         </div>
+      </form>
+   </div>
+</div>
+
+<script>
+async function deletePackage(id) {
+   if (!confirm('Remove this package?')) return;
+   const res = await fetch('/admin/settings/dashboard/packages/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+   });
+   if (res.ok) location.reload();
+}
+
+async function deleteCoupon(id) {
+   if (!confirm('Delete this coupon?')) return;
+   const res = await fetch('/admin/settings/dashboard/coupons/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+   });
+   if (res.ok) location.reload();
+}
+
+async function deleteVideo(id) {
+   if (!confirm('Delete this video?')) return;
+   const res = await fetch('/admin/settings/dashboard/earn/videos/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+   });
+   if (res.ok) location.reload();
+}
+</script>

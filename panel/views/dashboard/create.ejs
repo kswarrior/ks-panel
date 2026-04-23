@@ -1,0 +1,108 @@
+<%- include('../components/template') %>
+<main id="content" class="min-h-screen p-4 md:p-8">
+   <div class="max-w-4xl mx-auto">
+      <header class="mb-12">
+         <h1 class="text-4xl font-black text-white tracking-tight">Deploy New Instance</h1>
+         <p class="text-neutral-400 mt-2 font-medium">Select a template and node to launch your server instantly.</p>
+      </header>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-[3rem] p-10 shadow-2xl">
+         <form id="deployForm" class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div class="space-y-2">
+                  <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Instance Name</label>
+                  <input type="text" id="name" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-blue-500 transition-all" placeholder="e.g. My Website">
+               </div>
+               <div class="space-y-2">
+                  <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Software Template</label>
+                  <select id="template" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none transition-all">
+                     <option value="" class="bg-slate-900">-- Choose Template --</option>
+                     <% templates.forEach(t => { %>
+                        <option value="<%= t.filename %>" class="bg-slate-900"><%= t.name %></option>
+                     <% }) %>
+                  </select>
+               </div>
+            </div>
+
+            <div class="space-y-2">
+               <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Select Node</label>
+               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <% if (nodes.length === 0) { %>
+                     <p class="col-span-full text-red-400 text-sm italic">No online nodes available at this time.</p>
+                  <% } else { %>
+                     <% nodes.forEach(node => { %>
+                        <label class="cursor-pointer group">
+                           <input type="radio" name="nodeId" value="<%= node.id %>" class="peer sr-only">
+                           <div class="p-5 rounded-3xl bg-white/5 border border-white/10 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all group-hover:bg-white/[0.08]">
+                              <p class="font-bold text-white group-hover:text-blue-400 transition-colors"><%= node.name %></p>
+                              <p class="text-[10px] text-neutral-500 uppercase mt-1 font-black"><%= node.location %></p>
+                           </div>
+                        </label>
+                     <% }) %>
+                  <% } %>
+               </div>
+            </div>
+
+            <div class="pt-8 border-t border-white/5">
+               <div class="flex items-center justify-between mb-6">
+                  <div>
+                     <h3 class="text-lg font-bold text-white">Resource Allocation</h3>
+                     <p class="text-xs text-white/40 mt-1">Based on your current plan defaults.</p>
+                  </div>
+                  <div class="text-right">
+                     <p class="text-[10px] font-black text-neutral-500 uppercase">Available Slots</p>
+                     <p class="text-2xl font-black text-blue-400"><%= slotsLeft %></p>
+                  </div>
+               </div>
+
+               <div class="grid grid-cols-3 gap-4">
+                  <div class="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
+                     <p class="text-[9px] font-black text-neutral-500 uppercase">RAM</p>
+                     <p class="text-sm font-bold text-white"><%= billing.defaultRam %> MB</p>
+                  </div>
+                  <div class="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
+                     <p class="text-[9px] font-black text-neutral-500 uppercase">CPU</p>
+                     <p class="text-sm font-bold text-white"><%= billing.defaultCpu %>%</p>
+                  </div>
+                  <div class="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
+                     <p class="text-[9px] font-black text-neutral-500 uppercase">DISK</p>
+                     <p class="text-sm font-bold text-white"><%= billing.defaultDisk %> MB</p>
+                  </div>
+               </div>
+            </div>
+
+            <div class="flex justify-end pt-4">
+               <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-12 py-5 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center gap-3">
+                  <span>DEPLOY INSTANCE</span>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+               </button>
+            </div>
+         </form>
+      </div>
+   </div>
+</main>
+
+<script>
+document.getElementById('deployForm').addEventListener('submit', async (e) => {
+   e.preventDefault();
+   const nodeId = document.querySelector('input[name="nodeId"]:checked')?.value;
+   const name = document.getElementById('name').value;
+   const template = document.getElementById('template').value;
+
+   if (!name || !template || !nodeId) return alert('Please complete all fields.');
+
+   try {
+      const res = await fetch('/dashboard/create', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ name, template, nodeId })
+      });
+      const data = await res.json();
+      if (data.success) {
+         window.location.href = '/instances';
+      } else {
+         alert('Error: ' + data.error);
+      }
+   } catch(e) { alert('Network error'); }
+});
+</script>

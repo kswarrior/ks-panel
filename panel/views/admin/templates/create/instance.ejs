@@ -1,59 +1,180 @@
 <div class="space-y-6">
+  <!-- Infrastructure Type -->
   <div class="tf-card">
     <div class="tf-row">
       <div class="tf-field-short">
-        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Instance Type <span class="text-red-400">*</span></label>
-        <select id="instanceType" class="tf-input">
-          <option value="docker">Docker</option>
-          <option value="lxd">LXD</option>
-          <option value="multipass">Multipass</option>
-          <option value="kvm">KVM</option>
-          <option value="proxmox">Proxmox</option>
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Infrastructure <span class="text-red-400">*</span></label>
+        <select id="instanceType" class="tf-input searchable-select" onchange="updateEnvUI()">
+          <option value="docker">Docker (Containers)</option>
+          <option value="multipass">Multipass (Ubuntu VMs)</option>
+          <option value="kvm">KVM (General VMs)</option>
+          <option value="lxd">LXD (System Containers)</option>
+          <option value="proxmox">Proxmox (LXC/VM)</option>
         </select>
       </div>
-      <div class="tf-field-long" id="imageContainer"></div>
+      <div class="tf-field-long" id="imageContainer">
+        <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Default Image / ISO</label>
+        <input id="environment-image" type="text" class="tf-input font-mono" placeholder="ghcr.io/parkervcp/yolks:debian">
+      </div>
     </div>
   </div>
 
+  <!-- Port Mapping -->
   <div class="tf-card">
-    <h3 class="text-xs font-medium text-neutral-400 uppercase mb-3">Resource Limits</h3>
-    <div class="tf-row">
-      <div class="tf-field-short"><label>Memory (MB)</label><input id="limits-memory" type="number" value="4096" class="tf-input"></div>
-      <div class="tf-field-short"><label>CPU Threads</label><input id="limits-cpu" type="number" value="200" class="tf-input"></div>
-      <div class="tf-field-short"><label>Disk (GB)</label><input id="limits-disk" type="number" value="20" class="tf-input"></div>
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-xs font-medium text-neutral-400 uppercase">Port Configuration</h3>
+      <button type="button" onclick="addPortMapping()" class="tf-btn tf-btn-secondary py-1 px-3 text-[10px]">+ Add Rule</button>
+    </div>
+    <div id="portsContainer" class="space-y-2"></div>
+    <div id="vmPortNote" class="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg hidden">
+      <p class="text-[10px] text-blue-300 italic">
+        <strong>VM Note:</strong> Non-Docker ports will generate SSH tunnels automatically:<br>
+        <code class="text-white">ssh -L [Host]:localhost:[Guest] user@[IP] -N</code>
+      </p>
     </div>
   </div>
 
-  <button onclick="saveInstanceSection()" class="tf-btn tf-btn-accent w-full">💾 Save Environment (environment.json)</button>
+  <!-- Volumes / Mounts -->
+  <div class="tf-card">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-xs font-medium text-neutral-400 uppercase">Mounts & Volumes</h3>
+      <button type="button" onclick="addMount()" class="tf-btn tf-btn-secondary py-1 px-3 text-[10px]">+ Add Mount</button>
+    </div>
+    <div id="mountsContainer" class="space-y-2"></div>
+  </div>
+
+  <!-- Resources & Feature Limits -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Resource Limits -->
+    <div class="tf-card">
+      <h3 class="text-xs font-bold text-blue-400 uppercase mb-4 tracking-wider flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Hardware Limits
+      </h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">Memory (MB)</label>
+          <input id="limits-memory" type="number" value="1024" class="tf-input text-sm font-mono" placeholder="1024">
+        </div>
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">CPU Limit (%)</label>
+          <input id="limits-cpu" type="number" value="100" class="tf-input text-sm font-mono" placeholder="100">
+        </div>
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">Disk Space (MB)</label>
+          <input id="limits-disk" type="number" value="5120" class="tf-input text-sm font-mono" placeholder="5120">
+        </div>
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">Swap (MB)</label>
+          <input id="limits-swap" type="number" value="0" class="tf-input text-sm font-mono" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Limits -->
+    <div class="tf-card">
+      <h3 class="text-xs font-bold text-emerald-400 uppercase mb-4 tracking-wider flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Feature Allowances
+      </h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">Databases</label>
+          <input id="limits-databases" type="number" value="0" class="tf-input text-sm font-mono" placeholder="0">
+        </div>
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">Backups</label>
+          <input id="limits-backups" type="number" value="0" class="tf-input text-sm font-mono" placeholder="0">
+        </div>
+        <div class="tf-field-short">
+          <label class="text-[10px] text-neutral-500 uppercase font-bold">Allocations</label>
+          <input id="limits-allocations" type="number" value="1" class="tf-input text-sm font-mono" placeholder="1">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<script>
-function updateImageField() {
-  // same logic as before (kept short for brevity)
-  const type = document.getElementById('instanceType').value;
-  const container = document.getElementById('imageContainer');
-  container.innerHTML = type === 'docker' || type === 'kvm' || type === 'proxmox' 
-    ? `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Image <span class="text-red-400">*</span></label><input id="environment-image" type="text" class="tf-input" placeholder="eclipse-temurin:21-jre">`
-    : `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Distribution</label><select id="environment-distribution" class="tf-input"><option value="ubuntu">Ubuntu</option></select>`;
-}
-document.getElementById('instanceType').addEventListener('change', updateImageField);
-updateImageField();
+<template id="portTemplate">
+  <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg border border-white/5 relative group">
+    <div class="flex-1"><input type="number" name="port-host" class="tf-input py-1 text-xs" placeholder="Host Port"></div>
+    <div class="text-neutral-500">:</div>
+    <div class="flex-1"><input type="number" name="port-guest" class="tf-input py-1 text-xs" placeholder="Guest Port"></div>
+    <div class="w-24">
+      <select name="port-protocol" class="tf-input searchable-select py-1 text-xs">
+        <option value="tcp">TCP</option>
+        <option value="udp">UDP</option>
+      </select>
+    </div>
+    <button type="button" class="text-neutral-500 hover:text-red-400 px-2 transition-all duration-200" onclick="confirmRemoval(this)">×</button>
+  </div>
+</template>
 
-window.saveInstanceSection = async () => {
-  const data = {
-    instance_type: document.getElementById('instanceType').value,
-    image: document.getElementById('environment-image') ? document.getElementById('environment-image').value : '',
-    limits: {
-      memory: parseInt(document.getElementById('limits-memory').value),
-      cpu: parseInt(document.getElementById('limits-cpu').value),
-      disk: parseInt(document.getElementById('limits-disk').value)
+<template id="mountTemplate">
+  <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg border border-white/5 relative group">
+    <div class="flex-1"><input type="text" name="mount-source" class="tf-input py-1 text-xs" placeholder="/path/on/host"></div>
+    <div class="text-neutral-500">→</div>
+    <div class="flex-1"><input type="text" name="mount-target" class="tf-input py-1 text-xs" placeholder="/path/in/container"></div>
+    <div class="w-24">
+      <select name="mount-mode" class="tf-input searchable-select py-1 text-xs">
+        <option value="rw">R/W</option>
+        <option value="ro">R/O</option>
+      </select>
+    </div>
+    <button type="button" class="text-neutral-500 hover:text-red-400 px-2 transition-all duration-200" onclick="confirmRemoval(this)">×</button>
+  </div>
+</template>
+
+<script>
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
+function updateEnvUI() {
+  const type = document.getElementById('instanceType').value;
+  const note = document.getElementById('vmPortNote');
+  const imgContainer = document.getElementById('imageContainer');
+
+  if (type === 'docker') {
+    note.classList.add('tf-hidden');
+    imgContainer.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Docker Image <span class="text-red-400">*</span></label><input id="environment-image" type="text" class="tf-input font-mono" placeholder="ghcr.io/parkervcp/yolks:debian">`;
+  } else {
+    note.classList.remove('tf-hidden');
+    if (type === 'multipass') {
+      imgContainer.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Ubuntu Version</label><select id="environment-distribution" class="tf-input searchable-select"><option value="22.04">Jammy (22.04 LTS)</option><option value="20.04">Focal (20.04 LTS)</option></select>`;
+      if (typeof initSearchableSelects === 'function') initSearchableSelects();
+    } else {
+      imgContainer.innerHTML = `<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">ISO / OS Template Path</label><input id="environment-image" type="text" class="tf-input font-mono" placeholder="/var/lib/vz/template/iso/ubuntu.iso">`;
     }
-  };
-  await fetch('/admin/templates/save-environment', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(data)
-  });
-  showNotification('Environment saved as environment.json', 'success');
-};
+  }
+}
+
+function addPortMapping() {
+  const container = document.getElementById('portsContainer');
+  container.appendChild(document.getElementById('portTemplate').content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
+}
+
+function addMount() {
+  const container = document.getElementById('mountsContainer');
+  container.appendChild(document.getElementById('mountTemplate').content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
+}
+
+// Initial setup
+document.addEventListener('DOMContentLoaded', () => {
+  updateEnvUI();
+  addPortMapping();
+});
 </script>

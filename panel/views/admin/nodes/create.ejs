@@ -309,6 +309,20 @@
 }
 </style>
 
+<!-- Choices.js for Searchable Selects -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<style>
+/* Choices.js Custom Overrides for Dark UI */
+.choices { margin-bottom: 0; }
+.choices__inner { background-color: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 0.5rem !important; color: white !important; min-height: 42px !important; padding: 4px 10px !important; }
+.choices__list--dropdown, .choices__list[aria-expanded] { background-color: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 50 !important; }
+.choices__list--dropdown .choices__item--selectable.is-highlighted { background-color: rgba(255,255,255,0.1) !important; }
+.choices__input { background-color: transparent !important; color: white !important; }
+.choices__item { color: white !important; }
+</style>
+
 <link href="/css/ks-panel.css" rel="stylesheet">
 <main id="content" class="min-h-screen">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -382,12 +396,33 @@
           </div>
 
           <div class="nd-row">
-            <div class="nd-field nd-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Location <span class="text-red-400">*</span></label>
-              <select id="nodeLocation" required class="nd-input">
+            <div class="nd-field nd-short">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Location <span class="text-red-400">*</span></label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="deleteLocation()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                  <button type="button" onclick="addLocation()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+                </div>
+              </div>
+              <select id="nodeLocation" required class="searchable-select">
                 <option value="">Select location...</option>
                 <% locations.forEach(function(loc) { %>
                 <option value="<%= loc.id %>"><%= loc.name %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="nd-field nd-short">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Category <span class="text-red-400">*</span></label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="deleteCategory()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest">Delete</button>
+                  <button type="button" onclick="addCategory()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-widest">+ Add New</button>
+                </div>
+              </div>
+              <select id="nodeCategory" required class="searchable-select">
+                <% categories.forEach(function(cat) { %>
+                <option value="<%= cat %>"><%= cat %></option>
                 <% }); %>
               </select>
             </div>
@@ -521,9 +556,26 @@ function toggleResourceFields() {
   }
 }
 
+// Choices.js Initialization
+let choiceInstances = {};
+function initSearchableSelects() {
+  document.querySelectorAll('.searchable-select').forEach(el => {
+    if (el.dataset.choicesInit) return;
+    const instance = new Choices(el, {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false,
+      removeItemButton: false,
+    });
+    choiceInstances[el.id] = instance;
+    el.dataset.choicesInit = "true";
+  });
+}
+
 // Initialize the toggle on page load to ensure correct initial state
 document.addEventListener('DOMContentLoaded', function() {
   toggleResourceFields();
+  initSearchableSelects();
 });
 
 function showNotification(message, type = 'success') {
@@ -575,6 +627,7 @@ document.getElementById('createNodeBtn').addEventListener('click', async () => {
         port: document.getElementById('ftpPort').value
       },
       location: document.getElementById('nodeLocation').value,
+      category: document.getElementById('nodeCategory').value,
       resourceMode: resourceMode,
       ram: ram,
       disk: disk,
