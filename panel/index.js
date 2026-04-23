@@ -256,7 +256,6 @@ app.use(async (req, res, next) => {
     res.locals.plugins = plugins;
     res.locals.theme = theme;
     res.locals.userBalance = req.user ? (users.find(u => u.userId === req.user.userId)?.credits || 0) : 0;
-    res.locals.user = req.user;
 
     // Permission helper for EJS
     res.locals.hasPerm = (perm) => {
