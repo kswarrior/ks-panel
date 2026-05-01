@@ -5,31 +5,26 @@ const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 
-// ====================== Theme Routes ======================
+const SYSTEM_DEFAULT_THEME = {
+  '--accent-color': '#3b82f6',
+  '--sidebar-bg': 'rgba(10, 10, 10, 0.6)',
+  '--header-bg': 'rgba(10, 10, 10, 0.4)',
+  '--glass-border': 'rgba(255, 255, 255, 0.08)',
+  '--glass-blur': '16px',
+  '--card-radius': '1.5rem',
+  '--btn-radius': '0.75rem',
+  '--card-padding': '2rem',
+  '--sidebar-width': '16rem',
+  '--font-family': "'Plus Jakarta Sans', sans-serif"
+};
 
-// GET - Render Theme Customization Page
 router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settings = (await db.get("settings")) || {};
     let theme = (await db.get("theme")) || {};
 
-    // Default values (so your live preview works even on first load)
-    if (!theme || Object.keys(theme).length === 0) {
-      theme = {
-        primary: "#3b82f6",
-        primaryHover: "#2563eb",
-        accent: "#8b5cf6",
-        background: "#0f172a",
-        cardBg: "#1e2937",
-        textPrimary: "#f1f5f9",
-        textSecondary: "#94a3b8",
-        border: "#334155",
-        success: "#22c55e",
-        warning: "#eab308",
-        error: "#ef4444",
-        radius: "12px"
-      };
-    }
+    // Ensure all variables are present
+    theme = { ...SYSTEM_DEFAULT_THEME, ...theme };
 
     res.render("admin/settings/theme", {
       req,
@@ -39,51 +34,40 @@ router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req
     });
   } catch (error) {
     log.error("Error loading theme settings:", error);
-    res.status(500).send("Failed to load theme settings page.");
+    res.status(500).send("Internal Server Error");
   }
 });
 
-// POST - Save Theme to Database
 router.post("/admin/settings/theme/save", hasPermission('manage_settings'), async (req, res) => {
   try {
     const themeData = req.body;
+    let theme = (await db.get("theme")) || {};
 
-    await db.set("theme", themeData);
+    // Only update allowed variables (starting with --)
+    Object.keys(themeData).forEach(key => {
+      if (key.startsWith('--')) {
+        theme[key] = themeData[key];
+      }
+    });
 
+    await db.set("theme", theme);
     logAudit(req.user.userId, req.user.username, "theme:edit", req.ip);
 
-    res.redirect("/admin/settings/theme?msg=ThemeSaveSuccess");
+    res.redirect("/admin/settings/theme?msg=ThemeUpdated");
   } catch (error) {
     log.error("Error saving theme:", error);
-    res.redirect("/admin/settings/theme?err=ThemeSaveFailed");
+    res.redirect("/admin/settings/theme?err=SaveFailed");
   }
 });
 
-// (Optional but recommended) Reset to Default
 router.post("/admin/settings/theme/reset", hasPermission('manage_settings'), async (req, res) => {
   try {
-    const defaultTheme = {
-      primary: "#3b82f6",
-      primaryHover: "#2563eb",
-      accent: "#8b5cf6",
-      background: "#0f172a",
-      cardBg: "#1e2937",
-      textPrimary: "#f1f5f9",
-      textSecondary: "#94a3b8",
-      border: "#334155",
-      success: "#22c55e",
-      warning: "#eab308",
-      error: "#ef4444",
-      radius: "12px"
-    };
-
-    await db.set("theme", defaultTheme);
+    await db.set("theme", SYSTEM_DEFAULT_THEME);
     logAudit(req.user.userId, req.user.username, "theme:reset", req.ip);
-
-    res.redirect("/admin/settings/theme?msg=ThemeResetToDefault");
+    res.status(200).json({ success: true });
   } catch (error) {
     log.error("Error resetting theme:", error);
-    res.redirect("/admin/settings/theme?err=ResetFailed");
+    res.status(500).json({ error: "Reset failed" });
   }
 });
 

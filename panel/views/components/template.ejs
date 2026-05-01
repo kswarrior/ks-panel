@@ -16,15 +16,27 @@
 
       <style>
          :root {
+            /* System Defaults */
             --sidebar-bg: rgba(10, 10, 10, 0.6);
             --header-bg: rgba(10, 10, 10, 0.4);
             --accent-color: #3b82f6;
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: 16px;
+            --card-radius: 1.5rem;
+            --btn-radius: 0.75rem;
+
+            /* Injected Custom Theme Variables */
+            <% if (typeof theme !== 'undefined' && theme) { %>
+               <% Object.entries(theme).forEach(([key, value]) => { %>
+                  <% if (key.startsWith('--')) { %>
+                     <%= key %>: <%= value %>;
+                  <% } %>
+               <% }); %>
+            <% } %>
          }
 
          body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
                         url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && (typeof pageType !== "undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
             background-position: center;
@@ -46,6 +58,7 @@
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius, 1.5rem);
          }
 
          .nav-link {
@@ -77,7 +90,48 @@
 
          .nav-link.active svg {
             color: var(--accent-color);
-            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+            filter: drop-shadow(0 0 8px var(--accent-color));
+         }
+
+         /* Global Theme Overrides */
+         .rounded-xl, .rounded-2xl, .rounded-3xl {
+            border-radius: var(--card-radius) !important;
+         }
+
+         .rounded-lg {
+            border-radius: var(--btn-radius) !important;
+         }
+
+         button:not([class*="rounded-full"]),
+         .btn:not([class*="rounded-full"]),
+         a[class*="bg-white"]:not([class*="rounded-full"]),
+         a[class*="bg-blue"]:not([class*="rounded-full"]) {
+            border-radius: var(--btn-radius) !important;
+         }
+
+         .bg-blue-600, .bg-blue-500 {
+            background-color: var(--accent-color) !important;
+         }
+
+         .text-blue-400, .text-blue-500 {
+            color: var(--accent-color) !important;
+         }
+
+         .border-blue-500, .border-blue-600 {
+            border-color: var(--accent-color) !important;
+         }
+
+         .glass {
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius, 1.5rem);
+         }
+
+         header.glass {
+            background: var(--header-bg);
+            border-radius: 0 !important;
          }
 
          .sub-nav-link.active {
@@ -171,7 +225,7 @@
    </head>
    <body class="h-full">
       <!-- Sidebar -->
-      <aside id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out fixed inset-y-0 z-50 flex flex-col w-64 lg:w-64 glass border-r border-white/5 group group-[.collapsed]:w-20">
+      <aside id="pc-sidebar" style="width: var(--sidebar-width, 16rem);" class="sidebar transition-all duration-300 ease-in-out fixed inset-y-0 z-50 flex flex-col lg:w-64 glass border-r border-white/5 group group-[.collapsed]:!w-20">
          <div class="flex flex-col h-full">
             <!-- User Profile Section -->
             <% if (typeof user !== 'undefined' && user) { %>
@@ -408,7 +462,7 @@
       </aside>
 
       <!-- Main Layout -->
-      <div id="colcont" class="lg:pl-64 transition-all duration-300 ease-in-out group-[.collapsed]:pl-20">
+      <div id="colcont" style="padding-left: var(--sidebar-width, 16rem);" class="transition-all duration-300 ease-in-out group-[.collapsed]:!pl-20">
          <!-- Header -->
          <header class="sticky top-0 z-40 h-16 glass border-b border-white/5 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
