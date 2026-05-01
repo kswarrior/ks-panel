@@ -255,7 +255,6 @@ app.use(async (req, res, next) => {
     res.locals.notifications = req.user ? (await db.get(`notifications_${req.user.userId}`) || []) : [];
     res.locals.plugins = plugins;
     res.locals.theme = theme;
-    res.locals.userBalance = req.user ? (users.find(u => u.userId === req.user.userId)?.credits || 0) : 0;
 
     // Permission helper for EJS
     res.locals.hasPerm = (perm) => {
@@ -291,54 +290,6 @@ app.use(async (req, res, next) => {
   }
   next();
 });
-
-// --- Automated Renewal & Expiry Task ---
-setInterval(async () => {
-  try {
-    const billing = await db.get("billing_settings");
-    if (!billing || !billing.enabled) return;
-
-    const instances = await db.get("instances") || [];
-    const users = await db.get("users") || [];
-
-    for (const inst of instances) {
-      const instance = await db.get(`${inst.Id}_instance`);
-      if (!instance || !instance.expiresAt) continue;
-
-      const expiry = new Date(instance.expiresAt);
-      if (expiry < new Date()) {
-        // Expired! Try to renew automatically if user has credits
-        const userIdx = users.findIndex(u => u.userId === instance.User);
-        const cost = parseFloat(billing.renewalCost) || 10;
-        const interval = parseInt(billing.renewalInterval) || 30;
-        const unit = billing.renewalUnit || 'days';
-
-        let extensionMs = interval * 24 * 60 * 60 * 1000;
-        if (unit === 'hours') extensionMs = interval * 60 * 60 * 1000;
-        else if (unit === 'seconds') extensionMs = interval * 1000;
-
-        if (userIdx !== -1 && (users[userIdx].credits || 0) >= cost) {
-          // Auto-renew
-          users[userIdx].credits -= cost;
-          instance.expiresAt = new Date(Date.now() + extensionMs).toISOString();
-          instance.suspended = false;
-          await db.set(`${instance.Id}_instance`, instance);
-          log.info(`Auto-renewed instance ${instance.Id} for user ${users[userIdx].username}`);
-        } else {
-          // Suspend
-          if (!instance.suspended) {
-            instance.suspended = true;
-            await db.set(`${instance.Id}_instance`, instance);
-            log.warn(`Suspended instance ${instance.Id} due to expiration/insufficient credits`);
-          }
-        }
-      }
-    }
-    await db.set("users", users);
-  } catch (err) {
-    log.error("Renewal task error:", err);
-  }
-}, 60 * 60 * 1000); // Check every hour
 
 const routesDir = path.join(__dirname, "routes");
 function loadRoutes(directory) {

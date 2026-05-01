@@ -146,15 +146,6 @@
                 </span>
               </span>
 
-              <% if (instance.expiresAt) { %>
-                <% const daysLeft = Math.ceil((new Date(instance.expiresAt) - new Date()) / (1000 * 60 * 60 * 24)); %>
-                <div class="flex items-center gap-3">
-                  <span class="text-[10px] font-black uppercase tracking-widest <%= daysLeft <= 3 ? 'text-red-400 animate-pulse' : 'text-white/30' %>">
-                    Renew in <%= daysLeft %>d
-                  </span>
-                  <button onclick="event.stopPropagation(); renewInstance('<%= instance.Id %>')" class="bg-white/5 hover:bg-white/10 text-[9px] font-black text-white px-2 py-1 rounded-md border border-white/5 transition-all">RENEW</button>
-                </div>
-              <% } %>
             </div>
 
             <!-- Info Grid - Node, Docker, Volume -->
@@ -522,17 +513,4 @@
     });
   });
 
-  async function renewInstance(id) {
-    if (!confirm('Deduct credits to renew for 30 days?')) return;
-    try {
-      const res = await fetch(`/billing/renew/${id}`, { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        alert('Instance renewed successfully until ' + new Date(data.expiresAt).toLocaleDateString());
-        location.reload();
-      } else {
-        alert('Renewal failed: ' + (data.error || 'Insufficient funds'));
-      }
-    } catch(e) { alert('Network error'); }
-  }
 </script>

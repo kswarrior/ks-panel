@@ -209,18 +209,6 @@
                      </svg>
                      <span class="group-[.collapsed]:hidden">Support Tickets</span>
                   </a>
-                  <a href="/billing" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Billing & Shop</span>
-                  </a>
-                  <a href="/earn" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Earn Credits</span>
-                  </a>
                </div>
 
                <!-- Admin Section -->
@@ -244,13 +232,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                      </svg>
                      <span class="group-[.collapsed]:hidden"><%= req.translations.settings %></span>
-                  </a>
-
-                  <a href="/admin/settings/dashboard" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Dash & Economy</span>
                   </a>
                   <% } %>
 
@@ -386,18 +367,6 @@
 
             <!-- Top bar Actions -->
             <div class="flex items-center gap-1.5 sm:gap-4">
-               <!-- Wallet -->
-               <% if (typeof user !== 'undefined' && user) { %>
-               <a href="/billing" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-blue-500/10 border border-white/5 sm:border-blue-500/20 hover:bg-blue-500/20 transition-all group">
-                  <div class="p-1 rounded-md sm:rounded-lg bg-blue-600 shadow-md sm:shadow-lg shadow-blue-600/30 group-hover:scale-110 transition-transform hidden xs:flex">
-                     <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                  </div>
-                  <div class="flex items-baseline gap-0.5 sm:gap-1">
-                     <span class="text-[11px] sm:text-xs font-black text-white"><%= (typeof userBalance !== 'undefined' ? userBalance : 0).toFixed(1) %></span>
-                  </div>
-               </a>
-               <% } %>
-
                <!-- Notifications -->
                <div id="notif-link" class="relative group cursor-pointer p-2 rounded-lg hover:bg-white/5 transition-colors">
                   <div class="relative">

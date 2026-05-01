@@ -50,17 +50,16 @@ async function init() {
     log.info("Initialized KS Panel with ID: " + panelId);
   }
 
-  // Ensure default billing settings exist
-  const billing = await db.get("billing_settings");
-  if (!billing) {
-    await db.set("billing_settings", {
-      enabled: false,
-      renewalCost: 10,
-      defaultSlots: 3,
-      defaultRam: 1024,
-      defaultCpu: 100,
-      defaultDisk: 5120
-    });
+  // Ensure default settings exist
+  let settings = await db.get("settings");
+  if (!settings) settings = {};
+
+  if (!settings.defaultSlots) {
+    settings.defaultSlots = 3;
+    settings.defaultRam = 1024;
+    settings.defaultCpu = 100;
+    settings.defaultDisk = 5120;
+    await db.set("settings", settings);
   }
 
   log.info("KS Panel init complete!");
