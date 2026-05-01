@@ -327,11 +327,13 @@ pluginRoutes.events = events;                 // Inject events for hooks
 
 app.use("/", pluginRoutes);
 
-// Plugin views support (unchanged)
+// Plugin views support
 const pluginDir = path.join(__dirname, "plugins");
 const PluginViewsDir = fs
   .readdirSync(pluginDir)
-  .map((addonName) => path.join(pluginDir, addonName, "views"));
+  .filter(file => fs.statSync(path.join(pluginDir, file)).isDirectory())
+  .map((addonName) => path.join(pluginDir, addonName, "views"))
+  .filter(viewPath => fs.existsSync(viewPath));
 app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
 
 // ────────────────────────────────────────────────────────────────
