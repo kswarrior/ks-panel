@@ -284,14 +284,9 @@ router.post("/admin/settings/toggle/register", hasPermission('manage_settings'),
   }
 });
 
-// ====================== DASHBOARD SETTINGS ======================
+// ====================== RESOURCE SETTINGS ======================
 
-router.get("/admin/settings/dashboard", hasPermission('manage_settings'), async (req, res) => {
-  const settings = await db.get("settings") || {};
-  res.render("admin/settings/dashboard", { req, user: req.user, settings, pageType: "admin" });
-});
-
-router.post("/admin/settings/dashboard/update", hasPermission('manage_settings'), async (req, res) => {
+router.post("/admin/settings/resources/update", hasPermission('manage_settings'), async (req, res) => {
   const { defaultSlots, defaultRam, defaultCpu, defaultDisk } = req.body;
 
   const settings = await db.get("settings") || {};
@@ -301,7 +296,8 @@ router.post("/admin/settings/dashboard/update", hasPermission('manage_settings')
   settings.defaultDisk = parseInt(defaultDisk) || 5120;
 
   await db.set("settings", settings);
-  res.redirect("/admin/settings/dashboard?msg=SettingsUpdated");
+  logAudit(req.user.userId, req.user.username, "resources:edit", req.ip);
+  res.redirect("/admin/settings?msg=ResourcesUpdated");
 });
 
 module.exports = router;

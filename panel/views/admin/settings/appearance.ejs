@@ -7,7 +7,6 @@
     <p class="mt-2 text-sm text-neutral-400">Manage panel identity, branding, and registration behavior.</p>
   </div>
 
-  <%- include('../../components/settings') %>
 
   <div class="mx-4 sm:mx-6 lg:mx-8 mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
@@ -54,6 +53,47 @@
           </button>
         </form>
       </div>
+    </section>
+
+    <!-- Default Resource Limits -->
+    <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl flex flex-col gap-8 lg:col-span-2">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white">Default Instance Resources</h2>
+      </div>
+
+      <form action="/admin/settings/resources/update" method="POST" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Default Slots</label>
+            <input type="number" name="defaultSlots" value="<%= settings.defaultSlots || 3 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">RAM (MB)</label>
+            <input type="number" name="defaultRam" value="<%= settings.defaultRam || 1024 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">CPU (%)</label>
+            <input type="number" name="defaultCpu" value="<%= settings.defaultCpu || 100 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Disk (MB)</label>
+            <input type="number" name="defaultDisk" value="<%= settings.defaultDisk || 5120 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-4">
+          <button type="submit" class="px-8 py-3 bg-white text-black font-bold text-sm rounded-xl hover:bg-neutral-200 transition-all shadow-lg shadow-white/5 active:scale-95">
+            Save Resource Defaults
+          </button>
+        </div>
+      </form>
     </section>
 
     <!-- System Behavior -->
