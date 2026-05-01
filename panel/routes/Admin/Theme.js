@@ -15,13 +15,15 @@ const SYSTEM_DEFAULT_THEME = {
   '--btn-radius': '0.75rem',
   '--card-padding': '2rem',
   '--sidebar-width': '16rem',
-  '--font-family': "'Plus Jakarta Sans', sans-serif"
+  '--font-family': "'Plus Jakarta Sans', sans-serif",
+  'custom_css': ''
 };
 
 router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settings = (await db.get("settings")) || {};
     let theme = (await db.get("theme")) || {};
+    const themeLibrary = (await db.get("theme_library")) || [];
 
     // Ensure all variables are present
     theme = { ...SYSTEM_DEFAULT_THEME, ...theme };
@@ -30,7 +32,8 @@ router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req
       req,
       user: req.user,
       settings,
-      theme
+      theme,
+      themeLibrary
     });
   } catch (error) {
     log.error("Error loading theme settings:", error);
@@ -43,9 +46,10 @@ router.post("/admin/settings/theme/save", hasPermission('manage_settings'), asyn
     const themeData = req.body;
     let theme = (await db.get("theme")) || {};
 
-    // Only update allowed variables (starting with --)
+    // Only update allowed variables (starting with -- or specific fields)
+    const allowedFields = ['custom_css'];
     Object.keys(themeData).forEach(key => {
-      if (key.startsWith('--')) {
+      if (key.startsWith('--') || allowedFields.includes(key)) {
         theme[key] = themeData[key];
       }
     });
@@ -68,6 +72,101 @@ router.post("/admin/settings/theme/reset", hasPermission('manage_settings'), asy
   } catch (error) {
     log.error("Error resetting theme:", error);
     res.status(500).json({ error: "Reset failed" });
+  }
+});
+
+router.post("/admin/settings/theme/library/save", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { name } = req.body;
+    const currentTheme = (await db.get("theme")) || SYSTEM_DEFAULT_THEME;
+    const themeLibrary = (await db.get("theme_library")) || [];
+
+    const newTheme = {
+      id: Math.random().toString(36).substring(2, 11),
+      name: name || `Theme ${themeLibrary.length + 1}`,
+      config: currentTheme,
+      active: false
+    };
+
+    themeLibrary.push(newTheme);
+    await db.set("theme_library", themeLibrary);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save theme" });
+  }
+});
+
+router.post("/admin/settings/theme/library/activate", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id } = req.body;
+    const themeLibrary = (await db.get("theme_library")) || [];
+    const themeToActivate = themeLibrary.find(t => t.id === id);
+
+    if (!themeToActivate) return res.status(404).json({ error: "Theme not found" });
+
+    themeLibrary.forEach(t => t.active = (t.id === id));
+    await db.set("theme_library", themeLibrary);
+    await db.set("theme", themeToActivate.config);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to activate theme" });
+  }
+});
+
+router.post("/admin/settings/theme/library/delete", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id } = req.body;
+    let themeLibrary = (await db.get("theme_library")) || [];
+    themeLibrary = themeLibrary.filter(t => t.id !== id);
+    await db.set("theme_library", themeLibrary);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete theme" });
+  }
+});
+
+router.get("/admin/settings/theme/export/:id", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const themeLibrary = (await db.get("theme_library")) || [];
+    const theme = themeLibrary.find(t => t.id === id);
+
+    if (!theme) return res.status(404).send("Theme not found");
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=${theme.name.replace(/\s+/g, '_')}.json`);
+    res.send(JSON.stringify(theme.config, null, 2));
+  } catch (error) {
+    res.status(500).send("Export failed");
+  }
+});
+
+const multer = require('multer');
+const upload = multer();
+
+router.post("/admin/settings/theme/import", hasPermission('manage_settings'), upload.single('themeFile'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+    const themeConfig = JSON.parse(req.file.buffer.toString());
+    const themeLibrary = (await db.get("theme_library")) || [];
+
+    const newTheme = {
+      id: Math.random().toString(36).substring(2, 11),
+      name: req.file.originalname.replace('.json', '') || `Imported Theme ${themeLibrary.length + 1}`,
+      config: themeConfig,
+      active: false
+    };
+
+    themeLibrary.push(newTheme);
+    await db.set("theme_library", themeLibrary);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Import failed: " + error.message });
   }
 });
 
