@@ -38,7 +38,7 @@
          body {
             font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                        url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && (typeof pageType !== "undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
+                        url('<%= (typeof theme !=="undefined" && theme && theme.backgrounds && (typeof pageType !=="undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) ||"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -639,8 +639,22 @@
                   updateActiveIndicator(link);
                   matched = true;
 
+                  if (link.classList.contains('sub-nav-link')) {
+                     const subMenu = document.getElementById('settings-sub-menu');
+                     if (subMenu) {
+                        subMenu.classList.remove('hidden');
+                        document.getElementById('settings-arrow')?.classList.add('rotate-180');
+                     }
+                  }
                }
             });
+
+            window.toggleSettingsDropdown = function() {
+               const menu = document.getElementById('settings-sub-menu');
+               const arrow = document.getElementById('settings-arrow');
+               menu.classList.toggle('hidden');
+               arrow.classList.toggle('rotate-180');
+            };
 
             // --- Dropdowns Logic ---
             function setupDropdown(btnId, menuId) {

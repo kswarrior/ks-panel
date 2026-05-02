@@ -79,10 +79,10 @@
                
                <script>
                   function loginToWinSCP() {
-                      const username = "<%- loginData.username %>";
-                      const password = "<%- loginData.password %>";
-                      const hostname = "<%- loginData.host %>";
-                      const port = "<%- loginData.port %>";
+                      const username ="<%- loginData.username %>";
+                      const password ="<%- loginData.password %>";
+                      const hostname ="<%- loginData.host %>";
+                      const port ="<%- loginData.port %>";
           
                       const winscpUrl = `ftp://${username}:${password}@${hostname}:${port}`;
                       window.location.href = winscpUrl;

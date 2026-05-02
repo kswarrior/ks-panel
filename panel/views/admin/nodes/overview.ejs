@@ -534,7 +534,7 @@
     </section>
 
     <!-- Success Banners -->
-    <% if (req.query.err == "none") { %>
+    <% if (req.query.err =="none") { %>
     <div class="mt-6 sm:mt-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 sm:p-5 flex gap-3 sm:gap-4 items-start shadow-lg backdrop-blur-sm">
       <div class="flex-shrink-0 mt-0.5">
         <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -553,7 +553,7 @@
     </div>
     <% } %>
 
-    <% if (req.query.err == "EDITED") { %>
+    <% if (req.query.err =="EDITED") { %>
     <div class="mt-6 sm:mt-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 sm:p-5 flex gap-3 sm:gap-4 items-start shadow-lg backdrop-blur-sm">
       <div class="flex-shrink-0 mt-0.5">
         <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -581,9 +581,9 @@
           <div class="card-header">
             <div class="card-header-top">
               <div class="card-header-left">
-                <% if (node.status === "Online") { %>
+                <% if (node.status ==="Online") { %>
                   <span class="status-online"></span>
-                <% } else if (node.status === "Offline") { %>
+                <% } else if (node.status ==="Offline") { %>
                   <span class="status-offline"></span>
                 <% } else { %>
                   <span class="status-unknown"></span>

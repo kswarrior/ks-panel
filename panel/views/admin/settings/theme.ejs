@@ -7,35 +7,31 @@
           <h1 class="text-3xl font-black text-white tracking-tight">Interface Studio</h1>
           <p class="mt-2 text-sm text-neutral-400">Total visual control over the panel's glassmorphic architecture.</p>
        </div>
-       <div class="flex flex-wrap gap-3">
-          <button type="button" onclick="resetEditorToDefaults()" class="px-4 py-2 sm:px-5 sm:py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center gap-2">
-             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-             New Architecture
-          </button>
-          <button type="button" onclick="document.getElementById('importThemeInput').click()" class="px-4 py-2 sm:px-5 sm:py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center gap-2">
+       <div class="flex flex-wrap gap-2 sm:gap-3">
+          <button type="button" onclick="document.getElementById('importThemeInput').click()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-             Import
+             Upload
           </button>
           <input type="file" id="importThemeInput" class="hidden" accept=".json" onchange="importTheme(this)">
-          <button type="button" onclick="toggleEditor()" class="px-4 py-2 sm:px-5 sm:py-3 rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
-             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-             Snapshot
+          <button type="button" onclick="toggleEditor()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+             Create
           </button>
        </div>
     </div>
   </div>
 
-  <div class="mx-4 sm:mx-6 lg:mx-8 mt-8">
+  <div class="mx-2 sm:mx-6 lg:mx-8 mt-4 sm:mt-8">
     <!-- Theme Library -->
-    <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl mb-8">
-       <div class="flex items-center gap-3 mb-8">
-         <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
-           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+    <section class="glass p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/5 shadow-2xl mb-6 sm:mb-8">
+       <div class="flex items-center gap-3 mb-4 sm:mb-8">
+         <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
          </div>
-         <h2 class="text-xl font-bold text-white">Architectural Library</h2>
+         <h2 class="text-lg sm:text-xl font-bold text-white">Architectural Library</h2>
        </div>
 
-       <div id="theme-library-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+       <div id="theme-library-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <!-- Dynamic Theme Cards -->
           <% if (typeof themeLibrary !== 'undefined' && themeLibrary.length > 0) { %>
              <% themeLibrary.forEach(t => { %>
@@ -46,12 +42,9 @@
                          <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[8px] font-black uppercase tracking-widest border border-blue-500/30">Active</span>
                       <% } %>
                    </div>
-                   <div class="flex flex-wrap gap-2">
-                      <button onclick="activateTheme('<%= t.id %>')" class="flex-1 min-w-[60px] py-2 rounded-lg bg-blue-500/10 text-[10px] font-bold text-blue-400 hover:bg-blue-500 hover:text-white transition-all">Deploy</button>
-                      <button onclick="loadThemeForEdit('<%= JSON.stringify(t.config).replace(/'/g, "\\'") %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Edit Architecture">
-                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                      </button>
-                      <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Download JSON">
+                   <div class="flex gap-2">
+                      <button onclick="activateTheme('<%= t.id %>')" class="flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Deploy</button>
+                      <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                       </button>
                       <button onclick="deleteTheme('<%= t.id %>')" class="p-2 rounded-lg bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Purge">
@@ -136,10 +129,10 @@
            <div class="space-y-2">
               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">System Font Family</label>
               <select name="--font-family" onchange="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all appearance-none cursor-pointer">
-                 <option value="'Plus Jakarta Sans', sans-serif" <%= theme['--font-family'] === "'Plus Jakarta Sans', sans-serif" ? 'selected' : '' %>>Plus Jakarta (Default)</option>
-                 <option value="Inter, sans-serif" <%= theme['--font-family'] === "Inter, sans-serif" ? 'selected' : '' %>>Inter</option>
-                 <option value="'JetBrains Mono', monospace" <%= theme['--font-family'] === "'JetBrains Mono', monospace" ? 'selected' : '' %>>JetBrains Mono</option>
-                 <option value="system-ui, sans-serif" <%= theme['--font-family'] === "system-ui, sans-serif" ? 'selected' : '' %>>System UI</option>
+                 <option value="'Plus Jakarta Sans', sans-serif" <%= theme['--font-family'] ==="'Plus Jakarta Sans', sans-serif" ? 'selected' : '' %>>Plus Jakarta (Default)</option>
+                 <option value="Inter, sans-serif" <%= theme['--font-family'] ==="Inter, sans-serif" ? 'selected' : '' %>>Inter</option>
+                 <option value="'JetBrains Mono', monospace" <%= theme['--font-family'] ==="'JetBrains Mono', monospace" ? 'selected' : '' %>>JetBrains Mono</option>
+                 <option value="system-ui, sans-serif" <%= theme['--font-family'] ==="system-ui, sans-serif" ? 'selected' : '' %>>System UI</option>
               </select>
            </div>
         </div>
@@ -275,95 +268,12 @@
 </main>
 
 <script>
-  const DEFAULT_CONFIG = <%- JSON.stringify(SYSTEM_DEFAULT_THEME) %>;
-
   function toggleEditor() {
     const form = document.getElementById('themeForm');
     form.classList.toggle('hidden');
     if (!form.classList.contains('hidden')) {
       form.scrollIntoView({ behavior: 'smooth' });
     }
-  }
-
-  function resetEditorToDefaults() {
-    loadThemeForEdit(JSON.stringify(DEFAULT_CONFIG));
-  }
-
-  function loadThemeForEdit(themeJson) {
-    const config = JSON.parse(themeJson);
-    const form = document.getElementById('themeForm');
-
-    // Clear and fill form fields
-    Object.entries(config).forEach(([key, value]) => {
-      const input = form.querySelector(`[name="${key}"]`);
-      const hidden = form.querySelector(`input[type="hidden"][name="${key}"]`);
-
-      if (input) {
-        if (input.tagName === 'SELECT' || input.type === 'color' || input.tagName === 'TEXTAREA') {
-          input.value = value;
-          if (input.type === 'color') {
-             // If it's a transparency color, we need to update the picker too
-             // but our system uses pickers without names and hidden fields for rgba
-          }
-        }
-      }
-
-      if (hidden) {
-        hidden.value = value;
-      }
-    });
-
-    // Special handling for RGBA pickers
-    const rgbaVars = [
-      { id: 'sidebar-bg-picker', var: '--sidebar-bg' },
-      { id: 'header-bg-picker', var: '--header-bg' },
-      { id: 'border-picker', var: '--glass-border' }
-    ];
-
-    rgbaVars.forEach(p => {
-      const val = config[p.var];
-      if (val && val.startsWith('rgba')) {
-        const parts = val.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
-        if (parts) {
-          const r = parseInt(parts[1]).toString(16).padStart(2, '0');
-          const g = parseInt(parts[2]).toString(16).padStart(2, '0');
-          const b = parseInt(parts[3]).toString(16).padStart(2, '0');
-          document.getElementById(p.id).value = `#${r}${g}${b}`;
-          document.getElementById('alpha-slider').value = parts[4];
-        }
-      }
-    });
-
-    // Special handling for ranges
-    const rangeVars = [
-      { var: '--sidebar-width', unit: 'rem' },
-      { var: '--card-padding', unit: 'rem' },
-      { var: '--card-radius', unit: 'rem' },
-      { var: '--btn-radius', unit: 'rem' },
-      { var: '--glass-blur', unit: 'px' }
-    ];
-
-    rangeVars.forEach(p => {
-      const val = config[p.var];
-      if (val) {
-        const num = parseFloat(val);
-        const slider = form.querySelector(`input[type="range"][oninput*="${p.var}"]`);
-        if (slider) {
-          slider.value = num;
-          document.getElementById(p.var.substring(2) + '-val').textContent = val;
-        }
-      }
-    });
-
-    // Final global update
-    Object.keys(config).forEach(key => {
-      if (key.startsWith('--')) {
-        document.documentElement.style.setProperty(key, config[key]);
-      }
-    });
-
-    form.classList.remove('hidden');
-    form.scrollIntoView({ behavior: 'smooth' });
   }
 
   function updatePreview(input) {

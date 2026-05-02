@@ -732,7 +732,7 @@ function initSearchableSelects() {
       removeItemButton: false,
     });
     choiceInstances[el.id || el.name] = instance;
-    el.dataset.choicesInit = "true";
+    el.dataset.choicesInit ="true";
   });
 }
 
@@ -754,17 +754,17 @@ async function addCategory() {
       choiceInstances['meta-category'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
       showNotification("Category added!");
     } else {
-      showNotification(data.error || "Failed to add category", "error");
+      showNotification(data.error ||"Failed to add category","error");
     }
   } catch (e) {
-    showNotification("Network error", "error");
+    showNotification("Network error","error");
   }
 }
 
 async function deleteCategory() {
   const select = document.getElementById('meta-category');
   const name = select.value;
-  if (!name || !confirm(`Delete category "${name}"?`)) return;
+  if (!name || !confirm(`Delete category"${name}"?`)) return;
 
   try {
     const res = await fetch('/admin/templates/category', {
@@ -779,14 +779,14 @@ async function deleteCategory() {
       showNotification("Category deleted");
     }
   } catch (e) {
-    showNotification("Delete failed", "error");
+    showNotification("Delete failed","error");
   }
 }
 
 async function deleteType() {
   const select = document.getElementById('meta-type');
   const name = select.value;
-  if (!name || !confirm(`Delete type "${name}"?`)) return;
+  if (!name || !confirm(`Delete type"${name}"?`)) return;
 
   try {
     const res = await fetch('/admin/templates/type', {
@@ -801,7 +801,7 @@ async function deleteType() {
       showNotification("Type deleted");
     }
   } catch (e) {
-    showNotification("Delete failed", "error");
+    showNotification("Delete failed","error");
   }
 }
 
@@ -821,10 +821,10 @@ async function addType() {
       choiceInstances['meta-type'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
       showNotification("Template Type added!");
     } else {
-      showNotification(data.error || "Failed to add type", "error");
+      showNotification(data.error ||"Failed to add type","error");
     }
   } catch (e) {
-    showNotification("Network error", "error");
+    showNotification("Network error","error");
   }
 }
 
@@ -856,7 +856,7 @@ function removeAndReindex(btn, listType) {
 
 // ====================== NOTIFICATION ======================
 function hideForm() {
-  window.location.href = "/admin/templates/overview";
+  window.location.href ="/admin/templates/overview";
 }
 
 function showNotification(message, type = 'success') {
@@ -885,7 +885,7 @@ const jsonEditor = document.getElementById("jsonEditor");
 const submitSection = document.getElementById("submitSection");
 
 modeSelect.onchange = () => {
-  const isJson = modeSelect.value === "json";
+  const isJson = modeSelect.value ==="json";
 
   if (isJson) {
     // Hide visual form, show JSON
@@ -899,7 +899,7 @@ modeSelect.onchange = () => {
     try { 
       jsonEditor.value = JSON.stringify(collectFormData(), null, 2); 
     } catch(e) {
-      jsonEditor.value = "{}";
+      jsonEditor.value ="{}";
     }
   } else {
     // Show visual form, hide JSON + LOAD JSON INTO FORM (this was the missing part)
@@ -911,28 +911,28 @@ modeSelect.onchange = () => {
     jsonArea.classList.add("tf-hidden");
 
     try {
-      const parsed = JSON.parse(jsonEditor.value.trim() || "{}");
+      const parsed = JSON.parse(jsonEditor.value.trim() ||"{}");
       fillForm(parsed);
       if (!isInitialLoad) {
-        showNotification("✅ JSON loaded into visual form", "success");
+        showNotification("✅ JSON loaded into visual form","success");
       }
     } catch (e) {
-      showNotification("Invalid JSON! Fix it before switching to Visual Form.", "error");
-      modeSelect.value = "json"; // stay in JSON mode
+      showNotification("Invalid JSON! Fix it before switching to Visual Form.","error");
+      modeSelect.value ="json"; // stay in JSON mode
       return;
     }
     isInitialLoad = false;
   }
-  submitSection.style.display = "flex";
+  submitSection.style.display ="flex";
 };
 
 // ====================== VARIABLE TYPES ======================
 const variableTypes = [
-  { value: "string", label: "String" },
-  { value: "integer", label: "Integer" },
-  { value: "number", label: "Number" },
-  { value: "boolean", label: "Boolean" },
-  { value: "option", label: "Option (Dropdown)" }
+  { value:"string", label:"String" },
+  { value:"integer", label:"Integer" },
+  { value:"number", label:"Number" },
+  { value:"boolean", label:"Boolean" },
+  { value:"option", label:"Option (Dropdown)" }
 ];
 
 // ====================== ADD OPTION ITEM ======================
@@ -941,7 +941,7 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
   if (!container) return;
 
   const div = document.createElement("div");
-  div.className = "tf-sub-item";
+  div.className ="tf-sub-item";
   div.innerHTML = `
     <div class="flex justify-between items-center mb-2">
       <span class="text-xs font-medium text-neutral-400">Option #${optIdx + 1}</span>
@@ -965,7 +965,7 @@ function addOptionItem(varIdx, optIdx, optData = {}) {
 function addVariable(v = {}) {
   const idx = varIndex++;
   const div = document.createElement("div");
-  div.className = "tf-card";
+  div.className ="tf-card";
   div.innerHTML = `
     <div class="tf-row">
       <div class="tf-field-long">
@@ -986,8 +986,8 @@ function addVariable(v = {}) {
       <div class="tf-field-short">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">User Editable</label>
         <select name="variables[${idx}].user_editable" class="tf-input">
-          <option value="true" ${v.user_editable !== "false" ? "selected" : ""}>Yes</option>
-          <option value="false" ${v.user_editable === "false" ? "selected" : ""}>No</option>
+          <option value="true" ${v.user_editable !=="false" ?"selected" :""}>Yes</option>
+          <option value="false" ${v.user_editable ==="false" ?"selected" :""}>No</option>
         </select>
       </div>
     </div>
@@ -996,7 +996,7 @@ function addVariable(v = {}) {
       <div class="tf-field-short">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type <span class="text-red-400">*</span></label>
         <select name="variables[${idx}].type" class="tf-input var-type-select" data-idx="${idx}">
-          ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+          ${variableTypes.map(t => `<option value="${t.value}" ${v.type === t.value ?"selected" :""}>${t.label}</option>`).join("")}
         </select>
       </div>
       <div id="default-section-${idx}" class="tf-field-long">
@@ -1023,7 +1023,7 @@ function addVariable(v = {}) {
   const optionsList = document.getElementById(`options-list-${idx}`);
 
   function toggleFields() {
-    const isOption = typeSelect.value === "option";
+    const isOption = typeSelect.value ==="option";
     defaultSection.classList.toggle("tf-hidden", isOption);
     optionsSection.classList.toggle("tf-hidden", !isOption);
   }
@@ -1035,7 +1035,7 @@ function addVariable(v = {}) {
     addOptionItem(idx, optIdx);
   };
 
-  if (v.type === "option") {
+  if (v.type ==="option") {
     optionsSection.classList.remove("tf-hidden");
     if (Array.isArray(v.options)) {
       v.options.forEach((opt, i) => addOptionItem(idx, i, opt));
@@ -1046,40 +1046,40 @@ function addVariable(v = {}) {
 
 // ====================== ITEM TYPES & FIELD CONFIGS ======================
 const itemTypes = [
-  { value: "command", label: "Run Shell Command" },
-  { value: "download", label: "Download File" },
-  { value: "git_clone", label: "Git Clone" },
-  { value: "create_file", label: "Create File" },
-  { value: "unzip", label: "Unzip Archive" },
-  { value: "mkdir", label: "Create Directory" },
-  { value: "chmod", label: "Change Permissions" }
+  { value:"command", label:"Run Shell Command" },
+  { value:"download", label:"Download File" },
+  { value:"git_clone", label:"Git Clone" },
+  { value:"create_file", label:"Create File" },
+  { value:"unzip", label:"Unzip Archive" },
+  { value:"mkdir", label:"Create Directory" },
+  { value:"chmod", label:"Change Permissions" }
 ];
 
 const fieldConfigs = {
-  command: [{ key: "run_code", label: "Shell Script", type: "textarea", rows: 6, placeholder: "#!/bin/bash\necho 'Hello World'" }],
+  command: [{ key:"run_code", label:"Shell Script", type:"textarea", rows: 6, placeholder:"#!/bin/bash\necho 'Hello World'" }],
   download: [
-    { key: "url", label: "URL", type: "text", placeholder: "https://example.com/file.zip" },
-    { key: "filename", label: "Filename", type: "text", placeholder: "file.zip" },
-    { key: "path", label: "Save Path", type: "text", placeholder: "/data" }
+    { key:"url", label:"URL", type:"text", placeholder:"https://example.com/file.zip" },
+    { key:"filename", label:"Filename", type:"text", placeholder:"file.zip" },
+    { key:"path", label:"Save Path", type:"text", placeholder:"/data" }
   ],
   git_clone: [
-    { key: "repo", label: "Repository URL", type: "text", placeholder: "https://github.com/user/repo.git" },
-    { key: "path", label: "Clone Path", type: "text", placeholder: "/app" },
-    { key: "branch", label: "Branch", type: "text", placeholder: "main" }
+    { key:"repo", label:"Repository URL", type:"text", placeholder:"https://github.com/user/repo.git" },
+    { key:"path", label:"Clone Path", type:"text", placeholder:"/app" },
+    { key:"branch", label:"Branch", type:"text", placeholder:"main" }
   ],
   create_file: [
-    { key: "filename", label: "Filename", type: "text", placeholder: "config.yml" },
-    { key: "path", label: "Path", type: "text", placeholder: "/data" },
-    { key: "content", label: "Content", type: "textarea", rows: 6, placeholder: "key: value" }
+    { key:"filename", label:"Filename", type:"text", placeholder:"config.yml" },
+    { key:"path", label:"Path", type:"text", placeholder:"/data" },
+    { key:"content", label:"Content", type:"textarea", rows: 6, placeholder:"key: value" }
   ],
   unzip: [
-    { key: "source", label: "Source Archive", type: "text", placeholder: "archive.zip" },
-    { key: "destination", label: "Extract To", type: "text", placeholder: "/data" }
+    { key:"source", label:"Source Archive", type:"text", placeholder:"archive.zip" },
+    { key:"destination", label:"Extract To", type:"text", placeholder:"/data" }
   ],
-  mkdir: [{ key: "path", label: "Directory Path", type: "text", placeholder: "/data/backups" }],
+  mkdir: [{ key:"path", label:"Directory Path", type:"text", placeholder:"/data/backups" }],
   chmod: [
-    { key: "target", label: "Target", type: "text", placeholder: "/data/server.jar" },
-    { key: "mode", label: "Permissions", type: "text", placeholder: "755" }
+    { key:"target", label:"Target", type:"text", placeholder:"/data/server.jar" },
+    { key:"mode", label:"Permissions", type:"text", placeholder:"755" }
   ]
 };
 
@@ -1091,8 +1091,8 @@ function renderSubDynamicFields(mainIdx, subIdx, type, data = {}, prefix) {
   
   let html = `<div class="tf-row mt-3">`;
   config.forEach(f => {
-    const val = data[f.key] || "";
-    const isTextarea = f.type === "textarea";
+    const val = data[f.key] ||"";
+    const isTextarea = f.type ==="textarea";
     html += `
       <div class="${isTextarea ? 'tf-field-long' : 'tf-field-short'}">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">${f.label}</label>
@@ -1111,7 +1111,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   opsContainer.dataset.subCount = subIdx + 1;
 
   const div = document.createElement("div");
-  div.className = "tf-sub-item";
+  div.className ="tf-sub-item";
   div.innerHTML = `
     <div class="flex justify-between items-center mb-2">
       <span class="text-xs font-medium text-neutral-400">Operation #${subIdx + 1}</span>
@@ -1121,7 +1121,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
       <div class="tf-field-short">
         <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Type <span class="text-red-400">*</span></label>
         <select name="${prefix}[${mainIdx}].operations[${subIdx}].type" class="tf-input sub-type-select" data-main="${mainIdx}" data-sub="${subIdx}">
-          ${itemTypes.map(t => `<option value="${t.value}" ${subData.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+          ${itemTypes.map(t => `<option value="${t.value}" ${subData.type === t.value ?"selected" :""}>${t.label}</option>`).join("")}
         </select>
       </div>
       <div class="tf-field-long dynamic-sub" id="dynamic-sub-${prefix}-${mainIdx}-${subIdx}"></div>
@@ -1129,7 +1129,7 @@ function addSubOperation(opsContainer, prefix, mainIdx, subData = {}) {
   `;
   opsContainer.appendChild(div);
 
-  const defaultType = subData.type || "command";
+  const defaultType = subData.type ||"command";
   const select = div.querySelector(".sub-type-select");
   select.value = defaultType;
   renderSubDynamicFields(mainIdx, subIdx, defaultType, subData, prefix);
@@ -1337,7 +1337,7 @@ const coreTemplates = {
 function addAction(a = {}) {
   const idx = actionIndex++;
   const div = document.createElement("div");
-  div.className = "tf-card";
+  div.className ="tf-card";
   div.innerHTML = `
     <div class="tf-row">
       <div class="tf-field-short">
@@ -1361,16 +1361,16 @@ function addAction(a = {}) {
   document.getElementById("actionsContainer").appendChild(div);
 
   const opsContainer = div.querySelector(`#ops-actions-${idx}`);
-  const ops = a.operations || [{ type: "command", run_code: "echo 'Action started'" }];
-  ops.forEach(op => addSubOperation(opsContainer, "actions", idx, op));
+  const ops = a.operations || [{ type:"command", run_code:"echo 'Action started'" }];
+  ops.forEach(op => addSubOperation(opsContainer,"actions", idx, op));
 
-  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "actions", idx);
+  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer,"actions", idx);
 }
 
 function addInstallStep(s = {}) {
   const idx = installIndex++;
   const div = document.createElement("div");
-  div.className = "tf-card";
+  div.className ="tf-card";
   div.innerHTML = `
     <div class="tf-row">
       <div class="tf-field-long">
@@ -1390,10 +1390,10 @@ function addInstallStep(s = {}) {
   document.getElementById("installStepsContainer").appendChild(div);
 
   const opsContainer = div.querySelector(`#ops-install-${idx}`);
-  const ops = s.operations || [{ type: "command", run_code: "echo 'Installing...'" }];
-  ops.forEach(op => addSubOperation(opsContainer, "install_steps", idx, op));
+  const ops = s.operations || [{ type:"command", run_code:"echo 'Installing...'" }];
+  ops.forEach(op => addSubOperation(opsContainer,"install_steps", idx, op));
 
-  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer, "install_steps", idx);
+  div.querySelector(".add-op-btn").onclick = () => addSubOperation(opsContainer,"install_steps", idx);
 }
 
 // ====================== CUSTOM PAGES (FIXED - no escaping) ======================
@@ -1452,7 +1452,7 @@ function addPage(p = {}) {
       }
     }
   } else {
-    div.className = "tf-card tf-page-card group";
+    div.className ="tf-card tf-page-card group";
     div.innerHTML = `
       <div class="tf-row">
         <div class="tf-field-short">
@@ -1525,14 +1525,14 @@ function collectFormData() {
     actions: [], 
     pages: [], 
     features: {},
-    category: "" 
+    category:""
   };
 
   for (let [key, value] of fd) {
     if (key.startsWith("meta.")) {
       data.meta[key.split(".")[1]] = value;
     }
-    else if (key === "category") {
+    else if (key ==="category") {
       data.category = value;
     }
     else if (key.startsWith("environment.limits.")) {
@@ -1541,13 +1541,13 @@ function collectFormData() {
     else if (key.startsWith("environment.feature_limits.")) {
        data.environment.feature_limits[key.split("feature_limits.")[1]] = parseInt(value) || 0;
     }
-    else if (key === "environment.docker_image") {
+    else if (key ==="environment.docker_image") {
       data.environment.docker_image = value;
     }
-    else if (key === "environment.instance_type") {
+    else if (key ==="environment.instance_type") {
       data.environment.instance_type = value;
     }
-    else if (key === "environment.start_code") {
+    else if (key ==="environment.start_code") {
       data.environment.start_code = value;
     }
     else if (key.startsWith("variables[")) {
@@ -1572,14 +1572,14 @@ function collectFormData() {
       const opMatch = key.match(/actions\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
-        if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+        if (!data.actions[i]) data.actions[i] = { id:"", name:"", operations: [] };
         if (!data.actions[i].operations[j]) data.actions[i].operations[j] = {};
         data.actions[i].operations[j][opMatch[3]] = value;
       } else {
         const simpleMatch = key.match(/actions\[(\d+)\]\.(.+)/);
         if (simpleMatch) {
           const i = parseInt(simpleMatch[1]);
-          if (!data.actions[i]) data.actions[i] = { id: "", name: "", operations: [] };
+          if (!data.actions[i]) data.actions[i] = { id:"", name:"", operations: [] };
           data.actions[i][simpleMatch[2]] = value;
         }
       }
@@ -1588,14 +1588,14 @@ function collectFormData() {
       const opMatch = key.match(/install_steps\[(\d+)\]\.operations\[(\d+)\]\.(.+)/);
       if (opMatch) {
         const i = parseInt(opMatch[1]), j = parseInt(opMatch[2]);
-        if (!data.install_steps[i]) data.install_steps[i] = { name: "", operations: [] };
+        if (!data.install_steps[i]) data.install_steps[i] = { name:"", operations: [] };
         if (!data.install_steps[i].operations[j]) data.install_steps[i].operations[j] = {};
         data.install_steps[i].operations[j][opMatch[3]] = value;
       } else {
         const simpleMatch = key.match(/install_steps\[(\d+)\]\.(.+)/);
         if (simpleMatch) {
           const i = parseInt(simpleMatch[1]);
-          if (!data.install_steps[i]) data.install_steps[i] = { name: "", operations: [] };
+          if (!data.install_steps[i]) data.install_steps[i] = { name:"", operations: [] };
           data.install_steps[i][simpleMatch[2]] = value;
         }
       }
@@ -1639,15 +1639,15 @@ function collectFormData() {
 function fillForm(data) { 
   // Robust field mapping for old templates
   const meta = data.meta || {};
-  document.querySelector('[name="meta.name"]').value = meta.name || data.name || "";
-  document.querySelector('[name="meta.display_name"]').value = meta.display_name || meta.name || data.name || "";
-  document.querySelector('[name="meta.description"]').value = meta.description || data.description || "";
-  document.querySelector('[name="category"]').value = data.category || "";
+  document.querySelector('[name="meta.name"]').value = meta.name || data.name ||"";
+  document.querySelector('[name="meta.display_name"]').value = meta.display_name || meta.name || data.name ||"";
+  document.querySelector('[name="meta.description"]').value = meta.description || data.description ||"";
+  document.querySelector('[name="category"]').value = data.category ||"";
 
   const env = data.environment || {};
-  document.querySelector('[name="environment.instance_type"]').value = env.instance_type || "docker";
-  document.querySelector('[name="environment.docker_image"]').value = env.docker_image || data.docker_image || data.image || "";
-  document.querySelector('[name="environment.start_code"]').value = env.start_code || data.startup || "";
+  document.querySelector('[name="environment.instance_type"]').value = env.instance_type ||"docker";
+  document.querySelector('[name="environment.docker_image"]').value = env.docker_image || data.docker_image || data.image ||"";
+  document.querySelector('[name="environment.start_code"]').value = env.start_code || data.startup ||"";
 
   // Fill limits with fallbacks
   const limits = env.limits || data.limits || {};
@@ -1686,25 +1686,25 @@ function fillForm(data) {
     });
   }
 
-  document.getElementById("variablesContainer").innerHTML = "";
+  document.getElementById("variablesContainer").innerHTML ="";
   varIndex = 0;
   let vars = data.variables || [];
   if (vars && !Array.isArray(vars)) vars = Object.entries(vars).map(([id, v]) => ({ id, ...v }));
   (vars || []).forEach(v => addVariable(v));
 
-  document.getElementById("actionsContainer").innerHTML = "";
+  document.getElementById("actionsContainer").innerHTML ="";
   actionIndex = 0;
   let actions = data.actions || [];
   if (actions && !Array.isArray(actions)) actions = Object.entries(actions).map(([id, a]) => ({ id, ...a }));
   (actions || []).forEach(a => addAction(a));
 
-  document.getElementById("installStepsContainer").innerHTML = "";
+  document.getElementById("installStepsContainer").innerHTML ="";
   installIndex = 0;
   let installSteps = data.install_steps || (data.environment && data.environment.install_steps) || [];
   if (installSteps && !Array.isArray(installSteps)) installSteps = Object.values(installSteps);
   (installSteps || []).forEach(s => addInstallStep(s));
 
-  document.getElementById("pagesContainer").innerHTML = "";
+  document.getElementById("pagesContainer").innerHTML ="";
   pageIndex = 0;
   (data.pages || []).forEach(p => addPage(p));
 
@@ -1715,32 +1715,32 @@ function fillForm(data) {
 const handleSave = async () => {
   let payload;
   try {
-    payload = modeSelect.value === "json" ? JSON.parse(jsonEditor.value) : collectFormData();
+    payload = modeSelect.value ==="json" ? JSON.parse(jsonEditor.value) : collectFormData();
   } catch(e) {
-    showNotification("Invalid JSON format!", "error");
+    showNotification("Invalid JSON format!","error");
     return;
   }
 
   const filename = document.getElementById("hiddenFilename").value;
   const url = `/admin/templates/${filename}`;
-  const method = "PUT";
+  const method ="PUT";
 
   try {
     const res = await fetch(url, {
       method,
-      headers: {"Content-Type": "application/json"},
+      headers: {"Content-Type":"application/json"},
       body: JSON.stringify(payload)
     });
 
     if (res.ok) {
-      showNotification("✅ Template updated successfully!", "success");
-      setTimeout(() => window.location.href = "/admin/templates/overview", 1200);
+      showNotification("✅ Template updated successfully!","success");
+      setTimeout(() => window.location.href ="/admin/templates/overview", 1200);
     } else {
       const err = await res.text();
-      showNotification("Error: " + err.substring(0, 100), "error");
+      showNotification("Error:" + err.substring(0, 100),"error");
     }
   } catch (err) {
-    showNotification("Network error!", "error");
+    showNotification("Network error!","error");
   }
 };
 
@@ -1759,8 +1759,8 @@ document.getElementById("btnAddPage").onclick = () => addPage();
 // ====================== IMPORT JSON ======================
 document.getElementById("btnImportJson").onclick = () => {
   const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json,application/json";
+  input.type ="file";
+  input.accept =".json,application/json";
   input.onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1770,9 +1770,9 @@ document.getElementById("btnImportJson").onclick = () => {
       try {
         const data = JSON.parse(ev.target.result);
         fillForm(data);
-        showNotification("JSON imported successfully!", "success");
+        showNotification("JSON imported successfully!","success");
       } catch(e) {
-        showNotification("Invalid JSON file!", "error");
+        showNotification("Invalid JSON file!","error");
       }
     };
     reader.readAsText(file);
@@ -1806,7 +1806,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ====================== INIT + LOAD TEMPLATE.JSON ======================
 const templateData = <%= JSON.stringify(template) %>;
 fillForm(templateData);
-modeSelect.value = "form";
+modeSelect.value ="form";
 modeSelect.onchange();
 </script>
 

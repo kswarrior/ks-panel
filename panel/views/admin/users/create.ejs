@@ -96,17 +96,17 @@
       email: document.getElementById("email").value.trim(),
       password: document.getElementById("userPass").value,
       roleId: document.getElementById("userRole").value,
-      verified: document.getElementById("userVerified").value === "true"
+      verified: document.getElementById("userVerified").value ==="true"
     };
 
     if(!data.username || !data.email || !data.password) return alert('All fields are required.');
 
     fetch("/users/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method:"POST",
+      headers: {"Content-Type":"application/json" },
       body: JSON.stringify(data),
     })
-    .then(res => res.ok ? (alert('User created successfully!'), window.location.href = "/admin/users") : alert('Creation failed.'))
+    .then(res => res.ok ? (alert('User created successfully!'), window.location.href ="/admin/users") : alert('Creation failed.'))
     .catch(err => alert('Error: ' + err.message));
   });
 </script>

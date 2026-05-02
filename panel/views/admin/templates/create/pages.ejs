@@ -414,15 +414,15 @@
 <script>
 function confirmRemoval(btn) {
   const target = btn.classList.contains('tf-remove-btn') || btn.parentElement.classList.contains('tf-card') ? btn.closest('.tf-card') : btn.parentElement;
-  if (btn.dataset.confirmed === "true") {
+  if (btn.dataset.confirmed ==="true") {
     target.remove();
   } else {
-    btn.dataset.confirmed = "true";
+    btn.dataset.confirmed ="true";
     const oldHtml = btn.innerHTML;
-    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.innerHTML ="<span class='text-[10px] font-bold'>CONFIRM?</span>";
     btn.classList.add('text-red-500');
     setTimeout(() => {
-      btn.dataset.confirmed = "false";
+      btn.dataset.confirmed ="false";
       btn.innerHTML = oldHtml;
       btn.classList.remove('text-red-500');
     }, 3000);

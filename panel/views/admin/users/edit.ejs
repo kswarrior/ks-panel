@@ -106,15 +106,15 @@
       email: document.getElementById("email").value.trim(),
       password: document.getElementById("userPass").value,
       roleId: document.getElementById("userRole").value,
-      verified: document.getElementById("userVerified").value === "true"
+      verified: document.getElementById("userVerified").value ==="true"
     };
 
     fetch(window.location.href, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method:"POST",
+      headers: {"Content-Type":"application/json" },
       body: JSON.stringify(data),
     })
-    .then(res => res.ok ? (alert('Profile updated successfully!'), window.location.href = "/admin/users") : alert('Update failed.'))
+    .then(res => res.ok ? (alert('Profile updated successfully!'), window.location.href ="/admin/users") : alert('Update failed.'))
     .catch(err => alert('Error: ' + err.message));
   });
 </script>
