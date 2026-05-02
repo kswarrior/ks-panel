@@ -1,5 +1,5 @@
 <%- include('../components/template') %>
-<main id="content">
+<main id="content" class="animate-fade-in">
   <div class="bg-transparent pb-2">
     <div class="sm:flex sm:items-center px-8 pt-4">
       <div class="sm:flex-auto">
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <% if (req.query.err == "none") { %>
+    <% if (req.query.err =="none") { %>
     <div class="mt-6 w-full">
       <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
         <div class="flex">
@@ -74,7 +74,7 @@
       </div>
     <% } %>
 
-    <% if (req.query.err == "EDITED") { %>
+    <% if (req.query.err =="EDITED") { %>
       <div class="mt-6 w-full">
         <div class="rounded-xl bg-emerald-800/10 px-4 py-6 mt-8 ml-8 mb-8 mr-8">
           <div class="flex">
@@ -110,12 +110,12 @@
               <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                 <div class="flex items-center">
                   <div class="mr-5">
-                    <% if (node.status == "Online") { %>
+                    <% if (node.status =="Online") { %>
                       <span class="flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
-                    <% } else if (node.status == "Offline") { %>
+                    <% } else if (node.status =="Offline") { %>
                       <span class="flex h-2 w-2">
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-neutral-500"></span>
                       </span>

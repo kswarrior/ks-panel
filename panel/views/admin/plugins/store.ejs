@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const minPriceContainer = document.getElementById("minPriceContainer");
 
   priceFilter.addEventListener("change", () => {
-    minPriceContainer.classList.toggle("hidden", priceFilter.value !== "limit");
+    minPriceContainer.classList.toggle("hidden", priceFilter.value !=="limit");
   });
 
   // Infinite scroll (client fallback + server pagination)
@@ -205,14 +205,14 @@ document.addEventListener("DOMContentLoaded", () => {
       params.set("page", page);
 
       const res = await fetch(`/admin/plugins/store?${params.toString()}`, {
-        headers: { "X-Requested-With": "XMLHttpRequest" }
+        headers: {"X-Requested-With":"XMLHttpRequest" }
       });
 
       if (!res.ok) throw new Error("Network error");
 
       const html = await res.text();
       const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
+      const doc = parser.parseFromString(html,"text/html");
       const newCards = doc.querySelectorAll(".plugin-card");
 
       if (newCards.length === 0) {

@@ -44,15 +44,15 @@
 
 <script>
 function confirmRemoval(btn) {
-  if (btn.dataset.confirmed === "true") {
+  if (btn.dataset.confirmed ==="true") {
     btn.parentElement.remove();
   } else {
-    btn.dataset.confirmed = "true";
-    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.dataset.confirmed ="true";
+    btn.innerHTML ="<span class='text-[10px] font-bold'>CONFIRM?</span>";
     btn.classList.add('text-red-500');
     setTimeout(() => {
-      btn.dataset.confirmed = "false";
-      btn.innerHTML = "×";
+      btn.dataset.confirmed ="false";
+      btn.innerHTML ="×";
       btn.classList.remove('text-red-500');
     }, 3000);
   }
@@ -94,7 +94,7 @@ function importPterodactylVars() {
     });
     showNotification(`Imported ${vars.length} variables`, 'success');
   } catch (e) {
-    showNotification("Invalid JSON format", "error");
+    showNotification("Invalid JSON format","error");
   }
 }
 </script>

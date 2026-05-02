@@ -617,7 +617,7 @@ a:focus:not(:focus-visible) {
 }
 </style>
 
-<main id="content" class="min-h-screen pb-24 sm:pb-20">
+<main id="content" class="animate-fade-in min-h-screen pb-24 sm:pb-20">
   <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
     
     <!-- ============================================
@@ -647,7 +647,7 @@ a:focus:not(:focus-visible) {
     <!-- ============================================
          SUCCESS BANNER - Enhanced visibility
          ============================================ -->
-    <% if (req.query && req.query.err === "CREATED") { %>
+    <% if (req.query && req.query.err ==="CREATED") { %>
       <div class="mt-6 sm:mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 sm:px-6 py-4 flex items-start gap-3 shadow-lg backdrop-blur-sm animate-slide-in">
         <div class="flex-shrink-0 mt-0.5">
           <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">

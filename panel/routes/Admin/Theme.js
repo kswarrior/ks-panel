@@ -5,85 +5,168 @@ const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 
-// ====================== Theme Routes ======================
+const SYSTEM_DEFAULT_THEME = {
+  '--accent-color': '#3b82f6',
+  '--sidebar-bg': 'rgba(10, 10, 10, 0.6)',
+  '--header-bg': 'rgba(10, 10, 10, 0.4)',
+  '--glass-border': 'rgba(255, 255, 255, 0.08)',
+  '--glass-blur': '16px',
+  '--card-radius': '1.5rem',
+  '--btn-radius': '0.75rem',
+  '--card-padding': '2rem',
+  '--sidebar-width': '16rem',
+  '--font-family': "'Plus Jakarta Sans', sans-serif",
+  'custom_css': ''
+};
 
-// GET - Render Theme Customization Page
 router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settings = (await db.get("settings")) || {};
     let theme = (await db.get("theme")) || {};
+    const themeLibrary = (await db.get("theme_library")) || [];
 
-    // Default values (so your live preview works even on first load)
-    if (!theme || Object.keys(theme).length === 0) {
-      theme = {
-        primary: "#3b82f6",
-        primaryHover: "#2563eb",
-        accent: "#8b5cf6",
-        background: "#0f172a",
-        cardBg: "#1e2937",
-        textPrimary: "#f1f5f9",
-        textSecondary: "#94a3b8",
-        border: "#334155",
-        success: "#22c55e",
-        warning: "#eab308",
-        error: "#ef4444",
-        radius: "12px"
-      };
-    }
+    // Ensure all variables are present
+    theme = { ...SYSTEM_DEFAULT_THEME, ...theme };
 
     res.render("admin/settings/theme", {
       req,
       user: req.user,
       settings,
-      theme
+      theme,
+      themeLibrary
     });
   } catch (error) {
     log.error("Error loading theme settings:", error);
-    res.status(500).send("Failed to load theme settings page.");
+    res.status(500).send("Internal Server Error");
   }
 });
 
-// POST - Save Theme to Database
 router.post("/admin/settings/theme/save", hasPermission('manage_settings'), async (req, res) => {
   try {
     const themeData = req.body;
+    let theme = (await db.get("theme")) || {};
 
-    await db.set("theme", themeData);
+    // Only update allowed variables (starting with -- or specific fields)
+    const allowedFields = ['custom_css'];
+    Object.keys(themeData).forEach(key => {
+      if (key.startsWith('--') || allowedFields.includes(key)) {
+        theme[key] = themeData[key];
+      }
+    });
 
+    await db.set("theme", theme);
     logAudit(req.user.userId, req.user.username, "theme:edit", req.ip);
 
-    res.redirect("/admin/settings/theme?msg=ThemeSaveSuccess");
+    res.redirect("/admin/settings/theme?msg=ThemeUpdated");
   } catch (error) {
     log.error("Error saving theme:", error);
-    res.redirect("/admin/settings/theme?err=ThemeSaveFailed");
+    res.redirect("/admin/settings/theme?err=SaveFailed");
   }
 });
 
-// (Optional but recommended) Reset to Default
 router.post("/admin/settings/theme/reset", hasPermission('manage_settings'), async (req, res) => {
   try {
-    const defaultTheme = {
-      primary: "#3b82f6",
-      primaryHover: "#2563eb",
-      accent: "#8b5cf6",
-      background: "#0f172a",
-      cardBg: "#1e2937",
-      textPrimary: "#f1f5f9",
-      textSecondary: "#94a3b8",
-      border: "#334155",
-      success: "#22c55e",
-      warning: "#eab308",
-      error: "#ef4444",
-      radius: "12px"
-    };
-
-    await db.set("theme", defaultTheme);
+    await db.set("theme", SYSTEM_DEFAULT_THEME);
     logAudit(req.user.userId, req.user.username, "theme:reset", req.ip);
-
-    res.redirect("/admin/settings/theme?msg=ThemeResetToDefault");
+    res.status(200).json({ success: true });
   } catch (error) {
     log.error("Error resetting theme:", error);
-    res.redirect("/admin/settings/theme?err=ResetFailed");
+    res.status(500).json({ error: "Reset failed" });
+  }
+});
+
+router.post("/admin/settings/theme/library/save", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { name, theme } = req.body;
+    const currentTheme = theme || (await db.get("theme")) || SYSTEM_DEFAULT_THEME;
+    const themeLibrary = (await db.get("theme_library")) || [];
+
+    const newTheme = {
+      id: Math.random().toString(36).substring(2, 11),
+      name: name || `Theme ${themeLibrary.length + 1}`,
+      config: currentTheme,
+      active: false
+    };
+
+    themeLibrary.push(newTheme);
+    await db.set("theme_library", themeLibrary);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save theme" });
+  }
+});
+
+router.post("/admin/settings/theme/library/activate", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id } = req.body;
+    const themeLibrary = (await db.get("theme_library")) || [];
+    const themeToActivate = themeLibrary.find(t => t.id === id);
+
+    if (!themeToActivate) return res.status(404).json({ error: "Theme not found" });
+
+    themeLibrary.forEach(t => t.active = (t.id === id));
+    await db.set("theme_library", themeLibrary);
+    await db.set("theme", themeToActivate.config);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to activate theme" });
+  }
+});
+
+router.post("/admin/settings/theme/library/delete", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id } = req.body;
+    let themeLibrary = (await db.get("theme_library")) || [];
+    themeLibrary = themeLibrary.filter(t => t.id !== id);
+    await db.set("theme_library", themeLibrary);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete theme" });
+  }
+});
+
+router.get("/admin/settings/theme/export/:id", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const themeLibrary = (await db.get("theme_library")) || [];
+    const theme = themeLibrary.find(t => t.id === id);
+
+    if (!theme) return res.status(404).send("Theme not found");
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=${theme.name.replace(/\s+/g, '_')}.json`);
+    res.send(JSON.stringify(theme.config, null, 2));
+  } catch (error) {
+    res.status(500).send("Export failed");
+  }
+});
+
+const multer = require('multer');
+const upload = multer();
+
+router.post("/admin/settings/theme/import", hasPermission('manage_settings'), upload.single('themeFile'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+    const themeConfig = JSON.parse(req.file.buffer.toString());
+    const themeLibrary = (await db.get("theme_library")) || [];
+
+    const newTheme = {
+      id: Math.random().toString(36).substring(2, 11),
+      name: req.file.originalname.replace('.json', '') || `Imported Theme ${themeLibrary.length + 1}`,
+      config: themeConfig,
+      active: false
+    };
+
+    themeLibrary.push(newTheme);
+    await db.set("theme_library", themeLibrary);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Import failed: " + error.message });
   }
 });
 

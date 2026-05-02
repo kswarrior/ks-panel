@@ -544,17 +544,17 @@
            
            const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
            const texts = [
-               '<%= req.translations.weak || "Weak" %>',
-               '<%= req.translations.fair || "Fair" %>',
-               '<%= req.translations.good || "Good" %>',
-               '<%= req.translations.strong || "Strong" %>'
+               '<%= req.translations.weak ||"Weak" %>',
+               '<%= req.translations.fair ||"Fair" %>',
+               '<%= req.translations.good ||"Good" %>',
+               '<%= req.translations.strong ||"Strong" %>'
            ];
            
            bars.forEach((bar, index) => {
                bar.className = `flex-1 rounded-full transition-colors duration-300 ${index < strength ? colors[strength - 1] : 'bg-neutral-700'}`;
            });
            
-           document.getElementById('strength-text').textContent = texts[strength - 1] || '<%= req.translations.passwordStrength || "Enter a strong password" %>';
+           document.getElementById('strength-text').textContent = texts[strength - 1] || '<%= req.translations.passwordStrength ||"Enter a strong password" %>';
            document.getElementById('strength-text').className = `text-xs ${strength > 0 ? 'text-' + ['red', 'orange', 'yellow', 'emerald'][strength - 1] + '-400' : 'text-neutral-500'}`;
        }
    
@@ -678,7 +678,7 @@
          const newUsername = usernameInput.value.trim();
          
          if (newUsername.toLowerCase() === currentUsername.toLowerCase()) {
-            alert('<%= req.translations.sameUsername || "Please enter a different username" %>');
+            alert('<%= req.translations.sameUsername ||"Please enter a different username" %>');
             return;
          }
    

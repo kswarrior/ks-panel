@@ -1,5 +1,5 @@
 <%- include('../../components/template') %>
-<main id="content">
+<main id="content" class="animate-fade-in">
     <div class="mt-6 px-8 w-full grid grid-cols-2 gap-4">
         <div class="p-3 bg-transparent shadow-xl border border-white/5 rounded-xl overflow-hidden sm:p-6 lg:p-10 card" style="width: 800px;">
             <form>
@@ -106,7 +106,7 @@
     
         const portPattern = /^(\d+:\d+)(,\d+:\d+)*$/;
         if (!ports.value.match(portPattern)) {
-            showError(ports, 'Ports must be in the format "port:port,port:port".');
+            showError(ports, 'Ports must be in the format"port:port,port:port".');
             isValid = false;
         }
     

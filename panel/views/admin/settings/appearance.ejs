@@ -1,13 +1,12 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="min-h-screen pb-10">
+<main id="content" class="animate-fade-in min-h-screen pb-10">
 
   <div class="px-4 sm:px-6 lg:px-8 pt-6">
-    <h1 class="text-3xl font-black text-white tracking-tight">General Settings</h1>
+    <h1 class="text-3xl font-black text-white tracking-tight">Panel Configuration</h1>
     <p class="mt-2 text-sm text-neutral-400">Manage panel identity, branding, and registration behavior.</p>
   </div>
 
-  <%- include('../../components/settings') %>
 
   <div class="mx-4 sm:mx-6 lg:mx-8 mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
@@ -56,6 +55,47 @@
       </div>
     </section>
 
+    <!-- Default Resource Limits -->
+    <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl flex flex-col gap-8 lg:col-span-2">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white">Default Instance Resources</h2>
+      </div>
+
+      <form action="/admin/settings/resources/update" method="POST" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Default Slots</label>
+            <input type="number" name="defaultSlots" value="<%= settings.defaultSlots || 3 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">RAM (MB)</label>
+            <input type="number" name="defaultRam" value="<%= settings.defaultRam || 1024 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">CPU (%)</label>
+            <input type="number" name="defaultCpu" value="<%= settings.defaultCpu || 100 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Disk (MB)</label>
+            <input type="number" name="defaultDisk" value="<%= settings.defaultDisk || 5120 %>"
+                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-4">
+          <button type="submit" class="px-8 py-3 bg-white text-black font-bold text-sm rounded-xl hover:bg-neutral-200 transition-all shadow-lg shadow-white/5 active:scale-95">
+            Save Resource Defaults
+          </button>
+        </div>
+      </form>
+    </section>
+
     <!-- System Behavior -->
     <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl flex flex-col gap-8">
       <div class="flex items-center gap-3">
@@ -100,54 +140,6 @@
       </div>
     </section>
 
-    <!-- Backgrounds (Full Width) -->
-    <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl lg:col-span-2">
-      <div class="flex items-center gap-3 mb-8">
-        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        </div>
-        <h2 class="text-xl font-bold text-white">Dynamic Backgrounds</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Upload -->
-        <form action="/admin/settings/change/background" method="POST" enctype="multipart/form-data" class="space-y-4">
-          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Local Upload</label>
-          <input type="file" name="bg" accept="image/*,video/mp4"
-                 class="block w-full text-xs text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-white/5 file:text-neutral-300 hover:file:bg-white/10 transition-all">
-          <input type="hidden" name="type" value="upload">
-          <button type="submit" class="w-full py-2.5 bg-white text-black font-bold text-xs rounded-xl hover:bg-neutral-200 transition-all">Upload & Apply</button>
-        </form>
-
-        <!-- URL -->
-        <form action="/admin/settings/change/background" method="POST" class="space-y-4">
-          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Remote URL (GIF/Image)</label>
-          <input type="text" name="url" placeholder="https://..."
-                 class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-xs focus:outline-none focus:border-blue-500 transition-all">
-          <input type="hidden" name="type" value="url">
-          <button type="submit" class="w-full py-2.5 bg-white text-black font-bold text-xs rounded-xl hover:bg-neutral-200 transition-all">Save URL</button>
-        </form>
-
-        <!-- Presets -->
-        <div class="space-y-4">
-          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Quick Presets</label>
-          <div class="grid grid-cols-2 gap-2">
-            <% [1,2,3,4].forEach(i => { %>
-            <form action="/admin/settings/change/background" method="POST">
-              <input type="hidden" name="type" value="preset">
-              <input type="hidden" name="preset" value="<%= i %>">
-              <button type="submit" class="w-full py-2 rounded-lg bg-white/5 border border-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Preset <%= i %></button>
-            </form>
-            <% }) %>
-          </div>
-        </div>
-      </div>
-
-      <form action="/admin/settings/change/background" method="POST" class="mt-8 pt-6 border-t border-white/5">
-        <input type="hidden" name="type" value="none">
-        <button type="submit" class="w-full py-3 bg-red-500/10 text-red-400 font-bold text-sm rounded-xl border border-red-500/20 hover:bg-red-500/20 transition-all">Remove Current Background</button>
-      </form>
-    </section>
   </div>
 
 </main>

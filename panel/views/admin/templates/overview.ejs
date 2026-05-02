@@ -405,7 +405,7 @@
     }
 </style>
 
-<main id="content" class="max-w-screen-2xl mx-auto">
+<main id="content" class="animate-fade-in max-w-screen-2xl mx-auto">
   <div class="bg-transparent px-4 md:px-6 lg:px-8">
 
     <!-- Header -->
@@ -653,12 +653,12 @@ function showNotification(message, type = 'success') {
 document.querySelectorAll(".btnDelete").forEach(btn => {
   btn.onclick = async () => {
     if (!confirm("Delete this template permanently?\n\nAll pages will be removed.")) return;
-    const res = await fetch(`/admin/templates/${btn.dataset.filename}`, { method: "DELETE" });
+    const res = await fetch(`/admin/templates/${btn.dataset.filename}`, { method:"DELETE" });
     if (res.ok) {
-      showNotification("Template deleted successfully", "success");
+      showNotification("Template deleted successfully","success");
       setTimeout(() => location.reload(), 900);
     } else {
-      showNotification("Delete failed", "error");
+      showNotification("Delete failed","error");
     }
   };
 });

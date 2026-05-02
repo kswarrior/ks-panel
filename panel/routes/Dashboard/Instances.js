@@ -12,17 +12,23 @@ const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
 router.get("/dashboard/create", async (req, res) => {
   if (!req.user) return res.redirect("/login");
 
-  const [billing, nodes, userInstances, images] = await Promise.all([
-    db.get("billing_settings") || { enabled: false },
-    db.get("nodes") || [],
-    db.get(`${req.user.userId}_instances`) || [],
-    db.get("images") || []
+  const [settingsRaw, nodesRaw, userInstancesRaw, imagesRaw] = await Promise.all([
+    db.get("settings"),
+    db.get("nodes"),
+    db.get(`${req.user.userId}_instances`),
+    db.get("images")
   ]);
 
-  if (billing.enabled && userInstances.length >= (billing.defaultSlots || 1)) {
+  const settings = settingsRaw || {};
+  const nodes = nodesRaw || [];
+  const userInstances = userInstancesRaw || [];
+
+  const defaultSlots = settings.defaultSlots || 3;
+
+  if (userInstances.length >= defaultSlots) {
     return res.render("errors/error", {
       req, user: req.user,
-      error: "Slot limit reached. Please delete an instance or upgrade your plan."
+      error: "Slot limit reached. Please contact an administrator to increase your capacity."
     });
   }
 
@@ -45,10 +51,10 @@ router.get("/dashboard/create", async (req, res) => {
   res.render("dashboard/create", {
     req,
     user: req.user,
-    billing,
+    settings,
     nodes: onlineNodes,
     templates,
-    slotsLeft: (billing.defaultSlots || 0) - userInstances.length
+    slotsLeft: defaultSlots - userInstances.length
   });
 });
 
@@ -56,10 +62,12 @@ router.post("/dashboard/create", async (req, res) => {
   if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
   const { name, template: templateFile, nodeId } = req.body;
-  const billing = await db.get("billing_settings") || { enabled: false };
+  const settings = await db.get("settings") || {};
   const userInstances = await db.get(`${req.user.userId}_instances`) || [];
 
-  if (billing.enabled && userInstances.length >= (billing.defaultSlots || 1)) {
+  const defaultSlots = settings.defaultSlots || 3;
+
+  if (userInstances.length >= defaultSlots) {
     return res.status(400).json({ error: "No slots available." });
   }
 
@@ -77,10 +85,10 @@ router.post("/dashboard/create", async (req, res) => {
 
     const Id = uuidv4().split("-")[0];
 
-    // Use billing defaults or template defaults
-    const memory = billing.enabled ? (billing.defaultRam || 1024) : 1024;
-    const cpu = billing.enabled ? (billing.defaultCpu || 100) : 100;
-    const disk = billing.enabled ? (billing.defaultDisk || 5120) : 5120;
+    // Use settings defaults or template defaults
+    const memory = settings.defaultRam || 1024;
+    const cpu = settings.defaultCpu || 100;
+    const disk = settings.defaultDisk || 5120;
 
     const wingsPayload = {
       Id, Name: name, InstanceType: 'docker',

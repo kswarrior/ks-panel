@@ -69,10 +69,10 @@
 document.addEventListener("DOMContentLoaded", function() {
 
   function normalizePath(path) {
-    if (!path) return "/";
+    if (!path) return"/";
     path = path.split("?")[0];           // remove query params
-    path = path.replace(/\/+$/, "");     // remove trailing slash
-    return path === "" ? "/" : path;
+    path = path.replace(/\/+$/,"");     // remove trailing slash
+    return path ==="" ?"/" : path;
   }
 
   var currentPagePath = normalizePath(window.location.pathname);

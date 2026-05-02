@@ -52,7 +52,7 @@
   }
 }
 </style>
-<main id="content" class="max-w-screen-2xl mx-auto min-h-screen">
+<main id="content" class="animate-fade-in max-w-screen-2xl mx-auto min-h-screen">
   <div class="bg-transparent px-3 sm:px-4 md:px-6 lg:px-8 pb-8">
     
     <!-- Header Section -->
@@ -256,7 +256,7 @@
     } catch (e) {}
   }
 
-  let currentLog = "Ready. Click any action above to begin...\n";
+  let currentLog ="Ready. Click any action above to begin...\n";
 
   function appendLog(text) {
     currentLog += `[${new Date().toLocaleTimeString()}] ${text}\n`;
@@ -266,8 +266,8 @@
   }
 
   function clearConsole() {
-    currentLog = "";
-    document.getElementById('console-log').textContent = "Console cleared.\n";
+    currentLog ="";
+    document.getElementById('console-log').textContent ="Console cleared.\n";
   }
 
   async function runAction(endpoint, actionName) {

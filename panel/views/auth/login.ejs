@@ -20,7 +20,7 @@
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && theme.backgrounds.login) || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
+                url('<%= (typeof theme !=="undefined" && theme && theme.backgrounds && theme.backgrounds.login) ||"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -138,7 +138,7 @@ async function submitForm() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  if (username === "" || password === "") {
+  if (username ==="" || password ==="") {
     return;
   }
 

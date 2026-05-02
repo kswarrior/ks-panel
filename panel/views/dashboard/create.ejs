@@ -1,5 +1,5 @@
 <%- include('../components/template') %>
-<main id="content" class="min-h-screen p-4 md:p-8">
+<main id="content" class="">
    <div class="max-w-4xl mx-auto">
       <header class="mb-12">
          <h1 class="text-4xl font-black text-white tracking-tight">Deploy New Instance</h1>
@@ -47,7 +47,7 @@
                <div class="flex items-center justify-between mb-6">
                   <div>
                      <h3 class="text-lg font-bold text-white">Resource Allocation</h3>
-                     <p class="text-xs text-white/40 mt-1">Based on your current plan defaults.</p>
+                     <p class="text-xs text-white/40 mt-1">Based on global resource defaults.</p>
                   </div>
                   <div class="text-right">
                      <p class="text-[10px] font-black text-neutral-500 uppercase">Available Slots</p>
@@ -58,15 +58,15 @@
                <div class="grid grid-cols-3 gap-4">
                   <div class="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
                      <p class="text-[9px] font-black text-neutral-500 uppercase">RAM</p>
-                     <p class="text-sm font-bold text-white"><%= billing.defaultRam %> MB</p>
+                     <p class="text-sm font-bold text-white"><%= settings.defaultRam || 1024 %> MB</p>
                   </div>
                   <div class="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
                      <p class="text-[9px] font-black text-neutral-500 uppercase">CPU</p>
-                     <p class="text-sm font-bold text-white"><%= billing.defaultCpu %>%</p>
+                     <p class="text-sm font-bold text-white"><%= settings.defaultCpu || 100 %>%</p>
                   </div>
                   <div class="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
                      <p class="text-[9px] font-black text-neutral-500 uppercase">DISK</p>
-                     <p class="text-sm font-bold text-white"><%= billing.defaultDisk %> MB</p>
+                     <p class="text-sm font-bold text-white"><%= settings.defaultDisk || 5120 %> MB</p>
                   </div>
                </div>
             </div>

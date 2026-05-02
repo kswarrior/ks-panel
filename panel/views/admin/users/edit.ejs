@@ -1,6 +1,6 @@
 <%- include('../../components/template') %>
 
-<main id="content" class="px-4 sm:px-6 lg:px-8 py-8">
+<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 py-8">
   <div class="max-w-4xl mx-auto">
 
     <header class="mb-10">
@@ -80,11 +80,6 @@
                 <option value="false" class="bg-[#0a0a0a]" <%= !editUser.verified ? 'selected' : '' %>>Require Email Check</option>
               </select>
             </div>
-            <div class="space-y-2 md:col-span-2">
-              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Account Balance (Credits)</label>
-              <input id="credits" type="number" value="<%= editUser.credits || 0 %>" step="0.01"
-                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-            </div>
           </div>
         </section>
 
@@ -111,16 +106,15 @@
       email: document.getElementById("email").value.trim(),
       password: document.getElementById("userPass").value,
       roleId: document.getElementById("userRole").value,
-      verified: document.getElementById("userVerified").value === "true",
-      credits: document.getElementById("credits").value
+      verified: document.getElementById("userVerified").value ==="true"
     };
 
     fetch(window.location.href, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method:"POST",
+      headers: {"Content-Type":"application/json" },
       body: JSON.stringify(data),
     })
-    .then(res => res.ok ? (alert('Profile updated successfully!'), window.location.href = "/admin/users") : alert('Update failed.'))
+    .then(res => res.ok ? (alert('Profile updated successfully!'), window.location.href ="/admin/users") : alert('Update failed.'))
     .catch(err => alert('Error: ' + err.message));
   });
 </script>

@@ -34,7 +34,7 @@
 @keyframes slideIn { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 
-<main id="content" class="min-h-screen">
+<main id="content" class="animate-fade-in min-h-screen">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/5">
@@ -149,7 +149,7 @@ function initSearchableSelects() {
       removeItemButton: false,
     });
     choiceInstances[el.id] = instance;
-    el.dataset.choicesInit = "true";
+    el.dataset.choicesInit ="true";
   });
 }
 
@@ -171,17 +171,17 @@ async function addCategory() {
       choiceInstances['meta-category'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
       showNotification("Category added!");
     } else {
-      showNotification(data.error || "Failed to add category", "error");
+      showNotification(data.error ||"Failed to add category","error");
     }
   } catch (e) {
-    showNotification("Network error", "error");
+    showNotification("Network error","error");
   }
 }
 
 async function deleteCategory() {
   const select = document.getElementById('meta-category');
   const name = select.value;
-  if (!name || !confirm(`Delete category "${name}"?`)) return;
+  if (!name || !confirm(`Delete category"${name}"?`)) return;
 
   try {
     const res = await fetch('/admin/templates/category', {
@@ -196,14 +196,14 @@ async function deleteCategory() {
       showNotification("Category deleted");
     }
   } catch (e) {
-    showNotification("Delete failed", "error");
+    showNotification("Delete failed","error");
   }
 }
 
 async function deleteType() {
   const select = document.getElementById('meta-type');
   const name = select.value;
-  if (!name || !confirm(`Delete type "${name}"?`)) return;
+  if (!name || !confirm(`Delete type"${name}"?`)) return;
 
   try {
     const res = await fetch('/admin/templates/type', {
@@ -218,7 +218,7 @@ async function deleteType() {
       showNotification("Type deleted");
     }
   } catch (e) {
-    showNotification("Delete failed", "error");
+    showNotification("Delete failed","error");
   }
 }
 
@@ -238,10 +238,10 @@ async function addType() {
       choiceInstances['meta-type'].setChoices([{ value: name, label: name, selected: true }], 'value', 'label', false);
       showNotification("Template Type added!");
     } else {
-      showNotification(data.error || "Failed to add type", "error");
+      showNotification(data.error ||"Failed to add type","error");
     }
   } catch (e) {
-    showNotification("Network error", "error");
+    showNotification("Network error","error");
   }
 }
 
@@ -258,14 +258,14 @@ function exportJson() {
     name: document.getElementById('meta-display_name').value || document.getElementById('meta-id').value,
     category: document.getElementById('meta-category').value,
     type: document.getElementById('meta-type').value,
-    author: "<%= user.username %>",
-    version: "1.0.0"
+    author:"<%= user.username %>",
+    version:"1.0.0"
   };
 
   const environment = {
     instance_type: document.getElementById('instanceType').value,
-    image: document.getElementById('environment-image')?.value || "",
-    distribution: document.getElementById('environment-distribution')?.value || "",
+    image: document.getElementById('environment-image')?.value ||"",
+    distribution: document.getElementById('environment-distribution')?.value ||"",
     limits: {
       memory: parseInt(document.getElementById('limits-memory').value) || 0,
       cpu: parseInt(document.getElementById('limits-cpu').value) || 0,
@@ -320,8 +320,8 @@ function exportJson() {
       id: card.querySelector('[name="page-id"]').value,
       name: card.querySelector('[name="page-name"]').value,
       type: type,
-      ejsContent: card.querySelector('[name="page-ejs"]')?.value || "",
-      jsContent: card.querySelector('[name="page-js"]')?.value || "",
+      ejsContent: card.querySelector('[name="page-ejs"]')?.value ||"",
+      jsContent: card.querySelector('[name="page-js"]')?.value ||"",
       config: {}
     };
 
@@ -378,8 +378,8 @@ function exportJson() {
 
 function importJson() {
   const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json,application/json";
+  input.type ="file";
+  input.accept =".json,application/json";
   input.onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -465,10 +465,10 @@ function importJson() {
           });
         }
 
-        showNotification("JSON imported successfully!", "success");
+        showNotification("JSON imported successfully!","success");
       } catch(e) {
         console.error(e);
-        showNotification("Invalid JSON file!", "error");
+        showNotification("Invalid JSON file!","error");
       }
     };
     reader.readAsText(file);
@@ -482,16 +482,16 @@ async function submitTemplate() {
     name: document.getElementById('meta-display_name').value || document.getElementById('meta-id').value,
     category: document.getElementById('meta-category').value,
     type: document.getElementById('meta-type').value,
-    author: "<%= user.username %>",
-    version: "1.0.0"
+    author:"<%= user.username %>",
+    version:"1.0.0"
   };
 
-  if (!meta.id) return showNotification("Template ID is required", "error");
+  if (!meta.id) return showNotification("Template ID is required","error");
 
   const environment = {
     instance_type: document.getElementById('instanceType').value,
-    image: document.getElementById('environment-image')?.value || "",
-    distribution: document.getElementById('environment-distribution')?.value || "",
+    image: document.getElementById('environment-image')?.value ||"",
+    distribution: document.getElementById('environment-distribution')?.value ||"",
     limits: {
       memory: parseInt(document.getElementById('limits-memory').value) || 0,
       cpu: parseInt(document.getElementById('limits-cpu').value) || 0,
@@ -546,8 +546,8 @@ async function submitTemplate() {
       id: card.querySelector('[name="page-id"]').value,
       name: card.querySelector('[name="page-name"]').value,
       type: type,
-      ejsContent: card.querySelector('[name="page-ejs"]')?.value || "",
-      jsContent: card.querySelector('[name="page-js"]')?.value || "",
+      ejsContent: card.querySelector('[name="page-ejs"]')?.value ||"",
+      jsContent: card.querySelector('[name="page-js"]')?.value ||"",
       config: {}
     };
 
@@ -602,10 +602,10 @@ async function submitTemplate() {
       showNotification("Template published successfully!");
       setTimeout(() => window.location.href = '/admin/templates/overview', 1000);
     } else {
-      showNotification(result.error || "Publication failed", "error");
+      showNotification(result.error ||"Publication failed","error");
     }
   } catch (err) {
-    showNotification("Network error", "error");
+    showNotification("Network error","error");
   }
 }
 </script>

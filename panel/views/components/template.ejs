@@ -16,17 +16,29 @@
 
       <style>
          :root {
+            /* System Defaults */
             --sidebar-bg: rgba(10, 10, 10, 0.6);
             --header-bg: rgba(10, 10, 10, 0.4);
             --accent-color: #3b82f6;
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: 16px;
+            --card-radius: 1.5rem;
+            --btn-radius: 0.75rem;
+
+            /* Injected Custom Theme Variables */
+            <% if (typeof theme !== 'undefined' && theme) { %>
+               <% Object.entries(theme).forEach(([key, value]) => { %>
+                  <% if (key.startsWith('--')) { %>
+                     <%= key %>: <%= value %>;
+                  <% } %>
+               <% }); %>
+            <% } %>
          }
 
          body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                        url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && (typeof pageType !== "undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
+                        url('<%= (typeof theme !=="undefined" && theme && theme.backgrounds && (typeof pageType !=="undefined" && pageType ? theme.backgrounds[pageType] : (theme.backgrounds && theme.backgrounds.dashboard)) ) ||"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -46,6 +58,7 @@
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius, 1.5rem);
          }
 
          .nav-link {
@@ -77,7 +90,52 @@
 
          .nav-link.active svg {
             color: var(--accent-color);
-            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+            filter: drop-shadow(0 0 8px var(--accent-color));
+         }
+
+         /* Global Theme Overrides */
+         .rounded-xl, .rounded-2xl, .rounded-3xl {
+            border-radius: var(--card-radius) !important;
+         }
+
+         .rounded-lg {
+            border-radius: var(--btn-radius) !important;
+         }
+
+         button:not([class*="rounded-full"]),
+         .btn:not([class*="rounded-full"]),
+         a[class*="bg-white"]:not([class*="rounded-full"]),
+         a[class*="bg-blue"]:not([class*="rounded-full"]) {
+            border-radius: var(--btn-radius) !important;
+         }
+
+         .bg-blue-600, .bg-blue-500 {
+            background-color: var(--accent-color) !important;
+         }
+
+         .text-blue-400, .text-blue-500 {
+            color: var(--accent-color) !important;
+         }
+
+         .border-blue-500, .border-blue-600 {
+            border-color: var(--accent-color) !important;
+         }
+
+         .glass {
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius, 1.5rem);
+         }
+
+         header.glass {
+            background: var(--header-bg);
+            border-radius: 0 !important;
+         }
+
+         .sub-nav-link.active {
+            color: #fff !important;
          }
 
          #active-background {
@@ -97,7 +155,11 @@
          }
 
          #content {
-            animation: contentFadeIn 0.5s ease forwards;
+            animation: contentFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+         }
+
+         .animate-fade-in {
+            animation: contentFadeIn 0.3s ease forwards;
          }
 
          /* Sidebar Link Animations */
@@ -158,12 +220,24 @@
          /* Smooth transition for layout changes */
          #colcont {
             transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-left: 0;
+         }
+
+         @media (min-width: 1024px) {
+            #colcont {
+               padding-left: var(--sidebar-width, 16rem);
+            }
          }
       </style>
+      <% if (typeof theme !== 'undefined' && theme && theme.custom_css) { %>
+      <style id="custom-raw-css">
+         <%- theme.custom_css %>
+      </style>
+      <% } %>
    </head>
-   <body class="h-full">
+   <body class="h-full group">
       <!-- Sidebar -->
-      <aside id="pc-sidebar" class="sidebar transition-all duration-300 ease-in-out fixed inset-y-0 z-50 flex flex-col w-64 lg:w-64 glass border-r border-white/5 group group-[.collapsed]:w-20">
+      <aside id="pc-sidebar" style="width: var(--sidebar-width, 16rem);" class="sidebar transition-all duration-300 ease-in-out fixed inset-y-0 z-50 flex flex-col lg:w-64 glass border-r border-white/5 group group-[.collapsed]:!w-20">
          <div class="flex flex-col h-full">
             <!-- User Profile Section -->
             <% if (typeof user !== 'undefined' && user) { %>
@@ -185,165 +259,168 @@
             <% } %>
 
             <!-- Navigation -->
-            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <nav class="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
                <div id="active-background" class="absolute transition-all duration-300 ease-in-out"></div>
 
-               <!-- Dashboard Section -->
-               <div class="mb-4">
-                  <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Overview</p>
+               <!-- Main Section -->
+               <div>
+                  <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Main</p>
                   <a href="/instances" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
                      <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                      </svg>
-                     <span class="group-[.collapsed]:hidden"><%= req.translations.instances %></span>
-                  </a>
-                  <a href="/account" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden"><%= req.translations.account %></span>
-                  </a>
-                  <a href="/tickets" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Support Tickets</span>
-                  </a>
-                  <a href="/billing" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Billing & Shop</span>
-                  </a>
-                  <a href="/earn" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Earn Credits</span>
+                     <span class="group-[.collapsed]:hidden">Instances</span>
                   </a>
                </div>
 
                <!-- Admin Section -->
                <% if (anyAdminPerm()) { %>
-               <div class="pt-4 border-t border-white/5">
-                  <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Administration</p>
+               <div class="space-y-4">
+                  <!-- Administration Section -->
+                  <div>
+                     <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Administration</p>
 
-                  <% if (hasPerm('view_insights')) { %>
-                  <a href="/admin/security/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Security Center</span>
-                  </a>
-                  <% } %>
+                     <% if (hasPerm('manage_users')) { %>
+                     <a href="/admin/users" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Users</span>
+                     </a>
+                     <a href="/admin/roles" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Roles</span>
+                     </a>
+                     <a href="/admin/notifications" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Alerts</span>
+                     </a>
+                     <a href="/admin/tickets" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Support</span>
+                     </a>
+                     <% } %>
+                  </div>
 
-                  <% if (hasPerm('manage_settings')) { %>
-                  <a href="/admin/settings" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden"><%= req.translations.settings %></span>
-                  </a>
+                  <!-- Resources Section -->
+                  <div>
+                     <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Resources</p>
 
-                  <a href="/admin/settings/dashboard" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Dash & Economy</span>
-                  </a>
-                  <% } %>
+                     <% if (hasPerm('create_instances')) { %>
+                     <a href="/admin/instances/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Registry</span>
+                     </a>
+                     <% } %>
 
-                  <% if (hasPerm('manage_users')) { %>
-                  <a href="/admin/users" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden"><%= req.translations.users %></span>
-                  </a>
+                     <% if (hasPerm('manage_templates')) { %>
+                     <a href="/admin/templates/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Templates</span>
+                     </a>
+                     <% } %>
 
-                  <a href="/admin/notifications" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Notifications</span>
-                  </a>
+                     <% if (hasPerm('manage_nodes')) { %>
+                     <a href="/admin/nodes/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Nodes</span>
+                     </a>
+                     <% } %>
+                  </div>
 
-                  <a href="/admin/tickets" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Ticket Management</span>
-                  </a>
-                  <% } %>
+                  <!-- System Section -->
+                  <div>
+                     <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">System</p>
 
-                  <% if (hasPerm('create_instances')) { %>
-                  <a href="/admin/instances/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">All Instances</span>
-                  </a>
-                  <% } %>
+                     <% if (hasPerm('view_insights')) { %>
+                     <a href="/admin/security/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Security Center</span>
+                     </a>
+                     <% } %>
 
-                  <% if (hasPerm('manage_templates')) { %>
-                  <a href="/admin/templates/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Templates</span>
-                  </a>
-                  <% } %>
+                     <a href="/admin/analytics" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Analytics</span>
+                     </a>
 
-                  <% if (hasPerm('manage_nodes')) { %>
-                  <a href="/admin/nodes/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Nodes</span>
-                  </a>
-                  <% } %>
+                     <a href="/admin/database" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Database</span>
+                     </a>
 
-                  <% if (hasPerm('manage_api_keys')) { %>
-                  <a href="/admin/apikeys" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">API Keys</span>
-                  </a>
-                  <% } %>
+                     <% if (hasPerm('view_audit_logs')) { %>
+                     <a href="/admin/auditlogs" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Audit Logs</span>
+                     </a>
+                     <% } %>
 
-                  <% if (hasPerm('manage_plugins')) { %>
-                  <a href="/admin/plugins/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Plugins</span>
-                  </a>
-                  <% } %>
+                     <% if (hasPerm('manage_api_keys')) { %>
+                     <a href="/admin/apikeys" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">API Access</span>
+                     </a>
+                     <% } %>
 
-                  <% if (hasPerm('view_audit_logs')) { %>
-                  <a href="/admin/auditlogs" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Audit Logs</span>
-                  </a>
-                  <% } %>
+                     <% if (hasPerm('manage_plugins')) { %>
+                     <a href="/admin/plugins/overview" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                        </svg>
+                        <span class="group-[.collapsed]:hidden">Addons</span>
+                     </a>
+                     <% } %>
+                  </div>
 
-                  <a href="/admin/database" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Database</span>
-                  </a>
+                  <!-- Settings Section -->
+                  <div>
+                     <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Settings</p>
 
-                  <a href="/admin/analytics" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
-                     <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                     </svg>
-                     <span class="group-[.collapsed]:hidden">Analytics</span>
-                  </a>
+                     <% if (hasPerm('manage_settings')) { %>
+                        <a href="/admin/settings" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                           <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                           </svg>
+                           <span class="group-[.collapsed]:hidden">Settings</span>
+                        </a>
+                        <a href="/admin/settings/smtp" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                           <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                           </svg>
+                           <span class="group-[.collapsed]:hidden">Mail</span>
+                        </a>
+                        <a href="/admin/settings/theme" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                           <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                           </svg>
+                           <span class="group-[.collapsed]:hidden">Themes</span>
+                        </a>
+                     <% } %>
+                  </div>
                </div>
                <% } %>
             </nav>
@@ -351,19 +428,52 @@
             <!-- Bottom Actions -->
             <% if (typeof user !== 'undefined' && user) { %>
             <div class="p-4 mt-auto border-t border-white/5">
-               <a href="/auth/logout" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors group">
-                  <svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  <span class="group-[.collapsed]:hidden">Sign Out</span>
-               </a>
+               <div class="flex items-center justify-between gap-2 group-[.collapsed]:flex-col group-[.collapsed]:items-center">
+                  <!-- Language -->
+                  <div class="relative">
+                     <button id="sidebar-lang-button" class="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors" title="Language">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                     </button>
+                     <div id="sidebar-lang-dropdown" class="absolute bottom-full left-0 mb-2 w-48 glass rounded-2xl p-2 shadow-2xl opacity-0 scale-95 pointer-events-none transition-all duration-300 z-50">
+                        <% languages.forEach(lang => { %>
+                           <button onclick="changeLanguage('<%= lang %>')" class="w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-bold hover:bg-white/5 transition-colors uppercase tracking-widest text-neutral-400 hover:text-white">
+                              <%= req.translations[lang] %>
+                           </button>
+                        <% }) %>
+                     </div>
+                  </div>
+
+                  <!-- Account -->
+                  <a href="/account" class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-neutral-400 hover:text-white hover:bg-white/5 transition-all group-[.collapsed]:hidden">
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                     </svg>
+                     <span>Account</span>
+                  </a>
+
+                  <!-- Account Icon for Collapsed -->
+                  <a href="/account" class="hidden group-[.collapsed]:flex p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors" title="Account">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                     </svg>
+                  </a>
+
+                  <!-- Logout -->
+                  <a href="/auth/logout" class="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors" title="Logout">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                     </svg>
+                  </a>
+               </div>
             </div>
             <% } %>
          </div>
       </aside>
 
       <!-- Main Layout -->
-      <div id="colcont" class="lg:pl-64 transition-all duration-300 ease-in-out group-[.collapsed]:pl-20">
+      <div id="colcont" class="transition-all duration-300 ease-in-out group-[.collapsed]:lg:!pl-20">
          <!-- Header -->
          <header class="sticky top-0 z-40 h-16 glass border-b border-white/5 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -386,17 +496,12 @@
 
             <!-- Top bar Actions -->
             <div class="flex items-center gap-1.5 sm:gap-4">
-               <!-- Wallet -->
-               <% if (typeof user !== 'undefined' && user) { %>
-               <a href="/billing" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-blue-500/10 border border-white/5 sm:border-blue-500/20 hover:bg-blue-500/20 transition-all group">
-                  <div class="p-1 rounded-md sm:rounded-lg bg-blue-600 shadow-md sm:shadow-lg shadow-blue-600/30 group-hover:scale-110 transition-transform hidden xs:flex">
-                     <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                  </div>
-                  <div class="flex items-baseline gap-0.5 sm:gap-1">
-                     <span class="text-[11px] sm:text-xs font-black text-white"><%= (typeof userBalance !== 'undefined' ? userBalance : 0).toFixed(1) %></span>
-                  </div>
+               <!-- Tickets -->
+               <a href="/tickets" class="p-2 rounded-lg hover:bg-white/5 transition-colors group" title="Support Tickets">
+                  <svg class="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
                </a>
-               <% } %>
 
                <!-- Notifications -->
                <div id="notif-link" class="relative group cursor-pointer p-2 rounded-lg hover:bg-white/5 transition-colors">
@@ -458,22 +563,6 @@
                   </div>
                </div>
 
-               <!-- Language & User -->
-               <div class="relative">
-                  <button id="user-menu-button" class="w-10 h-10 rounded-xl glass hover:bg-white/10 flex items-center justify-center transition-colors">
-                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                     </svg>
-                  </button>
-                  <!-- Lang Dropdown -->
-                  <div id="dropdown-menu" class="absolute right-0 mt-3 w-56 glass rounded-2xl p-2 shadow-2xl opacity-0 scale-95 pointer-events-none transition-all duration-300 z-50">
-                     <% languages.forEach(lang => { %>
-                        <button onclick="changeLanguage('<%= lang %>')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-white/5 transition-colors uppercase tracking-widest text-neutral-400 hover:text-white">
-                           <%= req.translations[lang] %>
-                        </button>
-                     <% }) %>
-                  </div>
-               </div>
             </div>
          </header>
 
@@ -523,25 +612,49 @@
             });
 
             // --- Active Background Indicator ---
-            const navLinks = document.querySelectorAll('.nav-link');
+            const navLinks = Array.from(document.querySelectorAll('.nav-link, .sub-nav-link'));
             const activeBg = document.getElementById('active-background');
+            const nav = document.querySelector('nav');
 
             function updateActiveIndicator(el) {
                if (!el) return;
                const rect = el.getBoundingClientRect();
-               const parentRect = el.parentElement.parentElement.getBoundingClientRect();
+               const navRect = nav.getBoundingClientRect();
                activeBg.style.height = `${rect.height}px`;
-               activeBg.style.top = `${rect.top - parentRect.top}px`;
+               activeBg.style.top = `${rect.top - navRect.top}px`;
                activeBg.style.opacity = '1';
             }
 
             const currentPath = window.location.pathname;
+
+            // Sort links by href length descending to match most specific first
+            navLinks.sort((a, b) => (b.getAttribute('href')?.length || 0) - (a.getAttribute('href')?.length || 0));
+
+            let matched = false;
             navLinks.forEach(link => {
-               if (currentPath.startsWith(link.getAttribute('href'))) {
+               if (matched) return;
+               const href = link.getAttribute('href');
+               if (href && (currentPath === href || (href !== '/' && currentPath.startsWith(href)))) {
                   link.classList.add('active');
                   updateActiveIndicator(link);
+                  matched = true;
+
+                  if (link.classList.contains('sub-nav-link')) {
+                     const subMenu = document.getElementById('settings-sub-menu');
+                     if (subMenu) {
+                        subMenu.classList.remove('hidden');
+                        document.getElementById('settings-arrow')?.classList.add('rotate-180');
+                     }
+                  }
                }
             });
+
+            window.toggleSettingsDropdown = function() {
+               const menu = document.getElementById('settings-sub-menu');
+               const arrow = document.getElementById('settings-arrow');
+               menu.classList.toggle('hidden');
+               arrow.classList.toggle('rotate-180');
+            };
 
             // --- Dropdowns Logic ---
             function setupDropdown(btnId, menuId) {
@@ -566,10 +679,10 @@
 
             setupDropdown('notif-link', 'notif-dropdown');
             setupDropdown('ping-link', 'ping-dropdown');
-            setupDropdown('user-menu-button', 'dropdown-menu');
+            setupDropdown('sidebar-lang-button', 'sidebar-lang-dropdown');
 
             document.addEventListener('click', () => {
-               document.querySelectorAll('[id$="-dropdown"], #dropdown-menu').forEach(m => {
+               document.querySelectorAll('[id$="-dropdown"], #sidebar-lang-dropdown').forEach(m => {
                   m.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
                });
             });
