@@ -7,15 +7,19 @@
           <h1 class="text-3xl font-black text-white tracking-tight">Interface Studio</h1>
           <p class="mt-2 text-sm text-neutral-400">Total visual control over the panel's glassmorphic architecture.</p>
        </div>
-       <div class="flex gap-3">
-          <button type="button" onclick="document.getElementById('importThemeInput').click()" class="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs hover:bg-white/10 transition-all flex items-center gap-2">
+       <div class="flex flex-wrap gap-3">
+          <button type="button" onclick="resetEditorToDefaults()" class="px-4 py-2 sm:px-5 sm:py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center gap-2">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+             New Architecture
+          </button>
+          <button type="button" onclick="document.getElementById('importThemeInput').click()" class="px-4 py-2 sm:px-5 sm:py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-             Import Architecture
+             Import
           </button>
           <input type="file" id="importThemeInput" class="hidden" accept=".json" onchange="importTheme(this)">
-          <button type="button" onclick="saveAsTheme()" class="px-5 py-3 rounded-2xl bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
-             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-             Snapshot Current
+          <button type="button" onclick="toggleEditor()" class="px-4 py-2 sm:px-5 sm:py-3 rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+             Snapshot
           </button>
        </div>
     </div>
@@ -42,9 +46,12 @@
                          <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[8px] font-black uppercase tracking-widest border border-blue-500/30">Active</span>
                       <% } %>
                    </div>
-                   <div class="flex gap-2">
-                      <button onclick="activateTheme('<%= t.id %>')" class="flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Deploy</button>
-                      <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
+                   <div class="flex flex-wrap gap-2">
+                      <button onclick="activateTheme('<%= t.id %>')" class="flex-1 min-w-[60px] py-2 rounded-lg bg-blue-500/10 text-[10px] font-bold text-blue-400 hover:bg-blue-500 hover:text-white transition-all">Deploy</button>
+                      <button onclick="loadThemeForEdit('<%= JSON.stringify(t.config).replace(/'/g, "\\'") %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Edit Architecture">
+                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      </button>
+                      <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Download JSON">
                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                       </button>
                       <button onclick="deleteTheme('<%= t.id %>')" class="p-2 rounded-lg bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Purge">
@@ -61,56 +68,7 @@
        </div>
     </section>
 
-    <!-- Background Configuration -->
-    <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl mb-8">
-      <div class="flex items-center gap-3 mb-8">
-        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        </div>
-        <h2 class="text-xl font-bold text-white">Environment Backdrop</h2>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Local Upload -->
-        <form action="/admin/settings/change/background" method="POST" enctype="multipart/form-data" class="space-y-4">
-          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Architectural Backdrop (MP4/IMG)</label>
-          <input type="file" name="bg" accept="image/*,video/mp4"
-                 class="block w-full text-xs text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-white/5 file:text-neutral-300 hover:file:bg-white/10 transition-all">
-          <input type="hidden" name="type" value="upload">
-          <button type="submit" class="w-full py-2.5 bg-white text-black font-bold text-xs rounded-xl hover:bg-neutral-200 transition-all">Upload Environment</button>
-        </form>
-
-        <!-- URL -->
-        <form action="/admin/settings/change/background" method="POST" class="space-y-4">
-          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Remote Stream (GIF/Image URL)</label>
-          <input type="text" name="url" placeholder="https://..."
-                 class="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 text-xs focus:outline-none focus:border-blue-500 transition-all">
-          <input type="hidden" name="type" value="url">
-          <button type="submit" class="w-full py-2.5 bg-white text-black font-bold text-xs rounded-xl hover:bg-neutral-200 transition-all">Connect Stream</button>
-        </form>
-
-        <!-- Presets -->
-        <div class="space-y-4">
-          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Core Presets</label>
-          <div class="grid grid-cols-2 gap-2">
-            <% [1,2,3,4].forEach(i => { %>
-            <form action="/admin/settings/change/background" method="POST">
-              <input type="hidden" name="type" value="preset">
-              <input type="hidden" name="preset" value="<%= i %>">
-              <button type="submit" class="w-full py-2 rounded-lg bg-white/5 border border-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Preset <%= i %></button>
-            </form>
-            <% }) %>
-          </div>
-        </div>
-      </div>
-
-      <form action="/admin/settings/change/background" method="POST" class="mt-8 pt-6 border-t border-white/5">
-        <input type="hidden" name="type" value="none">
-        <button type="submit" class="w-full py-3 bg-red-500/5 text-red-400 font-bold text-sm rounded-xl border border-red-500/10 hover:bg-red-500/10 transition-all">Purge Environment Backdrop</button>
-      </form>
-    </section>
-
-    <form id="themeForm" action="/admin/settings/theme/save" method="POST" class="space-y-8">
+    <form id="themeForm" action="/admin/settings/theme/save" method="POST" class="space-y-8 hidden">
 
       <!-- Core Atmosphere -->
       <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
@@ -305,11 +263,11 @@
 
       <!-- Global Actions -->
       <div class="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-white/5">
-        <button type="button" onclick="resetTheme()" class="px-10 py-4 rounded-2xl bg-red-500/5 text-red-400 font-black text-xs uppercase tracking-widest border border-red-500/10 hover:bg-red-500/10 transition-all">
-          Reset Architecture
+        <button type="button" onclick="toggleEditor()" class="px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
+          Discard Changes
         </button>
-        <button type="submit" class="px-16 py-4 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-2xl shadow-white/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
-          Deploy Configuration
+        <button type="button" onclick="saveAsTheme()" class="px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
+          Create & Save
         </button>
       </div>
     </form>
@@ -317,6 +275,97 @@
 </main>
 
 <script>
+  const DEFAULT_CONFIG = <%- JSON.stringify(SYSTEM_DEFAULT_THEME) %>;
+
+  function toggleEditor() {
+    const form = document.getElementById('themeForm');
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+      form.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function resetEditorToDefaults() {
+    loadThemeForEdit(JSON.stringify(DEFAULT_CONFIG));
+  }
+
+  function loadThemeForEdit(themeJson) {
+    const config = JSON.parse(themeJson);
+    const form = document.getElementById('themeForm');
+
+    // Clear and fill form fields
+    Object.entries(config).forEach(([key, value]) => {
+      const input = form.querySelector(`[name="${key}"]`);
+      const hidden = form.querySelector(`input[type="hidden"][name="${key}"]`);
+
+      if (input) {
+        if (input.tagName === 'SELECT' || input.type === 'color' || input.tagName === 'TEXTAREA') {
+          input.value = value;
+          if (input.type === 'color') {
+             // If it's a transparency color, we need to update the picker too
+             // but our system uses pickers without names and hidden fields for rgba
+          }
+        }
+      }
+
+      if (hidden) {
+        hidden.value = value;
+      }
+    });
+
+    // Special handling for RGBA pickers
+    const rgbaVars = [
+      { id: 'sidebar-bg-picker', var: '--sidebar-bg' },
+      { id: 'header-bg-picker', var: '--header-bg' },
+      { id: 'border-picker', var: '--glass-border' }
+    ];
+
+    rgbaVars.forEach(p => {
+      const val = config[p.var];
+      if (val && val.startsWith('rgba')) {
+        const parts = val.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        if (parts) {
+          const r = parseInt(parts[1]).toString(16).padStart(2, '0');
+          const g = parseInt(parts[2]).toString(16).padStart(2, '0');
+          const b = parseInt(parts[3]).toString(16).padStart(2, '0');
+          document.getElementById(p.id).value = `#${r}${g}${b}`;
+          document.getElementById('alpha-slider').value = parts[4];
+        }
+      }
+    });
+
+    // Special handling for ranges
+    const rangeVars = [
+      { var: '--sidebar-width', unit: 'rem' },
+      { var: '--card-padding', unit: 'rem' },
+      { var: '--card-radius', unit: 'rem' },
+      { var: '--btn-radius', unit: 'rem' },
+      { var: '--glass-blur', unit: 'px' }
+    ];
+
+    rangeVars.forEach(p => {
+      const val = config[p.var];
+      if (val) {
+        const num = parseFloat(val);
+        const slider = form.querySelector(`input[type="range"][oninput*="${p.var}"]`);
+        if (slider) {
+          slider.value = num;
+          document.getElementById(p.var.substring(2) + '-val').textContent = val;
+        }
+      }
+    });
+
+    // Final global update
+    Object.keys(config).forEach(key => {
+      if (key.startsWith('--')) {
+        document.documentElement.style.setProperty(key, config[key]);
+      }
+    });
+
+    form.classList.remove('hidden');
+    form.scrollIntoView({ behavior: 'smooth' });
+  }
+
   function updatePreview(input) {
     document.documentElement.style.setProperty(input.name, input.value);
     const wrapper = input.closest('div');
@@ -365,13 +414,20 @@
   }
 
   async function saveAsTheme() {
-    const name = prompt('Enter a name for this architectural snapshot:');
+    const name = prompt('Enter a name for this new architecture:');
     if (!name) return;
+
+    // Get current form data
+    const formData = new FormData(document.getElementById('themeForm'));
+    const themeData = {};
+    formData.forEach((value, key) => {
+      themeData[key] = value;
+    });
 
     const res = await fetch('/admin/settings/theme/library/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ name, theme: themeData })
     });
 
     if (res.ok) window.location.reload();

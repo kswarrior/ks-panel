@@ -77,8 +77,8 @@ router.post("/admin/settings/theme/reset", hasPermission('manage_settings'), asy
 
 router.post("/admin/settings/theme/library/save", hasPermission('manage_settings'), async (req, res) => {
   try {
-    const { name } = req.body;
-    const currentTheme = (await db.get("theme")) || SYSTEM_DEFAULT_THEME;
+    const { name, theme } = req.body;
+    const currentTheme = theme || (await db.get("theme")) || SYSTEM_DEFAULT_THEME;
     const themeLibrary = (await db.get("theme_library")) || [];
 
     const newTheme = {

@@ -220,6 +220,13 @@
          /* Smooth transition for layout changes */
          #colcont {
             transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-left: 0;
+         }
+
+         @media (min-width: 1024px) {
+            #colcont {
+               padding-left: var(--sidebar-width, 16rem);
+            }
          }
       </style>
       <% if (typeof theme !== 'undefined' && theme && theme.custom_css) { %>
@@ -228,7 +235,7 @@
       </style>
       <% } %>
    </head>
-   <body class="h-full">
+   <body class="h-full group">
       <!-- Sidebar -->
       <aside id="pc-sidebar" style="width: var(--sidebar-width, 16rem);" class="sidebar transition-all duration-300 ease-in-out fixed inset-y-0 z-50 flex flex-col lg:w-64 glass border-r border-white/5 group group-[.collapsed]:!w-20">
          <div class="flex flex-col h-full">
@@ -278,25 +285,25 @@
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">User Management</span>
+                        <span class="group-[.collapsed]:hidden">Users</span>
                      </a>
                      <a href="/admin/roles" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">Role Management</span>
+                        <span class="group-[.collapsed]:hidden">Roles</span>
                      </a>
                      <a href="/admin/notifications" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">Global Alerts</span>
+                        <span class="group-[.collapsed]:hidden">Alerts</span>
                      </a>
                      <a href="/admin/tickets" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">Support Control</span>
+                        <span class="group-[.collapsed]:hidden">Support</span>
                      </a>
                      <% } %>
                   </div>
@@ -310,7 +317,7 @@
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">Instance Registry</span>
+                        <span class="group-[.collapsed]:hidden">Registry</span>
                      </a>
                      <% } %>
 
@@ -319,7 +326,7 @@
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">Template Editor</span>
+                        <span class="group-[.collapsed]:hidden">Templates</span>
                      </a>
                      <% } %>
 
@@ -328,7 +335,7 @@
                         <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
                         </svg>
-                        <span class="group-[.collapsed]:hidden">Network Nodes</span>
+                        <span class="group-[.collapsed]:hidden">Nodes</span>
                      </a>
                      <% } %>
                   </div>
@@ -388,31 +395,30 @@
                      <% } %>
                   </div>
 
-                  <!-- Settings Section (Dropdown) -->
+                  <!-- Settings Section -->
                   <div>
                      <p class="px-4 mb-2 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] group-[.collapsed]:hidden">Settings</p>
 
                      <% if (hasPerm('manage_settings')) { %>
-                     <div class="relative">
-                        <button onclick="toggleSettingsDropdown()" class="w-full nav-link group flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white transition-all">
-                           <div class="flex items-center gap-3">
-                              <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              <span class="group-[.collapsed]:hidden">Panel Settings</span>
-                           </div>
-                           <svg id="settings-arrow" class="w-4 h-4 transition-transform duration-300 group-[.collapsed]:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        <a href="/admin/settings" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                           <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                            </svg>
-                        </button>
-
-                        <div id="settings-sub-menu" class="hidden mt-2 space-y-1 px-4 animate-fade-in group-[.collapsed]:hidden">
-                           <a href="/admin/settings" class="sub-nav-link block px-4 py-2 rounded-lg text-xs font-medium text-neutral-500 hover:text-white hover:bg-white/5 transition-all">General Settings</a>
-                           <a href="/admin/settings/smtp" class="sub-nav-link block px-4 py-2 rounded-lg text-xs font-medium text-neutral-500 hover:text-white hover:bg-white/5 transition-all">Mail Configuration</a>
-                           <a href="/admin/settings/theme" class="sub-nav-link block px-4 py-2 rounded-lg text-xs font-medium text-neutral-500 hover:text-white hover:bg-white/5 transition-all">Theme Customizer</a>
-                        </div>
-                     </div>
+                           <span class="group-[.collapsed]:hidden">Settings</span>
+                        </a>
+                        <a href="/admin/settings/smtp" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                           <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                           </svg>
+                           <span class="group-[.collapsed]:hidden">Mail</span>
+                        </a>
+                        <a href="/admin/settings/theme" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white">
+                           <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                           </svg>
+                           <span class="group-[.collapsed]:hidden">Themes</span>
+                        </a>
                      <% } %>
                   </div>
                </div>
@@ -467,7 +473,7 @@
       </aside>
 
       <!-- Main Layout -->
-      <div id="colcont" style="padding-left: var(--sidebar-width, 16rem);" class="transition-all duration-300 ease-in-out group-[.collapsed]:!pl-20">
+      <div id="colcont" class="transition-all duration-300 ease-in-out group-[.collapsed]:lg:!pl-20">
          <!-- Header -->
          <header class="sticky top-0 z-40 h-16 glass border-b border-white/5 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -633,22 +639,8 @@
                   updateActiveIndicator(link);
                   matched = true;
 
-                  if (link.classList.contains('sub-nav-link')) {
-                     const subMenu = document.getElementById('settings-sub-menu');
-                     if (subMenu) {
-                        subMenu.classList.remove('hidden');
-                        document.getElementById('settings-arrow')?.classList.add('rotate-180');
-                     }
-                  }
                }
             });
-
-            window.toggleSettingsDropdown = function() {
-               const menu = document.getElementById('settings-sub-menu');
-               const arrow = document.getElementById('settings-arrow');
-               menu.classList.toggle('hidden');
-               arrow.classList.toggle('rotate-180');
-            };
 
             // --- Dropdowns Logic ---
             function setupDropdown(btnId, menuId) {

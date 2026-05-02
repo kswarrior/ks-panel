@@ -5,8 +5,15 @@
 
 set -e
 
-DB_PASS=${DB_PASS:-"kspanelpassword"}
-CF_TOKEN=${CF_TOKEN:-"eyJhIjoiZTJkZjY3MDI5ZWZlZTBmY2JhM2ExMjNjN2VmNTcxNTAiLCJ0IjoiNTk5ZTc4NjItZGZjMy00MTNhLWJhMGItMTJlYmNlMDFlZjlhIiwicyI6Ik1UUTBNRFl4TWpBdE5UWXlZeTAwTmpJMkxUazBOemN0WlRreU5HSTNZVGczWXpWbSJ9"}
+# Load defaults or prompt if interactive
+if [ -z "$DB_PASS" ]; then
+    read -sp "Enter PostgreSQL password for ksuser: " DB_PASS
+    echo
+fi
+
+if [ -z "$CF_TOKEN" ]; then
+    read -p "Enter Cloudflare Tunnel Token: " CF_TOKEN
+fi
 
 echo "Setting up PostgreSQL..."
 sudo service postgresql start
@@ -18,8 +25,11 @@ cd panel
 npm install
 
 echo "Configuring panel..."
-# config.json and .env should be created/checked here
-# (Already created by the installer agent in this session)
+if [ ! -f .env ]; then
+    cp .env.example .env
+    sed -i "s/YOUR_DB_PASSWORD/$DB_PASS/g" .env
+    sed -i "s/YOUR_SESSION_SECRET/$(openssl rand -hex 32)/g" .env
+fi
 
 echo "Installing Cloudflared..."
 if ! command -v cloudflared &> /dev/null; then
