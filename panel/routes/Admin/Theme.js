@@ -16,6 +16,24 @@ const SYSTEM_DEFAULT_THEME = {
   '--card-padding': '2rem',
   '--sidebar-width': '16rem',
   '--font-family': "'Plus Jakarta Sans', sans-serif",
+  '--h1-size': '1.875rem',
+  '--h1-margin': '0rem',
+  '--h1-padding': '0rem',
+  '--h2-size': '1.5rem',
+  '--h2-margin': '0rem',
+  '--h2-padding': '0rem',
+  '--h3-size': '1.25rem',
+  '--h3-margin': '0rem',
+  '--h3-padding': '0rem',
+  '--p-size': '0.875rem',
+  '--p-margin': '0rem',
+  '--p-padding': '0rem',
+  '--pre-size': '0.75rem',
+  '--pre-margin': '0rem',
+  '--pre-padding': '0.5rem',
+  'theme_name': 'Default Architecture',
+  'theme_type': 'Glassmorphic',
+  'theme_category': 'System',
   'custom_css': ''
 };
 
@@ -47,7 +65,7 @@ router.post("/admin/settings/theme/save", hasPermission('manage_settings'), asyn
     let theme = (await db.get("theme")) || {};
 
     // Only update allowed variables (starting with -- or specific fields)
-    const allowedFields = ['custom_css'];
+    const allowedFields = ['custom_css', 'theme_name', 'theme_type', 'theme_category'];
     Object.keys(themeData).forEach(key => {
       if (key.startsWith('--') || allowedFields.includes(key)) {
         theme[key] = themeData[key];
