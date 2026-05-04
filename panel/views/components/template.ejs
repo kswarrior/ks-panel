@@ -35,6 +35,12 @@
             <% } %>
          }
 
+         .theme-typography h1 { font-size: var(--h1-size, 1.875rem) !important; margin: var(--h1-margin, 0) !important; padding: var(--h1-padding, 0) !important; }
+         .theme-typography h2 { font-size: var(--h2-size, 1.5rem) !important; margin: var(--h2-margin, 0) !important; padding: var(--h2-padding, 0) !important; }
+         .theme-typography h3 { font-size: var(--h3-size, 1.25rem) !important; margin: var(--h3-margin, 0) !important; padding: var(--h3-padding, 0) !important; }
+         .theme-typography p { font-size: var(--p-size, 0.875rem) !important; margin: var(--p-margin, 0) !important; padding: var(--p-padding, 0) !important; }
+         .theme-typography pre { font-size: var(--pre-size, 0.75rem) !important; margin: var(--pre-margin, 0) !important; padding: var(--pre-padding, 0) !important; }
+
          body {
             font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
@@ -567,7 +573,7 @@
          </header>
 
          <!-- Page Content -->
-         <div id="page-container" class="relative">
+         <div id="page-container" class="relative theme-typography">
 
       <!-- Scripts -->
       <script>

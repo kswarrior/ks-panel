@@ -63,6 +63,31 @@
 
     <form id="themeForm" action="/admin/settings/theme/save" method="POST" class="space-y-8 hidden">
 
+      <!-- Identity -->
+      <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <h2 class="text-xl font-bold text-white">Identity</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Theme Name</label>
+            <input type="text" name="theme_name" value="<%= theme.theme_name || '' %>" placeholder="e.g. Midnight Onyx" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Type</label>
+            <input type="text" name="theme_type" value="<%= theme.theme_type || '' %>" placeholder="e.g. Glassmorphic" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Category</label>
+            <input type="text" name="theme_category" value="<%= theme.theme_category || '' %>" placeholder="e.g. Dark, Light, Gaming" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+          </div>
+        </div>
+      </section>
+
       <!-- Core Atmosphere -->
       <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
         <div class="flex items-center gap-3 mb-8">
@@ -215,8 +240,55 @@
          </div>
       </section>
 
+      <!-- Typography Architecture -->
+      <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400 border border-orange-500/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"></path></svg>
+          </div>
+          <h2 class="text-xl font-bold text-white">Typography Architecture</h2>
+        </div>
+
+        <div class="space-y-8">
+          <% ['h1', 'h2', 'h3', 'p', 'pre'].forEach(tag => { %>
+            <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+               <h3 class="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center text-[10px]"><%= tag %></span>
+                  Element Configuration
+               </h3>
+               <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div class="space-y-4">
+                     <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-bold text-neutral-500 uppercase">Text Size</label>
+                        <span class="text-xs font-mono text-orange-400" id="<%= tag %>-size-val"><%= theme['--' + tag + '-size'] || '1rem' %></span>
+                     </div>
+                     <input type="range" min="0.5" max="5" step="0.125" value="<%= parseFloat(theme['--' + tag + '-size']) || 1 %>" oninput="updateRangeWithUnit(this, '--<%= tag %>-size', 'rem')" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500">
+                     <input type="hidden" name="--<%= tag %>-size" value="<%= theme['--' + tag + '-size'] || '1rem' %>">
+                  </div>
+                  <div class="space-y-4">
+                     <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-bold text-neutral-500 uppercase">Vertical Margin</label>
+                        <span class="text-xs font-mono text-orange-400" id="<%= tag %>-margin-val"><%= theme['--' + tag + '-margin'] || '0rem' %></span>
+                     </div>
+                     <input type="range" min="0" max="4" step="0.25" value="<%= parseFloat(theme['--' + tag + '-margin']) || 0 %>" oninput="updateRangeWithUnit(this, '--<%= tag %>-margin', 'rem')" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500">
+                     <input type="hidden" name="--<%= tag %>-margin" value="<%= theme['--' + tag + '-margin'] || '0rem' %>">
+                  </div>
+                  <div class="space-y-4">
+                     <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-bold text-neutral-500 uppercase">Padding</label>
+                        <span class="text-xs font-mono text-orange-400" id="<%= tag %>-padding-val"><%= theme['--' + tag + '-padding'] || '0rem' %></span>
+                     </div>
+                     <input type="range" min="0" max="4" step="0.25" value="<%= parseFloat(theme['--' + tag + '-padding']) || 0 %>" oninput="updateRangeWithUnit(this, '--<%= tag %>-padding', 'rem')" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500">
+                     <input type="hidden" name="--<%= tag %>-padding" value="<%= theme['--' + tag + '-padding'] || '0rem' %>">
+                  </div>
+               </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
       <!-- Live Simulation -->
-      <section class="p-12 rounded-[3rem] bg-black/40 border-2 border-dashed border-white/5 relative overflow-hidden flex items-center justify-center min-h-[400px]">
+      <section class="p-6 sm:p-12 rounded-[3rem] bg-black/40 border-2 border-dashed border-white/5 relative overflow-hidden flex flex-col items-center justify-center min-h-[500px]">
         <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(var(--accent-color) 1px, transparent 1px); background-size: 30px 30px;"></div>
         
         <div class="absolute top-6 left-6 flex items-center gap-2">
@@ -224,8 +296,26 @@
           <span class="text-[10px] font-black text-neutral-500 uppercase tracking-[0.3em]">Neural Simulation</span>
         </div>
 
-        <div class="relative z-10 w-full max-w-lg">
-           <div class="glass p-10 shadow-2xl transition-all duration-500" id="preview-container">
+        <div class="absolute top-6 right-6 flex bg-white/5 p-1 rounded-xl border border-white/10 z-20">
+           <button type="button" onclick="setPreviewSize('desktop')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</button>
+           <button type="button" onclick="setPreviewSize('phone')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</button>
+        </div>
+
+        <div class="relative z-10 w-full flex justify-center transition-all duration-500" id="preview-wrapper">
+           <div class="glass p-10 shadow-2xl transition-all duration-500 w-full max-w-lg theme-typography" id="preview-container">
+              <div class="mb-10 pb-10 border-b border-white/5">
+                 <h1 class="mb-4">Quantum Dashboard</h1>
+                 <h2 class="mb-3">System Overview</h2>
+                 <h3 class="mb-2">Module Stats</h3>
+                 <p class="mb-4 text-neutral-400">This is a sample paragraph showing how your typography settings will look in the real dashboard. Text should be legible and well-spaced.</p>
+                 <pre class="p-4 rounded-lg bg-black/30 text-emerald-400 text-xs overflow-x-auto">
+// Sample Code Output
+function initialize() {
+  console.log("System Online");
+}
+                 </pre>
+              </div>
+
               <div class="flex items-center gap-5 mb-8">
                  <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white" id="preview-icon-box">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -268,6 +358,36 @@
 </main>
 
 <script>
+  function setPreviewSize(size) {
+    const wrapper = document.getElementById('preview-wrapper');
+    const container = document.getElementById('preview-container');
+    const btnDesktop = document.getElementById('btn-desktop');
+    const btnPhone = document.getElementById('btn-phone');
+
+    if (size === 'phone') {
+       wrapper.classList.add('flex-col', 'items-center');
+       container.style.width = '375px';
+       container.style.height = '667px';
+       container.style.borderRadius = '3rem';
+       container.style.border = '8px solid rgba(255,255,255,0.1)';
+       container.classList.add('overflow-y-auto');
+       btnPhone.classList.add('bg-blue-500', 'text-white');
+       btnDesktop.classList.remove('bg-blue-500', 'text-white');
+    } else {
+       wrapper.classList.remove('flex-col', 'items-center');
+       container.style.width = '';
+       container.style.height = '';
+       container.style.borderRadius = 'var(--card-radius)';
+       container.style.border = '';
+       container.classList.remove('overflow-y-auto');
+       btnDesktop.classList.add('bg-blue-500', 'text-white');
+       btnPhone.classList.remove('bg-blue-500', 'text-white');
+    }
+  }
+
+  // Initialize preview
+  setPreviewSize('desktop');
+
   function toggleEditor() {
     const form = document.getElementById('themeForm');
     form.classList.toggle('hidden');
