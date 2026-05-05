@@ -5,13 +5,18 @@
 
 set -e
 
-DB_PASS=${DB_PASS:-"kspanelpassword"}
 CF_TOKEN=${CF_TOKEN:-"eyJhIjoiZTJkZjY3MDI5ZWZlZTBmY2JhM2ExMjNjN2VmNTcxNTAiLCJ0IjoiNTk5ZTc4NjItZGZjMy00MTNhLWJhMGItMTJlYmNlMDFlZjlhIiwicyI6Ik1UUTBNRFl4TWpBdE5UWXlZeTAwTmpJMkxUazBOemN0WlRreU5HSTNZVGczWXpWbSJ9"}
 
-echo "Setting up PostgreSQL..."
-sudo service postgresql start
-sudo -u postgres psql -c "CREATE USER ksuser WITH PASSWORD '$DB_PASS';" || true
-sudo -u postgres psql -c "CREATE DATABASE kspanel OWNER ksuser;" || true
+# SQLite is now default, Postgres setup is optional
+if [ "$DB_TYPE" == "postgres" ]; then
+    DB_PASS=${DB_PASS:-"kspanelpassword"}
+    echo "Setting up PostgreSQL..."
+    sudo service postgresql start
+    sudo -u postgres psql -c "CREATE USER ksuser WITH PASSWORD '$DB_PASS';" || true
+    sudo -u postgres psql -c "CREATE DATABASE kspanel OWNER ksuser;" || true
+else
+    echo "Using SQLite as default database."
+fi
 
 echo "Installing panel dependencies..."
 cd panel

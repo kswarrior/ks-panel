@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../../handlers/db.js");
+const { db, getAllData } = require("../../handlers/db.js");
 const config = require("../../config.json");
-const { isAdmin, anyAdminPerm } = require("../../utils/isAdmin.js");
-const { Client } = require("pg");
+const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
+const fs = require('node:fs');
+const path = require('path');
 
 // =====================
 // FULL DASHBOARD STATS (Everything combined - Users, Nodes, Instances, DB, Analytics, etc.)
@@ -210,15 +211,106 @@ router.get("/admin/database", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
+    // Determine database type for display
+    const dbUrl = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+    let dbTypeDisp = "SQLite";
+    if (dbUrl.startsWith("postgres")) dbTypeDisp = "PostgreSQL";
+    if (dbUrl.startsWith("mysql") || dbUrl.startsWith("mariadb")) dbTypeDisp = "MySQL/MariaDB";
+
     res.render("admin/dashboard/database", {
       req,
       user: req.user,
       version: config.version,
-      ...stats
+      ...stats,
+      dbType: dbTypeDisp,
+      dbUrl: dbUrl,
+      databaseTable: process.env.DB_TABLE || config.databaseTable || "kspanel"
     });
   } catch (error) {
     console.error('Database page error:', error);
     res.status(500).send("Failed to retrieve database information.");
+  }
+});
+
+router.post("/admin/database/update", hasPermission('manage_settings'), async (req, res) => {
+  const { databaseURL, databaseTable, migrate } = req.body;
+
+  try {
+    let currentData = [];
+    if (migrate === 'true') {
+      currentData = await getAllData();
+    }
+
+    // Update config.json
+    const configPath = path.join(__dirname, "../../config.json");
+    let configObj = {};
+    if (fs.existsSync(configPath)) {
+      configObj = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    }
+
+    configObj.databaseURL = databaseURL;
+    configObj.databaseTable = databaseTable;
+    fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2), "utf8");
+
+    if (migrate === 'true' && currentData.length > 0) {
+      // Logic to write data to NEW database
+      // We need a temporary Keyv instance for the new DB
+      const Keyv = require('keyv');
+      let store;
+      if (databaseURL.startsWith("postgres")) {
+        store = new (require("@keyvhq/postgres"))(databaseURL, { table: databaseTable });
+      } else if (databaseURL.startsWith("mysql") || databaseURL.startsWith("mariadb")) {
+        store = new (require("@keyvhq/mysql"))(databaseURL, { table: databaseTable });
+      } else if (databaseURL.startsWith("sqlite")) {
+        store = new (require("@keyvhq/sqlite"))(databaseURL, { table: databaseTable });
+      }
+
+      const tempDb = new Keyv({ store, namespace: 'kspanel' });
+      for (const item of currentData) {
+        await tempDb.set(item.key, item.value);
+      }
+    }
+
+    res.redirect("/admin/database?msg=DatabaseUpdatedSuccess");
+
+    // Trigger restart after a delay to allow redirect
+    setTimeout(() => {
+      process.exit(0); // PM2 will restart it
+    }, 2000);
+  } catch (err) {
+    console.error('Database update failed:', err);
+    res.redirect("/admin/database?err=DatabaseUpdateFailed");
+  }
+});
+
+router.get("/admin/database/backup", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const data = await getAllData();
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=backup-${Date.now()}.json`);
+    res.send(JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Backup failed:', err);
+    res.status(500).send("Backup failed");
+  }
+});
+
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
+router.post("/admin/database/restore", hasPermission('manage_settings'), upload.single('backup'), async (req, res) => {
+  if (!req.file) return res.redirect("/admin/database?err=NoFileUploaded");
+
+  try {
+    const data = JSON.parse(fs.readFileSync(req.file.path, 'utf8'));
+    for (const item of data) {
+      await db.set(item.key, item.value);
+    }
+    fs.unlinkSync(req.file.path);
+    res.redirect("/admin/database?msg=RestoreSuccess");
+  } catch (err) {
+    console.error('Restore failed:', err);
+    res.redirect("/admin/database?err=RestoreFailed");
   }
 });
 

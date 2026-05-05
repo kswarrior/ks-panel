@@ -14,9 +14,6 @@ const rateLimit = require("express-rate-limit");
 const analytics = require("./utils/analytics.js");
 const crypto = require("node:crypto");
 
-const PgSession = require('connect-pg-simple')(session);
-const { Pool } = require('pg');
-
 const { isAdmin, hasPermission, checkPermission, anyAdminPerm } = require("./utils/isAdmin.js");
 
 const { loadPlugins } = require("./plugins/loadPls.js");
@@ -30,28 +27,60 @@ log.setLevel('debug');  // Enable debug/info logs (change to 'info' in productio
 
 require('dotenv').config();  // Load env vars FIRST
 
-const config = require("./config.json");  // Load config ONCE, after env
+let config = {};
+try {
+  config = require("./config.json");
+} catch (e) {
+  // config.json might not exist
+}
 
 // Override config with env if set
 if (process.env.DB_URL) config.databaseURL = process.env.DB_URL;
 if (process.env.SESSION_SECRET) config.session_secret = process.env.SESSION_SECRET;
 
-const { db } = require("./handlers/db.js");  // Assumes db.js uses the updated config/databaseURL
+const { db } = require("./handlers/db.js");
 
-const pool = new Pool({ connectionString: config.databaseURL });
+// Session store setup based on DB protocol
+const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+let sessionStore;
+
+if (databaseURL.startsWith("postgres")) {
+  const PgSession = require('connect-pg-simple')(session);
+  const { Pool } = require('pg');
+  const pool = new Pool({ connectionString: databaseURL });
+  sessionStore = new PgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true
+  });
+} else if (databaseURL.startsWith("mysql") || databaseURL.startsWith("mariadb")) {
+  const MySQLStore = require('express-mysql-session')(session);
+  // express-mysql-session can take a connection string or options
+  sessionStore = new MySQLStore({
+    clearExpired: true,
+    checkExpirationInterval: 900000,
+    expiration: 86400000,
+  }, require('mysql2/promise').createPool(databaseURL));
+} else if (databaseURL.startsWith("sqlite")) {
+  const SqliteStore = require('better-sqlite3-session-store')(session);
+  const dbSqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
+  sessionStore = new SqliteStore({
+    client: dbSqlite,
+    expired: {
+      clear: true,
+      intervalMs: 900000
+    }
+  });
+}
 
 app.use(
   session({
-    store: new PgSession({
-      pool: pool,
-      tableName: 'session',
-      createTableIfMissing: true
-    }),
+    store: sessionStore,
     secret: config.session_secret || "secret",
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days - more reasonable default
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
       secure: config.mode === "production",
       sameSite: "lax",
