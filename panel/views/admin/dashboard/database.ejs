@@ -8,7 +8,7 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-black text-white tracking-tight">Database Infrastructure</h1>
-          <p class="text-neutral-400 mt-2 font-medium">Real-time health monitoring and capacity planning for PostgreSQL.</p>
+          <p class="text-neutral-400 mt-2 font-medium">Real-time health monitoring, backups, and migration tools.</p>
         </div>
         <div class="flex gap-3">
           <div class="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-2">
@@ -19,6 +19,24 @@
       </div>
       <%- include('../../components/dashboard') %>
     </header>
+
+    <% if (req.query.msg === 'DatabaseUpdatedSuccess') { %>
+      <div class="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 text-sm font-bold animate-pulse">
+        Database updated successfully! The panel will now restart to apply changes.
+      </div>
+    <% } %>
+
+    <% if (req.query.msg === 'RestoreSuccess') { %>
+        <div class="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 text-sm font-bold">
+          Database restored successfully!
+        </div>
+      <% } %>
+
+    <% if (req.query.err) { %>
+      <div class="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-bold">
+        Error: <%= req.query.err %>
+      </div>
+    <% } %>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
       <div class="glass p-8 rounded-[2.5rem] lg:col-span-1">
@@ -41,6 +59,53 @@
         <h3 class="text-3xl font-black text-white"><%= dbStats.activeConnections || 0 %></h3>
         <p class="text-xs text-neutral-500 mt-4 font-bold uppercase tracking-widest">Live queries</p>
       </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Database Configuration & Migration -->
+        <div class="glass p-8 rounded-[3rem]">
+            <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-8">Configuration & Migration</h3>
+            <form action="/admin/database/update" method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Database URL</label>
+                    <input type="text" name="databaseURL" value="<%= dbUrl %>" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="sqlite://storage/kspanel.sqlite">
+                    <p class="text-[10px] text-neutral-600 mt-2">Example: postgres://user:pass@localhost:5432/dbname</p>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Database Table</label>
+                    <input type="text" name="databaseTable" value="<%= databaseTable %>" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="kspanel">
+                </div>
+                <div class="flex items-center gap-3 p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl">
+                    <input type="checkbox" name="migrate" value="true" id="migrate" class="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-500 focus:ring-offset-0 focus:ring-0">
+                    <label for="migrate" class="text-xs font-bold text-blue-400 uppercase tracking-widest cursor-pointer">Migrate data from current database</label>
+                </div>
+                <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-blue-500/20">
+                    Update Configuration & Restart
+                </button>
+            </form>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="glass p-8 rounded-[3rem]">
+            <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-8">Backup & Restore</h3>
+            <div class="space-y-8">
+                <div>
+                    <p class="text-xs text-neutral-400 mb-4 leading-relaxed">Download a complete JSON export of your current database. This can be used to move data between different database engines manually.</p>
+                    <a href="/admin/database/backup" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl transition-all">
+                        Generate Backup
+                    </a>
+                </div>
+                <div class="pt-8 border-t border-white/5">
+                    <p class="text-xs text-neutral-400 mb-4 leading-relaxed">Restore data from a previously generated JSON backup. <span class="text-red-400 font-bold">Warning: This may overwrite existing records.</span></p>
+                    <form action="/admin/database/restore" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <input type="file" name="backup" accept=".json" class="w-full text-xs text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                        <button type="submit" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl transition-all">
+                            Start Restore
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="glass p-8 rounded-[3rem]">

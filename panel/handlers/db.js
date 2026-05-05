@@ -47,11 +47,48 @@ if (databaseURL.startsWith("postgres")) {
   console.warn("Unknown database protocol, using in-memory store.");
 }
 
-const db = new Keyv({ store });
+const db = new Keyv({ store, namespace: 'kspanel' });
 
 db.on('error', err => console.error('Keyv database error:', err));
+
+/**
+ * Helper to get all data from the database for migration or backup.
+ * Keyv doesn't support this natively, so we query the underlying table.
+ */
+async function getAllData() {
+  const table = databaseTable;
+
+  if (databaseURL.startsWith("postgres")) {
+    const { Pool } = require('pg');
+    const pool = new Pool({ connectionString: databaseURL });
+    const res = await pool.query(`SELECT key, value FROM "${table}"`);
+    await pool.end();
+    return res.rows.map(row => {
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+        return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
+    });
+  } else if (databaseURL.startsWith("mysql") || databaseURL.startsWith("mariadb")) {
+    const mysql = require('mysql2/promise');
+    const connection = await mysql.createConnection(databaseURL);
+    const [rows] = await connection.execute(`SELECT \`key\`, \`value\` FROM \`${table}\``);
+    await connection.end();
+    return rows.map(row => {
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+        return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
+    });
+  } else if (databaseURL.startsWith("sqlite")) {
+    const sqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
+    const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();
+    sqlite.close();
+    return rows.map(row => {
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+        return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
+    });
+  }
+  return [];
+}
 
 // Optional: Test connection on load (async, non-blocking)
 db.get('__test_conn__').catch(() => {});
 
-module.exports = { db };
+module.exports = { db, getAllData, databaseURL, databaseTable };
