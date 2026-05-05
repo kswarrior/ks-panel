@@ -61,6 +61,13 @@ if (databaseURL.startsWith("postgres")) {
     checkExpirationInterval: 900000,
     expiration: 86400000,
   }, require('mysql2/promise').createPool(databaseURL));
+} else if (databaseURL.startsWith("mongodb")) {
+  const MongoStore = require('connect-mongo');
+  sessionStore = MongoStore.create({
+    mongoUrl: databaseURL,
+    collectionName: 'sessions',
+    ttl: 30 * 24 * 60 * 60
+  });
 } else if (databaseURL.startsWith("sqlite")) {
   const SqliteStore = require('better-sqlite3-session-store')(session);
   const dbSqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
@@ -99,6 +106,18 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(analytics);
 app.use(translationMiddleware);
+
+// Setup check middleware
+app.use(async (req, res, next) => {
+  if (req.path === "/setup/admin" || req.path.startsWith("/assets") || req.path.startsWith("/api/setup")) return next();
+
+  const users = await db.get("users");
+  if (!users || users.length === 0) {
+    return res.redirect("/setup/admin");
+  }
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -341,6 +360,9 @@ function loadRoutes(directory) {
   });
 }
 loadRoutes(routesDir);
+
+const setupRoutes = require("./routes/Dashboard/Setup.js");
+app.use("/", setupRoutes);
 
 // ────────────────────────────────────────────────────────────────
 // ENHANCED PLUGIN SYSTEM (like Pterodactyl Blueprint but .kspp)

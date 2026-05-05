@@ -50,10 +50,15 @@ echo -e "${CYAN}[KS Panel]${NC} Running database seed..."
 echo -e "${YELLOW}[!] This process might take a moment and requires internet access.${NC}"
 npm run seed
 
-# 5. Create Admin User
-echo -e "${CYAN}[KS Panel]${NC} Creating admin user..."
-echo -e "${YELLOW}[!] You will be prompted to enter your admin credentials.${NC}"
-npm run create:user
+# 5. Create Admin User (Optional)
+echo -e "${CYAN}[KS Panel]${NC} Would you like to create an admin user via CLI? (y/n)"
+read -r CREATE_USER
+if [ "$CREATE_USER" = "y" ]; then
+    echo -e "${YELLOW}[!] You will be prompted to enter your admin credentials.${NC}"
+    npm run create:user
+else
+    echo -e "${CYAN}[KS Panel]${NC} Skipping CLI user creation. You can use the web setup wizard later."
+fi
 
 # 6. Start the Panel
 echo -e "${CYAN}[KS Panel]${NC} Starting KS Panel with PM2..."
