@@ -44,6 +44,9 @@
                    </div>
                    <div class="flex gap-2">
                       <button onclick="activateTheme('<%= t.id %>')" class="flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Deploy</button>
+                      <button onclick="editTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Edit">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      </button>
                       <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                       </button>
@@ -62,7 +65,7 @@
     </section>
 
     <form id="themeForm" action="/admin/settings/theme/save" method="POST" class="space-y-8 hidden">
-
+      <input type="hidden" name="theme_id" id="theme_id" value="">
       <!-- Identity -->
       <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
         <div class="flex items-center gap-3 mb-8">
@@ -349,7 +352,7 @@ function initialize() {
         <button type="button" onclick="toggleEditor()" class="px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
           Discard Changes
         </button>
-        <button type="button" onclick="saveAsTheme()" class="px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
+        <button type="button" onclick="saveAsTheme()" id="saveBtn" class="px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
           Create & Save
         </button>
       </div>
@@ -388,12 +391,68 @@ function initialize() {
   // Initialize preview
   setPreviewSize('desktop');
 
-  function toggleEditor() {
+  const themeLibrary = <%- JSON.stringify(themeLibrary || []) %>;
+
+  function toggleEditor(editing = false) {
     const form = document.getElementById('themeForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    if (!editing) {
+      document.getElementById('theme_id').value = '';
+      saveBtn.textContent = 'Create & Save';
+      // Reset form to system defaults if not editing
+      // (Optional: implement full form reset logic)
+    }
+
     form.classList.toggle('hidden');
     if (!form.classList.contains('hidden')) {
       form.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  function editTheme(id) {
+    const theme = themeLibrary.find(t => t.id === id);
+    if (!theme) return;
+
+    const form = document.getElementById('themeForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    document.getElementById('theme_id').value = id;
+    saveBtn.textContent = 'Update Theme';
+
+    // Populate identity
+    form.querySelector('input[name="theme_name"]').value = theme.name;
+    form.querySelector('input[name="theme_type"]').value = theme.config.theme_type || '';
+    form.querySelector('input[name="theme_category"]').value = theme.config.theme_category || '';
+    form.querySelector('textarea[name="custom_css"]').value = theme.config.custom_css || '';
+
+    // Populate variables
+    Object.keys(theme.config).forEach(key => {
+      if (key.startsWith('--')) {
+        const input = form.querySelector(`[name="${key}"]`);
+        if (input) {
+          input.value = theme.config[key];
+
+          // Update visual displays
+          document.documentElement.style.setProperty(key, theme.config[key]);
+
+          const valDisplay = document.getElementById(key.substring(2) + '-val');
+          if (valDisplay) valDisplay.textContent = theme.config[key];
+
+          const colorVal = input.closest('div')?.querySelector('.color-value');
+          if (colorVal) colorVal.textContent = theme.config[key];
+
+          // Handle range sliders specifically
+          const slider = form.querySelector(`input[name="${key}-val-slider"]`) || form.querySelector(`input[oninput*="${key}"]`);
+          if (slider && slider.type === 'range') {
+             slider.value = parseFloat(theme.config[key]);
+          }
+        }
+      }
+    });
+
+    form.classList.remove('hidden');
+    form.scrollIntoView({ behavior: 'smooth' });
   }
 
   function updatePreview(input) {
@@ -444,8 +503,13 @@ function initialize() {
   }
 
   async function saveAsTheme() {
-    const name = prompt('Enter a name for this new architecture:');
-    if (!name) return;
+    const themeId = document.getElementById('theme_id').value;
+    let name = document.querySelector('input[name="theme_name"]').value;
+
+    if (!themeId && !name) {
+       name = prompt('Enter a name for this new architecture:');
+       if (!name) return;
+    }
 
     // Get current form data
     const formData = new FormData(document.getElementById('themeForm'));
@@ -454,13 +518,19 @@ function initialize() {
       themeData[key] = value;
     });
 
-    const res = await fetch('/admin/settings/theme/library/save', {
+    const url = themeId ? '/admin/settings/theme/library/update' : '/admin/settings/theme/library/save';
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, theme: themeData })
+      body: JSON.stringify({ id: themeId, name, theme: themeData })
     });
 
     if (res.ok) window.location.reload();
+    else {
+      const err = await res.json();
+      alert('Save failed: ' + err.error);
+    }
   }
 
   async function activateTheme(id) {

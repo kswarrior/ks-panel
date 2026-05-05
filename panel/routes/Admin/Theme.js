@@ -115,6 +115,30 @@ router.post("/admin/settings/theme/library/save", hasPermission('manage_settings
   }
 });
 
+router.post("/admin/settings/theme/library/update", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id, name, theme } = req.body;
+    let themeLibrary = (await db.get("theme_library")) || [];
+    const themeIndex = themeLibrary.findIndex(t => t.id === id);
+
+    if (themeIndex === -1) return res.status(404).json({ error: "Theme not found" });
+
+    themeLibrary[themeIndex].name = name || themeLibrary[themeIndex].name;
+    themeLibrary[themeIndex].config = theme;
+
+    await db.set("theme_library", themeLibrary);
+
+    // If this theme is currently active, update the main theme object too
+    if (themeLibrary[themeIndex].active) {
+      await db.set("theme", theme);
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update theme" });
+  }
+});
+
 router.post("/admin/settings/theme/library/activate", hasPermission('manage_settings'), async (req, res) => {
   try {
     const { id } = req.body;
