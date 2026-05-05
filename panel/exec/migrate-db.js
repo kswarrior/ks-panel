@@ -1,4 +1,4 @@
-const { db, getAllData } = require("../handlers/db.js");
+const { db, getAllData, databaseTable } = require("../handlers/db.js");
 const Keyv = require("keyv");
 const fs = require("node:fs");
 const path = require("path");
@@ -10,6 +10,7 @@ async function migrate() {
 
     if (!targetURL) {
         log.error("Usage: node exec/migrate-db.js <target_database_url>");
+        log.info("Example: node exec/migrate-db.js \"mysql://user:pass@localhost:3306/dbname\"");
         process.exit(1);
     }
 
@@ -17,33 +18,57 @@ async function migrate() {
 
     // 1. Fetch all data from current DB
     log.info("Fetching data from current database...");
-    const data = await getAllData();
+    let data;
+    try {
+        data = await getAllData();
+    } catch (e) {
+        log.error("Failed to fetch data from current database: " + e.message);
+        process.exit(1);
+    }
     log.info(`Found ${data.length} records.`);
 
+    if (data.length === 0) {
+        log.warn("Current database is empty. Nothing to migrate.");
+        process.exit(0);
+    }
+
     // 2. Backup current data to a file
-    const backupPath = path.join(__dirname, `../storage/backup-${Date.now()}.json`);
+    const storageDir = path.join(__dirname, "../storage");
+    if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
+
+    const backupPath = path.join(storageDir, `backup-${Date.now()}.json`);
     log.info(`Creating backup at ${backupPath}...`);
-    fs.writeFileSync(backupPath, JSON.stringify(data, null, 2));
-    log.info("Backup created successfully.");
+    try {
+        fs.writeFileSync(backupPath, JSON.stringify(data, null, 2));
+        log.info("Backup created successfully.");
+    } catch (e) {
+        log.error("Failed to create backup: " + e.message);
+        process.exit(1);
+    }
 
     // 3. Connect to target DB
-    log.info(`Connecting to target database: ${targetURL}`);
+    log.info(`Connecting to target database...`);
     let targetStore;
 
-    if (targetURL.startsWith("postgres")) {
-        const PostgresStore = require("@keyvhq/postgres");
-        targetStore = new PostgresStore(targetURL, { table: 'kspanel' });
-    } else if (targetURL.startsWith("mysql") || targetURL.startsWith("mariadb")) {
-        const MySQLStore = require("@keyvhq/mysql");
-        targetStore = new MySQLStore(targetURL, { table: 'kspanel' });
-    } else if (targetURL.startsWith("sqlite")) {
-        const SQLiteStore = require("@keyvhq/sqlite");
-        targetStore = new SQLiteStore(targetURL, { table: 'kspanel' });
-    } else if (targetURL.startsWith("mongodb")) {
-        const MongoStore = require("@keyvhq/mongo");
-        targetStore = new MongoStore(targetURL, { collection: 'kspanel' });
-    } else {
-        log.error("Unsupported target database protocol.");
+    try {
+        if (targetURL.startsWith("postgres")) {
+            const PostgresStore = require("@keyvhq/postgres");
+            targetStore = new PostgresStore(targetURL, { table: databaseTable });
+        } else if (targetURL.startsWith("mysql") || targetURL.startsWith("mariadb")) {
+            const MySQLStore = require("@keyvhq/mysql");
+            targetStore = new MySQLStore(targetURL, { table: databaseTable });
+        } else if (targetURL.startsWith("sqlite")) {
+            const SQLiteStore = require("@keyvhq/sqlite");
+            targetStore = new SQLiteStore(targetURL, { table: databaseTable });
+        } else if (targetURL.startsWith("mongodb")) {
+            const MongoStore = require("@keyvhq/mongo");
+            targetStore = new MongoStore(targetURL, { collection: databaseTable });
+        } else {
+            log.error("Unsupported target database protocol.");
+            process.exit(1);
+        }
+    } catch (e) {
+        log.error("Failed to initialize target store: " + e.message);
         process.exit(1);
     }
 
@@ -51,20 +76,30 @@ async function migrate() {
 
     // 4. Write data to target DB
     log.info("Writing data to target database...");
+    let migratedCount = 0;
     for (const item of data) {
-        await targetDb.set(item.key, item.value);
-        log.debug(`Migrated key: ${item.key}`);
+        try {
+            await targetDb.set(item.key, item.value);
+            migratedCount++;
+            if (migratedCount % 10 === 0) log.info(`Progress: ${migratedCount}/${data.length}...`);
+        } catch (e) {
+            log.error(`Failed to migrate key "${item.key}": ${e.message}`);
+        }
     }
 
     // 5. Verify migration
     log.info("Verifying migration...");
     let verifiedCount = 0;
     for (const item of data) {
-        const value = await targetDb.get(item.key);
-        if (JSON.stringify(value) === JSON.stringify(item.value)) {
-            verifiedCount++;
-        } else {
-            log.warn(`Verification failed for key: ${item.key}`);
+        try {
+            const value = await targetDb.get(item.key);
+            if (JSON.stringify(value) === JSON.stringify(item.value)) {
+                verifiedCount++;
+            } else {
+                log.warn(`Verification failed for key: ${item.key}`);
+            }
+        } catch (e) {
+             log.error(`Error verifying key "${item.key}": ${e.message}`);
         }
     }
 

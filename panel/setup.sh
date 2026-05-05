@@ -12,6 +12,10 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Ensure we are in the panel directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 echo -e "${CYAN}[KS Panel]${NC} Starting setup process..."
 
 # 1. Install Dependencies
@@ -21,15 +25,22 @@ npm install
 # 2. Configure Environment
 if [ ! -f .env ]; then
     echo -e "${CYAN}[KS Panel]${NC} Creating .env file..."
-    cp .env.example .env
-    # Generate a random session secret
-    SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-    sed -i "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" .env
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        # Generate a random session secret
+        SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+        sed -i "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" .env
+    else
+        echo -e "${YELLOW}[!] .env.example not found, creating a basic .env...${NC}"
+        echo "SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")" > .env
+        echo "DB_URL=sqlite://storage/kspanel.sqlite" >> .env
+    fi
 fi
 
 # 3. Configure config.json
 if [ ! -f config.json ]; then
     echo -e "${CYAN}[KS Panel]${NC} Creating config.json..."
+    mkdir -p storage
     cat <<EOF > config.json
 {
   "databaseURL": "sqlite://storage/kspanel.sqlite",
@@ -48,24 +59,24 @@ fi
 # 4. Database Seeding
 echo -e "${CYAN}[KS Panel]${NC} Running database seed..."
 echo -e "${YELLOW}[!] This process might take a moment and requires internet access.${NC}"
-npm run seed
+NON_INTERACTIVE=true npm run seed || echo -e "${YELLOW}[!] Seeding failed or was skipped. You can run 'npm run seed' manually later.${NC}"
 
 # 5. Create Admin User (Optional)
-echo -e "${CYAN}[KS Panel]${NC} Would you like to create an admin user via CLI? (y/n)"
-read -r CREATE_USER
-if [ "$CREATE_USER" = "y" ]; then
+printf "${CYAN}[KS Panel]${NC} Would you like to create an admin user via CLI? (y/n): "
+read -r CREATE_USER || CREATE_USER="n"
+if [[ "$CREATE_USER" =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}[!] You will be prompted to enter your admin credentials.${NC}"
-    npm run create:user
+    npm run createUser || echo -e "${YELLOW}[!] CLI user creation failed. You can use the web setup wizard at /setup/admin later.${NC}"
 else
-    echo -e "${CYAN}[KS Panel]${NC} Skipping CLI user creation. You can use the web setup wizard later."
+    echo -e "${CYAN}[KS Panel]${NC} Skipping CLI user creation. You can use the web setup wizard at /setup/admin later."
 fi
 
 # 6. Start the Panel
 echo -e "${CYAN}[KS Panel]${NC} Starting KS Panel with PM2..."
 if command -v npx &> /dev/null; then
-    npx pm2 start index.js --name ks-panel
-    npx pm2 save
-    echo -e "${GREEN}[✓]${NC} KS Panel is now running!"
+    npx pm2 start index.js --name ks-panel || echo -e "${YELLOW}[!] Failed to start with PM2. Trying direct node...${NC}"
+    npx pm2 save || true
+    echo -e "${GREEN}[✓]${NC} KS Panel setup finished!"
     echo -e "${CYAN}[KS Panel]${NC} You can view the logs with: npx pm2 logs ks-panel"
 else
     echo -e "${YELLOW}[!] PM2 not found, starting with node...${NC}"

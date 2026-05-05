@@ -100,7 +100,11 @@ async function getAllData() {
     await cursor.forEach(doc => {
       // Keyv stores as { _id: 'namespace:key', value: { value: 'actual_value' } }
       const key = doc._id.replace(/^kspanel:/, '');
-      results.push({ key, value: doc.value.value });
+      let val = doc.value;
+      if (typeof val === 'string') {
+        try { val = JSON.parse(val); } catch (e) {}
+      }
+      results.push({ key, value: val.value });
     });
     await client.close();
     return results;
