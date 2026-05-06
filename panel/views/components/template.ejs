@@ -24,12 +24,12 @@
                --header-bg: rgba(10, 10, 10, 0.4);
                --accent-color: #3b82f6;
                --glass-border: rgba(255, 255, 255, 0.08);
-               --glass-blur: 16px;
+               --glass-blur: 8px;
                --card-radius: 1.5rem;
                --btn-radius: 0.75rem;
 
                /* Sidebar Defaults */
-               --sidebar-blur: 16px;
+               --sidebar-blur: 8px;
                --sidebar-radius: 0rem;
                --sidebar-margin: 0rem;
                --sidebar-padding: 1.5rem;
@@ -39,7 +39,7 @@
 
                /* Card Defaults */
                --card-bg: rgba(10, 10, 10, 0.6);
-               --card-blur: 16px;
+               --card-blur: 8px;
                --card-border: rgba(255, 255, 255, 0.08);
                --card-radius: 1.5rem;
                --card-padding: 2rem;
@@ -61,7 +61,7 @@
                --input-text: #ffffff;
 
                /* Header Defaults */
-               --header-blur: 16px;
+               --header-blur: 8px;
                --header-border: rgba(255, 255, 255, 0.08);
                --header-padding: 1rem 2rem;
 
@@ -145,7 +145,7 @@
             button:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
             .btn:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
             input[type="submit"]:not([class*="bg-red"]),
-            input[type="button"]:not([class*="bg-red"]),
+            input[]:not([class*="bg-red"]),
             a[class*="bg-blue"]:not([class*="bg-red"]),
             a[class*="bg-white"]:not([class*="bg-red"]) {
                background-color: var(--btn-bg) !important;
@@ -168,7 +168,7 @@
             }
 
             /* Input Override */
-            input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+            input:not([type="submit"]):not([]):not([type="checkbox"]):not([type="radio"]),
             select,
             textarea {
                background-color: var(--input-bg) !important;

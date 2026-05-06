@@ -8,12 +8,12 @@
           <p class="mt-2 text-sm text-neutral-400">Total visual control over the panel's glassmorphic architecture.</p>
        </div>
        <div class="flex flex-wrap gap-2 sm:gap-3">
-          <div type="button" onclick="document.getElementById('importThemeInput').click()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+          <div onclick="document.getElementById('importThemeInput').click()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
              Upload
           </div>
           <input type="file" id="importThemeInput" class="hidden" accept=".json" onchange="importTheme(this)">
-          <div type="button" onclick="toggleEditor()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <div onclick="toggleEditor()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
              Create
           </div>
@@ -591,8 +591,8 @@
         </div>
 
         <div class="absolute top-6 right-6 flex bg-white/5 p-1 rounded-xl border border-white/10 z-20">
-           <div type="button" onclick="setPreviewSize('desktop')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</div>
-           <div type="button" onclick="setPreviewSize('phone')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</div>
+           <div onclick="setPreviewSize('desktop')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</div>
+           <div onclick="setPreviewSize('phone')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</div>
         </div>
 
         <div class="relative z-10 w-full flex justify-center transition-all duration-500" id="preview-wrapper">
@@ -631,8 +631,8 @@ function initialize() {
               </div>
 
               <div class="flex gap-4">
-                 <div type="button" class="cursor-pointer flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.95]" style="background-color: var(--accent-color); color: white; border-radius: var(--btn-radius);">Execute</div>
-                 <div type="button" class="cursor-pointer px-8 py-4 rounded-xl border border-white/10 font-black text-xs uppercase tracking-widest text-neutral-400" style="border-radius: var(--btn-radius);">Logs</div>
+                 <div class="cursor-pointer flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.95]" style="background-color: var(--accent-color); color: white; border-radius: var(--btn-radius);">Execute</div>
+                 <div class="cursor-pointer px-8 py-4 rounded-xl border border-white/10 font-black text-xs uppercase tracking-widest text-neutral-400" style="border-radius: var(--btn-radius);">Logs</div>
               </div>
            </div>
         </div>
@@ -640,10 +640,10 @@ function initialize() {
 
       <!-- Global Actions -->
       <div class="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-white/5">
-        <div type="button" onclick="toggleEditor()" class="cursor-pointer px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
+        <div onclick="toggleEditor()" class="cursor-pointer px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
           Discard Changes
         </div>
-        <div type="button" onclick="saveAsTheme()" id="saveBtn" class="cursor-pointer px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
+        <div onclick="saveAsTheme()" id="saveBtn" class="cursor-pointer px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
           Create & Save
         </div>
       </div>

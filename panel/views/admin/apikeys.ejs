@@ -633,7 +633,7 @@ a:focus:not(:focus-visible) {
         </p>
       </div>
       <div class="flex-shrink-0">
-        <button id="createButton" type="button" 
+        <button id="createButton"
                 class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-2.5 rounded-xl btn-primary font-semibold text-sm shadow-lg touch-target">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -723,7 +723,7 @@ a:focus:not(:focus-visible) {
                       </div>
                     </td>
                     <td class="py-4 px-4 sm:px-6 text-right">
-                      <div type="button" class="cursor-pointer delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target" data-id="<%= key.id %>">
+                      <div class="cursor-pointer delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target" data-id="<%= key.id %>">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -777,7 +777,7 @@ a:focus:not(:focus-visible) {
                     </span>
                   </div>
                 </div>
-                <div type="button" class="cursor-pointer delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0" data-id="<%= key.id %>" aria-label="Delete API key">
+                <div class="cursor-pointer delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0" data-id="<%= key.id %>" aria-label="Delete API key">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
@@ -838,10 +838,10 @@ a:focus:not(:focus-visible) {
           </p>
         </div>
         <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 bg-neutral-950/30">
-          <div id="cancelButton" type="button" class="cursor-pointer w-full sm:w-auto order-2 sm:order-1 px-6 py-3.5 rounded-xl btn-secondary font-medium text-sm touch-target">
+          <div id="cancelButton" class="cursor-pointer w-full sm:w-auto order-2 sm:order-1 px-6 py-3.5 rounded-xl btn-secondary font-medium text-sm touch-target">
             Cancel
           </div>
-          <div id="confirmCreate" type="button" class="cursor-pointer w-full sm:w-auto order-1 sm:order-2 px-8 py-3.5 rounded-xl btn-primary font-semibold text-sm shadow-lg flex items-center justify-center gap-2 touch-target">
+          <div id="confirmCreate" class="cursor-pointer w-full sm:w-auto order-1 sm:order-2 px-8 py-3.5 rounded-xl btn-primary font-semibold text-sm shadow-lg flex items-center justify-center gap-2 touch-target">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -1068,7 +1068,7 @@ a:focus:not(:focus-visible) {
         </div>
       </td>
       <td class="py-4 px-4 sm:px-6 text-right">
-        <button type="button" class="delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
+        <button  class="delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}"
                 data-id="${data.id}" ${isOptimistic ? 'disabled' : ''}>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -1106,7 +1106,7 @@ a:focus:not(:focus-visible) {
             }
           </div>
         </div>
-        <button type="button" class="delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0 ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}" 
+        <button  class="delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0 ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}"
                 data-id="${data.id}" ${isOptimistic ? 'disabled' : ''} aria-label="Delete API key">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
