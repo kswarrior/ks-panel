@@ -128,12 +128,12 @@
             }
 
             /* Button Override */
-            button,
-            .btn,
-            input[type="submit"],
-            input[type="button"],
-            a[class*="bg-blue"],
-            a[class*="bg-white"] {
+            button:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
+            .btn:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
+            input[type="submit"]:not([class*="bg-red"]),
+            input[type="button"]:not([class*="bg-red"]),
+            a[class*="bg-blue"]:not([class*="bg-red"]),
+            a[class*="bg-white"]:not([class*="bg-red"]) {
                background-color: var(--btn-bg) !important;
                color: var(--btn-text) !important;
                border-radius: var(--btn-radius) !important;

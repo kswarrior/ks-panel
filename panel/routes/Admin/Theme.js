@@ -74,6 +74,16 @@ router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req
     // Ensure all variables are present
     theme = { ...SYSTEM_DEFAULT_THEME, ...theme };
 
+    // Ensure system default theme exists in library
+    if (!themeLibrary.some(t => t.id === 'system-default')) {
+      themeLibrary.unshift({
+        id: 'system-default',
+        name: 'System Default',
+        config: SYSTEM_DEFAULT_THEME,
+        active: false // Will be determined by checking current theme later if needed
+      });
+    }
+
     res.render("admin/settings/theme", {
       req,
       user: req.user,
@@ -151,6 +161,11 @@ router.post("/admin/settings/theme/library/update", hasPermission('manage_settin
 
     if (themeIndex === -1) return res.status(404).json({ error: "Theme not found" });
 
+    // Protect System Default
+    if (themeLibrary[themeIndex].id === 'system-default') {
+       return res.status(403).json({ error: "The System Default architecture is read-only." });
+    }
+
     themeLibrary[themeIndex].name = name || themeLibrary[themeIndex].name;
     themeLibrary[themeIndex].config = theme;
 
@@ -188,6 +203,12 @@ router.post("/admin/settings/theme/library/activate", hasPermission('manage_sett
 router.post("/admin/settings/theme/library/delete", hasPermission('manage_settings'), async (req, res) => {
   try {
     const { id } = req.body;
+
+    // Protect System Default
+    if (id === 'system-default') {
+       return res.status(403).json({ error: "The System Default architecture cannot be purged." });
+    }
+
     let themeLibrary = (await db.get("theme_library")) || [];
     themeLibrary = themeLibrary.filter(t => t.id !== id);
     await db.set("theme_library", themeLibrary);

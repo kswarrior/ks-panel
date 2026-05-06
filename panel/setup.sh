@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# KS Panel Setup Script
-# This script automates the installation and configuration of KS Panel.
+# KS Panel Setup & Start Script
+# This script automates the installation, configuration, and startup of KS Panel.
 
 set -e
 
@@ -18,29 +18,41 @@ cd "$SCRIPT_DIR"
 
 echo -e "${CYAN}[KS Panel]${NC} Starting setup process..."
 
-# 1. Install Dependencies
-echo -e "${CYAN}[KS Panel]${NC} Installing dependencies..."
-npm install
+# 1. Check for Node.js
+if ! command -v node &> /dev/null; then
+    echo -e "${RED}[✗] Node.js is not installed. Please install Node.js v18 or higher.${NC}"
+    exit 1
+fi
 
-# 2. Configure Environment
+# 2. Install Dependencies
+echo -e "${CYAN}[KS Panel]${NC} Installing dependencies... (This may take a minute)"
+npm install --quiet
+
+# 3. Directory Preparation
+echo -e "${CYAN}[KS Panel]${NC} Preparing directories..."
+mkdir -p storage uploads logs database/plugins
+
+# 4. Configure Environment
 if [ ! -f .env ]; then
     echo -e "${CYAN}[KS Panel]${NC} Creating .env file..."
     if [ -f .env.example ]; then
         cp .env.example .env
-        # Generate a random session secret
         SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-        sed -i "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" .env
+        # Use a more portable sed command for SESSION_SECRET
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" .env
+        else
+            sed -i "s/SESSION_SECRET=.*/SESSION_SECRET=$SESSION_SECRET/" .env
+        fi
     else
-        echo -e "${YELLOW}[!] .env.example not found, creating a basic .env...${NC}"
         echo "SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")" > .env
         echo "DB_URL=sqlite://storage/kspanel.sqlite" >> .env
     fi
 fi
 
-# 3. Configure config.json
+# 5. Configure config.json
 if [ ! -f config.json ]; then
     echo -e "${CYAN}[KS Panel]${NC} Creating config.json..."
-    mkdir -p storage
     cat <<EOF > config.json
 {
   "databaseURL": "sqlite://storage/kspanel.sqlite",
@@ -56,31 +68,43 @@ if [ ! -f config.json ]; then
 EOF
 fi
 
-# 4. Database Seeding
-echo -e "${CYAN}[KS Panel]${NC} Running database seed..."
-echo -e "${YELLOW}[!] This process might take a moment and requires internet access.${NC}"
-NON_INTERACTIVE=true npm run seed || echo -e "${YELLOW}[!] Seeding failed or was skipped. You can run 'npm run seed' manually later.${NC}"
-
-# 5. Create Admin User (Optional)
-printf "${CYAN}[KS Panel]${NC} Would you like to create an admin user via CLI? (y/n): "
-read -r CREATE_USER || CREATE_USER="n"
-if [[ "$CREATE_USER" =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}[!] You will be prompted to enter your admin credentials.${NC}"
-    npm run createUser || echo -e "${YELLOW}[!] CLI user creation failed. You can use the web setup wizard at /setup/admin later.${NC}"
+# 6. Database Seeding
+echo -e "${CYAN}[KS Panel]${NC} Checking database status..."
+# Check if images exist in the sqlite database
+DB_PATH="storage/kspanel.sqlite"
+if [ ! -f "$DB_PATH" ]; then
+    echo -e "${YELLOW}[!] Database not found. Running seed...${NC}"
+    NON_INTERACTIVE=true npm run seed
 else
-    echo -e "${CYAN}[KS Panel]${NC} Skipping CLI user creation. You can use the web setup wizard at /setup/admin later."
+    echo -e "${GREEN}[✓] Database exists.${NC}"
 fi
 
-# 6. Start the Panel
-echo -e "${CYAN}[KS Panel]${NC} Starting KS Panel with PM2..."
-if command -v npx &> /dev/null; then
-    npx pm2 start index.js --name ks-panel || echo -e "${YELLOW}[!] Failed to start with PM2. Trying direct node...${NC}"
-    npx pm2 save || true
-    echo -e "${GREEN}[✓]${NC} KS Panel setup finished!"
-    echo -e "${CYAN}[KS Panel]${NC} You can view the logs with: npx pm2 logs ks-panel"
+# 7. Check for Port 8080
+PORT=$(node -e "try { console.log(require('./config.json').port || 8080) } catch(e) { console.log(8080) }")
+if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
+    echo -e "${YELLOW}[!] Port $PORT is already in use.${NC}"
+    printf "${CYAN}[KS Panel]${NC} Would you like to kill the process on port $PORT? (y/n): "
+    read -r KILL_PORT || KILL_PORT="n"
+    if [[ "$KILL_PORT" =~ ^[Yy]$ ]]; then
+        kill -9 $(lsof -t -i :$PORT) || true
+        echo -e "${GREEN}[✓] Process killed.${NC}"
+    else
+        echo -e "${RED}[✗] Cannot start panel while port $PORT is occupied.${NC}"
+        exit 1
+    fi
+fi
+
+# 8. Final Start
+echo -e "${GREEN}[✓] Setup complete!${NC}"
+echo -e "${CYAN}[KS Panel]${NC} Starting the panel..."
+
+# Check if PM2 is preferred
+if command -v pm2 &> /dev/null; then
+    pm2 delete ks-panel 2>/dev/null || true
+    pm2 start index.js --name ks-panel
+    echo -e "${GREEN}[✓] Started with PM2.${NC}"
+    echo -e "${CYAN}[KS Panel]${NC} Use 'pm2 logs ks-panel' to see logs."
 else
-    echo -e "${YELLOW}[!] PM2 not found, starting with node...${NC}"
+    echo -e "${YELLOW}[!] PM2 not found. Starting with direct Node.js...${NC}"
     node index.js
 fi
-
-echo -e "${GREEN}[✓] Setup complete!${NC}"
