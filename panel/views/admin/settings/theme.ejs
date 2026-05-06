@@ -8,15 +8,15 @@
           <p class="mt-2 text-sm text-neutral-400">Total visual control over the panel's glassmorphic architecture.</p>
        </div>
        <div class="flex flex-wrap gap-2 sm:gap-3">
-          <button type="button" onclick="document.getElementById('importThemeInput').click()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+          <div type="button" onclick="document.getElementById('importThemeInput').click()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
              Upload
-          </button>
+          </div>
           <input type="file" id="importThemeInput" class="hidden" accept=".json" onchange="importTheme(this)">
-          <button type="button" onclick="toggleEditor()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <div type="button" onclick="toggleEditor()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
              Create
-          </button>
+          </div>
        </div>
     </div>
   </div>
@@ -48,19 +48,19 @@
                       <% } %>
                    </div>
                    <div class="flex gap-2">
-                      <button onclick="activateTheme('<%= t.id %>')" class="flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Deploy</button>
+                      <div onclick="activateTheme('<%= t.id % class="cursor-pointer">')" class="flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Deploy</div>
                       <% if (t.id !== 'system-default') { %>
-                        <button onclick="editTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Edit">
+                        <div onclick="editTheme('<%= t.id % class="cursor-pointer">')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        </button>
+                        </div>
                       <% } %>
-                      <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
+                      <div onclick="exportTheme('<%= t.id % class="cursor-pointer">')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                      </button>
+                      </div>
                       <% if (t.id !== 'system-default') { %>
-                        <button onclick="deleteTheme('<%= t.id %>')" class="p-2 rounded-lg bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Purge">
+                        <div onclick="deleteTheme('<%= t.id % class="cursor-pointer">')" class="p-2 rounded-lg bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Purge">
                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
+                        </div>
                       <% } %>
                    </div>
                 </div>
@@ -109,7 +109,22 @@
           <h2 class="text-xl font-bold text-white">Atmosphere & Typography</h2>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Dashboard Background</label>
+              <input type="text" name="--bg-url-dashboard" value="<%= theme['--bg-url-dashboard'] || '' %>" placeholder="Image URL..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Auth Background</label>
+              <input type="text" name="--bg-url-auth" value="<%= theme['--bg-url-auth'] || '' %>" placeholder="Image URL..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Admin Background</label>
+              <input type="text" name="--bg-url-admin" value="<%= theme['--bg-url-admin'] || '' %>" placeholder="Image URL..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 pt-8 border-t border-white/5">
           <div class="space-y-2">
             <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Accent Primary</label>
             <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
@@ -283,6 +298,23 @@
               <input type="range" min="0" max="64" step="1" value="<%= parseInt(theme['--card-blur']) || 16 %>" oninput="updateRangeWithUnit(this, '--card-blur', 'px')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500">
               <input type="hidden" name="--card-blur" value="<%= theme['--card-blur'] || '16px' %>">
            </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Static Shadow</label>
+              <input type="text" name="--card-shadow" value="<%= theme['--card-shadow'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Shadow</label>
+              <input type="text" name="--card-hover-shadow" value="<%= theme['--card-hover-shadow'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Transform</label>
+              <input type="text" name="--card-hover-transform" value="<%= theme['--card-hover-transform'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+        </div>
+
+        <div class="mt-8 pt-8 border-t border-white/5">
+           <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">Card Exclusive CSS</label>
+           <textarea name="card_custom_css" rows="4" placeholder="/* Card scoped overrides */" class="w-full rounded-2xl bg-white/5 border border-white/10 text-white px-5 py-4 text-xs font-mono focus:outline-none focus:border-purple-500 transition-all resize-y"><%= theme.card_custom_css %></textarea>
         </div>
       </section>
 
@@ -343,6 +375,26 @@
               <input type="range" min="0.5" max="4" step="0.25" value="<%= parseFloat(theme['--btn-padding-x']) || 1.25 %>" oninput="updateRangeWithUnit(this, '--btn-padding-x', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
               <input type="hidden" name="--btn-padding-x" value="<%= theme['--btn-padding-x'] || '1.25rem' %>">
             </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Background</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" name="--btn-hover-bg" value="<%= theme['--btn-hover-bg'] || '#2563eb' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--btn-hover-bg'] || '#2563eb' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Shadow</label>
+               <input type="text" name="--btn-hover-shadow" value="<%= theme['--btn-hover-shadow'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Active State (Hold)</label>
+               <input type="text" name="--btn-active-transform" value="<%= theme['--btn-active-transform'] || 'scale(0.98)' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all" placeholder="scale(0.98)">
+            </div>
+          </div>
+
+          <div class="mt-8 pt-8 border-t border-white/5">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">Button Exclusive CSS</label>
+            <textarea name="button_custom_css" rows="4" placeholder="/* Button scoped overrides */" class="w-full rounded-2xl bg-white/5 border border-white/10 text-white px-5 py-4 text-xs font-mono focus:outline-none focus:border-emerald-500 transition-all resize-y"><%= theme.button_custom_css %></textarea>
           </div>
         </section>
 
@@ -446,6 +498,21 @@
               <input type="range" id="alpha-slider" min="0" max="1" step="0.01" value="0.6" oninput="syncAllAlphas(this.value)" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
               <p class="text-[9px] text-neutral-500 italic">Adjusts the global opacity of all glass surfaces.</p>
             </div>
+
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Fast</label>
+                 <input type="text" name="--anim-speed-fast" value="<%= theme['--anim-speed-fast'] || '0.2s' %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white text-center text-xs">
+              </div>
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Medium</label>
+                 <input type="text" name="--anim-speed-medium" value="<%= theme['--anim-speed-medium'] || '0.4s' %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white text-center text-xs">
+              </div>
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Slow</label>
+                 <input type="text" name="--anim-speed-slow" value="<%= theme['--anim-speed-slow'] || '0.8s' %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white text-center text-xs">
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -524,8 +591,8 @@
         </div>
 
         <div class="absolute top-6 right-6 flex bg-white/5 p-1 rounded-xl border border-white/10 z-20">
-           <button type="button" onclick="setPreviewSize('desktop')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</button>
-           <button type="button" onclick="setPreviewSize('phone')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</button>
+           <div type="button" onclick="setPreviewSize('desktop')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</div>
+           <div type="button" onclick="setPreviewSize('phone')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</div>
         </div>
 
         <div class="relative z-10 w-full flex justify-center transition-all duration-500" id="preview-wrapper">
@@ -564,8 +631,8 @@ function initialize() {
               </div>
 
               <div class="flex gap-4">
-                 <button type="button" class="flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.95]" style="background-color: var(--accent-color); color: white; border-radius: var(--btn-radius);">Execute</button>
-                 <button type="button" class="px-8 py-4 rounded-xl border border-white/10 font-black text-xs uppercase tracking-widest text-neutral-400" style="border-radius: var(--btn-radius);">Logs</button>
+                 <div type="button" class="cursor-pointer flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.95]" style="background-color: var(--accent-color); color: white; border-radius: var(--btn-radius);">Execute</div>
+                 <div type="button" class="cursor-pointer px-8 py-4 rounded-xl border border-white/10 font-black text-xs uppercase tracking-widest text-neutral-400" style="border-radius: var(--btn-radius);">Logs</div>
               </div>
            </div>
         </div>
@@ -573,12 +640,12 @@ function initialize() {
 
       <!-- Global Actions -->
       <div class="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-white/5">
-        <button type="button" onclick="toggleEditor()" class="px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
+        <div type="button" onclick="toggleEditor()" class="cursor-pointer px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
           Discard Changes
-        </button>
-        <button type="button" onclick="saveAsTheme()" id="saveBtn" class="px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
+        </div>
+        <div type="button" onclick="saveAsTheme()" id="saveBtn" class="cursor-pointer px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
           Create & Save
-        </button>
+        </div>
       </div>
     </form>
   </div>

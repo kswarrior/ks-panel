@@ -59,10 +59,23 @@ const SYSTEM_DEFAULT_THEME = {
   '--pre-size': '0.75rem',
   '--pre-margin': '0rem',
   '--pre-padding': '0.5rem',
+  '--bg-url-dashboard': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop',
+  '--bg-url-auth': 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop',
+  '--bg-url-admin': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2535&auto=format&fit=crop',
+  '--card-hover-transform': 'translateY(-4px)',
+  '--card-hover-shadow': '0 30px 60px -12px rgba(0, 0, 0, 0.6)',
+  '--btn-hover-bg': '#2563eb',
+  '--btn-hover-shadow': '0 15px 20px -3px rgba(59, 130, 246, 0.4)',
+  '--btn-active-transform': 'scale(0.98)',
+  '--anim-speed-fast': '0.2s',
+  '--anim-speed-medium': '0.4s',
+  '--anim-speed-slow': '0.8s',
   'theme_name': 'Default Architecture',
   'theme_type': 'Glassmorphic',
   'theme_category': 'System',
-  'custom_css': ''
+  'custom_css': '',
+  'card_custom_css': '',
+  'button_custom_css': ''
 };
 
 router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req, res) => {
@@ -103,7 +116,7 @@ router.post("/admin/settings/theme/save", hasPermission('manage_settings'), asyn
     let theme = (await db.get("theme")) || {};
 
     // Only update allowed variables (starting with -- or specific fields)
-    const allowedFields = ['custom_css', 'theme_name', 'theme_type', 'theme_category'];
+    const allowedFields = ['custom_css', 'card_custom_css', 'button_custom_css', 'theme_name', 'theme_type', 'theme_category'];
     Object.keys(themeData).forEach(key => {
       if (key.startsWith('--') || allowedFields.includes(key)) {
         theme[key] = themeData[key];
@@ -186,12 +199,28 @@ router.post("/admin/settings/theme/library/activate", hasPermission('manage_sett
   try {
     const { id } = req.body;
     const themeLibrary = (await db.get("theme_library")) || [];
-    const themeToActivate = themeLibrary.find(t => t.id === id);
+    let themeToActivate;
+
+    if (id === 'system-default') {
+      themeToActivate = { id: 'system-default', config: SYSTEM_DEFAULT_THEME };
+    } else {
+      themeToActivate = themeLibrary.find(t => t.id === id);
+    }
 
     if (!themeToActivate) return res.status(404).json({ error: "Theme not found" });
 
-    themeLibrary.forEach(t => t.active = (t.id === id));
-    await db.set("theme_library", themeLibrary);
+    // Update active status in library if it exists there
+    const updatedLibrary = themeLibrary.map(t => ({
+      ...t,
+      active: t.id === id
+    }));
+
+    if (id === 'system-default') {
+      // If activating system default, nothing in library is active
+      updatedLibrary.forEach(t => t.active = false);
+    }
+
+    await db.set("theme_library", updatedLibrary);
     await db.set("theme", themeToActivate.config);
 
     res.json({ success: true });

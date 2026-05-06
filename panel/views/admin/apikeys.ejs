@@ -640,7 +640,7 @@ a:focus:not(:focus-visible) {
           </svg>
           <span class="hidden sm:inline"><%= req.translations ? req.translations.createNewAPIKey : 'Create New API Key' %></span>
           <span class="sm:hidden whitespace-nowrap">Create Key</span>
-        </button>
+        </div>
       </div>
     </header>
 
@@ -658,11 +658,11 @@ a:focus:not(:focus-visible) {
           <h3 class="text-base sm:text-lg font-semibold text-emerald-400"><%= req.translations ? req.translations.created : 'Created' %></h3>
           <p class="text-sm text-emerald-300/80 mt-1 leading-relaxed"><%= req.translations ? req.translations.apiKeySuccessCreated : 'API key created successfully!' %></p>
         </div>
-        <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1 rounded-lg transition-colors touch-target" aria-label="Dismiss notification">
+        <div onclick="this.parentElement.remove()" class="cursor-pointer flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1 rounded-lg transition-colors touch-target" aria-label="Dismiss notification">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
-        </button>
+        </div>
       </div>
     <% } %>
 
@@ -692,9 +692,9 @@ a:focus:not(:focus-visible) {
                         </svg>
                       </div>
                       <p class="text-neutral-400 text-base"><%= req.translations ? req.translations.noApiKeysCreated : 'No API keys created yet' %></p>
-                      <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+                      <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
                         Create your first API key →
-                      </button>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -723,12 +723,12 @@ a:focus:not(:focus-visible) {
                       </div>
                     </td>
                     <td class="py-4 px-4 sm:px-6 text-right">
-                      <button type="button" class="delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target" data-id="<%= key.id %>">
+                      <div type="button" class="cursor-pointer delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target" data-id="<%= key.id %>">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
                         <span class="hidden sm:inline">Remove</span>
-                      </button>
+                      </div>
                     </td>
                   </tr>
                 <% }); %>
@@ -754,9 +754,9 @@ a:focus:not(:focus-visible) {
                 </svg>
               </div>
               <p class="text-neutral-400 text-base"><%= req.translations ? req.translations.noApiKeysCreated : 'No API keys created yet' %></p>
-              <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+              <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
                 Create your first API key →
-              </button>
+              </div>
             </div>
           </div>
         <% } else { %>
@@ -777,23 +777,23 @@ a:focus:not(:focus-visible) {
                     </span>
                   </div>
                 </div>
-                <button type="button" class="delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0" data-id="<%= key.id %>" aria-label="Delete API key">
+                <div type="button" class="cursor-pointer delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0" data-id="<%= key.id %>" aria-label="Delete API key">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
-                </button>
+                </div>
               </div>
               
               <!-- Key Section -->
               <div class="p-4 space-y-3">
                 <div class="flex items-center justify-between mb-2">
                   <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
-                  <button onclick="copyToClipboard('<%= key.key %>')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
+                  <div onclick="copyToClipboard('<%= key.key % class="cursor-pointer">')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
                     Copy
-                  </button>
+                  </div>
                 </div>
                 <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all key-content">
                   <%= key.key %>
@@ -838,15 +838,15 @@ a:focus:not(:focus-visible) {
           </p>
         </div>
         <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 bg-neutral-950/30">
-          <button id="cancelButton" type="button" class="w-full sm:w-auto order-2 sm:order-1 px-6 py-3.5 rounded-xl btn-secondary font-medium text-sm touch-target">
+          <div id="cancelButton" type="button" class="cursor-pointer w-full sm:w-auto order-2 sm:order-1 px-6 py-3.5 rounded-xl btn-secondary font-medium text-sm touch-target">
             Cancel
-          </button>
-          <button id="confirmCreate" type="button" class="w-full sm:w-auto order-1 sm:order-2 px-8 py-3.5 rounded-xl btn-primary font-semibold text-sm shadow-lg flex items-center justify-center gap-2 touch-target">
+          </div>
+          <div id="confirmCreate" type="button" class="cursor-pointer w-full sm:w-auto order-1 sm:order-2 px-8 py-3.5 rounded-xl btn-primary font-semibold text-sm shadow-lg flex items-center justify-center gap-2 touch-target">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
             <%= req.translations ? req.translations.clickToConfirmCreation : 'Click to Confirm Creation' %>
-          </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1074,7 +1074,7 @@ a:focus:not(:focus-visible) {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
           <span class="hidden sm:inline">Remove</span>
-        </button>
+        </div>
       </td>
     `;
     
@@ -1111,18 +1111,18 @@ a:focus:not(:focus-visible) {
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
-        </button>
+        </div>
       </div>
       <div class="p-4 space-y-3">
         <div class="flex items-center justify-between mb-2">
           <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
           ${!isOptimistic ? `
-          <button onclick="copyToClipboard('${data.key}')" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
+          <div onclick="copyToClipboard('${data.key}')" class="cursor-pointer text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
             </svg>
             Copy
-          </button>
+          </div>
           ` : '<span class="optimistic-badge"><span class="animate-spin">⟳</span>Syncing</span>'}
         </div>
         <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all key-content">
@@ -1176,9 +1176,9 @@ a:focus:not(:focus-visible) {
               </svg>
             </div>
             <p class="text-neutral-400 text-base">No API keys created yet</p>
-            <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+            <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
               Create your first API key →
-            </button>
+            </div>
           </div>
         </td>
       `;
@@ -1197,9 +1197,9 @@ a:focus:not(:focus-visible) {
             </svg>
           </div>
           <p class="text-neutral-400 text-base">No API keys created yet</p>
-          <button onclick="showForm(true)" class="mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+          <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
             Create your first API key →
-          </button>
+          </div>
         </div>
       `;
       els.mobileBody?.appendChild(emptyCard);
