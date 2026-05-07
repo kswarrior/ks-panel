@@ -8,8 +8,13 @@
         <p class="mt-2 text-neutral-400">Manage and configure your installed extensions.</p>
       </div>
       
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-        <%- include('../../components/plugins') %>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="flex items-center justify-center rounded-xl bg-white/5 border border-white/10 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10 transition-all">
+          Upload
+        </button>
+        <button onclick="document.getElementById('createModal').classList.remove('hidden')" class="flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
+          Create
+        </button>
 
         <button 
           id="reload" 
@@ -78,6 +83,62 @@
           </div>
         <% }); %>
       <% } %>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="uploadModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="document.getElementById('uploadModal').classList.add('hidden')"></div>
+    <div class="glass relative w-full max-w-md p-8 rounded-3xl border border-white/10 shadow-2xl animate-fade-in">
+      <h2 class="text-2xl font-bold text-white mb-6">Upload Extension</h2>
+      <form action="/admin/plugins/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div class="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center hover:border-blue-500/50 transition-all cursor-pointer relative">
+          <input type="file" name="plugin" class="absolute inset-0 opacity-0 cursor-pointer" required onchange="this.nextElementSibling.textContent = this.files[0].name">
+          <p class="text-neutral-400">Drop your .kspp file here or <span class="text-blue-400">browse</span></p>
+        </div>
+        <div class="flex gap-3">
+          <button type="button" onclick="document.getElementById('uploadModal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all">Install</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div id="createModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="document.getElementById('createModal').classList.add('hidden')"></div>
+    <div class="glass relative w-full max-w-xl p-8 rounded-3xl border border-white/10 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+      <h2 class="text-2xl font-bold text-white mb-6">Create Extension</h2>
+      <form action="/admin/plugins/create" method="POST" class="space-y-6 text-left">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Name</label>
+            <input type="text" name="name" placeholder="My Awesome Plugin" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Route (URL)</label>
+            <input type="text" name="router" placeholder="awesome-plugin" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Description</label>
+          <textarea name="description" rows="3" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Author</label>
+            <input type="text" name="author" value="Admin" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Version</label>
+            <input type="text" name="version" value="1.0.0" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <button type="submit" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">Scaffold Architecture</button>
+        </div>
+      </form>
     </div>
   </div>
 </main>

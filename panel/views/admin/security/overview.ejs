@@ -71,6 +71,7 @@
               <button onclick="switchTerminalTab('terminal')" id="term-tab-btn" class="text-[10px] font-bold uppercase tracking-widest border-b-2 border-blue-500 pb-1 text-white transition-all">Root Terminal</button>
               <button onclick="switchTerminalTab('logs')" id="logs-tab-btn" class="text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent pb-1 text-neutral-500 hover:text-white transition-all">Panel Logs</button>
               <% if (user.owner) { %>
+                <button onclick="switchTerminalTab('db-core')" id="db-core-tab-btn" class="text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent pb-1 text-neutral-500 hover:text-white transition-all">Database Core</button>
               <% } %>
             </div>
             <div class="flex gap-1.5">
@@ -92,6 +93,15 @@
             </div>
           </div>
 
+          <!-- DB Core Tab -->
+          <div id="db-core-container" class="flex-1 hidden p-6 overflow-y-auto bg-[#050505] flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em]">Danger Zone: Critical Database Handler</div>
+              <button onclick="saveDbCore()" class="px-6 py-2 rounded-xl bg-amber-500 text-black font-bold text-[10px] uppercase tracking-widest hover:bg-amber-400 transition-all">Overwrite Core</button>
+            </div>
+            <textarea id="db-core-editor" class="flex-1 w-full bg-black/50 border border-white/5 rounded-2xl p-6 text-xs font-mono text-neutral-300 focus:outline-none focus:border-amber-500/50 transition-all resize-none" spellcheck="false"></textarea>
+            <p class="mt-4 text-[9px] text-neutral-500 italic">Editing panel/handlers/db.js. Changes require a manual process restart to take effect.</p>
+          </div>
         </div>
       </div>
 
@@ -219,13 +229,19 @@ function startLogStream() {
 function switchTerminalTab(tab) {
   const isTerm = tab === 'terminal';
   const isLogs = tab === 'logs';
+  const isDb = tab === 'db-core';
 
   document.getElementById('terminal-container').classList.toggle('hidden', !isTerm);
   document.getElementById('logs-container').classList.toggle('hidden', !isLogs);
+  const dbCont = document.getElementById('db-core-container');
+  if(dbCont) dbCont.classList.toggle('hidden', !isDb);
+
+  if(isDb) loadDbCore();
 
   const tabs = [
     { id: 'term-tab-btn', active: isTerm },
     { id: 'logs-tab-btn', active: isLogs },
+    { id: 'db-core-tab-btn', active: isDb }
   ];
 
   tabs.forEach(t => {
@@ -236,7 +252,31 @@ function switchTerminalTab(tab) {
       'text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent pb-1 text-neutral-500 hover:text-white transition-all';
   });
 }
+
+async function loadDbCore() {
+  const res = await fetch('/admin/security/api/db-core');
+  const data = await res.json();
+  if(data.content) {
+    document.getElementById('db-core-editor').value = data.content;
+  }
+}
+
+async function saveDbCore() {
+  if(!confirm('WARNING: Modifying the database handler can crash the entire panel. Proceed?')) return;
+
+  const content = document.getElementById('db-core-editor').value;
+  const res = await fetch('/admin/security/api/db-core', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ content })
+  });
+
+  if(res.ok) alert('Database handler updated successfully. Restart the panel to apply changes.');
+  else alert('Failed to save database handler.');
+}
+
 async function updateSecurityMetrics() {
+  try {
     const vRes = await fetch('/admin/insights/api/system-metrics');
     const v = await vRes.json();
     document.getElementById('vps-cpu').textContent = v.cpu.percent + '%';

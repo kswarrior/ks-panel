@@ -6,6 +6,8 @@ const log = new (require("cat-loggr"))();
 const { isAdmin } = require("../utils/isAdmin");
 const AdmZip = require('adm-zip');
 const https = require('https');
+const multer = require("multer");
+const upload = multer({ dest: 'storage/temp/' });
 
 const router = express.Router();
 
@@ -496,6 +498,82 @@ router.post("/admin/plugins/store/install", isAdmin, async (req, res) => {
   } catch (error) {
     log.error(`Error installing from store: ${error.message}`);
     res.status(500).send("Installation failed. Please try again.");
+  }
+});
+
+router.post("/admin/plugins/upload", isAdmin, upload.single('plugin'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).send("No file uploaded.");
+    await installFromKspp(req.file.path);
+    fs.unlinkSync(req.file.path);
+    res.redirect("/admin/plugins/overview?success=UPLOADED");
+  } catch (error) {
+    log.error(`Error uploading plugin: ${error.message}`);
+    res.status(500).send("Plugin upload failed.");
+  }
+});
+
+router.post("/admin/plugins/create", isAdmin, async (req, res) => {
+  const { name, router: routeName, description, author, version } = req.body;
+
+  try {
+    const dirName = name.toLowerCase().replace(/ /g, "_");
+    const pluginPath = path.join(pluginsDir, dirName);
+
+    if (fs.existsSync(pluginPath)) return res.status(400).send("Plugin already exists.");
+
+    fs.mkdirSync(pluginPath);
+    fs.mkdirSync(path.join(pluginPath, "router"));
+    fs.mkdirSync(path.join(pluginPath, "views"));
+
+    const manifest = {
+      name,
+      description: description || "A custom KS Panel extension.",
+      author: author || "KS Panel Admin",
+      version: version || "1.0.0",
+      main: "router/index.js",
+      router: routeName || dirName,
+      adminsidebar: {
+        [name]: {
+          icon: "puzzle-piece",
+          link: `/plugins/${routeName || dirName}`
+        }
+      }
+    };
+
+    fs.writeFileSync(path.join(pluginPath, "manifest.json"), JSON.stringify(manifest, null, 2));
+
+    const routerContent = `const express = require('express');
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  res.render('../views/index', { req, user: req.user });
+});
+
+module.exports = router;`;
+
+    fs.writeFileSync(path.join(pluginPath, "router/index.js"), routerContent);
+
+    const viewContent = `<%- include('../../../panel/views/components/template') %>
+<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 pt-4 pb-8">
+  <div class="glass p-12 rounded-3xl border border-white/10 text-center">
+    <h1 class="text-4xl font-bold text-white mb-4">${name}</h1>
+    <p class="text-neutral-400">Welcome to your new custom plugin page.</p>
+  </div>
+</main>
+<%- include('../../../panel/views/components/footer') %>`;
+
+    fs.writeFileSync(path.join(pluginPath, "views/index.ejs"), viewContent);
+
+    const pluginsJson = await readPluginsJson();
+    pluginsJson[name] = { enabled: true };
+    await writePluginsJson(pluginsJson);
+
+    await loadAndActivatePlugins();
+    res.redirect("/admin/plugins/overview?success=CREATED");
+  } catch (error) {
+    log.error(`Error creating plugin: ${error.message}`);
+    res.status(500).send("Plugin creation failed.");
   }
 });
 
