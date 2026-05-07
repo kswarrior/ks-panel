@@ -17,7 +17,10 @@ const crypto = require("node:crypto");
 const { isAdmin, hasPermission, checkPermission, anyAdminPerm } = require("./utils/isAdmin.js");
 
 const { loadPlugins } = require("./plugins/loadPls.js");
-let plugins = loadPlugins(path.join(__dirname, "./plugins"));
+const pluginsDir = path.join(__dirname, "../database/plugins");
+if (!fs.existsSync(pluginsDir)) fs.mkdirSync(pluginsDir, { recursive: true });
+
+let plugins = loadPlugins(pluginsDir);
 plugins = Object.values(plugins).map((plugin) => plugin.config);
 
 const { init } = require("./handlers/init.js");

@@ -1,5 +1,8 @@
 {
     "example_plugin": {
         "enabled": false
+    },
+    "Test Plugin": {
+        "enabled": false
     }
 }

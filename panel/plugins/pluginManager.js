@@ -513,36 +513,82 @@ router.post("/admin/plugins/upload", isAdmin, upload.single('plugin'), async (re
   }
 });
 
-router.post("/admin/plugins/create", isAdmin, async (req, res) => {
-  const { name, router: routeName, description, author, version } = req.body;
+router.get("/admin/plugins/studio", isAdmin, async (req, res) => {
+  const viewsDir = path.join(__dirname, "../views");
+  const routesDir = path.join(__dirname, "../routes");
+
+  const getFiles = (dir, base = "") => {
+    let results = [];
+    const list = fs.readdirSync(dir);
+    list.forEach(file => {
+      const fullPath = path.join(dir, file);
+      const stat = fs.statSync(fullPath);
+      const relativePath = path.join(base, file);
+      if (stat && stat.isDirectory()) {
+        results = results.concat(getFiles(fullPath, relativePath));
+      } else if (file.endsWith(".ejs") || file.endsWith(".js")) {
+        results.push(relativePath);
+      }
+    });
+    return results;
+  };
+
+  res.render("admin/plugins/studio", {
+    req,
+    user: req.user,
+    pluginSidebar,
+    views: getFiles(viewsDir),
+    routes: getFiles(routesDir)
+  });
+});
+
+router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
+  const {
+    name, type, category, version, description,
+    sidebar_category, sidebar_name, sidebar_route,
+    import_views, import_routes
+  } = req.body;
 
   try {
-    const dirName = name.toLowerCase().replace(/ /g, "_");
+    const dirName = name.toLowerCase().replace(/ /g, "_").replace(/[^a-z0-9_]/g, "");
     const pluginPath = path.join(pluginsDir, dirName);
 
-    if (fs.existsSync(pluginPath)) return res.status(400).send("Plugin already exists.");
+    if (fs.existsSync(pluginPath)) return res.status(400).send("Plugin directory already exists.");
 
-    fs.mkdirSync(pluginPath);
-    fs.mkdirSync(path.join(pluginPath, "router"));
-    fs.mkdirSync(path.join(pluginPath, "views"));
+    fs.mkdirSync(pluginPath, { recursive: true });
+    fs.mkdirSync(path.join(pluginPath, "router"), { recursive: true });
+    fs.mkdirSync(path.join(pluginPath, "views"), { recursive: true });
+
+    // Build sidebar manifest
+    const adminsidebar = {};
+    if (sidebar_name && Array.isArray(sidebar_name)) {
+      sidebar_name.forEach((sName, index) => {
+        const sCat = sidebar_category[index] || "Plugins";
+        const sRoute = sidebar_route[index] || dirName;
+
+        if (!adminsidebar[sCat]) adminsidebar[sCat] = [];
+        adminsidebar[sCat].push({
+          name: sName,
+          icon: "puzzle-piece",
+          link: `/plugins/${sRoute}`
+        });
+      });
+    }
 
     const manifest = {
       name,
-      description: description || "A custom KS Panel extension.",
-      author: author || "KS Panel Admin",
+      type: type || "extension",
+      category: category || "General",
       version: version || "1.0.0",
+      description: description || "Scaffolded with KS Studio.",
       main: "router/index.js",
-      router: routeName || dirName,
-      adminsidebar: {
-        [name]: {
-          icon: "puzzle-piece",
-          link: `/plugins/${routeName || dirName}`
-        }
-      }
+      router: dirName,
+      adminsidebar
     };
 
     fs.writeFileSync(path.join(pluginPath, "manifest.json"), JSON.stringify(manifest, null, 2));
 
+    // Scaffolding core files
     const routerContent = `const express = require('express');
 const router = express.Router();
 
@@ -551,19 +597,37 @@ router.get('/', (req, res) => {
 });
 
 module.exports = router;`;
-
     fs.writeFileSync(path.join(pluginPath, "router/index.js"), routerContent);
 
     const viewContent = `<%- include('../../../panel/views/components/template') %>
-<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 pt-4 pb-8">
+<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 pt-8 pb-12">
   <div class="glass p-12 rounded-3xl border border-white/10 text-center">
-    <h1 class="text-4xl font-bold text-white mb-4">${name}</h1>
-    <p class="text-neutral-400">Welcome to your new custom plugin page.</p>
+    <div class="w-20 h-20 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20 mx-auto mb-6">
+       <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+    </div>
+    <h1 class="text-4xl font-black text-white mb-4">${name}</h1>
+    <p class="text-neutral-400 max-w-md mx-auto">${description || 'Welcome to your new custom plugin page.'}</p>
   </div>
 </main>
 <%- include('../../../panel/views/components/footer') %>`;
-
     fs.writeFileSync(path.join(pluginPath, "views/index.ejs"), viewContent);
+
+    // Import logic
+    if (import_views && Array.isArray(import_views)) {
+      import_views.forEach(v => {
+        const src = path.join(__dirname, "../views", v);
+        const dest = path.join(pluginPath, "views", path.basename(v));
+        if (fs.existsSync(src)) fs.copyFileSync(src, dest);
+      });
+    }
+
+    if (import_routes && Array.isArray(import_routes)) {
+      import_routes.forEach(r => {
+        const src = path.join(__dirname, "../routes", r);
+        const dest = path.join(pluginPath, "router", path.basename(r));
+        if (fs.existsSync(src)) fs.copyFileSync(src, dest);
+      });
+    }
 
     const pluginsJson = await readPluginsJson();
     pluginsJson[name] = { enabled: true };
@@ -572,7 +636,7 @@ module.exports = router;`;
     await loadAndActivatePlugins();
     res.redirect("/admin/plugins/overview?success=CREATED");
   } catch (error) {
-    log.error(`Error creating plugin: ${error.message}`);
+    log.error(`Error creating plugin via Studio: ${error.message}`);
     res.status(500).send("Plugin creation failed.");
   }
 });
