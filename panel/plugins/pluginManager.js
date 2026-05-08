@@ -563,10 +563,10 @@ router.get("/admin/plugins/studio", isAdmin, async (req, res) => {
 router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
   const {
     name, type, category, version, description,
-    sidebar_category, sidebar_name, sidebar_route,
+    sidebar_category, sidebar_name, sidebar_route, sidebar_icon,
     import_views, import_routes,
     custom_code, custom_code_type,
-    dependencies, hooks
+    dependencies, hooks, permissions
   } = req.body;
 
   try {
@@ -581,15 +581,21 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
 
     // Build sidebar manifest
     const adminsidebar = {};
-    if (sidebar_name && Array.isArray(sidebar_name)) {
-      sidebar_name.forEach((sName, index) => {
-        const sCat = sidebar_category[index] || "Plugins";
-        const sRoute = sidebar_route[index] || dirName;
+    if (sidebar_name) {
+      const names = Array.isArray(sidebar_name) ? sidebar_name : [sidebar_name];
+      const cats = Array.isArray(sidebar_category) ? sidebar_category : [sidebar_category];
+      const routes = Array.isArray(sidebar_route) ? sidebar_route : [sidebar_route];
+      const icons = Array.isArray(sidebar_icon) ? sidebar_icon : [sidebar_icon];
+
+      names.forEach((sName, index) => {
+        if (!sName) return;
+        const sCat = cats[index] || "Plugins";
+        const sRoute = routes[index] || dirName;
 
         if (!adminsidebar[sCat]) adminsidebar[sCat] = [];
         adminsidebar[sCat].push({
           name: sName,
-          icon: "puzzle-piece",
+          icon: icons[index] || "puzzle-piece",
           link: `/plugins/${sRoute}`
         });
       });
@@ -605,7 +611,8 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
       router: dirName,
       adminsidebar,
       dependencies: dependencies ? (Array.isArray(dependencies) ? dependencies.filter(d => d.trim() !== '') : [dependencies]) : [],
-      hooks: hooks ? (Array.isArray(hooks) ? hooks : [hooks]) : []
+      hooks: hooks ? (Array.isArray(hooks) ? hooks : [hooks]) : [],
+      permissions: permissions ? (Array.isArray(permissions) ? permissions : [permissions]) : []
     };
 
     fs.writeFileSync(path.join(pluginPath, "manifest.json"), JSON.stringify(manifest, null, 2));
