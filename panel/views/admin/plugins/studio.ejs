@@ -15,211 +15,138 @@
       </a>
     </header>
 
-    <form action="/admin/plugins/studio/create" method="POST" id="studioForm">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <form action="/admin/plugins/studio/create" method="POST" id="studioForm" enctype="multipart/form-data">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-        <!-- Sidebar Management & Logic laboratory (Top Left) -->
+        <!-- Architecture Stack (Left) -->
         <div class="lg:col-span-1 space-y-6">
-          <section class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
-            <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
-              Sidebar Management
-            </h2>
-
-            <div class="mb-4">
-              <p class="text-[10px] text-neutral-500 font-bold uppercase tracking-widest italic">Register pages to appear in the Admin Sidebar.</p>
-            </div>
-
-            <div id="sidebarItems" class="space-y-2">
-              <!-- Dynamically populated -->
-            </div>
-
-            <button type="button" onclick="addSidebarItem()" class="w-full mt-4 py-4 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 hover:text-white hover:border-blue-500/50 hover:bg-blue-500/5 transition-all">
-              + Add Sidebar Registration
-            </button>
-          </section>
-
+          <!-- Sidebar -->
           <section class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
-                Page Registry
-              </h2>
-              <input type="text" id="registrySearch" placeholder="Search..." class="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-white focus:outline-none focus:border-amber-500 transition-all">
+              <h2 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Sidebar</h2>
+              <button type="button" onclick="addSidebarItem()" class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase">Add</button>
             </div>
+            <div id="sidebarItems" class="space-y-2"></div>
+          </section>
 
-            <div id="pageRegistry" class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
-               <!-- Auto-populated from logic laboratory -->
+          <!-- Frontend -->
+          <section class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Frontend</h2>
+              <div class="flex gap-1">
+                <button type="button" onclick="addFile('fe')" class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase">Add</button>
+                <button type="button" onclick="triggerImport('fe')" class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase">Import</button>
+                <label class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase cursor-pointer">
+                  Upload
+                  <input type="file" multiple class="hidden" onchange="handleUpload(this, 'fe')">
+                </label>
+              </div>
             </div>
+            <div id="feFiles" class="space-y-2"></div>
+          </section>
 
-            <p class="mt-4 text-[9px] text-neutral-500 font-bold uppercase tracking-widest text-center italic">Pages defined in your logic appear here automatically.</p>
+          <!-- Backend -->
+          <section class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Backend</h2>
+              <div class="flex gap-1">
+                <button type="button" onclick="addFile('be')" class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase">Add</button>
+                <button type="button" onclick="triggerImport('be')" class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase">Import</button>
+                <label class="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase cursor-pointer">
+                  Upload
+                  <input type="file" multiple class="hidden" onchange="handleUpload(this, 'be')">
+                </label>
+              </div>
+            </div>
+            <div id="beFiles" class="space-y-2"></div>
+          </section>
+
+          <!-- Page Registry -->
+          <section class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Page Registry</h2>
+              <input type="text" id="registrySearch" placeholder="Filter..." class="w-20 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[9px] text-white focus:outline-none focus:border-amber-500 transition-all">
+            </div>
+            <div id="pageRegistry" class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1"></div>
           </section>
         </div>
 
-        <!-- Extension Core (Right) -->
-        <div class="lg:col-span-2 space-y-8">
-          <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
-            <h2 class="text-xl font-bold text-white mb-8">Extension Metadata</h2>
+        <!-- Extension Core & IDE (Right) -->
+        <div class="lg:col-span-3 space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
+               <h2 class="text-xl font-bold text-white mb-8">Metadata</h2>
+               <div class="grid grid-cols-2 gap-6">
+                 <div><label class="text-[10px] font-black text-neutral-500 uppercase block mb-1">Name</label><input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"></div>
+                 <div><label class="text-[10px] font-black text-neutral-500 uppercase block mb-1">Version</label><input type="text" name="version" value="1.0.0" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"></div>
+               </div>
+               <div class="mt-4"><label class="text-[10px] font-black text-neutral-500 uppercase block mb-1">Description</label><textarea name="description" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"></textarea></div>
+             </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Plugin Name</label>
-                <input type="text" name="name" required placeholder="My Awesome Plugin" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
-              </div>
+             <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
+               <h2 class="text-xl font-bold text-white mb-8">Required Permissions</h2>
+               <div class="grid grid-cols-2 gap-2">
+                 <% [
+                   {id: 'db:read', label: 'Database R/O'},
+                   {id: 'db:write', label: 'Database R/W'},
+                   {id: 'terminal:exec', label: 'Terminal Exec (VPS/apt)'},
+                   {id: 'users:manage', label: 'User Mgmt'},
+                   {id: 'servers:manage', label: 'Server Mgmt'},
+                   {id: 'system:power', label: 'System Control'}
+                 ].forEach(perm => { %>
+                   <label class="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all group">
+                     <input type="checkbox" name="permissions[]" value="<%= perm.id %>" class="rounded border-white/20 bg-white/5 text-blue-500 focus:ring-0">
+                     <span class="text-[10px] text-neutral-400 font-bold uppercase group-hover:text-white"><%= perm.label %></span>
+                   </label>
+                 <% }) %>
+               </div>
+             </section>
+          </div>
 
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Plugin Type</label>
-                <select name="type" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
-                  <option value="extension">Extension</option>
-                  <option value="theme">Theme Addon</option>
-                  <option value="integration">Integration</option>
-                </select>
-              </div>
-
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Category</label>
-                <input type="text" name="category" placeholder="Utilities" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
-              </div>
-
-              <div class="space-y-2">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Version</label>
-                <input type="text" name="version" placeholder="1.0.0" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all">
-              </div>
-            </div>
-
-            <div class="mt-6 space-y-2">
-              <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Description</label>
-              <textarea name="description" rows="3" placeholder="Explain what this plugin does..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all"></textarea>
-            </div>
-          </section>
-
-          <!-- Logic Laboratory -->
+          <!-- IDE Interface -->
           <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
             <div class="flex items-center justify-between mb-8">
-              <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                Logic Laboratory
-              </h2>
+              <div class="flex items-center gap-4">
+                <h2 class="text-xl font-bold text-white">Logic Laboratory</h2>
+                <div id="fileTabs" class="flex gap-2">
+                   <!-- Dynamically populated file tabs -->
+                </div>
+              </div>
               <div class="flex gap-2">
-                 <button type="button" onclick="setLanguage('javascript')" class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400 hover:text-white transition-all">Backend (JS)</button>
-                 <button type="button" onclick="setLanguage('html')" class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400 hover:text-white transition-all">Frontend (EJS)</button>
-              </div>
-            </div>
-
-            <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-                <label class="text-[10px] font-black text-blue-400/50 uppercase tracking-widest block mb-2 text-center">Import Base Logic</label>
-                <select id="importSelector" class="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all">
-                   <option value="">Select a file to clone...</option>
-                   <optgroup label="Views (Frontend)">
-                     <% views.forEach(v => { %> <option value="view:<%= v %>"><%= v %></option> <% }) %>
-                   </optgroup>
-                   <optgroup label="Routes (Backend)">
-                     <% routes.forEach(r => { %> <option value="route:<%= r %>"><%= r %></option> <% }) %>
-                   </optgroup>
-                </select>
-                <button type="button" onclick="importToEditor()" class="w-full mt-2 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-500/20 transition-all">
-                  Inject Source to Editor
-                </button>
-              </div>
-              <div class="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10">
-                 <label class="text-[10px] font-black text-purple-400/50 uppercase tracking-widest block mb-2 text-center">Studio Presets</label>
-                 <div class="grid grid-cols-2 gap-2">
-                   <button type="button" onclick="loadPreset('blank')" class="py-2 bg-white/5 border border-white/10 text-neutral-400 rounded-lg text-[10px] font-bold hover:text-white transition-all">Empty Template</button>
-                   <button type="button" onclick="loadPreset('basic')" class="py-2 bg-white/5 border border-white/10 text-neutral-400 rounded-lg text-[10px] font-bold hover:text-white transition-all">Standard Page</button>
-                 </div>
+                 <button type="button" id="saveActiveFile" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-[10px] font-black uppercase">Sync to Stack</button>
               </div>
             </div>
 
             <div id="editor" class="w-full h-[600px] rounded-2xl border border-white/10 bg-black/40 overflow-hidden"></div>
-            <input type="hidden" name="custom_code" id="custom_code">
-            <input type="hidden" name="custom_code_type" id="custom_code_type" value="javascript">
           </section>
 
           <!-- Advanced Configuration -->
           <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
-            <h2 class="text-xl font-bold text-white mb-8 flex items-center gap-2">
-              <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-              Advanced Configuration
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div class="space-y-4">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Dependencies (NPM Packages)</label>
-                <div id="dependencyList" class="space-y-2">
-                  <div class="flex gap-2">
-                    <input type="text" name="dependencies[]" placeholder="e.g., axios" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs focus:outline-none focus:border-blue-500 transition-all">
-                    <button type="button" onclick="addDependency()" class="px-3 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10">+</button>
+          <!-- Dependency Cloner (Dynamic Importer Modal) -->
+          <div id="importModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-xl" onclick="this.parentElement.classList.add('hidden')"></div>
+            <div class="glass relative w-full max-w-2xl p-8 rounded-[2rem] border border-white/10 shadow-2xl">
+              <h2 class="text-2xl font-black text-white mb-8">Import Source Component</h2>
+              <div class="grid grid-cols-2 gap-8 h-96">
+                <div class="space-y-4">
+                  <h3 class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Views (Frontend)</h3>
+                  <div class="space-y-1 max-h-80 overflow-y-auto custom-scrollbar">
+                    <% views.forEach(v => { %>
+                      <div onclick="selectForImport('fe', '<%= v %>')" class="p-3 rounded-xl bg-white/5 border border-white/5 text-xs text-neutral-400 hover:text-white hover:bg-blue-500/10 hover:border-blue-500/20 cursor-pointer transition-all truncate"><%= v %></div>
+                    <% }) %>
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <h3 class="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Routes (Backend)</h3>
+                  <div class="space-y-1 max-h-80 overflow-y-auto custom-scrollbar">
+                    <% routes.forEach(r => { %>
+                      <div onclick="selectForImport('be', '<%= r %>')" class="p-3 rounded-xl bg-white/5 border border-white/5 text-xs text-neutral-400 hover:text-white hover:bg-purple-500/10 hover:border-purple-500/20 cursor-pointer transition-all truncate"><%= r %></div>
+                    <% }) %>
                   </div>
                 </div>
               </div>
-
-              <div class="space-y-4">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Permissions</label>
-                <div class="grid grid-cols-2 gap-2">
-                  <% ['readDB', 'writeDB', 'manageUsers', 'manageServers', 'manageNodes'].forEach(perm => { %>
-                    <label class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
-                      <input type="checkbox" name="permissions[]" value="<%= perm %>" class="rounded border-white/20 bg-white/5 text-blue-500 focus:ring-0">
-                      <span class="text-[10px] text-neutral-400 font-bold uppercase tracking-tight"><%= perm.replace('manage', '') %></span>
-                    </label>
-                  <% }) %>
-                </div>
-              </div>
-
-              <div class="space-y-4">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Event Hooks</label>
-                <div class="grid grid-cols-2 gap-2">
-                  <% ['onServerCreate', 'onServerDelete', 'onUserCreate', 'onUserDelete', 'onPluginLoad'].forEach(hook => { %>
-                    <label class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
-                      <input type="checkbox" name="hooks[]" value="<%= hook %>" class="rounded border-white/20 bg-white/5 text-blue-500 focus:ring-0">
-                      <span class="text-[10px] text-neutral-400 font-bold uppercase tracking-tight"><%= hook.replace('on', '') %></span>
-                    </label>
-                  <% }) %>
-                </div>
-              </div>
             </div>
-          </section>
-
-          <!-- Component Importer (Legacy) -->
-          <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
-             <div class="flex items-center justify-between mb-8">
-                <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                  <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V7M8 7h8a2 2 0 012 2v9a2 2 0 01-2 2H10a2 2 0 01-2-2V7z"></path></svg>
-                  Static Cloner
-                </h2>
-                <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Copy Entire Files</p>
-             </div>
-
-            <p class="text-sm text-neutral-400 mb-6 italic">This will copy the entire file to your plugin's views/router folders as a static asset.</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <!-- Views -->
-              <div class="space-y-4">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Clone Views</label>
-                <div class="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                  <% views.forEach(view => { %>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
-                      <input type="checkbox" name="import_views[]" value="<%= view %>" class="rounded border-white/20 bg-white/5 text-blue-500 focus:ring-0">
-                      <span class="text-xs text-neutral-300 truncate"><%= view %></span>
-                    </label>
-                  <% }) %>
-                </div>
-              </div>
-
-              <!-- Routes -->
-              <div class="space-y-4">
-                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Clone Routes</label>
-                <div class="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                  <% routes.forEach(route => { %>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
-                      <input type="checkbox" name="import_routes[]" value="<%= route %>" class="rounded border-white/20 bg-white/5 text-blue-500 focus:ring-0">
-                      <span class="text-xs text-neutral-300 truncate"><%= route %></span>
-                    </label>
-                  <% }) %>
-                </div>
-              </div>
-            </div>
-          </section>
+          </div>
 
           <!-- Submit & Live Manifest -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -254,57 +181,117 @@
 </style>
 
 <script>
+let architectureStack = {
+  fe: [{ name: 'index.ejs', content: '<h1>Hello Plugin</h1>' }],
+  be: [{ name: 'index.js', content: 'const express = require("express");\nconst router = express.Router();\n\nrouter.get("/", (req, res) => { res.render("../views/index"); });\n\nmodule.exports = router;' }]
+};
+let activeFile = { type: 'be', index: 0 };
+
 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
 require(['vs/editor/editor.main'], function() {
     window.editor = monaco.editor.create(document.getElementById('editor'), {
-        value: "// Write your custom logic here...\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});",
+        value: architectureStack.be[0].content,
         language: 'javascript',
         theme: 'vs-dark',
         automaticLayout: true,
-        fontSize: 12,
+        fontSize: 13,
         minimap: { enabled: false },
-        lineNumbers: 'on',
-        scrollBeyondLastLine: false,
-        padding: { top: 16, bottom: 16 },
-        wordWrap: 'on'
+        padding: { top: 20 }
     });
+    renderStack();
 });
 
-function setLanguage(lang) {
-  monaco.editor.setModelLanguage(window.editor.getModel(), lang);
-  document.getElementById('custom_code_type').value = lang;
+function renderStack() {
+  ['fe', 'be'].forEach(type => {
+    const container = document.getElementById(type + 'Files');
+    container.innerHTML = architectureStack[type].map((f, i) => `
+      <div onclick="switchFile('${type}', ${i})" class="group flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer ${activeFile.type === type && activeFile.index === i ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-transparent hover:border-white/10'}">
+        <span class="text-xs ${activeFile.type === type && activeFile.index === i ? 'text-blue-400 font-bold' : 'text-neutral-400'} truncate">${f.name}</span>
+        <button type="button" onclick="event.stopPropagation(); removeFile('${type}', ${i})" class="opacity-0 group-hover:opacity-100 text-red-500"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
+      </div>
+    `).join('');
+  });
+  renderTabs();
+  syncPagesFromLogic();
+  updateManifestPreview();
 }
 
-async function importToEditor() {
-  const val = document.getElementById('importSelector').value;
-  if (!val) return;
+function switchFile(type, index) {
+  architectureStack[activeFile.type][activeFile.index].content = window.editor.getValue();
+  activeFile = { type, index };
+  const file = architectureStack[type][index];
+  window.editor.setValue(file.content);
+  monaco.editor.setModelLanguage(window.editor.getModel(), type === 'fe' ? 'html' : 'javascript');
+  renderStack();
+}
 
-  const [type, file] = val.split(':');
+function addFile(type) {
+  const name = prompt("Enter filename (without extension):");
+  if (!name) return;
+  architectureStack[type].push({ name: name + (type === 'fe' ? '.ejs' : '.js'), content: '' });
+  renderStack();
+}
 
+function triggerImport(type) {
+  window.importTargetType = type;
+  document.getElementById('importModal').classList.remove('hidden');
+}
+
+async function selectForImport(type, file) {
   try {
-    const res = await fetch(`/admin/plugins/studio/src?type=${type}&file=${file}`);
+    const res = await fetch(`/admin/plugins/studio/src?type=${type === 'fe' ? 'view' : 'route'}&file=${file}`);
     const data = await res.json();
-    window.editor.setValue(data.content);
-    setLanguage(type === 'view' ? 'html' : 'javascript');
-  } catch (e) {
-    alert("Failed to fetch source code.");
-  }
+    architectureStack[window.importTargetType].push({ name: path.basename(file), content: data.content });
+    document.getElementById('importModal').classList.add('hidden');
+    renderStack();
+  } catch (e) { alert("Import failed."); }
 }
 
-function loadPreset(key) {
-  const presets = {
-    blank: "// Start from scratch\n",
-    basic: `const express = require('express');\nconst router = express.Router();\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});\n\nmodule.exports = router;`
-  };
-  if (presets[key]) {
-    window.editor.setValue(presets[key]);
-    setLanguage('javascript');
-  }
+function handleUpload(input, type) {
+  Array.from(input.files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      architectureStack[type].push({ name: f.name, content: e.target.result });
+      renderStack();
+    };
+    reader.readAsText(f);
+  });
 }
 
-document.getElementById('studioForm').addEventListener('submit', () => {
-  document.getElementById('custom_code').value = window.editor.getValue();
+function removeFile(type, index) {
+  if (architectureStack[type].length <= 1) return alert("Must have at least one file.");
+  architectureStack[type].splice(index, 1);
+  if (activeFile.type === type && activeFile.index >= architectureStack[type].length) activeFile.index = 0;
+  renderStack();
+}
+
+document.getElementById('studioForm').addEventListener('submit', (e) => {
+  architectureStack[activeFile.type][activeFile.index].content = window.editor.getValue();
+  const form = e.target;
+
+  architectureStack.fe.forEach(f => {
+    form.insertAdjacentHTML('beforeend', `<input type="hidden" name="fe_filenames[]" value="${f.name}">`);
+    form.insertAdjacentHTML('beforeend', `<input type="hidden" name="fe_contents[]" value="${f.content.replace(/"/g, '&quot;')}">`);
+  });
+
+  architectureStack.be.forEach(f => {
+    form.insertAdjacentHTML('beforeend', `<input type="hidden" name="be_filenames[]" value="${f.name}">`);
+    form.insertAdjacentHTML('beforeend', `<input type="hidden" name="be_contents[]" value="${f.content.replace(/"/g, '&quot;')}">`);
+  });
 });
+
+document.getElementById('saveActiveFile').addEventListener('click', () => {
+  architectureStack[activeFile.type][activeFile.index].content = window.editor.getValue();
+  syncPagesFromLogic();
+  updateManifestPreview();
+  alert("Synced to memory.");
+});
+
+function renderTabs() {
+  const tabs = document.getElementById('fileTabs');
+  const file = architectureStack[activeFile.type][activeFile.index];
+  tabs.innerHTML = `<div class="px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest border border-blue-500/30">Editing: ${file.name}</div>`;
+}
 
 function updateManifestPreview() {
   const form = document.getElementById('studioForm');
@@ -329,12 +316,9 @@ function updateManifestPreview() {
 
   const manifest = {
     name: formData.get('name') || 'Unnamed Plugin',
-    type: formData.get('type'),
-    category: formData.get('category'),
     version: formData.get('version'),
     description: formData.get('description'),
     main: 'router/index.js',
-    router: (formData.get('name') || '').toLowerCase().replace(/ /g, '_'),
     adminsidebar,
     dependencies: formData.getAll('dependencies[]').filter(d => d),
     hooks: formData.getAll('hooks[]'),
@@ -354,50 +338,27 @@ document.getElementById('registrySearch').addEventListener('input', (e) => {
   });
 });
 
-// Powerful logic to sync logic editor routes with Sidebar management
 function syncPagesFromLogic() {
-  const code = window.editor.getValue();
-  const lang = document.getElementById('custom_code_type').value;
   const registry = document.getElementById('pageRegistry');
   registry.innerHTML = '';
 
-  if (lang === 'javascript') {
-    // Regex to find router.get('/path', ...)
+  architectureStack.be.forEach(file => {
     const routeRegex = /router\.(get|post|put|delete)\(['"]\/([^'"]*)['"]/g;
     let match;
-    const foundPaths = new Set();
-
-    while ((match = routeRegex.exec(code)) !== null) {
+    while ((match = routeRegex.exec(file.content)) !== null) {
       const path = match[2] || 'index';
-      if (!foundPaths.has(path)) {
-        foundPaths.add(path);
-
-        const div = document.createElement('div');
-        div.className = 'flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 animate-fade-in hover:border-blue-500/30 transition-all';
-        div.innerHTML = `
-          <div class="flex flex-col">
-            <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">${match[1]}</span>
-            <span class="text-xs text-white font-mono">/${path}</span>
-          </div>
-          <button type="button" onclick="addSidebarRegistration('${path}')" class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-black text-neutral-400 hover:text-white hover:bg-blue-500/20 transition-all uppercase tracking-tighter">
-            Add to Sidebar
-          </button>
-        `;
-        registry.appendChild(div);
-      }
+      const div = document.createElement('div');
+      div.className = 'flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 animate-fade-in hover:border-blue-500/30 transition-all';
+      div.innerHTML = `
+        <div class="flex flex-col">
+          <span class="text-[9px] font-black text-blue-400 uppercase">${match[1]}</span>
+          <span class="text-[10px] text-white font-mono truncate max-w-[80px]">/${path}</span>
+        </div>
+        <button type="button" onclick="addSidebarRegistration('${path}')" class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-neutral-400 hover:text-white transition-all uppercase">Add</button>
+      `;
+      registry.appendChild(div);
     }
-  } else {
-     // For EJS, maybe just one root page
-     const div = document.createElement('div');
-     div.className = 'flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 animate-fade-in';
-     div.innerHTML = `
-       <span class="text-xs text-white">Frontend Template</span>
-       <button type="button" onclick="addSidebarRegistration('index')" class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-black text-neutral-400 hover:text-white transition-all uppercase tracking-tighter">
-         Add to Sidebar
-       </button>
-     `;
-     registry.appendChild(div);
-  }
+  });
 }
 
 function addSidebarRegistration(path) {

@@ -1,8 +1,12 @@
 {
-    "example_plugin": {
-        "enabled": false
+    "test_plugin": {
+        "enabled": true,
+        "approved_permissions": [
+            "db:read",
+            "terminal:exec"
+        ]
     },
-    "Test Plugin": {
+    "example_plugin": {
         "enabled": false
     }
 }
