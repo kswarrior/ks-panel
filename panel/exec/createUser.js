@@ -46,9 +46,12 @@ function echoError(message) {
 --------------------------*/
 function parseArguments() {
   const args = {};
-  process.argv.slice(2).forEach((arg) => {
+  process.argv.slice(2).forEach((arg, index, array) => {
     if (arg.startsWith("--")) {
-      const [key, value] = arg.replace("--", "").split("=");
+      let [key, value] = arg.replace("--", "").split("=");
+      if (!value && array[index + 1] && !array[index + 1].startsWith("--")) {
+        value = array[index + 1];
+      }
       args[key] = value;
     }
   });

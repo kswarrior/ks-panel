@@ -46,6 +46,10 @@ async function seed() {
     const existingImages = await db.get("images");
 
     if (existingImages && existingImages.length > 0) {
+      if (process.env.NON_INTERACTIVE === 'true') {
+        echoWarning("'images' already exists. Skipping seed in non-interactive mode.");
+        process.exit(0);
+      }
       rl.question(
         `${COLORS.YELLOW}'images' already exists in database. Continue seeding? (y/n): ${COLORS.RESET}`,
         async (answer) => {
@@ -56,12 +60,14 @@ async function seed() {
           } else {
             await performSeeding();
             rl.close();
+            process.exit(0);
           }
         }
       );
     } else {
       await performSeeding();
       rl.close();
+      process.exit(0);
     }
   } catch (error) {
     echoError("Seeding failed: " + error.message);
@@ -73,6 +79,9 @@ async function seed() {
    Perform Seeding
 --------------------------*/
 async function performSeeding() {
+  if (process.env.NON_INTERACTIVE === 'true') {
+    echo("Non-interactive mode enabled, skipping prompt.");
+  }
   try {
     echo("Fetching image index...");
 
@@ -103,9 +112,11 @@ async function performSeeding() {
       echoSuccess("Seeding completed successfully!");
     } else {
       echoWarning("No new images were added.");
+      process.exit(1);
     }
   } catch (error) {
     echoError("Failed to fetch index or store data: " + error.message);
+    process.exit(1);
   }
 }
 

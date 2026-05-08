@@ -48,37 +48,31 @@
     <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
       <div>
         <h1 class="text-4xl font-black text-white tracking-tight">Identity & Access</h1>
-        <p class="mt-2 text-neutral-400 font-medium">Oversee accounts, assigned roles, and security policies.</p>
+        <p class="mt-2 text-neutral-400 font-medium">Oversee user accounts and access permissions across the platform.</p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
         <!-- Search & Filter Toggles -->
         <div class="flex bg-white/5 border border-white/10 rounded-2xl p-1.5 mr-2">
-          <button onclick="toggleSearchBar()" id="searchToggle"
-                  class="p-2.5 rounded-xl transition-all hover:bg-white/5 <%= filters.search ? 'text-blue-400 bg-blue-400/10' : 'text-neutral-400' %>">
+          <div onclick="toggleSearchBar()" id="searchToggle"
+                  class="p-2.5 rounded-xl transition-all hover:bg-white/5 cursor-pointer <%= filters.search ? 'text-blue-400 bg-blue-400/10' : 'text-neutral-400' %>">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          </button>
-          <button onclick="toggleFilterBar()" id="filterToggle"
-                  class="p-2.5 rounded-xl transition-all hover:bg-white/5 <%= (filters.role || filters.status) ? 'text-emerald-400 bg-emerald-400/10' : 'text-neutral-400' %>">
+          </div>
+          <div onclick="toggleFilterBar()" id="filterToggle"
+                  class="p-2.5 rounded-xl transition-all hover:bg-white/5 cursor-pointer <%= (filters.role || filters.status) ? 'text-emerald-400 bg-emerald-400/10' : 'text-neutral-400' %>">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-          </button>
+          </div>
         </div>
 
         <a href="/admin/users/create"
            class="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm shadow-xl shadow-blue-600/20 hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] transition-all">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
           New User
         </a>
       </div>
     </header>
-
-    <!-- Tabs -->
-    <div class="flex gap-4 mb-8 border-b border-white/5">
-      <button onclick="switchTab('users')" id="tab-users" class="tab-btn active px-6 py-3 text-sm font-bold text-neutral-400 border-b-2 border-transparent transition-all">Users</button>
-      <button onclick="switchTab('roles')" id="tab-roles" class="tab-btn px-6 py-3 text-sm font-bold text-neutral-400 border-b-2 border-transparent transition-all">Roles</button>
-    </div>
 
     <!-- Users Tab Content -->
     <div id="users-content">
@@ -198,13 +192,14 @@
               </td>
               <td class="py-5 px-6 text-right">
                 <div class="flex justify-end gap-2">
-                  <a href="/admin/users/edit/<%= user.userId %>"
-                     class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                  </a>
-                  <button type="button" class="removeButton p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors border border-red-500/10" data-user-id="<%= user.userId %>">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  </button>
+                  <div onclick="window.location.href='/admin/users/edit/<%= user.userId %>'"
+                     class="cursor-pointer p-2 rounded-lg hover:bg-white/5 transition-colors group" title="Edit User">
+                    <svg class="w-4 h-4 text-neutral-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                  </div>
+                  <div onclick="deleteUser('<%= user.userId %>')"
+                     class="cursor-pointer p-2 rounded-lg hover:bg-red-500/10 transition-colors group" title="Delete User">
+                    <svg class="w-4 h-4 text-neutral-400 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -261,7 +256,7 @@
                   <% } %>
                 </div>
               </div>
-              <button type="button" class="removeButton px-4 py-2 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/10" data-user-id="<%= user.userId %>">
+              <button  class="removeButton px-4 py-2 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/10" data-user-id="<%= user.userId %>">
                 Remove User
               </button>
             </div>
@@ -275,83 +270,11 @@
       </div>
     </div>
 
-    <!-- Roles Tab Content -->
-    <div id="roles-content" class="hidden">
-      <div class="flex justify-between items-center mb-8">
-        <p class="text-neutral-400 font-medium">Manage system defaults and custom discord-like roles</p>
-        <a href="/admin/roles/create" class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          Create Custom Role
-        </a>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <% roles.forEach(role => { %>
-          <div class="glass p-6 rounded-3xl border border-white/5 flex flex-col group transition-all hover:translate-y-[-4px]">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-3">
-                <div class="w-3 h-3 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]" style="background-color: <%= role.color %>"></div>
-                <h3 class="font-bold text-white"><%= role.name %></h3>
-                <% if (role.virtual) { %>
-                  <span class="text-[8px] px-1.5 py-0.5 rounded bg-white/10 text-neutral-400 uppercase font-black tracking-tighter">System</span>
-                <% } %>
-              </div>
-              <div class="flex items-center gap-2">
-                <a href="/admin/roles/edit/<%= role.id %>" class="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                </a>
-                <% if (!role.virtual) { %>
-                <button onclick="deleteRole('<%= role.id %>')" class="p-2 rounded-lg hover:bg-red-500/10 text-neutral-400 hover:text-red-500 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                </button>
-                <% } %>
-              </div>
-            </div>
-
-            <div class="flex-1">
-              <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Permissions</p>
-              <div class="flex flex-wrap gap-1.5">
-                <% if (role.id === 'owner' || role.id === 'admin') { %>
-                  <span class="px-2 py-0.5 rounded-md bg-blue-500/10 text-[10px] text-blue-400 border border-blue-500/10 font-bold uppercase">All Privileges</span>
-                <% } else { %>
-                  <% const activePerms = Object.keys(role.permissions || {}).filter(k => role.permissions[k] === 'true' || role.permissions[k] === true); %>
-                  <% if (activePerms.length === 0) { %>
-                    <span class="text-xs text-neutral-600 italic">No special permissions</span>
-                  <% } else { %>
-                    <% activePerms.forEach(perm => { %>
-                      <span class="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-neutral-400 border border-white/5"><%= perm.replace('_', ' ') %></span>
-                    <% }) %>
-                  <% } %>
-                <% } %>
-              </div>
-            </div>
-          </div>
-        <% }) %>
-      </div>
-    </div>
 
   </div>
 </main>
 
 <script>
-  function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-
-    if(tab === 'users') {
-      document.getElementById('users-content').classList.remove('hidden');
-      document.getElementById('roles-content').classList.add('hidden');
-    } else {
-      document.getElementById('users-content').classList.add('hidden');
-      document.getElementById('roles-content').classList.remove('hidden');
-    }
-    localStorage.setItem('users-last-tab', tab);
-  }
-
-  // Restore last tab
-  const lastTab = localStorage.getItem('users-last-tab') || 'users';
-  switchTab(lastTab);
-
   function toggleSearchBar() {
     const bar = document.getElementById('searchBar');
     const toggle = document.getElementById('searchToggle');
@@ -387,39 +310,25 @@
     }
   }
 
-  document.querySelectorAll('.removeButton').forEach(button => {
-    button.addEventListener('click', function() {
-      const userId = this.dataset.userId;
-      const currentUserId = '<%= user.userId %>';
-      if (userId === currentUserId) return alert('You cannot delete your own account.');
+  async function deleteUser(userId) {
+    const currentUserId = '<%= user.userId %>';
+    if (userId === currentUserId) return alert('You cannot delete your own account.');
 
-      if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
 
-      fetch('/user/delete', {
+    try {
+      const res = await fetch('/user/delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
-      })
-      .then(res => res.ok ? window.location.reload() : alert('Failed to delete user'))
-      .catch(err => alert('Error: ' + err.message));
-    });
-  });
-
-  async function deleteRole(roleId) {
-    if (!confirm('Are you sure you want to delete this role? Users assigned to it will lose its permissions.')) return;
-    try {
-      const response = await fetch('/admin/roles/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roleId })
       });
-      if (response.ok) window.location.reload();
-      else alert('Failed to delete role');
+      if (res.ok) window.location.reload();
+      else alert('Failed to delete user');
     } catch (err) {
-      console.error(err);
-      alert('An error occurred');
+      alert('Error: ' + err.message);
     }
   }
+
 </script>
 
 <%- include('../../components/footer') %>

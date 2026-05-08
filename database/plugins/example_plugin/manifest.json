@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "author": "Example",
   "description": "Test plugin",
-  "main": "main.js",
+  "main": "router/index.js",
   "router": "example",
   "adminsidebar": {
     "example": "/admin/example"

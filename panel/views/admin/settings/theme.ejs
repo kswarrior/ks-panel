@@ -8,15 +8,15 @@
           <p class="mt-2 text-sm text-neutral-400">Total visual control over the panel's glassmorphic architecture.</p>
        </div>
        <div class="flex flex-wrap gap-2 sm:gap-3">
-          <button type="button" onclick="document.getElementById('importThemeInput').click()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+          <div onclick="document.getElementById('importThemeInput').click()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] sm:text-xs hover:bg-white/10 transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
              Upload
-          </button>
+          </div>
           <input type="file" id="importThemeInput" class="hidden" accept=".json" onchange="importTheme(this)">
-          <button type="button" onclick="toggleEditor()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <div onclick="toggleEditor()" class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-bold text-[10px] sm:text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
              Create
-          </button>
+          </div>
        </div>
     </div>
   </div>
@@ -37,19 +37,31 @@
              <% themeLibrary.forEach(t => { %>
                 <div class="group relative p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer overflow-hidden">
                    <div class="flex items-center justify-between mb-3">
-                      <h3 class="text-sm font-bold text-white"><%= t.name %></h3>
+                      <div class="flex items-center gap-2">
+                         <h3 class="text-sm font-bold text-white"><%= t.name %></h3>
+                         <% if (t.id === 'system-default') { %>
+                            <svg class="w-3 h-3 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                         <% } %>
+                      </div>
                       <% if (t.active) { %>
                          <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[8px] font-black uppercase tracking-widest border border-blue-500/30">Active</span>
                       <% } %>
                    </div>
                    <div class="flex gap-2">
-                      <button onclick="activateTheme('<%= t.id %>')" class="flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all">Deploy</button>
-                      <button onclick="exportTheme('<%= t.id %>')" class="p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
+                      <div onclick="activateTheme('<%= t.id %>')" class="cursor-pointer flex-1 py-2 rounded-lg bg-white/5 text-[10px] font-bold text-neutral-400 hover:text-white hover:bg-white/10 transition-all text-center">Deploy</div>
+                      <% if (t.id !== 'system-default') { %>
+                        <div onclick="editTheme('<%= t.id %>')" class="cursor-pointer p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Edit">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                      <% } %>
+                      <div onclick="exportTheme('<%= t.id %>')" class="cursor-pointer p-2 rounded-lg bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-all" title="Export">
                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                      </button>
-                      <button onclick="deleteTheme('<%= t.id %>')" class="p-2 rounded-lg bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Purge">
-                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                      </button>
+                      </div>
+                      <% if (t.id !== 'system-default') { %>
+                        <div onclick="deleteTheme('<%= t.id %>')" class="cursor-pointer p-2 rounded-lg bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Purge">
+                           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </div>
+                      <% } %>
                    </div>
                 </div>
              <% }) %>
@@ -62,7 +74,7 @@
     </section>
 
     <form id="themeForm" action="/admin/settings/theme/save" method="POST" class="space-y-8 hidden">
-
+      <input type="hidden" name="theme_id" id="theme_id" value="">
       <!-- Identity -->
       <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
         <div class="flex items-center gap-3 mb-8">
@@ -88,16 +100,31 @@
         </div>
       </section>
 
-      <!-- Core Atmosphere -->
+      <!-- Atmosphere & Core -->
       <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
         <div class="flex items-center gap-3 mb-8">
           <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
           </div>
-          <h2 class="text-xl font-bold text-white">Atmosphere & Colors</h2>
+          <h2 class="text-xl font-bold text-white">Atmosphere & Typography</h2>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Dashboard Background</label>
+              <input type="text" name="--bg-url-dashboard" value="<%= theme['--bg-url-dashboard'] || '' %>" placeholder="Image URL..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Auth Background</label>
+              <input type="text" name="--bg-url-auth" value="<%= theme['--bg-url-auth'] || '' %>" placeholder="Image URL..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Admin Background</label>
+              <input type="text" name="--bg-url-admin" value="<%= theme['--bg-url-admin'] || '' %>" placeholder="Image URL..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 pt-8 border-t border-white/5">
           <div class="space-y-2">
             <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Accent Primary</label>
             <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
@@ -106,12 +133,13 @@
             </div>
           </div>
           <div class="space-y-2">
-            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Sidebar Surface</label>
-            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-              <input type="color" id="sidebar-bg-picker" value="#0a0a0a" oninput="updateAlphaColor(this, '--sidebar-bg')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
-              <input type="hidden" name="--sidebar-bg" value="<%= theme['--sidebar-bg'] || 'rgba(10, 10, 10, 0.6)' %>">
-              <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--sidebar-bg'] || 'rgba(10,10,10,0.6)' %></span>
-            </div>
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">System Font Family</label>
+            <select name="--font-family" onchange="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all appearance-none cursor-pointer">
+              <option value="'Plus Jakarta Sans', sans-serif" <%= theme['--font-family'] ==="'Plus Jakarta Sans', sans-serif" ? 'selected' : '' %>>Plus Jakarta (Default)</option>
+              <option value="Inter, sans-serif" <%= theme['--font-family'] ==="Inter, sans-serif" ? 'selected' : '' %>>Inter</option>
+              <option value="'JetBrains Mono', monospace" <%= theme['--font-family'] ==="'JetBrains Mono', monospace" ? 'selected' : '' %>>JetBrains Mono</option>
+              <option value="system-ui, sans-serif" <%= theme['--font-family'] ==="system-ui, sans-serif" ? 'selected' : '' %>>System UI</option>
+            </select>
           </div>
           <div class="space-y-2">
             <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Header Surface</label>
@@ -122,46 +150,297 @@
             </div>
           </div>
           <div class="space-y-2">
-            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Border Tint</label>
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Glow Effect</label>
             <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-              <input type="color" id="border-picker" value="#ffffff" oninput="updateAlphaColor(this, '--glass-border')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
-              <input type="hidden" name="--glass-border" value="<%= theme['--glass-border'] || 'rgba(255, 255, 255, 0.08)' %>">
-              <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--glass-border'] || 'rgba(255,255,255,0.08)' %></span>
+               <input type="text" name="--glow-intensity" value="<%= theme['--glow-intensity'] || '0 0 15px rgba(59, 130, 246, 0.5)' %>" oninput="updatePreview(this)" class="w-full bg-transparent border-none text-xs text-white focus:outline-none">
             </div>
           </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Global Transparency</label>
+            <input type="range" id="alpha-slider" min="0" max="1" step="0.01" value="0.6" oninput="syncAllAlphas(this.value)" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar Configuration -->
+      <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </div>
+          <h2 class="text-xl font-bold text-white">Sidebar Architect</h2>
         </div>
 
-        <!-- Typography & Layout -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8 border-t border-white/5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Surface Color</label>
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <input type="color" id="sidebar-bg-picker" value="#0a0a0a" oninput="updateAlphaColor(this, '--sidebar-bg')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="hidden" name="--sidebar-bg" value="<%= theme['--sidebar-bg'] || 'rgba(10, 10, 10, 0.6)' %>">
+                <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--sidebar-bg'] || 'rgba(10,10,10,0.6)' %></span>
+              </div>
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Text Color</label>
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <input type="color" name="--sidebar-text-color" value="<%= theme['--sidebar-text-color'] || '#9ca3af' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--sidebar-text-color'] || '#9ca3af' %></span>
+              </div>
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Active State Color</label>
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <input type="color" name="--sidebar-active-text" value="<%= theme['--sidebar-active-text'] || '#ffffff' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--sidebar-active-text'] || '#ffffff' %></span>
+              </div>
+           </div>
            <div class="space-y-4">
               <div class="flex justify-between items-center">
-                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Sidebar Width</label>
-                 <span class="text-xs font-mono text-blue-400" id="sidebar-width-val"><%= theme['--sidebar-width'] || '16rem' %></span>
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Width</label>
+                 <span class="text-xs font-mono text-indigo-400" id="sidebar-width-val"><%= theme['--sidebar-width'] || '16rem' %></span>
               </div>
-              <input type="range" min="12" max="24" step="0.5" value="<%= parseFloat(theme['--sidebar-width']) || 16 %>" oninput="updateRangeWithUnit(this, '--sidebar-width', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500">
+              <input type="range" min="12" max="24" step="0.5" value="<%= parseFloat(theme['--sidebar-width']) || 16 %>" oninput="updateRangeWithUnit(this, '--sidebar-width', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
               <input type="hidden" name="--sidebar-width" value="<%= theme['--sidebar-width'] || '16rem' %>">
            </div>
+        </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 pt-8 border-t border-white/5">
            <div class="space-y-4">
               <div class="flex justify-between items-center">
-                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Card Padding</label>
-                 <span class="text-xs font-mono text-blue-400" id="card-padding-val"><%= theme['--card-padding'] || '2rem' %></span>
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Blur Intensity</label>
+                 <span class="text-xs font-mono text-indigo-400" id="sidebar-blur-val"><%= theme['--sidebar-blur'] || '16px' %></span>
               </div>
-              <input type="range" min="0.5" max="4" step="0.25" value="<%= parseFloat(theme['--card-padding']) || 2 %>" oninput="updateRangeWithUnit(this, '--card-padding', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500">
-              <input type="hidden" name="--card-padding" value="<%= theme['--card-padding'] || '2rem' %>">
+              <input type="range" min="0" max="64" step="1" value="<%= parseInt(theme['--sidebar-blur']) || 16 %>" oninput="updateRangeWithUnit(this, '--sidebar-blur', 'px')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+              <input type="hidden" name="--sidebar-blur" value="<%= theme['--sidebar-blur'] || '16px' %>">
            </div>
-
-           <div class="space-y-2">
-              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">System Font Family</label>
-              <select name="--font-family" onchange="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all appearance-none cursor-pointer">
-                 <option value="'Plus Jakarta Sans', sans-serif" <%= theme['--font-family'] ==="'Plus Jakarta Sans', sans-serif" ? 'selected' : '' %>>Plus Jakarta (Default)</option>
-                 <option value="Inter, sans-serif" <%= theme['--font-family'] ==="Inter, sans-serif" ? 'selected' : '' %>>Inter</option>
-                 <option value="'JetBrains Mono', monospace" <%= theme['--font-family'] ==="'JetBrains Mono', monospace" ? 'selected' : '' %>>JetBrains Mono</option>
-                 <option value="system-ui, sans-serif" <%= theme['--font-family'] ==="system-ui, sans-serif" ? 'selected' : '' %>>System UI</option>
-              </select>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Sidebar Margin</label>
+                 <span class="text-xs font-mono text-indigo-400" id="sidebar-margin-val"><%= theme['--sidebar-margin'] || '0rem' %></span>
+              </div>
+              <input type="range" min="0" max="4" step="0.25" value="<%= parseFloat(theme['--sidebar-margin']) || 0 %>" oninput="updateRangeWithUnit(this, '--sidebar-margin', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+              <input type="hidden" name="--sidebar-margin" value="<%= theme['--sidebar-margin'] || '0rem' %>">
+           </div>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Corner Radius</label>
+                 <span class="text-xs font-mono text-indigo-400" id="sidebar-radius-val"><%= theme['--sidebar-radius'] || '0rem' %></span>
+              </div>
+              <input type="range" min="0" max="4" step="0.25" value="<%= parseFloat(theme['--sidebar-radius']) || 0 %>" oninput="updateRangeWithUnit(this, '--sidebar-radius', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+              <input type="hidden" name="--sidebar-radius" value="<%= theme['--sidebar-radius'] || '0rem' %>">
+           </div>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Inner Padding</label>
+                 <span class="text-xs font-mono text-indigo-400" id="sidebar-padding-val"><%= theme['--sidebar-padding'] || '1.5rem' %></span>
+              </div>
+              <input type="range" min="0" max="4" step="0.25" value="<%= parseFloat(theme['--sidebar-padding']) || 1.5 %>" oninput="updateRangeWithUnit(this, '--sidebar-padding', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+              <input type="hidden" name="--sidebar-padding" value="<%= theme['--sidebar-padding'] || '1.5rem' %>">
+           </div>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Font Size</label>
+                 <span class="text-xs font-mono text-indigo-400" id="sidebar-font-size-val"><%= theme['--sidebar-font-size'] || '0.875rem' %></span>
+              </div>
+              <input type="range" min="0.5" max="1.5" step="0.125" value="<%= parseFloat(theme['--sidebar-font-size']) || 0.875 %>" oninput="updateRangeWithUnit(this, '--sidebar-font-size', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+              <input type="hidden" name="--sidebar-font-size" value="<%= theme['--sidebar-font-size'] || '0.875rem' %>">
            </div>
         </div>
       </section>
+
+      <!-- Card Architect -->
+      <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+          </div>
+          <h2 class="text-xl font-bold text-white">Card Architect</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Surface Background</label>
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <input type="color" id="card-bg-picker" value="#0a0a0a" oninput="updateAlphaColor(this, '--card-bg')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="hidden" name="--card-bg" value="<%= theme['--card-bg'] || 'rgba(10, 10, 10, 0.6)' %>">
+                <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--card-bg'] || 'rgba(10,10,10,0.6)' %></span>
+              </div>
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Border Tint</label>
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <input type="color" id="border-picker" value="#ffffff" oninput="updateAlphaColor(this, '--card-border')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="hidden" name="--card-border" value="<%= theme['--card-border'] || 'rgba(255, 255, 255, 0.08)' %>">
+                <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--card-border'] || 'rgba(255,255,255,0.08)' %></span>
+              </div>
+           </div>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Card Padding</label>
+                 <span class="text-xs font-mono text-purple-400" id="card-padding-val"><%= theme['--card-padding'] || '2rem' %></span>
+              </div>
+              <input type="range" min="0.5" max="4" step="0.25" value="<%= parseFloat(theme['--card-padding']) || 2 %>" oninput="updateRangeWithUnit(this, '--card-padding', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500">
+              <input type="hidden" name="--card-padding" value="<%= theme['--card-padding'] || '2rem' %>">
+           </div>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Corner Radius</label>
+                 <span class="text-xs font-mono text-purple-400" id="card-radius-val"><%= theme['--card-radius'] || '1.5rem' %></span>
+              </div>
+              <input type="range" min="0" max="4" step="0.1" value="<%= parseFloat(theme['--card-radius']) || 1.5 %>" oninput="updateRangeWithUnit(this, '--card-radius', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500">
+              <input type="hidden" name="--card-radius" value="<%= theme['--card-radius'] || '1.5rem' %>">
+           </div>
+           <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Blur Intensity</label>
+                 <span class="text-xs font-mono text-purple-400" id="card-blur-val"><%= theme['--card-blur'] || '16px' %></span>
+              </div>
+              <input type="range" min="0" max="64" step="1" value="<%= parseInt(theme['--card-blur']) || 16 %>" oninput="updateRangeWithUnit(this, '--card-blur', 'px')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500">
+              <input type="hidden" name="--card-blur" value="<%= theme['--card-blur'] || '16px' %>">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Static Shadow</label>
+              <input type="text" name="--card-shadow" value="<%= theme['--card-shadow'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Shadow</label>
+              <input type="text" name="--card-hover-shadow" value="<%= theme['--card-hover-shadow'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+           <div class="space-y-4">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Transform</label>
+              <input type="text" name="--card-hover-transform" value="<%= theme['--card-hover-transform'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+           </div>
+        </div>
+
+        <div class="mt-8 pt-8 border-t border-white/5">
+           <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">Card Exclusive CSS</label>
+           <textarea name="card_custom_css" rows="4" placeholder="/* Card scoped overrides */" class="w-full rounded-2xl bg-white/5 border border-white/10 text-white px-5 py-4 text-xs font-mono focus:outline-none focus:border-purple-500 transition-all resize-y"><%= theme.card_custom_css %></textarea>
+        </div>
+      </section>
+
+      <!-- Button & Input Factory -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5">
+          <div class="flex items-center gap-3 mb-8">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-white">Button Factory</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Button Background</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" name="--btn-bg" value="<%= theme['--btn-bg'] || '#3b82f6' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--btn-bg'] || '#3b82f6' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Button Text</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" name="--btn-text" value="<%= theme['--btn-text'] || '#ffffff' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--btn-text'] || '#ffffff' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <div class="flex justify-between items-center">
+                  <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Corner Radius</label>
+                  <span class="text-xs font-mono text-emerald-400" id="btn-radius-val"><%= theme['--btn-radius'] || '0.75rem' %></span>
+               </div>
+               <input type="range" min="0" max="3" step="0.1" value="<%= parseFloat(theme['--btn-radius']) || 0.75 %>" oninput="updateRangeWithUnit(this, '--btn-radius', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+               <input type="hidden" name="--btn-radius" value="<%= theme['--btn-radius'] || '0.75rem' %>">
+            </div>
+            <div class="space-y-4">
+               <div class="flex justify-between items-center">
+                  <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Font Size</label>
+                  <span class="text-xs font-mono text-emerald-400" id="btn-font-size-val"><%= theme['--btn-font-size'] || '0.75rem' %></span>
+               </div>
+               <input type="range" min="0.5" max="1.5" step="0.125" value="<%= parseFloat(theme['--btn-font-size']) || 0.75 %>" oninput="updateRangeWithUnit(this, '--btn-font-size', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+               <input type="hidden" name="--btn-font-size" value="<%= theme['--btn-font-size'] || '0.75rem' %>">
+            </div>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Vertical Padding</label>
+                 <span class="text-xs font-mono text-emerald-400" id="btn-padding-y-val"><%= theme['--btn-padding-y'] || '0.75rem' %></span>
+              </div>
+              <input type="range" min="0.25" max="2" step="0.125" value="<%= parseFloat(theme['--btn-padding-y']) || 0.75 %>" oninput="updateRangeWithUnit(this, '--btn-padding-y', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+              <input type="hidden" name="--btn-padding-y" value="<%= theme['--btn-padding-y'] || '0.75rem' %>">
+            </div>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Horizontal Padding</label>
+                 <span class="text-xs font-mono text-emerald-400" id="btn-padding-x-val"><%= theme['--btn-padding-x'] || '1.25rem' %></span>
+              </div>
+              <input type="range" min="0.5" max="4" step="0.25" value="<%= parseFloat(theme['--btn-padding-x']) || 1.25 %>" oninput="updateRangeWithUnit(this, '--btn-padding-x', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+              <input type="hidden" name="--btn-padding-x" value="<%= theme['--btn-padding-x'] || '1.25rem' %>">
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Background</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" name="--btn-hover-bg" value="<%= theme['--btn-hover-bg'] || '#2563eb' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--btn-hover-bg'] || '#2563eb' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Hover Shadow</label>
+               <input type="text" name="--btn-hover-shadow" value="<%= theme['--btn-hover-shadow'] || '' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all">
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Active State (Hold)</label>
+               <input type="text" name="--btn-active-transform" value="<%= theme['--btn-active-transform'] || 'scale(0.98)' %>" oninput="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all" placeholder="scale(0.98)">
+            </div>
+          </div>
+
+          <div class="mt-8 pt-8 border-t border-white/5">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">Button Exclusive CSS</label>
+            <textarea name="button_custom_css" rows="4" placeholder="/* Button scoped overrides */" class="w-full rounded-2xl bg-white/5 border border-white/10 text-white px-5 py-4 text-xs font-mono focus:outline-none focus:border-emerald-500 transition-all resize-y"><%= theme.button_custom_css %></textarea>
+          </div>
+        </section>
+
+        <section class="glass p-6 sm:p-8 rounded-3xl border border-white/5">
+          <div class="flex items-center gap-3 mb-8">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-white">Input Lab</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Input Surface</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" id="input-bg-picker" value="#ffffff" oninput="updateAlphaColor(this, '--input-bg')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <input type="hidden" name="--input-bg" value="<%= theme['--input-bg'] || 'rgba(255, 255, 255, 0.05)' %>">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--input-bg'] || 'rgba(255,255,255,0.05)' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Input Border</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" id="input-border-picker" value="#ffffff" oninput="updateAlphaColor(this, '--input-border')" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <input type="hidden" name="--input-border" value="<%= theme['--input-border'] || 'rgba(255, 255, 255, 0.1)' %>">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--input-border'] || 'rgba(255,255,255,0.1)' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Input Text</label>
+               <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                 <input type="color" name="--input-text" value="<%= theme['--input-text'] || '#ffffff' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+                 <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--input-text'] || '#ffffff' %></span>
+               </div>
+            </div>
+            <div class="space-y-4">
+               <div class="flex justify-between items-center">
+                  <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Corner Radius</label>
+                  <span class="text-xs font-mono text-amber-400" id="input-radius-val"><%= theme['--input-radius'] || '0.75rem' %></span>
+               </div>
+               <input type="range" min="0" max="3" step="0.1" value="<%= parseFloat(theme['--input-radius']) || 0.75 %>" oninput="updateRangeWithUnit(this, '--input-radius', 'rem')" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-amber-500">
+               <input type="hidden" name="--input-radius" value="<%= theme['--input-radius'] || '0.75rem' %>">
+            </div>
+          </div>
+        </section>
+      </div>
 
       <!-- Geometry & Effects -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -218,6 +497,21 @@
               <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Interface Transparency</label>
               <input type="range" id="alpha-slider" min="0" max="1" step="0.01" value="0.6" oninput="syncAllAlphas(this.value)" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
               <p class="text-[9px] text-neutral-500 italic">Adjusts the global opacity of all glass surfaces.</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Fast</label>
+                 <input type="text" name="--anim-speed-fast" value="<%= theme['--anim-speed-fast'] || '0.2s' %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white text-center text-xs">
+              </div>
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Medium</label>
+                 <input type="text" name="--anim-speed-medium" value="<%= theme['--anim-speed-medium'] || '0.4s' %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white text-center text-xs">
+              </div>
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Slow</label>
+                 <input type="text" name="--anim-speed-slow" value="<%= theme['--anim-speed-slow'] || '0.8s' %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white text-center text-xs">
+              </div>
             </div>
           </div>
         </section>
@@ -297,8 +591,8 @@
         </div>
 
         <div class="absolute top-6 right-6 flex bg-white/5 p-1 rounded-xl border border-white/10 z-20">
-           <button type="button" onclick="setPreviewSize('desktop')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</button>
-           <button type="button" onclick="setPreviewSize('phone')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</button>
+           <div onclick="setPreviewSize('desktop')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-desktop">Desktop</div>
+           <div onclick="setPreviewSize('phone')" class="cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all" id="btn-phone">Phone</div>
         </div>
 
         <div class="relative z-10 w-full flex justify-center transition-all duration-500" id="preview-wrapper">
@@ -337,8 +631,8 @@ function initialize() {
               </div>
 
               <div class="flex gap-4">
-                 <button type="button" class="flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.95]" style="background-color: var(--accent-color); color: white; border-radius: var(--btn-radius);">Execute</button>
-                 <button type="button" class="px-8 py-4 rounded-xl border border-white/10 font-black text-xs uppercase tracking-widest text-neutral-400" style="border-radius: var(--btn-radius);">Logs</button>
+                 <div class="cursor-pointer flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.95]" style="background-color: var(--accent-color); color: white; border-radius: var(--btn-radius);">Execute</div>
+                 <div class="cursor-pointer px-8 py-4 rounded-xl border border-white/10 font-black text-xs uppercase tracking-widest text-neutral-400" style="border-radius: var(--btn-radius);">Logs</div>
               </div>
            </div>
         </div>
@@ -346,12 +640,12 @@ function initialize() {
 
       <!-- Global Actions -->
       <div class="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-white/5">
-        <button type="button" onclick="toggleEditor()" class="px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
+        <div onclick="toggleEditor()" class="cursor-pointer px-10 py-4 rounded-2xl bg-white/5 text-white font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
           Discard Changes
-        </button>
-        <button type="button" onclick="saveAsTheme()" class="px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
+        </div>
+        <div onclick="saveAsTheme()" id="saveBtn" class="cursor-pointer px-16 py-4 rounded-2xl bg-blue-500 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
           Create & Save
-        </button>
+        </div>
       </div>
     </form>
   </div>
@@ -388,12 +682,68 @@ function initialize() {
   // Initialize preview
   setPreviewSize('desktop');
 
-  function toggleEditor() {
+  const themeLibrary = <%- JSON.stringify(themeLibrary || []) %>;
+
+  function toggleEditor(editing = false) {
     const form = document.getElementById('themeForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    if (!editing) {
+      document.getElementById('theme_id').value = '';
+      saveBtn.textContent = 'Create & Save';
+      // Reset form to system defaults if not editing
+      // (Optional: implement full form reset logic)
+    }
+
     form.classList.toggle('hidden');
     if (!form.classList.contains('hidden')) {
       form.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  function editTheme(id) {
+    const theme = themeLibrary.find(t => t.id === id);
+    if (!theme) return;
+
+    const form = document.getElementById('themeForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    document.getElementById('theme_id').value = id;
+    saveBtn.textContent = 'Update Theme';
+
+    // Populate identity
+    form.querySelector('input[name="theme_name"]').value = theme.name;
+    form.querySelector('input[name="theme_type"]').value = theme.config.theme_type || '';
+    form.querySelector('input[name="theme_category"]').value = theme.config.theme_category || '';
+    form.querySelector('textarea[name="custom_css"]').value = theme.config.custom_css || '';
+
+    // Populate variables
+    Object.keys(theme.config).forEach(key => {
+      if (key.startsWith('--')) {
+        const input = form.querySelector(`[name="${key}"]`);
+        if (input) {
+          input.value = theme.config[key];
+
+          // Update visual displays
+          document.documentElement.style.setProperty(key, theme.config[key]);
+
+          const valDisplay = document.getElementById(key.substring(2) + '-val');
+          if (valDisplay) valDisplay.textContent = theme.config[key];
+
+          const colorVal = input.closest('div')?.querySelector('.color-value');
+          if (colorVal) colorVal.textContent = theme.config[key];
+
+          // Handle range sliders specifically
+          const slider = form.querySelector(`input[name="${key}-val-slider"]`) || form.querySelector(`input[oninput*="${key}"]`);
+          if (slider && slider.type === 'range') {
+             slider.value = parseFloat(theme.config[key]);
+          }
+        }
+      }
+    });
+
+    form.classList.remove('hidden');
+    form.scrollIntoView({ behavior: 'smooth' });
   }
 
   function updatePreview(input) {
@@ -420,20 +770,24 @@ function initialize() {
 
     document.documentElement.style.setProperty(targetVar, rgba);
     const hiddenInput = document.querySelector(`input[name="${targetVar}"]`);
-    hiddenInput.value = rgba;
+    if (hiddenInput) hiddenInput.value = rgba;
 
-    picker.parentElement.querySelector('.color-value').textContent = rgba;
+    const valDisplay = picker.parentElement.querySelector('.color-value');
+    if (valDisplay) valDisplay.textContent = rgba;
   }
 
   function syncAllAlphas(alpha) {
     const pickers = [
       { id: 'sidebar-bg-picker', var: '--sidebar-bg' },
       { id: 'header-bg-picker', var: '--header-bg' },
-      { id: 'border-picker', var: '--glass-border' }
+      { id: 'border-picker', var: '--card-border' },
+      { id: 'card-bg-picker', var: '--card-bg' },
+      { id: 'input-bg-picker', var: '--input-bg' },
+      { id: 'input-border-picker', var: '--input-border' }
     ];
     pickers.forEach(p => {
       const picker = document.getElementById(p.id);
-      updateAlphaColor(picker, p.var);
+      if (picker) updateAlphaColor(picker, p.var);
     });
   }
 
@@ -444,8 +798,13 @@ function initialize() {
   }
 
   async function saveAsTheme() {
-    const name = prompt('Enter a name for this new architecture:');
-    if (!name) return;
+    const themeId = document.getElementById('theme_id').value;
+    let name = document.querySelector('input[name="theme_name"]').value;
+
+    if (!themeId && !name) {
+       name = prompt('Enter a name for this new architecture:');
+       if (!name) return;
+    }
 
     // Get current form data
     const formData = new FormData(document.getElementById('themeForm'));
@@ -454,17 +813,27 @@ function initialize() {
       themeData[key] = value;
     });
 
-    const res = await fetch('/admin/settings/theme/library/save', {
+    const url = themeId ? '/admin/settings/theme/library/update' : '/admin/settings/theme/library/save';
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, theme: themeData })
+      body: JSON.stringify({ id: themeId, name, theme: themeData })
     });
 
     if (res.ok) window.location.reload();
+    else {
+      const err = await res.json();
+      alert('Save failed: ' + err.error);
+    }
   }
 
   async function activateTheme(id) {
-    if (!confirm('Deploy this architectural configuration?')) return;
+    if (id === 'system-default') {
+       if (!confirm('Reverting to the System Default will override any unsaved changes to your current architecture. Proceed?')) return;
+    } else {
+       if (!confirm('Deploy this architectural configuration?')) return;
+    }
 
     const res = await fetch('/admin/settings/theme/library/activate', {
       method: 'POST',

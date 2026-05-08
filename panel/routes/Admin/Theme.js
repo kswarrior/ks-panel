@@ -6,16 +6,50 @@ const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 
 const SYSTEM_DEFAULT_THEME = {
+  'theme_name': 'KS Default',
+  'theme_type': 'Glassmorphic',
+  'theme_category': 'System',
+  '--bg-url-dashboard': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop',
+  '--bg-url-auth': 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop',
+  '--bg-url-admin': 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2535&auto=format&fit=crop',
   '--accent-color': '#3b82f6',
-  '--sidebar-bg': 'rgba(10, 10, 10, 0.6)',
-  '--header-bg': 'rgba(10, 10, 10, 0.4)',
-  '--glass-border': 'rgba(255, 255, 255, 0.08)',
-  '--glass-blur': '16px',
-  '--card-radius': '1.5rem',
-  '--btn-radius': '0.75rem',
-  '--card-padding': '2rem',
-  '--sidebar-width': '16rem',
   '--font-family': "'Plus Jakarta Sans', sans-serif",
+  '--header-bg': 'rgba(10, 10, 10, 0.04)',
+  '--glow-intensity': '0 0 15px rgba(59, 130, 246, 0.5)',
+  '--sidebar-bg': 'rgba(10, 10, 10, 0.04)',
+  '--sidebar-text-color': '#9ca3af',
+  '--sidebar-active-text': '#ffffff',
+  '--sidebar-width': '13.5rem',
+  '--sidebar-blur': '28px',
+  '--sidebar-margin': '0rem',
+  '--sidebar-radius': '0rem',
+  '--sidebar-padding': '0rem',
+  '--sidebar-font-size': '0.875rem',
+  '--card-bg': 'rgba(10, 10, 10, 0.04)',
+  '--card-border': 'rgba(255, 255, 255, 0.04)',
+  '--card-padding': '1.25rem',
+  '--card-radius': '1.5rem',
+  '--card-blur': '9px',
+  '--card-shadow': '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+  '--card-hover-shadow': '0 30px 60px -12px rgba(0, 0, 0, 0.6)',
+  '--card-hover-transform': 'translateY(-4px)',
+  '--btn-bg': '#3b82f6',
+  '--btn-text': '#ffffff',
+  '--btn-radius': '0.75rem',
+  '--btn-font-size': '0.75rem',
+  '--btn-padding-y': '1rem',
+  '--btn-padding-x': '1rem',
+  '--btn-hover-bg': '#2563eb',
+  '--btn-hover-shadow': '0 15px 20px -3px rgba(59, 130, 246, 0.4)',
+  '--btn-active-transform': 'scale(0.98)',
+  '--input-bg': 'rgba(255, 255, 255, 0.04)',
+  '--input-border': 'rgba(255, 255, 255, 0.04)',
+  '--input-text': '#ffffff',
+  '--input-radius': '0.75rem',
+  '--glass-blur': '10px',
+  '--anim-speed-fast': '0.2s',
+  '--anim-speed-medium': '0.4s',
+  '--anim-speed-slow': '0.8s',
   '--h1-size': '1.875rem',
   '--h1-margin': '0rem',
   '--h1-padding': '0rem',
@@ -31,10 +65,9 @@ const SYSTEM_DEFAULT_THEME = {
   '--pre-size': '0.75rem',
   '--pre-margin': '0rem',
   '--pre-padding': '0.5rem',
-  'theme_name': 'Default Architecture',
-  'theme_type': 'Glassmorphic',
-  'theme_category': 'System',
-  'custom_css': ''
+  'custom_css': '',
+  'card_custom_css': '',
+  'button_custom_css': ''
 };
 
 router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req, res) => {
@@ -45,6 +78,43 @@ router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req
 
     // Ensure all variables are present
     theme = { ...SYSTEM_DEFAULT_THEME, ...theme };
+
+    // Ensure system themes exist in library
+    if (!themeLibrary.some(t => t.id === 'system-default')) {
+      themeLibrary.unshift({
+        id: 'system-default',
+        name: 'System Default',
+        config: SYSTEM_DEFAULT_THEME,
+        active: false
+      });
+    }
+
+    if (!themeLibrary.some(t => t.id === 'oled-black')) {
+      themeLibrary.push({
+        id: 'oled-black',
+        name: 'OLED Black',
+        config: { ...SYSTEM_DEFAULT_THEME, '--card-bg': '#000000', '--sidebar-bg': '#000000', '--header-bg': '#000000', '--glass-blur': '0px', '--card-border': 'rgba(255,255,255,0.1)' },
+        active: false
+      });
+    }
+
+    if (!themeLibrary.some(t => t.id === 'vibrant-indigo')) {
+      themeLibrary.push({
+        id: 'vibrant-indigo',
+        name: 'Vibrant Indigo',
+        config: { ...SYSTEM_DEFAULT_THEME, '--accent-color': '#6366f1', '--btn-bg': '#6366f1' },
+        active: false
+      });
+    }
+
+    if (!themeLibrary.some(t => t.id === 'spectral-mix')) {
+      themeLibrary.push({
+        id: 'spectral-mix',
+        name: 'Spectral Mix',
+        config: { ...SYSTEM_DEFAULT_THEME, '--accent-color': '#f43f5e', 'custom_css': 'body { background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop") !important; }' },
+        active: false
+      });
+    }
 
     res.render("admin/settings/theme", {
       req,
@@ -65,7 +135,7 @@ router.post("/admin/settings/theme/save", hasPermission('manage_settings'), asyn
     let theme = (await db.get("theme")) || {};
 
     // Only update allowed variables (starting with -- or specific fields)
-    const allowedFields = ['custom_css', 'theme_name', 'theme_type', 'theme_category'];
+    const allowedFields = ['custom_css', 'card_custom_css', 'button_custom_css', 'theme_name', 'theme_type', 'theme_category'];
     Object.keys(themeData).forEach(key => {
       if (key.startsWith('--') || allowedFields.includes(key)) {
         theme[key] = themeData[key];
@@ -115,16 +185,61 @@ router.post("/admin/settings/theme/library/save", hasPermission('manage_settings
   }
 });
 
+router.post("/admin/settings/theme/library/update", hasPermission('manage_settings'), async (req, res) => {
+  try {
+    const { id, name, theme } = req.body;
+    let themeLibrary = (await db.get("theme_library")) || [];
+    const themeIndex = themeLibrary.findIndex(t => t.id === id);
+
+    if (themeIndex === -1) return res.status(404).json({ error: "Theme not found" });
+
+    // Protect System Default
+    if (themeLibrary[themeIndex].id === 'system-default') {
+       return res.status(403).json({ error: "The System Default architecture is read-only." });
+    }
+
+    themeLibrary[themeIndex].name = name || themeLibrary[themeIndex].name;
+    themeLibrary[themeIndex].config = theme;
+
+    await db.set("theme_library", themeLibrary);
+
+    // If this theme is currently active, update the main theme object too
+    if (themeLibrary[themeIndex].active) {
+      await db.set("theme", theme);
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update theme" });
+  }
+});
+
 router.post("/admin/settings/theme/library/activate", hasPermission('manage_settings'), async (req, res) => {
   try {
     const { id } = req.body;
     const themeLibrary = (await db.get("theme_library")) || [];
-    const themeToActivate = themeLibrary.find(t => t.id === id);
+    let themeToActivate;
+
+    if (id === 'system-default') {
+      themeToActivate = { id: 'system-default', config: SYSTEM_DEFAULT_THEME };
+    } else {
+      themeToActivate = themeLibrary.find(t => t.id === id);
+    }
 
     if (!themeToActivate) return res.status(404).json({ error: "Theme not found" });
 
-    themeLibrary.forEach(t => t.active = (t.id === id));
-    await db.set("theme_library", themeLibrary);
+    // Update active status in library if it exists there
+    const updatedLibrary = themeLibrary.map(t => ({
+      ...t,
+      active: t.id === id
+    }));
+
+    if (id === 'system-default') {
+      // If activating system default, nothing in library is active
+      updatedLibrary.forEach(t => t.active = false);
+    }
+
+    await db.set("theme_library", updatedLibrary);
     await db.set("theme", themeToActivate.config);
 
     res.json({ success: true });
@@ -136,6 +251,12 @@ router.post("/admin/settings/theme/library/activate", hasPermission('manage_sett
 router.post("/admin/settings/theme/library/delete", hasPermission('manage_settings'), async (req, res) => {
   try {
     const { id } = req.body;
+
+    // Protect System Default
+    if (id === 'system-default') {
+       return res.status(403).json({ error: "The System Default architecture cannot be purged." });
+    }
+
     let themeLibrary = (await db.get("theme_library")) || [];
     themeLibrary = themeLibrary.filter(t => t.id !== id);
     await db.set("theme_library", themeLibrary);

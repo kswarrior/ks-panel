@@ -24,12 +24,11 @@ async function init() {
 
     // Check if user exists
     if (!userCheck) {
-      errorMessages.push(
-        "If you didn't do it already, create a user for yourself: npm run createUser"
-      );
+      log.warn("No users found. KS Panel will start in setup mode.");
+      log.info("Please navigate to the panel URL to create your admin account.");
     }
 
-    // Stop if errors exist
+    // Stop if errors exist (excluding missing user)
     if (errorMessages.length > 0) {
       errorMessages.forEach((errorMsg) => log.error(errorMsg));
       process.exit(1);

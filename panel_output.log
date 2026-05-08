@@ -1,0 +1,81 @@
+ 05/07 18:24:48   info    Config updated with random values.
+Loading route: /app/panel/routes/API/v1/API.js
+Loading route: /app/panel/routes/API/v1/ping.js
+Loading route: /app/panel/routes/API/v1/resourceMonitor.js
+Loading route: /app/panel/routes/API/v1/version.js
+Loading route: /app/panel/routes/Admin/APIKeys.js
+Loading route: /app/panel/routes/Admin/AuditLogs.js
+Loading route: /app/panel/routes/Admin/Dashboard.js
+Loading route: /app/panel/routes/Admin/Instances.js
+Loading route: /app/panel/routes/Admin/Languages.js
+Loading route: /app/panel/routes/Admin/LocalNode.js
+Loading route: /app/panel/routes/Admin/Nodes.js
+Loading route: /app/panel/routes/Admin/Notifications.js
+Loading route: /app/panel/routes/Admin/Overview.js
+Loading route: /app/panel/routes/Admin/Roles.js
+Loading route: /app/panel/routes/Admin/Security.js
+Loading route: /app/panel/routes/Admin/Settings.js
+Loading route: /app/panel/routes/Admin/Templates.js
+Loading route: /app/panel/routes/Admin/Theme.js
+Loading route: /app/panel/routes/Admin/Tickets.js
+Loading route: /app/panel/routes/Admin/Users.js
+Loading route: /app/panel/routes/Dashboard/Account.js
+Loading route: /app/panel/routes/Dashboard/Auth.js
+Loading route: /app/panel/routes/Dashboard/Instances.js
+Loading route: /app/panel/routes/Dashboard/Setup.js
+Loading route: /app/panel/routes/Dashboard/Tickets.js
+Loading route: /app/panel/routes/Instance/Archives.js
+Loading route: /app/panel/routes/Instance/Automations.js
+Loading route: /app/panel/routes/Instance/CreateFile.js
+Loading route: /app/panel/routes/Instance/CreateFolder.js
+Loading route: /app/panel/routes/Instance/DeleteFile.js
+Loading route: /app/panel/routes/Instance/Deploy.js
+Loading route: /app/panel/routes/Instance/DownloadFile.js
+Loading route: /app/panel/routes/Instance/Edit.js
+Loading route: /app/panel/routes/Instance/EditFile.js
+Loading route: /app/panel/routes/Instance/Files.js
+Loading route: /app/panel/routes/Instance/ImageFeatures.js
+Loading route: /app/panel/routes/Instance/Instance.js
+Loading route: /app/panel/routes/Instance/InstanceDB.js
+Loading route: /app/panel/routes/Instance/InstanceFTP.js
+Loading route: /app/panel/routes/Instance/InstanceReDeploy.js
+Loading route: /app/panel/routes/Instance/InstanceReinstall.js
+Loading route: /app/panel/routes/Instance/InstanceSettings.js
+Loading route: /app/panel/routes/Instance/Network.js
+Loading route: /app/panel/routes/Instance/Power.js
+Loading route: /app/panel/routes/Instance/PullFile.js
+Loading route: /app/panel/routes/Instance/RenameFile.js
+Loading route: /app/panel/routes/Instance/Startup.js
+Loading route: /app/panel/routes/Instance/UploadFile.js
+Loading route: /app/panel/routes/Instance/User.js
+Loading route: /app/panel/routes/Instance/ViewFile.js
+Loading route: /app/panel/routes/Instance/WebSocket/Console.js
+Loading route: /app/panel/routes/Instance/WebSocket/Stats.js
+    __ _______    ____                   __
+   / //_/ ___/   / __ \____ _____  ___  / /
+  / ,<  \__ \   / /_/ / __ `/ __ \/ _ \/ /
+ / /| |___/ /  / ____/ /_/ / / / /  __/ /
+/_/ |_/____/  /_/    \__,_/_/ /_/\___/_/
+
+❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version v1.0.0
+
+ 05/07 18:24:49   info    KS Panel is listening on port 8080
+ 05/07 18:24:49   debug   Server ready - routes loaded
+ 05/07 18:24:49   init    This is probably your first time starting KS Panel, welcome!
+ 05/07 18:24:49   info    Loading plugins...
+ 05/07 18:24:49   info    Loading plugin 'example_plugin', enabled: false
+ 05/07 18:24:49   warn    Module not found for plugin 'example_plugin' in '/app/database/plugins/example_plugin'. Attempting to install 'find'...
+ 05/07 18:24:49   info    Initialized KS Panel with ID: 97859dad-0545-49ba-bbbd-09dcece422d7
+ 05/07 18:24:49   info    KS Panel init complete!
+ 05/07 18:24:51   info    Successfully installed module find.
+ 05/07 18:24:51   error   Validation error in plugin 'example_plugin': Main file 'main.js' not found in '/app/database/plugins/example_plugin'.
+ 05/07 18:24:51   error   Plugin 'example_plugin' has validation errors but will still be listed.
+ 05/07 18:24:51   error   Error loading plugin 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+Require stack:
+- /app/panel/plugins/pluginManager.js
+- /app/panel/index.js.
+ 05/07 18:24:51   info    plugins.json successfully written.
+ 05/07 18:24:51   error   Errors occurred while loading plugins: Validation errors in 'example_plugin', Loading error in 'example_plugin': Cannot find module '/app/database/plugins/example_plugin/main.js'
+Require stack:
+- /app/panel/plugins/pluginManager.js
+- /app/panel/index.js

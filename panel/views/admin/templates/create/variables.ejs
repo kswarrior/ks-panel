@@ -1,12 +1,12 @@
 <div id="variablesContainer" class="space-y-4 mb-6"></div>
 <div class="flex gap-3">
-  <button type="button" onclick="addVariable()" class="tf-btn tf-btn-secondary text-xs">+ Add Variable</button>
-  <button type="button" onclick="importPterodactylVars()" class="tf-btn tf-btn-secondary text-xs">Import from Pterodactyl JSON</button>
+  <button  onclick="addVariable()" class="tf-btn tf-btn-secondary text-xs">+ Add Variable</button>
+  <button  onclick="importPterodactylVars()" class="tf-btn tf-btn-secondary text-xs">Import from Pterodactyl JSON</button>
 </div>
 
 <template id="variableTemplate">
   <div class="tf-card group">
-    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
+    <button  class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="tf-field-long">
         <label class="text-[10px] font-semibold text-neutral-500 uppercase">Variable Name (ID)</label>

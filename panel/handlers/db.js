@@ -41,6 +41,11 @@ if (databaseURL.startsWith("postgres")) {
     table: databaseTable,
     keySize: 255,
   });
+} else if (databaseURL.startsWith("mongodb")) {
+  const MongoStore = require("@keyvhq/mongo");
+  store = new MongoStore(databaseURL, {
+    collection: databaseTable,
+  });
 } else {
   // Default to in-memory if protocol is unknown
   store = new Map();
@@ -84,6 +89,25 @@ async function getAllData() {
         const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
         return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
     });
+  } else if (databaseURL.startsWith("mongodb")) {
+    const { MongoClient } = require('mongodb');
+    const client = new MongoClient(databaseURL);
+    await client.connect();
+    const dbName = databaseURL.split('/').pop().split('?')[0];
+    const collection = client.db(dbName).collection(databaseTable);
+    const cursor = collection.find({});
+    const results = [];
+    await cursor.forEach(doc => {
+      // Keyv stores as { _id: 'namespace:key', value: { value: 'actual_value' } }
+      const key = doc._id.replace(/^kspanel:/, '');
+      let val = doc.value;
+      if (typeof val === 'string') {
+        try { val = JSON.parse(val); } catch (e) {}
+      }
+      results.push({ key, value: val.value });
+    });
+    await client.close();
+    return results;
   }
   return [];
 }

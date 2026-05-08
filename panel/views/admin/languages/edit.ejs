@@ -1,0 +1,48 @@
+<%- include('../../components/template') %>
+<main id="content" class="p-4 sm:p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <a href="/admin/languages" class="p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 group">
+                    <svg class="w-4 h-4 text-neutral-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">Edit Phrases</h1>
+            </div>
+            <p class="text-neutral-400 text-sm font-medium ml-12">Editing localization for language code: <span class="text-blue-400 font-bold"><%= code %></span></p>
+        </div>
+        <div onclick="document.getElementById('editForm').submit()" class="cursor-pointer px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20 uppercase tracking-widest">
+            Save Changes
+        </div>
+    </div>
+
+    <% if (req.query.msg) { %>
+        <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <p class="text-emerald-400 text-xs font-bold uppercase tracking-widest"><%= req.query.msg %></p>
+        </div>
+    <% } %>
+
+    <% if (req.query.err) { %>
+        <div class="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            <p class="text-red-400 text-xs font-bold uppercase tracking-widest"><%= req.query.err %></p>
+        </div>
+    <% } %>
+
+    <div class="glass overflow-hidden">
+        <div class="bg-white/[0.02] border-b border-white/5 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">JSON Editor</span>
+            </div>
+            <span class="text-[10px] font-bold text-neutral-600 uppercase tracking-widest italic">Ensure valid JSON format</span>
+        </div>
+
+        <form id="editForm" action="/admin/languages/save/<%= code %>" method="POST">
+            <textarea name="content" rows="30" class="w-full bg-transparent p-8 text-neutral-300 font-mono text-sm focus:outline-none resize-none border-none leading-relaxed"><%= content %></textarea>
+        </form>
+    </div>
+</main>
+<%- include('../../components/footer') %>

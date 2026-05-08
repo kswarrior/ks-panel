@@ -9,6 +9,17 @@ const os = require("os");
 const fs = require("fs");
 const path = require("path");
 
+/**
+ * Middleware to restrict access to Owners only.
+ */
+async function isOwner(req, res, next) {
+  if (!req.user) return res.redirect("/login");
+  const users = await db.get("users") || [];
+  const dbUser = users.find(u => u.userId === req.user.userId);
+  if (dbUser && dbUser.owner) return next();
+  return res.status(403).json({ error: "Access Denied: Owner only." });
+}
+
 // =====================
 // LIVE SYSTEM METRICS (Whole VPS)
 // =====================
@@ -151,6 +162,37 @@ router.post("/admin/security/api/settings", anyAdminPerm, async (req, res) => {
     networkLimit: parseInt(networkLimit)
   });
   res.json({ success: true });
+});
+
+// =====================
+// DATABASE CORE EDITING (Owner Only)
+// =====================
+router.get("/admin/security/api/db-core", isOwner, async (req, res) => {
+  try {
+    const dbPath = path.join(__dirname, "../../handlers/db.js");
+    const content = fs.readFileSync(dbPath, "utf8");
+    res.json({ content });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to read database core" });
+  }
+});
+
+router.post("/admin/security/api/db-core", isOwner, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: "Content is required" });
+
+    const dbPath = path.join(__dirname, "../../handlers/db.js");
+
+    // Backup before overwrite
+    const backupPath = path.join(__dirname, `../../storage/db-handler-backup-${Date.now()}.js`);
+    fs.copyFileSync(dbPath, backupPath);
+
+    fs.writeFileSync(dbPath, content, "utf8");
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to save database core" });
+  }
 });
 
 module.exports = router;

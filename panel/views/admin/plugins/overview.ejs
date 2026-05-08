@@ -8,12 +8,19 @@
         <p class="mt-2 text-neutral-400">Manage and configure your installed extensions.</p>
       </div>
       
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-        <%- include('../../components/plugins') %>
+      <div class="flex flex-row items-center gap-3">
+        <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="flex items-center justify-center rounded-xl bg-white/5 border border-white/10 px-4 sm:px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10 transition-all" title="Upload">
+          <svg class="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+          <span class="hidden sm:inline">Upload</span>
+        </button>
+        <a href="/admin/plugins/studio" class="flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all" title="Create">
+          <svg class="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
+          <span class="hidden sm:inline">Create</span>
+        </a>
 
         <button 
           id="reload" 
-          type="button" 
+
           class="flex items-center justify-center rounded-xl bg-white px-6 py-2.5 text-sm font-bold text-black shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
           onclick="fetch('/admin/plugins/reload', {method: 'POST'}), location.reload()"
         >
@@ -65,13 +72,28 @@
               </span>
 
               <div class="flex items-center gap-2">
-                <a href="/admin/plugins/<%= plugin.directoryname %>/edit"
-                   class="px-4 py-2 bg-white/5 text-white text-xs font-bold rounded-xl border border-white/10 hover:bg-white/10 transition-all">
-                  Configure
+                <button onclick="managePermissions('<%= plugin.name %>', '<%= JSON.stringify(plugin.permissions || []) %>', '<%= JSON.stringify(plugin.approved_permissions || []) %>')"
+                        class="p-2 bg-white/5 text-neutral-400 hover:text-white rounded-xl border border-white/10 transition-all" title="Permissions">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </button>
+                <a href="/admin/plugins/overview/<%= plugin.directoryname %>/edit"
+                   class="p-2 bg-white/5 text-neutral-400 hover:text-white rounded-xl border border-white/10 transition-all" title="Edit Logic">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </a>
-                <button onclick="fetch('/admin/plugins/<%= plugin.name %>/toggle', {method: 'POST'}).then(() => location.reload())"
-                        class="px-4 py-2 rounded-xl text-xs font-bold shadow-lg transition-all <%= isActive ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' %>">
-                  <%= isActive ? 'Disable' : 'Enable' %>
+                <a href="/admin/plugins/overview/<%= plugin.name %>/download"
+                   class="p-2 bg-white/5 text-neutral-400 hover:text-white rounded-xl border border-white/10 transition-all" title="Export .kspp">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </a>
+                <button onclick="fetch('/admin/plugins/overview/<%= plugin.name %>/toggle', {method: 'POST'}).then(() => location.reload())"
+                        class="p-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold shadow-lg transition-all <%= isActive ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' %>" title="<%= isActive ? 'Disable' : 'Enable' %>">
+                  <span class="sm:hidden">
+                    <% if (isActive) { %>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <% } else { %>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <% } %>
+                  </span>
+                  <span class="hidden sm:inline"><%= isActive ? 'Disable' : 'Enable' %></span>
                 </button>
               </div>
             </div>
@@ -80,5 +102,110 @@
       <% } %>
     </div>
   </div>
+
+  <!-- Upload Modal -->
+  <div id="uploadModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="document.getElementById('uploadModal').classList.add('hidden')"></div>
+    <div class="glass relative w-full max-w-md p-8 rounded-3xl border border-white/10 shadow-2xl animate-fade-in">
+      <h2 class="text-2xl font-bold text-white mb-6">Upload Extension</h2>
+      <form action="/admin/plugins/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div class="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center hover:border-blue-500/50 transition-all cursor-pointer relative">
+          <input type="file" name="plugin" class="absolute inset-0 opacity-0 cursor-pointer" required onchange="this.nextElementSibling.textContent = this.files[0].name">
+          <p class="text-neutral-400">Drop your .kspp file here or <span class="text-blue-400">browse</span></p>
+        </div>
+        <div class="flex gap-3">
+          <button type="button" onclick="document.getElementById('uploadModal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all">Install</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div id="createModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="document.getElementById('createModal').classList.add('hidden')"></div>
+    <div class="glass relative w-full max-w-xl p-8 rounded-3xl border border-white/10 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+      <h2 class="text-2xl font-bold text-white mb-6">Create Extension</h2>
+      <form action="/admin/plugins/create" method="POST" class="space-y-6 text-left">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Name</label>
+            <input type="text" name="name" placeholder="My Awesome Plugin" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Route (URL)</label>
+            <input type="text" name="router" placeholder="awesome-plugin" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Description</label>
+          <textarea name="description" rows="3" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Author</label>
+            <input type="text" name="author" value="Admin" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Version</label>
+            <input type="text" name="version" value="1.0.0" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <button type="submit" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">Scaffold Architecture</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Permissions Modal -->
+  <div id="permsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-xl" onclick="document.getElementById('permsModal').classList.add('hidden')"></div>
+    <div class="glass relative w-full max-w-lg p-8 rounded-[2rem] border border-white/10 shadow-2xl">
+      <h2 class="text-2xl font-black text-white mb-2">Plugin Permissions</h2>
+      <p id="permsPluginName" class="text-sm text-neutral-500 mb-8 font-mono"></p>
+
+      <form id="permsForm" method="POST">
+        <div id="permsList" class="space-y-3 mb-8">
+           <!-- Dynamically populated -->
+        </div>
+        <div class="flex gap-3">
+          <button type="button" onclick="document.getElementById('permsModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <button type="submit" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all">Apply Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </main>
+
+<script>
+function managePermissions(name, permsJson, approvedJson) {
+  const perms = JSON.parse(permsJson);
+  const approved = JSON.parse(approvedJson || '[]');
+  const modal = document.getElementById('permsModal');
+  const list = document.getElementById('permsList');
+  const nameEl = document.getElementById('permsPluginName');
+  const form = document.getElementById('permsForm');
+
+  nameEl.textContent = name;
+  form.action = `/admin/plugins/overview/${name}/permissions/update`;
+
+  if (perms.length === 0) {
+    list.innerHTML = '<p class="text-center text-neutral-500 italic py-4">No special permissions requested.</p>';
+  } else {
+    list.innerHTML = perms.map(p => `
+      <label class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all group">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-white uppercase tracking-widest">${p.split(':')[0]}</span>
+          <span class="text-[10px] text-neutral-500 font-mono">${p}</span>
+        </div>
+        <input type="checkbox" name="approved_permissions[]" value="${p}" ${approved.includes(p) ? 'checked' : ''} class="w-5 h-5 rounded-lg border-white/10 bg-black/20 text-blue-500 focus:ring-0">
+      </label>
+    `).join('');
+  }
+
+  modal.classList.remove('hidden');
+}
+</script>
+
 <%- include('../../components/footer') %>
