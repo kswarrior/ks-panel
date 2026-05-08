@@ -438,7 +438,7 @@ function simulateFrontend() {
 
   try {
     // Simple EJS tag replacement logic for the client-side simulator
-    let clean = code.replace(/<%[=-]?([\s\S]*?)%>/g, (match, inner) => {
+    let clean = code.replace(/<%%[=-]?([\s\S]*?)%>/g, (match, inner) => {
       const key = inner.trim();
       if (key === 'user.username') return mockData.user.username;
       if (key === 'name') return mockData.name;
@@ -446,8 +446,8 @@ function simulateFrontend() {
       return `[${key}]`;
     });
 
-    // Remove any remaining raw <% ... %> blocks
-    clean = clean.replace(/<%[\s\S]*?%>/g, '');
+    // Remove any remaining raw <%% ... %> blocks
+    clean = clean.replace(/<%%[\s\S]*?%>/g, '');
 
     sim.innerHTML = `<div style="all: initial; font-family: sans-serif;">${clean}</div>`;
   } catch (err) {

@@ -27,6 +27,19 @@ let pluginSidebar = {};
 const pluginsDir = path.resolve(__dirname, "../../database/plugins");
 const pluginsJsonPath = path.resolve(__dirname, "../../database/plugins/plugins.json");
 
+// Ensure plugins can resolve dependencies from the panel's node_modules
+const pluginNodeModules = path.join(pluginsDir, "node_modules");
+const panelNodeModules = path.resolve(__dirname, "../node_modules");
+
+if (!fs.existsSync(pluginNodeModules)) {
+  try {
+    fs.symlinkSync(panelNodeModules, pluginNodeModules, 'junction');
+    log.info("Created symlink for plugins node_modules.");
+  } catch (err) {
+    log.error(`Failed to create symlink for plugins node_modules: ${err.message}`);
+  }
+}
+
 let isLoadingPlugins = false;
 
 // Injected from index.js
@@ -117,7 +130,8 @@ async function validatePlugin(pluginPath, manifest) {
     require(mainFilePath);
   } catch (error) {
     if (error.code === "MODULE_NOT_FOUND") {
-      const moduleName = error.message.split(" ")[1];
+      const match = error.message.match(/Cannot find module '([^']+)'/);
+      const moduleName = match ? match[1] : error.message.split(" ")[1];
       log.warn(
         `Module not found for plugin '${manifest.name}' in '${pluginPath}'. Attempting to install '${moduleName}'...`
       );
@@ -162,6 +176,7 @@ async function loadAndActivatePlugins() {
     log.info("Loading plugins...");
 
     for (const pluginName of pluginDirs) {
+      if (pluginName === 'node_modules') continue;
       const pluginPath = path.join(pluginsDir, pluginName);
       const manifestPath = path.join(pluginPath, "manifest.json");
 
