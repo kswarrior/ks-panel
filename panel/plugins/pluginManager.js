@@ -513,6 +513,24 @@ router.post("/admin/plugins/upload", isAdmin, upload.single('plugin'), async (re
   }
 });
 
+router.get("/admin/plugins/studio/src", isAdmin, async (req, res) => {
+  try {
+    const { type, file } = req.query;
+    if (!type || !file) return res.status(400).send("Missing parameters.");
+
+    const baseDir = type === "view" ? path.join(__dirname, "../views") : path.join(__dirname, "../routes");
+    const fullPath = path.join(baseDir, file);
+
+    if (!fullPath.startsWith(baseDir)) return res.status(403).send("Forbidden.");
+    if (!fs.existsSync(fullPath)) return res.status(404).send("File not found.");
+
+    const content = await fs.promises.readFile(fullPath, "utf8");
+    res.json({ content });
+  } catch (error) {
+    res.status(500).send("Error reading file.");
+  }
+});
+
 router.get("/admin/plugins/studio", isAdmin, async (req, res) => {
   const viewsDir = path.join(__dirname, "../views");
   const routesDir = path.join(__dirname, "../routes");
@@ -546,7 +564,9 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
   const {
     name, type, category, version, description,
     sidebar_category, sidebar_name, sidebar_route,
-    import_views, import_routes
+    import_views, import_routes,
+    custom_code, custom_code_type,
+    dependencies, hooks
   } = req.body;
 
   try {
@@ -583,33 +603,26 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
       description: description || "Scaffolded with KS Studio.",
       main: "router/index.js",
       router: dirName,
-      adminsidebar
+      adminsidebar,
+      dependencies: dependencies ? (Array.isArray(dependencies) ? dependencies.filter(d => d.trim() !== '') : [dependencies]) : [],
+      hooks: hooks ? (Array.isArray(hooks) ? hooks : [hooks]) : []
     };
 
     fs.writeFileSync(path.join(pluginPath, "manifest.json"), JSON.stringify(manifest, null, 2));
 
     // Scaffolding core files
-    const routerContent = `const express = require('express');
-const router = express.Router();
+    let routerContent = `const express = require('express');\nconst router = express.Router();\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});\n\nmodule.exports = router;`;
+    let viewContent = `<%- include('../../../panel/views/components/template') %>\n<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 pt-8 pb-12">\n  <div class="glass p-12 rounded-3xl border border-white/10 text-center">\n    <div class="w-20 h-20 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20 mx-auto mb-6">\n       <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>\n    </div>\n    <h1 class="text-4xl font-black text-white mb-4">${name}</h1>\n    <p class="text-neutral-400 max-w-md mx-auto">${description || 'Welcome to your new custom plugin page.'}</p>\n  </div>\n</main>\n<%- include('../../../panel/views/components/footer') %>`;
 
-router.get('/', (req, res) => {
-  res.render('../views/index', { req, user: req.user });
-});
+    if (custom_code && custom_code.trim() !== "") {
+      if (custom_code_type === 'javascript') {
+        routerContent = custom_code;
+      } else {
+        viewContent = custom_code;
+      }
+    }
 
-module.exports = router;`;
     fs.writeFileSync(path.join(pluginPath, "router/index.js"), routerContent);
-
-    const viewContent = `<%- include('../../../panel/views/components/template') %>
-<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-  <div class="glass p-12 rounded-3xl border border-white/10 text-center">
-    <div class="w-20 h-20 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20 mx-auto mb-6">
-       <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
-    </div>
-    <h1 class="text-4xl font-black text-white mb-4">${name}</h1>
-    <p class="text-neutral-400 max-w-md mx-auto">${description || 'Welcome to your new custom plugin page.'}</p>
-  </div>
-</main>
-<%- include('../../../panel/views/components/footer') %>`;
     fs.writeFileSync(path.join(pluginPath, "views/index.ejs"), viewContent);
 
     // Import logic

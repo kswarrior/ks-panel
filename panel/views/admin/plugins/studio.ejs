@@ -1,4 +1,5 @@
 <%- include('../../components/template') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.js"></script>
 
 <main id="content" class="animate-fade-in min-h-screen pb-24">
   <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -101,14 +102,92 @@
             </div>
           </section>
 
-          <!-- Component Importer -->
+          <!-- Logic Laboratory -->
+          <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between mb-8">
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                Logic Laboratory
+              </h2>
+              <div class="flex gap-2">
+                 <button type="button" onclick="setLanguage('javascript')" class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400 hover:text-white transition-all">Backend (JS)</button>
+                 <button type="button" onclick="setLanguage('html')" class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400 hover:text-white transition-all">Frontend (EJS)</button>
+              </div>
+            </div>
+
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+                <label class="text-[10px] font-black text-blue-400/50 uppercase tracking-widest block mb-2 text-center">Import Base Logic</label>
+                <select id="importSelector" class="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all">
+                   <option value="">Select a file to clone...</option>
+                   <optgroup label="Views (Frontend)">
+                     <% views.forEach(v => { %> <option value="view:<%= v %>"><%= v %></option> <% }) %>
+                   </optgroup>
+                   <optgroup label="Routes (Backend)">
+                     <% routes.forEach(r => { %> <option value="route:<%= r %>"><%= r %></option> <% }) %>
+                   </optgroup>
+                </select>
+                <button type="button" onclick="importToEditor()" class="w-full mt-2 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-500/20 transition-all">
+                  Inject Source to Editor
+                </button>
+              </div>
+              <div class="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10">
+                 <label class="text-[10px] font-black text-purple-400/50 uppercase tracking-widest block mb-2 text-center">Studio Presets</label>
+                 <div class="grid grid-cols-2 gap-2">
+                   <button type="button" onclick="loadPreset('blank')" class="py-2 bg-white/5 border border-white/10 text-neutral-400 rounded-lg text-[10px] font-bold hover:text-white transition-all">Empty Template</button>
+                   <button type="button" onclick="loadPreset('basic')" class="py-2 bg-white/5 border border-white/10 text-neutral-400 rounded-lg text-[10px] font-bold hover:text-white transition-all">Standard Page</button>
+                 </div>
+              </div>
+            </div>
+
+            <div id="editor" class="w-full h-[400px] rounded-2xl border border-white/10 bg-black/40 overflow-hidden"></div>
+            <input type="hidden" name="custom_code" id="custom_code">
+            <input type="hidden" name="custom_code_type" id="custom_code_type" value="javascript">
+          </section>
+
+          <!-- Advanced Configuration -->
           <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
             <h2 class="text-xl font-bold text-white mb-8 flex items-center gap-2">
-              <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V7M8 7h8a2 2 0 012 2v9a2 2 0 01-2 2H10a2 2 0 01-2-2V7z"></path></svg>
-              Component Importer
+              <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+              Advanced Configuration
             </h2>
 
-            <p class="text-sm text-neutral-400 mb-6">Import existing panel logic or views to use as a base for your plugin.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-4">
+                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Dependencies (NPM Packages)</label>
+                <div id="dependencyList" class="space-y-2">
+                  <div class="flex gap-2">
+                    <input type="text" name="dependencies[]" placeholder="e.g., axios" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs focus:outline-none focus:border-blue-500 transition-all">
+                    <button type="button" onclick="addDependency()" class="px-3 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <label class="text-[10px] font-black text-neutral-500 uppercase tracking-widest ml-1">Event Hooks</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <% ['onServerCreate', 'onServerDelete', 'onUserCreate', 'onUserDelete', 'onPluginLoad'].forEach(hook => { %>
+                    <label class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
+                      <input type="checkbox" name="hooks[]" value="<%= hook %>" class="rounded border-white/20 bg-white/5 text-blue-500 focus:ring-0">
+                      <span class="text-[10px] text-neutral-400 font-bold uppercase tracking-tight"><%= hook.replace('on', '') %></span>
+                    </label>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Component Importer (Legacy) -->
+          <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
+             <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                  <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V7M8 7h8a2 2 0 012 2v9a2 2 0 01-2 2H10a2 2 0 01-2-2V7z"></path></svg>
+                  Static Cloner
+                </h2>
+                <p class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Copy Entire Files</p>
+             </div>
+
+            <p class="text-sm text-neutral-400 mb-6 italic">This will copy the entire file to your plugin's views/router folders as a static asset.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Views -->
@@ -162,6 +241,69 @@
 </style>
 
 <script>
+require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
+require(['vs/editor/editor.main'], function() {
+    window.editor = monaco.editor.create(document.getElementById('editor'), {
+        value: "// Write your custom logic here...\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});",
+        language: 'javascript',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        fontSize: 12,
+        minimap: { enabled: false },
+        lineNumbers: 'on',
+        scrollBeyondLastLine: false,
+        padding: { top: 16, bottom: 16 },
+        wordWrap: 'on'
+    });
+});
+
+function setLanguage(lang) {
+  monaco.editor.setModelLanguage(window.editor.getModel(), lang);
+  document.getElementById('custom_code_type').value = lang;
+}
+
+async function importToEditor() {
+  const val = document.getElementById('importSelector').value;
+  if (!val) return;
+
+  const [type, file] = val.split(':');
+
+  try {
+    const res = await fetch(`/admin/plugins/studio/src?type=${type}&file=${file}`);
+    const data = await res.json();
+    window.editor.setValue(data.content);
+    setLanguage(type === 'view' ? 'html' : 'javascript');
+  } catch (e) {
+    alert("Failed to fetch source code.");
+  }
+}
+
+function loadPreset(key) {
+  const presets = {
+    blank: "// Start from scratch\n",
+    basic: `const express = require('express');\nconst router = express.Router();\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});\n\nmodule.exports = router;`
+  };
+  if (presets[key]) {
+    window.editor.setValue(presets[key]);
+    setLanguage('javascript');
+  }
+}
+
+document.getElementById('studioForm').addEventListener('submit', () => {
+  document.getElementById('custom_code').value = window.editor.getValue();
+});
+
+function addDependency() {
+  const container = document.getElementById('dependencyList');
+  const div = document.createElement('div');
+  div.className = 'flex gap-2 animate-fade-in';
+  div.innerHTML = `
+    <input type="text" name="dependencies[]" placeholder="e.g., axios" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs focus:outline-none focus:border-blue-500 transition-all">
+    <button type="button" onclick="this.parentElement.remove()" class="px-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20">x</button>
+  `;
+  container.appendChild(div);
+}
+
 function addSidebarItem() {
   const container = document.getElementById('sidebarItems');
   const div = document.createElement('div');
