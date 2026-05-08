@@ -31,13 +31,29 @@ const pluginsJsonPath = path.resolve(__dirname, "../../database/plugins/plugins.
 const pluginNodeModules = path.join(pluginsDir, "node_modules");
 const panelNodeModules = path.resolve(__dirname, "../node_modules");
 
-if (!fs.existsSync(pluginNodeModules)) {
+try {
+  let shouldCreate = false;
   try {
+    const stats = fs.lstatSync(pluginNodeModules);
+    if (stats.isSymbolicLink()) {
+      const target = fs.readlinkSync(pluginNodeModules);
+      if (target !== panelNodeModules) {
+        fs.unlinkSync(pluginNodeModules);
+        shouldCreate = true;
+      }
+    } else {
+      // It's a real directory or file, don't touch it to be safe
+    }
+  } catch (e) {
+    if (e.code === 'ENOENT') shouldCreate = true;
+  }
+
+  if (shouldCreate) {
     fs.symlinkSync(panelNodeModules, pluginNodeModules, 'junction');
     log.info("Created symlink for plugins node_modules.");
-  } catch (err) {
-    log.error(`Failed to create symlink for plugins node_modules: ${err.message}`);
   }
+} catch (err) {
+  log.error(`Failed to manage symlink for plugins node_modules: ${err.message}`);
 }
 
 let isLoadingPlugins = false;

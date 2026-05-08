@@ -1,5 +1,4 @@
-Manifest file does not exist for plugin node_modules.
- 05/08 17:39:03   info    Config updated with random values.
+ 05/08 18:06:51   info    Config updated with random values.
 Loading route: /app/panel/routes/API/v1/API.js
 Loading route: /app/panel/routes/API/v1/ping.js
 Loading route: /app/panel/routes/API/v1/resourceMonitor.js
@@ -52,6 +51,7 @@ Loading route: /app/panel/routes/Instance/User.js
 Loading route: /app/panel/routes/Instance/ViewFile.js
 Loading route: /app/panel/routes/Instance/WebSocket/Console.js
 Loading route: /app/panel/routes/Instance/WebSocket/Stats.js
+ 05/08 18:06:51   info    Created symlink for plugins node_modules.
     __ _______    ____                   __
    / //_/ ___/   / __ \____ _____  ___  / /
   / ,<  \__ \   / /_/ / __ `/ __ \/ _ \/ /
@@ -60,10 +60,10 @@ Loading route: /app/panel/routes/Instance/WebSocket/Stats.js
 
 ❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version v1.0.0
 
- 05/08 17:39:03   info    KS Panel is listening on port 8080
- 05/08 17:39:03   debug   Server ready - routes loaded
- 05/08 17:39:03   info    Loading plugins...
- 05/08 17:39:03   info    Loading plugin 'example_plugin', enabled: false
- 05/08 17:39:03   error   Router for plugin 'example_plugin' is not a valid middleware function.
- 05/08 17:39:03   info    KS Panel init complete!
- 05/08 17:39:03   info    plugins.json successfully written.
+ 05/08 18:06:51   info    KS Panel is listening on port 8080
+ 05/08 18:06:51   debug   Server ready - routes loaded
+ 05/08 18:06:51   info    Loading plugins...
+ 05/08 18:06:51   info    Loading plugin 'example_plugin', enabled: false
+ 05/08 18:06:51   error   Router for plugin 'example_plugin' is not a valid middleware function.
+ 05/08 18:06:51   info    KS Panel init complete!
+ 05/08 18:06:51   info    plugins.json successfully written.
