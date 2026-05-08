@@ -7,15 +7,15 @@
     <!-- Header -->
     <header class="flex items-center justify-between mb-10">
       <div>
-        <h1 class="text-4xl font-black text-white tracking-tight">Plugin Studio</h1>
-        <p class="text-neutral-400 mt-2">Design and scaffold advanced extensions for KS Panel.</p>
+        <h1 class="text-4xl font-black text-white tracking-tight">Logic Editor</h1>
+        <p class="text-neutral-400 mt-2">Modifying: <span class="font-mono text-blue-400"><%= dir %></span></p>
       </div>
       <a href="/admin/plugins/overview" class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-white hover:bg-white/10 transition-all">
         Back to Overview
       </a>
     </header>
 
-    <form action="/admin/plugins/studio/create" method="POST" id="studioForm" enctype="multipart/form-data" class="w-full overflow-x-hidden">
+    <form action="/admin/plugins/overview/<%= dir %>/save" method="POST" id="studioForm" class="w-full overflow-x-hidden">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
 
         <!-- Architecture Stack (Left) -->
@@ -75,12 +75,9 @@
         <div class="lg:col-span-3 space-y-8">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
              <section class="glass p-8 rounded-3xl border border-white/5 shadow-2xl">
-               <h2 class="text-xl font-bold text-white mb-8">Metadata</h2>
-               <div class="grid grid-cols-2 gap-6">
-                 <div><label class="text-[10px] font-black text-neutral-500 uppercase block mb-1">Name</label><input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"></div>
-                 <div><label class="text-[10px] font-black text-neutral-500 uppercase block mb-1">Version</label><input type="text" name="version" value="1.0.0" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"></div>
-               </div>
-               <div class="mt-4"><label class="text-[10px] font-black text-neutral-500 uppercase block mb-1">Description</label><textarea name="description" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"></textarea></div>
+               <h2 class="text-xl font-bold text-white mb-8">Manifest Editor</h2>
+               <div class="w-full h-64 rounded-xl border border-white/10 bg-black/40 overflow-hidden" id="manifestEditor"></div>
+               <input type="hidden" name="manifest_json" id="manifest_json">
              </section>
 
              <section class="glass p-4 sm:p-8 rounded-3xl border border-white/5 shadow-2xl">
@@ -147,14 +144,7 @@
                            <input type="text" id="testRoutePath" placeholder="/index" class="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-xs text-white">
                            <button type="button" onclick="testRoute()" class="px-4 py-2 rounded-xl bg-purple-500 text-white text-[10px] font-black uppercase">Run</button>
                         </div>
-                        <pre id="testResponse" class="w-full h-40 bg-black/40 rounded-xl p-4 text-[10px] text-emerald-400 font-mono overflow-auto border border-white/5">Waiting for request...</pre>
-
-                        <div class="pt-4 border-t border-white/5">
-                           <h4 class="text-[9px] font-black text-neutral-500 uppercase mb-2">Security Audit (Simulated)</h4>
-                           <div id="securityAudit" class="space-y-1">
-                              <p class="text-[10px] text-neutral-600 italic">No sensitive calls detected.</p>
-                           </div>
-                        </div>
+                        <pre id="testResponse" class="w-full h-80 bg-black/40 rounded-xl p-4 text-[10px] text-emerald-400 font-mono overflow-auto border border-white/5">Waiting for request...</pre>
                      </div>
                   </div>
                </div>
@@ -222,14 +212,20 @@
 </style>
 
 <script>
-let architectureStack = {
-  fe: [{ name: 'index.ejs', content: '<h1>Hello Plugin</h1>' }],
-  be: [{ name: 'index.js', content: 'const express = require("express");\nconst router = express.Router();\n\nrouter.get("/", (req, res) => { res.render("../views/index"); });\n\nmodule.exports = router;' }]
-};
+let architectureStack = <%- JSON.stringify(architectureStack) %>;
 let activeFile = { type: 'be', index: 0 };
 
 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
 require(['vs/editor/editor.main'], function() {
+    window.manifestEditor = monaco.editor.create(document.getElementById('manifestEditor'), {
+        value: JSON.stringify(<%- JSON.stringify(content) %>, null, 2),
+        language: 'json',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        fontSize: 12,
+        minimap: { enabled: false }
+    });
+
     window.editor = monaco.editor.create(document.getElementById('editor'), {
         value: architectureStack.be[0].content,
         language: 'javascript',
@@ -308,6 +304,7 @@ function removeFile(type, index) {
 
 document.getElementById('studioForm').addEventListener('submit', (e) => {
   architectureStack[activeFile.type][activeFile.index].content = window.editor.getValue();
+  document.getElementById('manifest_json').value = window.manifestEditor.getValue();
   const form = e.target;
 
   architectureStack.fe.forEach(f => {
@@ -425,26 +422,6 @@ function setStudioView(view) {
   }
 }
 
-function updateSecurityAudit() {
-  const code = architectureStack.be.map(f => f.content).join('\n');
-  const audit = document.getElementById('securityAudit');
-  const detections = [];
-
-  if (code.includes('executeCommand')) detections.push({ id: 'terminal:exec', label: 'Terminal Command Execution' });
-  if (code.includes('db.get') || code.includes('db.set')) detections.push({ id: 'db:*', label: 'Database Access' });
-
-  if (detections.length === 0) {
-    audit.innerHTML = '<p class="text-[10px] text-neutral-600 italic">No sensitive calls detected.</p>';
-  } else {
-    audit.innerHTML = detections.map(d => `
-      <div class="flex items-center gap-2 text-amber-500/80">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        <span class="text-[10px] font-bold uppercase">${d.label}</span>
-      </div>
-    `).join('');
-  }
-}
-
 function simulateFrontend() {
   if (activeFile.type !== 'fe') return alert("Select a Frontend (.ejs) file first.");
   const code = window.editor.getValue();
@@ -505,7 +482,6 @@ require(['vs/editor/editor.main'], function() {
     window.editor.onDidChangeModelContent(() => {
        syncPagesFromLogic();
        updateManifestPreview();
-       updateSecurityAudit();
     });
     syncPagesFromLogic();
     updateManifestPreview();

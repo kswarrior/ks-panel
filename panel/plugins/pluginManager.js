@@ -434,10 +434,22 @@ router.post("/admin/plugins/overview/:name/toggle", isAdmin, async (req, res) =>
 router.get("/admin/plugins/overview/:dir/edit", isAdmin, async (req, res) => {
   try {
     const dir = req.params.dir;
-    const manifestPath = path.join(pluginsDir, dir, "manifest.json");
-    const manifestJson = await fs.promises.readFile(manifestPath, "utf8");
+    const pluginPath = path.join(pluginsDir, dir);
+    const manifestPath = path.join(pluginPath, "manifest.json");
+    const manifest = JSON.parse(await fs.promises.readFile(manifestPath, "utf8"));
 
-    res.render("admin/plugins/plugin", {
+    const getFiles = (subdir) => {
+      const p = path.join(pluginPath, subdir);
+      if (!fs.existsSync(p)) return [];
+      return fs.readdirSync(p).map(f => ({ name: f, content: fs.readFileSync(path.join(p, f), 'utf8') }));
+    };
+
+    const architectureStack = {
+      fe: getFiles('views'),
+      be: getFiles('router')
+    };
+
+    res.render("admin/plugins/editor", {
       req,
       user: req.user,
       pluginSidebar,
@@ -453,11 +465,29 @@ router.get("/admin/plugins/overview/:dir/edit", isAdmin, async (req, res) => {
 router.post("/admin/plugins/overview/:dir/save", isAdmin, async (req, res) => {
   try {
     const dir = req.params.dir;
-    const content = req.body.content;
-    const manifestPath = path.join(pluginsDir, dir, "manifest.json");
+    const pluginPath = path.join(pluginsDir, dir);
+    const {
+      fe_filenames, fe_contents,
+      be_filenames, be_contents,
+      manifest_json
+    } = req.body;
 
-    await fs.promises.writeFile(manifestPath, content, "utf8");
-    res.redirect(`/admin/plugins/overview/${dir}/edit`);
+    if (manifest_json) fs.writeFileSync(path.join(pluginPath, 'manifest.json'), manifest_json);
+
+    if (fe_filenames) {
+      const names = Array.isArray(fe_filenames) ? fe_filenames : [fe_filenames];
+      const contents = Array.isArray(fe_contents) ? fe_contents : [fe_contents];
+      names.forEach((fn, i) => fs.writeFileSync(path.join(pluginPath, 'views', fn), contents[i]));
+    }
+
+    if (be_filenames) {
+      const names = Array.isArray(be_filenames) ? be_filenames : [be_filenames];
+      const contents = Array.isArray(be_contents) ? be_contents : [be_contents];
+      names.forEach((fn, i) => fs.writeFileSync(path.join(pluginPath, 'router', fn), contents[i]));
+    }
+
+    await loadAndActivatePlugins();
+    res.redirect(`/admin/plugins/overview/${dir}/edit?success=SAVED`);
   } catch (error) {
     log.error(`Error saving plugin ${dir}: ${error.message}`);
     res.status(500).send("An error occurred. Please try again later.");
