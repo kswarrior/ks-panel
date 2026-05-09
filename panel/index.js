@@ -3,7 +3,6 @@ const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const fs = require("node:fs");
-const ascii = fs.readFileSync("./handlers/ascii.txt", "utf8");
 const app = express();
 const path = require("path");
 const chalk = require("chalk");
@@ -223,9 +222,10 @@ function replaceRandomValues(obj) {
  * Updates the config.json file by replacing "random" values with random strings.
  */
 async function updateConfig() {
-  const configPath = "./config.json";
+  const configPath = path.join(__dirname, "config.json");
 
   try {
+    if (!fs.existsSync(configPath)) return;
     let configData = fs.readFileSync(configPath, "utf8");
     let configObj = JSON.parse(configData);
 
@@ -397,7 +397,11 @@ init();
 
 app.set('trust proxy', 1);
 
-console.log(chalk.gray(ascii.replace("{version}", config.version)));
+const asciiPath = path.join(__dirname, "handlers/ascii.txt");
+if (fs.existsSync(asciiPath)) {
+  const ascii = fs.readFileSync(asciiPath, "utf8");
+  console.log(chalk.gray(ascii.replace("{version}", config.version)));
+}
 app.listen(config.port, () => {
   log.info(`KS Panel is listening on port ${config.port}`);
   log.debug('Server ready - routes loaded');

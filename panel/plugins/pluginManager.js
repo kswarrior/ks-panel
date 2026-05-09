@@ -37,20 +37,25 @@ try {
     const stats = fs.lstatSync(pluginNodeModules);
     if (stats.isSymbolicLink()) {
       const target = fs.readlinkSync(pluginNodeModules);
-      if (target !== panelNodeModules) {
+      const resolvedTarget = path.resolve(path.dirname(pluginNodeModules), target);
+      if (resolvedTarget !== panelNodeModules) {
         fs.unlinkSync(pluginNodeModules);
         shouldCreate = true;
       }
     } else {
-      // It's a real directory or file, don't touch it to be safe
+      // If it's a real directory, we might want to move it or just leave it
+      // For now, let's leave it to avoid data loss, but log a warning
+      log.warn("database/plugins/node_modules is a real directory, not a symlink.");
     }
   } catch (e) {
     if (e.code === 'ENOENT') shouldCreate = true;
   }
 
   if (shouldCreate) {
-    fs.symlinkSync(panelNodeModules, pluginNodeModules, 'junction');
-    log.info("Created symlink for plugins node_modules.");
+    // Use relative path for symlink to be more portable
+    const relativePanelModules = path.relative(pluginsDir, panelNodeModules);
+    fs.symlinkSync(relativePanelModules, pluginNodeModules, 'junction');
+    log.info(`Created symlink for plugins node_modules pointing to ${relativePanelModules}`);
   }
 } catch (err) {
   log.error(`Failed to manage symlink for plugins node_modules: ${err.message}`);
@@ -226,6 +231,13 @@ async function loadAndActivatePlugins() {
         `Loading plugin '${pluginName}', enabled: ${pluginConfig.enabled}`
       );
 
+      if (!pluginConfig.enabled) {
+        manifest.directoryname = pluginName;
+        manifest.manifestpath = manifestPath;
+        pluginList.push(manifest);
+        continue;
+      }
+
       const validationErrors = await validatePlugin(pluginPath, manifest);
       if (validationErrors.length > 0) {
         validationErrors.forEach((err) =>
@@ -242,6 +254,8 @@ async function loadAndActivatePlugins() {
       manifest.manifestpath = manifestPath;
       pluginList.push(manifest);
 
+      if (!pluginConfig.enabled) continue;
+
       let pluginModule;
 
       try {
@@ -251,7 +265,7 @@ async function loadAndActivatePlugins() {
             app: appInstance,
             db: dbInstance,
             events,
-            pluginManager: global.pluginManager,
+            pluginManager: router,
             checkPermission: (perm) => router.checkPluginPermission(manifest.name, perm),
             executeCommand: async (cmd) => {
               if (await router.checkPluginPermission(manifest.name, 'terminal:exec')) {
@@ -267,11 +281,13 @@ async function loadAndActivatePlugins() {
           });
         }
 
-        if (pluginModule.router && typeof pluginModule.router === "function") {
+        const pluginRouter = pluginModule.router || (typeof pluginModule === 'function' ? pluginModule : null);
+
+        if (pluginRouter && typeof pluginRouter === "function") {
           // Wrapped router to inject permission checks automatically if needed
           router.use(`/${manifest.router}`, (req, res, next) => {
             req.pluginName = manifest.name;
-            pluginModule.router(req, res, next);
+            pluginRouter(req, res, next);
           });
         } else {
           log.error(
@@ -346,7 +362,8 @@ async function uninstall(pluginName) {
   await loadAndActivatePlugins();
 }
 
-function listPlugins() {
+async function listPlugins() {
+  const pluginsJson = await readPluginsJson();
   return pluginList.map(p => `${p.name} v${p.version || 'unknown'} (enabled: ${pluginsJson[p.name]?.enabled})`);
 }
 
@@ -496,7 +513,8 @@ router.get("/admin/plugins/overview/:dir/edit", isAdmin, async (req, res) => {
       user: req.user,
       pluginSidebar,
       dir,
-      content: manifestJson,
+      content: manifest,
+      architectureStack
     });
   } catch (error) {
     log.error(`Error loading plugin edit page: ${error.message}`);

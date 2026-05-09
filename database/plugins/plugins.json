@@ -1,15 +1,5 @@
 {
-    "test_plugin": {
-        "enabled": true,
-        "approved_permissions": [
-            "db:read",
-            "terminal:exec"
-        ]
-    },
     "example_plugin": {
         "enabled": false
-    },
-    "test_delete_plugin": {
-        "enabled": true
     }
 }
