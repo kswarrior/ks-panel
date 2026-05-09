@@ -462,6 +462,17 @@ router.post("/admin/plugins/overview/:name/toggle", isAdmin, async (req, res) =>
   }
 });
 
+router.post("/admin/plugins/overview/:name/delete", isAdmin, async (req, res) => {
+  try {
+    const name = req.params.name;
+    await uninstall(name);
+    res.send("OK");
+  } catch (error) {
+    log.error(`Error deleting plugin ${req.params.name}: ${error.message}`);
+    res.status(500).send("An error occurred during deletion.");
+  }
+});
+
 router.get("/admin/plugins/overview/:dir/edit", isAdmin, async (req, res) => {
   try {
     const dir = req.params.dir;

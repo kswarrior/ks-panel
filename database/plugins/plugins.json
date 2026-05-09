@@ -8,5 +8,8 @@
     },
     "example_plugin": {
         "enabled": false
+    },
+    "test_delete_plugin": {
+        "enabled": true
     }
 }
