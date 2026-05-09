@@ -145,8 +145,11 @@
             button:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
             .btn:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
             input[type="submit"]:not([class*="bg-red"]),
-            a[class*="bg-blue"]:not([class*="bg-red"]),
-            a[class*="bg-white"]:not([class*="bg-red"]) {
+            a.bg-blue-600:not([class*="bg-red"]),
+            a.bg-blue-500:not([class*="bg-red"]),
+            a.bg-indigo-600:not([class*="bg-red"]),
+            a.bg-indigo-500:not([class*="bg-red"]),
+            a.bg-white:not([class*="bg-red"]) {
                background-color: var(--btn-bg) !important;
                color: var(--btn-text) !important;
                border-radius: var(--btn-radius) !important;
@@ -282,8 +285,11 @@
 
          button:not([class*="rounded-full"]),
          .btn:not([class*="rounded-full"]),
-         a[class*="bg-white"]:not([class*="rounded-full"]),
-         a[class*="bg-blue"]:not([class*="rounded-full"]) {
+         a.bg-white:not([class*="rounded-full"]),
+         a.bg-blue-600:not([class*="rounded-full"]),
+         a.bg-blue-500:not([class*="rounded-full"]),
+         a.bg-indigo-600:not([class*="rounded-full"]),
+         a.bg-indigo-500:not([class*="rounded-full"]) {
             border-radius: var(--btn-radius) !important;
          }
 
