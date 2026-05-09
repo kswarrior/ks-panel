@@ -142,8 +142,12 @@
             }
 
             /* Button Override */
-            button:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
-            .btn:not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
+            button.bg-blue-600,
+            button.bg-blue-500,
+            button.bg-indigo-600,
+            button.bg-indigo-500,
+            .btn.bg-blue-600,
+            .btn.bg-indigo-600,
             input[type="submit"]:not([class*="bg-red"]),
             a.bg-blue-600:not([class*="bg-red"]),
             a.bg-blue-500:not([class*="bg-red"]),
@@ -188,6 +192,64 @@
                border-bottom: 1px solid var(--header-border) !important;
                padding: var(--header-padding) !important;
                border-radius: 0 !important;
+               position: fixed !important;
+               top: 0 !important;
+               right: 0 !important;
+               left: var(--sidebar-width, 16rem) !important;
+               z-index: 40 !important;
+               transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+
+         body.collapsed header.glass {
+            left: 5rem !important; /* matches group-[.collapsed]:!w-20 */
+         }
+
+         @media (max-width: 1024px) {
+            header.glass {
+               left: 0 !important;
+            }
+         }
+
+         #loading-bar-container {
+            position: fixed;
+            top: 4rem; /* h-16 */
+            left: var(--sidebar-width, 16rem);
+            right: 0;
+            height: 2px;
+            z-index: 50;
+            pointer-events: none;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+         }
+
+         body.collapsed #loading-bar-container {
+            left: 5rem;
+         }
+
+         @media (max-width: 1024px) {
+            #loading-bar-container {
+               left: 0;
+            }
+         }
+
+         #loading-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+            transition: width 0.3s ease;
+         }
+
+         /* Skeleton Loader Styles */
+         .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 0.5rem;
+         }
+
+         @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
             }
 
             /* Global Effects */
@@ -316,6 +378,10 @@
          header.glass {
             background: var(--header-bg);
             border-radius: 0 !important;
+         }
+
+         #page-container {
+            padding-top: 4rem; /* offset for fixed header */
          }
 
          .sub-nav-link.active {
@@ -682,8 +748,13 @@
 
       <!-- Main Layout -->
       <div id="colcont" class="transition-all duration-300 ease-in-out group-[.collapsed]:lg:!pl-20">
+         <!-- Loading Bar -->
+         <div id="loading-bar-container">
+            <div id="loading-bar"></div>
+         </div>
+
          <!-- Header -->
-         <header class="sticky top-0 z-40 h-16 glass border-b border-white/5 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+         <header class="fixed top-0 z-40 h-16 glass border-b border-white/5 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
                <a href="javascript:void(0)" id="mobile-sidebar-toggle" class="lg:hidden p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 cursor-pointer block">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -963,6 +1034,106 @@
             setInterval(refreshNotifications, 10000);
             measurePing();
             refreshNotifications();
+
+            // --- SPA Navigation ---
+            const pageContainer = document.getElementById('page-container');
+            const loadingBar = document.getElementById('loading-bar');
+
+            function showLoading() {
+               loadingBar.style.width = '30%';
+               loadingBar.parentElement.style.opacity = '1';
+
+               // Show simple skeleton
+               pageContainer.innerHTML = `
+                  <main class="p-8 animate-fade-in">
+                     <div class="max-w-7xl mx-auto space-y-8">
+                        <div class="h-12 w-64 skeleton"></div>
+                        <div class="h-4 w-96 skeleton"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                           <div class="h-32 skeleton"></div>
+                           <div class="h-32 skeleton"></div>
+                           <div class="h-32 skeleton"></div>
+                        </div>
+                        <div class="h-96 skeleton w-full"></div>
+                     </div>
+                  </main>
+               `;
+            }
+
+            function hideLoading() {
+               loadingBar.style.width = '100%';
+               setTimeout(() => {
+                  loadingBar.parentElement.style.opacity = '0';
+                  setTimeout(() => { loadingBar.style.width = '0%'; }, 300);
+               }, 200);
+            }
+
+            async function loadPage(url, push = true) {
+               showLoading();
+               try {
+                  const response = await fetch(url);
+                  const html = await response.text();
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(html, 'text/html');
+                  const newContent = doc.getElementById('page-container');
+
+                  if (newContent) {
+                     pageContainer.innerHTML = newContent.innerHTML;
+                     document.title = doc.title;
+
+                     if (push) history.pushState({ url }, doc.title, url);
+
+                     // Re-run scripts
+                     const scripts = Array.from(pageContainer.querySelectorAll('script'));
+                     scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                     });
+
+                     // Update sidebar active state
+                     navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        const href = link.getAttribute('href');
+                        if (href && (window.location.pathname === href || (href !== '/' && window.location.pathname.startsWith(href)))) {
+                           link.classList.add('active');
+                           updateActiveIndicator(link);
+                        }
+                     });
+
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                     window.location.href = url;
+                  }
+               } catch (error) {
+                  console.error('SPA load failed:', error);
+                  window.location.href = url;
+               }
+               hideLoading();
+            }
+
+            window.addEventListener('popstate', (e) => {
+               if (e.state && e.state.url) {
+                  loadPage(e.state.url, false);
+               } else {
+                  loadPage(window.location.pathname, false);
+               }
+            });
+
+            document.addEventListener('click', (e) => {
+               const link = e.target.closest('a');
+               if (link && link.href &&
+                   link.href.startsWith(window.location.origin) &&
+                   !link.getAttribute('download') &&
+                   link.target !== '_blank' &&
+                   !link.href.includes('#') &&
+                   !link.href.includes('javascript:void(0)')) {
+
+                  e.preventDefault();
+                  loadPage(link.href);
+               }
+            });
          });
       </script>
       <script src="/javascript/language/index.js"></script>
