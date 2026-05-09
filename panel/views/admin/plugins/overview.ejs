@@ -9,26 +9,24 @@
       </div>
       
       <div class="flex flex-row items-center gap-3">
-        <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="flex items-center justify-center rounded-xl bg-white/5 border border-white/10 px-4 sm:px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10 transition-all" title="Upload">
-          <svg class="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-          <span class="hidden sm:inline">Upload</span>
-        </button>
-        <a href="/admin/plugins/studio" class="flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all" title="Create">
-          <svg class="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
-          <span class="hidden sm:inline">Create</span>
+        <a href="javascript:void(0)" onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="flex items-center justify-center p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/5 transition-all" title="Upload">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        </a>
+        <a href="/admin/plugins/studio" class="flex items-center justify-center p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/5 transition-all" title="Create">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
         </a>
 
-        <button 
+        <a
+          href="javascript:void(0)"
           id="reload" 
-
-          class="flex items-center justify-center rounded-xl bg-white px-6 py-2.5 text-sm font-bold text-black shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
+          class="flex items-center justify-center p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/5 transition-all"
           onclick="fetch('/admin/plugins/reload', {method: 'POST'}), location.reload()"
+          title="Reload Plugins"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 mr-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
-          Reload Plugins
-        </button>
+        </a>
       </div>
     </div>
         
@@ -72,29 +70,30 @@
               </span>
 
               <div class="flex items-center gap-2">
-                <button onclick="managePermissions('<%= plugin.name %>', '<%= JSON.stringify(plugin.permissions || []) %>', '<%= JSON.stringify(plugin.approved_permissions || []) %>')"
-                        class="p-2 bg-white/5 text-neutral-400 hover:text-white rounded-xl border border-white/10 transition-all" title="Permissions">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </button>
+                <a href="javascript:void(0)" onclick="managePermissions('<%= plugin.name %>', '<%= JSON.stringify(plugin.permissions || []) %>', '<%= JSON.stringify(plugin.approved_permissions || []) %>')"
+                        class="p-2 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" title="Permissions">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </a>
                 <a href="/admin/plugins/overview/<%= plugin.directoryname %>/edit"
-                   class="p-2 bg-white/5 text-neutral-400 hover:text-white rounded-xl border border-white/10 transition-all" title="Edit Logic">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                   class="p-2 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" title="Edit Logic">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </a>
                 <a href="/admin/plugins/overview/<%= plugin.name %>/download"
-                   class="p-2 bg-white/5 text-neutral-400 hover:text-white rounded-xl border border-white/10 transition-all" title="Export .kspp">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                   class="p-2 text-neutral-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" title="Export .kspp">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 </a>
-                <button onclick="fetch('/admin/plugins/overview/<%= plugin.name %>/toggle', {method: 'POST'}).then(() => location.reload())"
-                        class="p-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold shadow-lg transition-all <%= isActive ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' %>" title="<%= isActive ? 'Disable' : 'Enable' %>">
-                  <span class="sm:hidden">
-                    <% if (isActive) { %>
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <% } else { %>
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <% } %>
-                  </span>
-                  <span class="hidden sm:inline"><%= isActive ? 'Disable' : 'Enable' %></span>
-                </button>
+                <a href="javascript:void(0)" onclick="if(confirm('Are you sure you want to delete this plugin?')) fetch('/admin/plugins/overview/<%= plugin.name %>/delete', {method: 'POST'}).then(() => location.reload())"
+                   class="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Plugin">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </a>
+                <a href="javascript:void(0)" onclick="fetch('/admin/plugins/overview/<%= plugin.name %>/toggle', {method: 'POST'}).then(() => location.reload())"
+                        class="p-2 rounded-lg transition-all <%= isActive ? 'text-red-400 hover:bg-red-500/10' : 'text-emerald-400 hover:bg-emerald-500/10' %>" title="<%= isActive ? 'Disable' : 'Enable' %>">
+                  <% if (isActive) { %>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <% } else { %>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <% } %>
+                </a>
               </div>
             </div>
           </div>
@@ -114,7 +113,7 @@
           <p class="text-neutral-400">Drop your .kspp file here or <span class="text-blue-400">browse</span></p>
         </div>
         <div class="flex gap-3">
-          <button type="button" onclick="document.getElementById('uploadModal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <a href="javascript:void(0)" onclick="document.getElementById('uploadModal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all text-center cursor-pointer">Cancel</a>
           <button type="submit" class="flex-1 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all">Install</button>
         </div>
       </form>
@@ -152,7 +151,7 @@
           </div>
         </div>
         <div class="flex gap-3 pt-4">
-          <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <a href="javascript:void(0)" onclick="document.getElementById('createModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all text-center cursor-pointer">Cancel</a>
           <button type="submit" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">Scaffold Architecture</button>
         </div>
       </form>
@@ -170,7 +169,7 @@
            <!-- Dynamically populated -->
         </div>
         <div class="flex gap-3">
-          <button type="button" onclick="document.getElementById('permsModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">Cancel</button>
+          <a href="javascript:void(0)" onclick="document.getElementById('permsModal').classList.add('hidden')" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all text-center cursor-pointer">Cancel</a>
           <button type="submit" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all">Apply Changes</button>
         </div>
       </form>

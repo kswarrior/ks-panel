@@ -24,7 +24,7 @@
           <section class="glass p-5 rounded-3xl border border-white/5 shadow-2xl">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em]">Sidebar.</h2>
-              <button type="button" onclick="addSidebarItem()" class="px-2 py-1 rounded-lg bg-blue-500 text-white text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all">Add</button>
+              <a href="javascript:void(0)" onclick="addSidebarItem()" class="px-2 py-1 rounded-lg bg-blue-500 text-white text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer">Add</a>
             </div>
             <div id="sidebarItems" class="space-y-2 max-h-40 overflow-y-auto no-scrollbar"></div>
           </section>
@@ -34,8 +34,8 @@
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em]">Frontend.</h2>
               <div class="flex gap-2">
-                <button type="button" onclick="addFile('fe')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all" title="Add"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
-                <button type="button" onclick="triggerImport('fe')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all" title="Import"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>
+                <a href="javascript:void(0)" onclick="addFile('fe')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all cursor-pointer" title="Add"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></a>
+                <a href="javascript:void(0)" onclick="triggerImport('fe')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all cursor-pointer" title="Import"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></a>
                 <label class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all cursor-pointer" title="Upload">
                   <input type="file" multiple class="hidden" onchange="handleUpload(this, 'fe')">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -50,8 +50,8 @@
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em]">Backend.</h2>
               <div class="flex gap-2">
-                <button type="button" onclick="addFile('be')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all" title="Add"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
-                <button type="button" onclick="triggerImport('be')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all" title="Import"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>
+                <a href="javascript:void(0)" onclick="addFile('be')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all cursor-pointer" title="Add"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></a>
+                <a href="javascript:void(0)" onclick="triggerImport('be')" class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all cursor-pointer" title="Import"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h10a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></a>
                 <label class="p-1.5 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all cursor-pointer" title="Upload">
                   <input type="file" multiple class="hidden" onchange="handleUpload(this, 'be')">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -106,8 +106,8 @@
           <!-- IDE & Testing Laboratory -->
           <div class="space-y-6">
             <div class="flex gap-2">
-               <button type="button" onclick="setStudioView('editor')" id="viewBtnEditor" class="flex-1 py-3 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest transition-all">IDE Editor</button>
-               <button type="button" onclick="setStudioView('tester')" id="viewBtnTester" class="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-neutral-400 text-[10px] font-black uppercase tracking-widest transition-all">Testing Lab</button>
+               <a href="javascript:void(0)" onclick="setStudioView('editor')" id="viewBtnEditor" class="flex-1 py-3 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest transition-all text-center cursor-pointer block">IDE Editor</a>
+               <a href="javascript:void(0)" onclick="setStudioView('tester')" id="viewBtnTester" class="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-neutral-400 text-[10px] font-black uppercase tracking-widest transition-all text-center cursor-pointer block">Testing Lab</a>
             </div>
 
             <section id="studioEditor" class="glass p-4 sm:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
@@ -117,10 +117,10 @@
                   <div id="fileTabs" class="flex gap-2 overflow-x-auto max-w-[200px] sm:max-w-none no-scrollbar"></div>
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
-                   <button type="button" id="saveActiveFile" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black uppercase shadow-lg shadow-emerald-500/20" title="Sync to Memory">
+                   <a href="javascript:void(0)" id="saveActiveFile" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black uppercase shadow-lg shadow-emerald-500/20 cursor-pointer inline-flex items-center justify-center" title="Sync to Memory">
                       <span class="sm:hidden"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg></span>
                       <span class="hidden sm:inline">Sync to Memory</span>
-                   </button>
+                   </a>
                 </div>
               </div>
               <div id="editor" class="w-full h-[400px] sm:h-[600px] rounded-2xl border border-white/10 bg-black/40 overflow-hidden"></div>
@@ -131,8 +131,8 @@
                   <!-- Frontend Simulator -->
                   <div class="space-y-4">
                      <h3 class="text-xs font-black text-white uppercase tracking-[0.2em]">HTML Simulator</h3>
-                     <div class="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4">
-                        <button type="button" onclick="simulateFrontend()" class="w-full py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase">Render Active View</button>
+                     <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                        <a href="javascript:void(0)" onclick="simulateFrontend()" class="w-full py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase text-center cursor-pointer block">Render Active View</a>
                         <div id="simPreview" class="w-full h-80 bg-white rounded-xl overflow-auto p-4 text-black text-sm">
                            <p class="text-neutral-500 italic text-center mt-20">Click render to simulate view...</p>
                         </div>
@@ -142,10 +142,10 @@
                   <!-- Route Tester -->
                   <div class="space-y-4">
                      <h3 class="text-xs font-black text-white uppercase tracking-[0.2em]">Route Tester</h3>
-                     <div class="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                     <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                         <div class="flex gap-2">
                            <input type="text" id="testRoutePath" placeholder="/index" class="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-xs text-white">
-                           <button type="button" onclick="testRoute()" class="px-4 py-2 rounded-xl bg-purple-500 text-white text-[10px] font-black uppercase">Run</button>
+                           <a href="javascript:void(0)" onclick="testRoute()" class="px-4 py-2 rounded-xl bg-purple-500 text-white text-[10px] font-black uppercase text-center cursor-pointer block">Run</a>
                         </div>
                         <pre id="testResponse" class="w-full h-40 bg-black/40 rounded-xl p-4 text-[10px] text-emerald-400 font-mono overflow-auto border border-white/5">Waiting for request...</pre>
 
@@ -203,9 +203,9 @@
               <button type="submit" class="w-full py-6 rounded-3xl bg-blue-500 text-white font-black text-sm hover:bg-blue-600 transition-all shadow-2xl shadow-blue-500/20 uppercase tracking-[0.3em]">
                 Initialize Plugin Core
               </button>
-              <button type="reset" class="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] hover:bg-white/10 transition-all uppercase tracking-widest">
+              <a href="javascript:void(0)" onclick="document.getElementById('studioForm').reset()" class="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] hover:bg-white/10 transition-all uppercase tracking-widest text-center cursor-pointer block">
                 Discard Changes
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@ function renderStack() {
     container.innerHTML = architectureStack[type].map((f, i) => `
       <div onclick="switchFile('${type}', ${i})" class="group flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer ${activeFile.type === type && activeFile.index === i ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-transparent hover:border-white/10'}">
         <span class="text-[10px] sm:text-xs ${activeFile.type === type && activeFile.index === i ? 'text-blue-400 font-bold' : 'text-neutral-400'} truncate max-w-[100px] sm:max-w-none">${f.name}</span>
-        <button type="button" onclick="event.stopPropagation(); removeFile('${type}', ${i})" class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 text-red-500 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
+        <a href="javascript:void(0)" onclick="event.stopPropagation(); removeFile('${type}', ${i})" class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 text-red-500 transition-opacity cursor-pointer inline-flex items-center justify-center"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></a>
       </div>
     `).join('');
   });
@@ -395,7 +395,7 @@ function syncPagesFromLogic() {
           <span class="text-[9px] font-black text-blue-400 uppercase">${match[1]}</span>
           <span class="text-[10px] text-white font-mono truncate max-w-[80px]">/${path}</span>
         </div>
-        <button type="button" onclick="addSidebarRegistration('${path}')" class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-neutral-400 hover:text-white transition-all uppercase">Add</button>
+        <a href="javascript:void(0)" onclick="addSidebarRegistration('${path}')" class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-neutral-400 hover:text-white transition-all uppercase cursor-pointer text-center inline-block">Add</a>
       `;
       registry.appendChild(div);
     }
@@ -461,7 +461,7 @@ function simulateFrontend() {
 
   try {
     // Simple EJS tag replacement logic for the client-side simulator
-    let clean = code.replace(/<%[=-]?([\s\S]*?)%>/g, (match, inner) => {
+    let clean = code.replace(/<%%[=-]?([\s\S]*?)%>/g, (match, inner) => {
       const key = inner.trim();
       if (key === 'user.username') return mockData.user.username;
       if (key === 'name') return mockData.name;
@@ -469,8 +469,8 @@ function simulateFrontend() {
       return `[${key}]`;
     });
 
-    // Remove any remaining raw <% ... %> blocks
-    clean = clean.replace(/<%[\s\S]*?%>/g, '');
+    // Remove any remaining raw <%% ... %> blocks
+    clean = clean.replace(/<%%[\s\S]*?%>/g, '');
 
     sim.innerHTML = `<div style="all: initial; font-family: sans-serif;">${clean}</div>`;
   } catch (err) {
@@ -517,7 +517,7 @@ function addDependency() {
   div.className = 'flex gap-2 animate-fade-in';
   div.innerHTML = `
     <input type="text" name="dependencies[]" placeholder="e.g., axios" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs focus:outline-none focus:border-blue-500 transition-all">
-    <button type="button" onclick="this.parentElement.remove()" class="px-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20">x</button>
+    <a href="javascript:void(0)" onclick="this.parentElement.remove()" class="px-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 flex items-center justify-center cursor-pointer text-xs">x</a>
   `;
   container.appendChild(div);
 }
@@ -527,9 +527,9 @@ function addSidebarItem() {
   const div = document.createElement('div');
   div.className = 'sidebar-item p-3 rounded-xl bg-white/[0.02] border border-white/5 relative group animate-fade-in hover:border-white/10 transition-all';
   div.innerHTML = `
-    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500/20 border border-red-500/20 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white">
+    <a href="javascript:void(0)" onclick="this.parentElement.remove()" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500/20 border border-red-500/20 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white cursor-pointer">
       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
+    </a>
     <div class="grid grid-cols-1 gap-2">
       <input type="text" name="sidebar_category[]" placeholder="Category" class="w-full bg-transparent border-none p-0 text-[10px] font-bold text-neutral-400 placeholder:text-neutral-700 focus:ring-0">
       <div class="flex gap-2">

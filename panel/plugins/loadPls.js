@@ -21,6 +21,7 @@ function loadPlugins(pluginDir) {
   const pluginsJson = readPluginsJson();
 
   pluginFolders.forEach((folder) => {
+    if (folder === 'node_modules') return;
     const folderPath = path.join(pluginDir, folder);
 
     if (fs.statSync(folderPath).isDirectory()) {
