@@ -41,6 +41,16 @@ if (databaseURL.startsWith("postgres")) {
     table: databaseTable,
     keySize: 255,
   });
+
+  // Enable WAL mode for better performance and to prevent corruption
+  try {
+    const sqlite = require('better-sqlite3')(sqlitePath);
+    sqlite.pragma('journal_mode = WAL');
+    sqlite.pragma('synchronous = NORMAL');
+    sqlite.close();
+  } catch (e) {
+    console.error('Failed to set SQLite pragmas:', e);
+  }
 } else if (databaseURL.startsWith("mongodb")) {
   const MongoStore = require("@keyvhq/mongo");
   store = new MongoStore(databaseURL, {

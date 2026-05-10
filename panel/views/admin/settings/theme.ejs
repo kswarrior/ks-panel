@@ -133,6 +133,13 @@
             </div>
           </div>
           <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Loading Bar</label>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+              <input type="color" name="--loading-bar-color" value="<%= theme['--loading-bar-color'] || '#3b82f6' %>" oninput="updatePreview(this)" class="h-10 w-10 rounded-lg bg-transparent border-none cursor-pointer">
+              <span class="text-xs font-mono text-neutral-400 color-value"><%= theme['--loading-bar-color'] || '#3b82f6' %></span>
+            </div>
+          </div>
+          <div class="space-y-2">
             <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">System Font Family</label>
             <select name="--font-family" onchange="updatePreview(this)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none transition-all appearance-none cursor-pointer">
               <option value="'Plus Jakarta Sans', sans-serif" <%= theme['--font-family'] ==="'Plus Jakarta Sans', sans-serif" ? 'selected' : '' %>>Plus Jakarta (Default)</option>
@@ -499,6 +506,30 @@
               <p class="text-[9px] text-neutral-500 italic">Adjusts the global opacity of all glass surfaces.</p>
             </div>
 
+          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/5 lg:col-span-2">
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Skeleton Base</label>
+              <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+                <input type="color" id="skeleton-base-picker" value="#ffffff" oninput="updateAlphaColor(this, '--skeleton-base')" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="hidden" name="--skeleton-base" value="<%= theme['--skeleton-base'] || 'rgba(255, 255, 255, 0.02)' %>">
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Skeleton High</label>
+              <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+                <input type="color" id="skeleton-highlight-picker" value="#ffffff" oninput="updateAlphaColor(this, '--skeleton-highlight')" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="hidden" name="--skeleton-highlight" value="<%= theme['--skeleton-highlight'] || 'rgba(255, 255, 255, 0.05)' %>">
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Skeleton Shimmer</label>
+              <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+                <input type="color" id="skeleton-shimmer-picker" value="#ffffff" oninput="updateAlphaColor(this, '--skeleton-shimmer')" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="hidden" name="--skeleton-shimmer" value="<%= theme['--skeleton-shimmer'] || 'rgba(255, 255, 255, 0.03)' %>">
+              </div>
+            </div>
+          </div>
+
             <div class="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
               <div class="space-y-2">
                  <label class="text-[10px] font-bold text-neutral-500 uppercase text-center block">Fast</label>
@@ -783,7 +814,10 @@ function initialize() {
       { id: 'border-picker', var: '--card-border' },
       { id: 'card-bg-picker', var: '--card-bg' },
       { id: 'input-bg-picker', var: '--input-bg' },
-      { id: 'input-border-picker', var: '--input-border' }
+      { id: 'input-border-picker', var: '--input-border' },
+      { id: 'skeleton-base-picker', var: '--skeleton-base' },
+      { id: 'skeleton-highlight-picker', var: '--skeleton-highlight' },
+      { id: 'skeleton-shimmer-picker', var: '--skeleton-shimmer' }
     ];
     pickers.forEach(p => {
       const picker = document.getElementById(p.id);
