@@ -28,6 +28,12 @@
                --card-radius: 1.5rem;
                --btn-radius: 0.75rem;
 
+               /* Loading Defaults */
+               --loading-bar-color: #3b82f6;
+               --skeleton-base: rgba(255, 255, 255, 0.02);
+               --skeleton-highlight: rgba(255, 255, 255, 0.05);
+               --skeleton-shimmer: rgba(255, 255, 255, 0.03);
+
                /* Sidebar Defaults */
                --sidebar-blur: 8px;
                --sidebar-radius: 0rem;
@@ -234,13 +240,13 @@
          #loading-bar {
             width: 0%;
             height: 100%;
-            background: var(--accent-color);
+            background: var(--loading-bar-color);
             transition: width 0.3s ease;
          }
 
          /* Skeleton Loader Styles */
          .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
+            background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-highlight) 50%, var(--skeleton-base) 75%);
             background-size: 200% 100%;
             animation: skeleton-loading 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
             border-radius: 0.75rem;
@@ -256,7 +262,7 @@
             bottom: 0;
             left: 0;
             transform: translateX(-100%);
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
             animation: shimmer 2s infinite;
          }
 
