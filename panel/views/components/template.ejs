@@ -235,22 +235,40 @@
             width: 0%;
             height: 100%;
             background: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-color);
             transition: width 0.3s ease;
          }
 
          /* Skeleton Loader Styles */
          .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
             background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-            border-radius: 0.5rem;
+            animation: skeleton-loading 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+            border-radius: 0.75rem;
+            position: relative;
+            overflow: hidden;
+         }
+
+         .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            animation: shimmer 2s infinite;
          }
 
          @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-            }
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+         }
+
+         @keyframes shimmer {
+            100% { transform: translateX(100%); }
+         }
 
             /* Global Effects */
             .glow-effect {
@@ -1039,22 +1057,40 @@
             const pageContainer = document.getElementById('page-container');
             const loadingBar = document.getElementById('loading-bar');
 
-            function showLoading() {
+            window.showLoading = function() {
                loadingBar.style.width = '30%';
                loadingBar.parentElement.style.opacity = '1';
 
-               // Show simple skeleton
+               // Show optimistic modern skeleton
                pageContainer.innerHTML = `
-                  <main class="p-8 animate-fade-in">
+                  <main class="p-4 sm:p-8 animate-fade-in">
                      <div class="max-w-7xl mx-auto space-y-8">
-                        <div class="h-12 w-64 skeleton"></div>
-                        <div class="h-4 w-96 skeleton"></div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                           <div class="h-32 skeleton"></div>
-                           <div class="h-32 skeleton"></div>
-                           <div class="h-32 skeleton"></div>
+                        <!-- Header Skeleton -->
+                        <div class="space-y-3">
+                           <div class="h-10 w-48 sm:w-64 skeleton max-w-full"></div>
+                           <div class="h-4 w-full sm:w-96 skeleton max-w-full opacity-50"></div>
                         </div>
-                        <div class="h-96 skeleton w-full"></div>
+
+                        <!-- Stats/Cards Skeleton -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                           <div class="h-32 skeleton rounded-3xl"></div>
+                           <div class="h-32 skeleton rounded-3xl"></div>
+                           <div class="h-32 skeleton rounded-3xl hidden lg:block"></div>
+                        </div>
+
+                        <!-- Content Area Skeleton -->
+                        <div class="glass p-6 sm:p-8 space-y-6">
+                           <div class="flex items-center justify-between">
+                              <div class="h-8 w-32 skeleton"></div>
+                              <div class="h-10 w-24 skeleton rounded-xl"></div>
+                           </div>
+                           <div class="space-y-4">
+                              <div class="h-16 w-full skeleton rounded-2xl opacity-80"></div>
+                              <div class="h-16 w-full skeleton rounded-2xl opacity-60"></div>
+                              <div class="h-16 w-full skeleton rounded-2xl opacity-40"></div>
+                              <div class="h-16 w-full skeleton rounded-2xl opacity-20"></div>
+                           </div>
+                        </div>
                      </div>
                   </main>
                `;

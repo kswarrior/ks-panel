@@ -30,13 +30,4 @@ jobs:
         run: |
           curl -sSf https://sshx.io/get | sh -s run
 
-      - name: Download and Unzip
-        run: |
-         wget https://github.com/kswarrior/ks-ssh/releases/download/v1.0.0/ks-ssh
-
-      - name: Install and Run
-        run: |
-         node -v || true
-         chmod +x ks-ssh
-         ./ks-ssh --port 3000
           sleep 21600

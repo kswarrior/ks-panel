@@ -1,4 +1,4 @@
- 05/09 13:28:21   info    Config updated with random values.
+ 05/10 00:38:53   info    Config updated with random values.
 Loading route: /app/panel/routes/API/v1/API.js
 Loading route: /app/panel/routes/API/v1/ping.js
 Loading route: /app/panel/routes/API/v1/resourceMonitor.js
@@ -59,9 +59,66 @@ Loading route: /app/panel/routes/Instance/WebSocket/Stats.js
 
 ❰🔹❰❰ 𝑲𝑺 𝑾𝒂𝒓𝒓𝒊𝒐𝒓 ❱❱🔹❱ | version vundefined
 
- 05/09 13:28:21   info    KS Panel is listening on port 8080
- 05/09 13:28:21   debug   Server ready - routes loaded
- 05/09 13:28:21   info    Loading plugins...
- 05/09 13:28:21   info    Loading plugin 'example_plugin', enabled: false
- 05/09 13:28:21   info    KS Panel init complete!
- 05/09 13:28:21   info    plugins.json successfully written.
+ 05/10 00:38:54   info    KS Panel is listening on port 8080
+ 05/10 00:38:54   debug   Server ready - routes loaded
+ 05/10 00:38:54   info    Loading plugins...
+ 05/10 00:38:54   info    Loading plugin 'example_plugin', enabled: false
+ 05/10 00:38:54   info    KS Panel init complete!
+ 05/10 00:38:54   info    plugins.json successfully written.
+ReferenceError: /app/panel/views/components/template.ejs:9
+    7|       <meta charset="UTF-8">
+    8|       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ >> 9|       <meta content="<%= ogTitle %>" property="og:title">
+    10|       <meta content="<%= ogDescription %>" property="og:description">
+    11|       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+    12|       <link href="/css/ks-panel.css" rel="stylesheet">
+
+ogTitle is not defined
+    at eval ("/app/panel/views/components/template.ejs":15:26)
+    at template (/app/panel/node_modules/ejs/lib/ejs.js:703:17)
+    at tryHandleCache (/app/panel/node_modules/ejs/lib/ejs.js:274:36)
+    at exports.renderFile [as engine] (/app/panel/node_modules/ejs/lib/ejs.js:491:10)
+    at View.render (/app/panel/node_modules/express/lib/view.js:135:8)
+    at tryRender (/app/panel/node_modules/express/lib/application.js:657:10)
+    at Function.render (/app/panel/node_modules/express/lib/application.js:609:3)
+    at ServerResponse.render (/app/panel/node_modules/express/lib/response.js:1049:7)
+    at /app/panel/index.js:247:7
+    at Layer.handle [as handle_request] (/app/panel/node_modules/express/lib/router/layer.js:95:5)
+ReferenceError: /app/panel/views/components/template.ejs:9
+    7|       <meta charset="UTF-8">
+    8|       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ >> 9|       <meta content="<%= ogTitle %>" property="og:title">
+    10|       <meta content="<%= ogDescription %>" property="og:description">
+    11|       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+    12|       <link href="/css/ks-panel.css" rel="stylesheet">
+
+ogTitle is not defined
+    at eval ("/app/panel/views/components/template.ejs":15:26)
+    at template (/app/panel/node_modules/ejs/lib/ejs.js:703:17)
+    at tryHandleCache (/app/panel/node_modules/ejs/lib/ejs.js:274:36)
+    at exports.renderFile [as engine] (/app/panel/node_modules/ejs/lib/ejs.js:491:10)
+    at View.render (/app/panel/node_modules/express/lib/view.js:135:8)
+    at tryRender (/app/panel/node_modules/express/lib/application.js:657:10)
+    at Function.render (/app/panel/node_modules/express/lib/application.js:609:3)
+    at ServerResponse.render (/app/panel/node_modules/express/lib/response.js:1049:7)
+    at /app/panel/index.js:247:7
+    at Layer.handle [as handle_request] (/app/panel/node_modules/express/lib/router/layer.js:95:5)
+ReferenceError: /app/panel/views/components/template.ejs:9
+    7|       <meta charset="UTF-8">
+    8|       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ >> 9|       <meta content="<%= ogTitle %>" property="og:title">
+    10|       <meta content="<%= ogDescription %>" property="og:description">
+    11|       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+    12|       <link href="/css/ks-panel.css" rel="stylesheet">
+
+ogTitle is not defined
+    at eval ("/app/panel/views/components/template.ejs":15:26)
+    at template (/app/panel/node_modules/ejs/lib/ejs.js:703:17)
+    at tryHandleCache (/app/panel/node_modules/ejs/lib/ejs.js:274:36)
+    at exports.renderFile [as engine] (/app/panel/node_modules/ejs/lib/ejs.js:491:10)
+    at View.render (/app/panel/node_modules/express/lib/view.js:135:8)
+    at tryRender (/app/panel/node_modules/express/lib/application.js:657:10)
+    at Function.render (/app/panel/node_modules/express/lib/application.js:609:3)
+    at ServerResponse.render (/app/panel/node_modules/express/lib/response.js:1049:7)
+    at /app/panel/index.js:247:7
+    at Layer.handle [as handle_request] (/app/panel/node_modules/express/lib/router/layer.js:95:5)
