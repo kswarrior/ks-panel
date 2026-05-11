@@ -646,8 +646,8 @@
                 <% if (loc.id === node.location) locName = loc.name; %>
               <% }); %>
               <span class="tag"><%= locName %></span>
-              <% if (node.useCloudflareTunnel) { %>
-                <span class="tag tag-tunnel">CF Tunnel</span>
+              <% if (node.connectionType && node.connectionType !== 'Direct') { %>
+                <span class="tag tag-tunnel"><%= node.connectionType %></span>
               <% } %>
               <span class="tag" style="margin-left: auto;"><%= node.uploadSize || 500 %> MB</span>
             </div>

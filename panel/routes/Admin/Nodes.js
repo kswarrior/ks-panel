@@ -132,6 +132,26 @@ router.get("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res
   });
 });
 
+router.get("/admin/node/:id", hasPermission('manage_nodes'), async (req, res) => {
+  const { id } = req.params;
+  const node = await db.get(id + "_node");
+  if (!node) return res.status(404).send("Node not found");
+
+  const locationIds = (await db.get("locations")) || [];
+  const locations = [];
+  for (const locId of locationIds) {
+    const loc = await db.get(locId + "_location");
+    if (loc) locations.push(loc);
+  }
+
+  res.render("admin/nodes/node", {
+    req,
+    user: req.user,
+    node,
+    locations
+  });
+});
+
 // Location CRUD
 router.post("/admin/nodes/locations/create", hasPermission('manage_nodes'), async (req, res) => {
   const { name } = req.body;
@@ -237,9 +257,7 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     uploadSize = 500,
     behindProxy = false,
     connectionProtocol = "http",
-    allocIp,
-    allocAlias,
-    portsInput
+    connectionType = "Direct"
   } = req.body;
 
   if (!name || !address || !port) {
@@ -301,7 +319,7 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     serverFileDirectory: "/var/lib/kswings/volumes",
     publicIp: address.trim(),
     maintenanceMode: false,
-    connectionType: "Direct",
+    connectionType: connectionType,
     maxServers: 50,
     healthCheckUrl: "",
     tags: [],
@@ -318,21 +336,6 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     nodes.push(nodeId);
     await db.set("nodes", nodes);
     invalidateCache("nodes");
-
-    if (portsInput && portsInput.trim()) {
-      const ports = parsePorts(portsInput);
-      if (ports.length > 0) {
-        const allocations = ports.map(p => ({
-          id: uuidv4(),
-          ip: allocIp?.trim() || address.trim(),
-          alias: allocAlias?.trim() || null,
-          port: p,
-          assignedTo: null,
-        }));
-
-        await db.set(`${nodeId}_allocations`, allocations);
-      }
-    }
 
     logAudit(req.user.userId, req.user.username, "node:create", req.ip, { name, address });
     res.status(201).json({ ...node, configureKey });
@@ -435,9 +438,11 @@ router.post("/admin/nodes/delete", hasPermission('manage_nodes'), async (req, re
 
 // ==================== CONFIGURE ENDPOINT - NOW RETURNS FULL CONFIG (FIXED FOR NEW DAEMON) ====================
 router.post("/admin/nodes/configure", async (req, res) => {
-  const { configureKey } = req.query;
+  const { configureKey, tunnelUrl } = req.body; // Try body first
+  const queryKey = req.query.configureKey;
+  const finalKey = configureKey || queryKey;
 
-  if (!configureKey) {
+  if (!finalKey) {
     return res.status(400).json({ error: "Missing configureKey" });
   }
 
@@ -446,7 +451,7 @@ router.post("/admin/nodes/configure", async (req, res) => {
     let foundNode = null;
     for (const nodeId of nodes) {
       const node = await db.get(nodeId + "_node");
-      if (node && node.configureKey === configureKey) {
+      if (node && node.configureKey === finalKey) {
         foundNode = node;
         break;
       }
@@ -456,11 +461,29 @@ router.post("/admin/nodes/configure", async (req, res) => {
       return res.status(404).json({ error: "Node not found" });
     }
 
+    // If it's KS Smart and we got a tunnel URL, update the node address
+    if (foundNode.connectionType === "KS Smart" && (tunnelUrl || req.body.url)) {
+      const rawUrl = tunnelUrl || req.body.url;
+      // Extract hostname: remove protocol, then split by colon or slash
+      let addr = rawUrl.replace(/^https?:\/\//, "");
+      addr = addr.split(/[/?#:]/)[0];
+
+      foundNode.address = addr;
+
+      if (rawUrl.startsWith("https")) {
+          foundNode.connectionProtocol = "https";
+      } else {
+          foundNode.connectionProtocol = "http";
+      }
+
+      log.info(`KS Smart registration: Node ${foundNode.id} updated address to ${foundNode.address} (${foundNode.connectionProtocol})`);
+    }
+
     // Generate real access key (daemon will receive this as "key")
     const newAccessKey = crypto.randomBytes(32).toString("hex");
 
     foundNode.apiKey = newAccessKey;
-    foundNode.status = "Configured";
+    foundNode.status = "Online";
     // configureKey stays fixed forever - do NOT set to null
 
     await db.set(foundNode.id + "_node", foundNode);
@@ -534,7 +557,7 @@ router.get("/admin/nodes/node/:id/configure-command", hasPermission('manage_node
 });
 
 // ==================== UPDATE NODE - FULLY SUPPORTS ALL NEW FIELDS (NO DATA LOSS) ====================
-router.post("/admin/nodes/node/:id", hasPermission('manage_nodes'), async (req, res) => {
+router.post("/admin/node/:id", hasPermission('manage_nodes'), async (req, res) => {
   const { id } = req.params;
   let node = await db.get(id + "_node");
   if (!node) return res.status(404).json({ error: "Node not found" });

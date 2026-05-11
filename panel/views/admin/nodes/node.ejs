@@ -6,6 +6,14 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Name:</label>  
 	 <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="My node" value="<%- node.name %>">  
 
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Connection Type:</label>
+     <select id="connectionType" onchange="toggleConnectionFields()" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
+       <option value="Direct" <%= node.connectionType === 'Direct' ? 'selected' : '' %>>IP Address (IPv4)</option>
+       <option value="Tunnel" <%= node.connectionType === 'Tunnel' ? 'selected' : '' %>>Tunnel (Cloudflare, Ngrok etc)</option>
+       <option value="KS Smart" <%= node.connectionType === 'KS Smart' ? 'selected' : '' %>>KS Smart</option>
+       <option value="Localhost" <%= node.connectionType === 'Localhost' ? 'selected' : '' %>>Localhost (Auto-setup)</option>
+     </select>
+
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Location:</label>  
      <select id="nodeLocation" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
   <option value="">Select a location</option>
@@ -20,8 +28,10 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (GB):</label>  
 	 <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="40" value="<%- node.disk %>">  
 
+	 <div id="addressRow">
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">IP Address:</label>  
 	 <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="192.168.1.1 or my.hostnamehere.com" value="<%- node.address %>">  
+	 </div>
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Daemon Port:</label>  
 	 <input id="nodePort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="8080" value="<%- node.port %>">  
@@ -29,15 +39,32 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Access Key:</label>  
 	 <input id="nodeApiKey" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="skyportd_xxxxxxxxxxxxxxxx" value="<%- node.apiKey %>">  
 
-	 <button id="saveNodeBtn"  class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Apply Changes</button>
+	 <button type="button" id="saveNodeBtn" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Apply Changes</button>
 
 	</form>  
 </div>  
 
 <script>
+  function toggleConnectionFields() {
+    const type = document.getElementById('connectionType').value;
+    const addressRow = document.getElementById('addressRow');
+    const addressInput = document.getElementById('nodeAddress');
+
+    if (type === 'Localhost') {
+      addressRow.style.display = 'none';
+      if (!addressInput.value || addressInput.value === '') addressInput.value = '127.0.0.1';
+    } else {
+      addressRow.style.display = 'block';
+      if (addressInput.value === '127.0.0.1') addressInput.value = '';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', toggleConnectionFields);
+
   document.getElementById('saveNodeBtn').addEventListener('click', async function() {
     const name = document.getElementById('nodeName').value.trim();
-    const location = document.getElementById('nodeLocation').value.trim();  // Keep
+    const connectionType = document.getElementById('connectionType').value;
+    const location = document.getElementById('nodeLocation').value.trim();
     const ram = document.getElementById('nodeRam').value.trim();
     const disk = document.getElementById('nodeDisk').value.trim();
     const address = document.getElementById('nodeAddress').value.trim();
@@ -45,7 +72,7 @@
     const apiKey = document.getElementById('nodeApiKey').value.trim();
 
     const nodeData = {
-      name, location, ram, disk, address, port, apiKey
+      name, connectionType, location, ram, disk, address, port, apiKey
     };
 
     try {
@@ -63,7 +90,7 @@
       window.location.href = '../nodes?err=EDITED';
     } catch (error) {
       console.error('Error editing node:', error);
-      alert(error.message);  // ADD: Show error to user
+      alert(error.message);
     }
   });
 </script>  
