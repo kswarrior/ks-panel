@@ -157,8 +157,14 @@
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || 'Failed to edit node');
+        let msg = 'Failed to edit node';
+        try {
+          const err = await response.json();
+          msg = err.error || msg;
+        } catch (parseErr) {
+          msg = await response.text() || msg;
+        }
+        throw new Error(msg);
       }
 
       window.location.href = '../nodes?err=EDITED';

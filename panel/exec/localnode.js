@@ -5,7 +5,15 @@ const path = require('path');
 const log = new (require("cat-loggr"))();
 
 const baseDir = path.join(__dirname, '..', '..');
-const localNodeDir = path.join(baseDir, 'wings');
+let localNodeDir = path.join(baseDir, 'wings');
+
+// Fallback detection if wings is not found at expected location
+if (!fs.existsSync(localNodeDir)) {
+  const altDir = path.join(__dirname, '..', '..', '..', 'wings');
+  if (fs.existsSync(altDir)) {
+    localNodeDir = altDir;
+  }
+}
 
 function runCommand(cmd, options = {}) {
   const defaultOpts = {

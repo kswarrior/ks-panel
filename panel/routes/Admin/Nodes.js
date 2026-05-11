@@ -262,7 +262,7 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
   } = req.body;
 
   if (!name || !address || !port) {
-    return res.status(400).json({ error: "Form validation failure: Name, Address (FQDN/IP), and Port are required." });
+    return res.status(400).json({ error: "Form validation failure: Name, Address, and Port are required." });
   }
 
   // Handle resourceMode
@@ -272,8 +272,8 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     if (!ram || !disk) {
       return res.status(400).json({ error: "RAM and Disk are required in Manual mode." });
     }
-    finalRam = parseInt(ram);
-    finalDisk = parseInt(disk);
+    finalRam = parseInt(ram) || 0;
+    finalDisk = parseInt(disk) || 0;
   } else if (resourceMode === 'auto') {
     finalRam = 0;
     finalDisk = 0;
@@ -282,17 +282,14 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
   }
 
   // ==================== FTP VALIDATION LOGIC ====================
-  if (!ftp || typeof ftp.port === 'undefined' || isNaN(parseInt(ftp.port))) {
-    return res.status(400).json({ error: "FTP Port is required and must be a valid number." });
+  const ftpPortNum = parseInt(ftp?.port || 3003);
+  if (isNaN(ftpPortNum) || ftpPortNum < 1 || ftpPortNum > 65535) {
+    return res.status(400).json({ error: "FTP Port must be a valid number between 1 and 65535." });
   }
-  const ftpPortNum = parseInt(ftp.port);
-  if (ftpPortNum < 1 || ftpPortNum > 65535) {
-    return res.status(400).json({ error: "FTP Port must be between 1 and 65535." });
-  }
-  const ftpIpFinal = (ftp.ip || "0.0.0.0").toString().trim();
+  const ftpIpFinal = (ftp?.ip || "0.0.0.0").toString().trim();
 
   const nodeId = uuidv4();
-  const configureKey = uuidv4();   // FIXED: generated only once at creation
+  const configureKey = uuidv4();
 
   const { category } = req.body;
 
@@ -303,7 +300,7 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     name: name.trim(),
     description: "",
     address: address.trim(),
-    port: parseInt(port),
+    port: parseInt(port) || 3002,
     sftpPort: parseInt(sftpPort || 2022),
     ftp: {
       ip: ftpIpFinal,
@@ -313,9 +310,9 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     category: category || "Default",
     ram: finalRam,
     disk: finalDisk,
-    memoryOverallocate: parseInt(memoryOverallocate),
-    diskOverallocate: parseInt(diskOverallocate),
-    uploadSize: parseInt(uploadSize),
+    memoryOverallocate: parseInt(memoryOverallocate) || 0,
+    diskOverallocate: parseInt(diskOverallocate) || 0,
+    uploadSize: parseInt(uploadSize) || 500,
     behindProxy: isTunnel,
     connectionProtocol: isTunnel ? "https" : "http",
     resourceMode: resourceMode,
@@ -482,10 +479,14 @@ router.post("/admin/nodes/configure", async (req, res) => {
       log.info(`KS Smart registration: Node ${foundNode.id} updated address to ${foundNode.address} (${foundNode.connectionProtocol})`);
     }
 
-    // Generate real access key (daemon will receive this as "key")
-    const newAccessKey = crypto.randomBytes(32).toString("hex");
+    // Only generate a new access key if the node doesn't have one yet
+    // This prevents disconnecting the daemon if it's already configured
+    let accessKey = foundNode.apiKey;
+    if (!accessKey) {
+        accessKey = crypto.randomBytes(32).toString("hex");
+        foundNode.apiKey = accessKey;
+    }
 
-    foundNode.apiKey = newAccessKey;
     foundNode.status = "Online";
     // configureKey stays fixed forever - do NOT set to null
 
@@ -498,7 +499,7 @@ router.post("/admin/nodes/configure", async (req, res) => {
     const fullConfig = {
       "_note1": "WARNING: You do not need to touch the following values. KS Daemon will automatically set them.",
       "remote": panelUrl,
-      "key": newAccessKey,
+      "key": accessKey,
       "connectionType": foundNode.connectionType,
       "configureKey": finalKey,
       "_note3": "Other configuration options below. Hostname must be set for FTP to return the correct info.",
@@ -581,9 +582,9 @@ router.post("/admin/node/:id", hasPermission('manage_nodes'), async (req, res) =
   if (req.body.location !== undefined) node.location = req.body.location || null;
   if (req.body.ram !== undefined) node.ram = parseInt(req.body.ram);
   if (req.body.disk !== undefined) node.disk = parseInt(req.body.disk);
-  if (req.body.memoryOverallocate !== undefined) node.memoryOverallocate = parseInt(req.body.memoryOverallocate);
-  if (req.body.diskOverallocate !== undefined) node.diskOverallocate = parseInt(req.body.diskOverallocate);
-  if (req.body.uploadSize) node.uploadSize = parseInt(req.body.uploadSize);
+  if (req.body.memoryOverallocate !== undefined) node.memoryOverallocate = parseInt(req.body.memoryOverallocate) || 0;
+  if (req.body.diskOverallocate !== undefined) node.diskOverallocate = parseInt(req.body.diskOverallocate) || 0;
+  if (req.body.uploadSize) node.uploadSize = parseInt(req.body.uploadSize) || 500;
 
   if (req.body.connectionType) {
     node.connectionType = req.body.connectionType;
@@ -596,7 +597,7 @@ router.post("/admin/node/:id", hasPermission('manage_nodes'), async (req, res) =
   if (req.body.serverFileDirectory) node.serverFileDirectory = req.body.serverFileDirectory.trim();
   if (req.body.publicIp !== undefined) node.publicIp = req.body.publicIp.trim() || node.address;
   if (req.body.maintenanceMode !== undefined) node.maintenanceMode = req.body.maintenanceMode === "true" || req.body.maintenanceMode === true;
-  if (req.body.maxServers) node.maxServers = parseInt(req.body.maxServers);
+  if (req.body.maxServers) node.maxServers = parseInt(req.body.maxServers) || 50;
   if (req.body.healthCheckUrl !== undefined) node.healthCheckUrl = req.body.healthCheckUrl.trim();
   if (req.body.tags !== undefined) node.tags = req.body.tags ? req.body.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
   if (req.body.trustedProxies !== undefined) node.trustedProxies = req.body.trustedProxies ? req.body.trustedProxies.split(",").map(t => t.trim()).filter(Boolean) : [];

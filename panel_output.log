@@ -1,0 +1,5 @@
+
+> ks-panel@1.0.0 start
+> npx pm2 start index.js --name ks-panel
+
+[PM2][ERROR] Script already launched, add -f option to force re-execution
