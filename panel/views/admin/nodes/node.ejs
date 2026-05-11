@@ -6,13 +6,36 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Name:</label>  
 	 <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="My node" value="<%- node.name %>">  
 
-	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Location:</label>  
-     <select id="nodeLocation" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Connection Type:</label>
+     <select id="connectionType" onchange="toggleConnectionFields()" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
+       <option value="Direct" <%= node.connectionType === 'Direct' ? 'selected' : '' %>>IP Address</option>
+       <option value="Tunnel" <%= node.connectionType === 'Tunnel' ? 'selected' : '' %>>Tunnel</option>
+       <option value="KS Smart" <%= node.connectionType === 'KS Smart' ? 'selected' : '' %>>KS Smart</option>
+       <option value="Localhost" <%= node.connectionType === 'Localhost' ? 'selected' : '' %>>Localhost</option>
+     </select>
+
+	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Location:</label>
+     <div class="flex gap-2 items-center mb-6">
+     <select id="nodeLocation" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm w-80 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
   <option value="">Select a location</option>
   <% locations.forEach(loc => { %>
     <option value="<%= loc.id %>" <%= loc.id === node.location ? 'selected' : '' %>><%= loc.name %></option>
   <% }) %>
 </select>
+<button type="button" onclick="addLocation()" class="text-emerald-400 text-xs font-bold">+</button>
+<button type="button" onclick="deleteLocation()" class="text-red-400 text-xs font-bold">-</button>
+</div>
+
+<label class="text-neutral-400 text-sm tracking-tight mb-2">Category:</label>
+     <div class="flex gap-2 items-center mb-6">
+     <select id="nodeCategory" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm w-80 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10">
+  <% categories.forEach(cat => { %>
+    <option value="<%= cat %>" <%= cat === node.category ? 'selected' : '' %>><%= cat %></option>
+  <% }) %>
+</select>
+<button type="button" onclick="addCategory()" class="text-emerald-400 text-xs font-bold">+</button>
+<button type="button" onclick="deleteCategory()" class="text-red-400 text-xs font-bold">-</button>
+</div>
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">RAM (GB):</label>  
 	 <input id="nodeRam" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="8" value="<%- node.ram %>">  
@@ -20,8 +43,10 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Disk (GB):</label>  
 	 <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="40" value="<%- node.disk %>">  
 
-	 <label class="text-neutral-400 text-sm tracking-tight mb-2">IP Address:</label>  
-	 <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="192.168.1.1 or my.hostnamehere.com" value="<%- node.address %>">  
+	 <div id="addressRow">
+	 <label id="addressLabel" class="text-neutral-400 text-sm tracking-tight mb-2">IP Address:</label>
+	 <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="192.168.1.1" value="<%- node.address %>">
+	 </div>
 
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Daemon Port:</label>  
 	 <input id="nodePort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="8080" value="<%- node.port %>">  
@@ -29,15 +54,91 @@
 	 <label class="text-neutral-400 text-sm tracking-tight mb-2">Access Key:</label>  
 	 <input id="nodeApiKey" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10" placeholder="skyportd_xxxxxxxxxxxxxxxx" value="<%- node.apiKey %>">  
 
-	 <button id="saveNodeBtn"  class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Apply Changes</button>
+	 <button type="button" id="saveNodeBtn" class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Apply Changes</button>
 
 	</form>  
 </div>  
 
 <script>
+  function toggleConnectionFields() {
+    const type = document.getElementById('connectionType').value;
+    const addressRow = document.getElementById('addressRow');
+    const addressInput = document.getElementById('nodeAddress');
+    const addressLabel = document.getElementById('addressLabel');
+
+    if (type === 'Localhost' || type === 'KS Smart') {
+      addressRow.style.display = 'none';
+      if (type === 'Localhost' && (!addressInput.value || addressInput.value === '')) {
+        addressInput.value = '127.0.0.1';
+      }
+    } else {
+      addressRow.style.display = 'block';
+
+      if (type === 'Direct') {
+        addressLabel.innerText = 'IP Address:';
+        addressInput.placeholder = '192.168.1.1';
+        if (addressInput.value === '127.0.0.1' || addressInput.value === 'KS_SMART_PENDING') addressInput.value = '';
+      } else if (type === 'Tunnel') {
+        addressLabel.innerText = 'Tunnel Hostname:';
+        addressInput.placeholder = 'node1.example.com';
+        if (addressInput.value === '127.0.0.1' || addressInput.value === 'KS_SMART_PENDING') addressInput.value = '';
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', toggleConnectionFields);
+
+  async function addLocation() {
+    const name = prompt("Enter new location name:");
+    if (!name) return;
+    const res = await fetch('/admin/nodes/locations/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (res.ok) location.reload();
+  }
+
+  async function deleteLocation() {
+    const id = document.getElementById('nodeLocation').value;
+    if (!id) return;
+    if (!confirm('Delete location?')) return;
+    const res = await fetch('/admin/nodes/locations/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    if (res.ok) location.reload();
+  }
+
+  async function addCategory() {
+    const name = prompt("Enter new category name:");
+    if (!name) return;
+    const res = await fetch('/admin/nodes/categories/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (res.ok) location.reload();
+  }
+
+  async function deleteCategory() {
+    const name = document.getElementById('nodeCategory').value;
+    if (!name) return;
+    if (!confirm('Delete category?')) return;
+    const res = await fetch('/admin/nodes/categories/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (res.ok) location.reload();
+  }
+
   document.getElementById('saveNodeBtn').addEventListener('click', async function() {
     const name = document.getElementById('nodeName').value.trim();
-    const location = document.getElementById('nodeLocation').value.trim();  // Keep
+    const connectionType = document.getElementById('connectionType').value;
+    const location = document.getElementById('nodeLocation').value.trim();
+    const category = document.getElementById('nodeCategory').value;
     const ram = document.getElementById('nodeRam').value.trim();
     const disk = document.getElementById('nodeDisk').value.trim();
     const address = document.getElementById('nodeAddress').value.trim();
@@ -45,7 +146,7 @@
     const apiKey = document.getElementById('nodeApiKey').value.trim();
 
     const nodeData = {
-      name, location, ram, disk, address, port, apiKey
+      name, connectionType, location, category, ram, disk, address, port, apiKey
     };
 
     try {
@@ -56,14 +157,20 @@
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || 'Failed to edit node');
+        let msg = 'Failed to edit node';
+        try {
+          const err = await response.json();
+          msg = err.error || msg;
+        } catch (parseErr) {
+          msg = await response.text() || msg;
+        }
+        throw new Error(msg);
       }
 
       window.location.href = '../nodes?err=EDITED';
     } catch (error) {
       console.error('Error editing node:', error);
-      alert(error.message);  // ADD: Show error to user
+      alert(error.message);
     }
   });
 </script>  
