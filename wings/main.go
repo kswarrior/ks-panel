@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -9,7 +10,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -55,6 +59,10 @@ func main() {
 	}
 
 	log.Infof("Starting KS Wings Go version v%s", cfg.Version)
+
+	if cfg.ConnectionType == "KS Smart" {
+		go handleKSSmart(cfg)
+	}
 
 	// Initialize Providers
 	dockerProvider, err = docker.NewProvider()
@@ -201,6 +209,107 @@ func runConfiguration(panelURL, configKey string) {
 	}
 
 	log.Info("Configuration successfully fetched and saved to config.json")
+}
+
+func handleKSSmart(cfg *config.Config) {
+	log.Info("ConnectionType is KS Smart, starting handshake...")
+
+	// 1. Download cloudflared if not exists
+	executable := "./kssmart"
+	if runtime.GOOS == "windows" {
+		executable = "kssmart.exe"
+	}
+
+	if _, err := os.Stat(executable); os.IsNotExist(err) {
+		log.Info("Downloading kssmart (cloudflared)...")
+		url := "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64"
+		if runtime.GOOS == "windows" {
+			url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
+		} else if runtime.GOOS == "darwin" {
+			url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-darwin-amd64"
+		}
+
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Errorf("Failed to download kssmart: %v", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		out, err := os.Create(executable)
+		if err != nil {
+			log.Errorf("Failed to create kssmart executable: %v", err)
+			return
+		}
+		defer out.Close()
+
+		_, err = io.Copy(out, resp.Body)
+		if err != nil {
+			log.Errorf("Failed to save kssmart: %v", err)
+			return
+		}
+
+		if runtime.GOOS != "windows" {
+			os.Chmod(executable, 0755)
+		}
+	}
+
+	// 2. Start tunnel and extract URL
+	log.Info("Starting kssmart tunnel...")
+	cmd := exec.Command(executable, "tunnel", "--url", fmt.Sprintf("http://localhost:%d", cfg.Port))
+	stdout, _ := cmd.StderrPipe() // cloudflared logs to stderr
+	if err := cmd.Start(); err != nil {
+		log.Errorf("Failed to start kssmart tunnel: %v", err)
+		return
+	}
+
+	var tunnelURL string
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "trycloudflare.com") {
+			parts := strings.Fields(line)
+			for _, part := range parts {
+				if strings.Contains(part, "trycloudflare.com") {
+					tunnelURL = part
+					break
+				}
+			}
+		}
+		if tunnelURL != "" {
+			break
+		}
+	}
+
+	if tunnelURL == "" {
+		log.Error("Failed to extract tunnel URL from kssmart")
+		return
+	}
+
+	log.Infof("Extracted tunnel URL: %s", tunnelURL)
+
+	// 3. Send request to panel
+	log.Infof("Sending handshake to panel: %s", cfg.Remote)
+	handshakeURL := fmt.Sprintf("%s/admin/nodes/configure", cfg.Remote)
+	payload, _ := json.Marshal(map[string]string{
+		"configureKey": cfg.ConfigureKey,
+		"tunnelUrl":    tunnelURL,
+	})
+
+	client := &http.Client{Timeout: 15 * time.Second}
+	resp, err := client.Post(handshakeURL, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		log.Errorf("Handshake request failed: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		log.Info("KS Smart Handshake successful!")
+	} else {
+		body, _ := io.ReadAll(resp.Body)
+		log.Errorf("Handshake failed with status %d: %s", resp.StatusCode, string(body))
+	}
 }
 
 func handleResourceMonitor(c *gin.Context) {

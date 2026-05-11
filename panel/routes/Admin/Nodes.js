@@ -500,6 +500,7 @@ router.post("/admin/nodes/configure", async (req, res) => {
       "remote": panelUrl,
       "key": newAccessKey,
       "connectionType": foundNode.connectionType,
+      "configureKey": finalKey,
       "_note3": "Other configuration options below. Hostname must be set for FTP to return the correct info.",
       "port": foundNode.port,
       "version": "1.0.0",

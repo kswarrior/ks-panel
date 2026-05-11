@@ -23,8 +23,10 @@ type Config struct {
 		Cert    string `json:"cert"`
 		Key     string `json:"key"`
 	} `json:"ssl"`
-	Proxy   bool   `json:"proxy"`
-	Version string `json:"version"`
+	Proxy          bool   `json:"proxy"`
+	Version        string `json:"version"`
+	ConnectionType string `json:"connectionType"`
+	ConfigureKey   string `json:"configureKey"`
 }
 
 func LoadConfig(path string) (*Config, error) {
