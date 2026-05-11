@@ -144,11 +144,14 @@ router.get("/admin/node/:id", hasPermission('manage_nodes'), async (req, res) =>
     if (loc) locations.push(loc);
   }
 
+  const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
   res.render("admin/nodes/node", {
     req,
     user: req.user,
     node,
-    locations
+    locations,
+    categories
   });
 });
 
@@ -255,8 +258,6 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     memoryOverallocate = 0,
     diskOverallocate = 0,
     uploadSize = 500,
-    behindProxy = false,
-    connectionProtocol = "http",
     connectionType = "Direct"
   } = req.body;
 
@@ -295,6 +296,8 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
 
   const { category } = req.body;
 
+  const isTunnel = connectionType === "Tunnel" || connectionType === "KS Smart";
+
   const node = {
     id: nodeId,
     name: name.trim(),
@@ -313,8 +316,8 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     memoryOverallocate: parseInt(memoryOverallocate),
     diskOverallocate: parseInt(diskOverallocate),
     uploadSize: parseInt(uploadSize),
-    behindProxy: behindProxy === true || behindProxy === "true",
-    connectionProtocol: connectionProtocol,
+    behindProxy: isTunnel,
+    connectionProtocol: isTunnel ? "https" : "http",
     resourceMode: resourceMode,
     serverFileDirectory: "/var/lib/kswings/volumes",
     publicIp: address.trim(),
@@ -496,6 +499,7 @@ router.post("/admin/nodes/configure", async (req, res) => {
       "_note1": "WARNING: You do not need to touch the following values. KS Daemon will automatically set them.",
       "remote": panelUrl,
       "key": newAccessKey,
+      "connectionType": foundNode.connectionType,
       "_note3": "Other configuration options below. Hostname must be set for FTP to return the correct info.",
       "port": foundNode.port,
       "version": "1.0.0",
@@ -579,13 +583,18 @@ router.post("/admin/node/:id", hasPermission('manage_nodes'), async (req, res) =
   if (req.body.memoryOverallocate !== undefined) node.memoryOverallocate = parseInt(req.body.memoryOverallocate);
   if (req.body.diskOverallocate !== undefined) node.diskOverallocate = parseInt(req.body.diskOverallocate);
   if (req.body.uploadSize) node.uploadSize = parseInt(req.body.uploadSize);
-  if (req.body.behindProxy !== undefined) node.behindProxy = req.body.behindProxy === "true" || req.body.behindProxy === true;
-  if (req.body.connectionProtocol !== undefined) node.connectionProtocol = req.body.connectionProtocol;
+
+  if (req.body.connectionType) {
+    node.connectionType = req.body.connectionType;
+    const isTunnel = node.connectionType === "Tunnel" || node.connectionType === "KS Smart";
+    node.behindProxy = isTunnel;
+    node.connectionProtocol = isTunnel ? "https" : "http";
+  }
+
   if (req.body.resourceMode !== undefined) node.resourceMode = req.body.resourceMode;
   if (req.body.serverFileDirectory) node.serverFileDirectory = req.body.serverFileDirectory.trim();
   if (req.body.publicIp !== undefined) node.publicIp = req.body.publicIp.trim() || node.address;
   if (req.body.maintenanceMode !== undefined) node.maintenanceMode = req.body.maintenanceMode === "true" || req.body.maintenanceMode === true;
-  if (req.body.connectionType) node.connectionType = req.body.connectionType;
   if (req.body.maxServers) node.maxServers = parseInt(req.body.maxServers);
   if (req.body.healthCheckUrl !== undefined) node.healthCheckUrl = req.body.healthCheckUrl.trim();
   if (req.body.tags !== undefined) node.tags = req.body.tags ? req.body.tags.split(",").map(t => t.trim()).filter(Boolean) : [];

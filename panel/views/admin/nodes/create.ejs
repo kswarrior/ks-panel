@@ -368,18 +368,18 @@
             <div class="nd-field nd-long">
               <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Connection Type <span class="text-red-400">*</span></label>
               <select id="connectionType" class="nd-input" onchange="toggleConnectionFields()">
-                <option value="Direct">IP Address (IPv4)</option>
-                <option value="Tunnel">Tunnel (Cloudflare, Ngrok etc)</option>
+                <option value="Direct">IP Address</option>
+                <option value="Tunnel">Tunnel</option>
                 <option value="KS Smart">KS Smart</option>
-                <option value="Localhost">Localhost (Auto-setup)</option>
+                <option value="Localhost">Localhost</option>
               </select>
             </div>
           </div>
 
           <div class="nd-row" id="addressRow">
             <div class="nd-field nd-long">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">FQDN / IP or Tunnel Hostname <span class="text-red-400">*</span></label>
-              <input id="nodeAddress" required type="text" class="nd-input" placeholder="node1.example.com">
+              <label id="addressLabel" class="text-xs font-medium text-neutral-400 uppercase tracking-wider">IP Address <span class="text-red-400">*</span></label>
+              <input id="nodeAddress" required type="text" class="nd-input" placeholder="192.168.1.1">
             </div>
           </div>
 
@@ -484,35 +484,6 @@
             </div>
           </div>
 
-          <!-- PROXY -->
-          <div class="nd-section-divider">
-            <h2>Proxy & Connection</h2>
-          </div>
-
-          <div class="nd-row">
-            <div class="nd-field nd-short">
-              <label class="nd-checkbox-wrap">
-                <input id="behindProxy" type="checkbox">
-                <span class="text-sm text-white select-none">Behind Proxy (Nginx / Cloudflare)</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="nd-row">
-            <div class="nd-field nd-short">
-              <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider block mb-2 text-center">Connection Protocol <span class="text-red-400">*</span></label>
-              <div class="nd-radio-group">
-                <label class="nd-radio-option">
-                  <input type="radio" name="connectionProtocol" value="http" checked>
-                  <span class="text-sm text-white select-none">Use HTTP Connection</span>
-                </label>
-                <label class="nd-radio-option">
-                  <input type="radio" name="connectionProtocol" value="https">
-                  <span class="text-sm text-white select-none">Use SSL Connection</span>
-                </label>
-              </div>
-            </div>
-          </div>
 
 
           <!-- SUBMIT -->
@@ -549,15 +520,25 @@ function toggleConnectionFields() {
   const type = document.getElementById('connectionType').value;
   const addressRow = document.getElementById('addressRow');
   const addressInput = document.getElementById('nodeAddress');
+  const addressLabel = document.getElementById('addressLabel');
 
-  if (type === 'Localhost') {
+  if (type === 'Localhost' || type === 'KS Smart') {
     addressRow.classList.add('nd-hidden');
-    addressInput.value = '127.0.0.1';
+    addressInput.value = (type === 'Localhost' ? '127.0.0.1' : 'KS_SMART_PENDING');
     addressInput.removeAttribute('required');
   } else {
     addressRow.classList.remove('nd-hidden');
-    if (addressInput.value === '127.0.0.1') addressInput.value = '';
     addressInput.setAttribute('required', '');
+
+    if (type === 'Direct') {
+      addressLabel.innerHTML = 'IP Address <span class="text-red-400">*</span>';
+      addressInput.placeholder = '192.168.1.1';
+      if (addressInput.value === '127.0.0.1' || addressInput.value === 'KS_SMART_PENDING') addressInput.value = '';
+    } else if (type === 'Tunnel') {
+      addressLabel.innerHTML = 'Tunnel Hostname <span class="text-red-400">*</span>';
+      addressInput.placeholder = 'node1.example.com';
+      if (addressInput.value === '127.0.0.1' || addressInput.value === 'KS_SMART_PENDING') addressInput.value = '';
+    }
   }
 }
 
@@ -726,9 +707,7 @@ document.getElementById('createNodeBtn').addEventListener('click', async () => {
       disk: disk,
       memoryOverallocate: document.getElementById('nodeMemoryOver').value,
       diskOverallocate: document.getElementById('nodeDiskOver').value,
-      uploadSize: document.getElementById('nodeUploadSize').value,
-      behindProxy: document.getElementById('behindProxy').checked,
-      connectionProtocol: document.querySelector('input[name="connectionProtocol"]:checked').value
+      uploadSize: document.getElementById('nodeUploadSize').value
     };
 
     const res = await fetch('/admin/nodes/create', {
