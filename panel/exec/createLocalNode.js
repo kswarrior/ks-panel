@@ -26,7 +26,7 @@ async function createLocalNode() {
     behindProxy: false,
     connectionProtocol: "http",
     resourceMode: "auto",
-    serverFileDirectory: "/var/lib/kswings/volumes",
+    serverFileDirectory: "/var/lib/ksedge/volumes",
     publicIp: "localhost",
     maintenanceMode: false,
     connectionType: "Direct",

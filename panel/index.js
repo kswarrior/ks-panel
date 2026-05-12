@@ -280,6 +280,7 @@ app.set("view engine", "ejs");
  * number to indicate successful startup.
  */
 app.use(express.static("public"));
+app.use(express.static("public/dist"));
 
 /**
  * Dynamically loads all route modules from the 'routes' directory, applying WebSocket support to each.
@@ -364,6 +365,9 @@ function loadRoutes(directory) {
 }
 loadRoutes(routesDir);
 
+const globalApi = require("./routes/API/v1/Global.js");
+app.use("/", globalApi);
+
 const setupRoutes = require("./routes/Dashboard/Setup.js");
 app.use("/", setupRoutes);
 
@@ -410,10 +414,16 @@ app.listen(config.port, () => {
 // NEW: Emit a startup event for plugins to react
 events.emit('panelStart', { app, config });
 
-// 404 handler (MUST be last route)
-app.use('*', async function(req, res){
-  res.status(404).render('errors/404', {
-    req,
-    name: (await db.get('settings'))?.name || 'KS Panel'
-  });
+// SPA fallback handler (MUST be last route)
+app.get('*', async function(req, res){
+  // If requesting an asset (e.g. .js, .css, .webp), let it fall through to static
+  if (req.path.includes('.') || req.path.startsWith('/api') || req.path.startsWith('/auth')) {
+    return res.status(404).json({ error: "Not Found" });
+  }
+
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.status(404).json({ error: "Not Found" });
+  }
+
+  res.sendFile(path.join(__dirname, "public/dist/index.html"));
 });

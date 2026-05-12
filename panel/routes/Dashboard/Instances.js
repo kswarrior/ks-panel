@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
+const { getNodeBaseUrl } = require("../../utils/nodeHelper.js");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const fs = require("fs");
@@ -90,7 +91,7 @@ router.post("/dashboard/create", async (req, res) => {
     const cpu = settings.defaultCpu || 100;
     const disk = settings.defaultDisk || 5120;
 
-    const wingsPayload = {
+    const edgePayload = {
       Id, Name: name, InstanceType: 'docker',
       Image: template.environment?.docker_image || "ghcr.io/parkervcp/yolks:debian",
       Memory: memory, Cpu: cpu, Disk: disk,
@@ -99,7 +100,7 @@ router.post("/dashboard/create", async (req, res) => {
       Env: [`PRIMARY_PORT=${alloc.port}`]
     };
 
-    await axios.post(`http://${node.address}:${node.port}/instances/create`, wingsPayload, {
+    await axios.post(`${getNodeBaseUrl(node)}/instances/create`, edgePayload, {
       auth: { username: "kspanel", password: node.apiKey },
       timeout: 30000
     });

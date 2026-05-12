@@ -7,7 +7,7 @@ const { db } = require("../../handlers/db.js");
 const { parsePorts } = require('../../utils/dbHelper.js');
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
-const { checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
+const { getNodeBaseUrl, checkNodeStatus, checkMultipleNodesStatus, invalidateNodeCache } = require("../../utils/nodeHelper.js");
 const { getPaginatedNodes, invalidateCache } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
@@ -66,9 +66,7 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
       }
 
       try {
-        const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-        const portString = (protocol === 'https' && node.port === 443) || (protocol === 'http' && node.port === 80) ? '' : `:${node.port}`;
-        const monitorUrl = `${protocol}://${node.address}${portString}/resourceMonitor`;
+        const monitorUrl = `${getNodeBaseUrl(node)}/resourceMonitor`;
 
         const response = await axios.get(monitorUrl, {
           auth: {
@@ -101,6 +99,19 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
     if (loc) locations.push(loc);
   }
 
+  const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({
+      nodes: nodesWithResources,
+      set,
+      pagination: nodesResult.pagination,
+      locations,
+      categories,
+      filters: { search, location: locationFilter, category: categoryFilter }
+    });
+  }
+
   res.render("admin/nodes/overview", {
     req,
     user: req.user,
@@ -108,7 +119,7 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
     set,
     pagination: nodesResult.pagination,
     locations,
-    categories: await db.get("node_categories") || ["Default", "High Performance", "Storage"],
+    categories,
     filters: { search, location: locationFilter, category: categoryFilter }
   });
 });
@@ -123,6 +134,10 @@ router.get("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res
   }
 
   const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({ locations, categories });
+  }
 
   res.render("admin/nodes/create", {
     req,
@@ -216,10 +231,17 @@ router.get("/admin/nodes/node/:id/stats", hasPermission('manage_nodes'), async (
   let status = "Offline";
 
   try {
-    log.debug(`Fetching stats from daemon: http://${node.address}:${node.port}/stats`);
+    const baseUrl = getNodeBaseUrl(node);
+    log.debug(`Fetching stats from daemon: ${baseUrl}/stats`);
     const response = await axios.get(
-      `http://kspanel:${node.apiKey}@${node.address}:${node.port}/stats`,
-      { timeout: 5000 }
+      `${baseUrl}/stats`,
+      {
+        auth: {
+          username: "kspanel",
+          password: node.apiKey,
+        },
+        timeout: 5000
+      }
     );
     stats = response.data;
 
@@ -316,14 +338,14 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     behindProxy: isTunnel,
     connectionProtocol: isTunnel ? "https" : "http",
     resourceMode: resourceMode,
-    serverFileDirectory: "/var/lib/kswings/volumes",
+    serverFileDirectory: "/var/lib/ksedge/volumes",
     publicIp: address.trim(),
     maintenanceMode: false,
     connectionType: connectionType,
     maxServers: 50,
     healthCheckUrl: "",
     tags: [],
-    trustedProxies: behindProxy ? ["127.0.0.1"] : [],
+    trustedProxies: isTunnel ? ["127.0.0.1"] : [],
     apiKey: null,
     configureKey,          // FIXED: persistent config token
     status: "Unconfigured",
@@ -412,8 +434,15 @@ router.post("/admin/nodes/delete", hasPermission('manage_nodes'), async (req, re
         }
 
         try {
+          const baseUrl = getNodeBaseUrl(node);
           await axios.get(
-            `http://kspanel:${node.apiKey}@${node.address}:${node.port}/instances/purge/all`
+            `${baseUrl}/instances/purge/all`,
+            {
+              auth: {
+                username: "kspanel",
+                password: node.apiKey,
+              }
+            }
           );
         } catch (apiError) {
           log.error("Error calling purge API:", apiError);
@@ -516,8 +545,8 @@ router.post("/admin/nodes/configure", async (req, res) => {
       },
       "ssl": {
         "enabled": foundNode.connectionProtocol === "https",
-        "cert": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/fullchain.pem",
-        "key": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/privkey.pem"
+        "cert": "$HOME/.kspanel/database/ksedge/letsencrypt/live/ksedge/fullchain.pem",
+        "key": "$HOME/.kspanel/database/ksedge/letsencrypt/live/ksedge/privkey.pem"
       },
       "proxy": foundNode.behindProxy
     };
@@ -550,7 +579,7 @@ router.get("/admin/nodes/node/:id/configure-command", hasPermission('manage_node
 
     const panelUrl = `${req.protocol}://${req.get('host')}`;
 
-    const configureCommand = `./kswings --configure --panel ${panelUrl} --key ${configureKey}`;
+    const configureCommand = `./ksedge --configure --panel ${panelUrl} --key ${configureKey}`;
 
     res.json({
       nodeId: id,
@@ -624,8 +653,9 @@ router.post("/admin/nodes/overview/radar/check", hasPermission('manage_nodes'), 
         const nodestatus = await checkNodeStatus(node);
         if (nodestatus) {
           try {
+            const baseUrl = getNodeBaseUrl(node);
             const response = await axios.get(
-              `http://${node.address}:${node.port}/check/all`,
+              `${baseUrl}/check/all`,
               {
                 auth: {
                   username: "kspanel",
@@ -669,9 +699,7 @@ router.get("/admin/nodes/node/:id/resourceMonitor", hasPermission('manage_nodes'
   if (!node) return res.status(404).json({ error: "Node not found" });
 
   try {
-    const protocol = node.connectionProtocol === 'https' ? 'https' : 'http';
-    const portString = (protocol === 'https' && node.port === 443) || (protocol === 'http' && node.port === 80) ? '' : `:${node.port}`;
-    const monitorUrl = `${protocol}://${node.address}${portString}/resourceMonitor`;
+    const monitorUrl = `${getNodeBaseUrl(node)}/resourceMonitor`;
 
     const response = await axios.get(monitorUrl, {
       auth: {
