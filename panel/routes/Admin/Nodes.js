@@ -99,6 +99,19 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
     if (loc) locations.push(loc);
   }
 
+  const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({
+      nodes: nodesWithResources,
+      set,
+      pagination: nodesResult.pagination,
+      locations,
+      categories,
+      filters: { search, location: locationFilter, category: categoryFilter }
+    });
+  }
+
   res.render("admin/nodes/overview", {
     req,
     user: req.user,
@@ -106,7 +119,7 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
     set,
     pagination: nodesResult.pagination,
     locations,
-    categories: await db.get("node_categories") || ["Default", "High Performance", "Storage"],
+    categories,
     filters: { search, location: locationFilter, category: categoryFilter }
   });
 });
@@ -121,6 +134,10 @@ router.get("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res
   }
 
   const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
+
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({ locations, categories });
+  }
 
   res.render("admin/nodes/create", {
     req,

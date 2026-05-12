@@ -77,7 +77,13 @@ router.get("/admin/overview", isAdmin, async (req, res) => {
         labels: topPagesList.map(([page]) => page),
         data: topPagesList.map(([, count]) => count)
       }
-    });
+    };
+
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json(data);
+    }
+
+    res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
   } catch (error) {
     console.error('Overview error:', error);
     res.status(500).send("Failed to retrieve dashboard data.");

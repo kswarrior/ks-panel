@@ -26,10 +26,14 @@ async function doesUserExist(username) {
 }
 
 router.get("/account", async (req, res) => {
+  const users = (await db.get("users")) || [];
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({ users });
+  }
   res.render("account", {
     req,
     user: req.user,
-    users: (await db.get("users")) || [],
+    users,
   });
 });
 
@@ -126,6 +130,9 @@ router.get("/enable-2fa", isAuthenticated, async (req, res) => {
 
     qrcode.toDataURL(secret.otpauth_url, async (err, data_url) => {
       if (err) return res.status(500).send("Error generating QR Code");
+      if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        return res.json({ qrCode: data_url });
+      }
       res.render("enable-2fa", {
         req,
         user: req.user,

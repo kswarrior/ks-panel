@@ -365,11 +365,14 @@ router.get("/", (req, res) => {
 
 router.get("/login", async (req, res) => {
   if (!req.user) {
-    res.render("auth/login", {
-      req,
-      user: req.user,
-    });
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ authenticated: false });
+    }
+    res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
   } else {
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ authenticated: true });
+    }
     res.redirect("/instances");
   }
 });
