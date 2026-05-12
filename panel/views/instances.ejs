@@ -380,9 +380,9 @@
         let stats = null;
 
         if (typeof event.data === 'string') {
-          if (event.data.includes('The KS Wings instance appears to be down. Retrying...')) {
+          if (event.data.includes('The KS Edge instance appears to be down. Retrying...')) {
             statusBgElements.forEach(bg => bg.classList.add('bg-yellow-600/10'));
-            statusElements.forEach(el => { el.className = 'text-orange-500 flex items-center gap-1.5'; el.textContent = 'KS Wings is Offline!'; });
+            statusElements.forEach(el => { el.className = 'text-orange-500 flex items-center gap-1.5'; el.textContent = 'KS Edge is Offline!'; });
             updateAll(ramUsageElements, `0 B`);
             updateAll(cpuUsageElements, `0%`);
             updateAll(diskUsageElements, `0 B`);

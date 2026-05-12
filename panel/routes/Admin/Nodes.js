@@ -321,7 +321,7 @@ router.post("/admin/nodes/create", hasPermission('manage_nodes'), async (req, re
     behindProxy: isTunnel,
     connectionProtocol: isTunnel ? "https" : "http",
     resourceMode: resourceMode,
-    serverFileDirectory: "/var/lib/kswings/volumes",
+    serverFileDirectory: "/var/lib/ksedge/volumes",
     publicIp: address.trim(),
     maintenanceMode: false,
     connectionType: connectionType,
@@ -528,8 +528,8 @@ router.post("/admin/nodes/configure", async (req, res) => {
       },
       "ssl": {
         "enabled": foundNode.connectionProtocol === "https",
-        "cert": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/fullchain.pem",
-        "key": "$HOME/.kspanel/database/wings/letsencrypt/live/kswings/privkey.pem"
+        "cert": "$HOME/.kspanel/database/ksedge/letsencrypt/live/ksedge/fullchain.pem",
+        "key": "$HOME/.kspanel/database/ksedge/letsencrypt/live/ksedge/privkey.pem"
       },
       "proxy": foundNode.behindProxy
     };
@@ -562,7 +562,7 @@ router.get("/admin/nodes/node/:id/configure-command", hasPermission('manage_node
 
     const panelUrl = `${req.protocol}://${req.get('host')}`;
 
-    const configureCommand = `./kswings --configure --panel ${panelUrl} --key ${configureKey}`;
+    const configureCommand = `./ksedge --configure --panel ${panelUrl} --key ${configureKey}`;
 
     res.json({
       nodeId: id,

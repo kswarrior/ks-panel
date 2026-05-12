@@ -11,6 +11,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
+const { getNodeBaseUrl } = require("../../utils/nodeHelper.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { checkMultipleNodesStatus } = require("../../utils/nodeHelper.js");
@@ -31,7 +32,7 @@ async function deleteInstance(instance) {
   try {
     await axios({
       method: "delete",
-      url: `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.ContainerId}`,
+      url: `${getNodeBaseUrl(instance.Node)}/instances/${instance.ContainerId}`,
       auth: { username: "kspanel", password: instance.Node.apiKey },
       headers: { "Content-Type": "application/json" },
     });
@@ -244,7 +245,7 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       }
     }
 
-    const wingsPayload = {
+    const edgePayload = {
       Id,
       Name: name,
       InstanceType: template.environment?.instance_type || 'docker',
@@ -271,11 +272,11 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       variables: JSON.stringify(variables)
     };
 
-    Object.keys(wingsPayload).forEach(key => wingsPayload[key] === undefined && delete wingsPayload[key]);
+    Object.keys(edgePayload).forEach(key => edgePayload[key] === undefined && delete edgePayload[key]);
 
     const response = await axios.post(
-      `http://${node.address}:${node.port}/instances/create`,
-      wingsPayload,
+      `${getNodeBaseUrl(node)}/instances/create`,
+      edgePayload,
       {
         auth: { username: "kspanel", password: node.apiKey },
         headers: { "Content-Type": "application/json" },
@@ -346,12 +347,12 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       id: Id
     });
   } catch (err) {
-    const wingsError = err.response?.data ? JSON.stringify(err.response.data, null, 2) : err.message;
-    log.error("🚨 FULL DEPLOY ERROR:", wingsError);
+    const edgeError = err.response?.data ? JSON.stringify(err.response.data, null, 2) : err.message;
+    log.error("🚨 FULL DEPLOY ERROR:", edgeError);
     res.status(500).json({
       error: "Failed to deploy instance",
-      details: wingsError,
-      suggestion: "Check panel logs + Wings logs + Docker status on the node"
+      details: edgeError,
+      suggestion: "Check panel logs + Edge logs + Docker status on the node"
     });
   }
 });

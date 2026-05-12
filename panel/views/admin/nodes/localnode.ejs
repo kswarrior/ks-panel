@@ -62,7 +62,7 @@
           <%= req.translations.localNode || 'Local Node Manager' %>
         </h1>
         <p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-          <%= req.translations.localNodeText || 'Install, configure, and control the Wings daemon on this machine' %>
+          <%= req.translations.localNodeText || 'Install, configure, and control the Edge daemon on this machine' %>
         </p>
       </div>
 
@@ -123,15 +123,15 @@
 
           <!-- Primary Action Buttons -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button onclick="installWings()" 
+            <button onclick="installEdge()"
                     class="group relative py-3 sm:py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-[10px] transition-all active:scale-95 shadow-lg hover:shadow-emerald-500/25 overflow-hidden">
               <span class="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
                 <span class="text-lg">🚀</span>
-                <span>Install Wings</span>
+                <span>Install Edge</span>
               </span>
               <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
-            <button onclick="configureWings()" 
+            <button onclick="configureEdge()"
                     class="group relative py-3 sm:py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-[10px] transition-all active:scale-95 shadow-lg hover:shadow-blue-500/25 overflow-hidden">
               <span class="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
                 <span class="text-lg">⚙️</span>
@@ -143,17 +143,17 @@
 
           <!-- Control Buttons -->
           <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-4 border-t border-white/10">
-            <button onclick="startWings()" 
+            <button onclick="startEdge()"
                     class="py-2.5 sm:py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1">
               <span class="text-sm">▶</span>
               <span>Start</span>
             </button>
-            <button onclick="restartWings()" 
+            <button onclick="restartEdge()"
                     class="py-2.5 sm:py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1">
               <span class="text-sm">↻</span>
               <span>Restart</span>
             </button>
-            <button onclick="stopWings()" 
+            <button onclick="stopEdge()"
                     class="py-2.5 sm:py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1">
               <span class="text-sm">■</span>
               <span>Stop</span>
@@ -162,7 +162,7 @@
 
           <!-- Secondary Actions -->
           <div class="grid grid-cols-2 gap-2 sm:gap-3 pt-4 border-t border-white/10">
-            <button onclick="reinstallWings()" 
+            <button onclick="reinstallEdge()"
                     class="py-2.5 sm:py-3 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-[10px] transition-all active:scale-95 shadow-md hover:shadow-lg text-xs sm:text-sm flex items-center justify-center gap-2">
               <span>↺</span>
               <span>Reinstall</span>
@@ -290,12 +290,12 @@
     }
   }
 
-  function installWings()    { runAction('/admin/nodes/localnode/install', 'Install Wings'); }
-  function configureWings()  { runAction('/admin/nodes/localnode/configure', 'Import Configure'); }
-  function startWings()      { runAction('/admin/nodes/localnode/start', 'Start Wings'); }
-  function restartWings()    { runAction('/admin/nodes/localnode/restart', 'Restart Wings'); }
-  function stopWings()       { runAction('/admin/nodes/localnode/stop', 'Stop Wings'); }
-  function reinstallWings()  { runAction('/admin/nodes/localnode/reinstall', 'Reinstall Wings'); }
+  function installEdge()    { runAction('/admin/nodes/localnode/install', 'Install Edge'); }
+  function configureEdge()  { runAction('/admin/nodes/localnode/configure', 'Import Configure'); }
+  function startEdge()      { runAction('/admin/nodes/localnode/start', 'Start Edge'); }
+  function restartEdge()    { runAction('/admin/nodes/localnode/restart', 'Restart Edge'); }
+  function stopEdge()       { runAction('/admin/nodes/localnode/stop', 'Stop Edge'); }
+  function reinstallEdge()  { runAction('/admin/nodes/localnode/reinstall', 'Reinstall Edge'); }
   function viewLogs()        { runAction('/admin/nodes/localnode/logs', 'View PM2 Logs'); }
 
   document.addEventListener('DOMContentLoaded', () => {

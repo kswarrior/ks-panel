@@ -58,7 +58,7 @@ func main() {
 		log.Fatalf("Failed to load config (run with --configure if needed): %v", err)
 	}
 
-	log.Infof("Starting KS Wings Go version v%s", cfg.Version)
+	log.Infof("Starting KS Edge Go version v%s", cfg.Version)
 
 	if cfg.ConnectionType == "KS Smart" {
 		go handleKSSmart(cfg)
@@ -86,7 +86,7 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"versionFamily":  1,
-			"versionRelease": "kswings-go " + cfg.Version,
+			"versionRelease": "ksedge-go " + cfg.Version,
 			"online":         true,
 			"remote":         cfg.Remote,
 		})
@@ -114,7 +114,7 @@ func main() {
 		}
 	}()
 
-	log.Infof("kswings is listening on port %s", port)
+	log.Infof("ksedge is listening on port %s", port)
 
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
