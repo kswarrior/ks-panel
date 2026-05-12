@@ -268,10 +268,12 @@ func handleKSSmart(cfg *config.Config) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.Contains(line, "trycloudflare.com") {
+			// Enhanced extraction: Find the part that looks like a URL
 			parts := strings.Fields(line)
 			for _, part := range parts {
-				if strings.Contains(part, "trycloudflare.com") {
-					tunnelURL = part
+				if strings.Contains(part, "https://") && strings.Contains(part, "trycloudflare.com") {
+					// Clean up potential trailing characters like | or colors
+					tunnelURL = strings.TrimRight(part, "| \n\r\t")
 					break
 				}
 			}
