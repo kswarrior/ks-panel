@@ -1,17 +1,12 @@
-"use client";
-
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Server,
   Users,
-  ShieldCheck,
   Settings,
   Database,
   Cpu,
-  FileText,
   Puzzle,
   LogOut,
   User
@@ -24,7 +19,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Instances", href: "/instances", icon: Server },
 ];
 
@@ -37,11 +32,10 @@ const adminItems = [
 ];
 
 export function Sidebar() {
-  const pathname = usePathname();
+  const location = useLocation();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 w-64 glass border-r border-white/5 flex flex-col transition-all duration-300">
-      {/* Brand */}
       <div className="p-6 border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-cyber-purple/20 border border-cyber-purple/30 flex items-center justify-center shadow-[0_0_15px_rgba(157,0,255,0.2)]">
@@ -54,7 +48,6 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* User Profile Summary */}
       <div className="p-4 mx-4 my-6 glass bg-white/[0.02] border-white/5">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -70,13 +63,12 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-4 py-2 space-y-8 overflow-y-auto">
         <div>
           <p className="px-4 mb-4 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.3em]">Main Menu</p>
           <div className="space-y-1">
             {navItems.map((item) => (
-              <NavLink key={item.href} item={item} active={pathname === item.href} />
+              <NavLink key={item.href} item={item} active={location.pathname === item.href} />
             ))}
           </div>
         </div>
@@ -85,13 +77,12 @@ export function Sidebar() {
           <p className="px-4 mb-4 text-[10px] font-bold text-neutral-500 uppercase tracking-[0.3em]">Administration</p>
           <div className="space-y-1">
             {adminItems.map((item) => (
-              <NavLink key={item.href} item={item} active={pathname === item.href} />
+              <NavLink key={item.href} item={item} active={location.pathname === item.href} />
             ))}
           </div>
         </div>
       </nav>
 
-      {/* Footer Actions */}
       <div className="p-4 border-t border-white/5">
         <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300">
           <LogOut className="w-5 h-5" />
@@ -105,7 +96,7 @@ export function Sidebar() {
 function NavLink({ item, active }: { item: any; active: boolean }) {
   return (
     <Link
-      href={item.href}
+      to={item.href}
       className={cn(
         "group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
         active
@@ -118,7 +109,6 @@ function NavLink({ item, active }: { item: any; active: boolean }) {
         active ? "text-cyber-purple drop-shadow-[0_0_8px_rgba(157,0,255,0.8)]" : "group-hover:scale-110"
       )} />
       <span className="font-bold tracking-wide">{item.name}</span>
-
       {active && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-cyber-purple rounded-l-full shadow-[0_0_10px_rgba(157,0,255,0.8)]" />
       )}

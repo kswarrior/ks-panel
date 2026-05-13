@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Bell, Search, Zap, LifeBuoy } from "lucide-react";
 
@@ -21,13 +19,10 @@ export function Navbar() {
         <button className="p-2.5 rounded-xl text-neutral-400 hover:text-cyber-blue hover:bg-cyber-blue/10 transition-all duration-300 group" title="System Latency">
           <Zap className="w-5 h-5 group-hover:drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]" />
         </button>
-
         <button className="p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-300" title="Support">
           <LifeBuoy className="w-5 h-5" />
         </button>
-
         <div className="w-px h-6 bg-white/10 mx-2" />
-
         <button className="relative p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-300">
           <Bell className="w-5 h-5" />
           <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-cyber-pink rounded-full border border-cyber-bg shadow-[0_0_8px_rgba(255,0,255,0.8)]"></span>

@@ -1,12 +1,9 @@
 import React from "react";
-import { Sidebar } from "@/components/Sidebar";
-import { Navbar } from "@/components/Navbar";
+import { Sidebar } from "./Sidebar";
+import { Navbar } from "./Navbar";
+import { Outlet } from "react-router-dom";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function Layout() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -14,7 +11,7 @@ export default function DashboardLayout({
         <Navbar />
         <main className="pt-24 pb-12 px-6 sm:px-10">
           <div className="max-w-7xl mx-auto">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>

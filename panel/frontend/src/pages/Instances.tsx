@@ -1,10 +1,7 @@
-"use client";
-
 import React, { useState } from "react";
-import { InstanceCard } from "@/components/InstanceCard";
+import { InstanceCard } from "../components/InstanceCard";
 import { Plus, Filter, Grid, List as ListIcon, RefreshCw, Layout } from "lucide-react";
 
-// Mock data based on EJS logic
 const mockInstances = [
   {
     Id: "d6b2c8a1",
@@ -40,8 +37,7 @@ export default function InstancesPage() {
   const [view, setView] = useState<"grid" | "list">("grid");
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Header Area */}
+    <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
@@ -68,7 +64,6 @@ export default function InstancesPage() {
               <ListIcon className="w-4 h-4" />
             </button>
           </div>
-
           <button className="flex items-center gap-2 px-5 py-2.5 bg-cyber-purple hover:bg-cyber-purple/80 text-white rounded-xl text-sm font-bold transition-all shadow-[0_0_20px_rgba(157,0,255,0.3)] hover:shadow-[0_0_30px_rgba(157,0,255,0.5)] active:scale-95">
             <Plus className="w-4 h-4" />
             Deploy New
@@ -76,7 +71,6 @@ export default function InstancesPage() {
         </div>
       </div>
 
-      {/* Filter / Search Bar Placeholder */}
       <div className="flex items-center justify-between glass px-6 py-4 border-white/5">
         <div className="flex items-center gap-6">
           <button className="flex items-center gap-2 text-xs font-black text-cyber-blue uppercase tracking-[0.2em] hover:opacity-80 transition-opacity">
@@ -93,13 +87,11 @@ export default function InstancesPage() {
             </select>
           </div>
         </div>
-
         <button className="text-neutral-500 hover:text-white transition-colors">
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Instances Grid */}
       {instances.length === 0 ? (
         <div className="glass p-20 text-center border-dashed border-white/10">
           <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
