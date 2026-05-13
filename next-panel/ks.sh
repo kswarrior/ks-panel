@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # KS Panel Automation Script for Next.js Stack
+set -e # Exit on error
 
 echo "🚀 Starting KS Panel (Next.js) Setup..."
 
@@ -12,12 +13,8 @@ echo "📂 Setting up storage..."
 mkdir -p storage
 
 # 2. Install Dependencies
-if [ ! -d "node_modules" ]; then
-    echo "📦 Installing dependencies..."
-    npm install
-else
-    echo "✅ Dependencies already installed."
-fi
+echo "📦 Installing dependencies..."
+npm install
 
 # 3. Start the Application
 echo "⚡ Starting KS Panel on port 8080..."
