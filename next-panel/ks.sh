@@ -20,6 +20,13 @@ npm install
 echo "🏗️ Building for production (this may take a minute)..."
 npm run build
 
-# 4. Start the Application in Production Mode
+# 4. SSL Configuration (Optional)
+# To enable SSL, we recommend using a reverse proxy like Nginx or Caddy.
+# Example for Caddy:
+# yourdomain.com {
+#     reverse_proxy localhost:8080
+# }
+
+# 5. Start the Application in Production Mode
 echo "⚡ Starting KS Panel on port 8080 (PROD MODE)..."
 npm run start
