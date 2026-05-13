@@ -1,0 +1,472 @@
+
+> next-panel@0.1.0 dev
+> next dev -p 8080 --webpack
+
+▲ Next.js 16.2.6 (webpack)
+- Local:         http://localhost:8080
+- Network:       http://192.168.0.2:8080
+✓ Ready in 731ms
+
+○ Compiling proxy ...
+⚠ ./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+Module not found: Can't resolve 'bson-ext' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'kerberos' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve '@mongodb-js/zstd' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy/package.json' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'aws4' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+Module not found: Can't resolve 'mongodb-client-encryption' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/change_stream.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(middleware)/./node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(middleware)/./node_modules/@auth/core/index.js:91:95)
+⚠ ./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+Module not found: Can't resolve 'bson-ext' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'kerberos' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve '@mongodb-js/zstd' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy/package.json' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'aws4' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+Module not found: Can't resolve 'mongodb-client-encryption' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/change_stream.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+⚠ ./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+Module not found: Can't resolve 'bson-ext' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'kerberos' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve '@mongodb-js/zstd' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy/package.json' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'aws4' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+Module not found: Can't resolve 'mongodb-client-encryption' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/change_stream.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+ GET /dashboard 200 in 6.2s (next.js: 4.5s, proxy.ts: 862ms, application-code: 890ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(middleware)/./node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(middleware)/./node_modules/@auth/core/index.js:91:95)
+ GET /dashboard 200 in 95ms (next.js: 5ms, proxy.ts: 16ms, application-code: 75ms)
+⚠ ./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+Module not found: Can't resolve 'bson-ext' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'kerberos' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve '@mongodb-js/zstd' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy/package.json' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'aws4' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+Module not found: Can't resolve 'mongodb-client-encryption' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/change_stream.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(middleware)/./node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(middleware)/./node_modules/@auth/core/index.js:91:95)
+ GET /dashboard 200 in 332ms (next.js: 129ms, proxy.ts: 10ms, application-code: 194ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(middleware)/./node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(middleware)/./node_modules/@auth/core/index.js:91:95)
+ GET /dashboard 200 in 100ms (next.js: 3ms, proxy.ts: 8ms, application-code: 89ms)
+⚠ ./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+Module not found: Can't resolve 'bson-ext' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'kerberos' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve '@mongodb-js/zstd' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy/package.json' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'aws4' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+Module not found: Can't resolve 'mongodb-client-encryption' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/change_stream.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+⚠ ./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+Module not found: Can't resolve 'bson-ext' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/bson.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'kerberos' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve '@mongodb-js/zstd' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'snappy/package.json' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+Module not found: Can't resolve 'aws4' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/deps.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+Module not found: Can't resolve 'mongodb-client-encryption' in '/app/next-panel/node_modules/@keyvhq/mongo/node_modules/mongodb/lib'
+
+Import trace for requested module:
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/utils.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/change_stream.js
+./node_modules/@keyvhq/mongo/node_modules/mongodb/lib/index.js
+./node_modules/@keyvhq/mongo/src/index.js
+./lib/db.ts
+./lib/auth.ts
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+⨯ The file "./middleware.ts" must export a function, either as a default export or as a named "middleware" export.
+This function is what Next.js runs for every request handled by this middleware.
+
+Why this happens:
+- The file exists but doesn't export a function.
+- The export is not a function (e.g., an object or constant).
+- There's a syntax error preventing the export from being recognized.
+
+To fix it:
+- Ensure this file has either a default or "middleware" function export.
+
+Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+⨯ The file "./proxy.ts" must export a function, either as a default export or as a named "proxy" export.
+This function is what Next.js runs for every request handled by this proxy (previously called middleware).
+
+Why this happens:
+- You are migrating from `middleware` to `proxy`, but haven't updated the exported function.
+- The file exists but doesn't export a function.
+- The export is not a function (e.g., an object or constant).
+- There's a syntax error preventing the export from being recognized.
+
+To fix it:
+- Ensure this file has either a default or "proxy" function export.
+
+Learn more: https://nextjs.org/docs/messages/middleware-to-proxy

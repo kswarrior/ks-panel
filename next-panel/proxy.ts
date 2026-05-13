@@ -18,6 +18,7 @@ export async function proxy(request: NextRequest) {
 
   const session = await auth();
 
+  // If trying to access login page while authenticated
   if (pathname === "/login") {
     if (session) {
       return NextResponse.redirect(new URL("/dashboard", request.url));

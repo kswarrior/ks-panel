@@ -3,75 +3,53 @@ export interface User {
   username: string;
   email: string;
   password?: string;
-  accessTo: string[];
   admin: boolean;
+  owner: boolean;
   verified: boolean;
   roleId: string | null;
-  owner: boolean;
+  accessTo: string[];
   permissions: Record<string, any>;
+  image?: string;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  permissions: string[];
 }
 
 export interface Node {
   id: string;
   name: string;
-  description: string;
   address: string;
   port: number;
-  sftpPort: number;
-  ftp: {
-    ip: string;
-    port: number;
-  };
-  location: string | null;
-  category: string;
-  ram: number;
-  disk: number;
-  memoryOverallocate: number;
-  diskOverallocate: number;
-  uploadSize: number;
-  behindProxy: boolean;
-  connectionProtocol: "http" | "https";
-  resourceMode: "auto" | "manual";
-  serverFileDirectory: string;
-  publicIp: string;
-  maintenanceMode: boolean;
-  connectionType: string;
-  maxServers: number;
-  healthCheckUrl: string;
-  tags: string[];
-  trustedProxies: string[];
-  apiKey: string | null;
-  configureKey: string;
-  status: string;
-  createdAt: number;
+  key: string;
+  status?: 'online' | 'offline';
 }
 
 export interface Instance {
-  Name: string;
-  Id: string;
-  Node: Node;
-  User: string;
-  InternalState: string;
-  ContainerId: string;
-  VolumeId: string;
-  Memory: number;
-  Cpu: number;
-  Disk: number;
-  Allocation: {
-    IP: string;
-    Port: number;
-  };
-  expiresAt: string;
-  suspended?: boolean;
-  suspendedFlag?: string;
+  id: string;
+  name: string;
+  nodeId: string;
+  userId: string;
+  templateId: string;
+  status: string;
+  memory: number;
+  cpu: number;
+  disk: number;
+  port: number;
+  // Support legacy fields from KS Panel
+  Id?: string;
+  Name?: string;
+  Node?: any;
+  Allocation?: any;
+  InternalState?: string;
 }
 
-export interface Settings {
-  name: string;
-  logo: string;
-  footer: string;
-  defaultSlots: number;
-  defaultRam: number;
-  defaultCpu: number;
-  defaultDisk: number;
+export interface AuditLog {
+  userId: string;
+  username: string;
+  action: string;
+  ip: string;
+  timestamp: string;
 }
