@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest) {
   // If trying to access login page while authenticated
   if (pathname === "/login") {
     if (session) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/instances", request.url));
     }
     return NextResponse.next();
   }

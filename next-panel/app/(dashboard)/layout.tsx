@@ -50,7 +50,7 @@ export default function DashboardLayout({
         isCollapsed={isSidebarCollapsed}
       />
 
-      <main className={`transition-all duration-300 pt-16 min-h-screen ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+      <main className={`transition-all duration-300 pt-20 min-h-screen ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
         <div className="p-4 sm:p-8 lg:p-10 max-w-7xl mx-auto animate-content">
           {children}
         </div>
