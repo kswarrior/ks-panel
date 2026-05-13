@@ -1,13 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Performance optimizations */
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+
   serverExternalPackages: ["better-sqlite3", "@vscode/sqlite3", "keyv", "@keyvhq/sqlite", "pg", "mysql2", "mongodb"],
-  // Disable Turbopack for now to avoid native module build issues if desired,
-  // or explicitly pass empty turbopack config to silence the error
+
   turbopack: {
     // resolveAlias: { ... }
   },
+
   webpack: (config) => {
     config.externals.push({
       "better-sqlite3": "commonjs better-sqlite3",

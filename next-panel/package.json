@@ -6,7 +6,8 @@
     "dev": "next dev -p 8080 --webpack",
     "build": "next build --webpack",
     "start": "next start -p 8080",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prod": "npm run build && npm run start"
   },
   "dependencies": {
     "@keyvhq/core": "^2.1.15",
@@ -28,6 +29,7 @@
     "pg": "^8.13.3",
     "react": "19.2.6",
     "react-dom": "19.2.6",
+    "sharp": "^0.33.5",
     "uuid": "^14.0.0",
     "ws": "^8.20.1",
     "zod": "^4.4.3"
