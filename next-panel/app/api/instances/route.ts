@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { auth } from '@/lib/auth';
 
@@ -42,11 +42,14 @@ export async function POST(req: Request) {
     const TEMPLATES_DIR = path.join(process.cwd(), "../panel/database/templates");
     const templatePath = path.join(TEMPLATES_DIR, templateFile, "main.json");
 
-    if (!fs.existsSync(templatePath)) {
+    try {
+        await fs.access(templatePath);
+    } catch {
         return NextResponse.json({ error: "Template configuration not found." }, { status: 404 });
     }
 
-    const template = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+    const templateContent = await fs.readFile(templatePath, "utf8");
+    const template = JSON.parse(templateContent);
 
     const allocations = (await db.get(`${nodeId}_allocations`)) || [];
     const alloc = allocations.find((a: any) => !a.assignedTo);
