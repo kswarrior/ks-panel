@@ -93,7 +93,7 @@ func main() {
 		}
 	})))
 
-	mux.Handle("/api/notifications", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("/api/notifications/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			perm("view_instances")(http.HandlerFunc(backend.HandleNotifications)).ServeHTTP(w, r)
 		} else {
@@ -101,7 +101,7 @@ func main() {
 		}
 	})))
 
-	mux.Handle("/api/tickets", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("/api/tickets/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		perm("view_instances")(http.HandlerFunc(backend.HandleTickets)).ServeHTTP(w, r)
 	})))
 

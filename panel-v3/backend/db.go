@@ -66,6 +66,31 @@ func InitDB() {
 			config TEXT,
 			is_active INTEGER DEFAULT 0
 		);`,
+		`CREATE TABLE IF NOT EXISTS notifications (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			title TEXT,
+			message TEXT,
+			type TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		);`,
+		`CREATE TABLE IF NOT EXISTS tickets (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			subject TEXT,
+			user_id INTEGER,
+			status TEXT,
+			priority TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY(user_id) REFERENCES users(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS ticket_messages (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			ticket_id INTEGER,
+			user_id INTEGER,
+			message TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY(ticket_id) REFERENCES tickets(id),
+			FOREIGN KEY(user_id) REFERENCES users(id)
+		);`,
 	}
 
 	for _, schema := range schemas {

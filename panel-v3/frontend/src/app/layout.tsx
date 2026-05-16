@@ -50,6 +50,7 @@ export default function RootLayout({
               '/roles': 'view_roles',
               '/themes': 'view_themes',
               '/settings': 'manage_settings',
+              '/notifications': 'manage_settings',
             };
 
             const requiredPerm = pathPerms[pathname || ''];

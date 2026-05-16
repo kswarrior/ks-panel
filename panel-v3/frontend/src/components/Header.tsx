@@ -1,5 +1,5 @@
-import React from 'react';
-import { Menu, User, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, User, Bell, MessageSquare, Clock, Info, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface HeaderProps {
@@ -33,10 +33,27 @@ const Header: React.FC<HeaderProps> = ({ user, settings, onMenuClick }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="p-2 hover:bg-white/10 rounded-md transition-colors relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-neon-blue rounded-full shadow-neon"></span>
-        </button>
+        <Link href="/tickets" className="p-2 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white">
+          <MessageSquare className="w-5 h-5" />
+        </Link>
+        <div className="relative group/notif">
+          <button className="p-2 hover:bg-white/10 rounded-md transition-colors relative text-white/70 hover:text-white">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-neon-blue rounded-full shadow-neon"></span>
+          </button>
+
+          {/* Notifications Dropdown */}
+          <div className="absolute right-0 mt-2 w-80 glass-dark border border-white/10 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/notif:opacity-100 group-hover/notif:translate-y-0 group-hover/notif:pointer-events-auto transition-all z-[100] overflow-hidden">
+            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <h3 className="font-bold text-sm">Notifications</h3>
+              <Link href="/notifications" className="text-[10px] text-neon-blue hover:underline uppercase font-black">View All</Link>
+            </div>
+            <div className="max-h-96 overflow-y-auto custom-scrollbar">
+              <NotificationList limit={5} />
+            </div>
+          </div>
+        </div>
+
         <div className="flex items-center gap-3 pl-4 border-l border-white/10">
           <div className="text-right hidden sm:block">
             <p className="text-sm font-medium">{user?.display_name || user?.username || 'Loading...'}</p>
@@ -51,6 +68,45 @@ const Header: React.FC<HeaderProps> = ({ user, settings, onMenuClick }) => {
         </div>
       </div>
     </header>
+  );
+};
+
+const NotificationList: React.FC<{ limit?: number }> = ({ limit }) => {
+  const [notifs, setNotifs] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/notifications')
+      .then(res => res.json())
+      .then(data => setNotifs(limit ? data.slice(0, limit) : data))
+      .catch(() => {});
+  }, []);
+
+  if (notifs.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <Bell className="w-8 h-8 text-white/10 mx-auto mb-2" />
+        <p className="text-xs text-white/30">No notifications</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-white/5">
+      {notifs.map(n => (
+        <div key={n.id} className="p-4 hover:bg-white/5 transition-colors cursor-default">
+          <div className="flex gap-3">
+            <div className={`mt-1 ${n.type === 'success' ? 'text-green-500' : n.type === 'warning' ? 'text-yellow-500' : 'text-neon-blue'}`}>
+              {n.type === 'success' ? <CheckCircle className="w-3 h-3" /> : n.type === 'warning' ? <AlertTriangle className="w-3 h-3" /> : <Info className="w-3 h-3" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold truncate">{n.title}</p>
+              <p className="text-[10px] text-white/50 line-clamp-2 mt-0.5">{n.message}</p>
+              <p className="text-[9px] text-white/20 mt-1 flex items-center gap-1 uppercase font-bold"><Clock className="w-2 h-2" /> {n.created_at}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
 

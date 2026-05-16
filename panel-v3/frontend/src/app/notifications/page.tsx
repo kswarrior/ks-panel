@@ -20,12 +20,15 @@ export default function NotificationsPage() {
 
   const fetchNotifications = async () => {
     setLoading(true);
-    // Real API call here
-    setNotifications([
-      { id: 1, title: 'System Update', message: 'The panel has been updated to v3.0.0', type: 'info', created_at: '2026-05-16 14:00' },
-      { id: 2, title: 'Node Online', message: 'Main Edge Node is now online', type: 'success', created_at: '2026-05-16 12:30' }
-    ]);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      setNotifications(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -68,7 +71,15 @@ export default function NotificationsPage() {
                 </div>
                 <p className="text-white/60 mt-1">{n.message}</p>
               </div>
-              <button className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-red-500 rounded-lg transition-all">
+              <button
+                onClick={async () => {
+                  if (confirm('Delete this notification?')) {
+                    await fetch(`/api/notifications/${n.id}`, { method: 'DELETE' });
+                    fetchNotifications();
+                  }
+                }}
+                className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-red-500 rounded-lg transition-all"
+              >
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
@@ -115,7 +126,22 @@ export default function NotificationsPage() {
               </div>
               <div className="pt-4 flex gap-4">
                 <button onClick={() => setShowCreate(false)} className="flex-1 py-3 glass hover:bg-white/10 rounded-xl font-bold transition-all">Cancel</button>
-                <button className="flex-1 neon-button font-bold py-3">Send Now</button>
+                <button
+                  onClick={async () => {
+                    const res = await fetch('/api/notifications', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(form)
+                    });
+                    if (res.ok) {
+                      setShowCreate(false);
+                      fetchNotifications();
+                    }
+                  }}
+                  className="flex-1 neon-button font-bold py-3"
+                >
+                  Send Now
+                </button>
               </div>
             </div>
           </div>
