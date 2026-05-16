@@ -24,8 +24,12 @@ export default function TemplatesPage() {
     image: '',
     category: 'Games',
     type: 'Docker',
+    instance_type: 'docker',
     limits: { memory: 1024, cpu: 100, disk: 5120 },
-    variables: [] as any[]
+    ports: [] as any[],
+    mounts: [] as any[],
+    variables: [] as any[],
+    steps: [] as any[]
   });
 
   const fetchTemplates = async () => {
@@ -141,22 +145,36 @@ export default function TemplatesPage() {
               <div className="flex-1 overflow-y-auto p-8 bg-black/40">
                 <div className="max-w-2xl mx-auto space-y-6">
                   {activeTab === 'general' && (
-                    <>
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-white/40 uppercase ml-1">Template Name</label>
                           <input type="text" className="w-full neon-input" placeholder="Minecraft Vanilla" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-white/40 uppercase ml-1">Docker Image</label>
-                          <input type="text" className="w-full neon-input" placeholder="openjdk:17-alpine" value={form.image} onChange={e => setForm({...form, image: e.target.value})} />
+                          <label className="text-xs font-bold text-white/40 uppercase ml-1">Infrastructure Type</label>
+                          <select
+                            className="w-full neon-input bg-black/40"
+                            value={form.instance_type}
+                            onChange={e => setForm({...form, instance_type: e.target.value})}
+                          >
+                            <option value="docker">Docker (Containers)</option>
+                            <option value="multipass">Multipass (Ubuntu VMs)</option>
+                            <option value="kvm">KVM (General VMs)</option>
+                            <option value="lxd">LXD (System Containers)</option>
+                            <option value="proxmox">Proxmox (LXC/VM)</option>
+                          </select>
                         </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-white/40 uppercase ml-1">Default Image / ISO</label>
+                        <input type="text" className="w-full neon-input font-mono" placeholder="ghcr.io/parkervcp/yolks:debian" value={form.image} onChange={e => setForm({...form, image: e.target.value})} />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-white/40 uppercase ml-1">Description</label>
                         <textarea className="w-full neon-input h-32 resize-none" placeholder="Environment description..." value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
                       </div>
-                    </>
+                    </div>
                   )}
                   {activeTab === 'infra' && (
                     <div className="space-y-6">
@@ -175,19 +193,82 @@ export default function TemplatesPage() {
                         </div>
                       </div>
                       <div className="pt-6 border-t border-white/5 space-y-4">
-                        <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Network Mapping</h4>
-                        <div className="flex gap-4 items-end">
-                          <div className="flex-1 space-y-1">
-                            <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Host Port</label>
-                            <input type="number" className="w-full neon-input text-xs" placeholder="25565" />
-                          </div>
-                          <div className="flex-1 space-y-1">
-                            <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Guest Port</label>
-                            <input type="number" className="w-full neon-input text-xs" placeholder="25565" />
-                          </div>
-                          <button className="p-2.5 glass border-white/10 rounded-lg text-neon-blue hover:bg-neon-blue/10">
-                            <Plus className="w-4 h-4" />
-                          </button>
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Network Mapping</h4>
+                          <button
+                            onClick={() => setForm({...form, ports: [...form.ports, {host: '', guest: '', protocol: 'tcp'}]})}
+                            className="text-[10px] font-bold text-neon-blue uppercase border border-neon-blue/20 px-2 py-1 rounded-lg hover:bg-neon-blue/10"
+                          >+ Add Rule</button>
+                        </div>
+                        <div className="space-y-2">
+                          {form.ports.map((p, i) => (
+                            <div key={i} className="flex gap-4 items-center bg-black/20 p-2 rounded-xl border border-white/5">
+                              <input type="number" className="flex-1 neon-input text-xs py-1" placeholder="Host Port" value={p.host} onChange={e => {
+                                const newPorts = [...form.ports];
+                                newPorts[i].host = e.target.value;
+                                setForm({...form, ports: newPorts});
+                              }} />
+                              <span className="text-white/20">:</span>
+                              <input type="number" className="flex-1 neon-input text-xs py-1" placeholder="Guest Port" value={p.guest} onChange={e => {
+                                const newPorts = [...form.ports];
+                                newPorts[i].guest = e.target.value;
+                                setForm({...form, ports: newPorts});
+                              }} />
+                              <select className="w-20 neon-input text-xs py-1 bg-black/40" value={p.protocol} onChange={e => {
+                                const newPorts = [...form.ports];
+                                newPorts[i].protocol = e.target.value;
+                                setForm({...form, ports: newPorts});
+                              }}>
+                                <option value="tcp">TCP</option>
+                                <option value="udp">UDP</option>
+                              </select>
+                              <X className="w-4 h-4 text-white/20 cursor-pointer" onClick={() => {
+                                const newPorts = [...form.ports];
+                                newPorts.splice(i, 1);
+                                setForm({...form, ports: newPorts});
+                              }} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-6 border-t border-white/5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Volumes / Mounts</h4>
+                          <button
+                            onClick={() => setForm({...form, mounts: [...form.mounts, {source: '', target: '', mode: 'rw'}]})}
+                            className="text-[10px] font-bold text-neon-blue uppercase border border-neon-blue/20 px-2 py-1 rounded-lg hover:bg-neon-blue/10"
+                          >+ Add Mount</button>
+                        </div>
+                        <div className="space-y-2">
+                          {form.mounts.map((m, i) => (
+                            <div key={i} className="flex gap-4 items-center bg-black/20 p-2 rounded-xl border border-white/5">
+                              <input type="text" className="flex-1 neon-input text-xs py-1" placeholder="/path/on/host" value={m.source} onChange={e => {
+                                const newMounts = [...form.mounts];
+                                newMounts[i].source = e.target.value;
+                                setForm({...form, mounts: newMounts});
+                              }} />
+                              <span className="text-white/20">→</span>
+                              <input type="text" className="flex-1 neon-input text-xs py-1" placeholder="/path/in/container" value={m.target} onChange={e => {
+                                const newMounts = [...form.mounts];
+                                newMounts[i].target = e.target.value;
+                                setForm({...form, mounts: newMounts});
+                              }} />
+                              <select className="w-20 neon-input text-xs py-1 bg-black/40" value={m.mode} onChange={e => {
+                                const newMounts = [...form.mounts];
+                                newMounts[i].mode = e.target.value;
+                                setForm({...form, mounts: newMounts});
+                              }}>
+                                <option value="rw">R/W</option>
+                                <option value="ro">R/O</option>
+                              </select>
+                              <X className="w-4 h-4 text-white/20 cursor-pointer" onClick={() => {
+                                const newMounts = [...form.mounts];
+                                newMounts.splice(i, 1);
+                                setForm({...form, mounts: newMounts});
+                              }} />
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -198,25 +279,44 @@ export default function TemplatesPage() {
                       <div className="glass-dark p-6 rounded-2xl border border-white/5 space-y-4">
                         <div className="flex items-center justify-between">
                           <h4 className="text-sm font-bold text-white/70 uppercase tracking-widest">Installation Workflow</h4>
-                          <button className="tf-btn tf-btn-secondary text-[10px] py-1 px-3">+ Add Step</button>
+                          <button
+                            onClick={() => setForm({...form, steps: [...form.steps, {type: 'Download', target: '', source: ''}]})}
+                            className="text-[10px] font-bold text-neon-blue uppercase border border-neon-blue/20 px-2 py-1 rounded-lg hover:bg-neon-blue/10"
+                          >+ Add Step</button>
                         </div>
                         <div className="space-y-3">
-                          {[
-                            { id: 1, type: 'Download', target: 'server.jar', source: 'https://example.com/server.jar' },
-                            { id: 2, type: 'Command', target: 'Install', source: 'sh install.sh' },
-                          ].map(step => (
-                            <div key={step.id} className="p-4 bg-black/40 rounded-xl border border-white/5 flex items-center justify-between group hover:border-neon-blue/30 transition-all">
-                              <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center font-mono text-xs text-white/40">{step.id}</div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-neon-blue/20 text-neon-blue">{step.type}</span>
-                                    <p className="text-sm font-bold text-white/90">{step.target}</p>
-                                  </div>
-                                  <p className="text-xs text-white/30 font-mono mt-0.5">{step.source}</p>
+                          {form.steps.map((step, i) => (
+                            <div key={i} className="p-4 bg-black/40 rounded-xl border border-white/5 flex items-center justify-between group hover:border-neon-blue/30 transition-all">
+                              <div className="flex items-center gap-4 flex-1">
+                                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center font-mono text-xs text-white/40">{i+1}</div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 flex-1">
+                                  <select className="neon-input text-xs py-1 bg-black/40" value={step.type} onChange={e => {
+                                    const newSteps = [...form.steps];
+                                    newSteps[i].type = e.target.value;
+                                    setForm({...form, steps: newSteps});
+                                  }}>
+                                    <option>Download</option>
+                                    <option>Extract</option>
+                                    <option>Command</option>
+                                    <option>Write</option>
+                                  </select>
+                                  <input type="text" className="neon-input text-xs py-1" placeholder="Target/Filename" value={step.target} onChange={e => {
+                                    const newSteps = [...form.steps];
+                                    newSteps[i].target = e.target.value;
+                                    setForm({...form, steps: newSteps});
+                                  }} />
+                                  <input type="text" className="neon-input text-xs py-1 md:col-span-1" placeholder="Source/URL/Command" value={step.source} onChange={e => {
+                                    const newSteps = [...form.steps];
+                                    newSteps[i].source = e.target.value;
+                                    setForm({...form, steps: newSteps});
+                                  }} />
                                 </div>
                               </div>
-                              <X className="w-4 h-4 text-white/10 group-hover:text-red-400 cursor-pointer transition-colors" />
+                              <X className="w-4 h-4 text-white/10 group-hover:text-red-400 cursor-pointer transition-colors ml-4" onClick={() => {
+                                const newSteps = [...form.steps];
+                                newSteps.splice(i, 1);
+                                setForm({...form, steps: newSteps});
+                              }} />
                             </div>
                           ))}
                         </div>
@@ -228,38 +328,67 @@ export default function TemplatesPage() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-bold text-white/70 uppercase tracking-widest">Environment Variables</h4>
-                        <button className="text-[10px] font-bold text-neon-blue uppercase border border-neon-blue/20 px-3 py-1 rounded-lg hover:bg-neon-blue/10">+ Add Variable</button>
+                        <button
+                          onClick={() => setForm({...form, variables: [...form.variables, {name: '', label: '', default: '', viewable: true, editable: true}]})}
+                          className="text-[10px] font-bold text-neon-blue uppercase border border-neon-blue/20 px-2 py-1 rounded-lg hover:bg-neon-blue/10"
+                        >+ Add Variable</button>
                       </div>
                       <div className="grid grid-cols-1 gap-4">
-                        <div className="glass-dark p-6 rounded-2xl border border-white/5 space-y-4 relative">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Variable Name</label>
-                              <input type="text" className="w-full neon-input text-sm" placeholder="SERVER_PORT" defaultValue="SERVER_PORT" />
+                        {form.variables.map((v, i) => (
+                          <div key={i} className="glass-dark p-6 rounded-2xl border border-white/5 space-y-4 relative">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Variable Name</label>
+                                <input type="text" className="w-full neon-input text-sm" placeholder="SERVER_PORT" value={v.name} onChange={e => {
+                                  const newVars = [...form.variables];
+                                  newVars[i].name = e.target.value;
+                                  setForm({...form, variables: newVars});
+                                }} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Display Name</label>
+                                <input type="text" className="w-full neon-input text-sm" placeholder="Server Port" value={v.label} onChange={e => {
+                                  const newVars = [...form.variables];
+                                  newVars[i].label = e.target.value;
+                                  setForm({...form, variables: newVars});
+                                }} />
+                              </div>
                             </div>
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Display Name</label>
-                              <input type="text" className="w-full neon-input text-sm" placeholder="Server Port" defaultValue="Server Port" />
+                              <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Default Value</label>
+                              <input type="text" className="w-full neon-input text-sm" value={v.default} onChange={e => {
+                                const newVars = [...form.variables];
+                                newVars[i].default = e.target.value;
+                                setForm({...form, variables: newVars});
+                              }} />
                             </div>
+                            <div className="flex gap-6 pt-2">
+                              <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" className="w-4 h-4 accent-neon-blue" checked={v.viewable} onChange={e => {
+                                  const newVars = [...form.variables];
+                                  newVars[i].viewable = e.target.checked;
+                                  setForm({...form, variables: newVars});
+                                }} />
+                                <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors">User Viewable</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" className="w-4 h-4 accent-neon-blue" checked={v.editable} onChange={e => {
+                                  const newVars = [...form.variables];
+                                  newVars[i].editable = e.target.checked;
+                                  setForm({...form, variables: newVars});
+                                }} />
+                                <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors">User Editable</span>
+                              </label>
+                            </div>
+                            <button className="absolute top-4 right-4 text-white/10 hover:text-red-400 transition-colors" onClick={() => {
+                              const newVars = [...form.variables];
+                              newVars.splice(i, 1);
+                              setForm({...form, variables: newVars});
+                            }}>
+                              <X className="w-5 h-5" />
+                            </button>
                           </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Default Value</label>
-                            <input type="text" className="w-full neon-input text-sm" defaultValue="25565" />
-                          </div>
-                          <div className="flex gap-6 pt-2">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                              <input type="checkbox" className="w-4 h-4 accent-neon-blue" defaultChecked />
-                              <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors">User Viewable</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                              <input type="checkbox" className="w-4 h-4 accent-neon-blue" defaultChecked />
-                              <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors">User Editable</span>
-                            </label>
-                          </div>
-                          <button className="absolute top-4 right-4 text-white/10 hover:text-red-400 transition-colors">
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -297,10 +426,21 @@ export default function TemplatesPage() {
               <button onClick={() => setShowCreate(false)} className="px-8 py-2 glass hover:bg-white/10 rounded-xl font-bold">Cancel</button>
               <button
                 onClick={async () => {
+                  const payload = {
+                    ...form,
+                    config: JSON.stringify({
+                      instance_type: form.instance_type,
+                      limits: form.limits,
+                      ports: form.ports,
+                      mounts: form.mounts,
+                      variables: form.variables,
+                      steps: form.steps
+                    })
+                  };
                   const res = await fetch('/api/templates', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(form)
+                    body: JSON.stringify(payload)
                   });
                   if (res.ok) {
                     setShowCreate(false);

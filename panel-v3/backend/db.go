@@ -54,7 +54,8 @@ func InitDB() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT UNIQUE,
 			description TEXT,
-			image TEXT
+			image TEXT,
+			config TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS settings (
 			key TEXT PRIMARY KEY,
@@ -105,6 +106,7 @@ func InitDB() {
 	DB.Exec("ALTER TABLE users ADD COLUMN role_id INTEGER;")
 	DB.Exec("ALTER TABLE roles ADD COLUMN color TEXT;")
 	DB.Exec("ALTER TABLE nodes ADD COLUMN disk_usage TEXT;")
+	DB.Exec("ALTER TABLE templates ADD COLUMN config TEXT;")
 
 	log.Println("Database initialized successfully.")
 	SeedRoles()

@@ -37,12 +37,13 @@ func HandleTemplates(w http.ResponseWriter, r *http.Request) {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 			Image       string `json:"image"`
+			Config      string `json:"config"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("INSERT INTO templates (name, description, image) VALUES (?, ?, ?)", t.Name, t.Description, t.Image)
+		_, err := DB.Exec("INSERT INTO templates (name, description, image, config) VALUES (?, ?, ?, ?)", t.Name, t.Description, t.Image, t.Config)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
