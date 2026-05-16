@@ -107,7 +107,9 @@ export default function ThemesPage() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: theme.id })
                       });
-                      if (res.ok) fetchThemes();
+                      if (res.ok) {
+                        window.location.reload();
+                      }
                     }}
                     className="flex-1 py-2 neon-button text-xs"
                   >

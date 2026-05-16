@@ -27,6 +27,9 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 				"is_active": isActive == 1,
 			})
 		}
+		if themes == nil {
+			themes = []map[string]interface{}{}
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(themes)
 	case http.MethodPost:

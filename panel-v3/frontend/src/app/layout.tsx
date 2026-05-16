@@ -22,7 +22,25 @@ export default function RootLayout({
     setMounted(true);
   }, []);
 
+  const [activeTheme, setActiveTheme] = useState<any>(null);
+
   const isAuthPage = pathname === '/auth' || pathname === '/auth.html';
+
+  useEffect(() => {
+    if (mounted) {
+      fetch('/api/themes')
+        .then(res => res.json())
+        .then(data => {
+          const active = data.find((t: any) => t.is_active);
+          if (active) {
+            try {
+              const config = JSON.parse(active.config);
+              setActiveTheme(config);
+            } catch (e) {}
+          }
+        });
+    }
+  }, [mounted, pathname]);
 
   if (!mounted) {
     return (
@@ -34,10 +52,23 @@ export default function RootLayout({
     );
   }
 
+  const themeStyles = activeTheme ? {
+    '--background': activeTheme.backgroundColor || '#050505',
+    '--neon-blue': activeTheme.primaryColor || '#0ea5e9',
+    '--header-height': `${activeTheme.headerHeight || 64}px`,
+    '--sidebar-width': `${activeTheme.sidebarWidth || 256}px`,
+  } as React.CSSProperties : {};
+
   if (isAuthPage) {
     return (
       <html lang="en">
-        <body className={`${inter.className} bg-[#050505] text-white`}>
+        <body className={`${inter.className} text-white`} style={{ ...themeStyles, backgroundColor: 'var(--background)' }}>
+          {activeTheme?.backgroundImage && (
+            <div
+              className="fixed inset-0 z-[-1] opacity-30 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${activeTheme.backgroundImage})` }}
+            />
+          )}
           <main className="min-h-screen flex items-center justify-center p-4">
             {children}
           </main>
@@ -48,11 +79,17 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#050505] text-white overflow-x-hidden`}>
+      <body className={`${inter.className} text-white overflow-x-hidden`} style={{ ...themeStyles, backgroundColor: 'var(--background)' }}>
+        {activeTheme?.backgroundImage && (
+          <div
+            className="fixed inset-0 z-[-1] opacity-20 bg-cover bg-center bg-no-repeat pointer-events-none"
+            style={{ backgroundImage: `url(${activeTheme.backgroundImage})` }}
+          />
+        )}
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-        <main className="pt-24 min-h-screen transition-all duration-300 lg:pl-64">
+        <main className="pt-[calc(var(--header-height)+2rem)] min-h-screen transition-all duration-300 lg:pl-[var(--sidebar-width)]">
           <div className="container mx-auto px-4 pb-12">
             {children}
           </div>

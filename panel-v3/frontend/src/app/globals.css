@@ -1,17 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #050505;
+  --color-background: var(--background);
   --color-foreground: #ffffff;
-  --color-neon-blue: #0ea5e9;
+  --color-neon-blue: var(--neon-blue);
 
-  --shadow-neon: 0 0 15px rgba(14, 165, 233, 0.3);
-  --shadow-neon-strong: 0 0 20px rgba(14, 165, 233, 0.5);
+  --shadow-neon: 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%);
+  --shadow-neon-strong: 0 0 20px color-mix(in srgb, var(--neon-blue), transparent 50%);
 }
 
 :root {
   --background: #050505;
   --foreground: #ffffff;
+  --neon-blue: #0ea5e9;
+  --header-height: 64px;
+  --sidebar-width: 256px;
 }
 
 @layer base {

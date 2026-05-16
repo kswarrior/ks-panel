@@ -1,10 +1,36 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier, password })
+      });
+
+      if (res.ok) {
+        router.push('/instances');
+      } else {
+        setError('Invalid username/email or password');
+      }
+    } catch (err) {
+      setError('Connection failed');
+    }
+  };
+
   return (
     <div className="w-full max-w-md">
       <div className="glass p-8 rounded-2xl shadow-2xl space-y-6">
@@ -16,15 +42,23 @@ export default function AuthPage() {
           <p className="text-white/50">Login to your KS PANEL account</p>
         </div>
 
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleLogin}>
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm font-medium text-center">
+              {error}
+            </div>
+          )}
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/70 ml-1">Username or Email</label>
             <div className="relative group">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 group-focus-within:text-neon-blue transition-colors" />
               <input
                 type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="admin or admin@kspanel.com"
                 className="w-full neon-input pl-11"
+                required
               />
             </div>
           </div>
@@ -38,8 +72,11 @@ export default function AuthPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 group-focus-within:text-neon-blue transition-colors" />
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full neon-input pl-11"
+                required
               />
             </div>
           </div>
@@ -49,13 +86,13 @@ export default function AuthPage() {
             <label htmlFor="remember" className="text-sm text-white/50">Remember for 30 days</label>
           </div>
 
-          <Link
-            href="/"
+          <button
+            type="submit"
             className="w-full neon-button flex items-center justify-center gap-2 font-bold py-3 text-lg"
           >
             Sign In
             <ArrowRight className="w-5 h-5" />
-          </Link>
+          </button>
         </form>
 
         <p className="text-center text-sm text-white/40">

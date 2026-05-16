@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Instances', icon: LayoutDashboard, href: '/' },
+    { name: 'Instances', icon: LayoutDashboard, href: '/instances' },
     { name: 'Nodes', icon: Server, href: '/nodes' },
     { name: 'Templates', icon: Layers, href: '/templates' },
     { name: 'Users', icon: Users, href: '/users' },
@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       )}
 
       <aside className={cn(
-        "fixed top-0 left-0 bottom-0 w-64 glass-dark z-[70] transition-transform duration-300 lg:translate-x-0 lg:top-16",
+        "fixed top-0 left-0 bottom-0 w-[var(--sidebar-width)] glass-dark z-[70] transition-all duration-300 lg:translate-x-0 lg:top-[var(--header-height)]",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">

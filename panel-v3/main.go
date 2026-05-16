@@ -19,7 +19,7 @@ import (
 
 func main() {
 	// CLI Flags
-	portFlag := flag.String("port", "4040", "Port to run the server on")
+	portFlag := flag.String("port", "8080", "Port to run the server on")
 	sslFlag := flag.Bool("ssl", false, "Enable SSL/TLS")
 	certFlag := flag.String("cert", "cert.pem", "Path to SSL certificate")
 	keyFlag := flag.String("key", "key.pem", "Path to SSL private key")
@@ -42,6 +42,7 @@ func main() {
 
 	// Serve API routes
 	mux.HandleFunc("/api/status", backend.HandleStatus)
+	mux.HandleFunc("/api/login", backend.HandleLogin)
 	mux.HandleFunc("/api/instances", backend.HandleInstances)
 	mux.HandleFunc("/api/nodes", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -70,7 +71,7 @@ func main() {
 
 		path := strings.TrimPrefix(r.URL.Path, "/")
 		if path == "" {
-			path = "auth.html"
+			path = "index.html"
 		}
 
 		_, err := frontendBuild.Open(path)
@@ -100,20 +101,51 @@ func main() {
 }
 
 func createUser() {
-	userCmd := flag.NewFlagSet("create:user", flag.ExitOnError)
-	displayNameFlag := userCmd.String("display_name", "", "Display Name")
-	usernameFlag := userCmd.String("username", "", "Username")
-	emailFlag := userCmd.String("email", "", "Email")
-	passwordFlag := userCmd.String("password", "", "Password")
-	confirmPasswordFlag := userCmd.String("confirm_password", "", "Confirm Password")
+	rawArgs := flag.Args()[1:]
+	params := make(map[string]string)
 
-	userCmd.Parse(flag.Args()[1:])
+	for i := 0; i < len(rawArgs); i++ {
+		arg := rawArgs[i]
+		kv := ""
+		if strings.HasPrefix(arg, "--") {
+			kv = strings.TrimPrefix(arg, "--")
+			if kv == "" && i+1 < len(rawArgs) {
+				arg = rawArgs[i+1]
+				i++
+				kv = arg
+			}
+		} else if strings.Contains(arg, ":") {
+			kv = arg
+		}
 
-	displayName := *displayNameFlag
-	username := *usernameFlag
-	email := *emailFlag
-	password := *passwordFlag
-	confirmPassword := *confirmPasswordFlag
+		if kv != "" {
+			parts := strings.SplitN(kv, ":", 2)
+			key := strings.TrimSpace(parts[0])
+			val := ""
+			if len(parts) > 1 {
+				val = parts[1]
+			}
+
+			// Support --key: value (space after colon)
+			if (val == "" || val == " ") && i+1 < len(rawArgs) && !strings.HasPrefix(rawArgs[i+1], "--") && !strings.Contains(rawArgs[i+1], ":") {
+				val = rawArgs[i+1]
+				i++
+			} else {
+				// Append subsequent words that are not flags
+				for i+1 < len(rawArgs) && !strings.HasPrefix(rawArgs[i+1], "--") && !strings.Contains(rawArgs[i+1], ":") {
+					val = val + " " + rawArgs[i+1]
+					i++
+				}
+			}
+			params[key] = strings.TrimSpace(val)
+		}
+	}
+
+	displayName := params["display_name"]
+	username := params["username"]
+	email := params["email"]
+	password := params["password"]
+	confirmPassword := params["confirm_password"]
 
 	if displayName == "" || username == "" || email == "" || password == "" {
 		reader := bufio.NewReader(os.Stdin)
