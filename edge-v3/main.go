@@ -2,12 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
+	// CLI Flags
+	portFlag := flag.String("port", "5050", "Port to run the server on")
+	flag.Parse()
+
 	// Initialize Local Database
 	InitDB()
 
@@ -16,13 +20,8 @@ func main() {
 	mux.HandleFunc("/status", handleStatus)
 	mux.HandleFunc("/heartbeat", handleHeartbeat)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "5050"
-	}
-
-	log.Printf("KS EDGE starting on :%s\n", port)
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+	log.Printf("KS EDGE starting on :%s\n", *portFlag)
+	if err := http.ListenAndServe(":"+*portFlag, mux); err != nil {
 		log.Fatal(err)
 	}
 }
