@@ -1,12 +1,20 @@
 package backend
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func generateToken() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return hex.EncodeToString(b)
+}
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -24,8 +32,9 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var userID int
 	var username, hashedPassword string
-	err := DB.QueryRow("SELECT username, password FROM users WHERE username = ? OR email = ?", credentials.Identifier, credentials.Identifier).Scan(&username, &hashedPassword)
+	err := DB.QueryRow("SELECT id, username, password FROM users WHERE username = ? OR email = ?", credentials.Identifier, credentials.Identifier).Scan(&userID, &username, &hashedPassword)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -36,13 +45,22 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Simple session using username in cookie
+	token := generateToken()
+	expiresAt := time.Now().Add(24 * time.Hour)
+	_, err = DB.Exec("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)", token, userID, expiresAt)
+	if err != nil {
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "ks_session",
-		Value:    username,
+		Value:    token,
 		Path:     "/",
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  expiresAt,
 		HttpOnly: true,
+		Secure:   false, // Set to true if using HTTPS
+		SameSite: http.SameSiteStrictMode,
 	})
 
 	w.Header().Set("Content-Type", "application/json")

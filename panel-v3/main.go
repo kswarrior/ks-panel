@@ -105,6 +105,10 @@ func main() {
 		perm("view_instances")(http.HandlerFunc(backend.HandleTickets)).ServeHTTP(w, r)
 	})))
 
+	mux.Handle("/api/terminal", auth(http.HandlerFunc(backend.HandleTerminal)))
+	mux.Handle("/api/instances/files", auth(perm("view_instances")(http.HandlerFunc(backend.HandleFiles))))
+	mux.Handle("/api/instances/scan", auth(perm("view_instances")(http.HandlerFunc(backend.HandleScan))))
+
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
 	if err != nil {
@@ -228,7 +232,11 @@ func createUser() {
 			byteConfirmPassword, _ := term.ReadPassword(int(syscall.Stdin))
 			confirmPassword = string(byteConfirmPassword)
 			fmt.Println()
+		} else if confirmPassword == "" {
+			confirmPassword = password
 		}
+	} else if confirmPassword == "" {
+		confirmPassword = password
 	}
 
 	if password != confirmPassword {

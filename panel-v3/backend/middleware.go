@@ -30,7 +30,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			SELECT u.id, u.username, u.role_id, r.permissions
 			FROM users u
 			JOIN roles r ON u.role_id = r.id
-			WHERE u.username = ?`, cookie.Value).Scan(&user.ID, &user.Username, &user.RoleID, &user.Permissions)
+			JOIN sessions s ON u.id = s.user_id
+			WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP`, cookie.Value).Scan(&user.ID, &user.Username, &user.RoleID, &user.Permissions)
 
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)

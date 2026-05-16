@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Server, Activity, Cpu, HardDrive } from 'lucide-react';
 import Skeleton from '@/components/Skeleton';
+import Link from 'next/link';
 
 interface Instance {
   id: number;
@@ -100,9 +101,12 @@ export default function InstancesPage() {
                 </div>
               </div>
 
-              <button className="w-full py-2 bg-white/5 hover:bg-neon-blue hover:text-white border border-white/10 hover:border-neon-blue rounded-lg font-bold transition-all duration-300">
+              <Link
+                href={`/instances/view?id=${instance.id}`}
+                className="w-full py-2 bg-white/5 hover:bg-neon-blue hover:text-white border border-white/10 hover:border-neon-blue rounded-lg font-bold transition-all duration-300 flex items-center justify-center"
+              >
                 Manage
-              </button>
+              </Link>
             </div>
           ))
         )}
