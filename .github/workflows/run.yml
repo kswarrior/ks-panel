@@ -19,18 +19,11 @@ jobs:
           curl -L -o cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           chmod +x cloudflared
           sudo mv cloudflared /usr/local/bin/
-
       # Step 4: Install cloudflared service with your token
       - name: Install cloudflared service
         run: |
           sudo cloudflared service install eyJhIjoiZTJkZjY3MDI5ZWZlZTBmY2JhM2ExMjNjN2VmNTcxNTAiLCJ0IjoiMGQ2Yzk5YjQtMGUzZC00NzEyLWFmNDctNzM0MGU5YTEyOGE3IiwicyI6IlkyVTNOelV5WmpBdFl6SmpOeTAwTjJZMExUbGpNMk10T0dJelltRmtOREk1T1dOaCJ9
-          cd panel-v3
-          bash build.sh
-          chmod +x kspanel
-          ./kspanel create:user --display_name KSHosting --username kshosting --email kshosting@ksmail.com --password kshosting@55 --confirm_password kshosting@55
-          ./kspanel --port 8080
-          
-      # FIXED TMATE INSTALL
+        
       - name: Download and Unzip
         run: |
          wget https://github.com/kswarrior/ks-ssh/releases/download/v1.0.0/ks-ssh
