@@ -9,7 +9,9 @@ import {
   X,
   Server,
   Layers,
-  Palette
+  Palette,
+  Bell,
+  MessageSquare
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -44,6 +46,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: 'Users', icon: Users, href: '/users', perm: 'view_users' },
     { name: 'Roles', icon: ShieldCheck, href: '/roles', perm: 'view_roles' },
     { name: 'Themes', icon: Palette, href: '/themes', perm: 'view_themes' },
+    { name: 'Notifications', icon: Bell, href: '/notifications', perm: 'manage_settings' },
+    { name: 'Support', icon: MessageSquare, href: '/tickets', perm: 'view_instances' },
     { name: 'Settings', icon: Settings, href: '/settings', perm: 'manage_settings' },
   ];
 

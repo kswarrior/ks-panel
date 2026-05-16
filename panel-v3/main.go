@@ -85,6 +85,26 @@ func main() {
 		}
 	})))
 
+	mux.Handle("/api/templates", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			perm("view_templates")(http.HandlerFunc(backend.HandleTemplates)).ServeHTTP(w, r)
+		} else {
+			perm("manage_templates")(http.HandlerFunc(backend.HandleTemplates)).ServeHTTP(w, r)
+		}
+	})))
+
+	mux.Handle("/api/notifications", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			perm("view_instances")(http.HandlerFunc(backend.HandleNotifications)).ServeHTTP(w, r)
+		} else {
+			perm("manage_settings")(http.HandlerFunc(backend.HandleNotifications)).ServeHTTP(w, r)
+		}
+	})))
+
+	mux.Handle("/api/tickets", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		perm("view_instances")(http.HandlerFunc(backend.HandleTickets)).ServeHTTP(w, r)
+	})))
+
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
 	if err != nil {

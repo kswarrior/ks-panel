@@ -28,6 +28,8 @@ export default function RootLayout({
   const router = useRouter();
 
   const isAuthPage = pathname === '/auth' || pathname === '/auth.html';
+  const isUnauthorizedPage = pathname === '/unauthorized';
+  const isPublicPage = isAuthPage || isUnauthorizedPage;
 
   useEffect(() => {
     if (mounted) {
@@ -97,9 +99,7 @@ export default function RootLayout({
     '--sidebar-width': `${activeTheme.sidebarWidth || 256}px`,
   } as React.CSSProperties : {};
 
-  const isUnauthorizedPage = pathname === '/unauthorized';
-
-  if (isAuthPage) {
+  if (isPublicPage) {
     return (
       <html lang="en">
         <body className={`${inter.className} text-white`} style={{ ...themeStyles, backgroundColor: 'var(--background)' }}>
@@ -109,7 +109,7 @@ export default function RootLayout({
               style={{ backgroundImage: `url(${activeTheme.backgroundImage})` }}
             />
           )}
-          <main className="min-h-screen-dvh flex items-center justify-center p-4">
+          <main className={`min-h-screen-dvh flex items-center justify-center p-4 ${isUnauthorizedPage ? 'w-full' : ''}`}>
             {children}
           </main>
         </body>
@@ -117,7 +117,7 @@ export default function RootLayout({
     );
   }
 
-  if (!user && !isAuthPage) {
+  if (!user && !isPublicPage) {
     return (
       <html lang="en">
         <body className={`${inter.className} bg-[#050505] text-white`}>
