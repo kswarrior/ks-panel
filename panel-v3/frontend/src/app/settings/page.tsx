@@ -5,9 +5,20 @@ import { Settings, Image, Save, Globe, Shield, Database } from 'lucide-react';
 
 export default function SettingsPage() {
   const [general, setGeneral] = useState({
-    panelName: 'KS PANEL v3',
-    logoUrl: '/logo.png',
+    panelName: '',
+    logoUrl: '',
   });
+
+  React.useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        setGeneral({
+          panelName: data.panel_name || 'KS PANEL v3',
+          logoUrl: data.logo_url || '/logo.png',
+        });
+      });
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -50,7 +61,20 @@ export default function SettingsPage() {
           </div>
 
           <div className="pt-4 border-t border-white/5">
-            <button className="neon-button flex items-center gap-2 px-6">
+            <button
+              onClick={async () => {
+                const res = await fetch('/api/settings', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    panel_name: general.panelName,
+                    logo_url: general.logoUrl
+                  })
+                });
+                if (res.ok) alert('Settings saved');
+              }}
+              className="neon-button flex items-center gap-2 px-6"
+            >
               <Save className="w-4 h-4" /> Save General Settings
             </button>
           </div>

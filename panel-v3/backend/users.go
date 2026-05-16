@@ -62,5 +62,41 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+	case http.MethodPut:
+		user, ok := r.Context().Value(UserKey).(AuthUser)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		var u struct {
+			DisplayName string `json:"displayName"`
+			Username    string `json:"username"`
+			Password    string `json:"password"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if u.Password != "" {
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+			if err != nil {
+				http.Error(w, "Error hashing password", http.StatusInternalServerError)
+				return
+			}
+			_, err = DB.Exec("UPDATE users SET display_name = ?, username = ?, password = ? WHERE id = ?", u.DisplayName, u.Username, string(hashedPassword), user.ID)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		} else {
+			_, err := DB.Exec("UPDATE users SET display_name = ?, username = ? WHERE id = ?", u.DisplayName, u.Username, user.ID)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }

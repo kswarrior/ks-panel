@@ -3,10 +3,12 @@ import { Menu, User, Bell } from 'lucide-react';
 import Link from 'next/link';
 
 interface HeaderProps {
+  user: any;
+  settings?: any;
   onMenuClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+const Header: React.FC<HeaderProps> = ({ user, settings, onMenuClick }) => {
   return (
     <header className="fixed top-0 left-0 right-0 h-[var(--header-height)] glass z-50 px-4 flex items-center justify-between transition-all">
       <div className="flex items-center gap-4">
@@ -17,10 +19,16 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Menu className="w-6 h-6 text-white" />
         </button>
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-neon-blue rounded-lg shadow-neon flex items-center justify-center">
-            <span className="text-black font-bold text-xl">K</span>
+          <div className="w-8 h-8 bg-neon-blue rounded-lg shadow-neon flex items-center justify-center overflow-hidden">
+            {settings?.logo_url ? (
+              <img src={settings.logo_url} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-black font-bold text-xl">K</span>
+            )}
           </div>
-          <span className="text-xl font-bold tracking-tight hidden sm:block">KS PANEL</span>
+          <span className="text-xl font-bold tracking-tight hidden sm:block">
+            {settings?.panel_name || 'KS PANEL'}
+          </span>
         </Link>
       </div>
 
@@ -31,8 +39,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </button>
         <div className="flex items-center gap-3 pl-4 border-l border-white/10">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-white/50">Administrator</p>
+            <p className="text-sm font-medium">{user?.display_name || user?.username || 'Loading...'}</p>
+            <p className="text-xs text-white/50">{user?.role_id === 1 ? 'Owner' : (user?.role_id === 2 ? 'Administrator' : 'User')}</p>
           </div>
           <Link
             href="/account"

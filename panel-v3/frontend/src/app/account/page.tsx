@@ -5,10 +5,25 @@ import { User, Mail, Lock, Save, Camera } from 'lucide-react';
 
 export default function AccountPage() {
   const [profile, setProfile] = useState({
-    displayName: 'Admin User',
-    username: 'admin',
-    email: 'admin@kspanel.com', // Not editable
+    displayName: '',
+    username: '',
+    email: '',
   });
+
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        setProfile({
+          displayName: data.display_name || '',
+          username: data.username || '',
+          email: data.email || '',
+        });
+        setLoading(false);
+      });
+  }, []);
 
   const [passwords, setPasswords] = useState({
     current: '',
@@ -85,7 +100,17 @@ export default function AccountPage() {
             </div>
 
             <div className="pt-4">
-              <button className="neon-button flex items-center gap-2 px-6">
+              <button
+                onClick={async () => {
+                  const res = await fetch('/api/users', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profile)
+                  });
+                  if (res.ok) alert('Profile updated');
+                }}
+                className="neon-button flex items-center gap-2 px-6"
+              >
                 <Save className="w-4 h-4" /> Save Changes
               </button>
             </div>
@@ -132,7 +157,21 @@ export default function AccountPage() {
             </div>
 
             <div className="pt-4">
-              <button className="neon-button flex items-center gap-2 px-6">
+              <button
+                onClick={async () => {
+                  if (passwords.new !== passwords.confirm) {
+                    alert('New passwords do not match');
+                    return;
+                  }
+                  const res = await fetch('/api/users', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...profile, password: passwords.new })
+                  });
+                  if (res.ok) alert('Password updated');
+                }}
+                className="neon-button flex items-center gap-2 px-6"
+              >
                 <Save className="w-4 h-4" /> Update Password
               </button>
             </div>

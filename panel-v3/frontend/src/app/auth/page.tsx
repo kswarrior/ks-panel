@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -30,6 +30,11 @@ export default function AuthPage() {
       setError('Connection failed');
     }
   };
+
+  useEffect(() => {
+    // Clear any existing cookie on auth page mount to allow fresh login
+    document.cookie = "ks_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  }, []);
 
   return (
     <div className="w-full max-w-md">

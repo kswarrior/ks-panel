@@ -29,6 +29,14 @@
     @apply bg-white/5 backdrop-blur-md border border-white/10;
   }
 
+  .h-screen-dvh {
+    height: 100dvh;
+  }
+
+  .min-h-screen-dvh {
+    min-height: 100dvh;
+  }
+
   .glass-dark {
     @apply bg-black/20 backdrop-blur-md border border-white/5;
   }

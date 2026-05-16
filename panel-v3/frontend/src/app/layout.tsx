@@ -24,6 +24,7 @@ export default function RootLayout({
 
   const [activeTheme, setActiveTheme] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
+  const [settings, setSettings] = useState<any>(null);
   const router = useRouter();
 
   const isAuthPage = pathname === '/auth' || pathname === '/auth.html';
@@ -51,6 +52,11 @@ export default function RootLayout({
             } catch (e) {}
           }
         });
+
+      fetch('/api/settings')
+        .then(res => res.json())
+        .then(data => setSettings(data))
+        .catch(() => {});
     }
   }, [mounted, pathname]);
 
@@ -81,7 +87,7 @@ export default function RootLayout({
               style={{ backgroundImage: `url(${activeTheme.backgroundImage})` }}
             />
           )}
-          <main className="min-h-screen flex items-center justify-center p-4">
+          <main className="min-h-screen-dvh flex items-center justify-center p-4">
             {children}
           </main>
         </body>
@@ -98,10 +104,10 @@ export default function RootLayout({
             style={{ backgroundImage: `url(${activeTheme.backgroundImage})` }}
           />
         )}
-        <Header onMenuClick={() => setIsSidebarOpen(true)} />
+        <Header user={user} settings={settings} onMenuClick={() => setIsSidebarOpen(true)} />
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-        <main className="pt-[calc(var(--header-height)+2rem)] min-h-screen transition-all duration-300 lg:pl-[var(--sidebar-width)]">
+        <main className="pt-[calc(var(--header-height)+2rem)] min-h-screen-dvh transition-all duration-300 lg:pl-[var(--sidebar-width)]">
           <div className="container mx-auto px-4 pb-12">
             {children}
           </div>
