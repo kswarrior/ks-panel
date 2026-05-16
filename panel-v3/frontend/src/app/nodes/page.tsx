@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X, HardDrive } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X, HardDrive, MoreVertical, Info, Link as LinkIcon } from 'lucide-react';
 
 interface Node {
   id: number;
@@ -166,74 +166,165 @@ export default function NodesPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {nodes.map((node) => (
-            <div key={node.id} className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-neon-blue/30 transition-all duration-300 group">
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:neon-border transition-all">
-                    <Signal className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">{node.name}</h3>
-                    <p className="text-xs text-white/40 font-mono tracking-wider">{node.ip_address}</p>
-                  </div>
-                </div>
-                <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                  node.status === 'Online' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
-                }`}>
-                  {node.status}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
-                    <div className="flex items-center gap-1"><Cpu className="w-3 h-3" /> CPU</div>
-                    <span>{node.cpu_usage}</span>
-                  </div>
-                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-neon-blue shadow-neon transition-all duration-500"
-                      style={{ width: node.cpu_usage }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
-                    <div className="flex items-center gap-1"><Memory className="w-3 h-3" /> RAM</div>
-                    <span>{node.ram_usage}</span>
-                  </div>
-                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-neon-blue/60 shadow-neon" style={{ width: node.ram_usage.includes('/') ? `${(parseFloat(node.ram_usage) / parseFloat(node.ram_usage.split('/')[1])) * 100}%` : '0%' }} />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
-                    <div className="flex items-center gap-1"><HardDrive className="w-3 h-3" /> Disk</div>
-                    <span>{node.disk_usage}</span>
-                  </div>
-                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-neon-blue/40 shadow-neon" style={{ width: node.disk_usage.includes('/') ? `${(parseFloat(node.disk_usage) / parseFloat(node.disk_usage.split('/')[1])) * 100}%` : '0%' }} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
-                <div className="flex gap-4">
-                  <div className="text-center">
-                    <p className="text-[10px] text-white/40 uppercase font-bold">Status</p>
-                    <p className={`font-bold text-sm ${node.status === 'Online' ? 'text-green-500' : 'text-red-500'}`}>{node.status}</p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">
-                  Configure
-                </button>
-              </div>
-            </div>
+            <NodeCard key={node.id} node={node} onRefresh={fetchNodes} />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function NodeCard({ node, onRefresh }: { node: Node, onRefresh: () => void }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as any)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Mock uptime data (segments) - 40 bars for a denser look
+  const uptimeSegments = Array.from({ length: 40 }, (_, i) => i !== 28);
+
+  return (
+    <div className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-neon-blue/30 transition-all duration-300 group relative">
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:neon-border transition-all">
+            <Signal className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">{node.name}</h3>
+            <p className="text-xs text-white/40 font-mono tracking-wider">{node.ip_address}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+            node.status === 'Online' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
+          }`}>
+            {node.status}
+          </span>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-56 glass-dark border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Node Resources</p>
+                </div>
+                <div className="p-2 space-y-1">
+                  <div className="flex items-center gap-3 px-3 py-2 text-xs text-white/70">
+                    <Cpu className="w-4 h-4 text-neon-blue" />
+                    <span>CPU: {node.cpu_usage}</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-3 py-2 text-xs text-white/70">
+                    <Memory className="w-4 h-4 text-neon-blue" />
+                    <span>RAM: {node.ram_usage}</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-3 py-2 text-xs text-white/70">
+                    <HardDrive className="w-4 h-4 text-neon-blue" />
+                    <span>Disk: {node.disk_usage}</span>
+                  </div>
+                  <div className="h-px bg-white/5 my-1" />
+                  <div className="flex items-center gap-3 px-3 py-2 text-xs text-white/70">
+                    <LinkIcon className="w-4 h-4 text-white/30" />
+                    <span className="truncate">{node.ip_address}</span>
+                  </div>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                    <X className="w-4 h-4" />
+                    <span>Delete Node</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
+            <div className="flex items-center gap-1"><Cpu className="w-3 h-3" /> CPU</div>
+            <span>{node.cpu_usage}</span>
+          </div>
+          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-neon-blue shadow-neon transition-all duration-500"
+              style={{ width: node.cpu_usage }}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
+            <div className="flex items-center gap-1"><Memory className="w-3 h-3" /> RAM</div>
+            <span>{node.ram_usage}</span>
+          </div>
+          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-neon-blue/60 shadow-neon" style={{ width: node.ram_usage.includes('/') ? `${(parseFloat(node.ram_usage) / parseFloat(node.ram_usage.split('/')[1])) * 100}%` : '0%' }} />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
+            <div className="flex items-center gap-1"><HardDrive className="w-3 h-3" /> Disk</div>
+            <span>{node.disk_usage}</span>
+          </div>
+          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-neon-blue/40 shadow-neon" style={{ width: node.disk_usage.includes('/') ? `${(parseFloat(node.disk_usage) / parseFloat(node.disk_usage.split('/')[1])) * 100}%` : '0%' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Uptime Bar */}
+      <div className="mt-8 space-y-3">
+        <div className="flex justify-between items-end">
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Overall Uptime</p>
+            <p className="text-2xl font-black text-white leading-none">99.8<span className="text-sm text-white/30">%</span></p>
+          </div>
+          <div className="text-right">
+            <span className="px-2 py-0.5 rounded bg-green-500/10 text-green-500 text-[10px] font-black uppercase">Stable</span>
+          </div>
+        </div>
+
+        <div className="flex gap-1 h-8 items-center">
+          {uptimeSegments.map((ok, i) => (
+            <div
+              key={i}
+              className={`flex-1 h-5 rounded-full transition-all duration-500 hover:h-8 cursor-help ${
+                ok ? 'bg-green-500/30 hover:bg-green-400' : 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse'
+              }`}
+              title={ok ? 'Operational' : 'Downtime Detected'}
+            />
+          ))}
+        </div>
+        <div className="flex justify-between text-[8px] font-black text-white/20 uppercase tracking-tighter">
+          <span>30 Days ago</span>
+          <span>Today</span>
+        </div>
+      </div>
+
+      <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+        <div className="flex gap-4">
+          <div className="text-center">
+            <p className="text-[10px] text-white/40 uppercase font-bold">Status</p>
+            <p className={`font-bold text-sm ${node.status === 'Online' ? 'text-green-500' : 'text-red-500'}`}>{node.status}</p>
+          </div>
+        </div>
+        <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">
+          Configure
+        </button>
+      </div>
     </div>
   );
 }
