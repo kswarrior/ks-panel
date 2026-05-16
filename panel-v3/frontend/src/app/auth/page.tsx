@@ -18,12 +18,12 @@ export default function AuthPage() {
 
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/70 ml-1">Email Address</label>
+            <label className="text-sm font-medium text-white/70 ml-1">Username or Email</label>
             <div className="relative group">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 group-focus-within:text-neon-blue transition-colors" />
               <input
-                type="email"
-                placeholder="admin@kspanel.com"
+                type="text"
+                placeholder="admin or admin@kspanel.com"
                 className="w-full neon-input pl-11"
               />
             </div>

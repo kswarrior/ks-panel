@@ -23,8 +23,9 @@ const permissionsList = [
 export default function RolesPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newRole, setNewRole] = useState({ name: '', color: '#0ea5e9', permissions: [] as string[] });
+  const [showModal, setShowModal] = useState(false);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [roleForm, setRoleForm] = useState({ name: '', color: '#0ea5e9', permissions: [] as string[] });
 
   const fetchRoles = async () => {
     setLoading(true);
@@ -44,12 +45,61 @@ export default function RolesPage() {
   }, []);
 
   const togglePermission = (id: string) => {
-    setNewRole(prev => ({
+    setRoleForm(prev => ({
       ...prev,
       permissions: prev.permissions.includes(id)
         ? prev.permissions.filter(p => p !== id)
         : [...prev.permissions, id]
     }));
+  };
+
+  const handleOpenCreate = () => {
+    setEditingRole(null);
+    setRoleForm({ name: '', color: '#0ea5e9', permissions: [] });
+    setShowModal(true);
+  };
+
+  const handleOpenEdit = (role: Role) => {
+    setEditingRole(role);
+    setRoleForm({
+      name: role.name,
+      color: role.color,
+      permissions: role.permissions === '*' ? permissionsList.map(p => p.id) : role.permissions.split(',').filter(p => p !== '')
+    });
+    setShowModal(true);
+  };
+
+  const handleSaveRole = async () => {
+    const method = editingRole ? 'PUT' : 'POST';
+    const url = editingRole ? `/api/roles/${editingRole.id}` : '/api/roles';
+    const payload = {
+      ...roleForm,
+      permissions: roleForm.permissions.length === permissionsList.length ? '*' : roleForm.permissions.join(',')
+    };
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setShowModal(false);
+        fetchRoles();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteRole = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this role?')) return;
+    try {
+      const res = await fetch(`/api/roles/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchRoles();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -60,7 +110,7 @@ export default function RolesPage() {
           <p className="text-white/50">Manage permissions and groups</p>
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={handleOpenCreate}
           className="neon-button flex items-center justify-center gap-2 font-bold w-full sm:w-auto"
         >
           <Plus className="w-5 h-5" />
@@ -100,22 +150,33 @@ export default function RolesPage() {
                   </span>
                 )}
               </div>
-              <button className="w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/5">
-                Edit Permissions
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleOpenEdit(role)}
+                  className="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/5"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteRole(role.id)}
+                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg border border-red-500/20 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Create Modal */}
-      {showCreateModal && (
+      {/* Role Modal */}
+      {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="glass-dark w-full max-w-2xl rounded-2xl p-8 relative z-10 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold">Create New Role</h2>
-              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
+              <h2 className="text-2xl font-bold">{editingRole ? 'Edit Role' : 'Create New Role'}</h2>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -128,8 +189,8 @@ export default function RolesPage() {
                     type="text"
                     placeholder="Moderator"
                     className="w-full neon-input"
-                    value={newRole.name}
-                    onChange={e => setNewRole(prev => ({ ...prev, name: e.target.value }))}
+                    value={roleForm.name}
+                    onChange={e => setRoleForm(prev => ({ ...prev, name: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -138,14 +199,14 @@ export default function RolesPage() {
                     <input
                       type="color"
                       className="w-12 h-10 bg-transparent border-none cursor-pointer"
-                      value={newRole.color}
-                      onChange={e => setNewRole(prev => ({ ...prev, color: e.target.value }))}
+                      value={roleForm.color}
+                      onChange={e => setRoleForm(prev => ({ ...prev, color: e.target.value }))}
                     />
                     <input
                       type="text"
                       className="flex-1 neon-input font-mono"
-                      value={newRole.color}
-                      onChange={e => setNewRole(prev => ({ ...prev, color: e.target.value }))}
+                      value={roleForm.color}
+                      onChange={e => setRoleForm(prev => ({ ...prev, color: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -155,7 +216,7 @@ export default function RolesPage() {
                 <label className="text-sm font-bold text-white/70 uppercase ml-1 block">Permissions</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {permissionsList.map(perm => {
-                    const active = newRole.permissions.includes(perm.id);
+                    const active = roleForm.permissions.includes(perm.id);
                     return (
                       <div
                         key={perm.id}
@@ -176,8 +237,11 @@ export default function RolesPage() {
               </div>
 
               <div className="pt-6 border-t border-white/5">
-                <button className="w-full neon-button py-3 font-bold text-lg">
-                  Create Role
+                <button
+                  onClick={handleSaveRole}
+                  className="w-full neon-button py-3 font-bold text-lg"
+                >
+                  {editingRole ? 'Save Changes' : 'Create Role'}
                 </button>
               </div>
             </div>

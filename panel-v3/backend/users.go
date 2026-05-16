@@ -35,11 +35,11 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(users)
 	case http.MethodPost:
 		var u struct {
-			DisplayName string `json:"display_name"`
+			DisplayName string `json:"displayName"`
 			Username    string `json:"username"`
 			Email       string `json:"email"`
 			Password    string `json:"password"`
-			RoleID      int    `json:"role_id"`
+			RoleID      int    `json:"roleId,string"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

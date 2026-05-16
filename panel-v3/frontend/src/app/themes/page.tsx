@@ -99,7 +99,21 @@ export default function ThemesPage() {
               <p className="text-sm text-white/40 mb-6 italic">Custom theme configuration</p>
               <div className="flex gap-2">
                 <button className="flex-1 py-2 glass hover:bg-white/10 rounded-lg text-xs font-bold border border-white/10 transition-all">Edit</button>
-                {!theme.is_active && <button className="flex-1 py-2 neon-button text-xs">Apply</button>}
+                {!theme.is_active && (
+                  <button
+                    onClick={async () => {
+                      const res = await fetch('/api/themes', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: theme.id })
+                      });
+                      if (res.ok) fetchThemes();
+                    }}
+                    className="flex-1 py-2 neon-button text-xs"
+                  >
+                    Apply
+                  </button>
+                )}
               </div>
             </div>
           ))}

@@ -44,5 +44,23 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+	case http.MethodPut:
+		// Handle Apply Theme
+		var t struct {
+			ID int `json:"id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// Reset all to inactive
+		DB.Exec("UPDATE themes SET is_active = 0")
+		// Set active
+		_, err := DB.Exec("UPDATE themes SET is_active = 1 WHERE id = ?", t.ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }

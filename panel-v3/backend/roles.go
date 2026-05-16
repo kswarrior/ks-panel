@@ -3,9 +3,16 @@ package backend
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 func HandleRoles(w http.ResponseWriter, r *http.Request) {
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	roleIDStr := ""
+	if len(pathParts) > 2 {
+		roleIDStr = pathParts[2]
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		rows, err := DB.Query("SELECT id, name, color, permissions FROM roles")
@@ -45,5 +52,36 @@ func HandleRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+	case http.MethodPut:
+		if roleIDStr == "" {
+			http.Error(w, "Role ID required", http.StatusBadRequest)
+			return
+		}
+		var role struct {
+			Name        string `json:"name"`
+			Color       string `json:"color"`
+			Permissions string `json:"permissions"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		_, err := DB.Exec("UPDATE roles SET name = ?, color = ?, permissions = ? WHERE id = ?", role.Name, role.Color, role.Permissions, roleIDStr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	case http.MethodDelete:
+		if roleIDStr == "" {
+			http.Error(w, "Role ID required", http.StatusBadRequest)
+			return
+		}
+		_, err := DB.Exec("DELETE FROM roles WHERE id = ?", roleIDStr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }

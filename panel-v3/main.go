@@ -51,7 +51,7 @@ func main() {
 		}
 	})
 	mux.HandleFunc("/api/users", backend.HandleUsers)
-	mux.HandleFunc("/api/roles", backend.HandleRoles)
+	mux.HandleFunc("/api/roles/", backend.HandleRoles)
 	mux.HandleFunc("/api/settings", backend.HandleSettings)
 	mux.HandleFunc("/api/themes", backend.HandleThemes)
 
@@ -100,39 +100,60 @@ func main() {
 }
 
 func createUser() {
-	reader := bufio.NewReader(os.Stdin)
+	userCmd := flag.NewFlagSet("create:user", flag.ExitOnError)
+	displayNameFlag := userCmd.String("display_name", "", "Display Name")
+	usernameFlag := userCmd.String("username", "", "Username")
+	emailFlag := userCmd.String("email", "", "Email")
+	passwordFlag := userCmd.String("password", "", "Password")
+	confirmPasswordFlag := userCmd.String("confirm_password", "", "Confirm Password")
 
-	fmt.Print("Enter Display Name: ")
-	displayName, _ := reader.ReadString('\n')
-	displayName = strings.TrimSpace(displayName)
+	userCmd.Parse(flag.Args()[1:])
 
-	fmt.Print("Enter Username: ")
-	username, _ := reader.ReadString('\n')
-	username = strings.TrimSpace(username)
+	displayName := *displayNameFlag
+	username := *usernameFlag
+	email := *emailFlag
+	password := *passwordFlag
+	confirmPassword := *confirmPasswordFlag
 
-	fmt.Print("Enter Email: ")
-	email, _ := reader.ReadString('\n')
-	email = strings.TrimSpace(email)
+	if displayName == "" || username == "" || email == "" || password == "" {
+		reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Enter Password: ")
-	bytePassword, _ := term.ReadPassword(int(syscall.Stdin))
-	password := string(bytePassword)
-	fmt.Println()
+		if displayName == "" {
+			fmt.Print("Enter Display Name: ")
+			displayName, _ = reader.ReadString('\n')
+			displayName = strings.TrimSpace(displayName)
+		}
 
-	fmt.Print("Confirm Password: ")
-	byteConfirmPassword, _ := term.ReadPassword(int(syscall.Stdin))
-	confirmPassword := string(byteConfirmPassword)
-	fmt.Println()
+		if username == "" {
+			fmt.Print("Enter Username: ")
+			username, _ = reader.ReadString('\n')
+			username = strings.TrimSpace(username)
+		}
+
+		if email == "" {
+			fmt.Print("Enter Email: ")
+			email, _ = reader.ReadString('\n')
+			email = strings.TrimSpace(email)
+		}
+
+		if password == "" {
+			fmt.Print("Enter Password: ")
+			bytePassword, _ := term.ReadPassword(int(syscall.Stdin))
+			password = string(bytePassword)
+			fmt.Println()
+
+			fmt.Print("Confirm Password: ")
+			byteConfirmPassword, _ := term.ReadPassword(int(syscall.Stdin))
+			confirmPassword = string(byteConfirmPassword)
+			fmt.Println()
+		}
+	}
 
 	if password != confirmPassword {
 		log.Fatal("Passwords do not match")
 	}
 
-	fmt.Print("Enter Role (owner/admin/user): ")
-	roleName := strings.ToLower(strings.TrimSpace(func() string {
-		r, _ := reader.ReadString('\n')
-		return r
-	}()))
+	roleName := "owner" // Default for CLI
 
 	// Find or create role
 	var roleID int
