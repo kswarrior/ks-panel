@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -16,52 +17,106 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	nodes := []map[string]interface{}{}
+	type nodeResult struct {
+		id      int
+		name    string
+		ip      string
+		status  string
+		cpu     string
+		ram     string
+		disk    string
+		order   int
+	}
+
+	var results []nodeResult
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
 	client := http.Client{
 		Timeout: 5 * time.Second,
 	}
 
+	index := 0
 	for rows.Next() {
 		var id int
 		var name, ip string
 		rows.Scan(&id, &name, &ip)
 
-		status := "Offline"
-		targetURL := ip
-		if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
-			scheme := "http://"
-			addr := targetURL
-			if !containsPort(addr) {
-				addr = fmt.Sprintf("%s:5050", addr)
+		wg.Add(1)
+		go func(id int, name, ip string, order int) {
+			defer wg.Done()
+
+			status := "Offline"
+			cpuUsage, ramUsage, diskUsage := "0%", "0GB / 0GB", "0GB / 0GB"
+
+			targetURL := ip
+			if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
+				scheme := "http://"
+				addr := targetURL
+				if !containsPort(addr) {
+					addr = fmt.Sprintf("%s:5050", addr)
+				}
+				targetURL = scheme + addr
 			}
-			targetURL = scheme + addr
-		}
 
-		if !strings.HasSuffix(targetURL, "/status") {
-			if !strings.HasSuffix(targetURL, "/") {
-				targetURL += "/"
+			if !strings.HasSuffix(targetURL, "/status") {
+				if !strings.HasSuffix(targetURL, "/") {
+					targetURL += "/"
+				}
+				targetURL += "status"
 			}
-			targetURL += "status"
-		}
 
-		resp, err := client.Get(targetURL)
-		if err == nil && resp.StatusCode == http.StatusOK {
-			status = "Online"
-			resp.Body.Close()
-		}
+			resp, err := client.Get(targetURL)
+			if err == nil && resp.StatusCode == http.StatusOK {
+				status = "Online"
+				var stats struct {
+					CPU  string `json:"cpu_usage"`
+					RAM  string `json:"ram_usage"`
+					Disk string `json:"disk_usage"`
+				}
+				json.NewDecoder(resp.Body).Decode(&stats)
+				cpuUsage = stats.CPU
+				ramUsage = stats.RAM
+				diskUsage = stats.Disk
+				resp.Body.Close()
+			}
 
-		nodes = append(nodes, map[string]interface{}{
-			"id":         id,
-			"name":       name,
-			"ip_address": ip,
-			"status":     status,
-			"cpu_usage":  "0%",
-			"ram_usage":  "0GB / 0GB",
-		})
+			mu.Lock()
+			results = append(results, nodeResult{
+				id:     id,
+				name:   name,
+				ip:     ip,
+				status: status,
+				cpu:    cpuUsage,
+				ram:    ramUsage,
+				disk:   diskUsage,
+				order:  order,
+			})
+			mu.Unlock()
+		}(id, name, ip, index)
+		index++
+	}
+	wg.Wait()
+
+	// Sort results by order
+	finalNodes := make([]map[string]interface{}, len(results))
+	for _, res := range results {
+		finalNodes[res.order] = map[string]interface{}{
+			"id":         res.id,
+			"name":       res.name,
+			"ip_address": res.ip,
+			"status":     res.status,
+			"cpu_usage":  res.cpu,
+			"ram_usage":  res.ram,
+			"disk_usage": res.disk,
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(nodes)
+	if finalNodes == nil {
+		finalNodes = []map[string]interface{}{}
+	}
+	json.NewEncoder(w).Encode(finalNodes)
 }
 
 func HandleCreateNode(w http.ResponseWriter, r *http.Request) {
@@ -91,8 +146,8 @@ func HandleCreateNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := DB.Exec(
-		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage) VALUES (?, ?, ?, ?, ?)",
-		n.Name, ipAddress, "Offline", "0%", "0GB / 0GB",
+		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage, disk_usage) VALUES (?, ?, ?, ?, ?, ?)",
+		n.Name, ipAddress, "Offline", "0%", "0GB / 0GB", "0GB / 0GB",
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

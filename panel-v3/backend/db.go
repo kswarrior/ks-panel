@@ -39,7 +39,8 @@ func InitDB() {
 			ip_address TEXT,
 			status TEXT,
 			cpu_usage TEXT,
-			ram_usage TEXT
+			ram_usage TEXT,
+			disk_usage TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS instances (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,6 +79,7 @@ func InitDB() {
 	DB.Exec("ALTER TABLE users ADD COLUMN display_name TEXT;")
 	DB.Exec("ALTER TABLE users ADD COLUMN role_id INTEGER;")
 	DB.Exec("ALTER TABLE roles ADD COLUMN color TEXT;")
+	DB.Exec("ALTER TABLE nodes ADD COLUMN disk_usage TEXT;")
 
 	log.Println("Database initialized successfully.")
 	SeedRoles()

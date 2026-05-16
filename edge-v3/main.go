@@ -3,8 +3,14 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/mem"
 )
 
 func main() {
@@ -37,11 +43,26 @@ func main() {
 }
 
 func handleStatus(w http.ResponseWriter, r *http.Request) {
+	vm, _ := mem.VirtualMemory()
+	perc, _ := cpu.Percent(time.Second, false)
+	usage, _ := disk.Usage("/")
+
+	cpuStr := "0%"
+	if len(perc) > 0 {
+		cpuStr = fmt.Sprintf("%.1f%%", perc[0])
+	}
+
+	ramStr := fmt.Sprintf("%.1fGB / %.1fGB", float64(vm.Used)/1024/1024/1024, float64(vm.Total)/1024/1024/1024)
+	diskStr := fmt.Sprintf("%.1fGB / %.1fGB", float64(usage.Used)/1024/1024/1024, float64(usage.Total)/1024/1024/1024)
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	json.NewEncoder(w).Encode(map[string]interface{}{
 		"node_status": "online",
-		"service": "ksedge",
-		"version": "1.0.0",
+		"service":     "ksedge",
+		"version":     "1.0.0",
+		"cpu_usage":   cpuStr,
+		"ram_usage":   ramStr,
+		"disk_usage":  diskStr,
 	})
 }
 

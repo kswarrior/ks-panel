@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X } from 'lucide-react';
+import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X, HardDrive } from 'lucide-react';
 
 interface Node {
   id: number;
@@ -10,6 +10,7 @@ interface Node {
   status: string;
   cpu_usage: string;
   ram_usage: string;
+  disk_usage: string;
 }
 
 export default function NodesPage() {
@@ -200,10 +201,20 @@ export default function NodesPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
                     <div className="flex items-center gap-1"><Memory className="w-3 h-3" /> RAM</div>
-                    <span>{node.ram_usage.split(' / ')[0]}</span>
+                    <span>{node.ram_usage}</span>
                   </div>
                   <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-neon-blue/60 shadow-neon" style={{ width: '45%' }} />
+                    <div className="h-full bg-neon-blue/60 shadow-neon" style={{ width: node.ram_usage.includes('/') ? `${(parseFloat(node.ram_usage) / parseFloat(node.ram_usage.split('/')[1])) * 100}%` : '0%' }} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
+                    <div className="flex items-center gap-1"><HardDrive className="w-3 h-3" /> Disk</div>
+                    <span>{node.disk_usage}</span>
+                  </div>
+                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-neon-blue/40 shadow-neon" style={{ width: node.disk_usage.includes('/') ? `${(parseFloat(node.disk_usage) / parseFloat(node.disk_usage.split('/')[1])) * 100}%` : '0%' }} />
                   </div>
                 </div>
               </div>
