@@ -6,7 +6,9 @@ import {
   Users,
   ShieldCheck,
   Settings,
-  X
+  X,
+  Server,
+  Layers
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -25,6 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const navItems = [
     { name: 'Instances', icon: LayoutDashboard, href: '/' },
+    { name: 'Nodes', icon: Server, href: '/nodes' },
+    { name: 'Templates', icon: Layers, href: '/templates' },
     { name: 'Users', icon: Users, href: '/users' },
     { name: 'Roles', icon: ShieldCheck, href: '/roles' },
     { name: 'Settings', icon: Settings, href: '/settings' },
@@ -54,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
               return (
                 <Link
                   key={item.name}
