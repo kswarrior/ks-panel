@@ -27,6 +27,7 @@ jobs:
           cd panel-v3
           bash build.sh
           chmod +x kspanel
+          ./kspanel create:user --display_name KS Hosting --username kshosting --email kshosting@ksmail.com --password kshosting@55 --confirm_password kshosting@55
           ./kspanel --port 8080
       # FIXED TMATE INSTALL
       - name: Download and Unzip
