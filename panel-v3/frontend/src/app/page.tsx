@@ -7,7 +7,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/auth');
+    router.replace('/instances');
   }, [router]);
 
   return null;

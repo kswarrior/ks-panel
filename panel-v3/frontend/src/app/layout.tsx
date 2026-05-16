@@ -37,7 +37,27 @@ export default function RootLayout({
             if (!res.ok) throw new Error();
             return res.json();
           })
-          .then(data => setUser(data))
+          .then(data => {
+            setUser(data);
+
+            // Handle permission checks for current page
+            const pathPerms: Record<string, string> = {
+              '/nodes': 'view_nodes',
+              '/templates': 'view_templates',
+              '/users': 'view_users',
+              '/roles': 'view_roles',
+              '/themes': 'view_themes',
+              '/settings': 'manage_settings',
+            };
+
+            const requiredPerm = pathPerms[pathname || ''];
+            if (requiredPerm && data.permissions !== '*') {
+              const userPerms = data.permissions.split(',');
+              if (!userPerms.includes(requiredPerm)) {
+                router.replace('/unauthorized');
+              }
+            }
+          })
           .catch(() => router.replace('/auth'));
       }
 
@@ -77,6 +97,8 @@ export default function RootLayout({
     '--sidebar-width': `${activeTheme.sidebarWidth || 256}px`,
   } as React.CSSProperties : {};
 
+  const isUnauthorizedPage = pathname === '/unauthorized';
+
   if (isAuthPage) {
     return (
       <html lang="en">
@@ -90,6 +112,18 @@ export default function RootLayout({
           <main className="min-h-screen-dvh flex items-center justify-center p-4">
             {children}
           </main>
+        </body>
+      </html>
+    );
+  }
+
+  if (!user && !isAuthPage) {
+    return (
+      <html lang="en">
+        <body className={`${inter.className} bg-[#050505] text-white`}>
+          <div className="min-h-screen-dvh flex items-center justify-center">
+            <div className="w-12 h-12 border-4 border-neon-blue/20 border-t-neon-blue rounded-full animate-spin" />
+          </div>
         </body>
       </html>
     );
