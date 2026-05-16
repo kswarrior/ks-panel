@@ -10,3 +10,6 @@ public/assets/logo.png
 bs-config.json
 plugins/plugins.json
 config.json
+*.db
+kspanel
+ksedge

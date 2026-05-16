@@ -42,6 +42,10 @@ func main() {
 	mux.HandleFunc("/api/status", HandleStatus)
 	mux.HandleFunc("/api/instances", HandleInstances)
 	mux.HandleFunc("/api/nodes", HandleNodes)
+	mux.HandleFunc("/api/users", HandleUsers)
+	mux.HandleFunc("/api/roles", HandleRoles)
+	mux.HandleFunc("/api/settings", HandleSettings)
+	mux.HandleFunc("/api/themes", HandleThemes)
 
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
@@ -90,6 +94,10 @@ func main() {
 func createUser() {
 	reader := bufio.NewReader(os.Stdin)
 
+	fmt.Print("Enter Display Name: ")
+	displayName, _ := reader.ReadString('\n')
+	displayName = strings.TrimSpace(displayName)
+
 	fmt.Print("Enter Username: ")
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
@@ -113,8 +121,27 @@ func createUser() {
 	}
 
 	fmt.Print("Enter Role (owner/admin/user): ")
-	role, _ := reader.ReadString('\n')
-	role = strings.ToLower(strings.TrimSpace(role))
+	roleName := strings.ToLower(strings.TrimSpace(func() string {
+		r, _ := reader.ReadString('\n')
+		return r
+	}()))
+
+	// Find or create role
+	var roleID int
+	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
+	if roleErr != nil {
+		// Create role if not exists
+		color := "#0ea5e9"
+		if roleName == "owner" {
+			color = "#ef4444"
+		}
+		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
+		if err != nil {
+			log.Fatalf("Error creating role: %v", err)
+		}
+		id, _ := res.LastInsertId()
+		roleID = int(id)
+	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -123,12 +150,12 @@ func createUser() {
 	}
 
 	_, err = DB.Exec(
-		"INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, ?, ?)",
-		username, email, string(hashedPassword), role, "active",
+		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES (?, ?, ?, ?, ?, ?)",
+		displayName, username, email, string(hashedPassword), roleID, "active",
 	)
 	if err != nil {
 		log.Fatalf("Error creating user: %v", err)
 	}
 
-	fmt.Printf("User %s created successfully with role %s\n", username, role)
+	fmt.Printf("User %s created successfully with role %s (ID: %d)\n", username, roleName, roleID)
 }

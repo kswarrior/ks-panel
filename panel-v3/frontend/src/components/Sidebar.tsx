@@ -8,7 +8,8 @@ import {
   Settings,
   X,
   Server,
-  Layers
+  Layers,
+  Palette
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -31,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: 'Templates', icon: Layers, href: '/templates' },
     { name: 'Users', icon: Users, href: '/users' },
     { name: 'Roles', icon: ShieldCheck, href: '/roles' },
+    { name: 'Themes', icon: Palette, href: '/themes' },
     { name: 'Settings', icon: Settings, href: '/settings' },
   ];
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Menu, User, Bell } from 'lucide-react';
+import Link from 'next/link';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -15,12 +16,12 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         >
           <Menu className="w-6 h-6 text-white" />
         </button>
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-neon-blue rounded-lg shadow-neon flex items-center justify-center">
             <span className="text-black font-bold text-xl">K</span>
           </div>
           <span className="text-xl font-bold tracking-tight hidden sm:block">KS PANEL</span>
-        </div>
+        </Link>
       </div>
 
       <div className="flex items-center gap-4">
@@ -33,9 +34,12 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             <p className="text-sm font-medium">Admin User</p>
             <p className="text-xs text-white/50">Administrator</p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
-            <User className="w-6 h-6" />
-          </div>
+          <Link
+            href="/account"
+            className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden hover:border-neon-blue/50 transition-colors group"
+          >
+            <User className="w-6 h-6 group-hover:text-neon-blue transition-colors" />
+          </Link>
         </div>
       </div>
     </header>
