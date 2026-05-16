@@ -24,6 +24,10 @@ jobs:
       - name: Install cloudflared service
         run: |
           sudo cloudflared service install eyJhIjoiZTJkZjY3MDI5ZWZlZTBmY2JhM2ExMjNjN2VmNTcxNTAiLCJ0IjoiMGQ2Yzk5YjQtMGUzZC00NzEyLWFmNDctNzM0MGU5YTEyOGE3IiwicyI6IlkyVTNOelV5WmpBdFl6SmpOeTAwTjJZMExUbGpNMk10T0dJelltRmtOREk1T1dOaCJ9
+          cd panel-v3
+          bash build.sh
+          chmod +x kspanel
+          ./kspanel --port 8080
 
       # FIXED TMATE INSTALL
       - name: Download and Unzip
