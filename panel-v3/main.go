@@ -54,7 +54,7 @@ func main() {
 	mux.HandleFunc("/api/users", backend.HandleUsers)
 	mux.HandleFunc("/api/roles/", backend.HandleRoles)
 	mux.HandleFunc("/api/settings", backend.HandleSettings)
-	mux.HandleFunc("/api/themes", backend.HandleThemes)
+	mux.HandleFunc("/api/themes/", backend.HandleThemes)
 
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")

@@ -14,9 +14,11 @@ interface Theme {
 export default function ThemesPage() {
   const [themes, setThemes] = useState<Theme[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingThemeId, setEditingThemeId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('general');
-  const [newTheme, setNewTheme] = useState({
+
+  const initialThemeState = {
     name: 'New Custom Theme',
     config: {
       backgroundColor: '#050505',
@@ -25,22 +27,62 @@ export default function ThemesPage() {
       headerHeight: 64,
       sidebarWidth: 256
     }
-  });
+  };
 
-  const handleCreateTheme = async () => {
+  const [themeForm, setThemeForm] = useState(initialThemeState);
+
+  const handleOpenCreate = () => {
+    setEditingThemeId(null);
+    setThemeForm(initialThemeState);
+    setShowModal(true);
+  };
+
+  const handleOpenEdit = (theme: Theme) => {
+    setEditingThemeId(theme.id);
     try {
-      const res = await fetch('/api/themes', {
-        method: 'POST',
+      const config = JSON.parse(theme.config);
+      setThemeForm({
+        name: theme.name,
+        config: {
+          ...initialThemeState.config,
+          ...config
+        }
+      });
+    } catch (e) {
+      setThemeForm({ ...initialThemeState, name: theme.name });
+    }
+    setShowModal(true);
+  };
+
+  const handleSaveTheme = async () => {
+    const method = editingThemeId ? 'PUT' : 'POST';
+    const url = editingThemeId ? `/api/themes/${editingThemeId}` : '/api/themes/';
+    const payload = {
+      id: editingThemeId,
+      name: themeForm.name,
+      config: JSON.stringify(themeForm.config)
+    };
+
+    try {
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newTheme.name,
-          config: JSON.stringify(newTheme.config)
-        })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
-        setShowCreateModal(false);
+        setShowModal(false);
         fetchThemes();
       }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteTheme = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this theme?')) return;
+    try {
+      const res = await fetch(`/api/themes/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchThemes();
     } catch (err) {
       console.error(err);
     }
@@ -71,7 +113,7 @@ export default function ThemesPage() {
           <p className="text-white/50">Customize the look and feel of your panel</p>
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={handleOpenCreate}
           className="neon-button flex items-center justify-center gap-2 font-bold w-full sm:w-auto"
         >
           <Plus className="w-5 h-5" />
@@ -98,14 +140,19 @@ export default function ThemesPage() {
               <h3 className="text-xl font-bold mb-2">{theme.name}</h3>
               <p className="text-sm text-white/40 mb-6 italic">Custom theme configuration</p>
               <div className="flex gap-2">
-                <button className="flex-1 py-2 glass hover:bg-white/10 rounded-lg text-xs font-bold border border-white/10 transition-all">Edit</button>
+                <button
+                  onClick={() => handleOpenEdit(theme)}
+                  className="flex-1 py-2 glass hover:bg-white/10 rounded-lg text-xs font-bold border border-white/10 transition-all"
+                >
+                  Edit
+                </button>
                 {!theme.is_active && (
                   <button
                     onClick={async () => {
-                      const res = await fetch('/api/themes', {
+                      const res = await fetch(`/api/themes/${theme.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: theme.id })
+                        body: JSON.stringify({ id: theme.id, apply: true })
                       });
                       if (res.ok) {
                         window.location.reload();
@@ -116,6 +163,12 @@ export default function ThemesPage() {
                     Apply
                   </button>
                 )}
+                <button
+                  onClick={() => handleDeleteTheme(theme.id)}
+                  className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg border border-red-500/20 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
@@ -123,18 +176,18 @@ export default function ThemesPage() {
       )}
 
       {/* Advanced Theme Creator Modal */}
-      {showCreateModal && (
+      {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="glass-dark w-full max-w-5xl rounded-3xl p-0 relative z-10 flex flex-col h-full max-h-[95vh] lg:max-h-[90vh] overflow-hidden border border-white/10">
             <div className="p-4 lg:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-neon-blue/20 rounded-xl flex items-center justify-center border border-neon-blue/30">
                   <Palette className="w-5 h-5 text-neon-blue" />
                 </div>
-                <h2 className="text-2xl font-bold">Theme Designer</h2>
+                <h2 className="text-2xl font-bold">{editingThemeId ? 'Edit Theme' : 'Theme Designer'}</h2>
               </div>
-              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -173,8 +226,8 @@ export default function ThemesPage() {
                           <input
                             type="text"
                             className="w-full neon-input"
-                            value={newTheme.name}
-                            onChange={(e) => setNewTheme({...newTheme, name: e.target.value})}
+                            value={themeForm.name}
+                            onChange={(e) => setThemeForm({...themeForm, name: e.target.value})}
                           />
                         </div>
                         <div className="space-y-2">
@@ -183,14 +236,14 @@ export default function ThemesPage() {
                             <input
                               type="color"
                               className="w-12 h-10 bg-transparent border-none cursor-pointer"
-                              value={newTheme.config.backgroundColor}
-                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, backgroundColor: e.target.value}})}
+                              value={themeForm.config.backgroundColor}
+                              onChange={(e) => setThemeForm({...themeForm, config: {...themeForm.config, backgroundColor: e.target.value}})}
                             />
                             <input
                               type="text"
                               className="flex-1 neon-input font-mono"
-                              value={newTheme.config.backgroundColor}
-                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, backgroundColor: e.target.value}})}
+                              value={themeForm.config.backgroundColor}
+                              onChange={(e) => setThemeForm({...themeForm, config: {...themeForm.config, backgroundColor: e.target.value}})}
                             />
                           </div>
                         </div>
@@ -202,8 +255,8 @@ export default function ThemesPage() {
                               type="text"
                               className="w-full neon-input pl-10"
                               placeholder="https://example.com/background.gif"
-                              value={newTheme.config.backgroundImage}
-                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, backgroundImage: e.target.value}})}
+                              value={themeForm.config.backgroundImage}
+                              onChange={(e) => setThemeForm({...themeForm, config: {...themeForm.config, backgroundImage: e.target.value}})}
                             />
                           </div>
                         </div>
@@ -216,8 +269,8 @@ export default function ThemesPage() {
                             <input
                               type="color"
                               className="w-full h-10 bg-transparent cursor-pointer rounded-lg overflow-hidden border border-white/10"
-                              value={newTheme.config.primaryColor}
-                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, primaryColor: e.target.value}})}
+                              value={themeForm.config.primaryColor}
+                              onChange={(e) => setThemeForm({...themeForm, config: {...themeForm.config, primaryColor: e.target.value}})}
                             />
                           </div>
                         </div>
@@ -230,16 +283,13 @@ export default function ThemesPage() {
                       <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-xs font-bold text-white/70 ml-1">Height (px)</label>
-                          <input type="number" className="w-full neon-input" defaultValue="64" />
+                          <input
+                            type="number"
+                            className="w-full neon-input"
+                            value={themeForm.config.headerHeight}
+                            onChange={(e) => setThemeForm({...themeForm, config: {...themeForm.config, headerHeight: parseInt(e.target.value) || 64}})}
+                          />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-white/70 ml-1">Border Radius</label>
-                          <input type="number" className="w-full neon-input" defaultValue="0" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-white/70 ml-1">Glass Effect Opacity</label>
-                        <input type="range" className="w-full accent-neon-blue" min="0" max="100" defaultValue="5" />
                       </div>
                     </div>
                   )}
@@ -249,16 +299,13 @@ export default function ThemesPage() {
                       <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-xs font-bold text-white/70 ml-1">Width (px)</label>
-                          <input type="number" className="w-full neon-input" defaultValue="256" />
+                          <input
+                            type="number"
+                            className="w-full neon-input"
+                            value={themeForm.config.sidebarWidth}
+                            onChange={(e) => setThemeForm({...themeForm, config: {...themeForm.config, sidebarWidth: parseInt(e.target.value) || 256}})}
+                          />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-white/70 ml-1">Margin (px)</label>
-                          <input type="number" className="w-full neon-input" defaultValue="0" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-white/70 ml-1">Active Item Color</label>
-                        <input type="color" className="w-full h-10 bg-transparent cursor-pointer rounded-lg border border-white/10" defaultValue="#0ea5e9" />
                       </div>
                     </div>
                   )}
@@ -310,12 +357,12 @@ export default function ThemesPage() {
                 <span className="text-xs text-white/40">Theme ready to be saved</span>
               </div>
               <div className="flex gap-4 w-full sm:w-auto order-1 sm:order-2">
-                <button onClick={() => setShowCreateModal(false)} className="flex-1 sm:flex-none px-6 py-2 glass hover:bg-white/10 rounded-xl font-bold text-sm">Discard</button>
+                <button onClick={() => setShowModal(false)} className="flex-1 sm:flex-none px-6 py-2 glass hover:bg-white/10 rounded-xl font-bold text-sm">Discard</button>
                 <button
-                  onClick={handleCreateTheme}
+                  onClick={handleSaveTheme}
                   className="flex-1 sm:flex-none neon-button flex items-center justify-center gap-2 px-8"
                 >
-                  <Save className="w-4 h-4" /> Save Theme
+                  <Save className="w-4 h-4" /> {editingThemeId ? 'Save Changes' : 'Create Theme'}
                 </button>
               </div>
             </div>

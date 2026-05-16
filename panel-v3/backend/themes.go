@@ -2,10 +2,18 @@ package backend
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 )
 
 func HandleThemes(w http.ResponseWriter, r *http.Request) {
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	themeIDStr := ""
+	if len(pathParts) > 2 {
+		themeIDStr = pathParts[2]
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		rows, err := DB.Query("SELECT id, name, config, is_active FROM themes")
@@ -32,6 +40,7 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(themes)
+
 	case http.MethodPost:
 		var t struct {
 			Name   string `json:"name"`
@@ -47,19 +56,48 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+
 	case http.MethodPut:
-		// Handle Apply Theme
 		var t struct {
-			ID int `json:"id"`
+			ID     int    `json:"id"`
+			Name   string `json:"name"`
+			Config string `json:"config"`
+			Apply  bool   `json:"apply"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		// Reset all to inactive
-		DB.Exec("UPDATE themes SET is_active = 0")
-		// Set active
-		_, err := DB.Exec("UPDATE themes SET is_active = 1 WHERE id = ?", t.ID)
+
+		if t.Apply {
+			// Handle Apply Theme
+			DB.Exec("UPDATE themes SET is_active = 0")
+			_, err := DB.Exec("UPDATE themes SET is_active = 1 WHERE id = ?", t.ID)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		} else {
+			// Handle Update Theme
+			id := t.ID
+			if id == 0 && themeIDStr != "" {
+				// Fallback to URL path ID
+				fmt.Sscanf(themeIDStr, "%d", &id)
+			}
+			_, err := DB.Exec("UPDATE themes SET name = ?, config = ? WHERE id = ?", t.Name, t.Config, id)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusOK)
+
+	case http.MethodDelete:
+		if themeIDStr == "" {
+			http.Error(w, "Theme ID required", http.StatusBadRequest)
+			return
+		}
+		_, err := DB.Exec("DELETE FROM themes WHERE id = ?", themeIDStr)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
