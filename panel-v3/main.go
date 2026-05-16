@@ -11,6 +11,8 @@ import (
 	"strings"
 	"syscall"
 
+	"kspanel/backend"
+
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
 )
@@ -24,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	// Initialize Database
-	InitDB()
+	backend.InitDB()
 
 	// Check for commands
 	args := flag.Args()
@@ -39,13 +41,13 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Serve API routes
-	mux.HandleFunc("/api/status", HandleStatus)
-	mux.HandleFunc("/api/instances", HandleInstances)
-	mux.HandleFunc("/api/nodes", HandleNodes)
-	mux.HandleFunc("/api/users", HandleUsers)
-	mux.HandleFunc("/api/roles", HandleRoles)
-	mux.HandleFunc("/api/settings", HandleSettings)
-	mux.HandleFunc("/api/themes", HandleThemes)
+	mux.HandleFunc("/api/status", backend.HandleStatus)
+	mux.HandleFunc("/api/instances", backend.HandleInstances)
+	mux.HandleFunc("/api/nodes", backend.HandleNodes)
+	mux.HandleFunc("/api/users", backend.HandleUsers)
+	mux.HandleFunc("/api/roles", backend.HandleRoles)
+	mux.HandleFunc("/api/settings", backend.HandleSettings)
+	mux.HandleFunc("/api/themes", backend.HandleThemes)
 
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
@@ -128,14 +130,14 @@ func createUser() {
 
 	// Find or create role
 	var roleID int
-	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
+	roleErr := backend.DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
 	if roleErr != nil {
 		// Create role if not exists
 		color := "#0ea5e9"
 		if roleName == "owner" {
 			color = "#ef4444"
 		}
-		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
+		res, err := backend.DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
 		if err != nil {
 			log.Fatalf("Error creating role: %v", err)
 		}
@@ -149,7 +151,7 @@ func createUser() {
 		log.Fatalf("Error hashing password: %v", err)
 	}
 
-	_, err = DB.Exec(
+	_, err = backend.DB.Exec(
 		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES (?, ?, ?, ?, ?, ?)",
 		displayName, username, email, string(hashedPassword), roleID, "active",
 	)
