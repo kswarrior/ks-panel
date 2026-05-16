@@ -25,15 +25,26 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    fetch('/api/me').then(res => res.json()).then(data => setUser(data)).catch(() => {});
+  }, []);
+
+  const hasPermission = (perm: string) => {
+    if (!user) return false;
+    if (user.permissions === '*') return true;
+    return user.permissions.split(',').includes(perm);
+  };
 
   const navItems = [
-    { name: 'Instances', icon: LayoutDashboard, href: '/instances' },
-    { name: 'Nodes', icon: Server, href: '/nodes' },
-    { name: 'Templates', icon: Layers, href: '/templates' },
-    { name: 'Users', icon: Users, href: '/users' },
-    { name: 'Roles', icon: ShieldCheck, href: '/roles' },
-    { name: 'Themes', icon: Palette, href: '/themes' },
-    { name: 'Settings', icon: Settings, href: '/settings' },
+    { name: 'Instances', icon: LayoutDashboard, href: '/instances', perm: 'view_instances' },
+    { name: 'Nodes', icon: Server, href: '/nodes', perm: 'view_nodes' },
+    { name: 'Templates', icon: Layers, href: '/templates', perm: 'view_templates' },
+    { name: 'Users', icon: Users, href: '/users', perm: 'view_users' },
+    { name: 'Roles', icon: ShieldCheck, href: '/roles', perm: 'view_roles' },
+    { name: 'Themes', icon: Palette, href: '/themes', perm: 'view_themes' },
+    { name: 'Settings', icon: Settings, href: '/settings', perm: 'manage_settings' },
   ];
 
   return (
@@ -59,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {navItems.map((item) => {
+            {navItems.filter(item => hasPermission(item.perm)).map((item) => {
               const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
               return (
                 <Link

@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,11 +23,23 @@ export default function RootLayout({
   }, []);
 
   const [activeTheme, setActiveTheme] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   const isAuthPage = pathname === '/auth' || pathname === '/auth.html';
 
   useEffect(() => {
     if (mounted) {
+      if (!isAuthPage) {
+        fetch('/api/me')
+          .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+          })
+          .then(data => setUser(data))
+          .catch(() => router.replace('/auth'));
+      }
+
       fetch('/api/themes')
         .then(res => res.json())
         .then(data => {

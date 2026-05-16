@@ -90,7 +90,7 @@ func SeedRoles() {
 		permissions string
 	}{
 		{"Owner", "#ef4444", "*"},
-		{"Admin", "#0ea5e9", "view_instances,manage_instances,view_nodes,manage_nodes,view_users,manage_users"},
+		{"Admin", "#0ea5e9", "view_instances,manage_instances,view_nodes,manage_nodes,view_users,manage_users,view_roles,manage_roles,view_themes,manage_themes,view_templates"},
 		{"User", "#22c55e", "view_instances"},
 	}
 

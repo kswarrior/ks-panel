@@ -43,18 +43,47 @@ func main() {
 	// Serve API routes
 	mux.HandleFunc("/api/status", backend.HandleStatus)
 	mux.HandleFunc("/api/login", backend.HandleLogin)
-	mux.HandleFunc("/api/instances", backend.HandleInstances)
-	mux.HandleFunc("/api/nodes", func(w http.ResponseWriter, r *http.Request) {
+
+	// Protected routes
+	auth := backend.AuthMiddleware
+	perm := backend.PermissionMiddleware
+
+	mux.Handle("/api/me", auth(http.HandlerFunc(backend.HandleMe)))
+	mux.Handle("/api/instances", auth(perm("view_instances")(http.HandlerFunc(backend.HandleInstances))))
+
+	mux.Handle("/api/nodes", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			backend.HandleCreateNode(w, r)
+			perm("manage_nodes")(http.HandlerFunc(backend.HandleCreateNode)).ServeHTTP(w, r)
 		} else {
-			backend.HandleNodes(w, r)
+			perm("view_nodes")(http.HandlerFunc(backend.HandleNodes)).ServeHTTP(w, r)
 		}
-	})
-	mux.HandleFunc("/api/users", backend.HandleUsers)
-	mux.HandleFunc("/api/roles/", backend.HandleRoles)
-	mux.HandleFunc("/api/settings", backend.HandleSettings)
-	mux.HandleFunc("/api/themes/", backend.HandleThemes)
+	})))
+
+	mux.Handle("/api/users", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			perm("manage_users")(http.HandlerFunc(backend.HandleUsers)).ServeHTTP(w, r)
+		} else {
+			perm("view_users")(http.HandlerFunc(backend.HandleUsers)).ServeHTTP(w, r)
+		}
+	})))
+
+	mux.Handle("/api/roles/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			perm("view_roles")(http.HandlerFunc(backend.HandleRoles)).ServeHTTP(w, r)
+		} else {
+			perm("manage_roles")(http.HandlerFunc(backend.HandleRoles)).ServeHTTP(w, r)
+		}
+	})))
+
+	mux.Handle("/api/settings", auth(perm("manage_settings")(http.HandlerFunc(backend.HandleSettings))))
+
+	mux.Handle("/api/themes/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			perm("view_themes")(http.HandlerFunc(backend.HandleThemes)).ServeHTTP(w, r)
+		} else {
+			perm("manage_themes")(http.HandlerFunc(backend.HandleThemes)).ServeHTTP(w, r)
+		}
+	})))
 
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
@@ -146,6 +175,7 @@ func createUser() {
 	email := params["email"]
 	password := params["password"]
 	confirmPassword := params["confirm_password"]
+	roleName := params["role"]
 
 	if displayName == "" || username == "" || email == "" || password == "" {
 		reader := bufio.NewReader(os.Stdin)
@@ -185,7 +215,9 @@ func createUser() {
 		log.Fatal("Passwords do not match")
 	}
 
-	roleName := "owner" // Default for CLI
+	if roleName == "" {
+		roleName = "owner" // Default for CLI
+	}
 
 	// Find or create role
 	var roleID int

@@ -3,6 +3,7 @@ package backend
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -23,8 +24,8 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var hashedPassword string
-	err := DB.QueryRow("SELECT password FROM users WHERE username = ? OR email = ?", credentials.Identifier, credentials.Identifier).Scan(&hashedPassword)
+	var username, hashedPassword string
+	err := DB.QueryRow("SELECT username, password FROM users WHERE username = ? OR email = ?", credentials.Identifier, credentials.Identifier).Scan(&username, &hashedPassword)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -35,6 +36,37 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Simple session using username in cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "ks_session",
+		Value:    username,
+		Path:     "/",
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+	})
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful"})
+}
+
+func HandleMe(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value(UserKey).(AuthUser)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var u struct {
+		ID          int    `json:"id"`
+		Username    string `json:"username"`
+		RoleID      int    `json:"role_id"`
+		Permissions string `json:"permissions"`
+	}
+	u.ID = user.ID
+	u.Username = user.Username
+	u.RoleID = user.RoleID
+	u.Permissions = user.Permissions
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(u)
 }
