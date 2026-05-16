@@ -64,6 +64,44 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(nodes)
 }
 
+func HandleCreateNode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var n struct {
+		Name           string `json:"name"`
+		ConnectionType string `json:"connection_type"`
+		Host           string `json:"host"`
+		Port           string `json:"port"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&n); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ipAddress := n.Host
+	if n.ConnectionType == "Localhost" {
+		ipAddress = "localhost"
+	}
+	if n.Port != "" {
+		ipAddress = fmt.Sprintf("%s:%s", ipAddress, n.Port)
+	}
+
+	_, err := DB.Exec(
+		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage) VALUES (?, ?, ?, ?, ?)",
+		n.Name, ipAddress, "Offline", "0%", "0GB / 0GB",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
 func containsPort(s string) bool {
 	if strings.Contains(s, "://") {
 		parts := strings.SplitN(s, "://", 2)

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw } from 'lucide-react';
+import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X } from 'lucide-react';
 
 interface Node {
   id: number;
@@ -15,6 +15,13 @@ interface Node {
 export default function NodesPage() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newNode, setNewNode] = useState({
+    name: '',
+    connection_type: 'IP Address',
+    host: '',
+    port: '4040'
+  });
 
   const fetchNodes = async () => {
     setLoading(true);
@@ -47,12 +54,106 @@ export default function NodesPage() {
           >
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
-          <button className="neon-button flex items-center justify-center gap-2 font-bold w-full sm:w-auto">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="neon-button flex items-center justify-center gap-2 font-bold w-full sm:w-auto"
+          >
             <Plus className="w-5 h-5" />
             Add Node
           </button>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+          <div className="glass-dark w-full max-w-lg rounded-2xl p-8 relative z-10 border border-white/10">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Add New Node</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-white/70 ml-1">Node Name</label>
+                <input
+                  type="text"
+                  value={newNode.name}
+                  onChange={(e) => setNewNode({...newNode, name: e.target.value})}
+                  className="w-full neon-input"
+                  placeholder="My Edge Server"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-white/70 ml-1">Connection Type</label>
+                <select
+                  value={newNode.connection_type}
+                  onChange={(e) => setNewNode({...newNode, connection_type: e.target.value})}
+                  className="w-full neon-input appearance-none bg-[#0a0a0a]"
+                >
+                  <option>IP Address</option>
+                  <option>Tunnel</option>
+                  <option>Localhost</option>
+                </select>
+              </div>
+
+              {newNode.connection_type !== 'Localhost' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-white/70 ml-1">
+                    {newNode.connection_type === 'Tunnel' ? 'Tunnel Hostname' : 'IP Address'}
+                  </label>
+                  <input
+                    type="text"
+                    value={newNode.host}
+                    onChange={(e) => setNewNode({...newNode, host: e.target.value})}
+                    className="w-full neon-input"
+                    placeholder={newNode.connection_type === 'Tunnel' ? 'node.example.com' : '192.168.1.100'}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-white/70 ml-1">Port</label>
+                <input
+                  type="text"
+                  value={newNode.port}
+                  onChange={(e) => setNewNode({...newNode, port: e.target.value})}
+                  className="w-full neon-input"
+                  placeholder="4040"
+                />
+              </div>
+
+              <div className="pt-4 flex gap-4">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 py-3 glass hover:bg-white/10 rounded-xl font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    const res = await fetch('/api/nodes', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(newNode)
+                    });
+                    if (res.ok) {
+                      setShowAddModal(false);
+                      fetchNodes();
+                    }
+                  }}
+                  className="flex-1 neon-button font-bold py-3"
+                >
+                  Create Node
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {nodes.length === 0 && !loading ? (
         <div className="glass-dark p-12 rounded-2xl border border-white/5 text-center">

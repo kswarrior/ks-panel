@@ -16,6 +16,35 @@ export default function ThemesPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
+  const [newTheme, setNewTheme] = useState({
+    name: 'New Custom Theme',
+    config: {
+      backgroundColor: '#050505',
+      primaryColor: '#0ea5e9',
+      backgroundImage: '',
+      headerHeight: 64,
+      sidebarWidth: 256
+    }
+  });
+
+  const handleCreateTheme = async () => {
+    try {
+      const res = await fetch('/api/themes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newTheme.name,
+          config: JSON.stringify(newTheme.config)
+        })
+      });
+      if (res.ok) {
+        setShowCreateModal(false);
+        fetchThemes();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchThemes = async () => {
     setLoading(true);
@@ -81,8 +110,8 @@ export default function ThemesPage() {
       {showCreateModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
-          <div className="glass-dark w-full max-w-5xl rounded-3xl p-0 relative z-10 flex flex-col max-h-[90vh] overflow-hidden border border-white/10">
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <div className="glass-dark w-full max-w-5xl rounded-3xl p-0 relative z-10 flex flex-col h-full max-h-[95vh] lg:max-h-[90vh] overflow-hidden border border-white/10">
+            <div className="p-4 lg:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-neon-blue/20 rounded-xl flex items-center justify-center border border-neon-blue/30">
                   <Palette className="w-5 h-5 text-neon-blue" />
@@ -94,11 +123,11 @@ export default function ThemesPage() {
               </button>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
-              {/* Sidebar Tabs */}
-              <div className="w-64 border-r border-white/5 p-4 space-y-2 bg-black/20">
+            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+              {/* Sidebar Tabs - Horizontal on Mobile, Vertical on Desktop */}
+              <div className="flex lg:flex-col lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 p-2 lg:p-4 space-x-2 lg:space-x-0 lg:space-y-2 bg-black/20 overflow-x-auto lg:overflow-x-hidden no-scrollbar">
                 {[
-                  { id: 'general', name: 'General', icon: Layout },
+                  { id: 'general', name: 'General', icon: Palette },
                   { id: 'header', name: 'Header', icon: Layout },
                   { id: 'sidebar', name: 'Sidebar', icon: Sidebar },
                   { id: 'cards', name: 'Cards', icon: CreditCard },
@@ -107,7 +136,7 @@ export default function ThemesPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                    className={`flex items-center gap-2 lg:gap-3 px-4 py-2 lg:py-3 rounded-xl text-xs lg:text-sm font-bold transition-all whitespace-nowrap lg:w-full ${
                       activeTab === tab.id ? 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20 shadow-neon' : 'text-white/40 hover:text-white hover:bg-white/5'
                     }`}
                   >
@@ -124,17 +153,42 @@ export default function ThemesPage() {
                       <div className="space-y-4">
                         <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Background Settings</h4>
                         <div className="space-y-2">
+                          <label className="text-xs font-bold text-white/70 ml-1">Theme Name</label>
+                          <input
+                            type="text"
+                            className="w-full neon-input"
+                            value={newTheme.name}
+                            onChange={(e) => setNewTheme({...newTheme, name: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <label className="text-xs font-bold text-white/70 ml-1">Main Background Color</label>
                           <div className="flex gap-4">
-                            <input type="color" className="w-12 h-10 bg-transparent border-none cursor-pointer" defaultValue="#050505" />
-                            <input type="text" className="flex-1 neon-input font-mono" defaultValue="#050505" />
+                            <input
+                              type="color"
+                              className="w-12 h-10 bg-transparent border-none cursor-pointer"
+                              value={newTheme.config.backgroundColor}
+                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, backgroundColor: e.target.value}})}
+                            />
+                            <input
+                              type="text"
+                              className="flex-1 neon-input font-mono"
+                              value={newTheme.config.backgroundColor}
+                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, backgroundColor: e.target.value}})}
+                            />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs font-bold text-white/70 ml-1">Upload Wallpaper (URL - gif, webp, png)</label>
                           <div className="relative group">
                             <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                            <input type="text" className="w-full neon-input pl-10" placeholder="https://example.com/background.gif" />
+                            <input
+                              type="text"
+                              className="w-full neon-input pl-10"
+                              placeholder="https://example.com/background.gif"
+                              value={newTheme.config.backgroundImage}
+                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, backgroundImage: e.target.value}})}
+                            />
                           </div>
                         </div>
                       </div>
@@ -143,11 +197,12 @@ export default function ThemesPage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <label className="text-xs font-bold text-white/70 ml-1">Primary Neon</label>
-                            <input type="color" className="w-full h-10 bg-transparent cursor-pointer rounded-lg overflow-hidden border border-white/10" defaultValue="#0ea5e9" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-white/70 ml-1">Success Glow</label>
-                            <input type="color" className="w-full h-10 bg-transparent cursor-pointer rounded-lg overflow-hidden border border-white/10" defaultValue="#22c55e" />
+                            <input
+                              type="color"
+                              className="w-full h-10 bg-transparent cursor-pointer rounded-lg overflow-hidden border border-white/10"
+                              value={newTheme.config.primaryColor}
+                              onChange={(e) => setNewTheme({...newTheme, config: {...newTheme.config, primaryColor: e.target.value}})}
+                            />
                           </div>
                         </div>
                       </div>
@@ -233,14 +288,17 @@ export default function ThemesPage() {
               </div>
             </div>
 
-            <div className="p-6 border-t border-white/5 flex items-center justify-between bg-black/40">
-              <div className="flex items-center gap-2">
+            <div className="p-4 lg:p-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/40">
+              <div className="flex items-center gap-2 order-2 sm:order-1">
                 <Check className="w-4 h-4 text-neon-blue" />
-                <span className="text-xs text-white/40">Autosaved a few seconds ago</span>
+                <span className="text-xs text-white/40">Theme ready to be saved</span>
               </div>
-              <div className="flex gap-4">
-                <button onClick={() => setShowCreateModal(false)} className="px-6 py-2 glass hover:bg-white/10 rounded-xl font-bold text-sm">Discard</button>
-                <button className="neon-button flex items-center gap-2 px-8">
+              <div className="flex gap-4 w-full sm:w-auto order-1 sm:order-2">
+                <button onClick={() => setShowCreateModal(false)} className="flex-1 sm:flex-none px-6 py-2 glass hover:bg-white/10 rounded-xl font-bold text-sm">Discard</button>
+                <button
+                  onClick={handleCreateTheme}
+                  className="flex-1 sm:flex-none neon-button flex items-center justify-center gap-2 px-8"
+                >
                   <Save className="w-4 h-4" /> Save Theme
                 </button>
               </div>

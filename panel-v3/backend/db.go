@@ -80,4 +80,24 @@ func InitDB() {
 	DB.Exec("ALTER TABLE roles ADD COLUMN color TEXT;")
 
 	log.Println("Database initialized successfully.")
+	SeedRoles()
+}
+
+func SeedRoles() {
+	roles := []struct {
+		name        string
+		color       string
+		permissions string
+	}{
+		{"Owner", "#ef4444", "*"},
+		{"Admin", "#0ea5e9", "view_instances,manage_instances,view_nodes,manage_nodes,view_users,manage_users"},
+		{"User", "#22c55e", "view_instances"},
+	}
+
+	for _, r := range roles {
+		_, err := DB.Exec("INSERT OR IGNORE INTO roles (name, color, permissions) VALUES (?, ?, ?)", r.name, r.color, r.permissions)
+		if err != nil {
+			log.Printf("Error seeding role %s: %v", r.name, err)
+		}
+	}
 }

@@ -43,7 +43,13 @@ func main() {
 	// Serve API routes
 	mux.HandleFunc("/api/status", backend.HandleStatus)
 	mux.HandleFunc("/api/instances", backend.HandleInstances)
-	mux.HandleFunc("/api/nodes", backend.HandleNodes)
+	mux.HandleFunc("/api/nodes", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			backend.HandleCreateNode(w, r)
+		} else {
+			backend.HandleNodes(w, r)
+		}
+	})
 	mux.HandleFunc("/api/users", backend.HandleUsers)
 	mux.HandleFunc("/api/roles", backend.HandleRoles)
 	mux.HandleFunc("/api/settings", backend.HandleSettings)
@@ -64,7 +70,7 @@ func main() {
 
 		path := strings.TrimPrefix(r.URL.Path, "/")
 		if path == "" {
-			path = "index.html"
+			path = "auth.html"
 		}
 
 		_, err := frontendBuild.Open(path)
