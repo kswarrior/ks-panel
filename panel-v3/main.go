@@ -18,6 +18,9 @@ import (
 func main() {
 	// CLI Flags
 	portFlag := flag.String("port", "4040", "Port to run the server on")
+	sslFlag := flag.Bool("ssl", false, "Enable SSL/TLS")
+	certFlag := flag.String("cert", "cert.pem", "Path to SSL certificate")
+	keyFlag := flag.String("key", "key.pem", "Path to SSL private key")
 	flag.Parse()
 
 	// Initialize Database
@@ -71,9 +74,16 @@ func main() {
 		fileServer.ServeHTTP(w, r)
 	})
 
-	log.Printf("KS PANEL v3 starting on :%s\n", *portFlag)
-	if err := http.ListenAndServe(":"+*portFlag, mux); err != nil {
-		log.Fatal(err)
+	if *sslFlag {
+		log.Printf("KS PANEL v3 starting with SSL on :%s\n", *portFlag)
+		if err := http.ListenAndServeTLS(":"+*portFlag, *certFlag, *keyFlag, mux); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Printf("KS PANEL v3 starting on :%s\n", *portFlag)
+		if err := http.ListenAndServe(":"+*portFlag, mux); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

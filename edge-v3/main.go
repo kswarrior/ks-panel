@@ -10,6 +10,9 @@ import (
 func main() {
 	// CLI Flags
 	portFlag := flag.String("port", "5050", "Port to run the server on")
+	sslFlag := flag.Bool("ssl", false, "Enable SSL/TLS")
+	certFlag := flag.String("cert", "cert.pem", "Path to SSL certificate")
+	keyFlag := flag.String("key", "key.pem", "Path to SSL private key")
 	flag.Parse()
 
 	// Initialize Local Database
@@ -20,9 +23,16 @@ func main() {
 	mux.HandleFunc("/status", handleStatus)
 	mux.HandleFunc("/heartbeat", handleHeartbeat)
 
-	log.Printf("KS EDGE starting on :%s\n", *portFlag)
-	if err := http.ListenAndServe(":"+*portFlag, mux); err != nil {
-		log.Fatal(err)
+	if *sslFlag {
+		log.Printf("KS EDGE starting with SSL on :%s\n", *portFlag)
+		if err := http.ListenAndServeTLS(":"+*portFlag, *certFlag, *keyFlag, mux); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Printf("KS EDGE starting on :%s\n", *portFlag)
+		if err := http.ListenAndServe(":"+*portFlag, mux); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

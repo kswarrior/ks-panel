@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 
 	nodes := []map[string]interface{}{}
 	client := http.Client{
-		Timeout: 2 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	for rows.Next() {
@@ -43,12 +44,30 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 		rows.Scan(&id, &name, &ip)
 
 		status := "Offline"
-		addr := ip
-		if !containsPort(addr) {
-			addr = fmt.Sprintf("%s:5050", addr)
+
+		// Determine the full URL for the status check
+		targetURL := ip
+		if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
+			// If no protocol, default to http://
+			scheme := "http://"
+			addr := targetURL
+
+			// Default port if not provided
+			if !containsPort(addr) {
+				addr = fmt.Sprintf("%s:5050", addr)
+			}
+			targetURL = scheme + addr
 		}
 
-		resp, err := client.Get(fmt.Sprintf("http://%s/status", addr))
+		// Ensure it ends with /status
+		if !strings.HasSuffix(targetURL, "/status") {
+			if !strings.HasSuffix(targetURL, "/") {
+				targetURL += "/"
+			}
+			targetURL += "status"
+		}
+
+		resp, err := client.Get(targetURL)
 		if err == nil && resp.StatusCode == http.StatusOK {
 			status = "Online"
 			resp.Body.Close()
@@ -69,13 +88,18 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 }
 
 func containsPort(s string) bool {
-	for i := len(s) - 1; i >= 0; i-- {
-		if s[i] == ':' {
-			return true
-		}
-		if s[i] < '0' || s[i] > '9' {
-			return false
-		}
+	// Simple check for colon not preceded by protocol scheme
+	if strings.Contains(s, "://") {
+		parts := strings.SplitN(s, "://", 2)
+		s = parts[1]
 	}
-	return false
+
+	lastColon := strings.LastIndex(s, ":")
+	if lastColon == -1 {
+		return false
+	}
+
+	// If it's an IPv6 address without brackets, this might be tricky,
+	// but usually we expect hostname:port or ip:port
+	return true
 }
