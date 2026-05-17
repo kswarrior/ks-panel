@@ -137,6 +137,27 @@ func main() {
 			path = "index.html"
 		}
 
+		// Map of internal routes that should never be leaked
+		internalRoutes := []string{
+			"instances", "nodes", "templates", "users", "roles", "settings", "notifications", "tickets", "account",
+		}
+
+		isInternal := false
+		for _, ir := range internalRoutes {
+			if strings.HasPrefix(path, ir) {
+				isInternal = true
+				break
+			}
+		}
+
+		// Hard Backend Protection: Redirect to auth if trying to access internal HTML pages without session
+		if isInternal {
+			if _, err := backend.ValidateSession(r); err != nil {
+				http.Redirect(w, r, "/auth", http.StatusFound)
+				return
+			}
+		}
+
 		_, err := frontendBuild.Open(path)
 		if err != nil {
 			htmlPath := path + ".html"

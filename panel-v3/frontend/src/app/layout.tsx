@@ -32,6 +32,30 @@ export default function RootLayout({
   const isUnauthorizedPage = pathname === '/unauthorized';
   const isPublicPage = isAuthPage || isUnauthorizedPage;
 
+  const verifyAccess = (userData: any) => {
+    const pathPerms: Record<string, string> = {
+      '/nodes': 'view_nodes',
+      '/templates': 'view_templates',
+      '/users': 'view_users',
+      '/roles': 'view_roles',
+      '/themes': 'view_themes',
+      '/settings': 'manage_settings',
+      '/notifications': 'manage_settings',
+    };
+
+    const requiredPerm = pathPerms[pathname || ''];
+    if (requiredPerm && userData.permissions !== '*') {
+      const userPerms = userData.permissions.split(',');
+      if (!userPerms.includes(requiredPerm)) {
+        if (pathname !== '/unauthorized') {
+          router.replace('/unauthorized');
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   useEffect(() => {
     if (mounted) {
       if (!isAuthPage) {
@@ -42,30 +66,14 @@ export default function RootLayout({
             return res.json();
           })
           .then(data => {
-            setUser(data);
-
-            // Handle permission checks for current page
-            const pathPerms: Record<string, string> = {
-              '/nodes': 'view_nodes',
-              '/templates': 'view_templates',
-              '/users': 'view_users',
-              '/roles': 'view_roles',
-              '/themes': 'view_themes',
-              '/settings': 'manage_settings',
-              '/notifications': 'manage_settings',
-            };
-
-            const requiredPerm = pathPerms[pathname || ''];
-            if (requiredPerm && data.permissions !== '*') {
-              const userPerms = data.permissions.split(',');
-              if (!userPerms.includes(requiredPerm)) {
-                if (pathname !== '/unauthorized') {
-                  router.replace('/unauthorized');
-                }
-              }
+            if (verifyAccess(data)) {
+              setUser(data);
+            } else {
+              setUser(null);
             }
           })
           .catch(() => {
+            setUser(null);
             if (!isPublicPage) {
               router.replace('/auth');
             }
@@ -73,6 +81,7 @@ export default function RootLayout({
           .finally(() => setCheckingAuth(false));
       } else {
         setCheckingAuth(false);
+        setUser(null);
       }
 
       fetch('/api/themes')
@@ -98,7 +107,14 @@ export default function RootLayout({
     return (
       <html lang="en">
         <body className={`${inter.className} bg-[#050505] text-white`}>
-          {children}
+          {/* During hydration/SSR, only render public pages. Internal pages show a spinner to prevent flicker/leak */}
+          {pathname && (pathname.startsWith('/auth') || pathname.startsWith('/unauthorized')) ? (
+            children
+          ) : (
+            <div className="min-h-screen-dvh flex items-center justify-center">
+              <div className="w-12 h-12 border-4 border-neon-blue/20 border-t-neon-blue rounded-full animate-spin" />
+            </div>
+          )}
         </body>
       </html>
     );
@@ -150,14 +166,24 @@ export default function RootLayout({
             style={{ backgroundImage: `url(${activeTheme.backgroundImage})` }}
           />
         )}
-        <Header user={user} settings={settings} onMenuClick={() => setIsSidebarOpen(true)} />
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-        <main className="pt-[calc(var(--header-height)+2rem)] min-h-screen-dvh transition-all duration-300 lg:pl-[var(--sidebar-width)]">
-          <div className="container mx-auto px-4 pb-12">
-            {children}
+        {/* Zero-Leak Logic: Children and layout only render if authenticated and authorized */}
+        {user ? (
+          <>
+            <Header user={user} settings={settings} onMenuClick={() => setIsSidebarOpen(true)} />
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+            <main className="pt-[calc(var(--header-height)+2rem)] min-h-screen-dvh transition-all duration-300 lg:pl-[var(--sidebar-width)]">
+              <div className="container mx-auto px-4 pb-12">
+                {children}
+              </div>
+            </main>
+          </>
+        ) : (
+          <div className="min-h-screen-dvh flex items-center justify-center">
+             <div className="w-12 h-12 border-4 border-neon-blue/20 border-t-neon-blue rounded-full animate-spin" />
           </div>
-        </main>
+        )}
       </body>
     </html>
   );

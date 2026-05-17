@@ -44,28 +44,36 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func ValidateSession(r *http.Request) (*AuthUser, error) {
+	cookie, err := r.Cookie("ks_session")
+	if err != nil {
+		return nil, err
+	}
+
+	var user AuthUser
+	err = DB.QueryRow(`
+		SELECT u.id, u.username, u.role_id, r.permissions
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		JOIN roles r ON u.role_id = r.id
+		WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP`, cookie.Value).Scan(&user.ID, &user.Username, &user.RoleID, &user.Permissions)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("ks_session")
+		user, err := ValidateSession(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		var user AuthUser
-		err = DB.QueryRow(`
-			SELECT u.id, u.username, u.role_id, r.permissions
-			FROM users u
-			JOIN roles r ON u.role_id = r.id
-			JOIN sessions s ON u.id = s.user_id
-			WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP`, cookie.Value).Scan(&user.ID, &user.Username, &user.RoleID, &user.Permissions)
-
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), UserKey, user)
+		ctx := context.WithValue(r.Context(), UserKey, *user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
