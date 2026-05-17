@@ -13,6 +13,7 @@ import {
   Bell,
   MessageSquare
 } from 'lucide-react';
+import { ExtensionSlot } from './ExtensionFramework';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -101,6 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </Link>
               );
             })}
+            <ExtensionSlot id="sidebar-bottom" />
           </nav>
 
           <div className="p-4 border-t border-white/5">

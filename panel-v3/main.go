@@ -11,7 +11,7 @@ import (
 	"strings"
 	"syscall"
 
-	"kspanel/backend"
+
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
@@ -26,7 +26,10 @@ func main() {
 	flag.Parse()
 
 	// Initialize Database
-	backend.InitDB()
+	InitDB()
+
+	// Initialize Extensions
+	LoadExtensions()
 
 	// Check for commands
 	args := flag.Args()
@@ -41,90 +44,97 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Serve API routes
-	mux.HandleFunc("/api/status", backend.HandleStatus)
-	mux.HandleFunc("/api/login", backend.HandleLogin)
-	mux.HandleFunc("/api/logout", backend.HandleLogout)
+	mux.HandleFunc("/api/status", HandleStatus)
+	mux.HandleFunc("/api/login", HandleLogin)
+	mux.HandleFunc("/api/logout", HandleLogout)
+	mux.HandleFunc("/api/extensions", GetExtensionsHandler)
+	RegisterExtensionRoutes(mux)
+
+	// Serve Extension Assets
+	mux.HandleFunc("/extensions/", ServeExtensionAssets)
 
 	// Protected routes
-	auth := backend.AuthMiddleware
-	perm := backend.PermissionMiddleware
+	auth := AuthMiddleware
+	perm := PermissionMiddleware
 
-	mux.Handle("/api/me", auth(http.HandlerFunc(backend.HandleMe)))
-	mux.Handle("/api/instances", auth(perm("view_instances")(http.HandlerFunc(backend.HandleInstances))))
+	mux.Handle("/api/me", auth(http.HandlerFunc(HandleMe)))
+	mux.Handle("/api/instances", auth(perm("view_instances")(http.HandlerFunc(HandleInstances))))
 
 	mux.Handle("/api/nodes", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			perm("manage_nodes")(http.HandlerFunc(backend.HandleCreateNode)).ServeHTTP(w, r)
+			perm("manage_nodes")(http.HandlerFunc(HandleCreateNode)).ServeHTTP(w, r)
 		case http.MethodPut:
-			perm("manage_nodes")(http.HandlerFunc(backend.HandleUpdateNode)).ServeHTTP(w, r)
+			perm("manage_nodes")(http.HandlerFunc(HandleUpdateNode)).ServeHTTP(w, r)
 		case http.MethodDelete:
-			perm("manage_nodes")(http.HandlerFunc(backend.HandleDeleteNode)).ServeHTTP(w, r)
+			perm("manage_nodes")(http.HandlerFunc(HandleDeleteNode)).ServeHTTP(w, r)
 		default:
-			perm("view_nodes")(http.HandlerFunc(backend.HandleNodes)).ServeHTTP(w, r)
+			perm("view_nodes")(http.HandlerFunc(HandleNodes)).ServeHTTP(w, r)
 		}
 	})))
 
 	mux.Handle("/api/users", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost, http.MethodPut, http.MethodDelete:
-			perm("manage_users")(http.HandlerFunc(backend.HandleUsers)).ServeHTTP(w, r)
+			perm("manage_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
 		default:
-			perm("view_users")(http.HandlerFunc(backend.HandleUsers)).ServeHTTP(w, r)
+			perm("view_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
 		}
 	})))
 
 	mux.Handle("/api/roles/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			perm("view_roles")(http.HandlerFunc(backend.HandleRoles)).ServeHTTP(w, r)
+			perm("view_roles")(http.HandlerFunc(HandleRoles)).ServeHTTP(w, r)
 		} else {
-			perm("manage_roles")(http.HandlerFunc(backend.HandleRoles)).ServeHTTP(w, r)
+			perm("manage_roles")(http.HandlerFunc(HandleRoles)).ServeHTTP(w, r)
 		}
 	})))
 
-	mux.Handle("/api/settings", auth(perm("manage_settings")(http.HandlerFunc(backend.HandleSettings))))
+	mux.Handle("/api/settings", auth(perm("manage_settings")(http.HandlerFunc(HandleSettings))))
 
 	mux.Handle("/api/themes/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			perm("view_themes")(http.HandlerFunc(backend.HandleThemes)).ServeHTTP(w, r)
+			perm("view_themes")(http.HandlerFunc(HandleThemes)).ServeHTTP(w, r)
 		} else {
-			perm("manage_themes")(http.HandlerFunc(backend.HandleThemes)).ServeHTTP(w, r)
+			perm("manage_themes")(http.HandlerFunc(HandleThemes)).ServeHTTP(w, r)
 		}
 	})))
 
 	mux.Handle("/api/templates", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			perm("view_templates")(http.HandlerFunc(backend.HandleTemplates)).ServeHTTP(w, r)
+			perm("view_templates")(http.HandlerFunc(HandleTemplates)).ServeHTTP(w, r)
 		} else {
-			perm("manage_templates")(http.HandlerFunc(backend.HandleTemplates)).ServeHTTP(w, r)
+			perm("manage_templates")(http.HandlerFunc(HandleTemplates)).ServeHTTP(w, r)
 		}
 	})))
 
 	mux.Handle("/api/notifications/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			perm("view_instances")(http.HandlerFunc(backend.HandleNotifications)).ServeHTTP(w, r)
+			perm("view_instances")(http.HandlerFunc(HandleNotifications)).ServeHTTP(w, r)
 		} else {
-			perm("manage_settings")(http.HandlerFunc(backend.HandleNotifications)).ServeHTTP(w, r)
+			perm("manage_settings")(http.HandlerFunc(HandleNotifications)).ServeHTTP(w, r)
 		}
 	})))
 
 	mux.Handle("/api/tickets/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		perm("view_instances")(http.HandlerFunc(backend.HandleTickets)).ServeHTTP(w, r)
+		perm("view_instances")(http.HandlerFunc(HandleTickets)).ServeHTTP(w, r)
 	})))
 
-	mux.Handle("/api/terminal", auth(http.HandlerFunc(backend.HandleTerminal)))
-	mux.Handle("/api/instances/files", auth(perm("view_instances")(http.HandlerFunc(backend.HandleFiles))))
-	mux.Handle("/api/instances/scan", auth(perm("view_instances")(http.HandlerFunc(backend.HandleScan))))
+	mux.Handle("/api/terminal", auth(http.HandlerFunc(HandleTerminal)))
+	mux.Handle("/api/instances/files", auth(perm("view_instances")(http.HandlerFunc(HandleFiles))))
+	mux.Handle("/api/instances/scan", auth(perm("view_instances")(http.HandlerFunc(HandleScan))))
 
 	// Apply Security Headers to all routes
-	handler := backend.SecurityHeadersMiddleware(mux)
+	handler := SecurityHeadersMiddleware(mux)
 
-	// Serve Frontend
-	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
+	// Serve Frontend with Layered FS
+	baseFrontend, err := fs.Sub(frontendFS, "frontend/out")
 	if err != nil {
 		log.Fatal(err)
 	}
-	fileServer := http.FileServer(http.FS(frontendBuild))
+
+	layeredFS := &LayeredFS{Base: baseFrontend}
+	fileServer := http.FileServer(http.FS(layeredFS))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
@@ -152,16 +162,16 @@ func main() {
 
 		// Hard Backend Protection: Redirect to auth if trying to access internal HTML pages without session
 		if isInternal {
-			if _, err := backend.ValidateSession(r); err != nil {
+			if _, err := ValidateSession(r); err != nil {
 				http.Redirect(w, r, "/auth", http.StatusFound)
 				return
 			}
 		}
 
-		_, err := frontendBuild.Open(path)
+		_, err := layeredFS.Open(path)
 		if err != nil {
 			htmlPath := path + ".html"
-			if _, err := frontendBuild.Open(htmlPath); err == nil {
+			if _, err := layeredFS.Open(htmlPath); err == nil {
 				r.URL.Path = "/" + htmlPath
 			} else {
 				r.URL.Path = "/index.html"
@@ -280,14 +290,14 @@ func createUser() {
 
 	// Find or create role
 	var roleID int
-	roleErr := backend.DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
+	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
 	if roleErr != nil {
 		// Create role if not exists
 		color := "#0ea5e9"
 		if roleName == "owner" {
 			color = "#ef4444"
 		}
-		res, err := backend.DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
+		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
 		if err != nil {
 			log.Fatalf("Error creating role: %v", err)
 		}
@@ -301,7 +311,7 @@ func createUser() {
 		log.Fatalf("Error hashing password: %v", err)
 	}
 
-	_, err = backend.DB.Exec(
+	_, err = DB.Exec(
 		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES (?, ?, ?, ?, ?, ?)",
 		displayName, username, email, string(hashedPassword), roleID, "active",
 	)

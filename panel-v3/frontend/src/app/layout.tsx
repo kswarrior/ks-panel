@@ -6,6 +6,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { usePathname, useRouter } from 'next/navigation';
+import { ExtensionProvider } from '@/components/ExtensionFramework';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -169,7 +170,7 @@ export default function RootLayout({
 
         {/* Zero-Leak Logic: Children and layout only render if authenticated and authorized */}
         {user ? (
-          <>
+          <ExtensionProvider>
             <Header user={user} settings={settings} onMenuClick={() => setIsSidebarOpen(true)} />
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
@@ -178,7 +179,7 @@ export default function RootLayout({
                 {children}
               </div>
             </main>
-          </>
+          </ExtensionProvider>
         ) : (
           <div className="min-h-screen-dvh flex items-center justify-center">
              <div className="w-12 h-12 border-4 border-neon-blue/20 border-t-neon-blue rounded-full animate-spin" />

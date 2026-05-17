@@ -1,0 +1,36 @@
+{
+  "id": "sample-ext",
+  "name": "Cyber-Stats Extension",
+  "version": "1.0.0",
+  "author": "Jules",
+  "description": "Demonstrates the KS Panel Extension Framework with UI injection and backend hooks.",
+  "frontend": {
+    "routes": [
+      {
+        "path": "/ext/cyber-stats",
+        "component": "CyberStatsPage",
+        "title": "Cyber Stats"
+      }
+    ],
+    "slots": [
+      {
+        "target": "sidebar-bottom",
+        "component": "SidebarLink"
+      },
+      {
+        "target": "instance-dashboard-header",
+        "component": "HeaderButton"
+      }
+    ]
+  },
+  "backend": {
+    "hooks": ["OnServerStart", "OnUserRegister"],
+    "api_routes": [
+      {
+        "path": "/api/ext/cyber-stats/metrics",
+        "method": "GET",
+        "handler": "GetMetrics"
+      }
+    ]
+  }
+}
