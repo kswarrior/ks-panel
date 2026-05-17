@@ -1,4 +1,0 @@
-2026/05/17 12:30:00 Database initialized successfully.
-2026/05/17 12:30:00 Loaded extension: Cyber-Stats Extension (1.0.0)
-2026/05/17 12:30:00 Registering extension API route: [GET] /api/ext/cyber-stats/metrics
-2026/05/17 12:30:00 KS PANEL v3 starting on :4049

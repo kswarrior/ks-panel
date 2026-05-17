@@ -127,7 +127,6 @@ export const DashboardLayout: React.FC = () => {
            {/* Main Content Region - This is the only part that swaps during navigation */}
            <main
               className="flex-1 pt-[calc(var(--header-height,64px)+2rem)] min-h-screen-dvh transition-all duration-300"
-              style={{ paddingLeft: 'var(--sidebar-pos) === "row" ? "var(--sidebar-width)" : "0"', paddingRight: 'var(--sidebar-pos) === "row-reverse" ? "var(--sidebar-width)" : "0"' } as any}
            >
              <div className="container mx-auto px-4 pb-12">
                <Outlet />

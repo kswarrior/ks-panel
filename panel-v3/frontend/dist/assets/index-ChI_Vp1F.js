@@ -1,1 +1,0 @@
-import{j as e}from"./index-CmcPKiHJ.js";function o(){return e.jsx("div",{className:"p-8 glass-dark rounded-3xl border border-white/5 font-bold text-2xl",children:"Role Management"})}export{o as default};

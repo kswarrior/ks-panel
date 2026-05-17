@@ -97,12 +97,16 @@ func HandleMe(w http.ResponseWriter, r *http.Request) {
 		ID          int    `json:"id"`
 		Username    string `json:"username"`
 		RoleID      int    `json:"role_id"`
+		RoleName    string `json:"role_name"`
 		Permissions string `json:"permissions"`
 	}
 	u.ID = user.ID
 	u.Username = user.Username
 	u.RoleID = user.RoleID
 	u.Permissions = user.Permissions
+
+	// Fetch Role Name
+	DB.QueryRow("SELECT name FROM roles WHERE id = ?", user.RoleID).Scan(&u.RoleName)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(u)

@@ -134,7 +134,8 @@ func main() {
 	}
 
 	layeredFS := &LayeredFS{Base: baseFrontend}
-	fileServer := http.FileServer(http.FS(layeredFS))
+	// Use a custom file server logic to avoid http.FileServer's redirects
+	// fileServer := http.FileServer(http.FS(layeredFS))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
@@ -143,9 +144,6 @@ func main() {
 		}
 
 		path := strings.TrimPrefix(r.URL.Path, "/")
-		if path == "" {
-			path = "index.html"
-		}
 
 		// Map of internal routes that should never be leaked
 		internalRoutes := []string{
@@ -160,7 +158,7 @@ func main() {
 			}
 		}
 
-		// Hard Backend Protection: Redirect to auth if trying to access internal HTML pages without session
+		// Hard Backend Protection: Redirect to auth if trying to access internal paths without session
 		if isInternal {
 			if _, err := ValidateSession(r); err != nil {
 				http.Redirect(w, r, "/auth", http.StatusFound)
@@ -168,17 +166,34 @@ func main() {
 			}
 		}
 
-		_, err := layeredFS.Open(path)
-		if err != nil {
-			htmlPath := path + ".html"
-			if _, err := layeredFS.Open(htmlPath); err == nil {
-				r.URL.Path = "/" + htmlPath
-			} else {
-				r.URL.Path = "/index.html"
-			}
+		// Try to open the requested file
+		targetPath := path
+		if targetPath == "" {
+			targetPath = "index.html"
 		}
 
-		fileServer.ServeHTTP(w, r)
+		f, err := layeredFS.Open(targetPath)
+		if err != nil {
+			// If file not found, serve index.html for SPA routing
+			targetPath = "index.html"
+			f, err = layeredFS.Open(targetPath)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+		}
+		defer f.Close()
+
+		// Serve the file content directly
+		if strings.HasSuffix(targetPath, ".js") {
+			w.Header().Set("Content-Type", "application/javascript")
+		} else if strings.HasSuffix(targetPath, ".css") {
+			w.Header().Set("Content-Type", "text/css")
+		} else if strings.HasSuffix(targetPath, ".html") {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		}
+
+		http.ServeFileFS(w, r, layeredFS, targetPath)
 	})
 
 	if *sslFlag {

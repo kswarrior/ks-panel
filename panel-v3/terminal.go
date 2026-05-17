@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -32,6 +33,8 @@ func HandleTerminal(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	var writeMu sync.Mutex
+
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -45,9 +48,13 @@ func HandleTerminal(w http.ResponseWriter, r *http.Request) {
 		cmd := exec.Command("bash", "-c", string(message))
 		out, err := cmd.CombinedOutput()
 		if err != nil {
+			writeMu.Lock()
 			conn.WriteMessage(websocket.TextMessage, []byte("Error: "+err.Error()))
+			writeMu.Unlock()
 			continue
 		}
+		writeMu.Lock()
 		conn.WriteMessage(websocket.TextMessage, out)
+		writeMu.Unlock()
 	}
 }
