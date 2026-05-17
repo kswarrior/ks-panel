@@ -157,6 +157,77 @@ func HandleCreateNode(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func HandleDeleteNode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Missing node ID", http.StatusBadRequest)
+		return
+	}
+
+	_, err := DB.Exec("DELETE FROM nodes WHERE id = ?", id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func HandleUpdateNode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Missing node ID", http.StatusBadRequest)
+		return
+	}
+
+	var n struct {
+		Name           string `json:"name"`
+		ConnectionType string `json:"connection_type"`
+		Host           string `json:"host"`
+		Port           string `json:"port"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&n); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ipAddress := n.Host
+	if n.ConnectionType == "Localhost" {
+		ipAddress = "localhost"
+	}
+	if n.Port != "" {
+		if !strings.Contains(ipAddress, ":") {
+			ipAddress = fmt.Sprintf("%s:%s", ipAddress, n.Port)
+		} else {
+			// Handle cases where host might already have a colon (unlikely with this UI but good to be safe)
+			parts := strings.Split(ipAddress, ":")
+			ipAddress = fmt.Sprintf("%s:%s", parts[0], n.Port)
+		}
+	}
+
+	_, err := DB.Exec(
+		"UPDATE nodes SET name = ?, ip_address = ? WHERE id = ?",
+		n.Name, ipAddress, id,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func containsPort(s string) bool {
 	if strings.Contains(s, "://") {
 		parts := strings.SplitN(s, "://", 2)

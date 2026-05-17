@@ -52,9 +52,14 @@ func main() {
 	mux.Handle("/api/instances", auth(perm("view_instances")(http.HandlerFunc(backend.HandleInstances))))
 
 	mux.Handle("/api/nodes", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			perm("manage_nodes")(http.HandlerFunc(backend.HandleCreateNode)).ServeHTTP(w, r)
-		} else {
+		case http.MethodPut:
+			perm("manage_nodes")(http.HandlerFunc(backend.HandleUpdateNode)).ServeHTTP(w, r)
+		case http.MethodDelete:
+			perm("manage_nodes")(http.HandlerFunc(backend.HandleDeleteNode)).ServeHTTP(w, r)
+		default:
 			perm("view_nodes")(http.HandlerFunc(backend.HandleNodes)).ServeHTTP(w, r)
 		}
 	})))

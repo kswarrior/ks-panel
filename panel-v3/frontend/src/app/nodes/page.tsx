@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X, HardDrive, MoreVertical, Info, Link as LinkIcon } from 'lucide-react';
+import { Server, Activity, Plus, Signal, Cpu, MemoryStick as Memory, RefreshCw, X, HardDrive, MoreVertical, Info, Link as LinkIcon, Settings } from 'lucide-react';
 
 interface Node {
   id: number;
@@ -17,12 +17,28 @@ export default function NodesPage() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingNode, setEditingNode] = useState<Node | null>(null);
   const [newNode, setNewNode] = useState({
     name: '',
     connection_type: 'IP Address',
     host: '',
     port: '4040'
   });
+
+  useEffect(() => {
+    if (editingNode) {
+      const parts = editingNode.ip_address.split(':');
+      const host = parts[0];
+      const port = parts[1] || '4040';
+      setNewNode({
+        name: editingNode.name,
+        connection_type: 'IP Address', // Default to IP for editing for now
+        host: host,
+        port: port
+      });
+      setShowAddModal(true);
+    }
+  }, [editingNode]);
 
   const fetchNodes = async () => {
     setLoading(true);
@@ -56,7 +72,11 @@ export default function NodesPage() {
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setEditingNode(null);
+              setNewNode({ name: '', connection_type: 'IP Address', host: '', port: '4040' });
+              setShowAddModal(true);
+            }}
             className="neon-button flex items-center justify-center gap-2 font-bold w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
@@ -67,11 +87,11 @@ export default function NodesPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setEditingNode(null); }} />
           <div className="glass-dark w-full max-w-lg rounded-2xl p-8 relative z-10 border border-white/10">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Add New Node</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
+              <h2 className="text-2xl font-bold">{editingNode ? 'Edit Node' : 'Add New Node'}</h2>
+              <button onClick={() => { setShowAddModal(false); setEditingNode(null); }} className="p-2 hover:bg-white/10 rounded-lg">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -129,26 +149,29 @@ export default function NodesPage() {
 
               <div className="pt-4 flex gap-4">
                 <button
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditingNode(null); }}
                   className="flex-1 py-3 glass hover:bg-white/10 rounded-xl font-bold transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={async () => {
-                    const res = await fetch('/api/nodes', {
-                      method: 'POST',
+                    const url = editingNode ? `/api/nodes?id=${editingNode.id}` : '/api/nodes';
+                    const method = editingNode ? 'PUT' : 'POST';
+                    const res = await fetch(url, {
+                      method: method,
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(newNode)
                     });
                     if (res.ok) {
                       setShowAddModal(false);
+                      setEditingNode(null);
                       fetchNodes();
                     }
                   }}
                   className="flex-1 neon-button font-bold py-3"
                 >
-                  Create Node
+                  {editingNode ? 'Save Changes' : 'Create Node'}
                 </button>
               </div>
             </div>
@@ -166,7 +189,7 @@ export default function NodesPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {nodes.map((node) => (
-            <NodeCard key={node.id} node={node} onRefresh={fetchNodes} />
+            <NodeCard key={node.id} node={node} onRefresh={fetchNodes} onEdit={(n) => setEditingNode(n)} />
           ))}
         </div>
       )}
@@ -174,9 +197,22 @@ export default function NodesPage() {
   );
 }
 
-function NodeCard({ node, onRefresh }: { node: Node, onRefresh: () => void }) {
+function NodeCard({ node, onRefresh, onEdit }: { node: Node, onRefresh: () => void, onEdit: (node: Node) => void }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleDelete = async () => {
+    if (confirm(`Are you sure you want to delete node "${node.name}"?`)) {
+      const res = await fetch(`/api/nodes?id=${node.id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        onRefresh();
+      } else {
+        alert("Failed to delete node.");
+      }
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -235,52 +271,27 @@ function NodeCard({ node, onRefresh }: { node: Node, onRefresh: () => void }) {
                     <span>Disk: {node.disk_usage}</span>
                   </div>
                   <div className="h-px bg-white/5 my-1" />
+                  <button
+                    onClick={() => { onEdit(node); setShowMenu(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all"
+                  >
+                    <Settings className="w-4 h-4 text-white/30" />
+                    <span>Edit Node</span>
+                  </button>
                   <div className="flex items-center gap-3 px-3 py-2 text-xs text-white/70">
                     <LinkIcon className="w-4 h-4 text-white/30" />
                     <span className="truncate">{node.ip_address}</span>
                   </div>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                  <button
+                    onClick={handleDelete}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                  >
                     <X className="w-4 h-4" />
                     <span>Delete Node</span>
                   </button>
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
-            <div className="flex items-center gap-1"><Cpu className="w-3 h-3" /> CPU</div>
-            <span>{node.cpu_usage}</span>
-          </div>
-          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-neon-blue shadow-neon transition-all duration-500"
-              style={{ width: node.cpu_usage }}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
-            <div className="flex items-center gap-1"><Memory className="w-3 h-3" /> RAM</div>
-            <span>{node.ram_usage}</span>
-          </div>
-          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-            <div className="h-full bg-neon-blue/60 shadow-neon" style={{ width: node.ram_usage.includes('/') ? `${(parseFloat(node.ram_usage) / parseFloat(node.ram_usage.split('/')[1])) * 100}%` : '0%' }} />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs font-bold text-white/40 uppercase">
-            <div className="flex items-center gap-1"><HardDrive className="w-3 h-3" /> Disk</div>
-            <span>{node.disk_usage}</span>
-          </div>
-          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-            <div className="h-full bg-neon-blue/40 shadow-neon" style={{ width: node.disk_usage.includes('/') ? `${(parseFloat(node.disk_usage) / parseFloat(node.disk_usage.split('/')[1])) * 100}%` : '0%' }} />
           </div>
         </div>
       </div>
