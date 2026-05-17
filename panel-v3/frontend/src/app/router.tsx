@@ -10,6 +10,7 @@ const RoleIndex = React.lazy(() => import('./role/index'));
 const ThemeIndex = React.lazy(() => import('./theme/index'));
 const TemplatesIndex = React.lazy(() => import('./templates/index'));
 const TicketIndex = React.lazy(() => import('./ticket/index'));
+const AuthIndex = React.lazy(() => import('./auth/index'));
 
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8 glass-dark rounded-3xl border border-white/5">
@@ -76,6 +77,6 @@ export const router = createBrowserRouter([
       { path: 'notifications', element: <Placeholder name="Notifications" /> }
     ]
   },
-  { path: '/auth', element: <Placeholder name="Auth" /> },
+  { path: '/auth', element: <React.Suspense fallback={null}><AuthIndex /></React.Suspense> },
   { path: '/unauthorized', element: <Placeholder name="Unauthorized" /> }
 ]);

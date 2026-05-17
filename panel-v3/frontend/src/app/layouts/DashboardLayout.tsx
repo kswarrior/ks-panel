@@ -36,7 +36,7 @@ export const DashboardLayout: React.FC = () => {
     initAuth();
   }, [navigate, location.pathname]);
 
-  // Handle CSS variable themes (from previous implementation)
+  // Handle CSS variable themes (Comprehensive mapping)
   useEffect(() => {
      fetch('/api/themes')
       .then(res => res.json())
@@ -45,8 +45,44 @@ export const DashboardLayout: React.FC = () => {
         if (active) {
           try {
             const config = JSON.parse(active.config);
-            document.documentElement.style.setProperty('--background', config.backgroundColor || '#050505');
-            document.documentElement.style.setProperty('--neon-blue', config.primaryColor || '#0ea5e9');
+            const mapping: Record<string, string> = {
+              '--background': config.backgroundColor,
+              '--neon-blue': config.primaryColor,
+              '--surface': config.surfaceColor,
+              '--text': config.textColor,
+              '--accent': config.accentColor,
+              '--glass-blur': config.glassBlur,
+              '--glass-opacity': config.glassOpacity,
+              '--radius': config.borderRadius,
+              '--border-opacity': config.borderOpacity,
+              '--header-height': config.headerHeight,
+              '--sidebar-width': config.sidebarWidth,
+              '--sidebar-pos': config.sidebarPosition === 'right' ? 'row-reverse' : 'row',
+              '--font-size': config.fontSizeBase,
+              '--font-family': config.fontFamily,
+              '--bg-image': config.backgroundImage ? `url(${config.backgroundImage})` : 'none',
+              '--bg-blur': config.backgroundBlur,
+              '--bg-opacity': config.backgroundOpacity,
+              '--bg-gradient': config.backgroundGradient,
+              '--btn-glow': config.buttonGlow,
+              '--btn-radius': config.buttonRadius
+            };
+
+            Object.entries(mapping).forEach(([key, value]) => {
+              if (value) document.documentElement.style.setProperty(key, value);
+            });
+
+            // Handle custom CSS injection
+            if (config.customCss) {
+               const styleId = 'theme-custom-css';
+               let styleTag = document.getElementById(styleId);
+               if (!styleTag) {
+                  styleTag = document.createElement('style');
+                  styleTag.id = styleId;
+                  document.head.appendChild(styleTag);
+               }
+               styleTag.innerHTML = config.customCss;
+            }
           } catch (e) {}
         }
       });
@@ -62,23 +98,42 @@ export const DashboardLayout: React.FC = () => {
 
   return (
     <ExtensionProvider>
-      <div className="min-h-screen-dvh bg-[var(--background,#050505)] text-white overflow-x-hidden">
+      <div className="min-h-screen-dvh bg-[var(--background,#050505)] text-white overflow-x-hidden relative">
+        {/* Background Layer */}
+        <div
+           className="fixed inset-0 z-[-1] pointer-events-none transition-all duration-700"
+           style={{
+              backgroundImage: 'var(--bg-image)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: 'var(--bg-opacity, 1)',
+              filter: 'blur(var(--bg-blur, 0px))',
+              background: 'var(--bg-gradient)'
+           }}
+        />
+
         <Header
           user={user}
           settings={settings}
           onMenuClick={() => setIsSidebarOpen(true)}
         />
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-        />
 
-        {/* Main Content Region - This is the only part that swaps during navigation */}
-        <main className="pt-[calc(var(--header-height,64px)+2rem)] min-h-screen-dvh transition-all duration-300 lg:pl-[var(--sidebar-width,256px)]">
-          <div className="container mx-auto px-4 pb-12">
-            <Outlet />
-          </div>
-        </main>
+        <div className="flex" style={{ flexDirection: 'var(--sidebar-pos, row)' as any }}>
+           <Sidebar
+             isOpen={isSidebarOpen}
+             onClose={() => setIsSidebarOpen(false)}
+           />
+
+           {/* Main Content Region - This is the only part that swaps during navigation */}
+           <main
+              className="flex-1 pt-[calc(var(--header-height,64px)+2rem)] min-h-screen-dvh transition-all duration-300"
+              style={{ paddingLeft: 'var(--sidebar-pos) === "row" ? "var(--sidebar-width)" : "0"', paddingRight: 'var(--sidebar-pos) === "row-reverse" ? "var(--sidebar-width)" : "0"' } as any}
+           >
+             <div className="container mx-auto px-4 pb-12">
+               <Outlet />
+             </div>
+           </main>
+        </div>
       </div>
     </ExtensionProvider>
   );

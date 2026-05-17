@@ -26,7 +26,9 @@
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+    background-color: rgba(255, 255, 255, var(--glass-opacity, 0.05));
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    border: 1px solid rgba(255, 255, 255, var(--border-opacity, 0.1));
   }
 
   .h-screen-dvh {
@@ -38,21 +40,44 @@
   }
 
   .glass-dark {
-    @apply bg-black/20 backdrop-blur-md border border-white/5;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    border: 1px solid rgba(255, 255, 255, var(--border-opacity, 0.05));
+    border-radius: var(--radius, 1.5rem);
   }
 
   .neon-border {
-    @apply border-neon-blue shadow-neon;
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%);
   }
 
   .neon-button {
-    @apply bg-neon-blue/10 border border-neon-blue text-neon-blue px-4 py-2 rounded-md
-           hover:bg-neon-blue hover:text-white transition-all duration-300 shadow-neon hover:shadow-neon-strong;
+    background-color: color-mix(in srgb, var(--neon-blue), transparent 90%);
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+    padding: 0.5rem 1rem;
+    border-radius: var(--btn-radius, 0.5rem);
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: var(--btn-glow, 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%));
+  }
+  .neon-button:hover {
+     background-color: var(--neon-blue);
+     color: white;
+     box-shadow: 0 0 20px color-mix(in srgb, var(--neon-blue), transparent 50%);
   }
 
   .neon-input {
-    @apply bg-white/5 border border-white/10 rounded-md px-4 py-2 outline-none
-           focus:border-neon-blue focus:shadow-neon transition-all duration-300;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius, 0.5rem);
+    padding: 0.5rem 1rem;
+    outline: none;
+    transition: all 0.3s;
+  }
+  .neon-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%);
   }
 }
 
