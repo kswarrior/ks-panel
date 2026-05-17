@@ -1,0 +1,1 @@
+import{j as e}from"./index-DcOV-BWK.js";function s(){return e.jsx("div",{className:"p-8 glass-dark rounded-3xl border border-white/5 font-bold text-2xl",children:"Instances Overview"})}export{s as default};

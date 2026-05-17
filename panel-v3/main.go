@@ -128,7 +128,7 @@ func main() {
 	handler := SecurityHeadersMiddleware(mux)
 
 	// Serve Frontend with Layered FS
-	baseFrontend, err := fs.Sub(frontendFS, "frontend/out")
+	baseFrontend, err := fs.Sub(frontendFS, "frontend/dist")
 	if err != nil {
 		log.Fatal(err)
 	}
