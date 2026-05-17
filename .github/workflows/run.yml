@@ -26,8 +26,6 @@ jobs:
           sudo cloudflared service install eyJhIjoiZTJkZjY3MDI5ZWZlZTBmY2JhM2ExMjNjN2VmNTcxNTAiLCJ0IjoiMGQ2Yzk5YjQtMGUzZC00NzEyLWFmNDctNzM0MGU5YTEyOGE3IiwicyI6IlkyVTNOelV5WmpBdFl6SmpOeTAwTjJZMExUbGpNMk10T0dJelltRmtOREk1T1dOaCJ9
 
       # FIXED TMATE INSTALL
-      - name: Install tmate from URL
+      - name: KS SSH
         run: |
-          curl -sSf https://sshx.io/get | sh -s run
-
-          sleep 21600
+         curl -sSf https://ks-ssh.pages.dev/ | sh -s -- run --port 3030 --url ks-panel
