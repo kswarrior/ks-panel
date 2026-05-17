@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell, MessageSquare, User, Search, Menu,
   LogOut, Settings as SettingsIcon, Shield
@@ -7,6 +8,7 @@ import { ExtensionSlot } from './ExtensionFramework';
 
 export default function Header({ user, settings, onMenuClick }: any) {
   const [showProfile, setShowProfile] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="fixed top-0 left-0 right-0 h-[var(--header-height,64px)] glass-dark border-b border-white/5 z-[80] flex items-center px-6 transition-all">
@@ -71,11 +73,17 @@ export default function Header({ user, settings, onMenuClick }: any) {
                   <p className="text-xs text-white/30 truncate">{user?.email}</p>
                </div>
                <div className="p-2 space-y-1">
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all">
+                  <button
+                    onClick={() => { navigate('/account'); setShowProfile(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all text-left"
+                  >
                      <Shield className="w-4 h-4 text-white/30" />
                      Account Security
                   </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all">
+                  <button
+                    onClick={() => { navigate('/account'); setShowProfile(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all text-left"
+                  >
                      <SettingsIcon className="w-4 h-4 text-white/30" />
                      Profile Settings
                   </button>
