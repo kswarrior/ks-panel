@@ -20,7 +20,7 @@ func HandleTerminal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Permission check (terminal requires manage_instances or Owner)
-	if user.Permissions != "*" && !strings.Contains(user.Permissions, "manage_instances") {
+	if !user.HasPermission("manage_instances") {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}

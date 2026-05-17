@@ -25,6 +25,7 @@ export default function RootLayout({
   const [activeTheme, setActiveTheme] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [settings, setSettings] = useState<any>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const router = useRouter();
 
   const isAuthPage = pathname === '/auth' || pathname === '/auth.html';
@@ -34,6 +35,7 @@ export default function RootLayout({
   useEffect(() => {
     if (mounted) {
       if (!isAuthPage) {
+        setCheckingAuth(true);
         fetch('/api/me')
           .then(res => {
             if (!res.ok) throw new Error();
@@ -57,11 +59,20 @@ export default function RootLayout({
             if (requiredPerm && data.permissions !== '*') {
               const userPerms = data.permissions.split(',');
               if (!userPerms.includes(requiredPerm)) {
-                router.replace('/unauthorized');
+                if (pathname !== '/unauthorized') {
+                  router.replace('/unauthorized');
+                }
               }
             }
           })
-          .catch(() => router.replace('/auth'));
+          .catch(() => {
+            if (!isPublicPage) {
+              router.replace('/auth');
+            }
+          })
+          .finally(() => setCheckingAuth(false));
+      } else {
+        setCheckingAuth(false);
       }
 
       fetch('/api/themes')
@@ -118,7 +129,7 @@ export default function RootLayout({
     );
   }
 
-  if (!user && !isPublicPage) {
+  if (checkingAuth && !isPublicPage) {
     return (
       <html lang="en">
         <body className={`${inter.className} bg-[#050505] text-white`}>

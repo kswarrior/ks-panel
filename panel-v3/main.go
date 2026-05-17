@@ -43,6 +43,7 @@ func main() {
 	// Serve API routes
 	mux.HandleFunc("/api/status", backend.HandleStatus)
 	mux.HandleFunc("/api/login", backend.HandleLogin)
+	mux.HandleFunc("/api/logout", backend.HandleLogout)
 
 	// Protected routes
 	auth := backend.AuthMiddleware
@@ -114,6 +115,9 @@ func main() {
 	mux.Handle("/api/instances/files", auth(perm("view_instances")(http.HandlerFunc(backend.HandleFiles))))
 	mux.Handle("/api/instances/scan", auth(perm("view_instances")(http.HandlerFunc(backend.HandleScan))))
 
+	// Apply Security Headers to all routes
+	handler := backend.SecurityHeadersMiddleware(mux)
+
 	// Serve Frontend
 	frontendBuild, err := fs.Sub(frontendFS, "frontend/out")
 	if err != nil {
@@ -147,12 +151,12 @@ func main() {
 
 	if *sslFlag {
 		log.Printf("KS PANEL v3 starting with SSL on :%s\n", *portFlag)
-		if err := http.ListenAndServeTLS(":"+*portFlag, *certFlag, *keyFlag, mux); err != nil {
+		if err := http.ListenAndServeTLS(":"+*portFlag, *certFlag, *keyFlag, handler); err != nil {
 			log.Fatal(err)
 		}
 	} else {
 		log.Printf("KS PANEL v3 starting on :%s\n", *portFlag)
-		if err := http.ListenAndServe(":"+*portFlag, mux); err != nil {
+		if err := http.ListenAndServe(":"+*portFlag, handler); err != nil {
 			log.Fatal(err)
 		}
 	}

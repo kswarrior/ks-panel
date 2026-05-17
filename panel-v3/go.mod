@@ -1,11 +1,11 @@
 module kspanel
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/gorilla/websocket v1.5.3
 	golang.org/x/crypto v0.35.0
-	golang.org/x/term v0.43.0
+	golang.org/x/term v0.29.0
 	modernc.org/sqlite v1.34.0
 )
 

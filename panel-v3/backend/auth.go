@@ -67,6 +67,25 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful"})
 }
 
+func HandleLogout(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("ks_session")
+	if err == nil {
+		// Invalidate session in DB
+		DB.Exec("DELETE FROM sessions WHERE token = ?", cookie.Value)
+	}
+
+	// Clear cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "ks_session",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HttpOnly: true,
+	})
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func HandleMe(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(UserKey).(AuthUser)
 	if !ok {
