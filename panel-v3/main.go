@@ -66,9 +66,10 @@ func main() {
 	})))
 
 	mux.Handle("/api/users", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost, http.MethodPut, http.MethodDelete:
 			perm("manage_users")(http.HandlerFunc(backend.HandleUsers)).ServeHTTP(w, r)
-		} else {
+		default:
 			perm("view_users")(http.HandlerFunc(backend.HandleUsers)).ServeHTTP(w, r)
 		}
 	})))

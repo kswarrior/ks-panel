@@ -200,6 +200,30 @@ export default function NodesPage() {
 function NodeCard({ node, onRefresh, onEdit }: { node: Node, onRefresh: () => void, onEdit: (node: Node) => void }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [history, setHistory] = useState<(boolean | null)[]>(Array(40).fill(null));
+
+  useEffect(() => {
+    if (node.status === 'Online') {
+      setHistory(prev => {
+        const next = [...prev.slice(1), true];
+        return next;
+      });
+    } else {
+      setHistory(prev => {
+        const hasHistory = prev.some(h => h !== null);
+        if (!hasHistory) return Array(40).fill(null);
+        const next = [...prev.slice(1), false];
+        return next;
+      });
+    }
+  }, [node.status]);
+
+  const uptimePercentage = React.useMemo(() => {
+    const valid = history.filter(h => h !== null);
+    if (valid.length === 0) return 0;
+    const online = valid.filter(h => h === true).length;
+    return (online / valid.length) * 100;
+  }, [history]);
 
   const handleDelete = async () => {
     if (confirm(`Are you sure you want to delete node "${node.name}"?`)) {
@@ -223,9 +247,6 @@ function NodeCard({ node, onRefresh, onEdit }: { node: Node, onRefresh: () => vo
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Mock uptime data (segments) - 40 bars for a denser look
-  const uptimeSegments = Array.from({ length: 40 }, (_, i) => i !== 28);
 
   return (
     <div className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-neon-blue/30 transition-all duration-300 group relative">
@@ -301,40 +322,36 @@ function NodeCard({ node, onRefresh, onEdit }: { node: Node, onRefresh: () => vo
         <div className="flex justify-between items-end">
           <div className="space-y-0.5">
             <p className="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Overall Uptime</p>
-            <p className="text-2xl font-black text-white leading-none">99.8<span className="text-sm text-white/30">%</span></p>
+            <p className="text-2xl font-black text-white leading-none">
+              {uptimePercentage.toFixed(2)}<span className="text-sm text-white/30">%</span>
+            </p>
           </div>
           <div className="text-right">
-            <span className="px-2 py-0.5 rounded bg-green-500/10 text-green-500 text-[10px] font-black uppercase">Stable</span>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+              uptimePercentage > 99 ? 'bg-green-500/10 text-green-500' :
+              uptimePercentage > 0 ? 'bg-yellow-500/10 text-yellow-500' : 'bg-white/5 text-white/30'
+            }`}>
+              {uptimePercentage > 99 ? 'Stable' : uptimePercentage > 0 ? 'Warning' : 'No Data'}
+            </span>
           </div>
         </div>
 
         <div className="flex gap-1 h-8 items-center">
-          {uptimeSegments.map((ok, i) => (
+          {history.map((ok, i) => (
             <div
               key={i}
               className={`flex-1 h-5 rounded-full transition-all duration-500 hover:h-8 cursor-help ${
-                ok ? 'bg-green-500/30 hover:bg-green-400' : 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse'
+                ok === true ? 'bg-green-500/30 hover:bg-green-400' :
+                ok === false ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse' : 'bg-white/5'
               }`}
-              title={ok ? 'Operational' : 'Downtime Detected'}
+              title={ok === true ? 'Operational' : ok === false ? 'Downtime Detected' : 'No Data'}
             />
           ))}
         </div>
         <div className="flex justify-between text-[8px] font-black text-white/20 uppercase tracking-tighter">
-          <span>30 Days ago</span>
+          <span>History</span>
           <span>Today</span>
         </div>
-      </div>
-
-      <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
-        <div className="flex gap-4">
-          <div className="text-center">
-            <p className="text-[10px] text-white/40 uppercase font-bold">Status</p>
-            <p className={`font-bold text-sm ${node.status === 'Online' ? 'text-green-500' : 'text-red-500'}`}>{node.status}</p>
-          </div>
-        </div>
-        <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">
-          Configure
-        </button>
       </div>
     </div>
   );

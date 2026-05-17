@@ -128,7 +128,7 @@ export default function NotificationsPage() {
                 <button onClick={() => setShowCreate(false)} className="flex-1 py-3 glass hover:bg-white/10 rounded-xl font-bold transition-all">Cancel</button>
                 <button
                   onClick={async () => {
-                    const res = await fetch('/api/notifications', {
+                    const res = await fetch('/api/notifications/', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(form)

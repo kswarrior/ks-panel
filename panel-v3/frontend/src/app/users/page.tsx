@@ -24,6 +24,7 @@ export default function UsersPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<KSUser | null>(null);
   const [formData, setFormData] = useState({
     displayName: '',
     username: '',
@@ -74,52 +75,101 @@ export default function UsersPage() {
         {loading ? (
           [1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)
         ) : (
-          users.map((user) => {
-            const role = roles.find(r => r.id === user.role_id);
-            return (
-              <div key={user.id} className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-neon-blue/30 transition-all duration-300 group">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-lg uppercase group-hover:neon-border transition-all">
-                      {user.display_name?.substring(0, 2) || user.username.substring(0, 2)}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">{user.display_name || user.username}</h3>
-                      <p className="text-xs text-white/40">@{user.username}</p>
-                    </div>
-                  </div>
-                  <button className="p-2 hover:bg-white/10 rounded-lg text-white/40">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <Mail className="w-4 h-4 text-neon-blue" />
-                    <span>{user.email}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <Shield className="w-4 h-4 text-neon-blue" />
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: role?.color || '#ffffff' }} />
-                      <span>{role?.name || 'User'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20">
-                    {user.status}
-                  </span>
-                  <button className="text-xs font-bold text-white/40 hover:text-white transition-colors">Edit Profile</button>
-                </div>
-              </div>
-            );
-          })
+          users.map((user) => (
+            <UserCard
+              key={user.id}
+              user={user}
+              role={roles.find(r => r.id === user.role_id)}
+              onRefresh={fetchData}
+            />
+          ))
         )}
       </div>
 
-      {/* Create Modal */}
+function UserCard({ user, role, onRefresh }: { user: KSUser, role?: Role, onRefresh: () => void }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as any)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleDelete = async () => {
+    if (confirm(`Delete user ${user.username}?`)) {
+      await fetch(`/api/users?id=${user.id}`, { method: 'DELETE' });
+      onRefresh();
+    }
+  };
+
+  const handleStatus = async (status: string) => {
+    await fetch(`/api/users?id=${user.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    onRefresh();
+  };
+
+  return (
+    <div className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-neon-blue/30 transition-all duration-300 group relative">
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-lg uppercase group-hover:neon-border transition-all shrink-0">
+            {user.display_name?.substring(0, 2) || user.username.substring(0, 2)}
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-bold text-lg truncate leading-tight">{user.display_name || user.username}</h3>
+            <p className="text-xs text-white/40 truncate">@{user.username}</p>
+            <p className="text-[10px] text-white/30 truncate mt-0.5">{user.email}</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          {role && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/5">
+              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: role.color }} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/70">{role.name}</span>
+            </div>
+          )}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 hover:bg-white/10 rounded-lg text-white/40"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-48 glass-dark border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                <div className="p-2 space-y-1">
+                  <button className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all">Edit User</button>
+                  <button
+                    onClick={() => handleStatus(user.status === 'suspended' ? 'active' : 'suspended')}
+                    className="w-full text-left px-3 py-2 text-xs text-yellow-500/70 hover:bg-yellow-500/10 rounded-lg transition-all"
+                  >
+                    {user.status === 'suspended' ? 'Activate User' : 'Suspend User'}
+                  </button>
+                  <div className="h-px bg-white/5 my-1" />
+                  <button
+                    onClick={handleDelete}
+                    className="w-full text-left px-3 py-2 text-xs text-red-500/70 hover:bg-red-500/10 rounded-lg transition-all"
+                  >
+                    Delete User
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
       {showCreateModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />

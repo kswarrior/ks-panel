@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Shield, Plus, X, Check, Search, Palette } from 'lucide-react';
+import { Shield, Plus, X, Check, Search, Palette, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import Skeleton from '@/components/Skeleton';
 
 interface Role {
@@ -125,51 +125,84 @@ export default function RolesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {roles.map(role => (
-            <div key={role.id} className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-all group">
-              <div className="flex items-center gap-4 mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center border transition-all shadow-lg"
-                  style={{ backgroundColor: `${role.color}10`, borderColor: `${role.color}40`, boxShadow: `0 0 15px ${role.color}20` }}
-                >
-                  <Shield className="w-6 h-6" style={{ color: role.color }} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg" style={{ color: role.color }}>{role.name}</h3>
-                  <p className="text-xs text-white/40 uppercase tracking-widest font-bold">Permissions: {role.permissions.split(',').length}</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {role.permissions.split(',').slice(0, 3).map(p => (
-                  <span key={p} className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50 border border-white/10 uppercase font-bold">
-                    {p}
-                  </span>
-                ))}
-                {role.permissions.split(',').length > 3 && (
-                  <span className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/30 font-bold">
-                    +{role.permissions.split(',').length - 3}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleOpenEdit(role)}
-                  className="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/5"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteRole(role.id)}
-                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg border border-red-500/20 transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+            <RoleCard key={role.id} role={role} onEdit={handleOpenEdit} onDelete={handleDeleteRole} />
           ))}
         </div>
       )}
 
-      {/* Role Modal */}
+function RoleCard({ role, onEdit, onDelete }: { role: Role, onEdit: (role: Role) => void, onDelete: (id: number) => void }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as any)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="glass-dark p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-all group relative">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center border transition-all shadow-lg"
+            style={{ backgroundColor: `${role.color}10`, borderColor: `${role.color}40`, boxShadow: `0 0 15px ${role.color}20` }}
+          >
+            <Shield className="w-6 h-6" style={{ color: role.color }} />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg" style={{ color: role.color }}>{role.name}</h3>
+            <p className="text-xs text-white/40 uppercase tracking-widest font-bold">Permissions: {role.permissions === '*' ? permissionsList.length : role.permissions.split(',').filter(p => p !== '').length}</p>
+          </div>
+        </div>
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-2 hover:bg-white/10 rounded-lg text-white/40"
+          >
+            <MoreVertical className="w-5 h-5" />
+          </button>
+          {showMenu && (
+            <div className="absolute right-0 mt-2 w-48 glass-dark border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+              <div className="p-2 space-y-1">
+                <button
+                  onClick={() => { onEdit(role); setShowMenu(false); }}
+                  className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/5 rounded-lg transition-all flex items-center gap-2"
+                >
+                  <Edit className="w-3 h-3" /> Edit Role
+                </button>
+                <div className="h-px bg-white/5 my-1" />
+                <button
+                  onClick={() => { onDelete(role.id); setShowMenu(false); }}
+                  className="w-full text-left px-3 py-2 text-xs text-red-500/70 hover:bg-red-500/10 rounded-lg transition-all flex items-center gap-2"
+                >
+                  <Trash2 className="w-3 h-3" /> Delete Role
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {(role.permissions === '*' ? permissionsList.map(p => p.id) : role.permissions.split(',').filter(p => p !== '')).slice(0, 3).map(p => (
+          <span key={p} className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50 border border-white/10 uppercase font-bold">
+            {p}
+          </span>
+        ))}
+        {(role.permissions === '*' ? permissionsList.length : role.permissions.split(',').filter(p => p !== '').length) > 3 && (
+          <span className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/30 font-bold">
+            +{(role.permissions === '*' ? permissionsList.length : role.permissions.split(',').filter(p => p !== '').length) - 3}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)} />

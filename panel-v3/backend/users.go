@@ -3,6 +3,7 @@ package backend
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -63,39 +64,76 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusCreated)
 	case http.MethodPut:
-		user, ok := r.Context().Value(UserKey).(AuthUser)
-		if !ok {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+		id := r.URL.Query().Get("id")
+		var targetID int
+
+		if id == "" {
+			user, ok := r.Context().Value(UserKey).(AuthUser)
+			if !ok {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+			targetID = user.ID
+		} else {
+			targetID, _ = strconv.Atoi(id)
 		}
 
 		var u struct {
 			DisplayName string `json:"displayName"`
 			Username    string `json:"username"`
 			Password    string `json:"password"`
+			Status      string `json:"status"`
+			RoleID      int    `json:"roleId"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if u.Password != "" {
-			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if u.Status != "" {
+			_, err := DB.Exec("UPDATE users SET status = ? WHERE id = ?", u.Status, targetID)
 			if err != nil {
-				http.Error(w, "Error hashing password", http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			_, err = DB.Exec("UPDATE users SET display_name = ?, username = ?, password = ? WHERE id = ?", u.DisplayName, u.Username, string(hashedPassword), user.ID)
+		} else if u.RoleID != 0 {
+			_, err := DB.Exec("UPDATE users SET role_id = ? WHERE id = ?", u.RoleID, targetID)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 		} else {
-			_, err := DB.Exec("UPDATE users SET display_name = ?, username = ? WHERE id = ?", u.DisplayName, u.Username, user.ID)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+			if u.Password != "" {
+				hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+				if err != nil {
+					http.Error(w, "Error hashing password", http.StatusInternalServerError)
+					return
+				}
+				_, err = DB.Exec("UPDATE users SET display_name = ?, username = ?, password = ? WHERE id = ?", u.DisplayName, u.Username, string(hashedPassword), targetID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+			} else {
+				_, err := DB.Exec("UPDATE users SET display_name = ?, username = ? WHERE id = ?", u.DisplayName, u.Username, targetID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
 			}
+		}
+		w.WriteHeader(http.StatusOK)
+
+	case http.MethodDelete:
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			http.Error(w, "ID required", http.StatusBadRequest)
+			return
+		}
+		_, err := DB.Exec("DELETE FROM users WHERE id = ?", id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		w.WriteHeader(http.StatusOK)
 	}

@@ -46,14 +46,14 @@ export default function SettingsPage() {
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-white/40 uppercase ml-1">Logo URL</label>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   type="text"
                   className="flex-1 neon-input"
                   value={general.logoUrl}
                   onChange={e => setGeneral(p => ({ ...p, logoUrl: e.target.value }))}
                 />
-                <button className="px-4 py-2 glass hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/10 flex items-center gap-2">
+                <button className="px-4 py-3 sm:py-2 glass hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/10 flex items-center justify-center gap-2">
                   <Image className="w-4 h-4" /> Browse
                 </button>
               </div>

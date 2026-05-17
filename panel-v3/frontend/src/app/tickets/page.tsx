@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Plus, Search, User, Clock, CheckCircle, XCircle, Send, Paperclip } from 'lucide-react';
+import { MessageSquare, Plus, Search, User, Clock, CheckCircle, XCircle, Send, Paperclip, ChevronLeft } from 'lucide-react';
 import Skeleton from '@/components/Skeleton';
 
 interface Ticket {
@@ -91,9 +91,9 @@ export default function TicketsPage() {
   };
 
   return (
-    <div className="h-[calc(100dvh-10rem)] flex gap-6">
+    <div className="h-[calc(100dvh-10rem)] flex gap-6 relative">
       {/* Sidebar List */}
-      <div className="w-full lg:w-96 flex flex-col gap-4">
+      <div className={`w-full lg:w-96 flex flex-col gap-4 ${selectedTicket ? 'hidden lg:flex' : 'flex'}`}>
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Support Tickets</h1>
           <button
@@ -142,11 +142,17 @@ export default function TicketsPage() {
       </div>
 
       {/* Chat View */}
-      <div className="hidden lg:flex flex-1 glass-dark rounded-2xl border border-white/5 flex-col overflow-hidden">
+      <div className={`${selectedTicket ? 'flex' : 'hidden'} lg:flex flex-1 glass-dark rounded-2xl border border-white/5 flex-col overflow-hidden`}>
         {selectedTicket ? (
           <>
             <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setSelectedTicket(null)}
+                  className="lg:hidden p-2 hover:bg-white/10 rounded-lg text-white/40"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
                 <div className="w-10 h-10 rounded-xl bg-neon-blue/10 flex items-center justify-center border border-neon-blue/20">
                   <MessageSquare className="w-5 h-5 text-neon-blue" />
                 </div>
