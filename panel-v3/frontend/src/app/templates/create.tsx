@@ -234,6 +234,7 @@ export default function TemplatesCreate() {
                         <label className="text-[10px] font-black uppercase text-white/30">Architecture</label>
                         <select className="w-full neon-input py-3 px-4" value={formData.environment.instance_type} onChange={e => updateEnv('instance_type', e.target.value)}>
                            <option value="docker">Docker</option>
+                           <option value="multipass">Multipass</option>
                            <option value="kvm">KVM (Proxmox)</option>
                            <option value="lxd">LXD</option>
                         </select>
@@ -267,6 +268,42 @@ export default function TemplatesCreate() {
                         <label className="text-[10px] font-black uppercase text-white/30">Swap (MB)</label>
                         <input type="number" className="w-full neon-input py-3 px-4" value={formData.environment.limits.swap} onChange={e => updateLimits('swap', e.target.value)} />
                       </div>
+                   </div>
+                </div>
+
+                <div className="space-y-6">
+                   <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <Layers className="w-5 h-5 text-neon-blue" />
+                         <h3 className="font-bold text-lg">Volume Mounts</h3>
+                      </div>
+                      <button onClick={() => updateEnv('mounts', [...formData.environment.mounts, { source: '', target: '', read_only: false }])} className="text-[10px] font-black uppercase tracking-widest text-neon-blue hover:text-white transition-all">+ Add Mount</button>
+                   </div>
+                   <div className="space-y-3">
+                      {formData.environment.mounts.map((m: any, idx: number) => (
+                        <div key={idx} className="flex gap-4 items-center animate-in zoom-in-95 duration-200">
+                           <input className="flex-1 neon-input py-3 px-4" placeholder="Source Path (/var/...)" value={m.source} onChange={e => {
+                              const newMounts = [...formData.environment.mounts];
+                              newMounts[idx].source = e.target.value;
+                              updateEnv('mounts', newMounts);
+                           }} />
+                           <div className="text-white/20">→</div>
+                           <input className="flex-1 neon-input py-3 px-4" placeholder="Target Path (/app/...)" value={m.target} onChange={e => {
+                              const newMounts = [...formData.environment.mounts];
+                              newMounts[idx].target = e.target.value;
+                              updateEnv('mounts', newMounts);
+                           }} />
+                           <label className="flex items-center gap-2 cursor-pointer px-4 border border-white/5 bg-white/5 rounded-xl h-full">
+                              <input type="checkbox" checked={m.read_only} onChange={e => {
+                                 const newMounts = [...formData.environment.mounts];
+                                 newMounts[idx].read_only = e.target.checked;
+                                 updateEnv('mounts', newMounts);
+                              }} className="w-4 h-4 rounded border-white/10 bg-white/5 text-neon-blue" />
+                              <span className="text-[10px] font-black uppercase text-white/30">R/O</span>
+                           </label>
+                           <button onClick={() => updateEnv('mounts', formData.environment.mounts.filter((_: any, i: number) => i !== idx))} className="p-3 text-red-500/50 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      ))}
                    </div>
                 </div>
 

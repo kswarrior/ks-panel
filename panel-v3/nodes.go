@@ -10,7 +10,7 @@ import (
 )
 
 func HandleNodes(w http.ResponseWriter, r *http.Request) {
-	rows, err := DB.Query("SELECT id, name, ip_address FROM nodes")
+	rows, err := DB.Query("SELECT id, name, ip_address, connection_type FROM nodes")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -18,14 +18,16 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	type nodeResult struct {
-		id      int
-		name    string
-		ip      string
-		status  string
-		cpu     string
-		ram     string
-		disk    string
-		order   int
+		id             int
+		name           string
+		ip             string
+		connectionType string
+		status         string
+		cpu            string
+		ram            string
+		disk           string
+		uptimeHistory  []string
+		order          int
 	}
 
 	var results []nodeResult
@@ -39,11 +41,11 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 	index := 0
 	for rows.Next() {
 		var id int
-		var name, ip string
-		rows.Scan(&id, &name, &ip)
+		var name, ip, connType string
+		rows.Scan(&id, &name, &ip, &connType)
 
 		wg.Add(1)
-		go func(id int, name, ip string, order int) {
+		go func(id int, name, ip, connType string, order int) {
 			defer wg.Done()
 
 			status := "Offline"
@@ -81,19 +83,36 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 				resp.Body.Close()
 			}
 
+			// Fetch Uptime History (Last 40 segments)
+			historyRows, _ := DB.Query("SELECT status FROM node_uptime WHERE node_id = ? ORDER BY timestamp DESC LIMIT 40", id)
+			var history []string
+			if historyRows != nil {
+				for historyRows.Next() {
+					var s string
+					historyRows.Scan(&s)
+					history = append(history, s)
+				}
+				historyRows.Close()
+			}
+
+			// Record current status if online
+			DB.Exec("INSERT INTO node_uptime (node_id, status) VALUES (?, ?)", id, status)
+
 			mu.Lock()
 			results = append(results, nodeResult{
-				id:     id,
-				name:   name,
-				ip:     ip,
-				status: status,
-				cpu:    cpuUsage,
-				ram:    ramUsage,
-				disk:   diskUsage,
-				order:  order,
+				id:             id,
+				name:           name,
+				ip:             ip,
+				connectionType: connType,
+				status:         status,
+				cpu:            cpuUsage,
+				ram:            ramUsage,
+				disk:           diskUsage,
+				uptimeHistory:  history,
+				order:          order,
 			})
 			mu.Unlock()
-		}(id, name, ip, index)
+		}(id, name, ip, connType, index)
 		index++
 	}
 	wg.Wait()
@@ -102,13 +121,15 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 	finalNodes := make([]map[string]interface{}, len(results))
 	for _, res := range results {
 		finalNodes[res.order] = map[string]interface{}{
-			"id":         res.id,
-			"name":       res.name,
-			"ip_address": res.ip,
-			"status":     res.status,
-			"cpu_usage":  res.cpu,
-			"ram_usage":  res.ram,
-			"disk_usage": res.disk,
+			"id":              res.id,
+			"name":            res.name,
+			"ip_address":      res.ip,
+			"connection_type": res.connectionType,
+			"status":          res.status,
+			"cpu_usage":       res.cpu,
+			"ram_usage":       res.ram,
+			"disk_usage":      res.disk,
+			"uptime_history":  res.uptimeHistory,
 		}
 	}
 
@@ -146,8 +167,8 @@ func HandleCreateNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := DB.Exec(
-		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage, disk_usage) VALUES (?, ?, ?, ?, ?, ?)",
-		n.Name, ipAddress, "Offline", "0%", "0GB / 0GB", "0GB / 0GB",
+		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage, disk_usage, connection_type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		n.Name, ipAddress, "Offline", "0%", "0GB / 0GB", "0GB / 0GB", n.ConnectionType,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -217,8 +238,8 @@ func HandleUpdateNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := DB.Exec(
-		"UPDATE nodes SET name = ?, ip_address = ? WHERE id = ?",
-		n.Name, ipAddress, id,
+		"UPDATE nodes SET name = ?, ip_address = ?, connection_type = ? WHERE id = ?",
+		n.Name, ipAddress, n.ConnectionType, id,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -40,7 +40,15 @@ func InitDB() {
 			status TEXT,
 			cpu_usage TEXT,
 			ram_usage TEXT,
-			disk_usage TEXT
+			disk_usage TEXT,
+			connection_type TEXT DEFAULT 'IP Address'
+		);`,
+		`CREATE TABLE IF NOT EXISTS node_uptime (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			node_id INTEGER,
+			status TEXT,
+			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY(node_id) REFERENCES nodes(id)
 		);`,
 		`CREATE TABLE IF NOT EXISTS instances (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,6 +120,7 @@ func InitDB() {
 	DB.Exec("ALTER TABLE users ADD COLUMN role_id INTEGER;")
 	DB.Exec("ALTER TABLE roles ADD COLUMN color TEXT;")
 	DB.Exec("ALTER TABLE nodes ADD COLUMN disk_usage TEXT;")
+	DB.Exec("ALTER TABLE nodes ADD COLUMN connection_type TEXT DEFAULT 'IP Address';")
 	DB.Exec("ALTER TABLE templates ADD COLUMN config TEXT;")
 
 	log.Println("Database initialized successfully.")

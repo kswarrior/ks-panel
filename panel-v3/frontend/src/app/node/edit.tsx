@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Server, ArrowLeft, Save, Globe, Shield } from 'lucide-react';
+import { Server, ArrowLeft, Shield, Globe, Terminal, Link2 } from 'lucide-react';
 
 export default function NodeEdit() {
   const { id } = useParams();
   const [formData, setFormData] = useState({
     name: '',
-    ip: '',
-    port: '5050',
-    status: 'Online'
+    connection_type: 'IP Address',
+    host: '',
+    port: '5050'
   });
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch('/api/nodes')
       .then(res => res.json())
-      .then(nodes => {
-        const node = nodes.find((n: any) => n.id === parseInt(id!));
+      .then(data => {
+        const node = data.find((n: any) => n.id === parseInt(id!));
         if (node) {
+          const parts = node.ip_address.split(':');
           setFormData({
             name: node.name,
-            ip: node.ip,
-            port: node.port || '5050',
-            status: node.status
+            connection_type: node.connection_type || 'IP Address',
+            host: parts[0],
+            port: parts[1] || '5050'
           });
         }
       });
@@ -30,10 +31,10 @@ export default function NodeEdit() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/nodes', {
+    const res = await fetch(`/api/nodes?id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...formData, id: parseInt(id!) })
+      body: JSON.stringify(formData)
     });
     if (res.ok) navigate('/node');
   };
@@ -53,51 +54,82 @@ export default function NodeEdit() {
           <div className="w-12 h-12 bg-neon-blue/10 rounded-2xl flex items-center justify-center border border-neon-blue/20">
             <Server className="w-6 h-6 text-neon-blue" />
           </div>
-          <h1 className="text-2xl font-bold">Edit Edge Node</h1>
+          <h1 className="text-2xl font-bold">Configure Node</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-white/30 ml-1">Node Name</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Node Name</label>
             <input
               type="text"
               required
               className="w-full neon-input py-3 px-4"
+              placeholder="Helsinki-01"
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-white/30 ml-1">IP Address</label>
-              <div className="relative">
-                 <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                 <input
-                    type="text"
-                    required
-                    className="w-full neon-input py-3 pl-11 pr-4 font-mono text-sm"
-                    value={formData.ip}
-                    onChange={e => setFormData({...formData, ip: e.target.value})}
-                 />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-white/30 ml-1">Control Port</label>
-              <input
-                type="text"
-                required
-                className="w-full neon-input py-3 px-4 font-mono text-sm"
-                value={formData.port}
-                onChange={e => setFormData({...formData, port: e.target.value})}
-              />
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Connection Type</label>
+            <div className="grid grid-cols-3 gap-3">
+               {[
+                 { id: 'Localhost', icon: Terminal },
+                 { id: 'IP Address', icon: Globe },
+                 { id: 'Tunnel', icon: Link2 }
+               ].map(type => (
+                 <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => setFormData({...formData, connection_type: type.id})}
+                    className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all text-xs font-bold ${
+                      formData.connection_type === type.id
+                      ? 'bg-neon-blue/10 border-neon-blue/20 text-neon-blue'
+                      : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
+                    }`}
+                 >
+                    <type.icon className="w-4 h-4" />
+                    {type.id}
+                 </button>
+               ))}
             </div>
           </div>
 
+          {formData.connection_type !== 'Localhost' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-2 duration-300">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">
+                  {formData.connection_type === 'Tunnel' ? 'Tunnel Address' : 'IP Address'}
+                </label>
+                <div className="relative">
+                   <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                   <input
+                      type="text"
+                      required
+                      className="w-full neon-input py-3 pl-11 pr-4 font-mono text-sm"
+                      placeholder={formData.connection_type === 'Tunnel' ? 'node.kspanel.io' : '1.2.3.4'}
+                      value={formData.host}
+                      onChange={e => setFormData({...formData, host: e.target.value})}
+                   />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Control Port</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full neon-input py-3 px-4 font-mono text-sm"
+                  value={formData.port}
+                  onChange={e => setFormData({...formData, port: e.target.value})}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="pt-4">
             <button type="submit" className="w-full neon-button py-4 font-bold flex items-center justify-center gap-2">
-              <Save className="w-5 h-5" />
-              Update Configuration
+              <Shield className="w-5 h-5" />
+              Save Configuration
             </button>
           </div>
         </form>
