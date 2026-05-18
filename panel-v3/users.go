@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -90,17 +91,27 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if u.Status != "" {
-			_, err := DB.Exec("UPDATE users SET status = $1 WHERE id = $2", u.Status, targetID)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+		if u.Status != "" || u.RoleID != 0 {
+			// Permission check for sensitive fields
+			authUser, _ := r.Context().Value(UserKey).(AuthUser)
+			if authUser.Permissions != "*" && !strings.Contains(authUser.Permissions, "manage_users") {
+				http.Error(w, "Forbidden: Cannot update status or role", http.StatusForbidden)
 				return
 			}
-		} else if u.RoleID != 0 {
-			_, err := DB.Exec("UPDATE users SET role_id = $1 WHERE id = $2", u.RoleID, targetID)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+
+			if u.Status != "" {
+				_, err := DB.Exec("UPDATE users SET status = $1 WHERE id = $2", u.Status, targetID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+			}
+			if u.RoleID != 0 {
+				_, err := DB.Exec("UPDATE users SET role_id = $1 WHERE id = $2", u.RoleID, targetID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
 			}
 		} else {
 			if u.Password != "" {

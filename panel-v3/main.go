@@ -87,8 +87,18 @@ func main() {
 
 	mux.Handle("/api/users", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case http.MethodPost, http.MethodPut, http.MethodDelete:
+		case http.MethodPost, http.MethodDelete:
 			perm("manage_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
+		case http.MethodPut:
+			// Special case for profile updates: user can update themselves, but needs perm for others
+			idStr := r.URL.Query().Get("id")
+			if idStr == "" {
+				// Updating self
+				HandleUsers(w, r)
+			} else {
+				// Updating someone else
+				perm("manage_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
+			}
 		default:
 			perm("view_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
 		}
@@ -159,7 +169,7 @@ func main() {
 
 		// Map of internal routes that should never be leaked
 		internalRoutes := []string{
-			"instances", "nodes", "node", "templates", "users", "user", "roles", "role", "themes", "theme", "settings", "notifications", "tickets", "ticket", "account",
+			"instances", "nodes", "node", "templates", "users", "user", "roles", "role", "themes", "theme", "settings", "notifications", "tickets", "ticket", "account", "database",
 		}
 
 		isInternal := false

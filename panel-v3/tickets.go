@@ -111,12 +111,12 @@ func HandleTickets(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			res, err := DB.Exec("INSERT INTO tickets (subject, user_id, status, priority) VALUES ($1, $2, $3, $4)", t.Subject, user.ID, "open", t.Priority)
+			var id int64
+			err := DB.QueryRow("INSERT INTO tickets (subject, user_id, status, priority) VALUES ($1, $2, $3, $4) RETURNING id", t.Subject, user.ID, "open", t.Priority).Scan(&id)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			id, _ := res.LastInsertId()
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]int64{"id": id})
 		}

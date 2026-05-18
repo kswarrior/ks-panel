@@ -38,6 +38,7 @@ export default function Sidebar({ isOpen, onClose }: any) {
   const navItems = [
     { name: 'Instances', icon: Box, href: '/instances', perm: 'view_instances' },
     { name: 'Nodes', icon: Server, href: '/node', perm: 'view_nodes' },
+    { name: 'Database', icon: Server, href: '/database', perm: 'view_nodes' },
     { name: 'Templates', icon: Layers, href: '/templates', perm: 'view_templates' },
     { name: 'Users', icon: Users, href: '/user', perm: 'view_users' },
     { name: 'Roles', icon: ShieldCheck, href: '/role', perm: 'view_roles' },
