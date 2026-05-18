@@ -95,11 +95,11 @@ export default function Sidebar({ isOpen, onClose }: any) {
                  </div>
                  <div>
                     <p className="text-xs font-bold leading-none mb-1 text-green-500">Node Status</p>
-                    <p className="text-[10px] text-white/40 font-medium">All systems normal</p>
+                    <p className="text-[10px] text-white/40 font-medium">System Operational</p>
                  </div>
               </div>
               <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                 <div className="h-full bg-green-500 w-[98%]" />
+                 <div className="h-full bg-green-500 w-full" />
               </div>
            </div>
         </div>

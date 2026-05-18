@@ -58,7 +58,19 @@ func main() {
 	perm := PermissionMiddleware
 
 	mux.Handle("/api/me", auth(http.HandlerFunc(HandleMe)))
-	mux.Handle("/api/instances", auth(perm("view_instances")(http.HandlerFunc(HandleInstances))))
+
+	mux.Handle("/api/instances", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			perm("manage_instances")(http.HandlerFunc(HandleCreateInstance)).ServeHTTP(w, r)
+		case http.MethodPut:
+			perm("manage_instances")(http.HandlerFunc(HandleUpdateInstance)).ServeHTTP(w, r)
+		case http.MethodDelete:
+			perm("manage_instances")(http.HandlerFunc(HandleDeleteInstance)).ServeHTTP(w, r)
+		default:
+			perm("view_instances")(http.HandlerFunc(HandleInstances)).ServeHTTP(w, r)
+		}
+	})))
 
 	mux.Handle("/api/nodes", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

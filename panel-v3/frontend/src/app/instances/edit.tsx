@@ -20,9 +20,9 @@ export default function InstancesEdit() {
         if (instance) {
           setFormData({
             name: instance.name,
-            memory: '1024', // Default for now
-            cpu: '100',
-            disk: '5120'
+            memory: instance.memory?.toString() || '1024',
+            cpu: instance.cpu?.toString() || '100',
+            disk: instance.disk?.toString() || '5120'
           });
         }
       });
@@ -30,8 +30,12 @@ export default function InstancesEdit() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real scenario, we'd have a PUT /api/instances/:id
-    navigate('/instances');
+    const res = await fetch(`/api/instances?id=${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    if (res.ok) navigate('/instances');
   };
 
   return (
@@ -67,7 +71,7 @@ export default function InstancesEdit() {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-black uppercase tracking-widest text-white/30 ml-1">RAM (MB)</label>
               <input

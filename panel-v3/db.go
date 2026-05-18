@@ -56,6 +56,9 @@ func InitDB() {
 			status TEXT,
 			node_id INTEGER,
 			template_id INTEGER,
+			memory INTEGER,
+			cpu INTEGER,
+			disk INTEGER,
 			FOREIGN KEY(node_id) REFERENCES nodes(id)
 		);`,
 		`CREATE TABLE IF NOT EXISTS templates (
@@ -122,6 +125,9 @@ func InitDB() {
 	DB.Exec("ALTER TABLE nodes ADD COLUMN disk_usage TEXT;")
 	DB.Exec("ALTER TABLE nodes ADD COLUMN connection_type TEXT DEFAULT 'IP Address';")
 	DB.Exec("ALTER TABLE templates ADD COLUMN config TEXT;")
+	DB.Exec("ALTER TABLE instances ADD COLUMN memory INTEGER;")
+	DB.Exec("ALTER TABLE instances ADD COLUMN cpu INTEGER;")
+	DB.Exec("ALTER TABLE instances ADD COLUMN disk INTEGER;")
 
 	log.Println("Database initialized successfully.")
 	SeedRoles()
