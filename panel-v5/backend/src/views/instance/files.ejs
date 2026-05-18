@@ -1,0 +1,892 @@
+<%- include('../components/template') %>
+<main id="content" class="min-h-screen pb-24 bg-transparent">
+   <%
+      function formatLastUpdated(dateString) {
+         const date = new Date(dateString);
+         const now = new Date();
+         const diffTime = Math.abs(now - date);
+         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+         if (diffDays > 30) {
+           return date.toLocaleString('en-US', {
+             year: 'numeric',
+             month: 'short',
+             day: 'numeric',
+             hour: 'numeric',
+             minute: '2-digit',
+             hour12: true
+           });
+         } else {
+           return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+         }
+       }
+   %>
+   <%
+      function getFileIcon(purpose) {
+        const icons = {
+          programming: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 flex-shrink-0 text-blue-400"><path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd" /></svg>`,
+          webDevelopment: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 flex-shrink-0 text-orange-400"><path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd" /></svg>`,
+          textDocument: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 flex-shrink-0 text-gray-400"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd" /></svg>`,
+          other: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 flex-shrink-0 text-neutral-400"><path fill-rule="evenodd" d="M4.25 12a.75.75 0 0 1 .75-.75h14a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /></svg>`
+        };
+        return icons[purpose] || icons.other;
+      }
+   %>
+
+   <!-- Header -->
+   <div class="px-4 sm:px-6 lg:px-8 pt-4">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+         <div class="flex-1 min-w-0">
+            <h1 class="text-lg sm:text-xl lg:text-2xl font-medium text-white truncate">Manage Instance</h1>
+            <p class="mt-1 text-xs sm:text-sm text-neutral-500">View, update and manage instance files.</p>
+         </div>
+         <% let query = req.query.path ? '?path=' + req.query.path : ''; %>
+         <div class="flex flex-wrap gap-2">
+            <input type="text" id="searchInput" placeholder="Search files..."
+               class="w-full sm:w-48 lg:w-64 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-neutral-500 focus:outline-none focus:border-neutral-500 transition">
+
+            <!-- Upload from URL -->
+            <button id="urlUploadBtn"
+               class="flex-1 sm:flex-none text-center rounded-xl px-3 py-2 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition">
+               <span class="hidden sm:inline">🌐 Upload from URL</span>
+               <span class="sm:hidden">URL</span>
+            </button>
+
+            <a href="/instance/<%= req.params.id %>/files/create<%= query %>"
+               class="flex-1 sm:flex-none text-center rounded-xl px-3 py-2 text-xs sm:text-sm font-medium bg-white/5 hover:bg-white/10 text-white border border-white/10 transition">
+               <span class="sm:hidden">+ File</span>
+               <span class="hidden sm:inline">Create File</span>
+            </a>
+            <a href="/instance/<%= req.params.id %>/files/folder/create<%= query %>"
+               class="flex-1 sm:flex-none text-center rounded-xl px-3 py-2 text-xs sm:text-sm font-medium bg-white/5 hover:bg-white/10 text-white border border-white/10 transition">
+               <span class="sm:hidden">+ Folder</span>
+               <span class="hidden sm:inline">Create Folder</span>
+            </a>
+            <button id="uploadBtn"
+               class="flex-1 sm:flex-none text-center rounded-xl px-3 py-2 text-xs sm:text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition">
+               <span class="sm:hidden">Upload</span>
+               <span class="hidden sm:inline">Upload File(s)</span>
+            </button>
+            <input type="file" id="fileInput" multiple class="hidden">
+         </div>
+      </div>
+   </div>
+
+   <%- include('../components/instance') %>
+
+   <!-- Breadcrumb -->
+   <div class="px-4 sm:px-6 lg:px-8 mt-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+         <div class="flex-1 min-w-0 overflow-x-auto">
+            <nav class="flex items-center text-xs sm:text-sm text-neutral-300 whitespace-nowrap">
+               <a href="./files" class="hover:text-white transition">/app/data/</a>
+               <% if (req.query.path) {
+                    const parts = req.query.path.split('/');
+                    let currentPath = '';
+                    parts.forEach((part, index) => {
+                        currentPath += part; %>
+                        <% if (index < parts.length - 1) { %>
+                           <a href="./files?path=<%= currentPath %>" class="hover:text-white transition ml-0">/<%= part %></a>
+                        <% } else { %>
+                           <span class="text-white ml-0">/<%= part %></span>
+                        <% } %>
+                        <% currentPath += '/';
+                    });
+                } %>
+            </nav>
+         </div>
+         <p id="diskUsage" class="text-xs sm:text-sm text-neutral-400 whitespace-nowrap">Loading...</p>
+      </div>
+   </div>
+
+   <!-- File List Container -->
+   <div class="px-4 sm:px-6 lg:px-8 mt-4">
+
+      <!-- Desktop Table -->
+      <div class="hidden sm:block overflow-x-auto">
+         <table class="w-full border-separate border-spacing-0 border border-white/5 rounded-xl overflow-hidden">
+            <thead class="bg-white/5">
+               <tr>
+                  <th class="w-12 px-4 py-3 text-left">
+                     <input type="checkbox" id="selectAllDesktop" class="w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0">
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Name</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider w-24">Size</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider w-32">Modified</th>
+                  <th class="w-12 px-4 py-3"></th>
+               </tr>
+            </thead>
+            <tbody id="desktopFileList" class="divide-y divide-white/5 text-sm">
+               <% files.filter(f => f.isDirectory).forEach(dir => { %>
+                 <% let ext = req.query.path ? '?path=' + req.query.path : ''; %>
+                 <% let path = req.query.path ? req.query.path + '/' : ''; %>
+                 <tr class="hover:bg-white/5 transition group" data-filename="<%= dir.name %>" data-type="directory">
+                    <td class="px-4 py-3" onclick="event.stopPropagation()">
+                       <input type="checkbox" class="file-checkbox w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0" data-filename="<%= dir.name %>">
+                    </td>
+                    <td class="px-4 py-3">
+                       <a href="/instance/<%= req.params.id %>/files?path=<%= path %><%= dir.name %>" class="flex items-center gap-2 text-white hover:text-indigo-400 transition">
+                          <svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M3.75 3A1.75 1.75 0 0 0 2 4.75v3.26a3.235 3.235 0 0 1 1.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM3.75 9A1.75 1.75 0 0 0 2 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-4.5A1.75 1.75 0 0 0 16.25 9H3.75Z"/></svg>
+                          <span class="truncate"><%= dir.name %></span>
+                       </a>
+                    </td>
+                    <td class="px-4 py-3 text-neutral-400"><%= dir.size %></td>
+                    <td class="px-4 py-3 text-neutral-400"><%= formatLastUpdated(dir.lastUpdated) %></td>
+                    <td class="px-4 py-3 text-right relative">
+                       <button class="p-1 hover:bg-white/10 rounded-lg transition action-menu-btn" data-file="<%= dir.name %>" data-ext="<%= ext %>" aria-label="Actions">
+                          <svg class="w-5 h-5 text-neutral-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                       </button>
+                    </td>
+                 </tr>
+               <% }); %>
+
+               <% files.filter(f => !f.isDirectory).forEach(file => { %>
+                 <% let ext = req.query.path ? '?path=' + req.query.path : ''; %>
+                 <tr class="hover:bg-white/5 transition group" data-filename="<%= file.name %>" data-type="file">
+                    <td class="px-4 py-3" onclick="event.stopPropagation()">
+                       <input type="checkbox" class="file-checkbox w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0" data-filename="<%= file.name %>">
+                    </td>
+                    <td class="px-4 py-3">
+                       <a href="/instance/<%= req.params.id %>/files/view/<%= file.name %><%= ext %>" class="flex items-center gap-2 text-white hover:text-indigo-400 transition">
+                          <%- getFileIcon(file.purpose) %>
+                          <span class="truncate"><%= file.name %></span>
+                       </a>
+                    </td>
+                    <td class="px-4 py-3 text-neutral-400"><%= file.size %></td>
+                    <td class="px-4 py-3 text-neutral-400"><%= formatLastUpdated(file.lastUpdated) %></td>
+                    <td class="px-4 py-3 text-right relative">
+                       <button class="p-1 hover:bg-white/10 rounded-lg transition action-menu-btn" data-file="<%= file.name %>" data-ext="<%= ext %>" aria-label="Actions">
+                          <svg class="w-5 h-5 text-neutral-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                       </button>
+                    </td>
+                 </tr>
+               <% }); %>
+            </tbody>
+         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="sm:hidden space-y-2" id="mobileFileList">
+         <% files.filter(f => f.isDirectory).forEach(dir => { %>
+           <% let ext = req.query.path ? '?path=' + req.query.path : ''; %>
+           <% let path = req.query.path ? req.query.path + '/' : ''; %>
+           <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3" data-filename="<%= dir.name %>" data-type="directory">
+              <input type="checkbox" class="file-checkbox-mobile w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-600 flex-shrink-0" data-filename="<%= dir.name %>">
+              <a href="/instance/<%= req.params.id %>/files?path=<%= path %><%= dir.name %>" class="flex-1 min-w-0 flex items-center gap-2">
+                 <svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M3.75 3A1.75 1.75 0 0 0 2 4.75v3.26a3.235 3.235 0 0 1 1.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM3.75 9A1.75 1.75 0 0 0 2 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-4.5A1.75 1.75 0 0 0 16.25 9H3.75Z"/></svg>
+                 <div class="flex-1 min-w-0">
+                    <div class="text-white text-sm truncate font-medium"><%= dir.name %></div>
+                    <div class="text-neutral-400 text-xs"><%= dir.size %> • <%= formatLastUpdated(dir.lastUpdated) %></div>
+                 </div>
+              </a>
+              <button class="p-2 hover:bg-white/10 rounded-lg transition action-menu-btn-mobile flex-shrink-0" data-file="<%= dir.name %>" data-ext="<%= ext %>">
+                 <svg class="w-5 h-5 text-neutral-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+              </button>
+           </div>
+         <% }); %>
+
+         <% files.filter(f => !f.isDirectory).forEach(file => { %>
+           <% let ext = req.query.path ? '?path=' + req.query.path : ''; %>
+           <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3" data-filename="<%= file.name %>" data-type="file">
+              <input type="checkbox" class="file-checkbox-mobile w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-600 flex-shrink-0" data-filename="<%= file.name %>">
+              <a href="/instance/<%= req.params.id %>/files/view/<%= file.name %><%= ext %>" class="flex-1 min-w-0 flex items-center gap-2">
+                 <%- getFileIcon(file.purpose) %>
+                 <div class="flex-1 min-w-0">
+                    <div class="text-white text-sm truncate font-medium"><%= file.name %></div>
+                    <div class="text-neutral-400 text-xs"><%= file.size %> • <%= formatLastUpdated(file.lastUpdated) %></div>
+                 </div>
+              </a>
+              <button class="p-2 hover:bg-white/10 rounded-lg transition action-menu-btn-mobile flex-shrink-0" data-file="<%= file.name %>" data-ext="<%= ext %>">
+                 <svg class="w-5 h-5 text-neutral-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+              </button>
+           </div>
+         <% }); %>
+      </div>
+
+      <!-- Empty State -->
+      <% if (files.length === 0) { %>
+         <div class="text-center py-12 text-neutral-400">
+            <svg class="w-12 h-12 mx-auto mb-3 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            <p class="text-sm">This folder is empty</p>
+         </div>
+      <% } %>
+   </div>
+
+   <!-- Floating Action Bar -->
+   <div id="floatingBar" class="fixed bottom-0 left-0 right-0 bg-neutral-900/95 backdrop-blur border-t border-white/10 p-4 transform translate-y-full transition-transform duration-300 z-40">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+         <span id="selectedCount" class="text-sm text-white font-medium">0 selected</span>
+         <div class="flex gap-2">
+            <button id="massDownloadBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+               Download ZIP
+            </button>
+            <button id="deleteSelectedBtn" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+               Delete
+            </button>
+         </div>
+      </div>
+   </div>
+
+   <!-- Action Dropdown (Shared) -->
+   <div id="actionDropdown" class="fixed hidden bg-white rounded-xl shadow-xl w-56 z-50 py-1 border border-neutral-200">
+      <button id="actionDownload" class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition flex items-center gap-2">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v-4m0 0l4 4m-4-4l4-4m12 0v4m0 0l-4-4m4 4l-4 4"/></svg>
+         Download
+      </button>
+      <button id="actionEdit" class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition flex items-center gap-2">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+         Edit
+      </button>
+      <button id="actionRename" class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition flex items-center gap-2">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+         Rename
+      </button>
+      <button id="actionDelete" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition flex items-center gap-2">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+         Delete
+      </button>
+   </div>
+
+   <!-- Rename Modal -->
+   <div id="renameModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeRenameModal()"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+         <div class="bg-white rounded-2xl w-full max-w-md p-6 pointer-events-auto shadow-2xl transform scale-95 opacity-0 transition-all duration-200" id="renameModalContent">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-1">Rename</h3>
+            <p class="text-sm text-neutral-500 mb-4">Enter a new name for this item.</p>
+            <input type="text" id="renameInput" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition mb-4" placeholder="New name">
+            <p id="renameWarning" class="hidden text-sm text-amber-600 mb-4 flex items-center gap-1">
+               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+               Changing extension may affect functionality
+            </p>
+            <div class="flex gap-2 justify-end">
+               <button onclick="closeRenameModal()" class="px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition">Cancel</button>
+               <button onclick="confirmRename()" class="px-4 py-2 text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 rounded-lg transition">Rename</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Delete Modal -->
+   <div id="deleteModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+         <div class="bg-white rounded-2xl w-full max-w-md p-6 pointer-events-auto shadow-2xl transform scale-95 opacity-0 transition-all duration-200" id="deleteModalContent">
+            <div class="flex items-center gap-3 mb-4">
+               <div class="bg-red-100 p-2 rounded-full">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+               </div>
+               <h3 class="text-lg font-semibold text-neutral-900">Confirm Delete</h3>
+            </div>
+            <p id="deleteMessage" class="text-sm text-neutral-600 mb-6">Are you sure? This cannot be undone.</p>
+            <div class="flex gap-2 justify-end">
+               <button onclick="closeDeleteModal()" class="px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition">Cancel</button>
+               <button id="confirmDeleteBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-500 rounded-lg transition">Delete</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Mass Delete Modal -->
+   <div id="massDeleteModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMassDeleteModal()"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+         <div class="bg-white rounded-2xl w-full max-w-md p-6 pointer-events-auto shadow-2xl transform scale-95 opacity-0 transition-all duration-200" id="massDeleteModalContent">
+            <div class="flex items-center gap-3 mb-4">
+               <div class="bg-red-100 p-2 rounded-full">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+               </div>
+               <h3 class="text-lg font-semibold text-neutral-900">Delete Multiple Files</h3>
+            </div>
+            <p id="massDeleteMessage" class="text-sm text-neutral-600 mb-6"></p>
+            <div class="flex gap-2 justify-end">
+               <button onclick="closeMassDeleteModal()" class="px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition">Cancel</button>
+               <button id="confirmMassDeleteBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-500 rounded-lg transition">Delete All</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Upload Modal -->
+   <div id="uploadModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+         <div class="bg-white rounded-2xl w-full max-w-md p-6 pointer-events-auto shadow-2xl">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Uploading...</h3>
+            <div class="w-full bg-neutral-200 rounded-full h-2 mb-2">
+               <div id="uploadProgressBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="uploadStatusText" class="text-sm text-neutral-600 text-center">0%</p>
+         </div>
+      </div>
+   </div>
+
+   <!-- Upload from URL Modal -->
+   <div id="urlUploadModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeUrlModal()"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+         <div class="bg-white rounded-2xl w-full max-w-md p-6 pointer-events-auto shadow-2xl">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">🌐 Upload from URL</h3>
+            <input type="text" id="urlInput" placeholder="https://example.com/file.zip" class="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-emerald-500 mb-4">
+            <input type="text" id="urlFilename" placeholder="Optional custom filename" class="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-emerald-500 mb-6">
+            <div class="flex gap-2 justify-end">
+               <button onclick="closeUrlModal()" class="px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg">Cancel</button>
+               <button onclick="startUrlUpload()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg">Download to Server</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <script>
+      // State management
+      const state = {
+         selectedFiles: new Set(),
+         currentActionFile: null,
+         currentActionExt: null,
+         isMobile: window.innerWidth < 640
+      };
+
+      // Utility functions
+      const qs = (selector) => document.querySelector(selector);
+      const qsa = (selector) => document.querySelectorAll(selector);
+
+      // Update floating bar
+      function updateSelectionUI() {
+         const count = state.selectedFiles.size;
+         const floatingBar = qs('#floatingBar');
+         const countEl = qs('#selectedCount');
+
+         if (countEl) countEl.textContent = `${count} selected`;
+
+         if (floatingBar) {
+            if (count > 0) {
+               floatingBar.classList.remove('translate-y-full');
+            } else {
+               floatingBar.classList.add('translate-y-full');
+            }
+         }
+
+         // Sync checkboxes
+         qsa('.file-checkbox, .file-checkbox-mobile').forEach(cb => {
+            cb.checked = state.selectedFiles.has(cb.dataset.filename);
+         });
+
+         // Update select all
+         const selectAllDesktop = qs('#selectAllDesktop');
+         if (selectAllDesktop) {
+            const allFiles = Array.from(qsa('.file-checkbox')).map(cb => cb.dataset.filename);
+            selectAllDesktop.checked = allFiles.length > 0 && allFiles.every(f => state.selectedFiles.has(f));
+         }
+      }
+
+      // Toggle file selection
+      function toggleFileSelection(filename, checked) {
+         if (checked) {
+            state.selectedFiles.add(filename);
+         } else {
+            state.selectedFiles.delete(filename);
+         }
+         updateSelectionUI();
+      }
+
+      // Event delegation for checkboxes
+      document.addEventListener('change', (e) => {
+         if (e.target.classList.contains('file-checkbox') || e.target.classList.contains('file-checkbox-mobile')) {
+            toggleFileSelection(e.target.dataset.filename, e.target.checked);
+         }
+      });
+
+      // Select all desktop
+      qs('#selectAllDesktop')?.addEventListener('change', (e) => {
+         const checkboxes = qsa('.file-checkbox');
+         checkboxes.forEach(cb => {
+            if (e.target.checked) {
+               state.selectedFiles.add(cb.dataset.filename);
+            } else {
+               state.selectedFiles.delete(cb.dataset.filename);
+            }
+         });
+         updateSelectionUI();
+      });
+
+      // Action dropdown positioning
+      function showActionDropdown(triggerEl, file, ext) {
+         state.currentActionFile = file;
+         state.currentActionExt = ext;
+
+         const dropdown = qs('#actionDropdown');
+         const rect = triggerEl.getBoundingClientRect();
+
+         // Calculate position
+         let top = rect.bottom + 4;
+         let left = rect.left - 160; // Align right edge
+
+         // Boundary checks
+         if (left < 8) left = 8;
+         if (left + 192 > window.innerWidth) left = window.innerWidth - 200;
+         if (top + 80 > window.innerHeight) top = rect.top - 84;
+
+         dropdown.style.top = `${top}px`;
+         dropdown.style.left = `${left}px`;
+         dropdown.classList.remove('hidden');
+
+         // Show/hide Edit button only for editable text files (Pterodactyl style)
+         const isText = /\.(txt|js|json|yml|yaml|conf|ini|log|md|html|css|php|py|sh)$/i.test(file);
+         if (qs('#actionEdit')) qs('#actionEdit').style.display = isText ? 'block' : 'none';
+
+         // Close on outside click
+         setTimeout(() => {
+            document.addEventListener('click', closeActionDropdown, { once: true });
+         }, 0);
+      }
+
+      function closeActionDropdown() {
+         qs('#actionDropdown')?.classList.add('hidden');
+      }
+
+      // Desktop action buttons
+      document.addEventListener('click', (e) => {
+         const btn = e.target.closest('.action-menu-btn');
+         if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            showActionDropdown(btn, btn.dataset.file, btn.dataset.ext);
+         }
+      });
+
+      // Mobile action buttons
+      document.addEventListener('click', (e) => {
+         const btn = e.target.closest('.action-menu-btn-mobile');
+         if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            showActionDropdown(btn, btn.dataset.file, btn.dataset.ext);
+         }
+      });
+
+      // Dropdown actions
+      qs('#actionDownload')?.addEventListener('click', () => {
+         closeActionDropdown();
+         const row = document.querySelector(`[data-filename="${state.currentActionFile}"]`);
+         const isDir = row && row.dataset.type === 'directory';
+         const url = isDir
+            ? `/instance/<%= req.params.id %>/files/archive/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}`
+            : `/instance/<%= req.params.id %>/files/download/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}`;
+         window.location.href = url;
+      });
+
+      qs('#actionEdit')?.addEventListener('click', () => {
+         closeActionDropdown();
+         window.location.href = `/instance/<%= req.params.id %>/files/edit/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}`;
+      });
+
+      qs('#actionRename')?.addEventListener('click', () => {
+         closeActionDropdown();
+         openRenameModal(state.currentActionFile, state.currentActionExt);
+      });
+
+      qs('#actionDelete')?.addEventListener('click', () => {
+         closeActionDropdown();
+         openDeleteModal(state.currentActionFile, state.currentActionExt);
+      });
+
+      // Rename functionality
+      function openRenameModal(file, ext) {
+         state.currentActionFile = file;
+         state.currentActionExt = ext;
+
+         const modal = qs('#renameModal');
+         const input = qs('#renameInput');
+         const content = qs('#renameModalContent');
+
+         input.value = file;
+         modal.classList.remove('hidden');
+
+         // Animation
+         requestAnimationFrame(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+         });
+
+         input.focus();
+         const dotIndex = file.lastIndexOf('.');
+         if (dotIndex > 0) {
+            input.setSelectionRange(0, dotIndex);
+         } else {
+            input.select();
+         }
+      }
+
+      function closeRenameModal() {
+         const modal = qs('#renameModal');
+         const content = qs('#renameModalContent');
+
+         content.classList.remove('scale-100', 'opacity-100');
+         content.classList.add('scale-95', 'opacity-0');
+
+         setTimeout(() => {
+            modal.classList.add('hidden');
+         }, 200);
+      }
+
+      function confirmRename() {
+         const newName = qs('#renameInput').value.trim();
+         if (!newName || newName === state.currentActionFile) {
+            closeRenameModal();
+            return;
+         }
+
+         const url = `/instance/<%= req.params.id %>/files/rename/${encodeURIComponent(state.currentActionFile)}/${encodeURIComponent(newName)}${state.currentActionExt}`;
+         window.location.href = url;
+      }
+
+      qs('#renameInput')?.addEventListener('input', (e) => {
+         const newExt = e.target.value.split('.').pop();
+         const oldExt = state.currentActionFile.split('.').pop();
+         const warning = qs('#renameWarning');
+
+         if (newExt !== oldExt) {
+            warning?.classList.remove('hidden');
+         } else {
+            warning?.classList.add('hidden');
+         }
+      });
+
+      qs('#renameInput')?.addEventListener('keydown', (e) => {
+         if (e.key === 'Enter') confirmRename();
+         if (e.key === 'Escape') closeRenameModal();
+      });
+
+      // Delete functionality
+      function openDeleteModal(file, ext) {
+         state.currentActionFile = file;
+         state.currentActionExt = ext;
+
+         const modal = qs('#deleteModal');
+         const content = qs('#deleteModalContent');
+         const msg = qs('#deleteMessage');
+
+         msg.textContent = `Delete"${file}"? This action is permanent.`;
+         modal.classList.remove('hidden');
+
+         requestAnimationFrame(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+         });
+      }
+
+      function closeDeleteModal() {
+         const modal = qs('#deleteModal');
+         const content = qs('#deleteModalContent');
+
+         content.classList.remove('scale-100', 'opacity-100');
+         content.classList.add('scale-95', 'opacity-0');
+
+         setTimeout(() => {
+            modal.classList.add('hidden');
+         }, 200);
+      }
+
+      qs('#confirmDeleteBtn')?.addEventListener('click', () => {
+         const url = `/instance/<%= req.params.id %>/files/delete/${encodeURIComponent(state.currentActionFile)}${state.currentActionExt}`;
+         window.location.href = url;
+      });
+
+      // Mass delete
+      qs('#deleteSelectedBtn')?.addEventListener('click', () => {
+         const modal = qs('#massDeleteModal');
+         const content = qs('#massDeleteModalContent');
+         const msg = qs('#massDeleteMessage');
+
+         msg.textContent = `Delete ${state.selectedFiles.size} items? This cannot be undone.`;
+         modal.classList.remove('hidden');
+
+         requestAnimationFrame(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+         });
+      });
+
+      function closeMassDeleteModal() {
+         const modal = qs('#massDeleteModal');
+         const content = qs('#massDeleteModalContent');
+
+         content.classList.remove('scale-100', 'opacity-100');
+         content.classList.add('scale-95', 'opacity-0');
+
+         setTimeout(() => {
+            modal.classList.add('hidden');
+         }, 200);
+      }
+
+      qs('#confirmMassDeleteBtn')?.addEventListener('click', async () => {
+         closeMassDeleteModal();
+
+         const files = Array.from(state.selectedFiles);
+         const promises = files.map(f =>
+            fetch(`/instance/<%= req.params.id %>/files/delete/${encodeURIComponent(f)}<%= query %>`)
+         );
+
+         try {
+            await Promise.all(promises);
+            window.location.reload();
+         } catch (err) {
+            console.error('Delete error:', err);
+            alert('Some files could not be deleted.');
+         }
+      });
+
+      // Upload functionality
+      qs('#uploadBtn')?.addEventListener('click', () => {
+         qs('#fileInput')?.click();
+      });
+
+      qs('#fileInput')?.addEventListener('change', (e) => {
+         const files = e.target.files;
+         if (!files.length) return;
+
+         const modal = qs('#uploadModal');
+         const progressBar = qs('#uploadProgressBar');
+         const statusText = qs('#uploadStatusText');
+
+         modal.classList.remove('hidden');
+
+         const formData = new FormData();
+         Array.from(files).forEach(f => formData.append('files', f));
+
+         const xhr = new XMLHttpRequest();
+
+         xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+               const percent = Math.round((e.loaded / e.total) * 100);
+               progressBar.style.width = `${percent}%`;
+               statusText.textContent = `${percent}%`;
+            }
+         });
+
+         xhr.addEventListener('load', () => {
+            statusText.textContent = 'Complete!';
+            setTimeout(() => window.location.reload(), 500);
+         });
+
+         xhr.addEventListener('error', () => {
+            statusText.textContent = 'Upload failed';
+            setTimeout(() => modal.classList.add('hidden'), 2000);
+         });
+
+         xhr.open('POST', `/instance/<%= req.params.id %>/files/upload<%= query %>`);
+         xhr.send(formData);
+
+         e.target.value = '';
+      });
+
+      // Search functionality
+      qs('#searchInput')?.addEventListener('keydown', async (e) => {
+         if (e.key !== 'Enter') return;
+
+         const query = e.target.value.trim();
+         if (!query) return window.location.reload();
+
+         const desktopList = qs('#desktopFileList');
+         const mobileList = qs('#mobileFileList');
+
+         if (desktopList) desktopList.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-neutral-400">Searching...</td></tr>';
+         if (mobileList) mobileList.innerHTML = '<div class="text-center py-8 text-neutral-400">Searching...</div>';
+
+         try {
+            const res = await fetch(`/instance/<%= req.params.id %>/files/search?q=${encodeURIComponent(query)}`);
+            const data = await res.json();
+
+            if (!data.files?.length) {
+               const empty = '<div class="text-center py-8 text-neutral-400">No files found</div>';
+               if (desktopList) desktopList.innerHTML = empty;
+               if (mobileList) mobileList.innerHTML = empty;
+               return;
+            }
+
+            // Render results (both views)
+            renderSearchResults(data.files);
+         } catch (err) {
+            console.error('Search error:', err);
+         }
+      });
+
+      function renderSearchResults(files) {
+         const desktopList = qs('#desktopFileList');
+         const mobileList = qs('#mobileFileList');
+
+         if (desktopList) {
+            desktopList.innerHTML = files.map(f => `
+               <tr class="hover:bg-white/5 transition">
+                  <td class="px-4 py-3"><input type="checkbox" class="file-checkbox w-4 h-4 rounded" data-filename="${f.name}"></td>
+                  <td class="px-4 py-3">
+                     <a href="/instance/<%= req.params.id %>/files/view/${f.name}" class="flex items-center gap-2 text-white">
+                        ${getFileIcon(f.purpose)}
+                        <span class="truncate">${f.name}</span>
+                     </a>
+                  </td>
+                  <td class="px-4 py-3 text-neutral-400">${f.size}</td>
+                  <td class="px-4 py-3 text-neutral-400">${new Date(f.lastUpdated).toLocaleDateString()}</td>
+                  <td class="px-4 py-3"></td>
+               </tr>
+            `).join('');
+         }
+
+         if (mobileList) {
+            mobileList.innerHTML = files.map(f => `
+               <div class="bg-white/5 rounded-xl p-3 flex items-center gap-3">
+                  <input type="checkbox" class="file-checkbox-mobile w-4 h-4 rounded" data-filename="${f.name}">
+                  <a href="/instance/<%= req.params.id %>/files/view/${f.name}" class="flex-1 min-w-0">
+                     <div class="flex items-center gap-2">
+                        ${getFileIcon(f.purpose)}
+                        <span class="text-white text-sm truncate">${f.name}</span>
+                     </div>
+                     <div class="text-neutral-400 text-xs">${f.size} • ${new Date(f.lastUpdated).toLocaleDateString()}</div>
+                  </a>
+               </div>
+            `).join('');
+         }
+      }
+
+      // WebSocket stats
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/<%= req.params.id %>`);
+
+      statsWs.onmessage = (e) => {
+         if (!e.data || e.data.includes('connected')) return;
+
+         try {
+            const stats = JSON.parse(e.data);
+            if (stats.error) return;
+
+            const diskRaw = parseFloat(stats.volumeSize) || 0;
+            const diskLimit = <%= typeof instance !== 'undefined' && instance.Disk ? instance.Disk : 0 %>;
+            const el = qs('#diskUsage');
+
+            if (!el) return;
+
+            const used = formatBytes(diskRaw * 1024 * 1024);
+
+            if (diskLimit === 0) {
+               el.textContent = `${used} / Unlimited`;
+               el.className = 'text-xs sm:text-sm text-neutral-400 whitespace-nowrap';
+            } else {
+               const percent = ((diskRaw / diskLimit) * 100).toFixed(1);
+               const total = formatBytes(diskLimit * 1024 * 1024);
+               el.textContent = `${used} / ${total} (${percent}%)`;
+
+               if (percent >= 100) el.className = 'text-xs sm:text-sm text-red-500 font-medium whitespace-nowrap';
+               else if (percent >= 90) el.className = 'text-xs sm:text-sm text-amber-500 whitespace-nowrap';
+               else el.className = 'text-xs sm:text-sm text-neutral-400 whitespace-nowrap';
+            }
+         } catch (err) {
+            // Ignore non-JSON messages
+         }
+      };
+
+      function formatBytes(bytes) {
+         if (bytes === 0) return '0 B';
+         const k = 1024;
+         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+         const i = Math.floor(Math.log(bytes) / Math.log(k));
+         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+      }
+
+      function getFileIcon(purpose) {
+         const icons = {
+            programming: `<svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd"/></svg>`,
+            webDevelopment: `<svg class="w-5 h-5 text-orange-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd"/></svg>`,
+            textDocument: `<svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd"/></svg>`,
+            other: `<svg class="w-5 h-5 text-neutral-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4.25 12a.75.75 0 0 1 .75-.75h14a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>`
+         };
+         return icons[purpose] || icons.other;
+      }
+
+      // Handle resize
+      window.addEventListener('resize', () => {
+         state.isMobile = window.innerWidth < 640;
+         closeActionDropdown();
+      });
+
+      // Close dropdowns on scroll
+      window.addEventListener('scroll', closeActionDropdown, { passive: true });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+         if (e.key === 'Escape') {
+            closeRenameModal();
+            closeDeleteModal();
+            closeMassDeleteModal();
+            closeActionDropdown();
+            closeUrlModal();
+         }
+      });
+
+      // === NEW FEATURES: Upload from URL + Mass Download + Drag & Drop ===
+      qs('#urlUploadBtn')?.addEventListener('click', () => {
+         qs('#urlUploadModal').classList.remove('hidden');
+         qs('#urlInput').focus();
+      });
+
+      function closeUrlModal() {
+         qs('#urlUploadModal').classList.add('hidden');
+      }
+
+      async function startUrlUpload() {
+         const url = qs('#urlInput').value.trim();
+         const filename = qs('#urlFilename').value.trim();
+         if (!url) return;
+         closeUrlModal();
+         try {
+            const res = await fetch(`/instance/<%= req.params.id %>/files/pull${query}`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ url, filename })
+            });
+            if (res.ok) window.location.reload();
+            else alert('Failed to pull file from URL');
+         } catch (err) {
+            alert('Network error while pulling file');
+         }
+      }
+
+      // Mass Download ZIP
+      qs('#massDownloadBtn')?.addEventListener('click', async () => {
+         if (state.selectedFiles.size === 0) return;
+         const filesList = Array.from(state.selectedFiles);
+         try {
+            const res = await fetch(`/instance/<%= req.params.id %>/files/archive-selected${query}`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ files: filesList })
+            });
+            if (res.ok) {
+               const blob = await res.blob();
+               const a = document.createElement('a');
+               a.href = URL.createObjectURL(blob);
+               a.download = 'selected-files.zip';
+               a.click();
+            } else {
+               alert('Failed to create ZIP');
+            }
+         } catch (err) {
+            alert('Network error while downloading ZIP');
+         }
+      });
+
+      // Drag & Drop support (Pterodactyl style)
+      const listArea = qs('.hidden.sm\\:block') || qs('#mobileFileList');
+      if (listArea) {
+         listArea.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+         listArea.addEventListener('drop', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.dataTransfer.files.length) {
+               qs('#fileInput').files = e.dataTransfer.files;
+               qs('#fileInput').dispatchEvent(new Event('change'));
+            }
+         });
+      }
+   </script>
+</main>
+<%- include('../components/footer') %>

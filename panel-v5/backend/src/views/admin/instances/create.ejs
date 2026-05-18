@@ -1,0 +1,582 @@
+<%- include('../../components/template') %>
+<style>
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: white;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-size: 0.875rem;
+}
+
+.input-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.field-long,
+.field-short {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .field-long {
+    grid-column: span 2;
+  }
+
+  .field-short {
+    grid-column: span 1;
+  }
+}
+
+/* checkbox / radio */
+.proxy-checkbox,
+.radio-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.proxy-checkbox input[type="checkbox"] {
+  accent-color: #3b82f6;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  accent-color: #3b82f6;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
+}
+
+.radio-option:hover {
+  background-color: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.radio-option.selected {
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.proxy-checkbox {
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  background-color-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.proxy-checkbox:hover {
+  background-color: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* select textarea */
+textarea.input-field,
+select.input-field {
+  resize: vertical;
+  min-height: 3rem;
+  cursor: pointer;
+}
+
+select.input-field option {
+  background-color: #1e293b;
+  color: white;
+}
+
+/* hidden */
+.hidden {
+  display: none;
+}
+
+/* Section headers matching the reference style */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-header h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* Labels matching reference */
+label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+/* Helper text */
+small {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.25rem;
+}
+
+/* Submit button styling */
+.submit-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 2rem;
+}
+
+.submit-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Back button */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: rgba(30, 41, 59, 1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Card container */
+.form-card {
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+/* Header area */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.page-header p {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+</style>
+
+<main id="content" class="animate-fade-in max-w-screen-2xl mx-auto">
+  <div class="bg-transparent px-4 md:px-6 lg:px-8 py-8">
+
+    <div class="header-actions">
+      <div class="page-header">
+        <h1>Create New Instance</h1>
+        <p>Deploy a new server instance using a template with custom resources and port allocation</p>
+      </div>
+
+      <a href="/admin/instances/overview" class="back-btn">
+        ← Back to Instances
+      </a>
+    </div>
+
+    <div class="max-w-5xl mx-auto">
+      <div class="form-card">
+        <form id="instanceForm">
+
+          <!-- BASIC -->
+          <div class="section-header">
+            <div class="section-line"></div>
+            <h2>Basic Information</h2>
+            <div class="section-line"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label><%= req.translations.name %> <span class="required">*</span></label>
+              <input id="name" class="input-field" placeholder="My instance" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label><%= req.translations.user %> <span class="required">*</span></label>
+              <select id="user" class="input-field" required>
+                <% users.forEach(function(user) { %>
+                  <option value="<%= user.userId %>"><%= user.username %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="field-short">
+              <label>Template <span class="required">*</span></label>
+              <select id="template" class="input-field" required>
+                <option value="">-- Select template --</option>
+                <% templates.forEach(function(template) { %>
+                  <option value="<%= template.filename %>" data-variables="<%= JSON.stringify(template.Variables || []) %>"><%= template.Name %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label><%= req.translations.node %> <span class="required">*</span></label>
+              <select id="node" class="input-field" required>
+                <option value="">-- Select node --</option>
+                <% nodes.forEach(function(node) { %>
+                  <option value="<%= node.id %>"><%= node.name %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+          <!-- RESOURCES -->
+          <div class="section-header">
+            <div class="section-line"></div>
+            <h2>Resource Limits</h2>
+            <div class="section-line"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-short">
+              <label><%= req.translations.memory %> (MiB) <span class="required">*</span></label>
+              <input id="memory" class="input-field" placeholder="2048" required>
+            </div>
+
+            <div class="field-short">
+              <label><%= req.translations.cpuThreads %> <span class="required">*</span></label>
+              <input id="cpu" class="input-field" placeholder="1" required>
+            </div>
+
+            <div class="field-short">
+              <label>Disk (MiB) <span class="required">*</span></label>
+              <input id="disk" class="input-field" placeholder="10240" required>
+            </div>
+          </div>
+
+          <!-- ALLOCATION -->
+          <div class="section-header">
+            <div class="section-line"></div>
+            <h2>Allocation (Host Port)</h2>
+            <div class="section-line"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-long">
+              <label>Select Host Port (Allocation) (IP:Port) <span class="required">*</span></label>
+              <select id="primary" class="input-field" required>
+                <option value="">-- Select node first --</option>
+              </select>
+              <small>Choose an available IP:Port from the selected node</small>
+            </div>
+          </div>
+
+          <!-- TEMPLATE VARIABLES (dynamic) -->
+          <div id="secondCard" class="hidden">
+            <div class="section-header">
+              <div class="section-line"></div>
+              <h2>Template Variables</h2>
+              <div class="section-line"></div>
+            </div>
+            <div id="variablesForm" class="space-y-6"></div>
+          </div>
+
+          <!-- SUBMIT -->
+          <button id="createInstancesBtn"  class="submit-btn">
+            <%= req.translations.create %>
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+    <div id="notification"
+         class="fixed bottom-6 right-6 hidden flex items-center gap-3 bg-emerald-600 text-white px-6 py-4 rounded-lg shadow-2xl text-sm font-medium z-50">
+      <span id="notification-text"></span>
+    </div>
+  </div>
+
+  <script>
+    // Template variables handler
+    document.getElementById('template').addEventListener('change', function(event) {
+      var selectedOption = event.target.options[event.target.selectedIndex];
+      var variablesStr = selectedOption.getAttribute('data-variables');
+      var secondCard = document.getElementById('secondCard');
+      var variablesForm = document.getElementById('variablesForm');
+
+      variablesForm.innerHTML = '';
+
+      if (variablesStr && variablesStr !== '[]' && variablesStr !== '{}') {
+          secondCard.classList.remove('hidden');
+          let variables;
+          try { variables = JSON.parse(variablesStr); } catch(e) { console.error(e); secondCard.classList.add('hidden'); return; }
+
+          if (Array.isArray(variables)) {
+              variables.forEach(function(variable) {
+                  const id = variable.id || 'unknown';
+                  const label = variable.name || id;
+                  const defaultVal = variable.default || '';
+                  const desc = variable.description || '';
+                  const fieldHtml = `
+                      <div class="form-row">
+                          <div class="field-long">
+                              <label>${label}:</label>
+                              <input type="text" name="${id}" value="${defaultVal}" class="input-field" placeholder="${desc}">
+                              ${desc ? `<small>${desc}</small>` : ''}
+                          </div>
+                      </div>`;
+                  variablesForm.insertAdjacentHTML('beforeend', fieldHtml);
+              });
+          }
+      } else {
+          secondCard.classList.add('hidden');
+      }
+    });
+
+    // Node allocation loader
+    document.getElementById('node').addEventListener('change', async (e) => {
+      const nodeId = e.target.value;
+      const allocSelect = document.getElementById('primary');
+      allocSelect.innerHTML = '<option value="">Loading available ports...</option>';
+
+      if (!nodeId) {
+        allocSelect.innerHTML = '<option value="">-- Select node first --</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/admin/nodes/overview/${nodeId}/available-allocations`);
+        const allocations = await response.json();
+
+        allocSelect.innerHTML = '<option value="">-- Choose available host port --</option>';
+        allocations.forEach(alloc => {
+          const display = alloc.label.replace(/ \(.+\)$/, '');
+          const option = document.createElement('option');
+          option.value = display;
+          option.textContent = display;
+          allocSelect.appendChild(option);
+        });
+      } catch (err) {
+        allocSelect.innerHTML = '<option value="">Error loading ports</option>';
+      }
+    });
+
+    // Notification helper (exactly like node create)
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      const textEl = document.getElementById('notification-text');
+      textEl.textContent = message;
+
+      notification.className = `fixed bottom-6 right-6 flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl text-sm font-medium transition-all duration-300 ${
+        type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
+      }`;
+      notification.classList.remove('hidden');
+      notification.classList.add('flex');
+
+      setTimeout(() => {
+        notification.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          notification.classList.add('hidden');
+          notification.classList.remove('opacity-0', 'translate-y-2', 'flex');
+        }, 300);
+      }, 2800);
+    }
+
+    // Create Instance handler (exactly same pattern as node create)
+    document.getElementById('createInstancesBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('createInstancesBtn');
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Creating Instance...';
+
+      try {
+        const name = document.getElementById('name').value.trim();
+        const user = document.getElementById('user').value;
+        const template = document.getElementById('template').value;
+        const nodeId = document.getElementById('node').value;
+        const memory = document.getElementById('memory').value;
+        const cpu = document.getElementById('cpu').value;
+        const disk = document.getElementById('disk').value;
+        const primary = document.getElementById('primary').value;
+
+        // Validation (same style as node create - simple and clear)
+        if (!name || name.includes(' ')) {
+          throw new Error('Name is required (no spaces allowed)');
+        }
+        if (!template) {
+          throw new Error('Please select a template');
+        }
+        if (!nodeId) {
+          throw new Error('Please select a node');
+        }
+        if (!primary || !primary.includes(':')) {
+          throw new Error('Please select a valid IP:Port allocation');
+        }
+
+        const memNum = parseInt(memory, 10);
+        if (!Number.isInteger(memNum) || memNum <= 1) {
+          throw new Error('Memory must be an integer greater than 1');
+        }
+        const cpuNum = parseInt(cpu, 10);
+        if (!Number.isInteger(cpuNum) || cpuNum <= 0) {
+          throw new Error('CPU must be an integer greater than 0');
+        }
+        const diskNum = parseInt(disk, 10);
+        if (!Number.isInteger(diskNum) || diskNum <= 1) {
+          throw new Error('Disk must be an integer greater than 1');
+        }
+
+        const [allocationIp, allocationPortStr] = primary.split(':');
+        const allocationPort = parseInt(allocationPortStr, 10);
+        if (isNaN(allocationPort)) {
+          throw new Error('Invalid port number in allocation');
+        }
+
+        // Collect template variables
+        const variables = {};
+        document.querySelectorAll('#variablesForm input').forEach(inp => {
+          if (inp.name) variables[inp.name] = inp.value;
+        });
+
+        const data = {
+          name,
+          user,
+          templateFilename: template,
+          nodeId,
+          memory: memNum,
+          cpu: cpuNum,
+          disk: diskNum,
+          allocationIp,
+          allocationPort,
+          variables
+        };
+
+        const res = await fetch('/admin/instances/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+          let errData = {};
+          try {
+            errData = await res.json();
+          } catch (_) {}
+          throw new Error(errData.error || errData.message || 'Failed to create instance');
+        }
+
+        showNotification('Instance created successfully!', 'success');
+        setTimeout(() => {
+          window.location.href = '/admin/instances/overview/?err=CREATED';
+        }, 800);
+
+      } catch (e) {
+        showNotification(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+  </script>
+</main>
+
+<%- include('../../components/footer') %>

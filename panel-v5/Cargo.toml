@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "."
+]
+
+[package]
+name = "ks-panel-native"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Future dependencies for heavy-duty scanners

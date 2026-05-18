@@ -1,0 +1,1390 @@
+<%- include('../components/template') %>
+
+<style>
+/* ============================================
+   BASE STYLES - Exact colors preserved
+   ============================================ */
+
+.input-field {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background-color: #1c3b54;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.input-field:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevent iOS zoom on all inputs */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* ============================================
+   VIEW VISIBILITY - Mobile First Approach
+   FIXED: Proper display handling
+   ============================================ */
+
+/* Default: Mobile view active, Desktop hidden */
+.view-mobile {
+  display: block;
+}
+
+.view-desktop {
+  display: none;
+}
+
+/* Desktop breakpoint at 768px */
+@media (min-width: 768px) {
+  .view-mobile {
+    display: none !important;
+  }
+  .view-desktop {
+    display: block !important;
+  }
+}
+
+/* ============================================
+   ANIMATIONS - Enhanced with easing
+   ============================================ */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-out {
+  animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ============================================
+   KEY DISPLAY - Monospace formatting
+   ============================================ */
+
+.key-display {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  letter-spacing: -0.025em;
+  word-break: break-all;
+  line-height: 1.6;
+}
+
+/* ============================================
+   HIDDEN UTILITY
+   ============================================ */
+
+.hidden-view {
+  display: none !important;
+}
+
+/* ============================================
+   TOUCH OPTIMIZATIONS - Mobile specific
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .hover\:scale-\[1\.02\]:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ============================================
+   GLASSMORPHISM ENHANCEMENTS
+   ============================================ */
+
+.glass-panel {
+  background: rgba(23, 23, 23, 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@supports not (backdrop-filter: blur(24px)) {
+  .glass-panel {
+    background: rgba(23, 23, 23, 0.85);
+  }
+}
+
+/* ============================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================ */
+
+.text-responsive {
+  font-size: clamp(0.875rem, 0.8rem + 0.5vw, 1rem);
+}
+
+.heading-responsive {
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+}
+
+/* ============================================
+   MOBILE CARD ENHANCEMENTS - Optimistic UI
+   ============================================ */
+
+.mobile-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-card:active {
+  transform: scale(0.98);
+}
+
+.mobile-card.deleting {
+  opacity: 0.5;
+  pointer-events: none;
+  transform: translateX(10px);
+}
+
+.mobile-card.optimistic {
+  position: relative;
+}
+
+.mobile-card.optimistic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mobile-card.optimistic .key-content {
+  filter: blur(0.5px);
+}
+
+/* ============================================
+   DESKTOP TABLE ENHANCEMENTS - Optimistic UI
+   ============================================ */
+
+@media (min-width: 768px) {
+  .table-row-hover {
+    transition: background-color 0.15s ease;
+  }
+
+  .table-row-hover:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .desktop-row.deleting {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .desktop-row.optimistic {
+    position: relative;
+  }
+
+  .desktop-row.optimistic::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+/* ============================================
+   OPTIMISTIC UI STATES - Enhanced visibility
+   ============================================ */
+
+.optimistic-pending {
+  position: relative;
+  overflow: hidden;
+}
+
+.optimistic-pending::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  pointer-events: none;
+}
+
+.optimistic-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.5rem;
+}
+
+.optimistic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   FOCUS VISIBLE FOR KEYBOARD NAVIGATION
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   STYLISH BUTTON STATES
+   ============================================ */
+
+.btn-primary {
+  background: white;
+  color: black;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 40px -10px rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   ENHANCED KEY DISPLAY
+   ============================================ */
+
+.key-container {
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.key-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+/* ============================================
+   NOTIFICATION ENHANCEMENTS
+   ============================================ */
+
+.notification {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  left: 1rem;
+  z-index: 9999;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 640px) {
+  .notification {
+    left: auto;
+    max-width: 400px;
+  }
+}
+
+.notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ============================================
+   STYLISH EMPTY STATES
+   ============================================ */
+
+.empty-state-icon {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   CARD HOVER EFFECTS
+   ============================================ */
+
+@media (min-width: 768px) {
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ============================================
+   STYLISH HEADER
+   ============================================ */
+
+.page-header {
+  position: relative;
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+/* ============================================
+   DELETE BUTTON ENHANCEMENTS
+   ============================================ */
+
+.delete-btn-styled {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.delete-btn-styled::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(239, 68, 68, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.delete-btn-styled:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.delete-btn-styled:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   STATUS INDICATORS
+   ============================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-dot.pending {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: pulse 2s infinite;
+}
+
+/* ============================================
+   GRID LAYOUTS FOR CARDS
+   ============================================ */
+
+.cards-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================
+   TABLE CELL ALIGNMENT
+   ============================================ */
+
+.table-key-cell {
+  max-width: 300px;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .table-key-cell {
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .table-key-cell {
+    max-width: 500px;
+  }
+}
+
+/* ============================================
+   MOBILE CARD ID FIX - Prevent text overflow
+   ============================================ */
+.mobile-card-id {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  word-break: break-all;
+  line-height: 1.4;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+</style>
+
+<main id="content" class="animate-fade-in min-h-screen pb-24 sm:pb-20">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+
+    <!-- ============================================
+         HEADER SECTION - Enhanced responsive layout
+         ============================================ -->
+    <header class="page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 pb-6 sm:pb-8 mb-6 sm:mb-8">
+      <div class="space-y-2 sm:space-y-1">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight heading-responsive bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
+          <%= req.translations ? req.translations.APIKeys : 'API Keys' %>
+        </h1>
+        <p class="text-sm sm:text-base text-neutral-400 max-w-xl leading-relaxed">
+          <%= req.translations ? req.translations.APIKeysText : 'Manage your API keys for accessing the platform programmatically.' %>
+        </p>
+      </div>
+      <div class="flex-shrink-0">
+        <div id="createButton" role="button" tabindex="0"
+                class="w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-2.5 rounded-xl btn-primary font-semibold text-sm shadow-lg touch-target">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span class="hidden sm:inline"><%= req.translations ? req.translations.createNewAPIKey : 'Create New API Key' %></span>
+          <span class="sm:hidden whitespace-nowrap">Create Key</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================
+         SUCCESS BANNER - Enhanced visibility
+         ============================================ -->
+    <% if (req.query && req.query.err ==="CREATED") { %>
+      <div class="mt-6 sm:mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 sm:px-6 py-4 flex items-start gap-3 shadow-lg backdrop-blur-sm animate-slide-in">
+        <div class="flex-shrink-0 mt-0.5">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-base sm:text-lg font-semibold text-emerald-400"><%= req.translations ? req.translations.created : 'Created' %></h3>
+          <p class="text-sm text-emerald-300/80 mt-1 leading-relaxed"><%= req.translations ? req.translations.apiKeySuccessCreated : 'API key created successfully!' %></p>
+        </div>
+        <div onclick="this.parentElement.remove()" class="cursor-pointer flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 p-1 rounded-lg transition-colors touch-target" aria-label="Dismiss notification">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- ============================================
+         DESKTOP TABLE VIEW - Enhanced for 768px+
+         ============================================ -->
+    <div id="desktopTable" class="view-desktop mt-6 sm:mt-8">
+      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl glass-panel hover-lift">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-white">
+            <thead class="bg-neutral-950/80 border-b border-white/10">
+              <tr>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider w-24">ID</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider">API Key</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider hidden md:table-cell w-48">Created</th>
+                <th class="py-4 px-4 sm:px-6 font-semibold text-neutral-400 text-xs uppercase tracking-wider text-right w-32">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="desktopBody" class="divide-y divide-white/5">
+              <% if (!apiKeys || apiKeys.length === 0) { %>
+                <tr id="desktopEmpty">
+                  <td colspan="4" class="py-16 text-center text-neutral-400">
+                    <div class="flex flex-col items-center gap-4">
+                      <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
+                        <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                      </div>
+                      <p class="text-neutral-400 text-base"><%= req.translations ? req.translations.noApiKeysCreated : 'No API keys created yet' %></p>
+                      <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+                        Create your first API key →
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% } else { %>
+                <% apiKeys.forEach(function(key) { %>
+                  <tr id="desktop-row-<%= key.id %>" class="desktop-row table-row-hover group animate-fade-in" data-id="<%= key.id %>">
+                    <td class="py-4 px-4 sm:px-6">
+                      <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+                          <%= key.id %>
+                        </span>
+                        <span class="status-dot active md:hidden"></span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6 table-key-cell">
+                      <div class="key-container key-display text-xs text-neutral-300 shadow-inner">
+                        <%= key.key %>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="text-xs text-neutral-400 font-medium created-date" data-date="<%= key.createdAt %>"><%= key.createdAt %></span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6 text-right">
+                      <div role="button" tabindex="0" class="cursor-pointer delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target" data-id="<%= key.id %>">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <span class="hidden sm:inline">Remove</span>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         MOBILE CARDS VIEW - Enhanced touch experience
+         FIXED: ID overflow and date formatting
+         ============================================ -->
+    <div id="mobileCards" class="view-mobile mt-6">
+      <div id="mobileBody" class="cards-grid">
+        <% if (!apiKeys || apiKeys.length === 0) { %>
+          <div id="mobileEmpty" class="col-span-full rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
+                <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                </svg>
+              </div>
+              <p class="text-neutral-400 text-base"><%= req.translations ? req.translations.noApiKeysCreated : 'No API keys created yet' %></p>
+              <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+                Create your first API key →
+              </div>
+            </div>
+          </div>
+        <% } else { %>
+          <% apiKeys.forEach(function(key) { %>
+            <div id="mobile-card-<%= key.id %>" class="mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-fade-in" data-id="<%= key.id %>">
+              <!-- Card Header - FIXED: Better layout for ID -->
+              <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3 flex-1 min-w-0">
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-lg flex-shrink-0">
+                   🔑
+                  </span>
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <!-- FIXED: Added mobile-card-id class for proper text breaking -->
+                    <span class="mobile-card-id" title="ID: <%= key.id %>">ID: <%= key.id %></span>
+                    <span class="optimistic-badge mt-2 self-start" id="badge-<%= key.id %>">
+                      <span class="status-dot active"></span>
+                      Active
+                    </span>
+                  </div>
+                </div>
+                <div class="cursor-pointer delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0" data-id="<%= key.id %>" aria-label="Delete API key">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Key Section -->
+              <div class="p-4 space-y-3">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
+                  <div onclick="copyToClipboard('<%= key.key %>')" class="cursor-pointer text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    Copy
+                  </div>
+                </div>
+                <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all key-content">
+                  <%= key.key %>
+                </div>
+
+                <!-- Meta Info - FIXED: Date formatting -->
+                <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2 text-neutral-500">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <!-- FIXED: Added created-date class for JS formatting -->
+                    <span class="created-date truncate" data-date="<%= key.createdAt %>"><%= key.createdAt %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- ============================================
+         PAGINATION - Included component
+         ============================================ -->
+    <%- include('../components/pagination', { pagination: typeof pagination !== 'undefined' ? pagination : {} }) %>
+
+    <!-- ============================================
+         CREATE FORM - Enhanced modal experience
+         ============================================ -->
+    <div id="createForm" class="hidden-view mt-6 sm:mt-8 w-full max-w-2xl mx-auto animate-slide-in">
+      <div class="rounded-2xl border border-white/10 bg-neutral-900/50 shadow-2xl overflow-hidden backdrop-blur-xl glass-panel">
+        <div class="p-6 sm:p-8 text-center border-b border-white/10 bg-white/[0.02]">
+          <div class="mx-auto w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-2xl bg-white/5 mb-5 border border-white/10 shadow-lg">
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">Create New API Key</h3>
+          <p class="text-neutral-400 text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
+            This will generate a new secure API key. Copy it immediately as it won't be shown again.
+          </p>
+        </div>
+        <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 bg-neutral-950/30">
+          <div id="cancelButton" class="cursor-pointer w-full sm:w-auto order-2 sm:order-1 px-6 py-3.5 rounded-xl btn-secondary font-medium text-sm touch-target">
+            Cancel
+          </div>
+          <div id="confirmCreate" class="cursor-pointer w-full sm:w-auto order-1 sm:order-2 px-8 py-3.5 rounded-xl btn-primary font-semibold text-sm shadow-lg flex items-center justify-center gap-2 touch-target">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <%= req.translations ? req.translations.clickToConfirmCreation : 'Click to Confirm Creation' %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         NOTIFICATION - Enhanced positioning
+         ============================================ -->
+    <div id="notification" class="notification flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium bg-emerald-500/90 text-white border border-emerald-400/50 backdrop-blur-xl">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span id="notificationText" class="flex-1">Success!</span>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============================================
+  // DOM ELEMENTS - Cached for performance
+  // ============================================
+  const els = {
+    desktopTable: document.getElementById('desktopTable'),
+    mobileCards: document.getElementById('mobileCards'),
+    desktopBody: document.getElementById('desktopBody'),
+    mobileBody: document.getElementById('mobileBody'),
+    createForm: document.getElementById('createForm'),
+    createButton: document.getElementById('createButton'),
+    cancelButton: document.getElementById('cancelButton'),
+    confirmCreate: document.getElementById('confirmCreate'),
+    notification: document.getElementById('notification'),
+    notificationText: document.getElementById('notificationText')
+  };
+
+  // ============================================
+  // STATE MANAGEMENT
+  // ============================================
+  const state = {
+    isCreating: false,
+    isDeleting: new Set(),
+    optimisticKeys: new Map(),
+    BREAKPOINT: 768
+  };
+
+  // ============================================
+  // DATE FORMATTING UTILITY - FIXED: Format ISO dates
+  // ============================================
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if invalid
+
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  }
+
+  // Format all dates on page load
+  function formatAllDates() {
+    document.querySelectorAll('.created-date').forEach(el => {
+      const rawDate = el.getAttribute('data-date') || el.textContent;
+      if (rawDate && rawDate.includes('T')) { // Only format if looks like ISO string
+        el.textContent = formatDate(rawDate);
+      }
+    });
+  }
+
+  // ============================================
+  // NOTIFICATION SYSTEM - Optimized
+  // ============================================
+  let notificationTimeout;
+
+  function showNotification(message, type = 'success') {
+    if (!els.notification || !els.notificationText) return;
+
+    clearTimeout(notificationTimeout);
+
+    els.notificationText.textContent = message;
+
+    // Reset classes
+    els.notification.className = 'notification flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium backdrop-blur-xl';
+
+    if (type === 'error') {
+      els.notification.classList.add('bg-red-500/90', 'text-white', 'border', 'border-red-400/50');
+    } else if (type === 'warning') {
+      els.notification.classList.add('bg-amber-500/90', 'text-white', 'border', 'border-amber-400/50');
+    } else {
+      els.notification.classList.add('bg-emerald-500/90', 'text-white', 'border', 'border-emerald-400/50');
+    }
+
+    els.notification.classList.add('show');
+
+    notificationTimeout = setTimeout(() => {
+      els.notification.classList.remove('show');
+    }, 3000);
+  }
+
+  // ============================================
+  // CLIPBOARD UTILITY - Optimized
+  // ============================================
+  window.copyToClipboard = async function(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      showNotification('API Key copied to clipboard!', 'success');
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+      document.body.appendChild(textArea);
+      textArea.select();
+
+      try {
+        document.execCommand('copy');
+        showNotification('API Key copied to clipboard!', 'success');
+      } catch (err) {
+        showNotification('Failed to copy to clipboard', 'error');
+      }
+
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // ============================================
+  // VIEW TOGGLE SYSTEM - FIXED: Proper visibility handling
+  // ============================================
+  window.showForm = function(show) {
+    if (show) {
+      els.desktopTable?.classList.add('hidden-view');
+      els.mobileCards?.classList.add('hidden-view');
+      els.createForm?.classList.remove('hidden-view');
+
+      requestAnimationFrame(() => {
+        els.createForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      setTimeout(() => {
+        els.cancelButton?.focus();
+      }, 100);
+    } else {
+      els.createForm?.classList.add('hidden-view');
+      updateViewBasedOnScreenSize();
+    }
+  };
+
+  function updateViewBasedOnScreenSize() {
+    const isDesktop = window.innerWidth >= state.BREAKPOINT;
+
+    // FIXED: Properly handle view switching without !important conflicts
+    if (isDesktop) {
+      els.desktopTable?.classList.remove('hidden-view');
+      els.mobileCards?.classList.add('hidden-view');
+    } else {
+      els.desktopTable?.classList.add('hidden-view');
+      els.mobileCards?.classList.remove('hidden-view');
+    }
+  }
+
+  // ============================================
+  // OPTIMISTIC UI HELPERS
+  // ============================================
+
+  function generateTempId() {
+    return 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  }
+
+  function createOptimisticKeyData() {
+    const tempId = generateTempId();
+    const now = new Date();
+    return {
+      id: tempId,
+      key: 'sk_live_••••••••••••••••••••••••••••••',
+      createdAt: formatDate(now),
+      isOptimistic: true
+    };
+  }
+
+  // ============================================
+  // DOM CREATION - Template functions
+  // ============================================
+
+  function createDesktopRow(data, isOptimistic = false) {
+    const tr = document.createElement('tr');
+    tr.id = `desktop-row-${data.id}`;
+    tr.className = `desktop-row table-row-hover group animate-scale-in ${isOptimistic ? 'optimistic' : ''}`;
+    tr.dataset.id = data.id;
+
+    tr.innerHTML = `
+      <td class="py-4 px-4 sm:px-6">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-sm font-bold text-neutral-400">
+            ${isOptimistic ? '...' : data.id}
+          </span>
+          ${isOptimistic ? '<span class="optimistic-badge"><span class="status-dot pending"></span>Creating</span>' : '<span class="status-dot active"></span>'}
+        </div>
+      </td>
+      <td class="py-4 px-4 sm:px-6 table-key-cell">
+        <div class="key-container key-display text-xs text-neutral-300 shadow-inner ${isOptimistic ? 'key-content' : ''}">
+          ${data.key}
+        </div>
+        ${isOptimistic ? '<div class="optimistic-indicator"><span class="animate-spin">⟳</span> Generating secure key...</div>' : ''}
+      </td>
+      <td class="py-4 px-4 sm:px-6 hidden md:table-cell">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <span class="text-xs text-neutral-400 font-medium">${data.createdAt}</span>
+        </div>
+      </td>
+      <td class="py-4 px-4 sm:px-6 text-right">
+        <div role="button" tabindex="0" class="cursor-pointer delete-btn delete-btn-styled inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 touch-target ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}"
+                data-id="${data.id}" ${isOptimistic ? 'disabled' : ''}>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <span class="hidden sm:inline">Remove</span>
+        </div>
+      </td>
+    `;
+
+    if (!isOptimistic) {
+      const deleteBtn = tr.querySelector('.delete-btn');
+      attachDeleteHandler(deleteBtn);
+    }
+
+    return tr;
+  }
+
+  function createMobileCard(data, isOptimistic = false) {
+    const div = document.createElement('div');
+    div.id = `mobile-card-${data.id}`;
+    div.className = `mobile-card rounded-2xl border border-white/10 bg-neutral-900/50 overflow-hidden backdrop-blur-xl glass-panel animate-scale-in ${isOptimistic ? 'optimistic' : ''}`;
+    div.dataset.id = data.id;
+
+    div.innerHTML = `
+      <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3 flex-1 min-w-0">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-lg flex-shrink-0">
+           🔑
+          </span>
+          <div class="flex flex-col min-w-0 flex-1">
+            <span class="mobile-card-id" title="ID: ${data.id}">ID: ${isOptimistic ? '...' : data.id}</span>
+            ${isOptimistic ?
+              '<span class=\"optimistic-badge mt-2 self-start\"><span class=\"status-dot pending\"></span>Creating</span>' :
+              '<span class=\"optimistic-badge mt-2 self-start\"><span class=\"status-dot active\"></span>Active</span>'
+            }
+          </div>
+        </div>
+        <div role="button" tabindex="0" class="cursor-pointer delete-btn-mobile delete-btn-styled p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-target flex-shrink-0 ${isOptimistic ? 'opacity-50 cursor-not-allowed' : ''}"
+                data-id="${data.id}" ${isOptimistic ? 'disabled' : ''} aria-label="Delete API key">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs text-neutral-500 uppercase tracking-wide font-medium">API Key</p>
+          ${!isOptimistic ? `
+          <div onclick="copyToClipboard('${data.key}')" class="cursor-pointer text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 touch-target px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 border border-emerald-500/20">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Copy
+          </div>
+          ` : '<span class="optimistic-badge"><span class="animate-spin">⟳</span>Syncing</span>'}
+        </div>
+        <div class="key-container key-display text-sm text-neutral-200 select-all shadow-inner break-all key-content">
+          ${data.key}
+        </div>
+
+        <div class="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2 text-neutral-500">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>${data.createdAt}</span>
+          </div>
+          ${isOptimistic ? '<span class=\"text-amber-400 animate-pulse\">Processing...</span>' : ''}
+        </div>
+      </div>
+    `;
+
+    if (!isOptimistic) {
+      const deleteBtn = div.querySelector('.delete-btn-mobile');
+      attachDeleteHandler(deleteBtn);
+    }
+
+    return div;
+  }
+
+  // ============================================
+  // EMPTY STATES MANAGEMENT
+  // ============================================
+  function removeEmptyStates() {
+    document.getElementById('desktopEmpty')?.remove();
+    document.getElementById('mobileEmpty')?.remove();
+  }
+
+  function checkEmptyStates() {
+    const desktopRows = els.desktopBody?.querySelectorAll('.desktop-row:not(.deleting)');
+    const mobileCards = els.mobileBody?.querySelectorAll('.mobile-card:not(.deleting)');
+
+    const hasDesktopItems = desktopRows && desktopRows.length > 0;
+    const hasMobileItems = mobileCards && mobileCards.length > 0;
+
+    if (!hasDesktopItems && !document.getElementById('desktopEmpty')) {
+      const emptyRow = document.createElement('tr');
+      emptyRow.id = 'desktopEmpty';
+      emptyRow.innerHTML = `
+        <td colspan="4" class="py-16 text-center text-neutral-400">
+          <div class="flex flex-col items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
+              <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+              </svg>
+            </div>
+            <p class="text-neutral-400 text-base">No API keys created yet</p>
+            <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+              Create your first API key →
+            </div>
+          </div>
+        </td>
+      `;
+      els.desktopBody?.appendChild(emptyRow);
+    }
+
+    if (!hasMobileItems && !document.getElementById('mobileEmpty')) {
+      const emptyCard = document.createElement('div');
+      emptyCard.id = 'mobileEmpty';
+      emptyCard.className = 'col-span-full rounded-2xl border border-white/10 bg-neutral-900/50 p-8 text-center backdrop-blur-xl glass-panel animate-fade-in';
+      emptyCard.innerHTML = `
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl empty-state-icon flex items-center justify-center">
+            <svg class="w-8 h-8 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+            </svg>
+          </div>
+          <p class="text-neutral-400 text-base">No API keys created yet</p>
+          <div onclick="showForm(true)" class="cursor-pointer mt-2 text-sm text-white/60 hover:text-white transition-colors touch-target px-4 py-2 rounded-lg hover:bg-white/5">
+            Create your first API key →
+          </div>
+        </div>
+      `;
+      els.mobileBody?.appendChild(emptyCard);
+    }
+  }
+
+  // ============================================
+  // DELETE HANDLER - Unified with optimistic UI
+  // ============================================
+  function attachDeleteHandler(btn) {
+    if (!btn || btn.dataset.handlerAttached) return;
+
+    btn.dataset.handlerAttached = 'true';
+
+    btn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const id = this.dataset.id;
+
+      if (state.isDeleting.has(id)) return;
+
+      if (state.optimisticKeys.has(id)) {
+        showNotification('Please wait for the key to be created first', 'warning');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) return;
+
+      state.isDeleting.add(id);
+
+      const desktopRow = document.getElementById(`desktop-row-${id}`);
+      const mobileCard = document.getElementById(`mobile-card-${id}`);
+
+      if (desktopRow) {
+        desktopRow.classList.add('deleting');
+        desktopRow.style.animation = 'slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+      }
+      if (mobileCard) {
+        mobileCard.classList.add('deleting');
+        mobileCard.style.animation = 'slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+      }
+
+      const removeFromDOM = () => {
+        desktopRow?.remove();
+        mobileCard?.remove();
+        checkEmptyStates();
+      };
+
+      showNotification('API Key deleted', 'success');
+
+      try {
+        const response = await fetch('/apikeys/delete', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyId: id })
+        });
+
+        if (!response.ok) throw new Error('Delete failed');
+
+        setTimeout(removeFromDOM, 300);
+
+      } catch (err) {
+        console.error('Delete error:', err);
+
+        if (desktopRow) {
+          desktopRow.classList.remove('deleting');
+          desktopRow.style.animation = '';
+        }
+        if (mobileCard) {
+          mobileCard.classList.remove('deleting');
+          mobileCard.style.animation = '';
+        }
+
+        showNotification('Failed to delete API key', 'error');
+        state.isDeleting.delete(id);
+      }
+    });
+  }
+
+  // ============================================
+  // CREATE API KEY - Optimistic UI Implementation
+  // ============================================
+  els.confirmCreate?.addEventListener('click', async function() {
+    if (state.isCreating) return;
+    state.isCreating = true;
+
+    const originalHTML = this.innerHTML;
+    this.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Creating...`;
+    this.disabled = true;
+
+    const optimisticData = createOptimisticKeyData();
+    const tempId = optimisticData.id;
+
+    state.optimisticKeys.set(tempId, optimisticData);
+
+    removeEmptyStates();
+
+    const desktopRow = createDesktopRow(optimisticData, true);
+    const mobileCard = createMobileCard(optimisticData, true);
+
+    els.desktopBody?.insertBefore(desktopRow, els.desktopBody.firstChild);
+    els.mobileBody?.insertBefore(mobileCard, els.mobileBody.firstChild);
+
+    requestAnimationFrame(() => {
+      mobileCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    window.showForm(false);
+
+    try {
+      const response = await fetch('/apikeys/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error('Create failed');
+
+      const data = await response.json();
+
+      // Format the date from server
+      if (data.createdAt) {
+        data.createdAt = formatDate(data.createdAt);
+      }
+
+      state.optimisticKeys.delete(tempId);
+
+      const realDesktopRow = createDesktopRow(data, false);
+      const realMobileCard = createMobileCard(data, false);
+
+      desktopRow.replaceWith(realDesktopRow);
+      mobileCard.replaceWith(realMobileCard);
+
+      showNotification('API Key created successfully! Copy it now.', 'success');
+
+    } catch (err) {
+      console.error('Create error:', err);
+
+      desktopRow?.remove();
+      mobileCard?.remove();
+      state.optimisticKeys.delete(tempId);
+
+      checkEmptyStates();
+      showNotification('Failed to create API key', 'error');
+    } finally {
+      state.isCreating = false;
+      this.innerHTML = originalHTML;
+      this.disabled = false;
+    }
+  });
+
+  // ============================================
+  // EVENT LISTENERS - Toggle form
+  // ============================================
+  els.createButton?.addEventListener('click', () => window.showForm(true));
+  els.cancelButton?.addEventListener('click', () => window.showForm(false));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !els.createForm?.classList.contains('hidden-view')) {
+      window.showForm(false);
+    }
+  });
+
+  // ============================================
+  // INITIALIZATION
+  // ============================================
+
+  document.querySelectorAll('.delete-btn').forEach(attachDeleteHandler);
+  document.querySelectorAll('.delete-btn-mobile').forEach(attachDeleteHandler);
+
+  let resizeTimeout;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+      if (els.createForm?.classList.contains('hidden-view')) {
+        updateViewBasedOnScreenSize();
+      }
+    }, 150);
+  });
+
+  // FIXED: Initialize view and format dates on load
+  updateViewBasedOnScreenSize();
+  formatAllDates();
+
+})();
+</script>
+
+<%- include('../components/footer') %>
