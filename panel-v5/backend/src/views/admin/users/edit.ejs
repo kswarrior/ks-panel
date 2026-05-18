@@ -1,0 +1,122 @@
+<%- include('../../components/template') %>
+
+<main id="content" class="animate-fade-in px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-4xl mx-auto">
+
+    <header class="mb-10">
+      <h1 class="text-3xl font-bold text-white tracking-tight">Edit Profile</h1>
+      <p class="mt-2 text-neutral-400">Updating member profile for: <span class="text-blue-400 font-mono"><%= editUser.username %></span></p>
+    </header>
+
+    <div class="glass rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl">
+      <form id="editUserForm" class="space-y-10">
+
+        <!-- Identity -->
+        <section class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="h-px flex-1 bg-white/10"></div>
+            <h2 class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em]">Identity</h2>
+            <div class="h-px flex-1 bg-white/10"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Username</label>
+              <input id="userName" type="text" value="<%= editUser.username %>" required
+                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
+              <input id="email" type="email" value="<%= editUser.email %>" required
+                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">
+                Password
+                <span class="text-neutral-600 normal-case ml-2">(leave blank to keep current)</span>
+              </label>
+              <input id="userPass" type="password" placeholder="••••••••••••"
+                     class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            </div>
+          </div>
+        </section>
+
+        <!-- Role & Status -->
+        <section class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="h-px flex-1 bg-white/10"></div>
+            <h2 class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em]">Role & Access</h2>
+            <div class="h-px flex-1 bg-white/10"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Assigned Role</label>
+              <% if (editUser.owner) { %>
+                <div class="w-full bg-amber-500/10 border border-amber-500/20 rounded-2xl px-5 py-4 text-amber-500 font-bold">
+                  Owner (Locked)
+                </div>
+                <input type="hidden" id="userRole" value="owner">
+              <% } else { %>
+                <select id="userRole" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none transition-all">
+                  <optgroup label="System Roles" class="bg-[#0a0a0a]">
+                    <option value="user" <%= (!editUser.admin && !editUser.roleId) ? 'selected' : '' %>>Regular User</option>
+                    <option value="admin" <%= editUser.admin ? 'selected' : '' %>>Administrator</option>
+                  </optgroup>
+                  <% if (roles.length > 0) { %>
+                  <optgroup label="Custom Roles" class="bg-[#0a0a0a]">
+                    <% roles.forEach(role => { %>
+                      <option value="<%= role.id %>" <%= editUser.roleId === role.id ? 'selected' : '' %>><%= role.name %></option>
+                    <% }) %>
+                  </optgroup>
+                  <% } %>
+                </select>
+              <% } %>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Verification</label>
+              <select id="userVerified" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none transition-all">
+                <option value="true" class="bg-[#0a0a0a]" <%= editUser.verified ? 'selected' : '' %>>Automatically Verified</option>
+                <option value="false" class="bg-[#0a0a0a]" <%= !editUser.verified ? 'selected' : '' %>>Require Email Check</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <div class="flex flex-col sm:flex-row gap-4 pt-10 border-t border-white/5">
+          <button id="saveBtn"
+                  class="flex-1 bg-white text-black font-bold py-4 rounded-2xl shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <%= req.translations.saveChanges %>
+          </button>
+          <a href="/admin/users"
+             class="flex-1 bg-white/5 text-white font-bold py-4 rounded-2xl border border-white/10 text-center hover:bg-white/10 transition-all">
+            <%= req.translations.cancel %>
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.getElementById("saveBtn").addEventListener("click", function () {
+    const data = {
+      username: document.getElementById("userName").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("userPass").value,
+      roleId: document.getElementById("userRole").value,
+      verified: document.getElementById("userVerified").value ==="true"
+    };
+
+    fetch(window.location.href, {
+      method:"POST",
+      headers: {"Content-Type":"application/json" },
+      body: JSON.stringify(data),
+    })
+    .then(res => res.ok ? (alert('Profile updated successfully!'), window.location.href ="/admin/users") : alert('Update failed.'))
+    .catch(err => alert('Error: ' + err.message));
+  });
+</script>
+
+<%- include('../../components/footer') %>

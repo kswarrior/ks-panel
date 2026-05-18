@@ -1,0 +1,939 @@
+<%- include('../../components/template') %>
+<style>
+.input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: #1c3b54;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevent iOS zoom */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* View visibility - REMOVED, using unified grid now */
+
+/* Resource bar animations */
+.resource-bar {
+  transition: width 0.7s ease-out, background-color 0.3s ease;
+}
+
+/* Loading pulse */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+.pulse-dot::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: inherit;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* ===== RESPONSIVE CARD GRID ===== */
+.nodes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .nodes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nodes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .nodes-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .nodes-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Card Styles - Based on mobile card design */
+.node-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.node-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.node-name {
+  font-weight: 600;
+  color: white;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.connection-info {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.proxy-tag {
+  color: #fbbf24;
+  margin-left: 0.5rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.resource-row:last-child {
+  margin-bottom: 0;
+}
+
+.resource-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  width: 2.5rem;
+  text-transform: uppercase;
+}
+
+.resource-bar-bg {
+  flex: 1;
+  height: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.resource-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.7s ease-out, background-color 0.3s ease;
+}
+
+.resource-value {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  width: 3.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tag-tunnel {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.tag-instances {
+  margin-left: auto;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.card-footer {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.card-btn {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  text-decoration: none;
+}
+
+.card-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.card-btn:active {
+  transform: scale(0.95);
+}
+
+.card-btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.card-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.card-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Status indicators */
+.status-online {
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.status-online::before {
+  content: '';
+  position: absolute;
+  inset: -0.25rem;
+  border-radius: 50%;
+  background: #10b981;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.75;
+}
+
+.status-online::after {
+  content: '';
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.status-offline {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #6b7280;
+  display: inline-block;
+}
+
+.status-unknown {
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.status-unknown::before {
+  content: '';
+  position: absolute;
+  inset: -0.25rem;
+  border-radius: 50%;
+  background: #f59e0b;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.75;
+}
+
+.status-unknown::after {
+  content: '';
+  position: relative;
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Desktop enhancements */
+@media (min-width: 640px) {
+  .card-header {
+    padding: 1.25rem;
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .card-footer {
+    padding: 1rem 1.25rem;
+  }
+
+  .node-name {
+    font-size: 1.1rem;
+  }
+
+  .resource-label {
+    width: 3rem;
+    font-size: 0.875rem;
+  }
+
+  .resource-value {
+    width: 4rem;
+    font-size: 0.875rem;
+  }
+
+  .card-btn {
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+}
+</style>
+
+<main id="content" class="animate-fade-in min-h-screen pb-20">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- Header -->
+    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6 pb-6 sm:pb-8 border-b border-white/10">
+      <div class="space-y-1">
+        <h1 class="text-3xl font-black text-white tracking-tight">Nodes</h1>
+        <p class="text-sm text-neutral-400 font-medium max-w-xl">Infrastructure management and cluster oversight.</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <!-- Search & Filter Toggles -->
+        <div class="flex bg-white/5 border border-white/10 rounded-2xl p-1 mr-1">
+          <div onclick="toggleSearchBar()" id="searchToggle"
+                  class="p-2 rounded-xl transition-all hover:bg-white/5 cursor-pointer <%= filters.search ? 'text-blue-400 bg-blue-400/10' : 'text-neutral-400' %>">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <div onclick="toggleFilterBar()" id="filterToggle"
+                  class="p-2 rounded-xl transition-all hover:bg-white/5 cursor-pointer <%= (filters.location || filters.category) ? 'text-emerald-400 bg-emerald-400/10' : 'text-neutral-400' %>">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+          </div>
+        </div>
+
+        <button onclick="radarcheck()"
+                class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-bold transition-all active:scale-95">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path>
+          </svg>
+          Radar
+        </button>
+
+        <button onclick="window.location.href='/admin/nodes/create'"
+                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-blue-600/20 active:scale-95 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Create
+        </button>
+
+        <button onclick="window.location.href='/admin/nodes/localnode'"
+                class="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 active:scale-95 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          Local
+        </button>
+      </div>
+    </header>
+
+    <!-- Search Bar (Collapsible) -->
+    <div id="searchBar" class="<%= filters.search ? 'block' : 'hidden' %> animate-fade-in mt-8">
+      <form action="/admin/nodes/overview" method="GET" class="relative group">
+        <input type="hidden" name="location" value="<%= filters.location %>">
+        <input type="hidden" name="category" value="<%= filters.category %>">
+        <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" name="search" value="<%= filters.search %>" placeholder="Search by node name, IP address, or ID..."
+               class="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all shadow-2xl">
+        <% if (filters.search) { %>
+          <a href="/admin/nodes/overview?location=<%= filters.location %>&category=<%= filters.category %>" class="absolute right-5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-white/10 text-neutral-400 hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </a>
+        <% } %>
+      </form>
+    </div>
+
+    <!-- Filter Bar (Collapsible) -->
+    <div id="filterBar" class="<%= (filters.location || filters.category) ? 'block' : 'hidden' %> animate-fade-in mt-8">
+      <div class="glass p-6 rounded-2xl border border-white/10 shadow-2xl">
+        <form action="/admin/nodes/overview" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <input type="hidden" name="search" value="<%= filters.search %>">
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Geographic Location</label>
+            <select name="location" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer">
+              <option value="" class="bg-[#111]">All Locations</option>
+              <% locations.forEach(loc => { %>
+                <option value="<%= loc.id %>" <%= filters.location === loc.id ? 'selected' : '' %> class="bg-[#111]"><%= loc.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Node Category</label>
+            <select name="category" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer">
+              <option value="" class="bg-[#111]">All Categories</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat %>" <%= filters.category === cat ? 'selected' : '' %> class="bg-[#111]"><%= cat %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="flex items-end gap-3">
+            <button type="submit" class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold transition-all shadow-lg shadow-emerald-600/20">
+              Apply Filters
+            </button>
+            <a href="/admin/nodes/overview" class="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-all">
+              Reset
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <section id="stats" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+      <article class="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] group shadow-lg">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+        <div class="relative flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-neutral-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Total Nodes
+            </p>
+            <p class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mt-2 tracking-tight"><%= nodes.length %></p>
+          </div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-500/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl border border-emerald-500/20 group-hover:scale-110 transition-transform duration-300">📡</div>
+        </div>
+        <div class="relative mt-4 sm:mt-6 flex items-center gap-4 text-sm">
+          <span class="text-neutral-400">Online: <span class="text-emerald-400 font-semibold"><%= nodes.filter(node => node.status === 'Online').length %></span></span>
+          <span class="w-px h-4 bg-white/10"></span>
+          <span class="text-neutral-400">Offline: <span class="text-red-400 font-semibold"><%= nodes.filter(node => node.status === 'Offline').length %></span></span>
+        </div>
+      </article>
+
+      <article class="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] group shadow-lg">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all duration-500"></div>
+        <div class="relative flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-neutral-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              Server Count
+            </p>
+            <p class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mt-2 tracking-tight"><%= Object.values(set).reduce((a, b) => a + b, 0) %></p>
+          </div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-500/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl border border-blue-500/20 group-hover:scale-110 transition-transform duration-300">🖥️</div>
+        </div>
+        <% if (nodes.length > 0) { %>
+          <p class="relative mt-4 sm:mt-6 text-sm text-neutral-400">
+            Avg. Density: <span class="font-mono text-white font-semibold bg-white/10 px-2 py-1 rounded-lg"><%= (Object.values(set).reduce((a, b) => a + b, 0) / nodes.length).toFixed(2) %></span> servers/node
+          </p>
+        <% } else { %>
+          <p class="relative mt-4 sm:mt-6 text-sm text-neutral-400">No nodes configured yet</p>
+        <% } %>
+      </article>
+    </section>
+
+    <!-- Success Banners -->
+    <% if (req.query.err =="none") { %>
+    <div class="mt-6 sm:mt-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 sm:p-5 flex gap-3 sm:gap-4 items-start shadow-lg backdrop-blur-sm">
+      <div class="flex-shrink-0 mt-0.5">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-emerald-400 text-sm sm:text-base">Success!</p>
+        <p class="text-sm text-emerald-300/80 mt-1">The action was successfully completed.</p>
+      </div>
+      <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <% } %>
+
+    <% if (req.query.err =="EDITED") { %>
+    <div class="mt-6 sm:mt-8 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 sm:p-5 flex gap-3 sm:gap-4 items-start shadow-lg backdrop-blur-sm">
+      <div class="flex-shrink-0 mt-0.5">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-emerald-400 text-sm sm:text-base">Changes Saved!</p>
+        <p class="text-sm text-emerald-300/80 mt-1">The node was edited successfully.</p>
+      </div>
+      <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-emerald-400/60 hover:text-emerald-400 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <% } %>
+
+    <!-- UNIFIED CARD GRID VIEW -->
+    <section class="mt-6 sm:mt-8">
+      <div class="nodes-grid">
+        <% nodes.forEach(function(node) { %>
+        <div class="node-card">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="card-header-top">
+              <div class="card-header-left">
+                <% if (node.status ==="Online") { %>
+                  <span class="status-online"></span>
+                <% } else if (node.status ==="Offline") { %>
+                  <span class="status-offline"></span>
+                <% } else { %>
+                  <span class="status-unknown"></span>
+                <% } %>
+                <span class="node-name"><%= node.name %></span>
+              </div>
+              <span class="tag tag-instances"><%= set[node.id] || 0 %></span>
+            </div>
+            <div class="connection-info">
+              <%= node.address %>:<%= node.port %>
+              <% if (node.behindProxy) { %><span class="proxy-tag">[proxy]</span><% } %>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <!-- RAM -->
+            <div class="resource-row">
+              <span class="resource-label">RAM</span>
+              <div class="resource-bar-bg">
+                <div id="ram-bar-<%= node.id %>"
+                     class="resource-bar-fill"
+                     style="width: <%= node.resources && node.resources.ram ? node.resources.ram.percent : 0 %>%; background-color: #22c55e;"></div>
+              </div>
+              <span id="ram-text-<%= node.id %>" class="resource-value">
+                <%= node.resources && node.resources.ram ? `${parseFloat(node.resources.ram.used).toFixed(1)}/${parseFloat(node.resources.ram.total).toFixed(0)}G` : '--' %>
+              </span>
+            </div>
+
+            <!-- CPU -->
+            <div class="resource-row">
+              <span class="resource-label">CPU</span>
+              <div class="resource-bar-bg">
+                <div id="cpu-bar-<%= node.id %>"
+                     class="resource-bar-fill"
+                     style="width: <%= node.resources && node.resources.cpu ? node.resources.cpu.percent : 0 %>%; background-color: #22c55e;"></div>
+              </div>
+              <span id="cpu-text-<%= node.id %>" class="resource-value">
+                <%= node.resources && node.resources.cpu ? `${parseFloat(node.resources.cpu.percent).toFixed(0)}%` : '--' %>
+              </span>
+            </div>
+
+            <!-- Disk -->
+            <div class="resource-row">
+              <span class="resource-label">Disk</span>
+              <div class="resource-bar-bg">
+                <div id="disk-bar-<%= node.id %>"
+                     class="resource-bar-fill"
+                     style="width: <%= node.resources && node.resources.disk ? node.resources.disk.percent : 0 %>%; background-color: #22c55e;"></div>
+              </div>
+              <span id="disk-text-<%= node.id %>" class="resource-value">
+                <%= node.resources && node.resources.disk ? `${parseFloat(node.resources.disk.used).toFixed(1)}/${parseFloat(node.resources.disk.total).toFixed(0)}G` : '--' %>
+              </span>
+            </div>
+
+            <!-- Tags -->
+            <div class="card-tags">
+              <% let locName = 'Unknown'; %>
+              <% locations.forEach(function(loc) { %>
+                <% if (loc.id === node.location) locName = loc.name; %>
+              <% }); %>
+              <span class="tag"><%= locName %></span>
+              <% if (node.useCloudflareTunnel) { %>
+                <span class="tag tag-tunnel">CF Tunnel</span>
+              <% } %>
+              <span class="tag" style="margin-left: auto;"><%= node.uploadSize || 500 %> MB</span>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer">
+            <button onclick="configure('<%= node.id %>')" class="card-btn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Config
+            </button>
+
+            <a href="/admin/node/<%= node.id %>" class="card-btn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </a>
+
+            <button onclick="deletenode('<%= node.id %>')" class="card-btn card-btn-danger">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <%- include('../../components/pagination', { pagination }) %>
+
+    <!-- Notification Toast -->
+    <div id="notification"
+         class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 hidden items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium z-50 transition-all duration-300 transform translate-y-2 opacity-0">
+      <span id="notification-icon"></span>
+      <span id="notification-text"></span>
+    </div>
+
+  </div>
+
+  <script>
+  function toggleSearchBar() {
+    const bar = document.getElementById('searchBar');
+    const toggle = document.getElementById('searchToggle');
+    const isHidden = bar.classList.contains('hidden');
+    document.getElementById('filterBar').classList.add('hidden');
+    if(isHidden) {
+      bar.classList.remove('hidden');
+      bar.querySelector('input[name="search"]').focus();
+      toggle.classList.add('text-blue-400', 'bg-blue-400/10');
+    } else {
+      bar.classList.add('hidden');
+      if(!'<%= filters.search %>') toggle.classList.remove('text-blue-400', 'bg-blue-400/10');
+    }
+  }
+
+  function toggleFilterBar() {
+    const bar = document.getElementById('filterBar');
+    const toggle = document.getElementById('filterToggle');
+    const isHidden = bar.classList.contains('hidden');
+    document.getElementById('searchBar').classList.add('hidden');
+    if(isHidden) {
+      bar.classList.remove('hidden');
+      toggle.classList.add('text-emerald-400', 'bg-emerald-400/10');
+    } else {
+      bar.classList.add('hidden');
+      if(!'<%= filters.location %>' && !'<%= filters.category %>') toggle.classList.remove('text-emerald-400', 'bg-emerald-400/10');
+    }
+  }
+
+  // Helper: Get color based on percentage
+  function getBarColor(percent) {
+    if (percent >= 90) return '#ef4444'; // Red - critical
+    if (percent >= 75) return '#eab308'; // Yellow - warning
+    if (percent >= 50) return '#3b82f6'; // Blue - moderate
+    return '#22c55e'; // Green - good
+  }
+
+  // Helper: Format resource text
+  function formatResourceText(key, data) {
+    if (!data) return '--';
+
+    if (key === 'cpu') {
+      const percent = parseFloat(data.percent || 0);
+      return `${percent.toFixed(0)}%`;
+    }
+
+    // RAM and Disk
+    const used = parseFloat(data.used || 0);
+    const total = parseFloat(data.total || 0);
+    const percent = data.percent ? parseFloat(data.percent) : (total > 0 ? (used / total * 100) : 0);
+
+    return `${used.toFixed(1)}/${total.toFixed(0)}G`;
+  }
+
+  // Helper: Update a single resource bar
+  function updateResourceBar(nodeId, key, data) {
+    const bar = document.getElementById(`${key}-bar-${nodeId}`);
+    const text = document.getElementById(`${key}-text-${nodeId}`);
+
+    if (!bar || !text) {
+      console.warn(`Elements not found: ${key}-bar-${nodeId} or text`);
+      return;
+    }
+
+    if (!data) {
+      bar.style.width = '0%';
+      bar.style.backgroundColor = '#22c55e';
+      text.textContent = '--';
+      text.style.color = 'rgba(255, 255, 255, 0.6)';
+      return;
+    }
+
+    let percent = 0;
+
+    if (key === 'cpu') {
+      percent = parseFloat(data.percent || 0);
+    } else {
+      const used = parseFloat(data.used || 0);
+      const total = parseFloat(data.total || 0);
+      percent = data.percent ? parseFloat(data.percent) : (total > 0 ? (used / total * 100) : 0);
+    }
+
+    // Clamp percentage
+    percent = Math.max(0, Math.min(100, percent));
+
+    const color = getBarColor(percent);
+    const textContent = formatResourceText(key, data);
+
+    // Update bar
+    bar.style.width = `${percent}%`;
+    bar.style.backgroundColor = color;
+
+    // Update text
+    text.textContent = textContent;
+
+    // Update text color based on severity
+    if (percent >= 90) text.style.color = '#f87171';
+    else if (percent >= 75) text.style.color = '#fbbf24';
+    else if (percent >= 50) text.style.color = '#60a5fa';
+    else text.style.color = '#34d399';
+  }
+
+  // Main: Update all resources for a node
+  async function updateNodeResources(nodeId) {
+    try {
+      const res = await fetch(`/admin/nodes/node/${nodeId}/resourceMonitor`);
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      console.log(`Resource data for ${nodeId}:`, data);
+
+      // Update unified bars (no desktop/mobile prefix)
+      updateResourceBar(nodeId, 'ram', data.ram);
+      updateResourceBar(nodeId, 'cpu', data.cpu);
+      updateResourceBar(nodeId, 'disk', data.disk);
+
+    } catch(e) {
+      console.error(`Resource update failed for ${nodeId}:`, e);
+
+      // Set error state on all bars
+      ['ram', 'cpu', 'disk'].forEach(key => {
+        const bar = document.getElementById(`${key}-bar-${nodeId}`);
+        const text = document.getElementById(`${key}-text-${nodeId}`);
+        if (bar && text) {
+          bar.style.width = '0%';
+          bar.style.backgroundColor = '#ef4444';
+          text.textContent = 'ERR';
+          text.style.color = '#f87171';
+        }
+      });
+    }
+  }
+
+  // Delete node
+  async function deletenode(nodeId) {
+    if (!confirm('Are you sure you want to delete this node? This action cannot be undone.')) return;
+
+    try {
+      const res = await fetch('/admin/nodes/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({nodeId})
+      });
+
+      if (res.ok) {
+        showNotification('Node deleted successfully', 'success');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        const err = await res.text();
+        throw new Error(err || 'Delete failed');
+      }
+    } catch(e) {
+      showNotification(e.message || 'Failed to delete node', 'error');
+    }
+  }
+
+  // Copy configure command
+  async function configure(nodeId) {
+    try {
+      const res = await fetch(`/admin/nodes/node/${nodeId}/configure-command`);
+
+      if (!res.ok) throw new Error('Failed to fetch command');
+
+      const { configureCommand } = await res.json();
+
+      if (!configureCommand) throw new Error('No command received');
+
+      await navigator.clipboard.writeText(configureCommand);
+      showNotification('Configure command copied to clipboard!', 'success');
+    } catch(e) {
+      console.error('Configure error:', e);
+      showNotification('Failed to copy command', 'error');
+    }
+  }
+
+  // Radar check
+  async function radarcheck() {
+    try {
+      const res = await fetch('/admin/nodes/overview/radar/check', { method: 'POST' });
+
+      if (!res.ok) throw new Error('Radar check failed');
+
+      showNotification('Radar scan initiated', 'success');
+    } catch(e) {
+      showNotification(e.message || 'Radar scan failed', 'error');
+    }
+  }
+
+  // Show notification
+  function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const textEl = document.getElementById('notification-text');
+    const iconEl = document.getElementById('notification-icon');
+
+    if (!notification || !textEl || !iconEl) return;
+
+    textEl.textContent = message;
+
+    const iconSvg = type === 'error'
+      ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+      : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+
+    iconEl.innerHTML = iconSvg;
+
+    const bgClass = type === 'error'
+      ? 'bg-red-500/90 border-red-400/50'
+      : 'bg-emerald-500/90 border-emerald-400/50';
+
+    notification.className = `fixed bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl text-sm font-medium z-50 transition-all duration-300 text-white border ${bgClass}`;
+
+    notification.classList.remove('hidden');
+
+    requestAnimationFrame(() => {
+      notification.classList.remove('translate-y-2', 'opacity-0');
+    });
+
+    // Auto hide
+    setTimeout(() => {
+      notification.classList.add('translate-y-2', 'opacity-0');
+      setTimeout(() => {
+        notification.classList.add('hidden');
+      }, 300);
+    }, 3000);
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initial load
+    <% nodes.forEach(node => { %>
+      updateNodeResources('<%= node.id %>');
+    <% }); %>
+
+    // Periodic update every 15 seconds
+    setInterval(() => {
+      <% nodes.forEach(node => { %>
+        updateNodeResources('<%= node.id %>');
+      <% }); %>
+    }, 15000);
+  });
+  </script>
+</main>
