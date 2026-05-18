@@ -14,7 +14,7 @@ func InitDB() {
 	var err error
 	connStr := os.Getenv("KSSQL_URL")
 	if connStr == "" {
-		connStr = "postgres://admin:admin@localhost:5433/panel?sslmode=disable"
+		connStr = "postgres://admin:admin@127.0.0.1:5433/panel?sslmode=disable"
 	}
 
 	DB, err = sql.Open("postgres", connStr)
