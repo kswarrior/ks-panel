@@ -38,7 +38,7 @@ export default function TemplatesIndex() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template: any) => (
           <div key={template.id} className="glass-dark p-6 rounded-3xl border border-white/5 relative group hover:border-white/10 transition-all overflow-hidden">
             <div className="absolute top-0 right-0 p-6 opacity-[0.03] -mr-4 -mt-4">

@@ -30,7 +30,7 @@ func HandleSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for k, v := range s {
-			_, err := DB.Exec("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", k, v)
+			_, err := DB.Exec("INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", k, v)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

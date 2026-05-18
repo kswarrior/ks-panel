@@ -65,7 +65,7 @@ export default function InstancesCreate() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Target Node</label>
                 <select
@@ -103,7 +103,7 @@ export default function InstancesCreate() {
                 Resource Allocation
              </h3>
 
-             <div className="grid grid-cols-3 gap-6">
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="space-y-2">
                    <label className="text-[10px] font-bold text-white/30">RAM (MB)</label>
                    <input

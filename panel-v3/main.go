@@ -58,7 +58,19 @@ func main() {
 	perm := PermissionMiddleware
 
 	mux.Handle("/api/me", auth(http.HandlerFunc(HandleMe)))
-	mux.Handle("/api/instances", auth(perm("view_instances")(http.HandlerFunc(HandleInstances))))
+
+	mux.Handle("/api/instances", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			perm("manage_instances")(http.HandlerFunc(HandleCreateInstance)).ServeHTTP(w, r)
+		case http.MethodPut:
+			perm("manage_instances")(http.HandlerFunc(HandleUpdateInstance)).ServeHTTP(w, r)
+		case http.MethodDelete:
+			perm("manage_instances")(http.HandlerFunc(HandleDeleteInstance)).ServeHTTP(w, r)
+		default:
+			perm("view_instances")(http.HandlerFunc(HandleInstances)).ServeHTTP(w, r)
+		}
+	})))
 
 	mux.Handle("/api/nodes", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -75,8 +87,18 @@ func main() {
 
 	mux.Handle("/api/users", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case http.MethodPost, http.MethodPut, http.MethodDelete:
+		case http.MethodPost, http.MethodDelete:
 			perm("manage_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
+		case http.MethodPut:
+			// Special case for profile updates: user can update themselves, but needs perm for others
+			idStr := r.URL.Query().Get("id")
+			if idStr == "" {
+				// Updating self
+				HandleUsers(w, r)
+			} else {
+				// Updating someone else
+				perm("manage_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
+			}
 		default:
 			perm("view_users")(http.HandlerFunc(HandleUsers)).ServeHTTP(w, r)
 		}
@@ -147,7 +169,7 @@ func main() {
 
 		// Map of internal routes that should never be leaked
 		internalRoutes := []string{
-			"instances", "nodes", "node", "templates", "users", "user", "roles", "role", "themes", "theme", "settings", "notifications", "tickets", "ticket", "account",
+			"instances", "nodes", "node", "templates", "users", "user", "roles", "role", "themes", "theme", "settings", "notifications", "tickets", "ticket", "account", "database",
 		}
 
 		isInternal := false
@@ -305,14 +327,14 @@ func createUser() {
 
 	// Find or create role
 	var roleID int
-	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
+	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = $1", roleName).Scan(&roleID)
 	if roleErr != nil {
 		// Create role if not exists
 		color := "#0ea5e9"
 		if roleName == "owner" {
 			color = "#ef4444"
 		}
-		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
+		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES ($1, $2, $3)", roleName, color, "*")
 		if err != nil {
 			log.Fatalf("Error creating role: %v", err)
 		}
@@ -327,7 +349,7 @@ func createUser() {
 	}
 
 	_, err = DB.Exec(
-		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES ($1, $2, $3, $4, $5, $6)",
 		displayName, username, email, string(hashedPassword), roleID, "active",
 	)
 	if err != nil {

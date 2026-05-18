@@ -3,16 +3,10 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
+	"strconv"
 )
 
 func HandleRoles(w http.ResponseWriter, r *http.Request) {
-	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	roleIDStr := ""
-	if len(pathParts) > 2 {
-		roleIDStr = pathParts[2]
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		rows, err := DB.Query("SELECT id, name, color, permissions FROM roles")
@@ -36,6 +30,7 @@ func HandleRoles(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(roles)
+
 	case http.MethodPost:
 		var role struct {
 			Name        string `json:"name"`
@@ -46,17 +41,20 @@ func HandleRoles(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", role.Name, role.Color, role.Permissions)
+		_, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES ($1, $2, $3)", role.Name, role.Color, role.Permissions)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+
 	case http.MethodPut:
+		roleIDStr := r.URL.Query().Get("id")
 		if roleIDStr == "" {
 			http.Error(w, "Role ID required", http.StatusBadRequest)
 			return
 		}
+		roleID, _ := strconv.Atoi(roleIDStr)
 		var role struct {
 			Name        string `json:"name"`
 			Color       string `json:"color"`
@@ -66,18 +64,21 @@ func HandleRoles(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("UPDATE roles SET name = ?, color = ?, permissions = ? WHERE id = ?", role.Name, role.Color, role.Permissions, roleIDStr)
+		_, err := DB.Exec("UPDATE roles SET name = $1, color = $2, permissions = $3 WHERE id = $4", role.Name, role.Color, role.Permissions, roleID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+
 	case http.MethodDelete:
+		roleIDStr := r.URL.Query().Get("id")
 		if roleIDStr == "" {
 			http.Error(w, "Role ID required", http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("DELETE FROM roles WHERE id = ?", roleIDStr)
+		roleID, _ := strconv.Atoi(roleIDStr)
+		_, err := DB.Exec("DELETE FROM roles WHERE id = $1", roleID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

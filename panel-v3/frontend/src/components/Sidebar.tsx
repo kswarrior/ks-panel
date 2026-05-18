@@ -38,6 +38,7 @@ export default function Sidebar({ isOpen, onClose }: any) {
   const navItems = [
     { name: 'Instances', icon: Box, href: '/instances', perm: 'view_instances' },
     { name: 'Nodes', icon: Server, href: '/node', perm: 'view_nodes' },
+    { name: 'Database', icon: Server, href: '/database', perm: 'view_nodes' },
     { name: 'Templates', icon: Layers, href: '/templates', perm: 'view_templates' },
     { name: 'Users', icon: Users, href: '/user', perm: 'view_users' },
     { name: 'Roles', icon: ShieldCheck, href: '/role', perm: 'view_roles' },
@@ -95,11 +96,11 @@ export default function Sidebar({ isOpen, onClose }: any) {
                  </div>
                  <div>
                     <p className="text-xs font-bold leading-none mb-1 text-green-500">Node Status</p>
-                    <p className="text-[10px] text-white/40 font-medium">All systems normal</p>
+                    <p className="text-[10px] text-white/40 font-medium">System Operational</p>
                  </div>
               </div>
               <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                 <div className="h-full bg-green-500 w-[98%]" />
+                 <div className="h-full bg-green-500 w-full" />
               </div>
            </div>
         </div>

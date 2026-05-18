@@ -34,7 +34,7 @@ export default function InstancesIndex() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {instances.map((instance: any) => (
           <div key={instance.id} className="glass-dark p-6 rounded-3xl border border-white/5 relative group hover:border-white/10 transition-all">
             <div className="flex items-start justify-between mb-6">
@@ -49,8 +49,9 @@ export default function InstancesIndex() {
 
             <h3 className="text-xl font-bold mb-2 uppercase tracking-tight">{instance.name}</h3>
             <div className="flex items-center gap-4 text-white/30 text-[10px] font-black uppercase tracking-widest mb-6">
-               <span className="flex items-center gap-1.5"><Cpu className="w-3 h-3" /> 2 vCores</span>
-               <span className="flex items-center gap-1.5"><HardDrive className="w-3 h-3" /> 40GB NVMe</span>
+               <span className="flex items-center gap-1.5"><Cpu className="w-3 h-3" /> {instance.cpu}% CPU</span>
+               <span className="flex items-center gap-1.5"><Zap className="w-3 h-3" /> {instance.memory}MB RAM</span>
+               <span className="flex items-center gap-1.5"><HardDrive className="w-3 h-3" /> {instance.disk}MB Disk</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-2">

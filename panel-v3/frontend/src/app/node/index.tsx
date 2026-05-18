@@ -68,7 +68,7 @@ const NodeCard: React.FC<{ node: Node, onEdit: () => void, onDelete: () => void 
                         <span className="text-xs font-bold">{node.ram_usage}</span>
                      </div>
                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-neon-blue shadow-neon" style={{ width: '40%' }} />
+                        <div className="h-full bg-neon-blue shadow-neon" style={{ width: node.ram_usage.split('(')[1]?.replace(')', '') || '0%' }} />
                      </div>
 
                      <div className="flex items-center justify-between pt-2">
@@ -78,7 +78,7 @@ const NodeCard: React.FC<{ node: Node, onEdit: () => void, onDelete: () => void 
                         <span className="text-xs font-bold">{node.disk_usage}</span>
                      </div>
                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-neon-blue shadow-neon" style={{ width: '60%' }} />
+                        <div className="h-full bg-neon-blue shadow-neon" style={{ width: node.disk_usage.split('(')[1]?.replace(')', '') || '0%' }} />
                      </div>
 
                      <div className="border-t border-white/5 pt-3 mt-1 flex gap-2">
@@ -113,12 +113,14 @@ const NodeCard: React.FC<{ node: Node, onEdit: () => void, onDelete: () => void 
          <div className="space-y-2">
             <div className="flex justify-between items-center h-8 gap-0.5">
                {Array.from({ length: 40 }).map((_, i) => {
-                 const status = node.uptime_history?.[i] || (i % 15 === 0 ? 'Offline' : 'Online');
+                 const status = node.uptime_history?.[i] || 'Setup';
                  return (
                    <div
                      key={i}
                      className={`flex-1 h-full rounded-full transition-all ${
-                       status === 'Online' ? 'bg-green-500/40' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'
+                       status === 'Online' ? 'bg-green-500/40' :
+                       status === 'Offline' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
+                       'bg-white/5'
                      }`}
                    />
                  );
@@ -209,7 +211,7 @@ const NodeIndex: React.FC = () => {
           <button onClick={() => navigate('/node/create')} className="neon-button py-3 px-8 font-bold">Deploy First Node</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {nodes.map((node) => (
             <NodeCard
               key={node.id}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -55,7 +56,7 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 		}
 
 		_, err = DB.Exec(
-			"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES (?, ?, ?, ?, ?, ?)",
+			"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES ($1, $2, $3, $4, $5, $6)",
 			u.DisplayName, u.Username, u.Email, string(hashedPassword), u.RoleID, "active",
 		)
 		if err != nil {
@@ -64,10 +65,10 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusCreated)
 	case http.MethodPut:
-		id := r.URL.Query().Get("id")
+		idStr := r.URL.Query().Get("id")
 		var targetID int
 
-		if id == "" {
+		if idStr == "" {
 			user, ok := r.Context().Value(UserKey).(AuthUser)
 			if !ok {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -75,7 +76,7 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 			}
 			targetID = user.ID
 		} else {
-			targetID, _ = strconv.Atoi(id)
+			targetID, _ = strconv.Atoi(idStr)
 		}
 
 		var u struct {
@@ -90,17 +91,27 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if u.Status != "" {
-			_, err := DB.Exec("UPDATE users SET status = ? WHERE id = ?", u.Status, targetID)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+		if u.Status != "" || u.RoleID != 0 {
+			// Permission check for sensitive fields
+			authUser, _ := r.Context().Value(UserKey).(AuthUser)
+			if authUser.Permissions != "*" && !strings.Contains(authUser.Permissions, "manage_users") {
+				http.Error(w, "Forbidden: Cannot update status or role", http.StatusForbidden)
 				return
 			}
-		} else if u.RoleID != 0 {
-			_, err := DB.Exec("UPDATE users SET role_id = ? WHERE id = ?", u.RoleID, targetID)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+
+			if u.Status != "" {
+				_, err := DB.Exec("UPDATE users SET status = $1 WHERE id = $2", u.Status, targetID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+			}
+			if u.RoleID != 0 {
+				_, err := DB.Exec("UPDATE users SET role_id = $1 WHERE id = $2", u.RoleID, targetID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
 			}
 		} else {
 			if u.Password != "" {
@@ -109,13 +120,13 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "Error hashing password", http.StatusInternalServerError)
 					return
 				}
-				_, err = DB.Exec("UPDATE users SET display_name = ?, username = ?, password = ? WHERE id = ?", u.DisplayName, u.Username, string(hashedPassword), targetID)
+				_, err = DB.Exec("UPDATE users SET display_name = $1, username = $2, password = $3 WHERE id = $4", u.DisplayName, u.Username, string(hashedPassword), targetID)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
 			} else {
-				_, err := DB.Exec("UPDATE users SET display_name = ?, username = ? WHERE id = ?", u.DisplayName, u.Username, targetID)
+				_, err := DB.Exec("UPDATE users SET display_name = $1, username = $2 WHERE id = $3", u.DisplayName, u.Username, targetID)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
@@ -125,12 +136,13 @@ func HandleUsers(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 	case http.MethodDelete:
-		id := r.URL.Query().Get("id")
-		if id == "" {
+		idStr := r.URL.Query().Get("id")
+		if idStr == "" {
 			http.Error(w, "ID required", http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("DELETE FROM users WHERE id = ?", id)
+		id, _ := strconv.Atoi(idStr)
+		_, err := DB.Exec("DELETE FROM users WHERE id = $1", id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

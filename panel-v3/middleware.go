@@ -56,7 +56,7 @@ func ValidateSession(r *http.Request) (*AuthUser, error) {
 		FROM sessions s
 		JOIN users u ON s.user_id = u.id
 		JOIN roles r ON u.role_id = r.id
-		WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP`, cookie.Value).Scan(&user.ID, &user.Username, &user.RoleID, &user.Permissions)
+		WHERE s.token = $1 AND s.expires_at > CURRENT_TIMESTAMP`, cookie.Value).Scan(&user.ID, &user.Username, &user.RoleID, &user.Permissions)
 
 	if err != nil {
 		return nil, err

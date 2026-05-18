@@ -34,7 +34,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	var userID int
 	var username, hashedPassword string
-	err := DB.QueryRow("SELECT id, username, password FROM users WHERE username = ? OR email = ?", credentials.Identifier, credentials.Identifier).Scan(&userID, &username, &hashedPassword)
+	err := DB.QueryRow("SELECT id, username, password FROM users WHERE username = $1 OR email = $2", credentials.Identifier, credentials.Identifier).Scan(&userID, &username, &hashedPassword)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -47,7 +47,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	token := generateToken()
 	expiresAt := time.Now().Add(24 * time.Hour)
-	_, err = DB.Exec("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)", token, userID, expiresAt)
+	_, err = DB.Exec("INSERT INTO sessions (token, user_id, expires_at) VALUES ($1, $2, $3)", token, userID, expiresAt)
 	if err != nil {
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
@@ -71,7 +71,7 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("ks_session")
 	if err == nil {
 		// Invalidate session in DB
-		DB.Exec("DELETE FROM sessions WHERE token = ?", cookie.Value)
+		DB.Exec("DELETE FROM sessions WHERE token = $1", cookie.Value)
 	}
 
 	// Clear cookie
@@ -106,7 +106,7 @@ func HandleMe(w http.ResponseWriter, r *http.Request) {
 	u.Permissions = user.Permissions
 
 	// Fetch Role Name
-	DB.QueryRow("SELECT name FROM roles WHERE id = ?", user.RoleID).Scan(&u.RoleName)
+	DB.QueryRow("SELECT name FROM roles WHERE id = $1", user.RoleID).Scan(&u.RoleName)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(u)

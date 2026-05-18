@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -84,7 +85,7 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Fetch Uptime History (Last 40 segments)
-			historyRows, _ := DB.Query("SELECT status FROM node_uptime WHERE node_id = ? ORDER BY timestamp DESC LIMIT 40", id)
+			historyRows, _ := DB.Query("SELECT status FROM node_uptime WHERE node_id = $1 ORDER BY timestamp DESC LIMIT 40", id)
 			var history []string
 			if historyRows != nil {
 				for historyRows.Next() {
@@ -96,7 +97,7 @@ func HandleNodes(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Record current status if online
-			DB.Exec("INSERT INTO node_uptime (node_id, status) VALUES (?, ?)", id, status)
+			DB.Exec("INSERT INTO node_uptime (node_id, status) VALUES ($1, $2)", id, status)
 
 			mu.Lock()
 			results = append(results, nodeResult{
@@ -167,7 +168,7 @@ func HandleCreateNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := DB.Exec(
-		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage, disk_usage, connection_type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO nodes (name, ip_address, status, cpu_usage, ram_usage, disk_usage, connection_type) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		n.Name, ipAddress, "Offline", "0%", "0GB / 0GB", "0GB / 0GB", n.ConnectionType,
 	)
 	if err != nil {
@@ -184,13 +185,14 @@ func HandleDeleteNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.URL.Query().Get("id")
-	if id == "" {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
 		http.Error(w, "Missing node ID", http.StatusBadRequest)
 		return
 	}
+	id, _ := strconv.Atoi(idStr)
 
-	_, err := DB.Exec("DELETE FROM nodes WHERE id = ?", id)
+	_, err := DB.Exec("DELETE FROM nodes WHERE id = $1", id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -205,11 +207,12 @@ func HandleUpdateNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.URL.Query().Get("id")
-	if id == "" {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
 		http.Error(w, "Missing node ID", http.StatusBadRequest)
 		return
 	}
+	id, _ := strconv.Atoi(idStr)
 
 	var n struct {
 		Name           string `json:"name"`
@@ -238,7 +241,7 @@ func HandleUpdateNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := DB.Exec(
-		"UPDATE nodes SET name = ?, ip_address = ?, connection_type = ? WHERE id = ?",
+		"UPDATE nodes SET name = $1, ip_address = $2, connection_type = $3 WHERE id = $4",
 		n.Name, ipAddress, n.ConnectionType, id,
 	)
 	if err != nil {

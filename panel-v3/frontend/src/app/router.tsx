@@ -23,6 +23,8 @@ const ThemeIndex = React.lazy(() => import('./theme/index'));
 const ThemeCreate = React.lazy(() => import('./theme/create'));
 const ThemeEdit = React.lazy(() => import('./theme/edit'));
 
+const DatabaseIndex = React.lazy(() => import('./database/index'));
+
 const TemplatesIndex = React.lazy(() => import('./templates/index'));
 const TemplatesCreate = React.lazy(() => import('./templates/create'));
 const TemplatesEdit = React.lazy(() => import('./templates/edit'));
@@ -88,6 +90,7 @@ export const router = createBrowserRouter([
           { path: 'edit/:id', element: <React.Suspense fallback={null}><ThemeEdit /></React.Suspense> }
         ]
       },
+      { path: 'database', element: <React.Suspense fallback={null}><DatabaseIndex /></React.Suspense> },
       {
         path: 'templates',
         children: [
