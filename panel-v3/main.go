@@ -317,14 +317,14 @@ func createUser() {
 
 	// Find or create role
 	var roleID int
-	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = ?", roleName).Scan(&roleID)
+	roleErr := DB.QueryRow("SELECT id FROM roles WHERE name = $1", roleName).Scan(&roleID)
 	if roleErr != nil {
 		// Create role if not exists
 		color := "#0ea5e9"
 		if roleName == "owner" {
 			color = "#ef4444"
 		}
-		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES (?, ?, ?)", roleName, color, "*")
+		res, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES ($1, $2, $3)", roleName, color, "*")
 		if err != nil {
 			log.Fatalf("Error creating role: %v", err)
 		}
@@ -339,7 +339,7 @@ func createUser() {
 	}
 
 	_, err = DB.Exec(
-		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO users (display_name, username, email, password, role_id, status) VALUES ($1, $2, $3, $4, $5, $6)",
 		displayName, username, email, string(hashedPassword), roleID, "active",
 	)
 	if err != nil {

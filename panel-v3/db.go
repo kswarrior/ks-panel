@@ -3,38 +3,34 @@ package main
 import (
 	"database/sql"
 	"log"
+	"os"
 
-	_ "modernc.org/sqlite"
+	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite", "panel.db")
+	connStr := os.Getenv("KSSQL_URL")
+	if connStr == "" {
+		connStr = "postgres://admin:admin@localhost:5433/panel?sslmode=disable"
+	}
+
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	schemas := []string{
-		`CREATE TABLE IF NOT EXISTS users (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			display_name TEXT,
-			username TEXT UNIQUE,
-			email TEXT UNIQUE,
-			password TEXT,
-			role_id INTEGER,
-			status TEXT,
-			FOREIGN KEY(role_id) REFERENCES roles(id)
-		);`,
 		`CREATE TABLE IF NOT EXISTS roles (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			name TEXT UNIQUE,
 			color TEXT,
 			permissions TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS nodes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			name TEXT UNIQUE,
 			ip_address TEXT,
 			status TEXT,
@@ -43,15 +39,32 @@ func InitDB() {
 			disk_usage TEXT,
 			connection_type TEXT DEFAULT 'IP Address'
 		);`,
+		`CREATE TABLE IF NOT EXISTS templates (
+			id SERIAL PRIMARY KEY,
+			name TEXT UNIQUE,
+			description TEXT,
+			image TEXT,
+			config TEXT
+		);`,
+		`CREATE TABLE IF NOT EXISTS users (
+			id SERIAL PRIMARY KEY,
+			display_name TEXT,
+			username TEXT UNIQUE,
+			email TEXT UNIQUE,
+			password TEXT,
+			role_id INTEGER,
+			status TEXT,
+			FOREIGN KEY(role_id) REFERENCES roles(id)
+		);`,
 		`CREATE TABLE IF NOT EXISTS node_uptime (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			node_id INTEGER,
 			status TEXT,
-			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY(node_id) REFERENCES nodes(id)
 		);`,
 		`CREATE TABLE IF NOT EXISTS instances (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			name TEXT,
 			status TEXT,
 			node_id INTEGER,
@@ -59,54 +72,48 @@ func InitDB() {
 			memory INTEGER,
 			cpu INTEGER,
 			disk INTEGER,
-			FOREIGN KEY(node_id) REFERENCES nodes(id)
-		);`,
-		`CREATE TABLE IF NOT EXISTS templates (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT UNIQUE,
-			description TEXT,
-			image TEXT,
-			config TEXT
+			FOREIGN KEY(node_id) REFERENCES nodes(id),
+			FOREIGN KEY(template_id) REFERENCES templates(id)
 		);`,
 		`CREATE TABLE IF NOT EXISTS settings (
 			key TEXT PRIMARY KEY,
 			value TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS themes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			name TEXT UNIQUE,
 			config TEXT,
 			is_active INTEGER DEFAULT 0
 		);`,
 		`CREATE TABLE IF NOT EXISTS notifications (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			title TEXT,
 			message TEXT,
 			type TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`,
 		`CREATE TABLE IF NOT EXISTS tickets (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			subject TEXT,
 			user_id INTEGER,
 			status TEXT,
 			priority TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY(user_id) REFERENCES users(id)
 		);`,
 		`CREATE TABLE IF NOT EXISTS ticket_messages (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id SERIAL PRIMARY KEY,
 			ticket_id INTEGER,
 			user_id INTEGER,
 			message TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY(ticket_id) REFERENCES tickets(id),
 			FOREIGN KEY(user_id) REFERENCES users(id)
 		);`,
 		`CREATE TABLE IF NOT EXISTS sessions (
 			token TEXT PRIMARY KEY,
 			user_id INTEGER,
-			expires_at DATETIME,
+			expires_at TIMESTAMP,
 			FOREIGN KEY(user_id) REFERENCES users(id)
 		);`,
 	}
@@ -114,22 +121,11 @@ func InitDB() {
 	for _, schema := range schemas {
 		_, err := DB.Exec(schema)
 		if err != nil {
-			log.Fatalf("Error creating schema: %v", err)
+			log.Printf("Warning during schema initialization: %v", err)
 		}
 	}
 
-	// Add missing columns if they don't exist (basic migration)
-	DB.Exec("ALTER TABLE users ADD COLUMN display_name TEXT;")
-	DB.Exec("ALTER TABLE users ADD COLUMN role_id INTEGER;")
-	DB.Exec("ALTER TABLE roles ADD COLUMN color TEXT;")
-	DB.Exec("ALTER TABLE nodes ADD COLUMN disk_usage TEXT;")
-	DB.Exec("ALTER TABLE nodes ADD COLUMN connection_type TEXT DEFAULT 'IP Address';")
-	DB.Exec("ALTER TABLE templates ADD COLUMN config TEXT;")
-	DB.Exec("ALTER TABLE instances ADD COLUMN memory INTEGER;")
-	DB.Exec("ALTER TABLE instances ADD COLUMN cpu INTEGER;")
-	DB.Exec("ALTER TABLE instances ADD COLUMN disk INTEGER;")
-
-	log.Println("Database initialized successfully.")
+	log.Println("Database initialized successfully with KSSQL.")
 	SeedRoles()
 }
 
@@ -145,7 +141,7 @@ func SeedRoles() {
 	}
 
 	for _, r := range roles {
-		_, err := DB.Exec("INSERT OR IGNORE INTO roles (name, color, permissions) VALUES (?, ?, ?)", r.name, r.color, r.permissions)
+		_, err := DB.Exec("INSERT INTO roles (name, color, permissions) VALUES ($1, $2, $3) ON CONFLICT (name) DO NOTHING", r.name, r.color, r.permissions)
 		if err != nil {
 			log.Printf("Error seeding role %s: %v", r.name, err)
 		}

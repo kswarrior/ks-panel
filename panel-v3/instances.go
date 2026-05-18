@@ -19,7 +19,9 @@ func HandleInstances(w http.ResponseWriter, r *http.Request) {
 		var id int
 		var name, status string
 		var memory, cpu, disk int
-		rows.Scan(&id, &name, &status, &memory, &cpu, &disk)
+		if err := rows.Scan(&id, &name, &status, &memory, &cpu, &disk); err != nil {
+			continue
+		}
 		instances = append(instances, map[string]interface{}{
 			"id":     id,
 			"name":   name,
@@ -56,13 +58,15 @@ func HandleCreateInstance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	nodeID, _ := strconv.Atoi(inst.NodeID)
+	templateID, _ := strconv.Atoi(inst.TemplateID)
 	mem, _ := strconv.Atoi(inst.Memory)
 	cpu, _ := strconv.Atoi(inst.CPU)
 	disk, _ := strconv.Atoi(inst.Disk)
 
 	_, err := DB.Exec(
-		"INSERT INTO instances (name, status, node_id, template_id, memory, cpu, disk) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		inst.Name, "Online", inst.NodeID, inst.TemplateID, mem, cpu, disk,
+		"INSERT INTO instances (name, status, node_id, template_id, memory, cpu, disk) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		inst.Name, "Online", nodeID, templateID, mem, cpu, disk,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -78,11 +82,12 @@ func HandleUpdateInstance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.URL.Query().Get("id")
-	if id == "" {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
 		http.Error(w, "Missing instance ID", http.StatusBadRequest)
 		return
 	}
+	id, _ := strconv.Atoi(idStr)
 
 	var inst struct {
 		Name   string `json:"name"`
@@ -101,7 +106,7 @@ func HandleUpdateInstance(w http.ResponseWriter, r *http.Request) {
 	disk, _ := strconv.Atoi(inst.Disk)
 
 	_, err := DB.Exec(
-		"UPDATE instances SET name = ?, memory = ?, cpu = ?, disk = ? WHERE id = ?",
+		"UPDATE instances SET name = $1, memory = $2, cpu = $3, disk = $4 WHERE id = $5",
 		inst.Name, mem, cpu, disk, id,
 	)
 	if err != nil {
@@ -118,13 +123,14 @@ func HandleDeleteInstance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.URL.Query().Get("id")
-	if id == "" {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
 		http.Error(w, "Missing instance ID", http.StatusBadRequest)
 		return
 	}
+	id, _ := strconv.Atoi(idStr)
 
-	_, err := DB.Exec("DELETE FROM instances WHERE id = ?", id)
+	_, err := DB.Exec("DELETE FROM instances WHERE id = $1", id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

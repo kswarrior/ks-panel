@@ -43,7 +43,7 @@ func HandleTemplates(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("INSERT INTO templates (name, description, image, config) VALUES (?, ?, ?, ?)", t.Name, t.Description, t.Image, t.Config)
+		_, err := DB.Exec("INSERT INTO templates (name, description, image, config) VALUES ($1, $2, $3, $4)", t.Name, t.Description, t.Image, t.Config)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

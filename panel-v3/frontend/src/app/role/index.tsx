@@ -41,7 +41,7 @@ export default function RoleIndex() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {roles.map((role: any) => (
           <div key={role.id} className="glass-dark p-6 rounded-3xl border border-white/5 relative group hover:border-white/10 transition-all">
             <div

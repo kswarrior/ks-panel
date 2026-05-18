@@ -4,16 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
+	"strconv"
 )
 
 func HandleThemes(w http.ResponseWriter, r *http.Request) {
-	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	themeIDStr := ""
-	if len(pathParts) > 2 {
-		themeIDStr = pathParts[2]
-	}
-
 	switch r.Method {
 	case http.MethodGet:
 		rows, err := DB.Query("SELECT id, name, config, is_active FROM themes")
@@ -25,8 +19,9 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 
 		var themes []map[string]interface{}
 		for rows.Next() {
-			var id, isActive int
+			var id int
 			var name, config string
+			var isActive int
 			rows.Scan(&id, &name, &config, &isActive)
 			themes = append(themes, map[string]interface{}{
 				"id":        id,
@@ -34,9 +29,6 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 				"config":    config,
 				"is_active": isActive == 1,
 			})
-		}
-		if themes == nil {
-			themes = []map[string]interface{}{}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(themes)
@@ -50,7 +42,7 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("INSERT INTO themes (name, config, is_active) VALUES (?, ?, 0)", t.Name, t.Config)
+		_, err := DB.Exec("INSERT INTO themes (name, config, is_active) VALUES ($1, $2, 0)", t.Name, t.Config)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -58,6 +50,7 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 
 	case http.MethodPut:
+		themeIDStr := r.URL.Query().Get("id")
 		var t struct {
 			ID     int    `json:"id"`
 			Name   string `json:"name"`
@@ -72,19 +65,21 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 		if t.Apply {
 			// Handle Apply Theme
 			DB.Exec("UPDATE themes SET is_active = 0")
-			_, err := DB.Exec("UPDATE themes SET is_active = 1 WHERE id = ?", t.ID)
+			_, err := DB.Exec("UPDATE themes SET is_active = 1 WHERE id = $1", t.ID)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 		} else {
 			// Handle Update Theme
-			id := t.ID
-			if id == 0 && themeIDStr != "" {
+			var id int
+			if t.ID != 0 {
+				id = t.ID
+			} else {
 				// Fallback to URL path ID
 				fmt.Sscanf(themeIDStr, "%d", &id)
 			}
-			_, err := DB.Exec("UPDATE themes SET name = ?, config = ? WHERE id = ?", t.Name, t.Config, id)
+			_, err := DB.Exec("UPDATE themes SET name = $1, config = $2 WHERE id = $3", t.Name, t.Config, id)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -93,11 +88,13 @@ func HandleThemes(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 	case http.MethodDelete:
+		themeIDStr := r.URL.Query().Get("id")
 		if themeIDStr == "" {
 			http.Error(w, "Theme ID required", http.StatusBadRequest)
 			return
 		}
-		_, err := DB.Exec("DELETE FROM themes WHERE id = ?", themeIDStr)
+		id, _ := strconv.Atoi(themeIDStr)
+		_, err := DB.Exec("DELETE FROM themes WHERE id = $1", id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
