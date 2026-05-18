@@ -147,7 +147,7 @@ func main() {
 
 		// Map of internal routes that should never be leaked
 		internalRoutes := []string{
-			"instances", "nodes", "templates", "users", "roles", "settings", "notifications", "tickets", "account",
+			"instances", "nodes", "node", "templates", "users", "user", "roles", "role", "themes", "theme", "settings", "notifications", "tickets", "ticket", "account",
 		}
 
 		isInternal := false

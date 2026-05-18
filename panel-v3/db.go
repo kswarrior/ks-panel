@@ -124,9 +124,9 @@ func SeedRoles() {
 		color       string
 		permissions string
 	}{
-		{"Owner", "#ef4444", "*"},
-		{"Admin", "#0ea5e9", "view_instances,manage_instances,view_nodes,manage_nodes,view_users,manage_users,view_roles,manage_roles,view_themes,manage_themes,view_templates"},
-		{"User", "#22c55e", "view_instances"},
+		{"owner", "#ef4444", "*"},
+		{"admin", "#0ea5e9", "view_instances,manage_instances,view_nodes,manage_nodes,view_users,manage_users,view_roles,manage_roles,view_themes,manage_themes,view_templates"},
+		{"user", "#22c55e", "view_instances"},
 	}
 
 	for _, r := range roles {

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Server, Signal, MoreVertical, Plus, RefreshCw, SignalHigh } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Server, Signal, MoreVertical, Plus, RefreshCw, SignalHigh, Edit2, Trash2 } from 'lucide-react';
 import { SkeletonGrid } from '../components/SkeletonLoader';
 
 interface Node {
   id: number;
   name: string;
-  ip_address: string;
+  ip: string;
   status: string;
   cpu_usage: string;
   ram_usage: string;
@@ -14,6 +15,7 @@ interface Node {
 const NodeIndex: React.FC = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchNodes = async () => {
     setLoading(true);
@@ -24,8 +26,7 @@ const NodeIndex: React.FC = () => {
     } catch (err) {
       console.error(err);
     } finally {
-      // Artificial delay to demonstrate skeleton fluidity
-      setTimeout(() => setLoading(false), 800);
+      setTimeout(() => setLoading(false), 500);
     }
   };
 
@@ -33,12 +34,21 @@ const NodeIndex: React.FC = () => {
     fetchNodes();
   }, []);
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('Disconnect this node? Active instances will be unreachable.')) return;
+    try {
+      await fetch(`/api/nodes?id=${id}`, { method: 'DELETE' });
+      fetchNodes();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nodes</h1>
-          <p className="text-white/50">Infrastructure overview and edge telemetry</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2">Nodes</h1>
         </div>
         <div className="flex gap-3">
           <button
@@ -47,7 +57,10 @@ const NodeIndex: React.FC = () => {
           >
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
-          <button className="neon-button flex items-center justify-center gap-2 font-bold">
+          <button
+            onClick={() => navigate('/node/create')}
+            className="neon-button flex items-center justify-center gap-2 font-bold px-6 py-2.5"
+          >
             <Plus className="w-5 h-5" />
             Add Node
           </button>
@@ -61,12 +74,27 @@ const NodeIndex: React.FC = () => {
           <Server className="w-16 h-16 text-white/10 mx-auto mb-4" />
           <h3 className="text-xl font-bold">No nodes operational</h3>
           <p className="text-white/40 mb-6">Connect your first edge node to start deploying instances.</p>
-          <button className="neon-button py-3 px-8">Deploy First Node</button>
+          <button onClick={() => navigate('/node/create')} className="neon-button py-3 px-8 font-bold">Deploy First Node</button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {nodes.map((node) => (
-            <div key={node.id} className="glass-dark p-6 rounded-3xl border border-white/5 hover:border-neon-blue/30 transition-all group">
+            <div key={node.id} className="glass-dark p-6 rounded-3xl border border-white/5 hover:border-neon-blue/30 transition-all group relative">
+              <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                 <button
+                   onClick={() => navigate(`/node/edit/${node.id}`)}
+                   className="p-1.5 hover:bg-white/5 rounded-lg text-white/40 hover:text-white"
+                 >
+                   <Edit2 className="w-4 h-4" />
+                 </button>
+                 <button
+                   onClick={() => handleDelete(node.id)}
+                   className="p-1.5 hover:bg-white/5 rounded-lg text-white/40 hover:text-red-400"
+                 >
+                   <Trash2 className="w-4 h-4" />
+                 </button>
+              </div>
+
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:neon-border transition-all">
@@ -74,7 +102,7 @@ const NodeIndex: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">{node.name}</h3>
-                    <p className="text-xs text-white/40 font-mono">{node.ip_address}</p>
+                    <p className="text-xs text-white/40 font-mono">{node.ip}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -89,7 +117,7 @@ const NodeIndex: React.FC = () => {
               <div className="space-y-4">
                  <div className="flex justify-between text-xs font-bold text-white/30 uppercase tracking-tighter">
                    <span>Resources</span>
-                   <span className="text-white/60">{node.cpu_usage} CPU / {node.ram_usage} RAM</span>
+                   <span className="text-white/60">{node.cpu_usage || '0%'} CPU / {node.ram_usage || '0%'} RAM</span>
                  </div>
                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                     <div className="h-full bg-neon-blue shadow-neon transition-all w-1/3" />

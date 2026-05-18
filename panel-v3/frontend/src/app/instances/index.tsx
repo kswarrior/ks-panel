@@ -23,8 +23,7 @@ export default function InstancesIndex() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2">Cloud Infrastructure</h1>
-          <p className="text-white/40 max-w-lg">Monitor and manage your distributed virtual instances across global nodes</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2">Instances</h1>
         </div>
         <button
           onClick={() => navigate('/instances/create')}

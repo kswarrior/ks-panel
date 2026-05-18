@@ -126,7 +126,7 @@ export const DashboardLayout: React.FC = () => {
 
            {/* Main Content Region - This is the only part that swaps during navigation */}
            <main
-              className="flex-1 pt-[calc(var(--header-height,64px)+2rem)] min-h-screen-dvh transition-all duration-300"
+              className="flex-1 lg:ml-[var(--sidebar-width,256px)] pt-[calc(var(--header-height,64px)+2rem)] min-h-screen-dvh transition-all duration-300"
            >
              <div className="container mx-auto px-4 pb-12">
                <Outlet />

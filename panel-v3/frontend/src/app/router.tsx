@@ -8,6 +8,8 @@ const InstancesCreate = React.lazy(() => import('./instances/create'));
 const InstancesEdit = React.lazy(() => import('./instances/edit'));
 
 const NodeIndex = React.lazy(() => import('./node/index'));
+const NodeCreate = React.lazy(() => import('./node/create'));
+const NodeEdit = React.lazy(() => import('./node/edit'));
 
 const UserIndex = React.lazy(() => import('./user/index'));
 const UserCreate = React.lazy(() => import('./user/create'));
@@ -18,12 +20,18 @@ const RoleCreate = React.lazy(() => import('./role/create'));
 const RoleEdit = React.lazy(() => import('./role/edit'));
 
 const ThemeIndex = React.lazy(() => import('./theme/index'));
+const ThemeCreate = React.lazy(() => import('./theme/create'));
+const ThemeEdit = React.lazy(() => import('./theme/edit'));
 
 const TemplatesIndex = React.lazy(() => import('./templates/index'));
 const TemplatesCreate = React.lazy(() => import('./templates/create'));
 const TemplatesEdit = React.lazy(() => import('./templates/edit'));
 
 const TicketIndex = React.lazy(() => import('./ticket/index'));
+const TicketCreate = React.lazy(() => import('./ticket/create'));
+const TicketChat = React.lazy(() => import('./ticket/chat'));
+const NotificationsIndex = React.lazy(() => import('./notifications/index'));
+const NotificationsSent = React.lazy(() => import('./notifications/sent'));
 const AuthIndex = React.lazy(() => import('./auth/index'));
 const AccountIndex = React.lazy(() => import('./account/index'));
 
@@ -52,7 +60,8 @@ export const router = createBrowserRouter([
         path: 'node',
         children: [
           { path: '', element: <React.Suspense fallback={null}><NodeIndex /></React.Suspense> },
-          { path: 'create', element: <Placeholder name="Node Create" /> }
+          { path: 'create', element: <React.Suspense fallback={null}><NodeCreate /></React.Suspense> },
+          { path: 'edit/:id', element: <React.Suspense fallback={null}><NodeEdit /></React.Suspense> }
         ]
       },
       {
@@ -74,7 +83,9 @@ export const router = createBrowserRouter([
       {
         path: 'theme',
         children: [
-          { path: '', element: <React.Suspense fallback={null}><ThemeIndex /></React.Suspense> }
+          { path: '', element: <React.Suspense fallback={null}><ThemeIndex /></React.Suspense> },
+          { path: 'create', element: <React.Suspense fallback={null}><ThemeCreate /></React.Suspense> },
+          { path: 'edit/:id', element: <React.Suspense fallback={null}><ThemeEdit /></React.Suspense> }
         ]
       },
       {
@@ -89,12 +100,18 @@ export const router = createBrowserRouter([
         path: 'ticket',
         children: [
           { path: '', element: <React.Suspense fallback={null}><TicketIndex /></React.Suspense> },
-          { path: 'create', element: <Placeholder name="Ticket Create" /> },
-          { path: 'chat', element: <Placeholder name="Ticket Chat" /> }
+          { path: 'create', element: <React.Suspense fallback={null}><TicketCreate /></React.Suspense> },
+          { path: 'chat/:id', element: <React.Suspense fallback={null}><TicketChat /></React.Suspense> }
         ]
       },
       { path: 'settings', element: <Placeholder name="Settings" /> },
-      { path: 'notifications', element: <Placeholder name="Notifications" /> },
+      {
+        path: 'notifications',
+        children: [
+          { path: '', element: <React.Suspense fallback={null}><NotificationsIndex /></React.Suspense> },
+          { path: 'sent', element: <React.Suspense fallback={null}><NotificationsSent /></React.Suspense> }
+        ]
+      },
       { path: 'account', element: <React.Suspense fallback={null}><AccountIndex /></React.Suspense> }
     ]
   },

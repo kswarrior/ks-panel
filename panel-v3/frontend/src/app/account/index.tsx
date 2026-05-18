@@ -62,8 +62,7 @@ export default function AccountIndex() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2">My Account</h1>
-          <p className="text-white/40">Manage your personal identity and security credentials</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2">Account</h1>
         </div>
       </div>
 

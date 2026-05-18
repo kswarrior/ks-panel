@@ -27,8 +27,7 @@ export default function TemplatesIndex() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2">Service Blueprints</h1>
-          <p className="text-white/40 max-w-lg">Manage reusable environment templates for rapid infrastructure deployment</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2">Templates</h1>
         </div>
         <button
           onClick={() => navigate('/templates/create')}

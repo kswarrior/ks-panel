@@ -30,8 +30,7 @@ export default function RoleIndex() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter mb-2">Access Control</h1>
-          <p className="text-white/40 max-w-lg">Define granular permissions and organizational hierarchy</p>
+          <h1 className="text-4xl font-black tracking-tighter mb-2">Roles</h1>
         </div>
         <button
           onClick={() => navigate('/role/create')}
