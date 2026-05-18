@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: #ffffff;
+  --color-neon-blue: var(--neon-blue);
+
+  --shadow-neon: 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%);
+  --shadow-neon-strong: 0 0 20px color-mix(in srgb, var(--neon-blue), transparent 50%);
+}
+
+:root {
+  --background: #050505;
+  --foreground: #ffffff;
+  --neon-blue: #0ea5e9;
+  --header-height: 64px;
+  --sidebar-width: 256px;
+}
+
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@layer components {
+  .glass {
+    background-color: rgba(255, 255, 255, var(--glass-opacity, 0.05));
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    border: 1px solid rgba(255, 255, 255, var(--border-opacity, 0.1));
+  }
+
+  .h-screen-dvh {
+    height: 100dvh;
+  }
+
+  .min-h-screen-dvh {
+    min-height: 100dvh;
+  }
+
+  .glass-dark {
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    border: 1px solid rgba(255, 255, 255, var(--border-opacity, 0.05));
+    border-radius: var(--radius, 1.5rem);
+  }
+
+  .neon-border {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%);
+  }
+
+  .neon-button {
+    background-color: color-mix(in srgb, var(--neon-blue), transparent 90%);
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+    padding: 0.5rem 1rem;
+    border-radius: var(--btn-radius, 0.5rem);
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: var(--btn-glow, 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%));
+  }
+  .neon-button:hover {
+     background-color: var(--neon-blue);
+     color: white;
+     box-shadow: 0 0 20px color-mix(in srgb, var(--neon-blue), transparent 50%);
+  }
+
+  .neon-input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius, 0.5rem);
+    padding: 0.5rem 1rem;
+    outline: none;
+    transition: all 0.3s;
+  }
+  .neon-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--neon-blue), transparent 70%);
+  }
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
