@@ -15,7 +15,7 @@ router.get("/admin/apikeys", isAdmin, async (req, res) => {
     // Use pagination for API keys
     const apiKeysResult = await getPaginatedAPIKeys(page, pageSize);
 
-    res.render("admin/apikeys", {
+    res.json({
       req,
       user: req.user,
       apiKeys: apiKeysResult.data,

@@ -250,7 +250,7 @@ router.get("/2fa", async (req, res) => {
   if (!req.session.tempUser) {
     return res.redirect("/login");
   }
-  res.render("auth/2fa", {
+  res.json({
     req,
   });
 });
@@ -313,7 +313,7 @@ router.get("/verify/:token", async (req, res) => {
 
 router.get("/resend-verification", async (req, res) => {
   try {
-    res.render("auth/resend-verification", {
+    res.json({
       req,
     });
   } catch (error) {
@@ -365,7 +365,7 @@ router.get("/", (req, res) => {
 
 router.get("/login", async (req, res) => {
   if (!req.user) {
-    res.render("auth/login", {
+    res.json({
       req,
       user: req.user,
     });
@@ -386,7 +386,7 @@ async function initializeRoutes() {
           router.get("/register", async (req, res) => {
             try {
               if (!req.user) {
-                res.render("auth/register", {
+                res.json({
                   req,
                   user: req.user,
                 });
@@ -450,7 +450,7 @@ initializeRoutes();
 
 router.get("/auth/reset-password", async (req, res) => {
   try {
-    res.render("auth/reset-password", {
+    res.json({
       req,
     });
   } catch (error) {
@@ -496,7 +496,7 @@ router.get("/auth/reset/:token", async (req, res) => {
       return;
     }
 
-    res.render("auth/password-reset-form", {
+    res.json({
       req,
       token: token,
     });

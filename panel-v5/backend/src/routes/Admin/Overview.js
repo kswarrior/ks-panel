@@ -54,7 +54,7 @@ router.get("/admin/overview", isAdmin, async (req, res) => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
 
-    res.render("admin/overview", {
+    res.json({
       req,
       user: req.user,
       usersTotal,

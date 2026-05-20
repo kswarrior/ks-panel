@@ -272,7 +272,6 @@ if (config.mode === "production" || false) {
   });
 }
 
-app.set("view engine", "ejs");
 /**
  * Configures the Express application to serve static files from the 'public' directory, providing
  * access to client-side resources like images, JavaScript files, and CSS stylesheets without additional
@@ -390,7 +389,6 @@ const PluginViewsDir = fs
   .filter(file => fs.statSync(path.join(pluginDir, file)).isDirectory())
   .map((addonName) => path.join(pluginDir, addonName, "views"))
   .filter(viewPath => fs.existsSync(viewPath));
-app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
 
 // ────────────────────────────────────────────────────────────────
 
@@ -414,7 +412,7 @@ events.emit('panelStart', { app, config });
 
 // 404 handler (MUST be last route)
 app.use('*', async function(req, res){
-  res.status(404).render('errors/404', {
+  res.status(404).json('errors/404', {
     req,
     name: (await db.get('settings'))?.name || 'KS Panel'
   });

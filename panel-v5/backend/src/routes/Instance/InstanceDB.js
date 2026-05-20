@@ -42,7 +42,7 @@ router.get("/instance/:id/db", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   if (instance.Node && instance.Node.address && instance.Node.port) {
@@ -52,7 +52,7 @@ router.get("/instance/:id/db", async (req, res) => {
       );
       const databases = instance.Databases || [];
       const settings = await db.get("settings");
-      res.render("instance/db", {
+      res.json({
         req,
         user: req.user,
         databases,
@@ -109,7 +109,7 @@ router.post("/instance/:id/db/create/:name", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   if (instance.Node && instance.Node.address && instance.Node.port) {

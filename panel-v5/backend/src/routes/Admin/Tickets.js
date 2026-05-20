@@ -11,7 +11,7 @@ router.get("/admin/tickets", anyAdminPerm, async (req, res) => {
   const ticketIds = await db.get("tickets") || [];
   const allTickets = await Promise.all(ticketIds.map(id => db.get(`${id}_ticket`)));
 
-  res.render("admin/tickets", {
+  res.json({
     req,
     user: req.user,
     tickets: allTickets.filter(Boolean).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))

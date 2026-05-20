@@ -42,7 +42,7 @@ router.get("/admin/auditlogs", hasPermission("view_audit_logs"), async (req, res
     const allAuditsArray = allAudits ? JSON.parse(allAudits) : [];
     const actions = [...new Set(allAuditsArray.map(audit => audit.action))];
 
-    res.render("admin/auditlogs", {
+    res.json({
       req,
       user: req.user,
       audits: result.data,

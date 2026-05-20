@@ -26,7 +26,7 @@ router.post("/instance/:id/files/edit/:filename", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   if (!instance.Node || !instance.Node.address || !instance.Node.port) {

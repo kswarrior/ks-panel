@@ -28,7 +28,7 @@ router.get("/admin/languages", hasPermission("manage_settings"), async (req, res
         return { code, name };
     });
 
-    res.render("admin/languages/overview", {
+    res.json({
         req,
         user: req.user,
         languages
@@ -42,7 +42,7 @@ router.get("/admin/languages/edit/:code", hasPermission("manage_settings"), asyn
     if (!fs.existsSync(langPath)) return res.redirect("/admin/languages?err=NotFound");
 
     const content = fs.readFileSync(langPath, "utf8");
-    res.render("admin/languages/edit", {
+    res.json({
         req,
         user: req.user,
         code,

@@ -41,11 +41,11 @@ router.get("/instance/:id/settings", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
-  res.render("instance/settings", {
+  res.json({
     req,
     user: req.user,
     instance,
@@ -92,7 +92,7 @@ router.get("/instance/:id/change/name/:name", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   const trimmedName = name.trim();

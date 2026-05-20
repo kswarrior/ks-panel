@@ -26,7 +26,7 @@ router.get("/dashboard/create", async (req, res) => {
   const defaultSlots = settings.defaultSlots || 3;
 
   if (userInstances.length >= defaultSlots) {
-    return res.render("errors/error", {
+    return res.json({
       req, user: req.user,
       error: "Slot limit reached. Please contact an administrator to increase your capacity."
     });
@@ -48,7 +48,7 @@ router.get("/dashboard/create", async (req, res) => {
     }).filter(Boolean);
   }
 
-  res.render("dashboard/create", {
+  res.json({
     req,
     user: req.user,
     settings,

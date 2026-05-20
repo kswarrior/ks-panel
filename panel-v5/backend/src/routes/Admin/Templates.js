@@ -115,7 +115,7 @@ router.get("/admin/templates/overview", hasPermission("manage_templates"), (req,
     .map(dir => loadTemplate(dir))
     .filter(Boolean);
 
-  res.render("admin/templates/overview", {
+  res.json({
     req,
     user: req.user,
     templates,
@@ -131,7 +131,7 @@ router.get("/admin/templates/overview", hasPermission("manage_templates"), (req,
 router.get("/admin/templates/create", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
-  res.render("admin/templates/create", { req, user: req.user, categories, types });
+  res.json({ req, user: req.user, categories, types });
 });
 
 // ────────────────────────────────────────────────
@@ -149,7 +149,7 @@ router.get("/admin/templates/edit/:dirName", hasPermission("manage_templates"), 
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
 
-  res.render("admin/templates/edit", {
+  res.json({
     req,
     user: req.user,
     template,

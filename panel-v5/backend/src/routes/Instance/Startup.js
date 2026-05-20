@@ -51,7 +51,7 @@ router.get("/instance/:id/startup", async (req, res) => {
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
     if (suspended === true) {
-      return res.render("instance/suspended", { req, user: req.user });
+      return res.json({ req, user: req.user });
     }
 
     // Load per-instance template.json (exactly like Power.js)
@@ -86,7 +86,7 @@ router.get("/instance/:id/startup", async (req, res) => {
 
     instance.templateData = templateData;
 
-    res.render("instance/startup.ejs", {
+    res.json({
       req,
       user: req.user,
       instance,
@@ -122,7 +122,7 @@ router.post("/instances/startup/changevariable/:id", async (req, res) => {
     if (!isAuthorized) return res.status(403).send("Unauthorized");
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-    if (suspended) return res.render("instance/suspended", { req, user: req.user });
+    if (suspended) return res.json({ req, user: req.user });
 
     // 1. Update instance Env (existing behavior)
     const updatedEnv = instance.Env.map((envVar) => {
@@ -174,7 +174,7 @@ router.get("/instances/startup/changeimage/:id", async (req, res) => {
     if (!isAuthorized) return res.status(403).send("Unauthorized");
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-    if (suspended) return res.render("instance/suspended", { req, user: req.user });
+    if (suspended) return res.json({ req, user: req.user });
 
     const nodeId = instance.Node.id;
     const { image, user } = req.query;

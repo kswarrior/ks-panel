@@ -116,7 +116,7 @@ router.get("/admin/settings/theme", hasPermission('manage_settings'), async (req
       });
     }
 
-    res.render("admin/settings/theme", {
+    res.json({
       req,
       user: req.user,
       settings,

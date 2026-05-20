@@ -143,7 +143,7 @@ router.get("/admin/security/overview", anyAdminPerm, async (req, res) => {
     rateLimitMax: 5000,
     networkLimit: 100
   };
-  res.render("admin/security/overview", {
+  res.json({
     req,
     user: req.user,
     title: "Security Center",

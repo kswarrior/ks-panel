@@ -42,7 +42,7 @@ router.get("/admin/roles", hasPermission("manage_users"), async (req, res) => {
     ...roles
   ];
 
-  res.render("admin/roles/overview", {
+  res.json({
     req,
     user: req.user,
     roles: allRoles
@@ -50,7 +50,7 @@ router.get("/admin/roles", hasPermission("manage_users"), async (req, res) => {
 });
 
 router.get("/admin/roles/create", hasPermission("manage_users"), (req, res) => {
-  res.render("admin/roles/create", {
+  res.json({
     req,
     user: req.user,
     systemPermissions: SYSTEM_PERMISSIONS
@@ -91,7 +91,7 @@ router.get("/admin/roles/edit/:id", hasPermission("manage_users"), async (req, r
       admin: { id: 'admin', name: 'Administrator', color: '#3b82f6', permissions: { all: true }, virtual: true },
       user: { id: 'user', name: 'User', color: '#94a3b8', permissions: {}, virtual: true }
     };
-    return res.render("admin/roles/edit", {
+    return res.json({
       req,
       user: req.user,
       role: virtualRoles[id],
@@ -103,7 +103,7 @@ router.get("/admin/roles/edit/:id", hasPermission("manage_users"), async (req, r
   const role = roles.find(r => r.id === id);
   if (!role) return res.status(404).send("Role not found");
 
-  res.render("admin/roles/edit", {
+  res.json({
     req,
     user: req.user,
     role,

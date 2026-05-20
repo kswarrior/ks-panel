@@ -35,7 +35,7 @@ router.get("/instances", isAuthenticated, async (req, res) => {
     }
   }
 
-  res.render("instances", {
+  res.json({
     req,
     user: req.user,
     instances,
@@ -62,7 +62,7 @@ router.get("/instance/:id", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   if (instance.InternalState !== "READY" && instance.InternalState !== "STOPPED") {
@@ -76,7 +76,7 @@ router.get("/instance/:id", async (req, res) => {
   const files = await fetchFiles(instance, "");
 
 
-  res.render("instance/instance", {
+  res.json({
     req,
     user: req.user,
     ContainerId: instance.ContainerId,

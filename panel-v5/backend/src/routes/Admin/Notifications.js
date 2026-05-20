@@ -6,7 +6,7 @@ const { anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 // Admin View: Notification Management
 router.get("/admin/notifications", hasPermission('manage_users'), async (req, res) => {
   const users = await db.get("users") || [];
-  res.render("admin/notifications", {
+  res.json({
     req,
     user: req.user,
     users

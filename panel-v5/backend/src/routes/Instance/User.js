@@ -31,7 +31,7 @@ router.get("/instance/:id/users", async (req, res) => {
     );
     const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
 
-    res.render("instance/users", {
+    res.json({
       req,
       user: req.user,
       users,

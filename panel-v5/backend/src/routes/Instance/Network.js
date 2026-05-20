@@ -35,13 +35,13 @@ router.get("/instance/:id/network", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.render("instance/suspended", { req, user: req.user });
+    return res.json({ req, user: req.user });
   }
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
   const ports = processPorts(instance.Ports, instance);
 
-  res.render("instance/network", {
+  res.json({
     req,
     user: req.user,
     instance,
