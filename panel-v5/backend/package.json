@@ -4,7 +4,7 @@
   "description": "KS Panel is an open-source web panel for managing game servers and applications built with Node.js, Express, and Docker.",
   "main": "src/index.js",
   "bin": {
-    "ks-panel": "./exec/bin/index.js"
+    "kspanel": "./src/index.js"
   },
   "scripts": {
     "start": "npx pm2 start src/index.js --name ks-panel",

@@ -12,11 +12,16 @@ plugins/plugins.json
 config.json
 
 # Panel v5
+panel-v5/target/
 panel-v5/frontend/out/
 panel-v5/frontend/.next/
 panel-v5/backend/src/public/
 panel-v5/backend/src/storage/
 panel-v5/backend/src/database/
+panel-v5/kspanel
+panel-v5/node_modules/
+panel-v5/frontend/node_modules/
+panel-v5/backend/node_modules/
 *.log
 *.sqlite
 kspanel
