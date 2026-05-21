@@ -3,17 +3,17 @@
 # Exit on error
 set -e
 
-echo "Starting KS Panel v5 build process..."
+echo "Starting KS Panel v5 'One File' build process..."
 
 # Navigate to panel-v5 directory
 cd "$(dirname "$0")"
 
-# Detect platform and architecture for pkg
-PLATFORM="linux"
+# Detect OS and Architecture for Node.js download
+OS="linux"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    PLATFORM="macos"
+    OS="darwin"
 elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-    PLATFORM="win"
+    OS="win"
 fi
 
 ARCH="x64"
@@ -21,16 +21,39 @@ if [[ "$(uname -m)" == "arm64" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
     ARCH="arm64"
 fi
 
-TARGET="node18-$PLATFORM-$ARCH"
-echo "Build target: $TARGET"
+# Map Architecture names to Node.js format
+NODE_ARCH=$ARCH
+if [[ "$OS" == "win" && "$ARCH" == "arm64" ]]; then
+    NODE_ARCH="arm64"
+fi
+
+# Download standalone Node.js binary if not present
+NODE_VERSION="v18.20.4"
+NODE_DIR="node-${NODE_VERSION}-${OS}-${NODE_ARCH}"
+EXTENSION="tar.gz"
+if [[ "$OS" == "win" ]]; then
+    EXTENSION="zip"
+fi
+
+if [ ! -f "node" ] && [ ! -f "node.exe" ]; then
+    echo "Downloading Node.js binary ($OS-$NODE_ARCH)..."
+    URL="https://nodejs.org/dist/${NODE_VERSION}/${NODE_DIR}.${EXTENSION}"
+    if [[ "$OS" == "win" ]]; then
+        wget -q "$URL"
+        unzip -q "${NODE_DIR}.zip"
+        cp "${NODE_DIR}/node.exe" .
+        rm -rf "${NODE_DIR}" "${NODE_DIR}.zip"
+    else
+        wget -q "$URL"
+        tar -xzf "${NODE_DIR}.${EXTENSION}"
+        cp "${NODE_DIR}/bin/node" .
+        rm -rf "${NODE_DIR}" "${NODE_DIR}.${EXTENSION}"
+    fi
+fi
 
 # Install root dependencies
 echo "Installing root dependencies..."
 npm install
-
-# Build Rust native library
-echo "Building Rust native library..."
-cargo build --release
 
 # Build Frontend
 echo "Building frontend..."
@@ -39,31 +62,53 @@ npm install
 npm run build
 cd ..
 
-# Prepare backend public directory
-echo "Preparing backend public directory..."
-mkdir -p backend/src/public
-rm -rf backend/src/public/*
-if [ -d "frontend/out" ]; then
-    cp -r frontend/out/* backend/src/public/
-else
-    echo "Error: frontend/out directory not found. Frontend build might have failed."
-    exit 1
-fi
-
-# Build Backend Binary
-echo "Building backend binary..."
+# Prepare bundle directory
+echo "Preparing bundle..."
+rm -rf build_tmp
+mkdir -p build_tmp/backend
+cp -r backend/src build_tmp/backend/
+cp backend/package.json build_tmp/backend/
+# Copy node_modules (production only)
+echo "Installing production backend dependencies..."
 cd backend
-npm install
-# Build for the detected platform
-npx pkg . --targets "$TARGET" --output ../kspanel
+npm install --omit=dev
+cp -r node_modules ../build_tmp/backend/
 cd ..
 
-# Ensure binary is executable
-if [ -f "kspanel" ]; then
-    chmod +x kspanel
-elif [ -f "kspanel.exe" ]; then
-    chmod +x kspanel.exe
+# Copy frontend build to backend public
+mkdir -p build_tmp/backend/src/public
+cp -r frontend/out/* build_tmp/backend/src/public/
+
+# Copy Node.js binary to bundle
+if [ -f "node.exe" ]; then
+    cp node.exe build_tmp/
+else
+    cp node build_tmp/
 fi
 
-echo "Build complete! You can now run the panel using ./kspanel"
-echo "The panel will be listening on port 8080 by default (set PORT env var to change)."
+# Create compressed tarball
+echo "Creating bundle.tar.gz..."
+cd build_tmp
+tar -czf ../bundle.tar.gz .
+cd ..
+
+# Build Rust Binary
+echo "Building final kspanel binary..."
+cargo build --release
+
+# Move final binary to root
+if [ -f "target/release/kspanel.exe" ]; then
+    cp target/release/kspanel.exe .
+    chmod +x kspanel.exe
+else
+    cp target/release/kspanel .
+    chmod +x kspanel
+fi
+
+# Clean up
+rm -rf build_tmp bundle.tar.gz node node.exe
+
+echo "=========================================="
+echo "Build complete! Portable binary created: ./kspanel"
+echo "You can now move this single file anywhere and run it."
+echo "=========================================="
