@@ -58,6 +58,7 @@ npm install
 # Build Frontend
 echo "Building frontend..."
 cd frontend
+# Ensure all build dependencies are present
 npm install
 npm run build
 cd ..
