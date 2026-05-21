@@ -52,10 +52,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("KS Panel is now running on port 8080");
 
-    // Demonstrate Rust library integration
-    // Using the library name defined in Cargo.toml
-    println!("Native Logic: {}", ks_panel_native::scan_heavy_duty());
-
     let status = child.wait()?;
 
     if !status.success() {
