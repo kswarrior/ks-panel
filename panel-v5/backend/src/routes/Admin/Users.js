@@ -65,7 +65,7 @@ router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
   const { paginate } = require("../../utils/dbHelper.js");
   const usersResult = paginate(allUsers, page, pageSize);
 
-  res.json({
+  res.render("admin/users/overview", {
     req,
     user: req.user,
     users: usersResult.data,
@@ -77,7 +77,7 @@ router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
 
 router.get("/admin/users/create", hasPermission("manage_users"), async (req, res) => {
   const roles = await db.get("roles") || [];
-  res.json({
+  res.render("admin/users/create", {
     req,
     user: req.user,
     roles
@@ -160,7 +160,7 @@ router.get("/admin/users/edit/:userId", hasPermission("manage_users"), async (re
 
   const roles = await db.get("roles") || [];
 
-  res.json({
+  res.render("admin/users/edit", {
     req,
     user: req.user,
     editUser,

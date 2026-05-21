@@ -105,7 +105,7 @@ router.get("/instance/:id/automations", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   let workflow = await db.get(id + "_workflow");
@@ -119,7 +119,7 @@ router.get("/instance/:id/automations", async (req, res) => {
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
 
-  res.json({
+  res.render("instance/automations", {
     req,
     user: req.user,
     instance,

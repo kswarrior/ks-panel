@@ -101,7 +101,7 @@ router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, r
     if (loc) locations.push(loc);
   }
 
-  res.json({
+  res.render("admin/nodes/overview", {
     req,
     user: req.user,
     nodes: nodesWithResources,
@@ -124,7 +124,7 @@ router.get("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res
 
   const categories = await db.get("node_categories") || ["Default", "High Performance", "Storage"];
 
-  res.json({
+  res.render("admin/nodes/create", {
     req,
     user: req.user,
     locations,
@@ -210,7 +210,7 @@ router.get("/admin/nodes/node/:id/stats", hasPermission('manage_nodes'), async (
 
   let set = { [id]: instanceCount };
 
-  res.json({
+  res.render("admin/nodes/stats", {
     req,
     user: req.user,
     stats,

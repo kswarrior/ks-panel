@@ -29,7 +29,7 @@ router.post("/instance/:id/power", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   const baseUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.ContainerId}`;

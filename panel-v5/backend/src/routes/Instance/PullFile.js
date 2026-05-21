@@ -24,7 +24,7 @@ router.post("/instance/:id/files/pull", async (req, res) => {
   if (!isAuthorized) return res.status(403).send("Unauthorized");
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-  if (suspended) return res.json({ req, user: req.user });
+  if (suspended) return res.render("instance/suspended", { req, user: req.user });
 
   const apiUrl = `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/files/pull?path=${encodeURIComponent(subPath)}`;
 

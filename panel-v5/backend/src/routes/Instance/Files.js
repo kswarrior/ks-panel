@@ -36,14 +36,14 @@ router.get("/instance/:id/files", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
 
   try {
     const files = await fetchFiles(instance, req.query.path);
-    res.json({
+    res.render("instance/files", {
       req,
       user: req.user,
       files: files,
@@ -139,7 +139,7 @@ router.get("/instance/:id/files/archive/:file", async (req, res) => {
   if (!isAuthorized) return res.status(403).send("Unauthorized");
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-  if (suspended) return res.json({ req, user: req.user });
+  if (suspended) return res.render("instance/suspended", { req, user: req.user });
 
   try {
     const apiUrl = `http://${instance.Node.address}:${instance.Node.port}/archive/${instance.VolumeId}/zip`;
@@ -170,7 +170,7 @@ router.post("/instance/:id/files/archive-selected", async (req, res) => {
   if (!isAuthorized) return res.status(403).send("Unauthorized");
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
-  if (suspended) return res.json({ req, user: req.user });
+  if (suspended) return res.render("instance/suspended", { req, user: req.user });
 
   try {
     const apiUrl = `http://${instance.Node.address}:${instance.Node.port}/archive/${instance.VolumeId}/zip`;

@@ -10,3 +10,13 @@ public/assets/logo.png
 bs-config.json
 plugins/plugins.json
 config.json
+
+# Panel v5
+panel-v5/frontend/out/
+panel-v5/frontend/.next/
+panel-v5/backend/src/public/
+panel-v5/backend/src/storage/
+panel-v5/backend/src/database/
+*.log
+*.sqlite
+kspanel

@@ -26,7 +26,7 @@ async function doesUserExist(username) {
 }
 
 router.get("/account", async (req, res) => {
-  res.json({
+  res.render("account", {
     req,
     user: req.user,
     users: (await db.get("users")) || [],
@@ -126,7 +126,7 @@ router.get("/enable-2fa", isAuthenticated, async (req, res) => {
 
     qrcode.toDataURL(secret.otpauth_url, async (err, data_url) => {
       if (err) return res.status(500).send("Error generating QR Code");
-      res.json({
+      res.render("enable-2fa", {
         req,
         user: req.user,
         users,

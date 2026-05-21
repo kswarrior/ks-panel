@@ -131,7 +131,7 @@ router.get("/admin/instances/overview", hasPermission('all'), async (req, res) =
       log.error("Cannot read templates directory:", err);
     }
 
-    res.json({
+    res.render("admin/instances/overview", {
       req,
       user: req.user,
       instances: instancesResult.data,
@@ -183,7 +183,7 @@ router.get("/admin/instances/create", hasPermission('create_instances'), async (
       log.error("Cannot read templates directory:", err);
     }
 
-    res.json({
+    res.render("admin/instances/create", {
       req,
       user: req.user,
       nodes,
@@ -367,7 +367,7 @@ router.get("/admin/instances/:id/edit", hasPermission('all'), async (req, res) =
 
   if (!instance) return res.redirect("/admin/instances");
 
-  res.json({
+  res.render("admin/instance_edit", {
     req,
     user: req.user,
     instance,

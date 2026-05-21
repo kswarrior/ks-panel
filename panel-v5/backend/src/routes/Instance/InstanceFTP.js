@@ -42,7 +42,7 @@ router.get("/instance/:id/ftp", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   if (instance.Node && instance.Node.address && instance.Node.port) {
@@ -66,7 +66,7 @@ router.get("/instance/:id/ftp", async (req, res) => {
       const loginData = response.data || [];
 
       const settings = await db.get("settings");
-      res.json({
+      res.render("instance/ftp", {
         req,
         user: req.user,
         loginData,

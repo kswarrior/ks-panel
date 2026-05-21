@@ -13,7 +13,7 @@ router.get("/tickets", async (req, res) => {
   const allTickets = await Promise.all(ticketIds.map(id => db.get(`${id}_ticket`)));
   const userTickets = allTickets.filter(t => t && t.userId === req.user.userId);
 
-  res.json({
+  res.render("dashboard/tickets", {
     req,
     user: req.user,
     tickets: userTickets.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))

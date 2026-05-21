@@ -11,7 +11,7 @@ router.get("/admin/nodes/localnode", hasPermission('manage_nodes'), async (req, 
   try {
     const nodeIds = await db.get("nodes") || [];
     const nodes = await Promise.all(nodeIds.map(id => db.get(`${id}_node`)));
-    res.json({
+    res.render("admin/nodes/localnode", {
       req,
       user: req.user,
       nodes: nodes.filter(Boolean)

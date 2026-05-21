@@ -193,7 +193,7 @@ router.get("/admin/analytics", anyAdminPerm, async (req, res) => {
   try {
     const stats = await getDashboardStats();
 
-    res.json({
+    res.render("admin/dashboard/analytics", {
       req,
       user: req.user,
       version: config.version,
@@ -218,7 +218,7 @@ router.get("/admin/database", anyAdminPerm, async (req, res) => {
     if (dbUrl.startsWith("postgres")) dbTypeDisp = "PostgreSQL";
     if (dbUrl.startsWith("mysql") || dbUrl.startsWith("mariadb")) dbTypeDisp = "MySQL/MariaDB";
 
-    res.json({
+    res.render("admin/dashboard/database", {
       req,
       user: req.user,
       version: config.version,

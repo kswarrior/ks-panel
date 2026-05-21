@@ -31,7 +31,7 @@ router.post("/instance/:id/files/create/:filename", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   if (!instance.Node || !instance.Node.address || !instance.Node.port) {
@@ -80,7 +80,7 @@ router.get("/instance/:id/files/create", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   if (!instance || !instance.VolumeId) {
@@ -89,7 +89,7 @@ router.get("/instance/:id/files/create", async (req, res) => {
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
 
-  res.json({
+  res.render("instance/createFile", {
     req,
     user: req.user,
 

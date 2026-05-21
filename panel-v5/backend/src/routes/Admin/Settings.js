@@ -150,14 +150,14 @@ router.post(
 
 router.get("/admin/settings", hasPermission('manage_settings'), async (req, res) => {
   const settingsData = await fetchCommonSettings(req);
-  res.json({ ...settingsData, pageType: "admin" });
+  res.render("admin/settings/appearance", { ...settingsData, pageType: "admin" });
 });
 
 router.get("/admin/settings/smtp", hasPermission('manage_settings'), async (req, res) => {
   try {
     const settingsData = await fetchCommonSettings(req);
     const smtpSettings = (await db.get("smtp_settings")) || {};
-    res.json({ ...settingsData, smtpSettings, pageType: "admin" });
+    res.render("admin/settings/smtp", { ...settingsData, smtpSettings, pageType: "admin" });
   } catch (error) {
     log.error("Error fetching SMTP settings:", error);
     res.status(500).send("Failed to fetch SMTP settings. Please try again later.");

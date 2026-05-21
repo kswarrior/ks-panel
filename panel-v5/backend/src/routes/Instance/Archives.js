@@ -42,7 +42,7 @@ router.get("/instance/:id/archives", async (req, res) => {
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
     if (suspended === true) {
-      return res.json({ req, user: req.user });
+      return res.render("instance/suspended", { req, user: req.user });
     }
 
     if (instance.Node && instance.Node.address && instance.Node.port) {
@@ -67,7 +67,7 @@ router.get("/instance/:id/archives", async (req, res) => {
         );
         const settings = await db.get("settings");
 
-        res.json({
+        res.render("instance/archives", {
           req,
           user: req.user,
           archives,
@@ -118,7 +118,7 @@ router.post("/instance/:id/archives/create", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   const RequestData = {
@@ -165,7 +165,7 @@ router.post("/instance/:id/archives/delete/:archivename", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   const RequestData = {
@@ -214,7 +214,7 @@ router.post(
 
     const suspended = await isInstanceSuspended(req.user.userId, instance, id);
     if (suspended === true) {
-      return res.json({ req, user: req.user });
+      return res.render("instance/suspended", { req, user: req.user });
     }
 
     const RequestData = {

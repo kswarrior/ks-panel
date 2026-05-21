@@ -36,14 +36,14 @@ router.get("/instance/:id/files/view/:file", async (req, res) => {
 
   const suspended = await isInstanceSuspended(req.user.userId, instance, id);
   if (suspended === true) {
-    return res.json({ req, user: req.user });
+    return res.render("instance/suspended", { req, user: req.user });
   }
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
 
   try {
     const fileContent = await fetchFileContent(instance, file, req.query.path);
-    res.json({
+    res.render("instance/file", {
       req,
       user: req.user,
       file: fileContent,
