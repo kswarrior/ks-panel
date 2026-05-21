@@ -1,0 +1,67 @@
+const { db } = require("../handlers/db.js");
+const config = require("../config.json");
+const { v4: uuidv4 } = require("uuid");
+const log = new (require("cat-loggr"))();
+
+async function init() {
+  const ksPanel = await db.get("ks_panel_instance");
+
+  if (!ksPanel) {
+    log.init("This is probably your first time starting KS Panel, welcome!");
+
+    const errorMessages = [];
+
+    const imageCheck = await db.get("images");
+    const userCheck = await db.get("users");
+
+    // Check if seed was run
+    if (!imageCheck) {
+      errorMessages.push(
+        "Before starting KS Panel for the first time, you didn't run the seed command!"
+      );
+      errorMessages.push("Please run: npm run seed");
+    }
+
+    // Check if user exists
+    if (!userCheck) {
+      log.warn("No users found. KS Panel will start in setup mode.");
+      log.info("Please navigate to the panel URL to create your admin account.");
+    }
+
+    // Stop if errors exist (excluding missing user)
+    if (errorMessages.length > 0) {
+      errorMessages.forEach((errorMsg) => log.error(errorMsg));
+      process.exit(1);
+    }
+
+    // Generate new panel instance
+    const panelId = uuidv4();
+    const setupTime = Date.now();
+
+    const info = {
+      panelId: panelId,
+      setupTime: setupTime,
+      originalVersion: config.version,
+    };
+
+    await db.set("ks_panel_instance", info);
+
+    log.info("Initialized KS Panel with ID: " + panelId);
+  }
+
+  // Ensure default settings exist
+  let settings = await db.get("settings");
+  if (!settings) settings = {};
+
+  if (!settings.defaultSlots) {
+    settings.defaultSlots = 3;
+    settings.defaultRam = 1024;
+    settings.defaultCpu = 100;
+    settings.defaultDisk = 5120;
+    await db.set("settings", settings);
+  }
+
+  log.info("KS Panel init complete!");
+}
+
+module.exports = { init };
