@@ -26,10 +26,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env::set_var("PORT", "8080");
 
     // Path to the bundled node binary and the backend entry point
+    #[cfg(windows)]
+    let node_bin = path.join("node.exe");
+    #[cfg(not(windows))]
     let node_bin = path.join("node");
+
     let entry_point = path.join("backend/src/index.js");
 
-    // Make sure node is executable
+    // Make sure node is executable on Unix
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -49,6 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("KS Panel is now running on port 8080");
 
     // Demonstrate Rust library integration
+    // Using the library name defined in Cargo.toml
     println!("Native Logic: {}", ks_panel_native::scan_heavy_duty());
 
     let status = child.wait()?;

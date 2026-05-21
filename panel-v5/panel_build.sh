@@ -51,17 +51,13 @@ if [ ! -f "node" ] && [ ! -f "node.exe" ]; then
     fi
 fi
 
-# Install root dependencies
-echo "Installing root dependencies..."
+# Install dependencies (workspaces handled at root)
+echo "Installing dependencies..."
 npm install
 
 # Build Frontend
 echo "Building frontend..."
-cd frontend
-# Ensure all build dependencies are present
-npm install
-npm run build
-cd ..
+npm run build --workspace=frontend
 
 # Prepare bundle directory
 echo "Preparing bundle..."
@@ -69,12 +65,13 @@ rm -rf build_tmp
 mkdir -p build_tmp/backend
 cp -r backend/src build_tmp/backend/
 cp backend/package.json build_tmp/backend/
-# Copy node_modules (production only)
+
+# Install production backend dependencies directly into the bundle
 echo "Installing production backend dependencies..."
-cd backend
-npm install --omit=dev
-cp -r node_modules ../build_tmp/backend/
-cd ..
+cd build_tmp/backend
+# We need to make sure we don't use workspaces here to get a local node_modules
+npm install --omit=dev --no-workspaces
+cd ../..
 
 # Copy frontend build to backend public
 mkdir -p build_tmp/backend/src/public
