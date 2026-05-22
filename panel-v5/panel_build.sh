@@ -66,11 +66,28 @@ mkdir -p build_tmp/backend
 cp -r backend/src build_tmp/backend/
 cp backend/package.json build_tmp/backend/
 
+# Ensure config.json exists
+if [ ! -f "backend/src/config.json" ]; then
+    echo '{"version": "5.0.0"}' > "build_tmp/backend/src/config.json"
+fi
+
 # Install production backend dependencies directly into the bundle
 echo "Installing production backend dependencies..."
 cd build_tmp/backend
-# We need to make sure we don't use workspaces here to get a local node_modules
+# Use the bundled node to ensure correct ABI (108) for native modules like better-sqlite3
+mkdir -p bin_tmp
+if [ -f "../../node.exe" ]; then
+    cp ../../node.exe bin_tmp/node.exe
+else
+    cp ../../node bin_tmp/node
+fi
+ORIGINAL_PATH=$PATH
+export PATH="$(pwd)/bin_tmp:$PATH"
+
 npm install --omit=dev --no-workspaces
+
+export PATH=$ORIGINAL_PATH
+rm -rf bin_tmp
 cd ../..
 
 # Copy frontend build to backend public
