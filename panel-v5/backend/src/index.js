@@ -22,6 +22,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 let sessionStore;
 if (databaseURL.startsWith("postgres")) {
     const PgStore = require('connect-pg-simple')(session);
