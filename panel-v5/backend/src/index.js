@@ -14,7 +14,7 @@ const crypto = require("node:crypto");
 
 app.use(cors({ origin: true, credentials: true }));
 
-const { db } = require("./handlers/db.js");
+const { db, databaseURL } = require("./handlers/db.js");
 const { init } = require("./handlers/init.js");
 const log = new (require("cat-loggr"))();
 
@@ -22,11 +22,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-const SqliteStore = require('better-sqlite3-session-store')(session);
-const dbSqlite = require('better-sqlite3')("storage/kspanel.sqlite");
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+const PgStore = require('connect-pg-simple')(session);
+const sessionStore = new PgStore({
+    conString: databaseURL,
+    tableName: 'sessions',
+    createTableIfMissing: true
+});
+
 app.use(session({
-    store: new SqliteStore({ client: dbSqlite }),
-    secret: "secret",
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }
@@ -58,8 +66,9 @@ loadRoutes(routesDir);
 
 init();
 
-app.listen(8080, () => {
-  log.info("KS Panel v5 listening on port 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, "0.0.0.0", () => {
+  log.info(`KS Panel v5 listening on port ${PORT} (0.0.0.0)`);
 });
 
 app.use('*', (req, res) => {
