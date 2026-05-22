@@ -25,18 +25,12 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-let sessionStore;
-if (databaseURL.startsWith("postgres")) {
-    const PgStore = require('connect-pg-simple')(session);
-    sessionStore = new PgStore({ conString: databaseURL, tableName: 'sessions' });
-} else {
-    const SqliteStore = require('better-sqlite3-session-store')(session);
-    // Ensure storage directory exists for sqlite
-    const sqlitePath = "storage/kspanel.sqlite";
-    if (!fs.existsSync("storage")) fs.mkdirSync("storage", { recursive: true });
-    const dbSqlite = require('better-sqlite3')(sqlitePath);
-    sessionStore = new SqliteStore({ client: dbSqlite });
-}
+const PgStore = require('connect-pg-simple')(session);
+const sessionStore = new PgStore({
+    conString: databaseURL,
+    tableName: 'sessions',
+    createTableIfMissing: true
+});
 
 app.use(session({
     store: sessionStore,
