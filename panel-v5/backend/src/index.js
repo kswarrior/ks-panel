@@ -73,8 +73,8 @@ loadRoutes(routesDir);
 init();
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  log.info(`KS Panel v5 listening on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  log.info(`KS Panel v5 listening on port ${PORT} (0.0.0.0)`);
 });
 
 app.use('*', (req, res) => {

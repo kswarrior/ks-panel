@@ -78,6 +78,11 @@ if [ -d "../panel/views" ]; then
     cp -r ../panel/views/* build_tmp/backend/src/views/
 fi
 
+# Prepare database and plugins directory
+echo "Preparing database and plugins..."
+mkdir -p build_tmp/backend/database/plugins
+echo "{}" > build_tmp/backend/database/plugins/plugins.json
+
 # Install production backend dependencies directly into the bundle
 echo "Installing production backend dependencies..."
 cd build_tmp/backend
