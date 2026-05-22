@@ -10,7 +10,8 @@ try {
 }
 
 // Env override
-const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+// Default to KSSQL (Postgres) as requested
+const databaseURL = process.env.DB_URL || config.databaseURL || "postgres://admin:admin@127.0.0.1:5433/panel?sslmode=disable";
 const databaseTable = process.env.DB_TABLE || config.databaseTable || "kspanel";
 
 let store;
@@ -32,7 +33,7 @@ if (databaseURL.startsWith("postgres")) {
 
   // Ensure the storage directory exists for sqlite
   const sqlitePath = databaseURL.replace("sqlite://", "");
-  const dir = path.dirname(path.resolve(__dirname, "..", "..", sqlitePath));
+  const dir = path.dirname(path.resolve(sqlitePath));
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

@@ -14,7 +14,7 @@ const crypto = require("node:crypto");
 
 app.use(cors({ origin: true, credentials: true }));
 
-const { db } = require("./handlers/db.js");
+const { db, databaseURL } = require("./handlers/db.js");
 const { init } = require("./handlers/init.js");
 const log = new (require("cat-loggr"))();
 
@@ -22,11 +22,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-const SqliteStore = require('better-sqlite3-session-store')(session);
-const dbSqlite = require('better-sqlite3')("storage/kspanel.sqlite");
+let sessionStore;
+if (databaseURL.startsWith("postgres")) {
+    const PgStore = require('connect-pg-simple')(session);
+    sessionStore = new PgStore({ conString: databaseURL, tableName: 'sessions' });
+} else {
+    const SqliteStore = require('better-sqlite3-session-store')(session);
+    // Ensure storage directory exists for sqlite
+    const sqlitePath = "storage/kspanel.sqlite";
+    if (!fs.existsSync("storage")) fs.mkdirSync("storage", { recursive: true });
+    const dbSqlite = require('better-sqlite3')(sqlitePath);
+    sessionStore = new SqliteStore({ client: dbSqlite });
+}
+
 app.use(session({
-    store: new SqliteStore({ client: dbSqlite }),
-    secret: "secret",
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }
