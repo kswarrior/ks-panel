@@ -10,7 +10,7 @@ try {
 }
 
 // Env override - Only support KS SQL
-const databaseURL = process.env.DB_URL || config.databaseURL || "ksql://admin:admin@0.0.0.0:5435";
+const databaseURL = process.env.DB_URL || config.databaseURL || "ksql://admin:admin@127.0.0.1:5435/kspanel?sslmode=disable";
 const databaseTable = process.env.DB_TABLE || config.databaseTable || "kspanel";
 
 // Map ksql:// to postgres:// for the driver compatibility

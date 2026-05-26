@@ -43,6 +43,25 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.get("/ping", (req, res) => res.send("pong"));
+
+app.locals.name = "KS Panel";
+app.locals.logo = "https://avatars.githubusercontent.com/u/161421001?s=200&v=4";
+
+app.use(async (req, res, next) => {
+  try {
+    const settings = await db.get("settings") || {};
+    if (settings.name) res.locals.name = settings.name;
+    if (settings.logo) res.locals.logo = settings.logo;
+    res.locals.user = req.user;
+    res.locals.req = req;
+    next();
+  } catch (error) {
+    console.error("Error in settings middleware:", error);
+    next();
+  }
+});
+
 // Serve static frontend
 app.use(express.static(path.join(__dirname, "public")));
 

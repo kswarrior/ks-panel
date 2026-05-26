@@ -22,8 +22,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut archive = Archive::new(tar);
     archive.unpack(path)?;
 
-    // Set the PORT environment variable to 8080
-    env::set_var("PORT", "8080");
+    // Set the PORT environment variable to 8080 if not already set
+    if env::var("PORT").is_err() {
+        env::set_var("PORT", "8080");
+    }
 
     // Path to the bundled node binary and the backend entry point
     #[cfg(windows)]
@@ -50,7 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .stderr(Stdio::inherit())
         .spawn()?;
 
-    println!("KS Panel is now running on port 8080");
+    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    println!("KS Panel is now running on port {}", port);
 
     let status = child.wait()?;
 
