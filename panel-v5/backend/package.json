@@ -25,10 +25,13 @@
   "dependencies": {
     "@keyvhq/core": "^2.1.7",
     "@keyvhq/postgres": "^2.1.7",
+    "@keyvhq/sqlite": "^2.2.0",
     "@tailwindcss/cli": "^4.1.17",
     "adm-zip": "^0.5.12",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
+    "better-sqlite3": "^12.10.0",
+    "better-sqlite3-session-store": "^0.1.0",
     "body-parser": "^1.20.3",
     "cat-loggr": "^1.2.2",
     "chalk": "^4.1.2",

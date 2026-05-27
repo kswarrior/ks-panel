@@ -44,10 +44,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         fs::set_permissions(&node_bin, perms)?;
     }
 
+    let original_cwd = env::current_dir()?;
+
     // Run the backend
     let mut child = Command::new(node_bin)
         .arg(entry_point)
         .current_dir(path)
+        .env("PANEL_CWD", original_cwd)
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()?;

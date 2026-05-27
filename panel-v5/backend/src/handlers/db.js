@@ -9,18 +9,49 @@ try {
   // config.json might not exist yet
 }
 
-// Env override - Only support KS SQL
-const databaseURL = process.env.DB_URL || config.databaseURL || "ksql://admin:admin@127.0.0.1:5435/kspanel?sslmode=disable";
+// Env override - Default to SQLite
+const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://database.sqlite";
 const databaseTable = process.env.DB_TABLE || config.databaseTable || "kspanel";
 
-// Map ksql:// to postgres:// for the driver compatibility
-const pgURL = databaseURL.replace("ksql://", "postgres://");
+let store;
+let connectionURL;
 
-const PostgresStore = require("@keyvhq/postgres");
-const store = new PostgresStore(pgURL, {
-  table: databaseTable,
-  keySize: 255,
-});
+if (databaseURL.startsWith("postgres") || databaseURL.startsWith("ksql")) {
+  connectionURL = databaseURL.replace("ksql://", "postgres://");
+  try {
+    const PostgresStore = require("@keyvhq/postgres");
+    store = new PostgresStore(connectionURL, {
+      table: databaseTable,
+      keySize: 255,
+    });
+  } catch (e) {
+    console.error("Postgres driver missing, falling back to SQLite");
+    // Fallback to SQLite if PG driver is missing but URL is PG
+    const dbPath = "database.sqlite";
+    const absoluteDbPath = path.resolve(process.env.PANEL_CWD || process.cwd(), dbPath);
+    const SQLiteStore = require("@keyvhq/sqlite");
+    store = new SQLiteStore({
+      uri: "sqlite://" + absoluteDbPath,
+      table: databaseTable,
+      keySize: 255,
+    });
+    connectionURL = "sqlite://" + absoluteDbPath;
+  }
+} else {
+  connectionURL = databaseURL;
+  const SQLiteStore = require("@keyvhq/sqlite");
+  const dbPath = databaseURL.replace("sqlite://", "");
+  const absoluteDbPath = path.isAbsolute(dbPath) ? dbPath : path.resolve(process.env.PANEL_CWD || process.cwd(), dbPath);
+  const dbDir = path.dirname(absoluteDbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+  store = new SQLiteStore({
+    uri: "sqlite://" + absoluteDbPath,
+    table: databaseTable,
+    keySize: 255,
+  });
+}
 
 const db = new Keyv({ store, namespace: 'kspanel' });
 
@@ -28,13 +59,14 @@ db.on('error', err => console.error('Keyv database error:', err));
 
 /**
  * Helper to get all data from the database for migration or backup.
- * Only supports Postgres (KS SQL).
  */
 async function getAllData() {
-  const table = databaseTable;
+  if (!connectionURL.startsWith("postgres") && !connectionURL.startsWith("ksql")) {
+     throw new Error("getAllData is not supported for SQLite yet");
+  }
   const { Pool } = require('pg');
-  const pool = new Pool({ connectionString: pgURL });
-  const res = await pool.query(`SELECT key, value FROM "${table}"`);
+  const pool = new Pool({ connectionString: connectionURL });
+  const res = await pool.query(`SELECT key, value FROM "${databaseTable}"`);
   await pool.end();
   return res.rows.map(row => {
       const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
@@ -42,4 +74,4 @@ async function getAllData() {
   });
 }
 
-module.exports = { db, getAllData, databaseURL: pgURL, originalURL: databaseURL, databaseTable };
+module.exports = { db, getAllData, databaseURL: connectionURL, originalURL: databaseURL, databaseTable };
