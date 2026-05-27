@@ -82,10 +82,15 @@ app.locals.logo = "https://avatars.githubusercontent.com/u/161421001?s=200&v=4";
 app.use(async (req, res, next) => {
   try {
     const settings = await db.get("settings") || {};
-    if (settings.name) res.locals.name = settings.name;
-    if (settings.logo) res.locals.logo = settings.logo;
+    res.locals.name = settings.name || "KS Panel";
+    res.locals.logo = settings.logo || "https://avatars.githubusercontent.com/u/161421001?s=200&v=4";
     res.locals.user = req.user;
     res.locals.req = req;
+    res.locals.ogTitle = res.locals.name;
+    res.locals.notifications = [];
+    res.locals.anyAdminPerm = req.user ? true : false; // Basic fallback
+    res.locals.hasPerm = (perm) => true; // Basic fallback
+    res.locals.theme = "dark";
     next();
   } catch (error) {
     console.error("Error in settings middleware:", error);
