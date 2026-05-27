@@ -61,17 +61,27 @@ db.on('error', err => console.error('Keyv database error:', err));
  * Helper to get all data from the database for migration or backup.
  */
 async function getAllData() {
-  if (!connectionURL.startsWith("postgres") && !connectionURL.startsWith("ksql")) {
-     throw new Error("getAllData is not supported for SQLite yet");
+  if (connectionURL.startsWith("postgres") || connectionURL.startsWith("ksql")) {
+    const { Pool } = require('pg');
+    const pool = new Pool({ connectionString: connectionURL.replace("ksql://", "postgres://") });
+    const res = await pool.query(`SELECT key, value FROM "${databaseTable}"`);
+    await pool.end();
+    return res.rows.map(row => {
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+        return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
+    });
+  } else {
+    const sqlite = require("better-sqlite3");
+    const dbPath = connectionURL.replace("sqlite://", "");
+    const absoluteDbPath = path.isAbsolute(dbPath) ? dbPath : path.resolve(process.env.PANEL_CWD || process.cwd(), dbPath);
+    const _db = new sqlite(absoluteDbPath);
+    const rows = _db.prepare(`SELECT key, value FROM "${databaseTable}"`).all();
+    _db.close();
+    return rows.map(row => {
+        const parsed = JSON.parse(row.value);
+        return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
+    });
   }
-  const { Pool } = require('pg');
-  const pool = new Pool({ connectionString: connectionURL });
-  const res = await pool.query(`SELECT key, value FROM "${databaseTable}"`);
-  await pool.end();
-  return res.rows.map(row => {
-      const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
-      return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
-  });
 }
 
 module.exports = { db, getAllData, databaseURL: connectionURL, originalURL: databaseURL, databaseTable };
