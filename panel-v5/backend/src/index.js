@@ -18,11 +18,13 @@ app.get("/ping", (req, res) => res.send("pong"));
 
 const { db, databaseURL } = require("./handlers/db.js");
 const { init } = require("./handlers/init.js");
+const translationMiddleware = require("./handlers/translation.js");
 const log = new (require("cat-loggr"))();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(translationMiddleware);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
