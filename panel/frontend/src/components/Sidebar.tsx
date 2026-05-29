@@ -1,0 +1,116 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import {
+  LayoutDashboard,
+  Server,
+  Globe,
+  Users,
+  ShieldCheck,
+  Box,
+  MessageSquare,
+  Settings,
+  LogOut,
+  ChevronRight,
+  Fingerprint,
+  X
+} from 'lucide-react';
+
+const navItems = [
+  { name: 'Dashboard', icon: LayoutDashboard, href: '/' },
+  { name: 'Instances', icon: Server, href: '/instances' },
+  { name: 'Nodes', icon: Globe, href: '/nodes' },
+  { name: 'Templates', icon: Box, href: '/templates' },
+  { name: 'Users', icon: Users, href: '/users' },
+  { name: 'Roles', icon: ShieldCheck, href: '/roles' },
+  { name: 'Tickets', icon: MessageSquare, href: '/tickets' },
+];
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const pathname = usePathname();
+
+  return (
+    <>
+      {/* Mobile Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 lg:hidden ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed inset-y-0 left-0 w-[280px] bg-[#0d0d0f] border-r border-white/5 flex flex-col h-screen z-50
+        transition-transform duration-300 lg:translate-x-0 lg:static lg:shrink-0
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="p-8 flex items-center justify-between">
+          <div className="flex items-center gap-3 group cursor-pointer">
+             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group-hover:scale-110 transition-transform duration-500">
+                <Fingerprint size={24} className="text-white" />
+             </div>
+             <div>
+                <h2 className="text-xl font-black tracking-tighter text-white uppercase">KS PANEL</h2>
+                <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] leading-none mt-1">Version 5.0</p>
+             </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-neutral-500 hover:text-white transition-colors lg:hidden"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto custom-scrollbar">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center justify-between px-4 py-3.5 rounded-2xl group transition-all duration-300 ${
+                  isActive
+                  ? 'bg-white/5 text-white'
+                  : 'text-neutral-500 hover:text-neutral-200 hover:bg-white/[0.02]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                   <item.icon size={20} className={isActive ? 'text-blue-500' : 'group-hover:text-white transition-colors'} />
+                   <span className="text-sm font-bold tracking-tight">{item.name}</span>
+                </div>
+                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.8)]" />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 mt-auto">
+           <div className="bg-white/5 rounded-2xl p-4 border border-white/5 space-y-4">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 p-0.5">
+                    <div className="w-full h-full rounded-full bg-[#0d0d0f] flex items-center justify-center text-xs font-black">JE</div>
+                 </div>
+                 <div className="min-w-0">
+                    <p className="text-sm font-bold text-white truncate uppercase">jules_engineer</p>
+                    <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Administrator</p>
+                 </div>
+              </div>
+              <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-500/10 text-red-500 text-xs font-black hover:bg-red-500 hover:text-white transition-all uppercase tracking-tighter">
+                 <LogOut size={14} />
+                 Terminal Session Exit
+              </button>
+           </div>
+        </div>
+      </aside>
+    </>
+  );
+}
