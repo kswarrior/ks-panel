@@ -13,7 +13,7 @@ const path = require("path");
  * Middleware to restrict access to Owners only.
  */
 async function isOwner(req, res, next) {
-  if (!req.user) return res.redirect("/login");
+  if (!req.user) return res.redirect("/auth/login");
   const users = await db.get("users") || [];
   const dbUser = users.find(u => u.userId === req.user.userId);
   if (dbUser && dbUser.owner) return next();

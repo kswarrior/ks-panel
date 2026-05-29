@@ -10,7 +10,7 @@ const log = new (require("cat-loggr"))();
 const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
 
 router.get("/dashboard/create", async (req, res) => {
-  if (!req.user) return res.redirect("/login");
+  if (!req.user) return res.redirect("/auth/login");
 
   const [settingsRaw, nodesRaw, userInstancesRaw, imagesRaw] = await Promise.all([
     db.get("settings"),
@@ -26,10 +26,7 @@ router.get("/dashboard/create", async (req, res) => {
   const defaultSlots = settings.defaultSlots || 3;
 
   if (userInstances.length >= defaultSlots) {
-    return res.render("errors/error", {
-      req, user: req.user,
-      error: "Slot limit reached. Please contact an administrator to increase your capacity."
-    });
+    return res.redirect("/instances?err=SlotLimitReached");
   }
 
   // Filter only online nodes
@@ -48,14 +45,7 @@ router.get("/dashboard/create", async (req, res) => {
     }).filter(Boolean);
   }
 
-  res.render("dashboard/create", {
-    req,
-    user: req.user,
-    settings,
-    nodes: onlineNodes,
-    templates,
-    slotsLeft: defaultSlots - userInstances.length
-  });
+  res.redirect("/instances/create");
 });
 
 router.post("/dashboard/create", async (req, res) => {

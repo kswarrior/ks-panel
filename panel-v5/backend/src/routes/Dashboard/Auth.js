@@ -177,44 +177,13 @@ passport.deserializeUser(async (username, done) => {
 });
 
 /**
- * GET /auth/login
- * Authenticates a user using Passport's local strategy. If authentication is successful, the user
- * is redirected to the instances page, otherwise, they are sent back to the login page with an error.
- *
- * @returns {Response} Redirects based on the success or failure of the authentication attempt.
+ * POST /auth/login
+ * Authenticates a user using Passport's local strategy.
  */
-router.get("/auth/login", async (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      if (info.userNotVerified) {
-        return res.redirect("/login?err=UserNotVerified");
-      }
-      return res.redirect("/login?err=InvalidCredentials&state=failed");
-    }
-    req.logIn(user, async (err) => {
-      if (err) return next(err);
-
-      const users = await db.get("users");
-      const user2 = users.find((u) => u.username === user.username);
-
-      if (user2 && user2.twoFAEnabled) {
-        req.session.tempUser = user;
-        req.user = null;
-        return res.redirect("/2fa");
-      } else {
-        return res.redirect("/instances");
-      }
-    });
-  })(req, res, next);
-});
-
 router.post(
   "/auth/login",
   passport.authenticate("local", {
-    failureRedirect: "/login?err=InvalidCredentials&state=failed",
+    failureRedirect: "/auth/login?err=InvalidCredentials&state=failed",
   }),
   async (req, res, next) => {
     try {
@@ -223,7 +192,7 @@ router.post(
         const user = users.find((u) => u.username === req.user.username);
 
         if (user && user.verified) {
-          return res.redirect("/instances");
+          return res.redirect("/instances.html");
         }
 
         if (user && user.twoFAEnabled) {
@@ -234,10 +203,10 @@ router.post(
             return res.redirect("/2fa");
           });
         } else {
-          return res.redirect("/instances");
+          return res.redirect("/instances.html");
         }
       } else {
-        return res.redirect("/login?err=InvalidCredentials&state=failed");
+        return res.redirect("/auth/login?err=InvalidCredentials&state=failed");
       }
     } catch (error) {
       log.error("Error during login:", error);
@@ -246,21 +215,13 @@ router.post(
   }
 );
 
-router.get("/2fa", async (req, res) => {
-  if (!req.session.tempUser) {
-    return res.redirect("/login");
-  }
-  res.render("auth/2fa", {
-    req,
-  });
-});
 
 router.post("/2fa", async (req, res, next) => {
   const { token } = req.body;
   const tempUser = req.session.tempUser;
 
   if (!tempUser) {
-    return res.redirect("/login");
+    return res.redirect("/auth/login");
   }
 
   const users = await db.get("users");
@@ -277,20 +238,13 @@ router.post("/2fa", async (req, res, next) => {
       if (err) return next(err);
 
       req.session.tempUser = null;
-      return res.redirect("/instances");
+      return res.redirect("/instances.html");
     });
   } else {
     return res.status(400).redirect("/2fa?err=InvalidAuthCode");
   }
 });
 
-router.get(
-  "/auth/login",
-  passport.authenticate("local", {
-    successRedirect: "/instances",
-    failureRedirect: "/login?err=InvalidCredentials&state=failed",
-  })
-);
 
 router.get("/verify/:token", async (req, res) => {
   const { token } = req.params;
@@ -301,9 +255,9 @@ router.get("/verify/:token", async (req, res) => {
       user.verified = true;
       user.verificationToken = null;
       await db.set("users", users);
-      res.redirect("/login?msg=EmailVerified");
+      res.redirect("/auth/login?msg=EmailVerified");
     } else {
-      res.redirect("/login?msg=InvalidVerificationToken");
+      res.redirect("/auth/login?msg=InvalidVerificationToken");
     }
   } catch (error) {
     log.error("Error verifying email:", error);
@@ -311,16 +265,6 @@ router.get("/verify/:token", async (req, res) => {
   }
 });
 
-router.get("/resend-verification", async (req, res) => {
-  try {
-    res.render("auth/resend-verification", {
-      req,
-    });
-  } catch (error) {
-    log.error("Error fetching name or logo:", error);
-    res.status(500).send("Internal server error");
-  }
-});
 
 router.post("/resend-verification", async (req, res) => {
   const { email } = req.body;
@@ -330,14 +274,14 @@ router.post("/resend-verification", async (req, res) => {
     const userIndex = users.findIndex((u) => u.email === email);
 
     if (userIndex === -1) {
-      res.redirect("/login?msg=UserNotFound");
+      res.redirect("/auth/login?msg=UserNotFound");
       return;
     }
 
     const user = users[userIndex];
 
     if (user.verified) {
-      res.redirect("/login?msg=UserAlreadyVerified");
+      res.redirect("/auth/login?msg=UserAlreadyVerified");
       return;
     }
     const newVerificationToken = generateRandomCode(30);
@@ -348,7 +292,7 @@ router.post("/resend-verification", async (req, res) => {
 
     await sendVerificationEmail(email, newVerificationToken);
 
-    res.redirect("/login?msg=VerificationEmailResent");
+    res.redirect("/auth/login?msg=VerificationEmailResent");
   } catch (error) {
     log.error("Error resending verification email:", error);
     res.status(500).send("Internal server error");
@@ -357,20 +301,9 @@ router.post("/resend-verification", async (req, res) => {
 
 router.get("/", (req, res) => {
   if (req.user) {
-    res.redirect("/instances");
+    res.redirect("/instances.html");
   } else {
-    res.redirect("/login");
-  }
-});
-
-router.get("/login", async (req, res) => {
-  if (!req.user) {
-    res.render("auth/login", {
-      req,
-      user: req.user,
-    });
-  } else {
-    res.redirect("/instances");
+    res.redirect("/auth/login");
   }
 });
 
@@ -383,22 +316,6 @@ async function initializeRoutes() {
         db.set("settings", { register: false });
       } else {
         if (settings.register === true) {
-          router.get("/register", async (req, res) => {
-            try {
-              if (!req.user) {
-                res.render("auth/register", {
-                  req,
-                  user: req.user,
-                });
-              } else {
-                res.redirect("/instances");
-              }
-            } catch (error) {
-              log.error("Error fetching name or logo:", error);
-              res.status(500).send("Internal server error");
-            }
-          });
-
           router.post("/auth/register", async (req, res) => {
             const { username, email, password } = req.body;
 
@@ -417,10 +334,10 @@ async function initializeRoutes() {
 
               if (emailVerificationEnabled) {
                 await createUser(username, email, password);
-                res.redirect("/login?msg=AccountcreateEmailSent");
+                res.redirect("/auth/login?msg=AccountcreateEmailSent");
               } else {
                 await addUserToUsersTable(username, email, password, true);
-                res.redirect("/login?msg=AccountCreated");
+                res.redirect("/auth/login?msg=AccountCreated");
               }
             } catch (error) {
               log.error("Error handling registration:", error);
@@ -448,16 +365,6 @@ async function initializeRoutes() {
 
 initializeRoutes();
 
-router.get("/auth/reset-password", async (req, res) => {
-  try {
-    res.render("auth/reset-password", {
-      req,
-    });
-  } catch (error) {
-    log.error("Error rendering reset password page:", error);
-    res.status(500).send("Internal server error");
-  }
-});
 
 router.post("/auth/reset-password", async (req, res) => {
   const { email } = req.body;
@@ -484,27 +391,6 @@ router.post("/auth/reset-password", async (req, res) => {
   }
 });
 
-router.get("/auth/reset/:token", async (req, res) => {
-  const { token } = req.params;
-
-  try {
-    const users = (await db.get("users")) || [];
-    const user = users.find((u) => u.resetToken === token);
-
-    if (!user) {
-      res.send("Invalid or expired token.");
-      return;
-    }
-
-    res.render("auth/password-reset-form", {
-      req,
-      token: token,
-    });
-  } catch (error) {
-    log.error("Error rendering password reset form:", error);
-    res.status(500).send("Internal server error");
-  }
-});
 
 router.post("/auth/reset/:token", async (req, res) => {
   const { token } = req.params;
@@ -519,7 +405,7 @@ router.post("/auth/reset/:token", async (req, res) => {
     const user = users.find((user) => user.resetToken === token);
 
     if (!user) {
-      res.redirect("/login?msg=PasswordReset&state=failed");
+      res.redirect("/auth/login?msg=PasswordReset&state=failed");
       return;
     }
 
@@ -528,10 +414,10 @@ router.post("/auth/reset/:token", async (req, res) => {
     delete user.resetToken;
     await db.set("users", users);
 
-    res.redirect("/login?msg=PasswordReset&state=success");
+    res.redirect("/auth/login?msg=PasswordReset&state=success");
   } catch (error) {
     log.error("Error handling password reset:", error);
-    res.redirect("/login?msg=PasswordReset&state=failed");
+    res.redirect("/auth/login?msg=PasswordReset&state=failed");
   }
 });
 

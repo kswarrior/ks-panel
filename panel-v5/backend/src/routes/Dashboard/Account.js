@@ -26,11 +26,7 @@ async function doesUserExist(username) {
 }
 
 router.get("/account", async (req, res) => {
-  res.render("account", {
-    req,
-    user: req.user,
-    users: (await db.get("users")) || [],
-  });
+  res.redirect("/account");
 });
 
 router.get("/accounts", async (req, res) => {
@@ -126,14 +122,7 @@ router.get("/enable-2fa", isAuthenticated, async (req, res) => {
 
     qrcode.toDataURL(secret.otpauth_url, async (err, data_url) => {
       if (err) return res.status(500).send("Error generating QR Code");
-      res.render("enable-2fa", {
-        req,
-        user: req.user,
-        users,
-        name: (await db.get("name")) || "KS Panel",
-
-        qrCode: data_url,
-      });
+      res.redirect("/account"); // Next.js should handle 2fa enablement display
     });
   } catch (error) {
     log.error("Error enabling 2FA:", error);
@@ -243,7 +232,7 @@ router.post("/change-password", isAuthenticated, async (req, res) => {
     });
 
     // Redirect the user to the login page with a success message
-    res.status(200).redirect("/login?err=UpdatedCredentials");
+    res.status(200).redirect("/auth/login?err=UpdatedCredentials");
   } catch (error) {
     log.error("Error changing password:", error);
     res.status(500).send("Internal Server Error");

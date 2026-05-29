@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 // =====================
 
 router.get("/tickets", async (req, res) => {
-  if (!req.user) return res.redirect("/login");
+  if (!req.user) return res.redirect("/auth/login");
   const ticketIds = await db.get("tickets") || [];
   const allTickets = await Promise.all(ticketIds.map(id => db.get(`${id}_ticket`)));
   const userTickets = allTickets.filter(t => t && t.userId === req.user.userId);

@@ -18,16 +18,11 @@ app.get("/ping", (req, res) => res.send("pong"));
 
 const { db, databaseURL } = require("./handlers/db.js");
 const { init } = require("./handlers/init.js");
-const translationMiddleware = require("./handlers/translation.js");
 const log = new (require("cat-loggr"))();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(translationMiddleware);
-
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
 
 let sessionStore;
 if (databaseURL.startsWith("postgres") || databaseURL.startsWith("ksql")) {
@@ -79,27 +74,9 @@ app.use(passport.session());
 app.locals.name = "KS Panel";
 app.locals.logo = "https://avatars.githubusercontent.com/u/161421001?s=200&v=4";
 
-app.use(async (req, res, next) => {
-  try {
-    const settings = await db.get("settings") || {};
-    res.locals.name = settings.name || "KS Panel";
-    res.locals.logo = settings.logo || "https://avatars.githubusercontent.com/u/161421001?s=200&v=4";
-    res.locals.user = req.user;
-    res.locals.req = req;
-    res.locals.ogTitle = res.locals.name;
-    res.locals.notifications = [];
-    res.locals.anyAdminPerm = req.user ? true : false; // Basic fallback
-    res.locals.hasPerm = (perm) => true; // Basic fallback
-    res.locals.theme = "dark";
-    next();
-  } catch (error) {
-    console.error("Error in settings middleware:", error);
-    next();
-  }
-});
 
 // Serve static frontend
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), { extensions: ['html'] }));
 
 const routesDir = path.join(__dirname, "routes");
 function loadRoutes(directory) {
