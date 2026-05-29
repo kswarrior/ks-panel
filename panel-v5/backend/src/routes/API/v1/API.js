@@ -72,34 +72,37 @@ async function validateApiKey(req, res, next) {
  * @param {string} value - The value of the user to retrieve. Only required if type is 'email' or 'username'.
  * @returns {Object} The retrieved user object.
  */
-router.get("/api/v1/users/:type?/:value?", validateApiKey, async (req, res) => {
+router.get("/api/v1/users", validateApiKey, async (req, res) => {
+  try {
+    const users = (await db.get("users")) || [];
+    res.json(users);
+  } catch (error) {
+    log.error("Error retrieving users:", error);
+    res.status(500).json({ error: "Failed to retrieve users" });
+  }
+});
+
+router.get("/api/v1/users/:type/:value", validateApiKey, async (req, res) => {
   try {
     const { type, value } = req.params;
     const users = (await db.get("users")) || [];
 
-    // If both type and value are provided, search for a specific user
-    if (type && value) {
-      let user;
-
-      if (type === "email") {
-        user = users.find((user) => user.email === value);
-      } else if (type === "username") {
-        user = users.find((user) => user.username === value);
-      } else {
-        return res
-          .status(400)
-          .json({ error: 'Invalid search type. Use "email" or "username".' });
-      }
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      return res.json(user);
+    let user;
+    if (type === "email") {
+      user = users.find((user) => user.email === value);
+    } else if (type === "username") {
+      user = users.find((user) => user.username === value);
+    } else {
+      return res
+        .status(400)
+        .json({ error: 'Invalid search type. Use "email" or "username".' });
     }
 
-    // If no type or value, return all users
-    res.json(users);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json(user);
   } catch (error) {
     log.error("Error retrieving users:", error);
     res.status(500).json({ error: "Failed to retrieve users" });
@@ -569,6 +572,57 @@ router.get("/api/v1/nodes", validateApiKey, async (req, res) => {
   } catch (error) {
     log.error("Error retrieving nodes:", error);
     res.status(500).json({ error: "Failed to retrieve nodes" });
+  }
+});
+
+/**
+ * GET /api/v1/roles
+ *
+ * Retrieves all roles
+ *
+ * @returns {Object} The retrieved roles
+ */
+router.get("/api/v1/roles", validateApiKey, async (req, res) => {
+  try {
+    const roles = (await db.get("roles")) || [];
+    res.json(roles);
+  } catch (error) {
+    log.error("Error retrieving roles:", error);
+    res.status(500).json({ error: "Failed to retrieve roles" });
+  }
+});
+
+/**
+ * GET /api/v1/tickets
+ *
+ * Retrieves all tickets
+ *
+ * @returns {Object} The retrieved tickets
+ */
+router.get("/api/v1/tickets", validateApiKey, async (req, res) => {
+  try {
+    const tickets = (await db.get("tickets")) || [];
+    res.json(tickets);
+  } catch (error) {
+    log.error("Error retrieving tickets:", error);
+    res.status(500).json({ error: "Failed to retrieve tickets" });
+  }
+});
+
+/**
+ * GET /api/v1/templates
+ *
+ * Retrieves all templates
+ *
+ * @returns {Object} The retrieved templates
+ */
+router.get("/api/v1/templates", validateApiKey, async (req, res) => {
+  try {
+    const templates = (await db.get("images")) || [];
+    res.json(templates);
+  } catch (error) {
+    log.error("Error retrieving templates:", error);
+    res.status(500).json({ error: "Failed to retrieve templates" });
   }
 });
 

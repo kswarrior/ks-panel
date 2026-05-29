@@ -5,14 +5,43 @@ import { ArrowLeft, Save, Server, Globe, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CreateNode() {
-  const [formData, setBaseData] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     address: '',
     port: '8080',
-    location: '',
-    category: 'General',
-    maxInstances: '50'
+    tags: 'General',
+    ram: '16',
+    disk: '500',
+    processor: 'AMD EPYC'
   });
+
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.address || !formData.port) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/nodes/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'placeholder'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        window.location.href = '/nodes';
+      } else {
+        const error = await response.json();
+        alert(`Failed to create node: ${error.error}`);
+      }
+    } catch (err) {
+      console.error('Error creating node:', err);
+      alert('An error occurred while creating the node');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
@@ -43,6 +72,8 @@ export default function CreateNode() {
                   type="text"
                   placeholder="Phoenix-Primary-01"
                   className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -51,30 +82,40 @@ export default function CreateNode() {
                   type="text"
                   placeholder="127.0.0.1"
                   className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Daemon Port</label>
                 <input
                   type="number"
-                  defaultValue="8080"
                   className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all"
+                  value={formData.port}
+                  onChange={(e) => setFormData({ ...formData, port: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Geographic Location</label>
-                <select className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all appearance-none">
-                  <option value="">Select Location</option>
-                </select>
+                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Resource Tags</label>
+                <input
+                  type="text"
+                  placeholder="General, High-Performance"
+                  className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all"
+                  value={formData.tags}
+                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                />
               </div>
             </div>
           </section>
 
           <div className="flex items-center justify-end gap-4">
-            <button className="px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all">
+            <Link href="/nodes" className="px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all">
               CANCEL
-            </button>
-            <button className="flex items-center gap-2 px-10 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-xl shadow-blue-600/20 transition-all active:scale-95">
+            </Link>
+            <button
+              onClick={handleSubmit}
+              className="flex items-center gap-2 px-10 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-xl shadow-blue-600/20 transition-all active:scale-95"
+            >
               <Save size={20} />
               PROVISION NODE
             </button>

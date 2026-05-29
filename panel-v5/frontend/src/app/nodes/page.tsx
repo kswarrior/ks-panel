@@ -1,19 +1,36 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Activity, Server, Database, Globe, MoreVertical, Settings, Edit, Trash2, Copy, Radar } from 'lucide-react';
+import { Plus, Search, Filter, Activity, Server, Database, Globe, MoreVertical, Settings, Edit, Trash2, Copy, Radar, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function NodesPage() {
-  const [nodes, setNodes] = useState([]);
+  const [nodes, setNodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    // Fetch nodes logic here
-    setLoading(false);
+    fetch('/api/v1/nodes')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setNodes(data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch nodes:', err);
+        setLoading(false);
+      });
   }, []);
+
+  const filteredNodes = nodes.filter(n =>
+    n.name?.toLowerCase().includes(search.toLowerCase()) ||
+    n.address?.toLowerCase().includes(search.toLowerCase()) ||
+    n.id?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
@@ -48,10 +65,10 @@ export default function NodesPage() {
               RADAR
             </button>
 
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+            <Link href="/nodes/create" className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95">
               <Plus size={18} />
               CREATE
-            </button>
+            </Link>
           </div>
         </header>
 
@@ -79,7 +96,7 @@ export default function NodesPage() {
                   <Activity size={14} className="text-emerald-500" />
                   Total Nodes
                 </p>
-                <p className="text-5xl font-black text-white">0</p>
+                <p className="text-5xl font-black text-white">{nodes.length}</p>
               </div>
               <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
                 <Globe size={28} className="text-emerald-400" />
@@ -93,9 +110,9 @@ export default function NodesPage() {
               <div className="space-y-1">
                 <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
                   <Server size={14} className="text-blue-500" />
-                  Active Servers
+                  Active Nodes
                 </p>
-                <p className="text-5xl font-black text-white">0</p>
+                <p className="text-5xl font-black text-white">{nodes.filter(n => n.status === 'Online').length}</p>
               </div>
               <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
                 <Database size={28} className="text-blue-400" />
@@ -105,12 +122,54 @@ export default function NodesPage() {
         </div>
 
         {/* Nodes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-          {/* Node Cards will be mapped here */}
+        {loading ? (
+           <div className="flex flex-col items-center justify-center py-20 space-y-4">
+              <Loader2 size={40} className="text-blue-500 animate-spin" />
+              <p className="text-neutral-500 font-bold uppercase tracking-[0.2em] text-xs">Synchronizing Cluster...</p>
+           </div>
+        ) : filteredNodes.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {filteredNodes.map((node) => (
+              <div key={node.id} className="glass group rounded-3xl border border-white/10 p-6 hover:border-blue-500/30 transition-all duration-300 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400">
+                    <Globe size={24} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`flex h-2 w-2 rounded-full ${node.status === 'Online' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`}></span>
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${node.status === 'Online' ? 'text-emerald-500' : 'text-red-500'}`}>{node.status}</span>
+                  </div>
+                </div>
+
+                <div>
+                   <h3 className="font-bold text-lg leading-none">{node.name}</h3>
+                   <p className="text-xs text-neutral-500 mt-2 font-mono">{node.address}:{node.port}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">RAM</p>
+                      <p className="text-sm font-bold text-neutral-300">{node.ram} GB</p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Disk</p>
+                      <p className="text-sm font-bold text-neutral-300">{node.disk} GB</p>
+                   </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                   <Link href={`/nodes/${node.id}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">
+                      <Settings size={14} /> CONFIGURE
+                   </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
           <div className="p-12 text-center border-2 border-dashed border-white/5 rounded-3xl col-span-full">
             <p className="text-neutral-500 font-medium">No nodes found matching your criteria.</p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
