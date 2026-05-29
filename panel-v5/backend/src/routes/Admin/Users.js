@@ -208,7 +208,7 @@ router.post("/admin/users/edit/:userId", hasPermission("manage_users"), async (r
   if (req.user.userId === userId) {
     return req.logout((err) => {
       if (err) return next(err);
-      res.redirect("/login?err=UpdatedCredentials");
+      res.redirect("/auth/login?err=UpdatedCredentials");
     });
   }
 

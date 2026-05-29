@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { db, getAllData } = require("../../handlers/db.js");
+const { db, getAllData, databaseURL } = require("../../handlers/db.js");
 const config = require("../../config.json");
-const { Client } = require('pg');
 const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 const fs = require('node:fs');
 const path = require('path');
@@ -41,9 +40,13 @@ async function getDashboardStats() {
   // NODE STATS
   // =====================
   const nodesTotal = nodes.length;
-  const onlineNodes = nodes.filter(n => (n.status || '').toLowerCase() === 'online').length;
+  const onlineNodes = onlineNodesCount(nodes);
   const offlineNodes = nodesTotal - onlineNodes;
   const locationsTotal = new Set(nodes.map(n => n.location || "Unknown")).size;
+
+  function onlineNodesCount(nodesList) {
+    return nodesList.filter(n => (n.status || '').toLowerCase() === 'online').length;
+  }
 
   // =====================
   // OTHER STATS
@@ -75,24 +78,24 @@ async function getDashboardStats() {
   const sortedIPs = Object.entries(topIPs).sort((a,b) => b[1] - a[1]).slice(0, 5);
 
   // =====================
-  // REAL POSTGRESQL DATABASE INFO
+  // REAL DATABASE INFO
   // =====================
-  let dbType = "PostgreSQL";
-  let dbUrlMasked = "Not configured";
+  let dbType = databaseURL.startsWith("postgres") || databaseURL.startsWith("ksql") ? "PostgreSQL" : "SQLite";
+  let dbUrlMasked = databaseURL.replace(/:\/\/[^:]+:[^@]+@/, '://****:****@');
   let dbSize = "Unknown";
   let dbTable = config.databaseTable || "kspanel";
   let totalKeys = 0;
   let dbStats = {};
 
-  if (config.databaseURL) {
-    dbUrlMasked = config.databaseURL.replace(/:\/\/[^:]+:[^@]+@/, '://****:****@');
+  if (dbType === "PostgreSQL") {
     try {
-      const client = new Client({ connectionString: config.databaseURL });
+      const { Client } = require('pg');
+      const client = new Client({ connectionString: databaseURL.replace("ksql://", "postgres://") });
       await client.connect();
 
       const [size, keys, health, index] = await Promise.all([
         client.query(`SELECT pg_size_pretty(pg_database_size(current_database())) as size`),
-        client.query(`SELECT COUNT(*) as count FROM ${dbTable}`),
+        client.query(`SELECT COUNT(*) as count FROM "${dbTable}"`),
         client.query(`SELECT count(*) as active_conns FROM pg_stat_activity WHERE state = 'active'`),
         client.query(`SELECT relname as table, pg_size_pretty(pg_total_relation_size(relid)) AS total_size FROM pg_catalog.pg_statio_user_tables`)
       ]);
@@ -109,6 +112,23 @@ async function getDashboardStats() {
       console.error('DB info query failed:', err);
       dbSize = "Query Error";
     }
+  } else {
+     // SQLite logic
+     try {
+       const sqlite = require("better-sqlite3");
+       const dbPath = databaseURL.replace("sqlite://", "");
+       const absoluteDbPath = path.isAbsolute(dbPath) ? dbPath : path.resolve(process.env.PANEL_CWD || process.cwd(), dbPath);
+       const stats = fs.statSync(absoluteDbPath);
+       dbSize = (stats.size / 1024 / 1024).toFixed(2) + " MB";
+
+       const dbConn = new sqlite(absoluteDbPath);
+       const count = dbConn.prepare(`SELECT COUNT(*) as count FROM ${dbTable}`).get();
+       totalKeys = count.count;
+       dbConn.close();
+     } catch (err) {
+       console.error('SQLite info query failed:', err);
+       dbSize = "Query Error";
+     }
   }
 
   return {
@@ -147,7 +167,7 @@ async function getDashboardStats() {
     totalKeys,
 
     // Extra useful flags
-    databaseConfigured: !!config.databaseURL,
+    databaseConfigured: true,
     lastUpdated: new Date().toISOString()
   };
 }
@@ -213,10 +233,8 @@ router.get("/admin/database", anyAdminPerm, async (req, res) => {
     const stats = await getDashboardStats();
 
     // Determine database type for display
-    const dbUrl = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
-    let dbTypeDisp = "SQLite";
-    if (dbUrl.startsWith("postgres")) dbTypeDisp = "PostgreSQL";
-    if (dbUrl.startsWith("mysql") || dbUrl.startsWith("mariadb")) dbTypeDisp = "MySQL/MariaDB";
+    const dbUrl = databaseURL;
+    let dbTypeDisp = databaseURL.startsWith("postgres") ? "PostgreSQL" : "SQLite";
 
     res.render("admin/dashboard/database", {
       req,
@@ -225,7 +243,7 @@ router.get("/admin/database", anyAdminPerm, async (req, res) => {
       ...stats,
       dbType: dbTypeDisp,
       dbUrl: dbUrl,
-      databaseTable: process.env.DB_TABLE || config.databaseTable || "kspanel"
+      databaseTable: config.databaseTable || "kspanel"
     });
   } catch (error) {
     console.error('Database page error:', error);

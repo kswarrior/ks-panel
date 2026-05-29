@@ -11,6 +11,59 @@ const BUNDLE: &[u8] = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/bundl
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 {
+        let cmd = &args[1];
+        match cmd.as_str() {
+            "seed" | "create:user" => {
+                // Procedural extraction for CLI commands
+                let dir = tempdir()?;
+                let path = dir.path();
+                let tar = GzDecoder::new(Cursor::new(BUNDLE));
+                let mut archive = Archive::new(tar);
+                archive.unpack(path)?;
+
+                #[cfg(windows)]
+                let node_bin = path.join("node.exe");
+                #[cfg(not(windows))]
+                let node_bin = path.join("node");
+
+                let entry_point = if cmd == "seed" {
+                    path.join("backend/src/exec/seed.js")
+                } else {
+                    path.join("backend/src/exec/createUser.js")
+                };
+
+                #[cfg(unix)]
+                {
+                    use std::os::unix::fs::PermissionsExt;
+                    let mut perms = fs::metadata(&node_bin)?.permissions();
+                    perms.set_mode(0o755);
+                    fs::set_permissions(&node_bin, perms)?;
+                }
+
+                let original_cwd = env::current_dir()?;
+                let mut child = Command::new(node_bin)
+                    .arg(entry_point)
+                    .args(&args[2..])
+                    .current_dir(path)
+                    .env("PANEL_CWD", original_cwd)
+                    .stdout(Stdio::inherit())
+                    .stderr(Stdio::inherit())
+                    .stdin(Stdio::inherit())
+                    .spawn()?;
+
+                let status = child.wait()?;
+                if !status.success() {
+                    std::process::exit(status.code().unwrap_or(1));
+                }
+                return Ok(());
+            }
+            _ => {}
+        }
+    }
+
     println!("Starting KS Panel v5...");
 
     // Create a temporary directory to extract the bundle
@@ -22,8 +75,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut archive = Archive::new(tar);
     archive.unpack(path)?;
 
-    // Set the PORT environment variable to 8080
-    env::set_var("PORT", "8080");
+    // Set the PORT environment variable to 8080 if not already set
+    if env::var("PORT").is_err() {
+        env::set_var("PORT", "8080");
+    }
 
     // Path to the bundled node binary and the backend entry point
     #[cfg(windows)]
@@ -42,15 +97,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         fs::set_permissions(&node_bin, perms)?;
     }
 
+    let original_cwd = env::current_dir()?;
+
     // Run the backend
     let mut child = Command::new(node_bin)
         .arg(entry_point)
         .current_dir(path)
+        .env("PANEL_CWD", original_cwd)
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()?;
 
-    println!("KS Panel is now running on port 8080");
+    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    println!("KS Panel is now running on port {}", port);
 
     let status = child.wait()?;
 

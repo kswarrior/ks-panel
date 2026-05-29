@@ -71,12 +71,6 @@ if [ ! -f "backend/src/config.json" ]; then
     echo '{"version": "5.0.0"}' > "build_tmp/backend/src/config.json"
 fi
 
-# Copy EJS views from old panel if they don't exist in v5
-if [ -d "../panel/views" ]; then
-    echo "Copying EJS views from legacy panel..."
-    mkdir -p build_tmp/backend/src/views
-    cp -r ../panel/views/* build_tmp/backend/src/views/
-fi
 
 # Prepare database and plugins directory
 echo "Preparing database and plugins..."

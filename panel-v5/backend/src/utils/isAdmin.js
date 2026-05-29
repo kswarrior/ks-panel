@@ -38,7 +38,7 @@ function checkPermission(user, roles, permission) {
  */
 function hasPermission(permission) {
   return async (req, res, next) => {
-    if (!req.user) return res.redirect("/login");
+    if (!req.user) return res.redirect("/auth/login");
 
     try {
       // Fetch the current user and roles from DB for fresh permissions check
@@ -48,7 +48,7 @@ function hasPermission(permission) {
       ]);
       const dbUser = users.find(u => u.userId === req.user.userId);
 
-      if (!dbUser) return res.redirect("/login");
+      if (!dbUser) return res.redirect("/auth/login");
 
       if (checkPermission(dbUser, roles, permission)) {
         return next();
@@ -67,7 +67,7 @@ function hasPermission(permission) {
  * Middleware to check if a user has ANY administrative permission.
  */
 async function anyAdminPerm(req, res, next) {
-  if (!req.user) return res.redirect("/login");
+  if (!req.user) return res.redirect("/auth/login");
 
   const adminPerms = [
     'create_instances', 'manage_nodes', 'manage_users',
@@ -80,7 +80,7 @@ async function anyAdminPerm(req, res, next) {
       db.get("roles") || []
     ]);
     const dbUser = users.find(u => u.userId === req.user.userId);
-    if (!dbUser) return res.redirect("/login");
+    if (!dbUser) return res.redirect("/auth/login");
 
     if (dbUser.owner || dbUser.admin || adminPerms.some(p => checkPermission(dbUser, roles, p))) {
       return next();
