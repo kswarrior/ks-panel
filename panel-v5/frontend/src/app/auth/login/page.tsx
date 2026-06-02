@@ -101,10 +101,23 @@ export default function LoginPage() {
            <button
              type="submit"
              disabled={loading}
-             className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] uppercase tracking-tighter"
+             className={`w-full flex items-center justify-center gap-3 py-5 rounded-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] uppercase tracking-tighter ${
+               loading
+               ? 'bg-blue-600/50 cursor-wait text-white/50'
+               : 'bg-blue-600 hover:bg-blue-500 text-white'
+             }`}
            >
-              {loading ? 'Verifying...' : 'Verify Credentials'}
-              <ArrowRight size={20} />
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Verifying...</span>
+                </div>
+              ) : (
+                <>
+                  <span>Verify Credentials</span>
+                  <ArrowRight size={20} />
+                </>
+              )}
            </button>
 
            <div className="flex items-center justify-between px-2 pt-2">
