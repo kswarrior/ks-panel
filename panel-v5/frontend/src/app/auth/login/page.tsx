@@ -1,9 +1,53 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Fingerprint, Shield, Lock, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          if (data.twoFA) {
+            router.push('/2fa');
+          } else {
+            router.push('/instances');
+          }
+        } else {
+          setError(data.message || 'Login failed');
+        }
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setError(data.message || 'Invalid credentials or server error');
+      }
+    } catch (err) {
+      setError('An error occurred during login');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Decor */}
@@ -19,24 +63,47 @@ export default function LoginPage() {
            <p className="text-neutral-500 font-bold text-xs uppercase tracking-[0.3em]">Initialize Identity Protocol</p>
         </div>
 
-        <div className="glass p-10 rounded-[2.5rem] border border-white/10 space-y-6 shadow-2xl">
+        <form onSubmit={handleSubmit} className="glass p-10 rounded-[2.5rem] border border-white/10 space-y-6 shadow-2xl">
+           {error && (
+             <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl text-xs font-bold uppercase tracking-wider text-center animate-shake">
+               {error}
+             </div>
+           )}
            <div className="space-y-4">
               <div className="space-y-2">
                  <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-2">Protocol Identifier</label>
                  <div className="relative group">
-                    <input type="text" placeholder="Username or Email" className="w-full pl-6 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-neutral-700" />
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Username or Email"
+                      required
+                      className="w-full pl-6 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-neutral-700"
+                    />
                  </div>
               </div>
               <div className="space-y-2">
                  <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-2">Security Key</label>
                  <div className="relative group">
-                    <input type="password" placeholder="••••••••••••" className="w-full pl-6 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-neutral-700" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      required
+                      className="w-full pl-6 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-neutral-700"
+                    />
                  </div>
               </div>
            </div>
 
-           <button className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] uppercase tracking-tighter">
-              Verify Credentials
+           <button
+             type="submit"
+             disabled={loading}
+             className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] uppercase tracking-tighter"
+           >
+              {loading ? 'Verifying...' : 'Verify Credentials'}
               <ArrowRight size={20} />
            </button>
 
@@ -44,7 +111,7 @@ export default function LoginPage() {
               <button className="text-[10px] font-black text-neutral-500 hover:text-white transition-colors uppercase tracking-widest">Forgot Access?</button>
               <button className="text-[10px] font-black text-blue-500 hover:text-blue-400 transition-colors uppercase tracking-widest">Create Identity</button>
            </div>
-        </div>
+        </form>
 
         <p className="text-center text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em]">
            Protected by KS Shield Encrypted Handshake

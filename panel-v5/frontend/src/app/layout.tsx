@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import ClientLayout from "@/components/ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} bg-[#0a0a0c] text-white flex min-h-screen selection:bg-blue-500/30 selection:text-blue-200`}>
-        <Sidebar />
-        <main className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto custom-scrollbar">
-            {children}
-          </div>
-        </main>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );

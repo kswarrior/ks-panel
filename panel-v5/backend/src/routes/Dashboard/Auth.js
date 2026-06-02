@@ -180,40 +180,59 @@ passport.deserializeUser(async (username, done) => {
  * POST /auth/login
  * Authenticates a user using Passport's local strategy.
  */
-router.post(
-  "/auth/login",
-  passport.authenticate("local", {
-    failureRedirect: "/auth/login?err=InvalidCredentials&state=failed",
-  }),
-  async (req, res, next) => {
-    try {
-      if (req.user) {
-        const users = await db.get("users");
-        const user = users.find((u) => u.username === req.user.username);
-
-        if (user && user.verified) {
-          return res.redirect("/instances.html");
-        }
-
-        if (user && user.twoFAEnabled) {
-          req.session.tempUser = req.user;
-          req.logout((err) => {
-            if (err) return next(err);
-
-            return res.redirect("/2fa");
-          });
-        } else {
-          return res.redirect("/instances.html");
-        }
-      } else {
-        return res.redirect("/auth/login?err=InvalidCredentials&state=failed");
-      }
-    } catch (error) {
-      log.error("Error during login:", error);
-      return res.status(500).send("Internal Server Error");
+router.post("/auth/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
     }
-  }
-);
+
+    const isJson = req.headers.accept && req.headers.accept.includes("application/json");
+
+    if (!user) {
+      if (isJson) {
+        return res.status(401).json({ success: false, message: (info && info.message) || "Invalid credentials" });
+      }
+      return res.redirect("/auth/login?err=InvalidCredentials&state=failed");
+    }
+
+    req.logIn(user, async (err) => {
+      if (err) {
+        return next(err);
+      }
+
+      try {
+        const users = await db.get("users");
+        const userData = users.find((u) => u.username === user.username);
+
+        if (userData && userData.twoFAEnabled) {
+          req.session.tempUser = user;
+          await new Promise((resolve, reject) => {
+            req.logout((err) => {
+              if (err) return reject(err);
+              resolve();
+            });
+          });
+          if (isJson) {
+            return res.json({ success: true, twoFA: true });
+          } else {
+            return res.redirect("/2fa");
+          }
+        } else {
+          if (isJson) {
+            return res.json({ success: true });
+          }
+          return res.redirect("/instances.html");
+        }
+      } catch (error) {
+        log.error("Error during login completion:", error);
+        if (isJson) {
+          return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        return res.status(500).send("Internal Server Error");
+      }
+    });
+  })(req, res, next);
+});
 
 
 router.post("/2fa", async (req, res, next) => {
