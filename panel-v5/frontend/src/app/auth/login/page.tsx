@@ -101,10 +101,13 @@ export default function LoginPage() {
            <button
              type="submit"
              disabled={loading}
-             className={`w-full flex items-center justify-center gap-3 py-5 rounded-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] uppercase tracking-tighter ${
+             style={{
+               clipPath: 'polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px)'
+             }}
+             className={`w-full flex items-center justify-center gap-3 py-5 font-black shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98] uppercase tracking-tighter ${
                loading
                ? 'bg-blue-600/50 cursor-wait text-white/50'
-               : 'bg-blue-600 hover:bg-blue-500 text-white'
+               : 'bg-blue-600 hover:bg-blue-500 text-white border-l-2 border-t-2 border-blue-400'
              }`}
            >
               {loading ? (

@@ -70,17 +70,23 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               key={item.name}
               href={item.href}
               onClick={() => onClose()}
-              className={`flex items-center justify-between px-4 py-3.5 rounded-2xl group transition-all duration-300 ${
+              className={`flex items-center justify-between rounded-xl group transition-all duration-300 overflow-hidden ${
                 isActive
-                ? 'bg-white/5 text-white'
-                : 'text-neutral-500 hover:text-neutral-200 hover:bg-white/[0.02]'
+                ? 'bg-blue-600/10 text-white border border-blue-500/20'
+                : 'text-neutral-500 hover:text-neutral-200'
               }`}
             >
-              <div className="flex items-center gap-3">
-                 <item.icon size={20} className={isActive ? 'text-blue-500' : 'group-hover:text-white transition-colors'} />
+              <div className="flex items-center gap-3 pl-4 py-3">
+                 <item.icon size={18} className={isActive ? 'text-blue-400' : 'group-hover:text-white transition-colors'} />
                  <span className="text-sm font-bold tracking-tight">{item.name}</span>
               </div>
-              {isActive && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.8)]" />}
+              <div className={`w-12 h-full flex items-center justify-center transition-all ${
+                isActive
+                ? 'bg-blue-600 text-white'
+                : 'bg-white/5 group-hover:bg-white/10 text-neutral-500 group-hover:text-white'
+              }`}>
+                <ChevronRight size={16} className={isActive ? 'translate-x-0' : '-translate-x-1 group-hover:translate-x-0 transition-transform'} />
+              </div>
             </Link>
           );
         })}
