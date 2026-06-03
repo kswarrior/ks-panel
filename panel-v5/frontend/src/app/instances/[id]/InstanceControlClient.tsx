@@ -27,7 +27,7 @@ export default function InstanceControlClient() {
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="font-black tracking-tight text-lg leading-none uppercase italic italic">
+            <h1 className="font-black tracking-tight text-lg leading-none uppercase italic">
               {t?.('instanceControl') || 'CONTROL'} / <span className="text-cyan-400">Production-API-01</span>
             </h1>
             <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
@@ -73,7 +73,7 @@ export default function InstanceControlClient() {
         <main className="flex-1 overflow-auto p-8 bg-[#0a0a0c]">
           <div className="max-w-[1200px] mx-auto space-y-8">
             {activeTab === 'console' && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                  <div className="aspect-video bg-black rounded-3xl border border-white/10 p-6 font-mono text-sm overflow-hidden flex flex-col shadow-2xl">
                     <div className="flex-1 text-neutral-400 space-y-1 overflow-auto">
                        <p><span className="text-emerald-500 font-bold">[SYS]</span> Initializing system components...</p>

@@ -16,8 +16,8 @@ export default function CreateNode() {
   });
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
         <Link href="/nodes" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Nodes
@@ -26,7 +26,7 @@ export default function CreateNode() {
         <PageHeader title="Deploy New Node" translationKey="deployNewNode" />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-blue-400">
               <Server size={24} />
               <h2 className="text-xl font-bold tracking-tight">Core Configuration</h2>

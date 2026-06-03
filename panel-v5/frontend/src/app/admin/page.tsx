@@ -20,8 +20,8 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         <PageHeader title="Admin Overview" translationKey="adminOverview" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -39,8 +39,8 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="glass p-8 rounded-3xl border border-white/10 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold uppercase tracking-tight flex items-center gap-2">
                   <Zap size={18} className="text-amber-400" />
@@ -65,8 +65,8 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <div className="space-y-4">
+            <div className="glass p-8 rounded-3xl border border-white/10 space-y-4">
               <h3 className="font-bold uppercase tracking-tight flex items-center gap-2">
                 <ShieldAlert size={18} className="text-red-400" />
                 Security Alerts

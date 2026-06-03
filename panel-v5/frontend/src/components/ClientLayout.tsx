@@ -38,7 +38,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {!isAuthPage && (
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         )}
-        <main className="flex-1 overflow-y-auto custom-scrollbar relative">
+        <main className="flex-1 overflow-y-auto custom-scrollbar relative pt-0">
           {children}
         </main>
       </div>

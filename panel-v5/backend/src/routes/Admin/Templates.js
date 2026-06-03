@@ -103,6 +103,7 @@ function loadTemplate(dirName) {
 // OVERVIEW ─ list all templates
 // ────────────────────────────────────────────────
 
+/*
 router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res) => {
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
@@ -158,6 +159,7 @@ router.get("/admin/templates/edit/:dirName", hasPermission("manage_templates"), 
     filename: dirName   // folder name
   });
 });
+*/
 
 // ────────────────────────────────────────────────
 // ADD / CREATE TYPE

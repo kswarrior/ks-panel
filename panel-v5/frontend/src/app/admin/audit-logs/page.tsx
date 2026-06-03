@@ -6,12 +6,12 @@ import PageHeader from '@/components/PageHeader';
 
 export default function AuditLogsPage() {
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <PageHeader title="Audit Logs" translationKey="auditLogs" />
 
-          <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-6">
+          <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-4">
              <button className="p-2 rounded-xl text-neutral-400 hover:bg-white/5 transition-all"><Search size={20} /></button>
              <button className="p-2 rounded-xl text-neutral-400 hover:bg-white/5 transition-all"><Filter size={20} /></button>
           </div>

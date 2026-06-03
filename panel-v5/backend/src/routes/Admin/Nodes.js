@@ -13,6 +13,7 @@ const log = new (require("cat-loggr"))();
 
 // ==================== FULLY ENHANCED NODES ROUTES (Pterodactyl + FTP + All Extras) ====================
 
+/*
 router.get("/admin/nodes/overview", hasPermission('manage_nodes'), async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page) : 1;
   const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 20;
@@ -131,6 +132,7 @@ router.get("/admin/nodes/create", hasPermission('manage_nodes'), async (req, res
     categories
   });
 });
+*/
 
 // Location CRUD
 router.post("/admin/nodes/locations/create", hasPermission('manage_nodes'), async (req, res) => {

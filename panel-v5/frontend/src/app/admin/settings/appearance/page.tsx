@@ -6,8 +6,8 @@ import PageHeader from '@/components/PageHeader';
 
 export default function AppearanceSettings() {
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
         <PageHeader title="Appearance" translationKey="appearance" />
 
         <section className="glass p-8 rounded-3xl border border-white/10 space-y-8">

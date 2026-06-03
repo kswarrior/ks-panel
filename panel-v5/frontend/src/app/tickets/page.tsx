@@ -11,13 +11,13 @@ export default function TicketsPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <PageHeader title="Tickets" translationKey="tickets" />
 
-          <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
              <div className="relative group flex-1 min-w-[200px] md:min-w-[240px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-amber-400 transition-colors" size={18} />
               <input
@@ -37,7 +37,7 @@ export default function TicketsPage() {
         </div>
 
         {/* Tickets Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
           {/* Example Ticket Card */}
           <div className="glass group rounded-3xl border border-white/10 overflow-hidden hover:border-amber-500/30 transition-all duration-300 flex flex-col">
             <div className="p-6 space-y-4 flex-1">
@@ -60,7 +60,7 @@ export default function TicketsPage() {
                 I noticed a discrepancy in my last billing cycle regarding the resource overage charges. Could someone please review...
               </p>
 
-              <div className="flex items-center gap-6 pt-4 border-t border-white/5">
+              <div className="flex items-center gap-4 pt-4 border-t border-white/5">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
                     <User size={14} className="text-neutral-400" />

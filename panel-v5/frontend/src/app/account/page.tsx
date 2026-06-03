@@ -10,12 +10,12 @@ export default function AccountPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
         <PageHeader title="Account" translationKey="account" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-           <div className="md:col-span-1 space-y-6">
+           <div className="md:col-span-1 space-y-4">
               <div className="glass p-8 rounded-3xl border border-white/10 text-center space-y-4">
                  <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 p-1 mx-auto">
                     <div className="w-full h-full rounded-full bg-[#0d0d0f] flex items-center justify-center text-3xl font-black">JE</div>
@@ -31,7 +31,7 @@ export default function AccountPage() {
            </div>
 
            <div className="md:col-span-2 space-y-8">
-              <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+              <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
                  <div className="flex items-center gap-3 text-blue-400">
                     <User size={20} />
                     <h2 className="font-bold uppercase tracking-tight">Identity Details</h2>
@@ -51,7 +51,7 @@ export default function AccountPage() {
                  </button>
               </section>
 
-              <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+              <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
                  <div className="flex items-center gap-3 text-emerald-400">
                     <Shield size={20} />
                     <h2 className="font-bold uppercase tracking-tight">Security & 2FA</h2>

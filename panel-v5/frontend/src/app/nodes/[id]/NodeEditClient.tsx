@@ -11,8 +11,8 @@ export default function NodeEditClient() {
   const id = params.id;
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
         <Link href="/nodes" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Nodes
@@ -21,7 +21,7 @@ export default function NodeEditClient() {
         <PageHeader title={`Edit Node #${id?.slice(0, 8)}`} />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-emerald-400">
               <Settings size={24} />
               <h2 className="text-xl font-bold tracking-tight">Node Settings</h2>

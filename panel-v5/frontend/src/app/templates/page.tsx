@@ -9,12 +9,12 @@ export default function TemplatesPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <PageHeader title="Templates" translationKey="templates" />
 
-          <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
              <div className="relative group flex-1 min-w-[200px] md:min-w-[240px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-orange-400 transition-colors" size={18} />
               <input
@@ -31,10 +31,10 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
            {/* Template Card */}
            <div className="glass group rounded-3xl border border-white/10 overflow-hidden hover:border-orange-500/30 transition-all duration-300 flex flex-col">
-              <div className="p-6 space-y-6 flex-1">
+              <div className="p-6 space-y-4 flex-1">
                  <div className="flex items-start justify-between">
                     <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
                        <Box size={32} />

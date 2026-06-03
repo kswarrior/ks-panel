@@ -7,8 +7,8 @@ import PageHeader from '@/components/PageHeader';
 
 export default function CreateTicket() {
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-3xl mx-auto space-y-4">
         <Link href="/tickets" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Tickets
@@ -17,7 +17,7 @@ export default function CreateTicket() {
         <PageHeader title="Open Support Ticket" translationKey="openSupportTicket" />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Subject</label>
               <input

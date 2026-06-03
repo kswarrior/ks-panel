@@ -11,5 +11,8 @@
     "dev:backend": "npm run dev --workspace=backend",
     "build": "npm run build --workspaces",
     "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
   }
 }

@@ -6,12 +6,12 @@ import PageHeader from '@/components/PageHeader';
 
 export default function NotificationsPage() {
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1200px] mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1200px] mx-auto space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <PageHeader title="Notifications" translationKey="notifications" />
 
-          <button className="mb-6 text-xs font-black text-neutral-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2">
+          <button className="mb-4 text-xs font-black text-neutral-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2">
             <Trash2 size={14} /> Clear Archive
           </button>
         </div>

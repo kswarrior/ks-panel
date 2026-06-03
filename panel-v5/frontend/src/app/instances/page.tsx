@@ -11,13 +11,13 @@ export default function InstancesPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-full p-4 lg:p-6 animate-fade-in">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="min-h-full pt-2 px-4 lg:px-6 animate-fade-in">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         {/* Header Section */}
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <PageHeader title="Instances" translationKey="instances" />
 
-          <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4">
             {/* View Toggle */}
             <div className="hidden sm:flex chamfered bg-white/5 border border-white/5 p-1">
               <button
@@ -71,7 +71,7 @@ export default function InstancesPage() {
                      <div className="absolute inset-0 bg-cyan-500 w-1/3 shadow-[0_0_10px_#00f2ff]" />
                   </div>
 
-                  <div className="p-8 space-y-6">
+                  <div className="p-8 space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-5">
                         <div className="w-14 h-14 chamfered bg-cyan-500/5 flex items-center justify-center border border-cyan-500/20 text-[#00f2ff] group-hover:bg-cyan-500/10 transition-colors">

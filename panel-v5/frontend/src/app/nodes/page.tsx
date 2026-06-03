@@ -19,13 +19,13 @@ export default function NodesPage() {
   }, []);
 
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <PageHeader title="Nodes" translationKey="nodes" />
 
-          <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
               <button
                 onClick={() => { setShowSearch(!showSearch); setShowFilters(false); }}

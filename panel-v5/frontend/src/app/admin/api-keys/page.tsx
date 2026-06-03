@@ -6,12 +6,12 @@ import PageHeader from '@/components/PageHeader';
 
 export default function ApiKeysPage() {
   return (
-    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <PageHeader title="API Access" translationKey="apiAccess" />
 
-          <button className="chamfered mb-6 flex items-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
+          <button className="chamfered mb-4 flex items-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
             <Plus size={18} />
             GENERATE KEY
           </button>

@@ -106,6 +106,7 @@ export default function LoginPage() {
                   </div>
                   <input
                     type="text"
+                    name="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="USER_NAME_ALPHA"
@@ -123,6 +124,7 @@ export default function LoginPage() {
                   </div>
                   <input
                     type="password"
+                    name="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"

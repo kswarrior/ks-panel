@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-2 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-cyan-500/10 sticky top-0 z-40">
+    <header className="flex items-center justify-between px-6 py-1 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-cyan-500/10 sticky top-0 z-40">
       <div className="flex items-center gap-4">
         {/* Mobile Menu Toggle */}
         <button
