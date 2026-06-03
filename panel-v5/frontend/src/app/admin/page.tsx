@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Activity, Server, Globe, Users, Zap, ShieldAlert } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 export default function AdminDashboard() {
   const stats = [
@@ -19,14 +20,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-8">
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            System <span className="text-blue-500">Nexus</span>
-          </h1>
-          <p className="text-neutral-400 font-medium">Real-time cluster telemetry and administrative oversight.</p>
-        </header>
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-6">
+        <PageHeader title="Admin Overview" translationKey="adminOverview" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat) => (

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Activity, Server, Database, Globe, MoreVertical, Settings, Edit, Trash2, Copy, Radar } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function NodesPage() {
   const [nodes, setNodes] = useState([]);
@@ -18,18 +19,13 @@ export default function NodesPage() {
   }, []);
 
   return (
-    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-8">
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter uppercase">
-              {t('nodes')}
-            </h1>
-            <p className="text-neutral-400 font-medium">Infrastructure management and cluster oversight.</p>
-          </div>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <PageHeader title="Nodes" translationKey="nodes" />
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 mb-6">
             <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
               <button
                 onClick={() => { setShowSearch(!showSearch); setShowFilters(false); }}
@@ -50,12 +46,12 @@ export default function NodesPage() {
               RADAR
             </button>
 
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+            <button className="chamfered flex items-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
               <Plus size={18} />
               {t('create')}
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Search Bar */}
         {showSearch && (

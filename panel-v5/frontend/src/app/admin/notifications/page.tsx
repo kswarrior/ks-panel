@@ -2,23 +2,19 @@
 
 import React from 'react';
 import { Bell, Shield, Info, AlertCircle, CheckCircle, Trash2, X } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 export default function NotificationsPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1200px] mx-auto space-y-8">
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent uppercase">
-              NOTIFICATIONS
-            </h1>
-            <p className="text-neutral-400 font-medium">System alerts, security warnings, and status updates.</p>
-          </div>
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-[1200px] mx-auto space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <PageHeader title="Notifications" translationKey="notifications" />
 
-          <button className="text-xs font-black text-neutral-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2">
+          <button className="mb-6 text-xs font-black text-neutral-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2">
             <Trash2 size={14} /> Clear Archive
           </button>
-        </header>
+        </div>
 
         <div className="space-y-4">
            {[

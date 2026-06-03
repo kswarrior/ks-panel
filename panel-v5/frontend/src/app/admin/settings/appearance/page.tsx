@@ -2,17 +2,13 @@
 
 import React from 'react';
 import { Palette, Mail, Shield, Save, Globe } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 export default function AppearanceSettings() {
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            Interface <span className="text-blue-500">Styling</span>
-          </h1>
-          <p className="text-neutral-400 font-medium">Customize the visual parameters of the Nexus interface.</p>
-        </header>
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <PageHeader title="Appearance" translationKey="appearance" />
 
         <section className="glass p-8 rounded-3xl border border-white/10 space-y-8">
            <div className="flex items-center gap-3 text-blue-400">

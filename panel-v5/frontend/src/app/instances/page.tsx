@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Plus, Search, Filter, Activity, Server, Cpu, HardDrive, LayoutGrid, List, MoreVertical, Play, Square, RotateCcw, ExternalLink, Terminal, Shield } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function InstancesPage() {
   const [view, setView] = useState('grid');
@@ -10,32 +11,15 @@ export default function InstancesPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-full p-6 lg:p-10 animate-fade-in">
-      <div className="max-w-[1600px] mx-auto space-y-10">
+    <div className="min-h-full p-4 lg:p-6 animate-fade-in">
+      <div className="max-w-[1600px] mx-auto space-y-6">
         {/* Header Section */}
-        <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 pb-10 border-b border-cyan-500/10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-               <div className="w-2 h-8 bg-cyan-500 shadow-[0_0_15px_#00f2ff]" />
-               <h1 className="text-6xl font-black tracking-tighter uppercase italic">
-                 {t('instances')}
-               </h1>
-            </div>
-            <div className="flex items-center gap-6 text-[10px] font-black tracking-[0.3em] text-neutral-500 uppercase">
-               <div className="flex items-center gap-2">
-                  <Activity size={12} className="text-cyan-500" />
-                  TOTAL UPLINKS: <span className="text-white">12</span>
-               </div>
-               <div className="flex items-center gap-2 border-l border-white/10 pl-6">
-                  <Shield size={12} className="text-cyan-500" />
-                  ENCRYPTION: <span className="text-white">RSA-4096</span>
-               </div>
-            </div>
-          </div>
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+          <PageHeader title="Instances" translationKey="instances" />
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6">
             {/* View Toggle */}
-            <div className="flex chamfered bg-white/5 border border-white/5 p-1">
+            <div className="hidden sm:flex chamfered bg-white/5 border border-white/5 p-1">
               <button
                 onClick={() => setView('grid')}
                 className={`p-2.5 transition-all chamfered ${view === 'grid' ? 'text-black bg-[#00f2ff]' : 'text-neutral-500 hover:text-white'}`}
@@ -51,7 +35,7 @@ export default function InstancesPage() {
             </div>
 
             {/* Search Module */}
-            <div className="relative group min-w-[300px]">
+            <div className="relative group flex-1 min-w-[200px] md:min-w-[300px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-[#00f2ff] transition-colors" size={16} />
               <input
                 type="text"
@@ -64,13 +48,13 @@ export default function InstancesPage() {
 
             {/* Create Button */}
             <button
-              className="chamfered flex items-center gap-3 px-8 py-3.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-black text-xs shadow-[0_0_20px_rgba(0,242,255,0.2)] transition-all active:scale-95 uppercase tracking-widest group"
+              className="chamfered flex items-center gap-3 px-5 md:px-8 py-3.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-black text-xs shadow-[0_0_20px_rgba(0,242,255,0.2)] transition-all active:scale-95 uppercase tracking-widest group"
             >
               <Plus size={18} />
-              <span>{t('createNewInstance')}</span>
+              <span className="hidden xs:inline">{t('createNewInstance')}</span>
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Content Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">

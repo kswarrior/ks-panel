@@ -4,19 +4,15 @@ import React from 'react';
 import { User, Mail, Shield, Key, ArrowLeft, Save, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function AccountPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            {t('account')}
-          </h1>
-          <p className="text-neutral-400 font-medium">Manage your identity and account security protocols.</p>
-        </header>
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <PageHeader title="Account" translationKey="account" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
            <div className="md:col-span-1 space-y-6">

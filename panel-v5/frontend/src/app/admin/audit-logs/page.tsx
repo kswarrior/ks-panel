@@ -2,24 +2,20 @@
 
 import React from 'react';
 import { History, Search, Filter, User, Globe, AlertTriangle } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 export default function AuditLogsPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-8">
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-neutral-200 to-neutral-500 bg-clip-text text-transparent uppercase">
-              AUDIT LOGS
-            </h1>
-            <p className="text-neutral-400 font-medium">Immutable record of all administrative and system actions.</p>
-          </div>
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <PageHeader title="Audit Logs" translationKey="auditLogs" />
 
-          <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
+          <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-6">
              <button className="p-2 rounded-xl text-neutral-400 hover:bg-white/5 transition-all"><Search size={20} /></button>
              <button className="p-2 rounded-xl text-neutral-400 hover:bg-white/5 transition-all"><Filter size={20} /></button>
           </div>
-        </header>
+        </div>
 
         <div className="glass rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
            <div className="overflow-x-auto">

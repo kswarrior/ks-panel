@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MessageSquare, Search, Filter, Plus, Clock, User, Tag, ChevronRight, Send, Paperclip } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -10,19 +11,14 @@ export default function TicketsPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-8">
+    <div className="p-4 lg:p-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter uppercase">
-              {t('tickets') || 'Tickets'}
-            </h1>
-            <p className="text-neutral-400 font-medium">Manage support requests and communications.</p>
-          </div>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <PageHeader title="Tickets" translationKey="tickets" />
 
-          <div className="flex flex-wrap items-center gap-3">
-             <div className="relative group min-w-[240px]">
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+             <div className="relative group flex-1 min-w-[200px] md:min-w-[240px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-amber-400 transition-colors" size={18} />
               <input
                 type="text"
@@ -33,12 +29,12 @@ export default function TicketsPage() {
               />
             </div>
 
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm shadow-lg shadow-amber-600/20 transition-all active:scale-95">
+            <button className="chamfered flex items-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
               <Plus size={18} />
               OPEN TICKET
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Tickets Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
