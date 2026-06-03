@@ -2,15 +2,18 @@
 
 import React from 'react';
 import { Layout, Box, Search, Plus, Filter, Cpu, Database, Settings, Download, ExternalLink } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function TemplatesPage() {
+  const { t } = useTranslation();
+
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
       <div className="max-w-[1600px] mx-auto space-y-8">
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent uppercase">
-              POWER TEMPLATES
+            <h1 className="text-4xl font-black tracking-tighter uppercase">
+              {t('templates')}
             </h1>
             <p className="text-neutral-400 font-medium">Infrastructure blueprints for rapid application deployment.</p>
           </div>
@@ -27,7 +30,7 @@ export default function TemplatesPage() {
 
             <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-lg shadow-orange-600/20 transition-all active:scale-95">
               <Plus size={18} />
-              NEW TEMPLATE
+              {t('create')}
             </button>
           </div>
         </header>

@@ -2,19 +2,21 @@
 
 import React, { useState } from 'react';
 import { MessageSquare, Search, Filter, Plus, Clock, User, Tag, ChevronRight, Send, Paperclip } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState('');
+  const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
       <div className="max-w-[1600px] mx-auto space-y-8">
         {/* Header */}
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent uppercase">
-              SUPPORT TICKETS
+            <h1 className="text-4xl font-black tracking-tighter uppercase">
+              {t('tickets') || 'Tickets'}
             </h1>
             <p className="text-neutral-400 font-medium">Manage support requests and communications.</p>
           </div>

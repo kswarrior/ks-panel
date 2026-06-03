@@ -3,14 +3,17 @@
 import React from 'react';
 import { User, Mail, Shield, Key, ArrowLeft, Save, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function AccountPage() {
+  const { t } = useTranslation();
+
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="space-y-1">
           <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            MY <span className="text-blue-500">PROFILE</span>
+            {t('account')}
           </h1>
           <p className="text-neutral-400 font-medium">Manage your identity and account security protocols.</p>
         </header>
@@ -26,7 +29,7 @@ export default function AccountPage() {
                     <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest mt-1">Administrator</p>
                  </div>
                  <button className="w-full py-3 rounded-xl bg-red-500/10 text-red-500 text-xs font-black hover:bg-red-500 hover:text-white transition-all uppercase">
-                    Sign Out
+                    {t('signOut')}
                  </button>
               </div>
            </div>
@@ -39,16 +42,16 @@ export default function AccountPage() {
                  </div>
                  <div className="space-y-4">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Username</label>
+                       <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">{t('username')}</label>
                        <input type="text" defaultValue="jules_engineer" className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Email Address</label>
+                       <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">{t('email')}</label>
                        <input type="email" defaultValue="jules@example.com" className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 transition-all" />
                     </div>
                  </div>
                  <button className="flex items-center gap-2 px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black transition-all">
-                    <Save size={14} /> UPDATE IDENTITY
+                    <Save size={14} /> {t('updateAccount')}
                  </button>
               </section>
 

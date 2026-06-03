@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import { Plus, Search, Filter, Activity, Server, Cpu, HardDrive, LayoutGrid, List, MoreVertical, Play, Square, RotateCcw, ExternalLink, Terminal, Shield } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function InstancesPage() {
   const [view, setView] = useState('grid');
   const [search, setSearch] = useState('');
+  const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-10 animate-fade-in">
+    <div className="min-h-full p-6 lg:p-10 animate-fade-in">
       <div className="max-w-[1600px] mx-auto space-y-10">
         {/* Header Section */}
         <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 pb-10 border-b border-cyan-500/10">
@@ -16,7 +18,7 @@ export default function InstancesPage() {
             <div className="flex items-center gap-3">
                <div className="w-2 h-8 bg-cyan-500 shadow-[0_0_15px_#00f2ff]" />
                <h1 className="text-6xl font-black tracking-tighter uppercase italic">
-                 ACTIVE <span className="text-[#00f2ff] text-glow-cyan">NODES</span>
+                 {t('instances')}
                </h1>
             </div>
             <div className="flex items-center gap-6 text-[10px] font-black tracking-[0.3em] text-neutral-500 uppercase">
@@ -65,7 +67,7 @@ export default function InstancesPage() {
               className="chamfered flex items-center gap-3 px-8 py-3.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-black text-xs shadow-[0_0_20px_rgba(0,242,255,0.2)] transition-all active:scale-95 uppercase tracking-widest group"
             >
               <Plus size={18} />
-              <span>INITIALIZE_INSTANCE</span>
+              <span>{t('createNewInstance')}</span>
             </button>
           </div>
         </header>
@@ -98,7 +100,7 @@ export default function InstancesPage() {
                       </div>
                       <div className="flex items-center gap-2 bg-emerald-500/5 px-2 py-1 border border-emerald-500/20">
                          <div className="w-1.5 h-1.5 bg-emerald-500 shadow-[0_0_5px_#10b981] animate-pulse" />
-                         <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest leading-none pt-0.5">ACTIVE</span>
+                         <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest leading-none pt-0.5">{t('active') || 'ACTIVE'}</span>
                       </div>
                     </div>
 

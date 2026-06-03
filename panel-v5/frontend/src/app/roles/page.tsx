@@ -2,15 +2,18 @@
 
 import React from 'react';
 import { Shield, Lock, Search, Plus, ChevronRight, Settings, Users } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function RolesPage() {
+  const { t } = useTranslation();
+
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
       <div className="max-w-[1600px] mx-auto space-y-8">
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent uppercase">
-              POLICIES & ROLES
+            <h1 className="text-4xl font-black tracking-tighter uppercase">
+              {t('roles')}
             </h1>
             <p className="text-neutral-400 font-medium">Define access control and granular permission sets.</p>
           </div>

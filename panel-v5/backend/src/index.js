@@ -96,6 +96,9 @@ function loadRoutes(directory) {
 }
 loadRoutes(routesDir);
 
+const translationsRoute = require("./routes/API/v1/translations.js");
+app.use("/", translationsRoute);
+
 init();
 
 const PORT = process.env.PORT || 8080;

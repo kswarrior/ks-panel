@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Activity, Server, Database, Globe, MoreVertical, Settings, Edit, Trash2, Copy, Radar } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function NodesPage() {
   const [nodes, setNodes] = useState([]);
@@ -9,6 +10,7 @@ export default function NodesPage() {
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Fetch nodes logic here
@@ -16,13 +18,13 @@ export default function NodesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="p-6 lg:p-8 animate-in fade-in duration-500">
       <div className="max-w-[1600px] mx-auto space-y-8">
         {/* Header */}
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-              NODES
+            <h1 className="text-4xl font-black tracking-tighter uppercase">
+              {t('nodes')}
             </h1>
             <p className="text-neutral-400 font-medium">Infrastructure management and cluster oversight.</p>
           </div>
@@ -50,7 +52,7 @@ export default function NodesPage() {
 
             <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95">
               <Plus size={18} />
-              CREATE
+              {t('create')}
             </button>
           </div>
         </header>
@@ -77,7 +79,7 @@ export default function NodesPage() {
               <div className="space-y-1">
                 <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
                   <Activity size={14} className="text-emerald-500" />
-                  Total Nodes
+                  {t('totalNodes')}
                 </p>
                 <p className="text-5xl font-black text-white">0</p>
               </div>
