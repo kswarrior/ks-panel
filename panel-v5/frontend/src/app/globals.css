@@ -90,3 +90,13 @@ body {
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
 }
+
+@keyframes bg-slide {
+  0% { transform: scale(1.1) translate(0, 0); }
+  50% { transform: scale(1.15) translate(-1%, -1%); }
+  100% { transform: scale(1.1) translate(0, 0); }
+}
+
+.animate-bg-slide {
+  animation: bg-slide 20s ease-in-out infinite;
+}

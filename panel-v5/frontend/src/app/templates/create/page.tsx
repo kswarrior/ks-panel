@@ -3,25 +3,21 @@
 import React from 'react';
 import { ArrowLeft, Save, Box, Cpu, Database, Layout, Code } from 'lucide-react';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export default function CreateTemplate() {
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <Link href="/templates" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
+        <Link href="/templates" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Blueprints
         </Link>
 
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            Architect <span className="text-orange-500">Blueprint</span>
-          </h1>
-          <p className="text-neutral-400 font-medium">Design a new application template for rapid deployment.</p>
-        </header>
+        <PageHeader title="Create Template" translationKey="createTemplate" />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-orange-400">
               <Box size={24} />
               <h2 className="text-xl font-bold tracking-tight">Core Metadata</h2>
@@ -39,7 +35,7 @@ export default function CreateTemplate() {
             </div>
           </section>
 
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-orange-400">
               <Code size={24} />
               <h2 className="text-xl font-bold tracking-tight">Startup Script</h2>

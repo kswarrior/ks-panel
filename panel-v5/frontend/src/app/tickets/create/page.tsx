@@ -3,25 +3,21 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save, MessageSquare, Tag, AlertCircle, Send } from 'lucide-react';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export default function CreateTicket() {
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <Link href="/tickets" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-3xl mx-auto space-y-4">
+        <Link href="/tickets" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Tickets
         </Link>
 
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            Open <span className="text-amber-500">Support Ticket</span>
-          </h1>
-          <p className="text-neutral-400 font-medium">Describe your issue and our team will assist you shortly.</p>
-        </header>
+        <PageHeader title="Open Support Ticket" translationKey="openSupportTicket" />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Subject</label>
               <input

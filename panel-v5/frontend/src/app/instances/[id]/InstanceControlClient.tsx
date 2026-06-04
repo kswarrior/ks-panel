@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import { ArrowLeft, Terminal, FileCode, Database, Settings, Shield, Clock, Power, Play, Square, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export default function InstanceControlClient() {
   const { id } = useParams() as { id: string };
   const [activeTab, setActiveTab] = useState('console');
+  const { t } = useTranslation();
 
   const tabs = [
     { id: 'console', name: 'Console', icon: Terminal },
@@ -17,18 +19,20 @@ export default function InstanceControlClient() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white flex flex-col">
+    <div className="h-full bg-[#0a0a0c] text-white flex flex-col">
       {/* Top Header */}
-      <div className="border-b border-white/5 bg-[#0d0d0f] px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-white/5 bg-[#0d0d0f]/50 backdrop-blur-md px-6 py-2 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/instances" className="p-2 rounded-xl hover:bg-white/5 text-neutral-500 hover:text-white transition-all">
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="font-black tracking-tight text-xl leading-none">Production-API-01</h1>
-            <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mt-1.5 flex items-center gap-2">
-               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-               Node: phoenix-primary-01 <span className="text-white/20">|</span> ID: {id?.slice(0, 8)}
+            <h1 className="font-black tracking-tight text-lg leading-none uppercase italic">
+              {t?.('instanceControl') || 'CONTROL'} / <span className="text-cyan-400">Production-API-01</span>
+            </h1>
+            <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></span>
+               Node: phx-01 <span className="text-white/20">|</span> ID: {id?.slice(0, 8)}
             </p>
           </div>
         </div>
@@ -69,7 +73,7 @@ export default function InstanceControlClient() {
         <main className="flex-1 overflow-auto p-8 bg-[#0a0a0c]">
           <div className="max-w-[1200px] mx-auto space-y-8">
             {activeTab === 'console' && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                  <div className="aspect-video bg-black rounded-3xl border border-white/10 p-6 font-mono text-sm overflow-hidden flex flex-col shadow-2xl">
                     <div className="flex-1 text-neutral-400 space-y-1 overflow-auto">
                        <p><span className="text-emerald-500 font-bold">[SYS]</span> Initializing system components...</p>

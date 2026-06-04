@@ -12,7 +12,9 @@ const { isAuthenticated } = require("../../handlers/auth.js");
 
 const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
 
-router.get("/instances", isAuthenticated, async (req, res) => {
+router.get("/instances", isAuthenticated, async (req, res, next) => {
+  if (req.query.legacy !== "true") return next();
+
   if (!req.user) return res.redirect("/");
   let instances = [];
 
@@ -43,7 +45,9 @@ router.get("/instances", isAuthenticated, async (req, res) => {
   });
 });
 
-router.get("/instance/:id", async (req, res) => {
+router.get("/instance/:id", isAuthenticated, async (req, res, next) => {
+  if (req.query.legacy !== "true") return next();
+
   if (!req.user) return res.redirect("/");
 
   const { id } = req.params;
@@ -66,7 +70,7 @@ router.get("/instance/:id", async (req, res) => {
   }
 
   if (instance.InternalState !== "READY" && instance.InternalState !== "STOPPED") {
-  return res.redirect("/instances?err=NOTACTIVEYET");
+    return res.redirect("/instances?err=NOTACTIVEYET");
   }
 
   const config = require("../../config.json");

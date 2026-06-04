@@ -74,9 +74,11 @@ app.use(passport.session());
 app.locals.name = "KS Panel";
 app.locals.logo = "https://avatars.githubusercontent.com/u/161421001?s=200&v=4";
 
-
-// Serve static frontend
-app.use(express.static(path.join(__dirname, "public"), { extensions: ['html'] }));
+// Serve static frontend (bypassed if legacy=true is present)
+app.use((req, res, next) => {
+  if (req.query.legacy === "true") return next();
+  express.static(path.join(__dirname, "public"), { extensions: ['html'] })(req, res, next);
+});
 
 const routesDir = path.join(__dirname, "routes");
 function loadRoutes(directory) {
@@ -95,6 +97,9 @@ function loadRoutes(directory) {
   });
 }
 loadRoutes(routesDir);
+
+const translationsRoute = require("./routes/API/v1/translations.js");
+app.use("/", translationsRoute);
 
 init();
 

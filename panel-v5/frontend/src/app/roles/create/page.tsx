@@ -3,25 +3,21 @@
 import React from 'react';
 import { ArrowLeft, Save, Shield, Lock, Search } from 'lucide-react';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export default function CreateRole() {
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <Link href="/roles" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
+        <Link href="/roles" className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Roles
         </Link>
 
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            Create <span className="text-emerald-500">Policy</span>
-          </h1>
-          <p className="text-neutral-400 font-medium">Define a new permission set for granular access control.</p>
-        </header>
+        <PageHeader title="Create Role" translationKey="createRole" />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-emerald-400">
               <Shield size={24} />
               <h2 className="text-xl font-bold tracking-tight">Policy Identity</h2>

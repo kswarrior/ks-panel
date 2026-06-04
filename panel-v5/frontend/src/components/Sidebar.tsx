@@ -41,9 +41,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   const handleLogout = async () => {
     try {
-      // The backend uses GET /auth/logout according to grep results
       const response = await fetch('/auth/logout', { method: 'GET' });
-      // Even if it redirects, we want to go to login page
       router.push('/auth/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -53,18 +51,19 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   return (
     <>
-    {/* Mobile Overlay */}
+    {/* Global Overlay (Blurred background when sidebar is open on mobile) */}
     {open && (
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 lg:hidden"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 transition-all duration-300 lg:hidden"
         onClick={onClose}
       />
     )}
 
     <aside className={`
-      w-[280px] bg-[#0a0a0c] border-r border-cyan-500/10 flex flex-col h-screen sticky top-0 shrink-0
-      fixed inset-y-0 left-0 z-50 transition-transform duration-300 lg:translate-x-0 lg:static
-      ${open ? 'translate-x-0' : '-translate-x-full'}
+      w-[280px] bg-[#0a0a0c]/90 backdrop-blur-2xl border-r border-cyan-500/10 flex flex-col h-screen
+      fixed inset-y-0 left-0 z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)
+      lg:translate-x-0
+      ${open ? 'translate-x-0 shadow-[20px_0_50px_rgba(0,0,0,0.5)]' : '-translate-x-full lg:translate-x-0 shadow-none'}
     `}>
       {/* Sidebar Header / Logo */}
       <div className="p-8 border-b border-cyan-500/5">

@@ -103,7 +103,9 @@ function loadTemplate(dirName) {
 // OVERVIEW ─ list all templates
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res) => {
+router.get("/admin/templates/overview", hasPermission("manage_templates"), (req, res, next) => {
+  if (req.query.legacy !== "true") return next();
+
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
 
@@ -128,7 +130,9 @@ router.get("/admin/templates/overview", hasPermission("manage_templates"), (req,
 // CREATE page
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/create", hasPermission("manage_templates"), (req, res) => {
+router.get("/admin/templates/create", hasPermission("manage_templates"), (req, res, next) => {
+  if (req.query.legacy !== "true") return next();
+
   const categories = readJson(CATEGORIES_FILE) || [];
   const types = readJson(TYPES_FILE) || [];
   res.render("admin/templates/create", { req, user: req.user, categories, types });
@@ -138,7 +142,9 @@ router.get("/admin/templates/create", hasPermission("manage_templates"), (req, r
 // EDIT page ─ loads full content (main + pages/*.ejs & .js)
 // ────────────────────────────────────────────────
 
-router.get("/admin/templates/edit/:dirName", hasPermission("manage_templates"), (req, res) => {
+router.get("/admin/templates/edit/:dirName", hasPermission("manage_templates"), (req, res, next) => {
+  if (req.query.legacy !== "true") return next();
+
   const { dirName } = req.params;
   const template = loadTemplate(dirName);
 

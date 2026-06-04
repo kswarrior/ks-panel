@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Activity, Server, Database, Globe, MoreVertical, Settings, Edit, Trash2, Copy, Radar } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function NodesPage() {
   const [nodes, setNodes] = useState([]);
@@ -9,6 +11,7 @@ export default function NodesPage() {
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Fetch nodes logic here
@@ -16,18 +19,13 @@ export default function NodesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-8">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         {/* Header */}
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-              NODES
-            </h1>
-            <p className="text-neutral-400 font-medium">Infrastructure management and cluster oversight.</p>
-          </div>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <PageHeader title="Nodes" translationKey="nodes" />
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
               <button
                 onClick={() => { setShowSearch(!showSearch); setShowFilters(false); }}
@@ -45,15 +43,15 @@ export default function NodesPage() {
 
             <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-bold transition-all active:scale-95">
               <Radar size={18} />
-              RADAR
+              {t('radar')}
             </button>
 
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+            <button className="chamfered flex items-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
               <Plus size={18} />
-              CREATE
+              {t('create')}
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Search Bar */}
         {showSearch && (
@@ -61,7 +59,7 @@ export default function NodesPage() {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-blue-400 transition-colors" size={20} />
             <input
               type="text"
-              placeholder="Search by node name, IP address, or ID..."
+              placeholder={t('searchNodesPlaceholder')}
               className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition-all shadow-2xl"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -77,7 +75,7 @@ export default function NodesPage() {
               <div className="space-y-1">
                 <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
                   <Activity size={14} className="text-emerald-500" />
-                  Total Nodes
+                  {t('totalNodes')}
                 </p>
                 <p className="text-5xl font-black text-white">0</p>
               </div>
@@ -93,7 +91,7 @@ export default function NodesPage() {
               <div className="space-y-1">
                 <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
                   <Server size={14} className="text-blue-500" />
-                  Active Servers
+                  {t('activeServers')}
                 </p>
                 <p className="text-5xl font-black text-white">0</p>
               </div>

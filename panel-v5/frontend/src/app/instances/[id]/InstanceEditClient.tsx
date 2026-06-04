@@ -4,27 +4,23 @@ import React from 'react';
 import { ArrowLeft, Save, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import PageHeader from '@/components/PageHeader';
 
 export default function InstanceEditClient() {
   const { id } = useParams() as { id: string };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <Link href={`/instances/${id}`} className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group">
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-4">
+        <Link href={`/instances/${id}`} className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group mb-4">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           Back to Instance
         </Link>
 
-        <header className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-            Edit <span className="text-purple-500">Instance</span>
-          </h1>
-          <p className="text-neutral-400 font-medium">Reconfigure resources for this application environment.</p>
-        </header>
+        <PageHeader title="Edit Instance" translationKey="editInstance" />
 
         <div className="grid grid-cols-1 gap-8">
-          <section className="glass p-8 rounded-3xl border border-white/10 space-y-6">
+          <section className="glass p-8 rounded-3xl border border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-purple-400">
               <Settings size={24} />
               <h2 className="text-xl font-bold tracking-tight">Resource Re-allocation</h2>

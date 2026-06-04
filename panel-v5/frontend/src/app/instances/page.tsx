@@ -2,38 +2,24 @@
 
 import React, { useState } from 'react';
 import { Plus, Search, Filter, Activity, Server, Cpu, HardDrive, LayoutGrid, List, MoreVertical, Play, Square, RotateCcw, ExternalLink, Terminal, Shield } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function InstancesPage() {
   const [view, setView] = useState('grid');
   const [search, setSearch] = useState('');
+  const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-10 animate-fade-in">
-      <div className="max-w-[1600px] mx-auto space-y-10">
+    <div className="min-h-full pt-2 px-4 lg:px-6 animate-fade-in">
+      <div className="max-w-[1600px] mx-auto space-y-4">
         {/* Header Section */}
-        <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 pb-10 border-b border-cyan-500/10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-               <div className="w-2 h-8 bg-cyan-500 shadow-[0_0_15px_#00f2ff]" />
-               <h1 className="text-6xl font-black tracking-tighter uppercase italic">
-                 ACTIVE <span className="text-[#00f2ff] text-glow-cyan">NODES</span>
-               </h1>
-            </div>
-            <div className="flex items-center gap-6 text-[10px] font-black tracking-[0.3em] text-neutral-500 uppercase">
-               <div className="flex items-center gap-2">
-                  <Activity size={12} className="text-cyan-500" />
-                  TOTAL UPLINKS: <span className="text-white">12</span>
-               </div>
-               <div className="flex items-center gap-2 border-l border-white/10 pl-6">
-                  <Shield size={12} className="text-cyan-500" />
-                  ENCRYPTION: <span className="text-white">RSA-4096</span>
-               </div>
-            </div>
-          </div>
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <PageHeader title="Instances" translationKey="instances" />
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4">
             {/* View Toggle */}
-            <div className="flex chamfered bg-white/5 border border-white/5 p-1">
+            <div className="hidden sm:flex chamfered bg-white/5 border border-white/5 p-1">
               <button
                 onClick={() => setView('grid')}
                 className={`p-2.5 transition-all chamfered ${view === 'grid' ? 'text-black bg-[#00f2ff]' : 'text-neutral-500 hover:text-white'}`}
@@ -49,7 +35,7 @@ export default function InstancesPage() {
             </div>
 
             {/* Search Module */}
-            <div className="relative group min-w-[300px]">
+            <div className="relative group flex-1 min-w-[200px] md:min-w-[300px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-[#00f2ff] transition-colors" size={16} />
               <input
                 type="text"
@@ -62,13 +48,13 @@ export default function InstancesPage() {
 
             {/* Create Button */}
             <button
-              className="chamfered flex items-center gap-3 px-8 py-3.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-black text-xs shadow-[0_0_20px_rgba(0,242,255,0.2)] transition-all active:scale-95 uppercase tracking-widest group"
+              className="chamfered flex items-center gap-3 px-5 md:px-8 py-3.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-black text-xs shadow-[0_0_20px_rgba(0,242,255,0.2)] transition-all active:scale-95 uppercase tracking-widest group"
             >
               <Plus size={18} />
-              <span>INITIALIZE_INSTANCE</span>
+              <span className="hidden xs:inline">{t('createNewInstance')}</span>
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Content Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
@@ -85,7 +71,7 @@ export default function InstancesPage() {
                      <div className="absolute inset-0 bg-cyan-500 w-1/3 shadow-[0_0_10px_#00f2ff]" />
                   </div>
 
-                  <div className="p-8 space-y-6">
+                  <div className="p-8 space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-5">
                         <div className="w-14 h-14 chamfered bg-cyan-500/5 flex items-center justify-center border border-cyan-500/20 text-[#00f2ff] group-hover:bg-cyan-500/10 transition-colors">
@@ -98,7 +84,7 @@ export default function InstancesPage() {
                       </div>
                       <div className="flex items-center gap-2 bg-emerald-500/5 px-2 py-1 border border-emerald-500/20">
                          <div className="w-1.5 h-1.5 bg-emerald-500 shadow-[0_0_5px_#10b981] animate-pulse" />
-                         <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest leading-none pt-0.5">ACTIVE</span>
+                         <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest leading-none pt-0.5">{t('active') || 'ACTIVE'}</span>
                       </div>
                     </div>
 
@@ -133,7 +119,7 @@ export default function InstancesPage() {
                        </div>
 
                        <button className="group/btn flex items-center gap-3 px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/5 transition-all relative overflow-hidden chamfered">
-                          <span className="text-[10px] font-black uppercase tracking-widest relative z-10">TERMINAL</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest relative z-10">{t('terminal')}</span>
                           <Terminal size={14} className="text-cyan-500 relative z-10" />
                           <div className="absolute inset-0 bg-cyan-500/10 translate-x-[-100%] group-hover/btn:translate-x-0 transition-transform" />
                        </button>

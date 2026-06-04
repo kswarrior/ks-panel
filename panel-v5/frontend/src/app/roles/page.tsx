@@ -2,29 +2,28 @@
 
 import React from 'react';
 import { Shield, Lock, Search, Plus, ChevronRight, Settings, Users } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
+import PageHeader from '@/components/PageHeader';
 
 export default function RolesPage() {
-  return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="max-w-[1600px] mx-auto space-y-8">
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent uppercase">
-              POLICIES & ROLES
-            </h1>
-            <p className="text-neutral-400 font-medium">Define access control and granular permission sets.</p>
-          </div>
+  const { t } = useTranslation();
 
-          <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+  return (
+    <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
+      <div className="max-w-[1600px] mx-auto space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <PageHeader title="Roles" translationKey="roles" />
+
+          <button className="chamfered mb-4 flex items-center justify-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
             <Plus size={18} />
             NEW ROLE
           </button>
-        </header>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
            {/* Role Card */}
            <div className="glass group rounded-3xl border border-white/10 overflow-hidden hover:border-emerald-500/30 transition-all duration-300">
-              <div className="p-8 space-y-6">
+              <div className="p-8 space-y-4">
                  <div className="flex items-start justify-between">
                     <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                        <Shield size={28} />
