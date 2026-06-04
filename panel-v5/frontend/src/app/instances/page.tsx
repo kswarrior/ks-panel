@@ -119,7 +119,7 @@ export default function InstancesPage() {
                        </div>
 
                        <button className="group/btn flex items-center gap-3 px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/5 transition-all relative overflow-hidden chamfered">
-                          <span className="text-[10px] font-black uppercase tracking-widest relative z-10">TERMINAL</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest relative z-10">{t('terminal')}</span>
                           <Terminal size={14} className="text-cyan-500 relative z-10" />
                           <div className="absolute inset-0 bg-cyan-500/10 translate-x-[-100%] group-hover/btn:translate-x-0 transition-transform" />
                        </button>

@@ -43,7 +43,7 @@ export default function NodesPage() {
 
             <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900/70 hover:bg-neutral-800 border border-white/10 text-neutral-300 text-sm font-bold transition-all active:scale-95">
               <Radar size={18} />
-              RADAR
+              {t('radar')}
             </button>
 
             <button className="chamfered flex items-center gap-2 px-6 py-2.5 bg-[#00f2ff] hover:bg-[#00d8e4] text-black font-bold text-sm shadow-lg shadow-cyan-600/20 transition-all active:scale-95">
@@ -59,7 +59,7 @@ export default function NodesPage() {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-blue-400 transition-colors" size={20} />
             <input
               type="text"
-              placeholder="Search by node name, IP address, or ID..."
+              placeholder={t('searchNodesPlaceholder')}
               className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition-all shadow-2xl"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -91,7 +91,7 @@ export default function NodesPage() {
               <div className="space-y-1">
                 <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
                   <Server size={14} className="text-blue-500" />
-                  Active Servers
+                  {t('activeServers')}
                 </p>
                 <p className="text-5xl font-black text-white">0</p>
               </div>

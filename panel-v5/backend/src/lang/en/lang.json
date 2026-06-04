@@ -210,5 +210,16 @@
   "createUser": "Create User",
   "editInstance": "Edit Instance",
   "notifications": "Notifications",
-  "openSupportTicket": "Open Support Ticket"
+  "openSupportTicket": "Open Support Ticket",
+  "activeServers": "Active Servers",
+  "radar": "Radar",
+  "searchNodesPlaceholder": "Search by node name, IP address, or ID...",
+  "searchBlueprintsPlaceholder": "Search blueprints...",
+  "blueprintType": "Type",
+  "officialBlueprint": "Official Blueprint",
+  "scalable": "Scalable",
+  "volSupport": "Vol. Support",
+  "customize": "Customize",
+  "terminal": "Terminal",
+  "commandLinker": "COMMAND_LKR"
 }

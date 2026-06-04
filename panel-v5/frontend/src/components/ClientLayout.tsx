@@ -34,7 +34,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       )}
 
-      <div className="relative z-10 flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className={`relative z-10 flex flex-col flex-1 min-w-0 overflow-hidden transition-all duration-500 ${!isAuthPage ? 'lg:ml-[280px]' : ''}`}>
         {!isAuthPage && (
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         )}

@@ -16,21 +16,24 @@ router.get("/api/v1/translations/:lang", async (req, res) => {
 
   const filePath = path.join(__dirname, `../../../lang/${lang}/lang.json`);
 
-  if (fs.existsSync(filePath)) {
-    try {
-      const translations = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  try {
+    if (fs.existsSync(filePath)) {
+      const content = await fs.promises.readFile(filePath, "utf8");
+      const translations = JSON.parse(content);
       return res.json(translations);
-    } catch (error) {
-      return res.status(500).json({ error: "Failed to parse translations" });
+    } else {
+      // Fallback to English
+      const englishPath = path.join(__dirname, `../../../lang/en/lang.json`);
+      if (fs.existsSync(englishPath)) {
+        const content = await fs.promises.readFile(englishPath, "utf8");
+        const translations = JSON.parse(content);
+        return res.json(translations);
+      }
+      return res.status(404).json({ error: "Translations not found" });
     }
-  } else {
-    // Fallback to English
-    const englishPath = path.join(__dirname, `../../../lang/en/lang.json`);
-    if (fs.existsSync(englishPath)) {
-      const translations = JSON.parse(fs.readFileSync(englishPath, "utf8"));
-      return res.json(translations);
-    }
-    return res.status(404).json({ error: "Translations not found" });
+  } catch (error) {
+    console.error("Translation error:", error);
+    return res.status(500).json({ error: "Failed to load translations" });
   }
 });
 
