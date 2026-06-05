@@ -24,5 +24,8 @@ flate2 = "1.0"
 tar = "0.4"
 sysinfo = "0.29"
 
+[features]
+bundle = []
+
 [build-dependencies]
 napi-build = "2.0.1"
