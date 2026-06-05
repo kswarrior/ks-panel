@@ -20,6 +20,19 @@ const { db, databaseURL } = require("./handlers/db.js");
 const { init } = require("./handlers/init.js");
 const log = new (require("cat-loggr"))();
 
+// Load Native Addon
+const nativePath = path.join(__dirname, "ks-panel-native.node");
+let native = null;
+if (fs.existsSync(nativePath)) {
+  try {
+    native = require(nativePath);
+    log.info("Native addon loaded successfully");
+  } catch (e) {
+    log.error("Failed to load native addon: " + e.message);
+  }
+}
+global.native = native;
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
