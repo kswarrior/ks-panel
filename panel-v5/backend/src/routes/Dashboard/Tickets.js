@@ -7,7 +7,8 @@ const { v4: uuidv4 } = require("uuid");
 // USER ROUTES (Support Center)
 // =====================
 
-router.get("/tickets", async (req, res) => {
+router.get("/tickets", async (req, res, next) => {
+  if (req.query.legacy !== "true") return next();
   if (!req.user) return res.redirect("/auth/login");
   const ticketIds = await db.get("tickets") || [];
   const allTickets = await Promise.all(ticketIds.map(id => db.get(`${id}_ticket`)));

@@ -694,6 +694,97 @@ async function deleteInstance(instance) {
   }
 }
 
+/**
+ * GET /api/v1/roles
+ *
+ * Retrieves all roles
+ *
+ * @returns {Object} The list of roles
+ */
+router.get("/api/v1/roles", validateApiKey, async (req, res) => {
+  try {
+    const roles = (await db.get("roles")) || [];
+    res.json(roles);
+  } catch (error) {
+    log.error("Error retrieving roles:", error);
+    res.status(500).json({ error: "Failed to retrieve roles" });
+  }
+});
+
+/**
+ * GET /api/v1/tickets
+ *
+ * Retrieves all tickets
+ *
+ * @returns {Object} The list of tickets
+ */
+router.get("/api/v1/tickets", validateApiKey, async (req, res) => {
+  try {
+    const ticketIds = (await db.get("tickets")) || [];
+    const tickets = await Promise.all(
+      ticketIds.map((id) => db.get(id + "_ticket"))
+    );
+    res.json(tickets.filter(Boolean));
+  } catch (error) {
+    log.error("Error retrieving tickets:", error);
+    res.status(500).json({ error: "Failed to retrieve tickets" });
+  }
+});
+
+/**
+ * GET /api/v1/admin/stats
+ *
+ * Retrieves aggregated stats for the admin dashboard
+ *
+ * @returns {Object} The aggregated stats
+ */
+router.get("/api/v1/admin/stats", validateApiKey, async (req, res) => {
+  try {
+    const [instances, nodes, users] = await Promise.all([
+      db.get("instances") || [],
+      db.get("nodes") || [],
+      db.get("users") || [],
+    ]);
+
+    res.json({
+      instances: instances.length,
+      nodes: nodes.length,
+      users: users.length,
+    });
+  } catch (error) {
+    log.error("Error retrieving admin stats:", error);
+    res.status(500).json({ error: "Failed to retrieve stats" });
+  }
+});
+
+/**
+ * DELETE /api/v1/user/:userId/delete
+ *
+ * Deletes a user
+ *
+ * @param {string} userId - The ID of the user to delete
+ * @returns {Object} Success message
+ */
+router.delete(
+  "/api/v1/user/:userId/delete",
+  validateApiKey,
+  async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    try {
+      const users = (await db.get("users")) || [];
+      const newUsers = users.filter((u) => u.userId !== userId);
+      await db.set("users", newUsers);
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      log.error("Error deleting user:", error);
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  }
+);
 
 /**
  * Checks the state of a container and updates the database accordingly.
