@@ -13,6 +13,7 @@
     "test": "npx playwright test"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^3.7.0",
     "@playwright/test": "^1.60.0"
   }
 }

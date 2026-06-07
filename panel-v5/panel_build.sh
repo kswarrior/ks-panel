@@ -59,6 +59,12 @@ npm install
 echo "Building frontend..."
 npm run build --workspace=frontend
 
+# Build Native Addon
+echo "Building NAPI-RS addon..."
+npx napi build --release --platform --cwd . -- --lib
+# napi-rs might name the output based on platform, find and copy it
+cp *.node backend/src/ks-panel-native.node
+
 # Prepare bundle directory
 echo "Preparing bundle..."
 rm -rf build_tmp
@@ -115,7 +121,7 @@ cd ..
 
 # Build Rust Binary
 echo "Building final kspanel binary..."
-cargo build --release
+cargo build --release --features bundle
 
 # Move final binary to root
 if [ -f "target/release/kspanel.exe" ]; then

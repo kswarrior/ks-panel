@@ -33,14 +33,8 @@ router.get("/admin/insights/api/system-metrics", anyAdminPerm, async (req, res) 
     const load = os.loadavg();
     const cpuUsage = (load[0] / os.cpus().length) * 100;
 
-    // Disk usage (root)
-    exec("df -h / | tail -1 | awk '{print $3 \",\" $2 \",\" $5}'", (err, stdout) => {
-      let diskInfo = { used: "0", total: "0", percent: "0" };
-      if (!err && stdout) {
-        const parts = stdout.trim().split(",");
-        diskInfo = { used: parts[0], total: parts[1], percent: parts[2] };
-      }
-
+    // Disk usage (root) - Priority: Native > Shell
+    const respond = (diskInfo) => {
       res.json({
         cpu: { percent: cpuUsage.toFixed(1), cores: os.cpus().length },
         ram: {
@@ -53,7 +47,22 @@ router.get("/admin/insights/api/system-metrics", anyAdminPerm, async (req, res) 
         hostname: os.hostname(),
         platform: os.platform()
       });
-    });
+    };
+
+    if (global.native && typeof global.native.getDiskInfo === 'function') {
+      const data = global.native.getDiskInfo();
+      const parts = data.split(",");
+      respond({ used: parts[0], total: parts[1], percent: parts[2] });
+    } else {
+      exec("df -h / | tail -1 | awk '{print $3 \",\" $2 \",\" $5}'", (err, stdout) => {
+        let diskInfo = { used: "0", total: "0", percent: "0" };
+        if (!err && stdout) {
+          const parts = stdout.trim().split(",");
+          diskInfo = { used: parts[0], total: parts[1], percent: parts[2] };
+        }
+        respond(diskInfo);
+      });
+    }
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch metrics" });
   }

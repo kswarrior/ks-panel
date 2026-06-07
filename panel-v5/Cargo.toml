@@ -9,15 +9,23 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [[bin]]
 name = "kspanel"
 path = "src/main.rs"
 
 [dependencies]
-# Future dependencies for heavy-duty scanners
+napi = { version = "2.12.2", default-features = false, features = ["napi4", "tokio_rt"] }
+napi-derive = "2.12.2"
 tokio = { version = "1", features = ["full"] }
 tempfile = "3"
 flate2 = "1.0"
 tar = "0.4"
+sysinfo = "0.29"
+
+[features]
+bundle = []
+
+[build-dependencies]
+napi-build = "2.0.1"

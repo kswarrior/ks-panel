@@ -5,8 +5,19 @@ import { Plus, Search, Filter, Activity, Server, Database, Globe, MoreVertical, 
 import { useTranslation } from '@/components/TranslationProvider';
 import PageHeader from '@/components/PageHeader';
 
+interface Node {
+  id: string;
+  name: string;
+  address: string;
+  port: string;
+  ram: string;
+  disk: string;
+  processor: string;
+  status: string;
+}
+
 export default function NodesPage() {
-  const [nodes, setNodes] = useState([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -14,9 +25,29 @@ export default function NodesPage() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // Fetch nodes logic here
-    setLoading(false);
+    const fetchNodes = async () => {
+      try {
+        const response = await fetch('/api/v1/nodes', {
+          headers: {
+            'x-api-key': 'placeholder'
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch nodes');
+        const data = await response.json();
+        setNodes(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch nodes:', error);
+        setLoading(false);
+      }
+    };
+    fetchNodes();
   }, []);
+
+  const filteredNodes = nodes.filter(n =>
+    n.name.toLowerCase().includes(search.toLowerCase()) ||
+    n.address.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="pt-2 px-4 lg:px-6 animate-in fade-in duration-500">
@@ -29,7 +60,7 @@ export default function NodesPage() {
             <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
               <button
                 onClick={() => { setShowSearch(!showSearch); setShowFilters(false); }}
-                className={`p-2 rounded-xl transition-all ${showSearch ? 'text-blue-400 bg-blue-400/10' : 'text-neutral-400 hover:bg-white/5'}`}
+                className={`p-2 rounded-xl transition-all ${showSearch ? 'text-[#00f2ff] bg-cyan-500/10' : 'text-neutral-400 hover:bg-white/5'}`}
               >
                 <Search size={20} />
               </button>
@@ -56,11 +87,11 @@ export default function NodesPage() {
         {/* Search Bar */}
         {showSearch && (
           <div className="relative group animate-in slide-in-from-top-4 duration-300">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-blue-400 transition-colors" size={20} />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-[#00f2ff] transition-colors" size={20} />
             <input
               type="text"
               placeholder={t('searchNodesPlaceholder')}
-              className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition-all shadow-2xl"
+              className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-cyan-500/50 focus:bg-white/[0.08] transition-all shadow-2xl"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -77,7 +108,7 @@ export default function NodesPage() {
                   <Activity size={14} className="text-emerald-500" />
                   {t('totalNodes')}
                 </p>
-                <p className="text-5xl font-black text-white">0</p>
+                <p className="text-5xl font-black text-white">{nodes.length}</p>
               </div>
               <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
                 <Globe size={28} className="text-emerald-400" />
@@ -85,18 +116,18 @@ export default function NodesPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 p-6 group hover:border-blue-500/30 transition-all duration-500">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-all" />
+          <div className="relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 p-6 group hover:border-[#00f2ff]/30 transition-all duration-500">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-                  <Server size={14} className="text-blue-500" />
+                  <Server size={14} className="text-[#00f2ff]" />
                   {t('activeServers')}
                 </p>
                 <p className="text-5xl font-black text-white">0</p>
               </div>
-              <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-                <Database size={28} className="text-blue-400" />
+              <div className="w-14 h-14 bg-cyan-500/10 rounded-2xl flex items-center justify-center border border-cyan-500/20 group-hover:scale-110 transition-transform">
+                <Database size={28} className="text-[#00f2ff]" />
               </div>
             </div>
           </div>
@@ -104,10 +135,57 @@ export default function NodesPage() {
 
         {/* Nodes Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-          {/* Node Cards will be mapped here */}
-          <div className="p-12 text-center border-2 border-dashed border-white/5 rounded-3xl col-span-full">
-            <p className="text-neutral-500 font-medium">No nodes found matching your criteria.</p>
-          </div>
+          {loading ? (
+             Array(5).fill(0).map((_, i) => (
+                <div key={i} className="glass rounded-3xl border border-white/10 p-6 space-y-4 animate-pulse">
+                   <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-white/5" />
+                      <div className="space-y-2">
+                         <div className="h-4 w-20 bg-white/5 rounded" />
+                         <div className="h-3 w-28 bg-white/5 rounded" />
+                      </div>
+                   </div>
+                   <div className="space-y-3 pt-4">
+                      <div className="h-2 w-full bg-white/5 rounded" />
+                      <div className="h-2 w-2/3 bg-white/5 rounded" />
+                   </div>
+                </div>
+             ))
+          ) : filteredNodes.length > 0 ? (
+            filteredNodes.map((node) => (
+              <div key={node.id} className="glass group rounded-3xl border border-white/10 p-6 hover:border-[#00f2ff]/30 transition-all duration-300 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4">
+                  <div className={`w-2 h-2 rounded-full ${node.status === 'Online' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500 shadow-[0_0_8px_#ef4444]'}`} />
+                </div>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-[#00f2ff] border border-cyan-500/20 group-hover:scale-110 transition-transform">
+                    <Server size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-lg leading-tight">{node.name}</h3>
+                    <p className="text-[10px] text-neutral-500 font-mono tracking-tighter">{node.address}:{node.port}</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-widest text-neutral-500">
+                    <span>RAM_POOL</span>
+                    <span className="text-white italic">{node.ram}MB</span>
+                  </div>
+                  <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#00f2ff] w-1/2" />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-widest text-neutral-500">
+                    <span>DISK_POOL</span>
+                    <span className="text-white italic">{node.disk}GB</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-12 text-center border-2 border-dashed border-white/5 rounded-3xl col-span-full">
+              <p className="text-neutral-500 font-medium">No nodes found matching your criteria.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
