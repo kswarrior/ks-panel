@@ -1,13 +1,13 @@
-name: Move Panel to /kspanel/panel
+name: Rename panel/node to panel/panel
 
 on:
-  workflow_dispatch:
-  
+  workflow_dispatch: # Allows manual triggering from the GitHub UI
+
 permissions:
-  contents: write # Needed to push changes back to the repo
+  contents: write # Required to commit and push changes back to the repo
 
 jobs:
-  move-files:
+  rename-folder:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,35 +15,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Move the contents safely
-      - name: Move panel contents to kspanel/panel
+      # Step 2: Perform the rename safely
+      - name: Rename panel/node to panel/panel
         run: |
-          # Check if the source 'panel' directory exists
-          if [ -d "panel" ]; then
+          # Check if the source directory panel/node exists
+          if [ -d "panel/node" ]; then
             # Create a temporary folder to avoid conflicts during the move
-            mkdir -p temp_panel
+            mkdir -p temp_node
             
-            # Move everything from panel into the temporary folder
-            mv panel/* temp_panel/ 2>/dev/null || true
-            # Move hidden files (like .env or .gitignore) if they exist
-            mv panel/.* temp_panel/ 2>/dev/null || true 
+            # Move all contents (including hidden files) from panel/node to the temp folder
+            mv panel/node/* temp_node/ 2>/dev/null || true
+            mv panel/node/.* temp_node/ 2>/dev/null || true
             
-            # Remove the now-empty source panel directory
-            rm -rf panel
+            # Remove the empty panel/node folder
+            rm -rf panel/node
             
-            # Create the exact target structure: /kspanel/panel
-            mkdir -p panel/node
+            # Create the exact target directory: panel/panel
+            mkdir -p panel/panel
             
-            # Move contents from the temporary folder into /kspanel/panel/
-            mv temp_panel/* panel/node/ 2>/dev/null || true
-            mv temp_panel/.* panel/node/ 2>/dev/null || true
+            # Move contents from the temp folder into panel/panel
+            mv temp_node/* panel/panel/ 2>/dev/null || true
+            mv temp_node/.* panel/panel/ 2>/dev/null || true
             
-            # Clean up temporary folder
-            rm -rf temp_panel
+            # Clean up the temporary folder
+            rm -rf temp_node
             
-            echo "Successfully moved all files to kspanel/panel/"
+            echo "Successfully moved contents from panel/node to panel/panel"
           else
-            echo "Error: 'panel' directory not found!"
+            echo "Error: 'panel/node' directory not found!"
             exit 1
           fi
 
@@ -53,14 +52,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # Add the new directory and stage the removal of the old one
-          git add panel/node/
-          git rm -r panel/ 2>/dev/null || true
+          # Stage the new folder and the deletion of the old folder
+          git add panel/panel/
+          git rm -r panel/node/ 2>/dev/null || true
           
-          # Only commit if there are actually changes
+          # Only commit if changes are present
           if git diff-index --quiet HEAD --; then
-            echo "No changes to commit"
+            echo "No changes detected to commit."
           else
-            git commit -m "Automated refactor: Moved contents to /kspanel/panel/"
+            git commit -m "Automated refactor: Renamed panel/node to panel/panel"
             git push
           fi
