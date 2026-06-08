@@ -29,12 +29,7 @@ log.setLevel('debug');  // Enable debug/info logs (change to 'info' in productio
 
 require('dotenv').config();  // Load env vars FIRST
 
-let config = {};
-try {
-  config = require("./config.json");
-} catch (e) {
-  // config.json might not exist
-}
+const config = require("./utils/configLoader.js");
 
 // Override config with env if set
 if (process.env.DB_URL) config.databaseURL = process.env.DB_URL;

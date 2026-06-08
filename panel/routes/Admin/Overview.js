@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
-const config = require("../../config.json");
+const config = require("../../utils/configLoader.js");
 const { isAdmin } = require("../../utils/isAdmin.js");
 
 // Required for live PM2 logs

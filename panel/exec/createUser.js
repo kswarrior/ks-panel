@@ -2,13 +2,7 @@ const readline = require("readline");
 const { db } = require("../handlers/db.js");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
-
-let config = {};
-try {
-  config = require("../config.json");
-} catch (e) {
-  // config.json might not exist
-}
+const config = require("../utils/configLoader.js");
 
 const saltRounds = config.saltRounds || 10;
 

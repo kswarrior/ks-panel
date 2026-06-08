@@ -1,10 +1,5 @@
 const { db } = require("../handlers/db.js");
-let config = {};
-try {
-  config = require("../config.json");
-} catch (e) {
-  // config.json might not exist
-}
+const config = require("../utils/configLoader.js");
 const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
 

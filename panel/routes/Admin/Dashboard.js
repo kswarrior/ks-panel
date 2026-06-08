@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { db, getAllData } = require("../../handlers/db.js");
-const config = require("../../config.json");
+const config = require("../../utils/configLoader.js");
 const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 const fs = require('node:fs');
 const path = require('path');

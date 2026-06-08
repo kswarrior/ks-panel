@@ -2,12 +2,7 @@ const Keyv = require("keyv");
 const path = require("path");
 const fs = require("node:fs");
 
-let config = {};
-try {
-  config = require("../config.json");
-} catch (e) {
-  // config.json might not exist yet
-}
+const config = require("../utils/configLoader.js");
 
 // Env override
 const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
