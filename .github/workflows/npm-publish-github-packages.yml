@@ -1,10 +1,8 @@
 name: Move Panel to /kspanel/panel
 
 on:
-  push:
-    branches:
-      - main # Change to your default branch name if it's master
-
+  workflow_dispatch:
+  
 permissions:
   contents: write # Needed to push changes back to the repo
 
