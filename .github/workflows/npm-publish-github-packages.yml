@@ -1,37 +1,68 @@
-name: Update wings folder
+name: Move Panel to /kspanel/panel
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main # Change to your default branch name if it's master
+
+permissions:
+  contents: write # Needed to push changes back to the repo
 
 jobs:
-  update:
+  move-files:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout your repository
+      # Step 1: Check out the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Git clone ks-wings
-        run: git clone https://github.com/kswarrior/ks-wings.git ks-wings
-
-      - name: Rename to wings folder (and make it normal files)
+      # Step 2: Move the contents safely
+      - name: Move panel contents to kspanel/panel
         run: |
-          rm -rf ks-wings/.git          # ← This prevents submodule
-          mv ks-wings wings
-
-      - name: Commit and push wings folder
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add wings/
-          
-          if git diff --staged --quiet; then
-            echo "No changes to wings folder."
+          # Check if the source 'panel' directory exists
+          if [ -d "panel" ]; then
+            # Create a temporary folder to avoid conflicts during the move
+            mkdir -p temp_panel
+            
+            # Move everything from panel into the temporary folder
+            mv panel/* temp_panel/ 2>/dev/null || true
+            # Move hidden files (like .env or .gitignore) if they exist
+            mv panel/.* temp_panel/ 2>/dev/null || true 
+            
+            # Remove the now-empty source panel directory
+            rm -rf panel
+            
+            # Create the exact target structure: /kspanel/panel
+            mkdir -p kspanel/panel
+            
+            # Move contents from the temporary folder into /kspanel/panel/
+            mv temp_panel/* kspanel/panel/ 2>/dev/null || true
+            mv temp_panel/.* kspanel/panel/ 2>/dev/null || true
+            
+            # Clean up temporary folder
+            rm -rf temp_panel
+            
+            echo "Successfully moved all files to kspanel/panel/"
           else
-            git commit -m "Update wings folder from ks-wings repo"
+            echo "Error: 'panel' directory not found!"
+            exit 1
+          fi
+
+      # Step 3: Commit and push the changes
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Add the new directory and stage the removal of the old one
+          git add kspanel/panel/
+          git rm -r panel/ 2>/dev/null || true
+          
+          # Only commit if there are actually changes
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit"
+          else
+            git commit -m "Automated refactor: Moved contents to /kspanel/panel/"
             git push
-            echo "✅ wings folder uploaded to your repo"
           fi
