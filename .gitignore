@@ -25,3 +25,13 @@ panel-v5/backend/node_modules/
 *.log
 *.sqlite
 kspanel
+
+
+# Added by cargo
+
+/target
+*.node
+kspanel
+ks-sql
+*.sqlite-shm
+*.sqlite-wal

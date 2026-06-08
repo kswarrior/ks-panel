@@ -7,11 +7,11 @@ def verify():
         page = browser.new_page()
 
         # Login
-        page.goto("http://localhost:8080/auth/login")
+        page.goto("http://localhost:8080/login")
         page.screenshot(path="/home/jules/verification/screenshots/login_before.png")
-        page.fill('input[name="username"]', "admin")
-        page.fill('input[name="password"]', "password")
-        page.click('button[type="submit"]')
+        page.fill('#username', "admin")
+        page.fill('#password', "password")
+        page.keyboard.press("Enter")
 
         page.wait_for_timeout(5000)
         page.screenshot(path="/home/jules/verification/screenshots/login_after.png")
