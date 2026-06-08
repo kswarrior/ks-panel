@@ -54,7 +54,7 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
           # Add the new directory and stage the removal of the old one
-          git add kspanel/panel/
+          git add panel/node/
           git rm -r panel/ 2>/dev/null || true
           
           # Only commit if there are actually changes
