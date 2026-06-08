@@ -402,8 +402,9 @@ if (fs.existsSync(asciiPath)) {
   const ascii = fs.readFileSync(asciiPath, "utf8");
   console.log(chalk.gray(ascii.replace("{version}", config.version)));
 }
-app.listen(config.port, () => {
-  log.info(`KS Panel is listening on port ${config.port}`);
+const port = process.env.PORT || config.port || 8080;
+app.listen(port, () => {
+  log.info(`KS Panel is listening on port ${port}`);
   log.debug('Server ready - routes loaded');
 });
 

@@ -1,0 +1,18 @@
+[package]
+name = "kspanel"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[[bin]]
+name = "kspanel"
+path = "src/main.rs"
+
+[dependencies]
+napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
+napi-derive = "2.12.2"
+
+[build-dependencies]
+napi-build = "2.0.1"
