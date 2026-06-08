@@ -32,11 +32,11 @@ jobs:
             rm -rf panel
             
             # Create the exact target structure: /kspanel/panel
-            mkdir -p kspanel/panel
+            mkdir -p panel/node
             
             # Move contents from the temporary folder into /kspanel/panel/
-            mv temp_panel/* kspanel/panel/ 2>/dev/null || true
-            mv temp_panel/.* kspanel/panel/ 2>/dev/null || true
+            mv temp_panel/* panel/node/ 2>/dev/null || true
+            mv temp_panel/.* panel/node/ 2>/dev/null || true
             
             # Clean up temporary folder
             rm -rf temp_panel
