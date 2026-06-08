@@ -1,0 +1,21 @@
+         </div> <!-- End of page-container -->
+      </div> <!-- End of colcont -->
+
+<% if (typeof footer !== 'undefined' && footer === true) { %>
+    <footer id="footer" class="py-6 flex justify-center transition-opacity duration-300 ease-in-out">
+        <div class="w-full md:w-6/12 px-4">
+            <div class="text-[10px] text-neutral-600 font-bold uppercase tracking-widest py-1 text-center">
+                © <span id="copyright-year"></span>
+                <a href="https://github.com/kswarrior/panel" class="text-neutral-500 transition hover:text-neutral-400 ml-1">
+                    KS Panel
+                </a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.getElementById("copyright-year").textContent = new Date().getFullYear();
+    </script>
+<% } %>
+
+</body>
+</html>
