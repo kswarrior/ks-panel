@@ -11,6 +11,9 @@ bs-config.json
 plugins/plugins.json
 config.json
 
+# Rust build artifacts
+target/
+
 # Panel v5
 panel-v5/target/
 panel-v5/frontend/out/
