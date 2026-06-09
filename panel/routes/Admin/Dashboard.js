@@ -1,7 +1,7 @@
 const { Router } = require("../../lib/fastify-router-shim.js");
 const router = Router();
 const { db, getAllData } = require("../../handlers/db.js");
-const config = require("../../config.json");
+const config = require("../../utils/config.js");
 const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 const fs = require('node:fs');
 const path = require('path');
@@ -74,39 +74,24 @@ async function getDashboardStats() {
   const sortedIPs = Object.entries(topIPs).sort((a,b) => b[1] - a[1]).slice(0, 5);
 
   // =====================
-  // REAL POSTGRESQL DATABASE INFO
+  // REAL DATABASE INFO
   // =====================
-  let dbType = "PostgreSQL";
+  let dbType = "SQLite";
   let dbUrlMasked = "Not configured";
   let dbSize = "Unknown";
   let dbTable = config.databaseTable || "kspanel";
   let totalKeys = 0;
   let dbStats = {};
 
-  if (config.databaseURL) {
-    dbUrlMasked = config.databaseURL.replace(/:\/\/[^:]+:[^@]+@/, '://****:****@');
-    try {
-      const client = new Client({ connectionString: config.databaseURL });
-      await client.connect();
-
-      const [size, keys, health, index] = await Promise.all([
-        client.query(`SELECT pg_size_pretty(pg_database_size(current_database())) as size`),
-        client.query(`SELECT COUNT(*) as count FROM ${dbTable}`),
-        client.query(`SELECT count(*) as active_conns FROM pg_stat_activity WHERE state = 'active'`),
-        client.query(`SELECT relname as table, pg_size_pretty(pg_total_relation_size(relid)) AS total_size FROM pg_catalog.pg_statio_user_tables`)
-      ]);
-
-      dbSize = size.rows[0].size;
-      totalKeys = parseInt(keys.rows[0].count) || 0;
-      dbStats = {
-        activeConnections: health.rows[0].active_conns,
-        tableSizes: index.rows
-      };
-
-      await client.end();
-    } catch (err) {
-      console.error('DB info query failed:', err);
-      dbSize = "Query Error";
+  const databaseURL = config.databaseURL;
+  if (databaseURL) {
+    dbUrlMasked = databaseURL.replace(/:\/\/[^:]+:[^@]+@/, '://****:****@');
+    if (databaseURL.startsWith("postgres")) {
+        dbType = "PostgreSQL";
+    } else if (databaseURL.startsWith("mysql") || databaseURL.startsWith("mariadb")) {
+        dbType = "MySQL/MariaDB";
+    } else if (databaseURL.startsWith("mongodb")) {
+        dbType = "MongoDB";
     }
   }
 
@@ -212,7 +197,7 @@ router.get("/admin/database", anyAdminPerm, async (req, res) => {
     const stats = await getDashboardStats();
 
     // Determine database type for display
-    const dbUrl = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+    const dbUrl = config.databaseURL || "sqlite://storage/kspanel.sqlite";
     let dbTypeDisp = "SQLite";
     if (dbUrl.startsWith("postgres")) dbTypeDisp = "PostgreSQL";
     if (dbUrl.startsWith("mysql") || dbUrl.startsWith("mariadb")) dbTypeDisp = "MySQL/MariaDB";
@@ -224,7 +209,7 @@ router.get("/admin/database", anyAdminPerm, async (req, res) => {
       ...stats,
       dbType: dbTypeDisp,
       dbUrl: dbUrl,
-      databaseTable: process.env.DB_TABLE || config.databaseTable || "kspanel"
+      databaseTable: config.databaseTable || "kspanel"
     });
   } catch (error) {
     console.error('Database page error:', error);
@@ -241,16 +226,25 @@ router.post("/admin/database/update", hasPermission('manage_settings'), async (r
       currentData = await getAllData();
     }
 
-    // Update config.json
-    const configPath = path.join(__dirname, "../../config.json");
-    let configObj = {};
-    if (fs.existsSync(configPath)) {
-      configObj = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    // Update .env
+    const envPath = config.envPath;
+    let envContent = "";
+    if (fs.existsSync(envPath)) {
+        envContent = fs.readFileSync(envPath, "utf8");
     }
 
-    configObj.databaseURL = databaseURL;
-    configObj.databaseTable = databaseTable;
-    fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2), "utf8");
+    const updateEnv = (key, value) => {
+        const regex = new RegExp(`^${key}=.*`, 'm');
+        if (envContent.match(regex)) {
+            envContent = envContent.replace(regex, `${key}=${value}`);
+        } else {
+            envContent += `\n${key}=${value}`;
+        }
+    };
+
+    updateEnv("DB_URL", databaseURL);
+    updateEnv("DB_TABLE", databaseTable);
+    fs.writeFileSync(envPath, envContent, "utf8");
 
     if (migrate === 'true' && currentData.length > 0) {
       // Logic to write data to NEW database

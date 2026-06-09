@@ -13,7 +13,6 @@ const legacySessionStoreFactory = require("express-session");
 const fs = require("node:fs");
 const path = require("path");
 const chalk = require("chalk");
-const crypto = require("node:crypto");
 const ejs = require("ejs");
 const translationMiddleware = require("./handlers/translation");
 const analytics = require("./utils/analytics.js");
@@ -22,25 +21,17 @@ const { decorateRequestReply, registerRouter, runHandlers } = require("./lib/fas
 const { loadPlugins } = require("./plugins/loadPls.js");
 const { init } = require("./handlers/init.js");
 const { db } = require("./handlers/db.js");
-
-require("dotenv").config();
+const config = require("./utils/config.js");
 
 const log = new (require("cat-loggr"))();
 log.setLevel("debug");
-
-const configPath = path.join(__dirname, "config.json");
-let config = fs.existsSync(configPath) ? require(configPath) : {};
-
-if (process.env.DB_URL) config.databaseURL = process.env.DB_URL;
-if (process.env.SESSION_SECRET) config.session_secret = process.env.SESSION_SECRET;
-if (process.env.NODE_ENV) config.mode = process.env.NODE_ENV;
 
 const pluginsDir = path.join(__dirname, "../database/plugins");
 if (!fs.existsSync(pluginsDir)) fs.mkdirSync(pluginsDir, { recursive: true });
 let plugins = loadPlugins(pluginsDir);
 plugins = Object.values(plugins).map((plugin) => plugin.config);
 
-const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+const databaseURL = config.databaseURL;
 let sessionStore;
 
 if (databaseURL.startsWith("postgres")) {
@@ -62,33 +53,6 @@ if (databaseURL.startsWith("postgres")) {
   const SqliteStore = require("better-sqlite3-session-store")(legacySessionStoreFactory);
   const dbSqlite = require("better-sqlite3")(databaseURL.replace("sqlite://", ""));
   sessionStore = new SqliteStore({ client: dbSqlite, expired: { clear: true, intervalMs: 900000 } });
-}
-
-function generateRandomString(length) {
-  return crypto.randomBytes(length).toString("hex").slice(0, length);
-}
-
-function replaceRandomValues(obj) {
-  for (const key in obj) {
-    if (typeof obj[key] === "object" && obj[key] !== null) {
-      replaceRandomValues(obj[key]);
-    } else if (obj[key] === "Random") {
-      obj[key] = generateRandomString(16);
-    }
-  }
-}
-
-async function updateConfig() {
-  const configPath = path.join(__dirname, "config.json");
-  try {
-    if (!fs.existsSync(configPath)) return;
-    const configObj = JSON.parse(fs.readFileSync(configPath, "utf8"));
-    replaceRandomValues(configObj);
-    fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2), "utf8");
-    log.info("Config updated with random values.");
-  } catch (error) {
-    log.error("Error updating config:", error);
-  }
 }
 
 function getLanguages() {
@@ -133,7 +97,7 @@ async function buildServer() {
   });
   await app.register(fastifySession, {
     store: sessionStore,
-    secret: config.session_secret || process.env.SESSION_SECRET || "secretsecretsecretsecretsecretsecret",
+    secret: config.session_secret || "secretsecretsecretsecretsecretsecret",
     saveUninitialized: false,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -193,8 +157,6 @@ async function buildServer() {
       await app.rateLimit({ max: 30, timeWindow: 60 * 1000 })(req, reply);
     }
   });
-
-  await updateConfig();
 
   app.get("/setLanguage", async (req, reply) => {
     const lang = req.query.lang;
@@ -314,7 +276,7 @@ async function buildServer() {
 
 async function start() {
   const app = await buildServer();
-  const port = Number(process.env.PORT || config.port || 3000);
+  const port = Number(config.port || 3000);
 
   const asciiPath = path.join(__dirname, "handlers/ascii.txt");
   if (fs.existsSync(asciiPath)) {

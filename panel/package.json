@@ -112,7 +112,6 @@
       "./routes/**/*",
       "./exec/**/*",
       "./*.env",
-      "./config.json",
       "./LICENSE",
       "./README.md",
       "./kspanel.sh"
