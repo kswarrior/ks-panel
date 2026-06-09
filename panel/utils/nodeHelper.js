@@ -9,6 +9,32 @@ const cache = require("./cache.js");
 const log = new (require("cat-loggr"))();
 
 /**
+ * Get the correct base URL for a node (including protocol and port handling)
+ * @param {Object} node
+ * @returns {string}
+ */
+function getNodeBaseUrl(node) {
+  const protocol = node.connectionProtocol || 'http';
+  let addr = node.address || '';
+
+  // Strip existing protocol if present to avoid double prefix
+  addr = addr.replace(/^https?:\/\//, "");
+
+  // Tunnels (Tunnel / KS Smart) should NOT use the daemon port
+  // because they connect via standard HTTPS (443) on the tunnel hostname.
+  if (node.connectionType === "Tunnel" || node.connectionType === "KS Smart") {
+    return `${protocol}://${addr}`;
+  }
+
+  // Direct / Localhost connections use the configured daemon port
+  const isDefaultPort = (protocol === 'https' && node.port === 443) ||
+                       (protocol === 'http' && node.port === 80);
+
+  const portString = isDefaultPort ? '' : `:${node.port}`;
+  return `${protocol}://${addr}${portString}`;
+}
+
+/**
  * Check the operational status of a node via HTTP request
  * Includes built-in caching to avoid repeated network calls
  * 
@@ -32,9 +58,7 @@ async function checkNodeStatus(node, skipCache = false) {
   }
 
   try {
-    const protocol = node.connectionProtocol || 'http';
-    const portString = (protocol === 'https' && node.port === 443) || (protocol === 'http' && node.port === 80) ? '' : `:${node.port}`;
-    const url = `${protocol}://${node.address}${portString}/`;
+    const url = `${getNodeBaseUrl(node)}/`;
 
     const requestData = {
       method: "get",
@@ -142,6 +166,7 @@ function invalidateAllNodeCache() {
 }
 
 module.exports = {
+  getNodeBaseUrl,
   checkNodeStatus,
   checkMultipleNodesStatus,
   invalidateNodeCache,

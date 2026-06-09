@@ -42,15 +42,23 @@ router.get("/admin/auditlogs", hasPermission("view_audit_logs"), async (req, res
     const allAuditsArray = allAudits ? JSON.parse(allAudits) : [];
     const actions = [...new Set(allAuditsArray.map(audit => audit.action))];
 
-    res.render("admin/auditlogs", {
-      req,
-      user: req.user,
+    const data = {
       audits: result.data,
       pagination: result.pagination,
       actions,
       actionFilter,
       dateRange,
       filters: { actionFilter, dateRange }
+    };
+
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json(data);
+    }
+
+    res.render("admin/auditlogs", {
+      req,
+      user: req.user,
+      ...data
     });
   } catch (err) {
     log.error("Error fetching audits:", err);

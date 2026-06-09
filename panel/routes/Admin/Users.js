@@ -65,23 +65,26 @@ router.get("/admin/users", hasPermission("manage_users"), async (req, res) => {
   const { paginate } = require("../../utils/dbHelper.js");
   const usersResult = paginate(allUsers, page, pageSize);
 
-  res.render("admin/users/overview", {
-    req,
-    user: req.user,
-    users: usersResult.data,
-    pagination: usersResult.pagination,
-    roles,
-    filters: { search, role: roleFilter, status: statusFilter }
-  });
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({
+      users: usersResult.data,
+      pagination: usersResult.pagination,
+      roles,
+      filters: { search, role: roleFilter, status: statusFilter }
+    });
+  }
+
+  res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
 });
 
 router.get("/admin/users/create", hasPermission("manage_users"), async (req, res) => {
   const roles = await db.get("roles") || [];
-  res.render("admin/users/create", {
-    req,
-    user: req.user,
-    roles
-  });
+
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({ roles });
+  }
+
+  res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
 });
 
 router.post("/users/create", hasPermission("manage_users"), async (req, res) => {
@@ -160,12 +163,11 @@ router.get("/admin/users/edit/:userId", hasPermission("manage_users"), async (re
 
   const roles = await db.get("roles") || [];
 
-  res.render("admin/users/edit", {
-    req,
-    user: req.user,
-    editUser,
-    roles
-  });
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({ editUser, roles });
+  }
+
+  res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
 });
 
 router.post("/admin/users/edit/:userId", hasPermission("manage_users"), async (req, res, next) => {

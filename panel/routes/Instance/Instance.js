@@ -35,12 +35,11 @@ router.get("/instances", isAuthenticated, async (req, res) => {
     }
   }
 
-  res.render("instances", {
-    req,
-    user: req.user,
-    instances,
-    config: require("../../config.json"),
-  });
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json(instances);
+  }
+
+  res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
 });
 
 router.get("/instance/:id", async (req, res) => {
@@ -76,19 +75,20 @@ router.get("/instance/:id", async (req, res) => {
   const files = await fetchFiles(instance, "");
 
 
-  res.render("instance/instance", {
-    req,
-    user: req.user,
-    ContainerId: instance.ContainerId,
-    instance,
-    port,
-    domain,
-    files,
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({
+      ContainerId: instance.ContainerId,
+      instance,
+      port,
+      domain,
+      files,
+      addons: {
+        plugins: allPluginData,
+      },
+    });
+  }
 
-    addons: {
-      plugins: allPluginData,
-    },
-  });
+  res.sendFile(path.join(__dirname, "../../public/dist/index.html"));
 });
 
 module.exports = router;

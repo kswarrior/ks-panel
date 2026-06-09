@@ -51,8 +51,8 @@ exports.install = async () => {
      return { output: 'Local node directory not found.\n', code: 1 };
   }
 
-  log.info('Building Go Wings...');
-  return runCommand('go build -o kswings main.go');
+  log.info('Building Go Edge...');
+  return runCommand('go build -o ksedge main.go');
 };
 
 exports.configure = async (config) => {
@@ -84,7 +84,7 @@ exports.start = async () => {
   }
 
   // We use PM2 to run the Go binary
-  const startCmd = 'npx pm2 start ./kswings --name localnode --interpreter none';
+  const startCmd = 'npx pm2 start ./ksedge --name localnode --interpreter none';
 
   const result = await runCommand(startCmd);
 
@@ -125,7 +125,7 @@ exports.restart = async () => {
 };
 
 exports.reinstall = async () => {
-  log.info('Reinstall requested → rebuilding Go Wings');
+  log.info('Reinstall requested → rebuilding Go Edge');
   await exports.stop();
   // We don't necessarily want to delete the whole directory if it's the rewrite.
   // Just rebuild.
@@ -138,7 +138,7 @@ exports.logs = async () => {
   }
   const logsCmd = 'npx pm2 logs localnode --lines 300 --raw || echo "No logs available"';
   const result = await runCommand(logsCmd);
-  let output = `PM2 logs for process "localnode" (Go Wings) (last 300 lines):\n\n`;
+  let output = `PM2 logs for process "localnode" (Go Edge) (last 300 lines):\n\n`;
   output += result.output;
   return { output, code: result.code };
 };

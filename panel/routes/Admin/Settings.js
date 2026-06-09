@@ -150,6 +150,9 @@ router.post(
 
 router.get("/admin/settings", hasPermission('manage_settings'), async (req, res) => {
   const settingsData = await fetchCommonSettings(req);
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json(settingsData);
+  }
   res.render("admin/settings/appearance", { ...settingsData, pageType: "admin" });
 });
 
@@ -157,6 +160,9 @@ router.get("/admin/settings/smtp", hasPermission('manage_settings'), async (req,
   try {
     const settingsData = await fetchCommonSettings(req);
     const smtpSettings = (await db.get("smtp_settings")) || {};
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ ...settingsData, smtpSettings });
+    }
     res.render("admin/settings/smtp", { ...settingsData, smtpSettings, pageType: "admin" });
   } catch (error) {
     log.error("Error fetching SMTP settings:", error);

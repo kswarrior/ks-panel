@@ -86,6 +86,10 @@ router.get("/instance/:id/startup", async (req, res) => {
 
     instance.templateData = templateData;
 
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ instance, addons: { plugins: allPluginData } });
+    }
+
     res.render("instance/startup.ejs", {
       req,
       user: req.user,
