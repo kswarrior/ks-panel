@@ -8,16 +8,32 @@ function decorateRequestReply(request, reply) {
   if (!request.originalUrl) request.originalUrl = request.url;
   if (!request.cookies) request.cookies = {};
   if (!request.get) request.get = (header) => request.headers[header.toLowerCase()];
+  if (!request.protocol) request.protocol = request.headers['x-forwarded-proto'] || 'http';
+  if (!request.ip) request.ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+
   if (!reply.locals) reply.locals = {};
 
   if (!reply.code) reply.code = () => reply;
   if (!reply.header) reply.header = () => reply;
-  if (!reply.send) reply.send = () => { reply.sent = true; return reply; };
+
+  const originalSend = reply.send.bind(reply);
+  reply.send = (payload) => {
+    reply.sent = true;
+    return originalSend(payload);
+  };
+
   const fastifyRedirect = reply.redirect ? reply.redirect.bind(reply) : null;
-  reply.status = reply.code.bind(reply);
+  reply.status = (c) => { reply.code(c); return reply; };
   reply.json = (payload) => reply.send(payload);
-  reply.render = (view, data = {}) => reply.view ? reply.view(view, { ...reply.locals, ...data }) : reply.send({ view, data: { ...reply.locals, ...data } });
+  reply.render = (view, data = {}) => {
+    if (reply.view) {
+        return reply.view(view, { ...reply.locals, ...data });
+    }
+    return reply.send({ view, data: { ...reply.locals, ...data } });
+  };
+
   reply.redirect = (statusOrUrl, maybeUrl) => {
+    reply.sent = true;
     if (typeof statusOrUrl === 'number') {
       reply.code(statusOrUrl);
       return fastifyRedirect ? fastifyRedirect(maybeUrl) : reply.header('location', maybeUrl).send();
@@ -30,13 +46,9 @@ function decorateRequestReply(request, reply) {
 async function runHandlers(handlers, request, reply) {
   decorateRequestReply(request, reply);
 
-  let index = -1;
-  async function dispatch(position, err) {
-    if (err) throw err;
-    if (position <= index) throw new Error('next() called multiple times');
-    index = position;
-    const handler = handlers[position];
-    if (!handler || reply.sent) return;
+  for (let i = 0; i < handlers.length; i++) {
+    if (reply.sent) break;
+    const handler = handlers[i];
 
     await new Promise((resolve, reject) => {
       let settled = false;
@@ -48,6 +60,10 @@ async function runHandlers(handlers, request, reply) {
 
       try {
         const result = handler(request, reply, next);
+        if (reply.sent) {
+            settled = true;
+            return resolve();
+        }
         if (result && typeof result.then === 'function') {
           result.then((value) => {
             if (!settled) {
@@ -65,11 +81,7 @@ async function runHandlers(handlers, request, reply) {
         reject(error);
       }
     });
-
-    await dispatch(position + 1);
   }
-
-  await dispatch(0);
 }
 
 function shouldRunMiddleware(routePath, requestPath) {
@@ -86,8 +98,7 @@ function registerRouter(app, router, prefix = '') {
     const routePath = normalizePath(`${prefix}${layer.path === '*' ? '' : layer.path}` || '*');
     if (layer.method === 'use') {
       app.addHook('preHandler', async (request, reply) => {
-        decorateRequestReply(request, reply);
-        if (shouldRunMiddleware(routePath, request.path)) {
+        if (shouldRunMiddleware(routePath, request.url.split('?')[0])) {
           await runHandlers(layer.handlers, request, reply);
         }
       });
@@ -96,7 +107,7 @@ function registerRouter(app, router, prefix = '') {
 
     if (layer.method === 'WS') {
       app.get(routePath, { websocket: true }, async (socket, request) => {
-        const replyLike = { locals: {}, sent: false };
+        const replyLike = { locals: {}, sent: false, send: () => {} };
         decorateRequestReply(request, replyLike);
         for (const handler of layer.handlers) {
           await handler(socket, request);

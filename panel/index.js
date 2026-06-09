@@ -3,7 +3,7 @@ const fastifyCookie = require("@fastify/cookie");
 const fastifyEnv = require("@fastify/env");
 const fastifyFormBody = require("@fastify/formbody");
 const fastifyMultipart = require("@fastify/multipart");
-const fastifyPassport = require("@fastify/passport");
+const passport = require("./handlers/passport");
 const fastifyRateLimit = require("@fastify/rate-limit");
 const fastifySession = require("@fastify/session");
 const fastifyStatic = require("@fastify/static");
@@ -102,12 +102,12 @@ async function buildServer() {
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      secure: config.mode === "production",
+      secure: false, // Set to false to allow login over HTTP
       sameSite: "lax",
     },
   });
-  await app.register(fastifyPassport.initialize());
-  await app.register(fastifyPassport.secureSession());
+  await app.register(passport.initialize());
+  await app.register(passport.secureSession());
 
   await app.register(fastifyView, {
     engine: { ejs },
@@ -251,25 +251,6 @@ async function buildServer() {
   pluginRoutes.setAppAndDb(app, db);
   pluginRoutes.events = events;
   registerRouter(app, pluginRoutes);
-
-  const pluginDir = path.join(__dirname, "plugins");
-  const PluginViewsDir = fs
-    .readdirSync(pluginDir)
-    .filter((file) => fs.statSync(path.join(pluginDir, file)).isDirectory())
-    .map((addonName) => path.join(pluginDir, addonName, "views"))
-    .filter((viewPath) => fs.existsSync(viewPath));
-
-  app.addHook("onRoute", (routeOptions) => {
-    if (routeOptions.url === "/" || routeOptions.url === "/*") {
-        // Skip root or wildcard for now or handle them
-    }
-  });
-
-  // To support multiple view directories with EJS in Fastify, we might need a workaround
-  // since @fastify/view with EJS doesn't natively support an array of roots.
-  // However, Nunjucks does. For EJS, we'll stick to the main views for now or
-  // the user might need to use path.resolve in their plugins.
-  // Given the error: "Only Nunjucks supports the 'templates' option as an array"
 
   app.setNotFoundHandler(async (req, reply) => {
     decorateRequestReply(req, reply);

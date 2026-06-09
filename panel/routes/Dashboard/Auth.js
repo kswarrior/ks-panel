@@ -8,7 +8,6 @@
 const { Router } = require("../../lib/fastify-router-shim.js");
 const passport = require("../../handlers/passport");
 const log = new (require("cat-loggr"))();
-const LocalStrategy = require("passport-local").Strategy;
 const { v4: uuidv4 } = require("uuid");
 const { db } = require("../../handlers/db.js");
 const {
@@ -19,56 +18,9 @@ const {
 const speakeasy = require("speakeasy");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const config = require("../../utils/config.js");
 
 const router = Router();
-
-/**
- * Configures Passport's local strategy for user authentication. It checks the provided
- * username (or email) and password against stored credentials in the database. If the credentials
- * match, the user is authenticated; otherwise, appropriate error messages are returned.
- *
- * @returns {void} No return value but configures the local authentication strategy.
- */
-passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const settings = (await db.get("settings")) || {};
-      const users = await db.get("users");
-      if (!users) {
-        return done(null, false, { message: "No users found." });
-      }
-
-      const isEmail = username.includes("@");
-
-      let user;
-      if (isEmail) {
-        user = users.find((user) => user.email === username);
-      } else {
-        user = users.find((user) => user.username === username);
-      }
-
-      if (!user) {
-        return done(null, false, { message: "Incorrect username or email." });
-      }
-
-      if (!user.verified && (settings.emailVerification || false)) {
-        return done(null, false, {
-          message: "Email not verified. Please verify your email.",
-          userNotVerified: true,
-        });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-      if (match) {
-        return done(null, user);
-      } else {
-        return done(null, false, { message: "Incorrect password." });
-      }
-    } catch (error) {
-      return done(error);
-    }
-  })
-);
 
 async function doesUserExist(username) {
   const users = await db.get("users");
@@ -142,54 +94,19 @@ async function addUserToUsersTable(username, email, password, verified) {
 }
 
 /**
- * Serializes the user to the session, storing only the username to manage login sessions.
- * @param {Object} user - The user object from the database.
- * @param {Function} done - A callback function to call with the username.
- */
-passport.serializeUser((user, done) => {
-  done(null, user.username);
-});
-
-/**
- * Deserializes the user from the session by retrieving the full user details from the database
- * using the stored username. Necessary for loading user details on subsequent requests after login.
- * @param {string} username - The username stored in the session.
- * @param {Function} done - A callback function to call with the user object or errors if any.
- */
-passport.deserializeUser(async (username, done) => {
-  try {
-    const users = await db.get("users");
-    if (!users) {
-      throw new Error("User not found");
-    }
-
-    // Search for the user with the provided username in the users array
-    const user = users.find((user) => user.username === username);
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    done(null, user); // Deserialize user by retrieving full user details from the database
-  } catch (error) {
-    done(error);
-  }
-});
-
-/**
  * GET /auth/login
  * Authenticates a user using Passport's local strategy. If authentication is successful, the user
  * is redirected to the instances page, otherwise, they are sent back to the login page with an error.
  *
  * @returns {Response} Redirects based on the success or failure of the authentication attempt.
  */
-router.get("/auth/login", async (req, res, next) => {
+router.get("/auth/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       return next(err);
     }
     if (!user) {
-      if (info.userNotVerified) {
+      if (info && info.userNotVerified) {
         return res.redirect("/login?err=UserNotVerified");
       }
       return res.redirect("/login?err=InvalidCredentials&state=failed");
@@ -222,15 +139,10 @@ router.post(
         const users = await db.get("users");
         const user = users.find((u) => u.username === req.user.username);
 
-        if (user && user.verified) {
-          return res.redirect("/instances");
-        }
-
         if (user && user.twoFAEnabled) {
           req.session.tempUser = req.user;
           req.logout((err) => {
             if (err) return next(err);
-
             return res.redirect("/2fa");
           });
         } else {
@@ -309,7 +221,7 @@ router.get("/resend-verification", async (req, res) => {
       req,
     });
   } catch (error) {
-    log.error("Error fetching name or logo:", error);
+    log.error("Error rendering verification page:", error);
     res.status(500).send("Internal server error");
   }
 });
@@ -366,76 +278,53 @@ router.get("/login", async (req, res) => {
   }
 });
 
-async function initializeRoutes() {
-  async function updateRoutes() {
+router.get("/register", async (req, res) => {
     try {
-      const settings = await db.get("settings");
+        const settings = (await db.get("settings")) || {};
+        if (settings.register !== true) return res.status(404).send("Registration is disabled");
 
-      if (!settings) {
-        db.set("settings", { register: false });
-      } else {
-        if (settings.register === true) {
-          router.get("/register", async (req, res) => {
-            try {
-              if (!req.user) {
-                res.render("auth/register", {
-                  req,
-                  user: req.user,
-                });
-              } else {
-                res.redirect("/instances");
-              }
-            } catch (error) {
-              log.error("Error fetching name or logo:", error);
-              res.status(500).send("Internal server error");
-            }
-          });
-
-          router.post("/auth/register", async (req, res) => {
-            const { username, email, password } = req.body;
-
-            try {
-              const userExists = await doesUserExist(username);
-              const emailExists = await doesEmailExist(email);
-
-              if (userExists || emailExists) {
-                res.send("User already exists");
-                return;
-              }
-
-              const settings = (await db.get("settings")) || {};
-              const emailVerificationEnabled =
-                settings.emailVerification || false;
-
-              if (emailVerificationEnabled) {
-                await createUser(username, email, password);
-                res.redirect("/login?msg=AccountcreateEmailSent");
-              } else {
-                await addUserToUsersTable(username, email, password, true);
-                res.redirect("/login?msg=AccountCreated");
-              }
-            } catch (error) {
-              log.error("Error handling registration:", error);
-              res.status(500).send("Internal server error");
-            }
-          });
+        if (!req.user) {
+            res.render("auth/register", {
+                req,
+                user: req.user,
+            });
         } else {
-          router.stack = router.stack.filter(
-            (r) =>
-              !(
-                r.route &&
-                (r.route.path === "/register" ||
-                  r.route.path === "/auth/register")
-              )
-          );
+            res.redirect("/instances");
         }
-      }
     } catch (error) {
-      log.error("Error initializing routes:", error);
+        log.error("Error rendering register page:", error);
+        res.status(500).send("Internal server error");
     }
-  }
-  await updateRoutes();
-}
+});
+
+router.post("/auth/register", async (req, res) => {
+    const { username, email, password } = req.body;
+    try {
+        const settings = (await db.get("settings")) || {};
+        if (settings.register !== true) return res.status(403).send("Registration is disabled");
+
+        const userExists = await doesUserExist(username);
+        const emailExists = await doesEmailExist(email);
+
+        if (userExists || emailExists) {
+            res.send("User already exists");
+            return;
+        }
+
+        const emailVerificationEnabled = settings.emailVerification || false;
+
+        if (emailVerificationEnabled) {
+            await createUser(username, email, password);
+            res.redirect("/login?msg=AccountcreateEmailSent");
+        } else {
+            await addUserToUsersTable(username, email, password, true);
+            res.redirect("/login?msg=AccountCreated");
+        }
+    } catch (error) {
+        log.error("Error handling registration:", error);
+        res.status(500).send("Internal server error");
+    }
+});
 
 router.get("/auth/reset-password", async (req, res) => {
   try {
@@ -545,10 +434,6 @@ router.get("/auth/logout", (req, res, next) => {
     if (err) return next(err);
     res.redirect("/");
   });
-});
-
-initializeRoutes().catch((error) => {
-  log.error("Error initializing routes:", error);
 });
 
 module.exports = router;
