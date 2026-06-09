@@ -284,14 +284,6 @@ router.post("/2fa", async (req, res, next) => {
   }
 });
 
-router.get(
-  "/auth/login",
-  passport.authenticate("local", {
-    successRedirect: "/instances",
-    failureRedirect: "/login?err=InvalidCredentials&state=failed",
-  })
-);
-
 router.get("/verify/:token", async (req, res) => {
   const { token } = req.params;
   try {
@@ -443,10 +435,7 @@ async function initializeRoutes() {
     }
   }
   await updateRoutes();
-  setInterval(updateRoutes, 1000);
 }
-
-initializeRoutes();
 
 router.get("/auth/reset-password", async (req, res) => {
   try {

@@ -108,6 +108,7 @@ async function buildServer() {
   });
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
+
   await app.register(fastifyView, {
     engine: { ejs },
     root: path.join(__dirname, "views"),
@@ -257,7 +258,18 @@ async function buildServer() {
     .filter((file) => fs.statSync(path.join(pluginDir, file)).isDirectory())
     .map((addonName) => path.join(pluginDir, addonName, "views"))
     .filter((viewPath) => fs.existsSync(viewPath));
-  app.viewOpts.root = [path.join(__dirname, "views"), ...PluginViewsDir];
+
+  app.addHook("onRoute", (routeOptions) => {
+    if (routeOptions.url === "/" || routeOptions.url === "/*") {
+        // Skip root or wildcard for now or handle them
+    }
+  });
+
+  // To support multiple view directories with EJS in Fastify, we might need a workaround
+  // since @fastify/view with EJS doesn't natively support an array of roots.
+  // However, Nunjucks does. For EJS, we'll stick to the main views for now or
+  // the user might need to use path.resolve in their plugins.
+  // Given the error: "Only Nunjucks supports the 'templates' option as an array"
 
   app.setNotFoundHandler(async (req, reply) => {
     decorateRequestReply(req, reply);
