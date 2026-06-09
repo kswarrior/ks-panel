@@ -8,24 +8,25 @@ function decorateRequestReply(request, reply) {
   if (!request.originalUrl) request.originalUrl = request.url;
   if (!request.cookies) request.cookies = {};
   if (!request.get) request.get = (header) => request.headers[header.toLowerCase()];
-  if (!request.protocol) request.protocol = request.headers['x-forwarded-proto'] || 'http';
+  if (!request.protocol) request.protocol = request.headers['x-forwarded-proto'] || (request.socket.encrypted ? 'https' : 'http');
   if (!request.ip) request.ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
 
   if (!reply.locals) reply.locals = {};
 
-  if (!reply.code) reply.code = () => reply;
-  if (!reply.header) reply.header = () => reply;
+  if (!reply.code) reply.code = (c) => { reply.status(c); return reply; };
+  if (!reply.header) reply.header = (n, v) => { reply.raw.setHeader(n, v); return reply; };
 
   const originalSend = reply.send.bind(reply);
   reply.send = (payload) => {
+    if (reply.sent) return reply;
     reply.sent = true;
     return originalSend(payload);
   };
 
   const fastifyRedirect = reply.redirect ? reply.redirect.bind(reply) : null;
-  reply.status = (c) => { reply.code(c); return reply; };
-  reply.json = (payload) => reply.send(payload);
-  reply.render = (view, data = {}) => {
+  if (!reply.status) reply.status = (c) => { reply.raw.statusCode = c; return reply; };
+  if (!reply.json) reply.json = (payload) => reply.send(payload);
+  if (!reply.render) reply.render = (view, data = {}) => {
     if (reply.view) {
         return reply.view(view, { ...reply.locals, ...data });
     }
@@ -33,12 +34,13 @@ function decorateRequestReply(request, reply) {
   };
 
   reply.redirect = (statusOrUrl, maybeUrl) => {
+    if (reply.sent) return reply;
     reply.sent = true;
     if (typeof statusOrUrl === 'number') {
-      reply.code(statusOrUrl);
+      reply.raw.statusCode = statusOrUrl;
       return fastifyRedirect ? fastifyRedirect(maybeUrl) : reply.header('location', maybeUrl).send();
     }
-    return fastifyRedirect ? fastifyRedirect(statusOrUrl) : reply.header('location', statusOrUrl).code(302).send();
+    return fastifyRedirect ? fastifyRedirect(statusOrUrl) : reply.header('location', statusOrUrl).status(302).send();
   };
   return { req: request, res: reply };
 }
@@ -60,10 +62,13 @@ async function runHandlers(handlers, request, reply) {
 
       try {
         const result = handler(request, reply, next);
+
+        // If the handler sent a response synchronously, settle immediately
         if (reply.sent) {
             settled = true;
             return resolve();
         }
+
         if (result && typeof result.then === 'function') {
           result.then((value) => {
             if (!settled) {
@@ -71,14 +76,23 @@ async function runHandlers(handlers, request, reply) {
               if (value !== undefined && !reply.sent) reply.send(value);
               resolve();
             }
-          }, reject);
+          }, (err) => {
+            if (!settled) {
+              settled = true;
+              reject(err);
+            }
+          });
         } else if (handler.length < 3) {
+          // If next is not requested as an argument, settle after execution
           settled = true;
           if (result !== undefined && !reply.sent) reply.send(result);
           resolve();
         }
       } catch (error) {
-        reject(error);
+        if (!settled) {
+          settled = true;
+          reject(error);
+        }
       }
     });
   }
@@ -107,7 +121,7 @@ function registerRouter(app, router, prefix = '') {
 
     if (layer.method === 'WS') {
       app.get(routePath, { websocket: true }, async (socket, request) => {
-        const replyLike = { locals: {}, sent: false, send: () => {} };
+        const replyLike = { locals: {}, sent: false, send: () => {}, raw: { setHeader: () => {} } };
         decorateRequestReply(request, replyLike);
         for (const handler of layer.handlers) {
           await handler(socket, request);
