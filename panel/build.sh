@@ -24,6 +24,5 @@ cargo build --release
 # 5. Finalizing
 echo "Copying binary to root..."
 cp target/release/kspanel ./kspanel
-cp target/release/kspanel ./panel/kspanel
 
 echo "Build complete! You can now use ./kspanel"
