@@ -1,37 +1,65 @@
-name: Update wings folder
+name: Rename panel/node to panel/panel
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering from the GitHub UI
+
+permissions:
+  contents: write # Required to commit and push changes back to the repo
 
 jobs:
-  update:
+  rename-folder:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout your repository
+      # Step 1: Check out the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Git clone ks-wings
-        run: git clone https://github.com/kswarrior/ks-wings.git ks-wings
-
-      - name: Rename to wings folder (and make it normal files)
+      # Step 2: Perform the rename safely
+      - name: Rename panel/node to panel/panel
         run: |
-          rm -rf ks-wings/.git          # ← This prevents submodule
-          mv ks-wings wings
-
-      - name: Commit and push wings folder
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add wings/
-          
-          if git diff --staged --quiet; then
-            echo "No changes to wings folder."
+          # Check if the source directory panel/node exists
+          if [ -d "panel/node" ]; then
+            # Create a temporary folder to avoid conflicts during the move
+            mkdir -p temp_node
+            
+            # Move all contents (including hidden files) from panel/node to the temp folder
+            mv panel/node/* temp_node/ 2>/dev/null || true
+            mv panel/node/.* temp_node/ 2>/dev/null || true
+            
+            # Remove the empty panel/node folder
+            rm -rf panel/node
+            
+            # Create the exact target directory: panel/panel
+            mkdir -p panel/panel
+            
+            # Move contents from the temp folder into panel/panel
+            mv temp_node/* panel/panel/ 2>/dev/null || true
+            mv temp_node/.* panel/panel/ 2>/dev/null || true
+            
+            # Clean up the temporary folder
+            rm -rf temp_node
+            
+            echo "Successfully moved contents from panel/node to panel/panel"
           else
-            git commit -m "Update wings folder from ks-wings repo"
+            echo "Error: 'panel/node' directory not found!"
+            exit 1
+          fi
+
+      # Step 3: Commit and push the changes
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Stage the new folder and the deletion of the old folder
+          git add panel/panel/
+          git rm -r panel/node/ 2>/dev/null || true
+          
+          # Only commit if changes are present
+          if git diff-index --quiet HEAD --; then
+            echo "No changes detected to commit."
+          else
+            git commit -m "Automated refactor: Renamed panel/node to panel/panel"
             git push
-            echo "✅ wings folder uploaded to your repo"
           fi
