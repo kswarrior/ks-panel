@@ -7,6 +7,7 @@ function decorateRequestReply(request, reply) {
   if (!request.path) request.path = request.url.split('?')[0];
   if (!request.originalUrl) request.originalUrl = request.url;
   if (!request.cookies) request.cookies = {};
+  if (!request.get) request.get = (header) => request.headers[header.toLowerCase()];
   if (!reply.locals) reply.locals = {};
 
   if (!reply.code) reply.code = () => reply;
