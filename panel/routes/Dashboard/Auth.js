@@ -5,8 +5,8 @@
  * through Passport's session handling.
  */
 
-const express = require("express");
-const passport = require("passport");
+const { Router } = require("../../lib/fastify-router-shim.js");
+const passport = require("../../handlers/passport");
 const log = new (require("cat-loggr"))();
 const LocalStrategy = require("passport-local").Strategy;
 const { v4: uuidv4 } = require("uuid");
@@ -20,7 +20,7 @@ const speakeasy = require("speakeasy");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-const router = express.Router();
+const router = Router();
 
 /**
  * Configures Passport's local strategy for user authentication. It checks the provided

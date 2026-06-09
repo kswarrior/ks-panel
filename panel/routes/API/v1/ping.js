@@ -1,5 +1,5 @@
-const express = require('express');
-const router = express.Router();
+const { Router } = require('../../../lib/fastify-router-shim.js');
+const router = Router();
 
 router.get('/ping', (req, res) => {
   res.status(200).json({ status: 'ok' });

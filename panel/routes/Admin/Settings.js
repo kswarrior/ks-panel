@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../../lib/fastify-router-shim.js");
+const router = Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("node:fs");

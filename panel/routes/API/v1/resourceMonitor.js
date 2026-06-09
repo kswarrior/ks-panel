@@ -1,6 +1,6 @@
 // resourceMonitor.js remains the same as previously provided
-const express = require('express');
-const router = express.Router();
+const { Router } = require('../../../lib/fastify-router-shim.js');
+const router = Router();
 const os = require('os');
 const fsPromises = require('fs/promises');
 const fs = require('fs');

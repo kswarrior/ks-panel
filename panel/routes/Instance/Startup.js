@@ -1,4 +1,4 @@
-const express = require("express");
+const { Router } = require("../../lib/fastify-router-shim.js");
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
@@ -18,7 +18,7 @@ const {
 } = require("./InstanceReDeploy.js");
 
 const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
-const router = express.Router();
+const router = Router();
 
 const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
 

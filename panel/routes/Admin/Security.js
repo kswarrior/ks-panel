@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../../lib/fastify-router-shim.js");
+const router = Router();
 const { db } = require("../../handlers/db.js");
 const { anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 const { spawn, exec } = require("child_process");
@@ -96,7 +96,7 @@ router.post("/admin/insights/api/panel-control", anyAdminPerm, (req, res) => {
 // FULL TERMINAL (WebSocket)
 // =====================
 router.ws("/admin/security/ws/terminal", async (ws, req) => {
-  // Middleware for express-ws is tricky, so we check session manually
+  // WebSocket upgrades do not run the standard auth middleware chain, so check session manually
   if (!req.session || !req.session.passport || !req.session.passport.user) {
     ws.close(1008, "Unauthorized");
     return;

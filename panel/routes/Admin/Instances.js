@@ -7,8 +7,8 @@
 // - Start/Restart/Stop buttons work perfectly
 // - Old templates that still return "READY" will still work if you ever switch back
 
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../../lib/fastify-router-shim.js");
+const router = Router();
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");

@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../../../lib/fastify-router-shim.js");
+const router = Router();
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const axios = require("axios");
@@ -27,9 +27,9 @@ const saltRounds = 10;
  * Logs any errors encountered during the process and responds with a 500 status code
  * in case of a server error.
  *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
+ * @param {Object} req - Fastify request object
+ * @param {Object} res - Fastify reply object
+ * @param {Function} next - Fastify-style next middleware function
  */
 async function validateApiKey(req, res, next) {
   const apiKey = req.headers["x-api-key"];

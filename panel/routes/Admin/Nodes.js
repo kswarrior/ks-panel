@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../../lib/fastify-router-shim.js");
+const router = Router();
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const crypto = require("crypto");                    // ← REQUIRED FOR ACCESS KEY GENERATION

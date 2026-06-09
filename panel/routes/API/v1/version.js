@@ -1,8 +1,8 @@
-const express = require('express');
+const { Router } = require('../../../lib/fastify-router-shim.js');
 const https = require('https');
 const { exec } = require('child_process');
 
-const router = express.Router();
+const router = Router();
 
 function compareVersions(v1, v2) {
   // Remove 'v' prefix if present and split into numbers
