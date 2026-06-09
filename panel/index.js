@@ -327,7 +327,7 @@ async function start() {
   log.debug("Server ready - routes loaded");
 }
 
-if (require.main === module) {
+if (require.main === module || process.env.KSPANEL_CLI_LAUNCH === "true") {
   start().catch((error) => {
     log.error(error);
     process.exit(1);

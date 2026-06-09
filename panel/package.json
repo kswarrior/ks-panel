@@ -4,7 +4,7 @@
   "description": "KS Panel is an open-source web panel for managing game servers and applications built with Node.js, Fastify, and Docker.",
   "main": "index.js",
   "bin": {
-    "ks-panel": "./exec/bin/index.js"
+    "kspanel": "./exec/bin/index.js"
   },
   "scripts": {
     "start": "npx pm2 start index.js --name ks-panel",
@@ -17,8 +17,8 @@
     "createUser": "node exec/createUser.js",
     "create:user": "node exec/createUser.js",
     "build:css": "npx @tailwindcss/cli -i ./public/tw.conf -o ./public/assets/tailwind.css --watch",
-    "build": "pkg .",
-    "build:linux": "pkg . --targets linux-x64,linux-arm64"
+    "build": "pkg exec/bin/index.js --config package.json --output release/kspanel",
+    "build:linux": "rm -rf release && mkdir -p release && pkg exec/bin/index.js --config package.json --targets linux-x64 --output release/kspanel"
   },
   "author": "ks-panel",
   "license": "MIT",
@@ -84,7 +84,8 @@
   },
   "devDependencies": {
     "browser-sync": "^2.26.2",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "pkg": "^5.8.1"
   },
   "engines": {
     "node": ">=18"
@@ -117,8 +118,7 @@
       "./kspanel.sh"
     ],
     "targets": [
-      "linux-x64",
-      "linux-arm64"
+      "linux-x64"
     ]
   }
 }
