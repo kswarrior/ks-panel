@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../lib/fastify-router-shim.js");
+const router = Router();
 
 const pluginsJsonPath = path.join(__dirname, "../../database/plugins/plugins.json");
 

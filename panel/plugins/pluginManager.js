@@ -1,4 +1,4 @@
-const express = require("express");
+const { Router } = require("../lib/fastify-router-shim.js");
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
@@ -9,7 +9,7 @@ const https = require('https');
 const multer = require("multer");
 const upload = multer({ dest: 'storage/temp/' });
 
-const router = express.Router();
+const router = Router();
 
 router.checkPluginPermission = async (pluginName, permission) => {
   try {
@@ -810,7 +810,7 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
 
     // Default Fallbacks if no structured files provided
     if (!be_filenames) {
-      let routerContent = `const express = require('express');\nconst router = express.Router();\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});\n\nmodule.exports = router;`;
+      let routerContent = `const { Router } = require('../../../panel/lib/fastify-router-shim.js');\nconst router = Router();\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});\n\nmodule.exports = router;`;
       if (custom_code && custom_code_type === 'javascript') routerContent = custom_code;
       fs.writeFileSync(path.join(pluginPath, "router/index.js"), routerContent);
     }

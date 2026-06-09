@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("../../lib/fastify-router-shim.js");
+const router = Router();
 const { db, getAllData } = require("../../handlers/db.js");
 const config = require("../../config.json");
 const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");

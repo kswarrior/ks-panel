@@ -1,11 +1,11 @@
-const express = require("express");
+const { Router } = require("../../lib/fastify-router-shim.js");
 const { db } = require("../../handlers/db.js");
 const {
   isUserAuthorizedForContainer,
   isInstanceSuspended,
 } = require("../../utils/authHelper");
 
-const router = express.Router();
+const router = Router();
 
 router.post("/instance/:id/power", async (req, res) => {
   if (!req.user) return res.redirect("/");

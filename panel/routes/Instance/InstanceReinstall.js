@@ -1,4 +1,4 @@
-const express = require("express");
+const { Router } = require("../../lib/fastify-router-shim.js");
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
 const {
@@ -8,7 +8,7 @@ const {
 const { checkContainerState } = require("../../utils/checkstate.js");
 const log = new (require("cat-loggr"))();
 
-const router = express.Router();
+const router = Router();
 
 /**
  * GET /instance/reinstall/:id
