@@ -63,7 +63,6 @@ async function runHandlers(handlers, request, reply) {
       try {
         const result = handler(request, reply, next);
 
-        // If the handler sent a response synchronously, settle immediately
         if (reply.sent) {
             settled = true;
             return resolve();
@@ -83,10 +82,17 @@ async function runHandlers(handlers, request, reply) {
             }
           });
         } else if (handler.length < 3) {
-          // If next is not requested as an argument, settle after execution
           settled = true;
           if (result !== undefined && !reply.sent) reply.send(result);
           resolve();
+        } else {
+            // Safety timeout for middleware that forget to call next()
+            setTimeout(() => {
+                if (!settled && !reply.sent) {
+                    console.warn(`Middleware ${handler.name || 'anonymous'} at index ${i} timed out after 30s`);
+                    next();
+                }
+            }, 30000);
         }
       } catch (error) {
         if (!settled) {

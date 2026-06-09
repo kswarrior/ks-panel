@@ -71,6 +71,8 @@ async function buildServer() {
     trustProxy: true,
     logger: false,
     bodyLimit: 100 * 1024 * 1024,
+    connectionTimeout: 60000,
+    keepAliveTimeout: 60000,
   });
 
   await app.register(fastifyEnv, {
@@ -92,7 +94,7 @@ async function buildServer() {
   await app.register(fastifyWebsocket);
   await app.register(fastifyRateLimit, {
     global: false,
-    max: 5000,
+    max: 10000,
     timeWindow: 5 * 60 * 1000,
   });
   await app.register(fastifySession, {
@@ -102,7 +104,7 @@ async function buildServer() {
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      secure: false, // Set to false to allow login over HTTP
+      secure: false,
       sameSite: "lax",
     },
   });
@@ -119,7 +121,7 @@ async function buildServer() {
 
   app.addHook("preHandler", async (req, reply) => {
     decorateRequestReply(req, reply);
-    if (req.path === "/setup/admin" || req.path.startsWith("/assets") || req.path.startsWith("/api/setup")) return;
+    if (req.path === "/setup/admin" || req.path.startsWith("/assets") || req.path.startsWith("/api/setup") || req.path === "/favicon.ico") return;
     const users = await db.get("users");
     if (!users || users.length === 0) return reply.redirect("/setup/admin");
   });
@@ -127,7 +129,7 @@ async function buildServer() {
   app.addHook("preHandler", async (req, reply) => {
     try {
       const security = (await db.get("security_settings")) || {};
-      const max = security.rateLimitMax ? parseInt(security.rateLimitMax) : 5000;
+      const max = security.rateLimitMax ? parseInt(security.rateLimitMax) : 10000;
       const timeWindow = security.rateLimitWindow ? parseInt(security.rateLimitWindow) * 60 * 1000 : 5 * 60 * 1000;
       await app.rateLimit({ max, timeWindow, keyGenerator: (request) => request.ip })(req, reply);
     } catch (error) {
@@ -155,7 +157,7 @@ async function buildServer() {
 
   app.addHook("preHandler", async (req, reply) => {
     if (req.method === "POST") {
-      await app.rateLimit({ max: 30, timeWindow: 60 * 1000 })(req, reply);
+      await app.rateLimit({ max: 60, timeWindow: 60 * 1000 })(req, reply);
     }
   });
 
