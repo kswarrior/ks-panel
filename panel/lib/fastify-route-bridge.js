@@ -19,11 +19,11 @@ function decorateRequestReply(request, reply) {
   const originalSend = reply.send.bind(reply);
   reply.send = (payload) => {
     if (reply.sent) return reply;
-    reply.sent = true;
+    // reply.sent = true; // Use hijack() if we really want to prevent Fastify from sending, but here we want to track it
     return originalSend(payload);
   };
 
-  const fastifyRedirect = reply.redirect ? reply.redirect.bind(reply) : null;
+  const fastifyRedirect = reply.redirect.bind(reply);
   if (!reply.status) reply.status = (c) => { reply.raw.statusCode = c; return reply; };
   if (!reply.json) reply.json = (payload) => reply.send(payload);
   if (!reply.render) reply.render = (view, data = {}) => {
@@ -35,12 +35,10 @@ function decorateRequestReply(request, reply) {
 
   reply.redirect = (statusOrUrl, maybeUrl) => {
     if (reply.sent) return reply;
-    reply.sent = true;
     if (typeof statusOrUrl === 'number') {
-      reply.raw.statusCode = statusOrUrl;
-      return fastifyRedirect ? fastifyRedirect(maybeUrl) : reply.header('location', maybeUrl).send();
+      return fastifyRedirect(statusOrUrl, maybeUrl);
     }
-    return fastifyRedirect ? fastifyRedirect(statusOrUrl) : reply.header('location', statusOrUrl).status(302).send();
+    return fastifyRedirect(statusOrUrl);
   };
   return { req: request, res: reply };
 }
@@ -49,7 +47,7 @@ async function runHandlers(handlers, request, reply) {
   decorateRequestReply(request, reply);
 
   for (let i = 0; i < handlers.length; i++) {
-    if (reply.sent) break;
+    if (reply.sent) return;
     const handler = handlers[i];
 
     await new Promise((resolve, reject) => {
@@ -57,7 +55,8 @@ async function runHandlers(handlers, request, reply) {
       const next = (nextErr) => {
         if (settled) return;
         settled = true;
-        nextErr ? reject(nextErr) : resolve();
+        if (nextErr) return reject(nextErr);
+        resolve();
       };
 
       try {
@@ -86,13 +85,12 @@ async function runHandlers(handlers, request, reply) {
           if (result !== undefined && !reply.sent) reply.send(result);
           resolve();
         } else {
-            // Safety timeout for middleware that forget to call next()
+            // Safety timeout
             setTimeout(() => {
                 if (!settled && !reply.sent) {
-                    console.warn(`Middleware ${handler.name || 'anonymous'} at index ${i} timed out after 30s`);
                     next();
                 }
-            }, 30000);
+            }, 10000);
         }
       } catch (error) {
         if (!settled) {
