@@ -16,12 +16,14 @@ function decorateRequestReply(request, reply) {
   if (!reply.code) reply.code = (c) => { reply.status(c); return reply; };
   if (!reply.header) reply.header = (n, v) => { reply.raw.setHeader(n, v); return reply; };
 
-  const originalSend = reply.send.bind(reply);
-  reply.send = (payload) => {
-    if (reply.sent) return reply;
-    // reply.sent = true; // Use hijack() if we really want to prevent Fastify from sending, but here we want to track it
-    return originalSend(payload);
-  };
+  if (!reply._originalSend) {
+      reply._originalSend = reply.send.bind(reply);
+      reply.send = (payload) => {
+        if (reply.sent) return reply;
+        reply.sent = true;
+        return reply._originalSend(payload);
+      };
+  }
 
   const fastifyRedirect = reply.redirect.bind(reply);
   if (!reply.status) reply.status = (c) => { reply.raw.statusCode = c; return reply; };
@@ -85,12 +87,18 @@ async function runHandlers(handlers, request, reply) {
           if (result !== undefined && !reply.sent) reply.send(result);
           resolve();
         } else {
-            // Safety timeout
-            setTimeout(() => {
+            const timeout = setTimeout(() => {
                 if (!settled && !reply.sent) {
                     next();
                 }
             }, 10000);
+
+            const originalSend = reply.send;
+            reply.send = (p) => {
+                clearTimeout(timeout);
+                reply.send = originalSend;
+                return reply.send(p);
+            };
         }
       } catch (error) {
         if (!settled) {

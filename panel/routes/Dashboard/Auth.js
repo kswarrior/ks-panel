@@ -101,7 +101,7 @@ async function addUserToUsersTable(username, email, password, verified) {
  * @returns {Response} Redirects based on the success or failure of the authentication attempt.
  */
 router.get("/auth/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+  passport.authenticate("local", async (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -111,20 +111,21 @@ router.get("/auth/login", (req, res, next) => {
       }
       return res.redirect("/login?err=InvalidCredentials&state=failed");
     }
-    req.logIn(user, async (err) => {
-      if (err) return next(err);
+    try {
+        await req.logIn(user);
+        const users = await db.get("users");
+        const user2 = users.find((u) => u.username === user.username);
 
-      const users = await db.get("users");
-      const user2 = users.find((u) => u.username === user.username);
-
-      if (user2 && user2.twoFAEnabled) {
-        req.session.tempUser = user;
-        req.user = null;
-        return res.redirect("/2fa");
-      } else {
-        return res.redirect("/instances");
-      }
-    });
+        if (user2 && user2.twoFAEnabled) {
+            req.session.tempUser = user;
+            req.user = null;
+            return res.redirect("/2fa");
+        } else {
+            return res.redirect("/instances");
+        }
+    } catch (loginErr) {
+        return next(loginErr);
+    }
   })(req, res, next);
 });
 
@@ -141,10 +142,8 @@ router.post(
 
         if (user && user.twoFAEnabled) {
           req.session.tempUser = req.user;
-          req.logout((err) => {
-            if (err) return next(err);
-            return res.redirect("/2fa");
-          });
+          await req.logout();
+          return res.redirect("/2fa");
         } else {
           return res.redirect("/instances");
         }
@@ -185,12 +184,13 @@ router.post("/2fa", async (req, res, next) => {
   });
 
   if (verified) {
-    req.login(tempUser, (err) => {
-      if (err) return next(err);
-
-      req.session.tempUser = null;
-      return res.redirect("/instances");
-    });
+    try {
+        await req.login(tempUser);
+        req.session.tempUser = null;
+        return res.redirect("/instances");
+    } catch (loginErr) {
+        return next(loginErr);
+    }
   } else {
     return res.status(400).redirect("/2fa?err=InvalidAuthCode");
   }
@@ -429,11 +429,13 @@ function generateRandomCode(length) {
  *
  * @returns {Response} No specific return value but ends the user's session and redirects.
  */
-router.get("/auth/logout", (req, res, next) => {
-  req.logout(req.user, (err) => {
-    if (err) return next(err);
+router.get("/auth/logout", async (req, res, next) => {
+  try {
+    await req.logout();
     res.redirect("/");
-  });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = router;
