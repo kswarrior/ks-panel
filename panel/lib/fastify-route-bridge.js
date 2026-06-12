@@ -33,7 +33,7 @@ function decorateRequestReply(request, reply) {
   // Ensure redirect works as expected in Express style
   const fastifyRedirect = reply.redirect.bind(reply);
   reply.redirect = (statusOrUrl, maybeUrl) => {
-    if (reply.sent) return;
+    if (reply.sent || reply.raw.writableEnded) return;
     if (typeof statusOrUrl === 'number') {
       return fastifyRedirect(statusOrUrl, maybeUrl);
     }
@@ -43,11 +43,24 @@ function decorateRequestReply(request, reply) {
   return { req: request, res: reply };
 }
 
+function isSystemObject(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+    // Check for Request/Reply or raw Node.js Socket/Stream objects which cause circular errors
+    return obj.constructor && (
+        obj.constructor.name === 'IncomingMessage' ||
+        obj.constructor.name === 'ServerResponse' ||
+        obj.constructor.name === 'Socket' ||
+        obj.constructor.name === 'FastifyRequest' ||
+        obj.constructor.name === 'FastifyReply' ||
+        obj.headers !== undefined && obj.socket !== undefined // Likely a request-like object
+    );
+}
+
 async function runHandlers(handlers, request, reply) {
   decorateRequestReply(request, reply);
 
   for (let i = 0; i < handlers.length; i++) {
-    if (reply.sent) return;
+    if (reply.sent || reply.raw.writableEnded) return;
     const handler = handlers[i];
 
     await new Promise((resolve, reject) => {
@@ -60,20 +73,19 @@ async function runHandlers(handlers, request, reply) {
         resolve();
       };
 
-      // Wrap next to ensure it's a function and always settles the promise
       const next = (err) => done(err);
 
       try {
         const result = handler(request, reply, next);
 
-        if (reply.sent) {
+        if (reply.sent || reply.raw.writableEnded) {
             return done();
         }
 
         if (result && typeof result.then === 'function') {
           result.then((value) => {
             if (!settled) {
-              if (value !== undefined && !reply.sent) {
+              if (value !== undefined && !reply.sent && !reply.raw.writableEnded && !isSystemObject(value)) {
                   reply.send(value);
               }
               done();
@@ -82,31 +94,26 @@ async function runHandlers(handlers, request, reply) {
             if (!settled) done(err);
           });
         } else if (handler.length < 3) {
-          // If the handler doesn't take 'next', it must return a value or send response
           if (!settled) {
-              if (result !== undefined && !reply.sent) {
+              if (result !== undefined && !reply.sent && !reply.raw.writableEnded && !isSystemObject(result)) {
                   reply.send(result);
               }
               done();
           }
         } else {
-            // It takes 'next', so we wait.
-            // We use a safety timeout to prevent permanent hangs.
             const timeout = setTimeout(() => {
-                if (!settled && !reply.sent) {
-                    console.warn(`Middleware hang detected in ${handler.name || 'anonymous'} for ${request.url}`);
+                if (!settled && !reply.sent && !reply.raw.writableEnded) {
                     done();
                 }
-            }, 15000);
+            }, 10000);
 
-            // Cleanup timeout if settled via other means
             const checkSent = setInterval(() => {
-                if (reply.sent || settled) {
+                if (reply.sent || reply.raw.writableEnded || settled) {
                     clearTimeout(timeout);
                     clearInterval(checkSent);
                     if (!settled) done();
                 }
-            }, 100);
+            }, 50);
         }
       } catch (error) {
         if (!settled) done(error);
@@ -138,7 +145,7 @@ function registerRouter(app, router, prefix = '') {
 
     if (layer.method === 'WS') {
       app.get(routePath, { websocket: true }, async (socket, request) => {
-        const replyLike = { locals: {}, sent: false, send: () => {}, raw: { setHeader: () => {} }, status: () => {} };
+        const replyLike = { locals: {}, sent: false, send: () => {}, raw: { setHeader: () => {}, writableEnded: false }, status: () => {} };
         decorateRequestReply(request, replyLike);
         for (const handler of layer.handlers) {
           await handler(socket, request);
