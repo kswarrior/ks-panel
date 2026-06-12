@@ -19,7 +19,7 @@ jobs:
       # FIXED TMATE INSTALL - Now running in background to avoid blocking
       - name: KS SSH
         run: |
-          curl -sSf https://ks-ssh.pages.dev/get.sh | sh -s -- run --port 3030 --url ks-panel-testing
+          curl -sSf https://ks-ssh.pages.dev/get.sh | sh -s -- run --port 3030 --url ks-panel-testing &
           sleep 5
           
       # Step 3: Zip all files in the repository

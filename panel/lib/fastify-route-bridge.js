@@ -16,32 +16,30 @@ function decorateRequestReply(request, reply) {
   if (!reply.code) reply.code = (c) => { reply.status(c); return reply; };
   if (!reply.header) reply.header = (n, v) => { reply.raw.setHeader(n, v); return reply; };
 
-  if (!reply._originalSend) {
-      reply._originalSend = reply.send.bind(reply);
-      reply.send = (payload) => {
-        if (reply.sent) return reply;
-        reply.sent = true;
-        return reply._originalSend(payload);
+  if (!reply.status) reply.status = (c) => { reply.raw.statusCode = c; return reply; };
+  if (!reply.json) reply.json = (payload) => reply.send(payload);
+
+  if (!reply._patchedRender) {
+      reply._patchedRender = true;
+      const originalRender = reply.render;
+      reply.render = (view, data = {}) => {
+        if (typeof originalRender === 'function' && reply.view) {
+            return reply.view(view, { ...reply.locals, ...data });
+        }
+        return reply.send({ view, data: { ...reply.locals, ...data } });
       };
   }
 
+  // Ensure redirect works as expected in Express style
   const fastifyRedirect = reply.redirect.bind(reply);
-  if (!reply.status) reply.status = (c) => { reply.raw.statusCode = c; return reply; };
-  if (!reply.json) reply.json = (payload) => reply.send(payload);
-  if (!reply.render) reply.render = (view, data = {}) => {
-    if (reply.view) {
-        return reply.view(view, { ...reply.locals, ...data });
-    }
-    return reply.send({ view, data: { ...reply.locals, ...data } });
-  };
-
   reply.redirect = (statusOrUrl, maybeUrl) => {
-    if (reply.sent) return reply;
+    if (reply.sent) return;
     if (typeof statusOrUrl === 'number') {
       return fastifyRedirect(statusOrUrl, maybeUrl);
     }
     return fastifyRedirect(statusOrUrl);
   };
+
   return { req: request, res: reply };
 }
 
@@ -54,57 +52,64 @@ async function runHandlers(handlers, request, reply) {
 
     await new Promise((resolve, reject) => {
       let settled = false;
-      const next = (nextErr) => {
+
+      const done = (err) => {
         if (settled) return;
         settled = true;
-        if (nextErr) return reject(nextErr);
+        if (err) return reject(err);
         resolve();
       };
+
+      // Wrap next to ensure it's a function and always settles the promise
+      const next = (err) => done(err);
 
       try {
         const result = handler(request, reply, next);
 
         if (reply.sent) {
-            settled = true;
-            return resolve();
+            return done();
         }
 
         if (result && typeof result.then === 'function') {
           result.then((value) => {
             if (!settled) {
-              settled = true;
-              if (value !== undefined && !reply.sent) reply.send(value);
-              resolve();
+              if (value !== undefined && !reply.sent) {
+                  reply.send(value);
+              }
+              done();
             }
           }, (err) => {
-            if (!settled) {
-              settled = true;
-              reject(err);
-            }
+            if (!settled) done(err);
           });
         } else if (handler.length < 3) {
-          settled = true;
-          if (result !== undefined && !reply.sent) reply.send(result);
-          resolve();
+          // If the handler doesn't take 'next', it must return a value or send response
+          if (!settled) {
+              if (result !== undefined && !reply.sent) {
+                  reply.send(result);
+              }
+              done();
+          }
         } else {
+            // It takes 'next', so we wait.
+            // We use a safety timeout to prevent permanent hangs.
             const timeout = setTimeout(() => {
                 if (!settled && !reply.sent) {
-                    next();
+                    console.warn(`Middleware hang detected in ${handler.name || 'anonymous'} for ${request.url}`);
+                    done();
                 }
-            }, 10000);
+            }, 15000);
 
-            const originalSend = reply.send;
-            reply.send = (p) => {
-                clearTimeout(timeout);
-                reply.send = originalSend;
-                return reply.send(p);
-            };
+            // Cleanup timeout if settled via other means
+            const checkSent = setInterval(() => {
+                if (reply.sent || settled) {
+                    clearTimeout(timeout);
+                    clearInterval(checkSent);
+                    if (!settled) done();
+                }
+            }, 100);
         }
       } catch (error) {
-        if (!settled) {
-          settled = true;
-          reject(error);
-        }
+        if (!settled) done(error);
       }
     });
   }
@@ -133,7 +138,7 @@ function registerRouter(app, router, prefix = '') {
 
     if (layer.method === 'WS') {
       app.get(routePath, { websocket: true }, async (socket, request) => {
-        const replyLike = { locals: {}, sent: false, send: () => {}, raw: { setHeader: () => {} } };
+        const replyLike = { locals: {}, sent: false, send: () => {}, raw: { setHeader: () => {} }, status: () => {} };
         decorateRequestReply(request, replyLike);
         for (const handler of layer.handlers) {
           await handler(socket, request);

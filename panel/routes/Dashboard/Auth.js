@@ -101,7 +101,7 @@ async function addUserToUsersTable(username, email, password, verified) {
  * @returns {Response} Redirects based on the success or failure of the authentication attempt.
  */
 router.get("/auth/login", (req, res, next) => {
-  passport.authenticate("local", async (err, user, info) => {
+  passport.authenticate("local", (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -111,21 +111,23 @@ router.get("/auth/login", (req, res, next) => {
       }
       return res.redirect("/login?err=InvalidCredentials&state=failed");
     }
-    try {
-        await req.logIn(user);
-        const users = await db.get("users");
-        const user2 = users.find((u) => u.username === user.username);
 
-        if (user2 && user2.twoFAEnabled) {
-            req.session.tempUser = user;
-            req.user = null;
-            return res.redirect("/2fa");
-        } else {
-            return res.redirect("/instances");
-        }
-    } catch (loginErr) {
-        return next(loginErr);
-    }
+    // In Fastify v4 with @fastify/passport, req.logIn might still expect a callback
+    // or return a promise. We'll use callback style for maximum compatibility with the bridge.
+    req.logIn(user, (loginErr) => {
+      if (loginErr) return next(loginErr);
+
+      db.get("users").then(users => {
+          const user2 = (users || []).find((u) => u.username === user.username);
+          if (user2 && user2.twoFAEnabled) {
+              req.session.tempUser = user;
+              req.user = null;
+              return res.redirect("/2fa");
+          } else {
+              return res.redirect("/instances");
+          }
+      }).catch(next);
+    });
   })(req, res, next);
 });
 
@@ -134,25 +136,27 @@ router.post(
   passport.authenticate("local", {
     failureRedirect: "/login?err=InvalidCredentials&state=failed",
   }),
-  async (req, res, next) => {
+  (req, res, next) => {
     try {
       if (req.user) {
-        const users = await db.get("users");
-        const user = users.find((u) => u.username === req.user.username);
-
-        if (user && user.twoFAEnabled) {
-          req.session.tempUser = req.user;
-          await req.logout();
-          return res.redirect("/2fa");
-        } else {
-          return res.redirect("/instances");
-        }
+        db.get("users").then(users => {
+            const user = (users || []).find((u) => u.username === req.user.username);
+            if (user && user.twoFAEnabled) {
+                req.session.tempUser = req.user;
+                req.logout((err) => {
+                    if (err) return next(err);
+                    res.redirect("/2fa");
+                });
+            } else {
+                res.redirect("/instances");
+            }
+        }).catch(next);
       } else {
-        return res.redirect("/login?err=InvalidCredentials&state=failed");
+        res.redirect("/login?err=InvalidCredentials&state=failed");
       }
     } catch (error) {
       log.error("Error during login:", error);
-      return res.status(500).send("Internal Server Error");
+      res.status(500).send("Internal Server Error");
     }
   }
 );
@@ -166,7 +170,7 @@ router.get("/2fa", async (req, res) => {
   });
 });
 
-router.post("/2fa", async (req, res, next) => {
+router.post("/2fa", (req, res, next) => {
   const { token } = req.body;
   const tempUser = req.session.tempUser;
 
@@ -174,26 +178,24 @@ router.post("/2fa", async (req, res, next) => {
     return res.redirect("/login");
   }
 
-  const users = await db.get("users");
-  const user = users.find((user) => user.username === tempUser.username);
+  db.get("users").then(users => {
+      const user = (users || []).find((u) => u.username === tempUser.username);
+      const verified = speakeasy.totp.verify({
+        secret: user.twoFASecret,
+        encoding: "base32",
+        token,
+      });
 
-  const verified = speakeasy.totp.verify({
-    secret: user.twoFASecret,
-    encoding: "base32",
-    token,
-  });
-
-  if (verified) {
-    try {
-        await req.login(tempUser);
-        req.session.tempUser = null;
-        return res.redirect("/instances");
-    } catch (loginErr) {
-        return next(loginErr);
-    }
-  } else {
-    return res.status(400).redirect("/2fa?err=InvalidAuthCode");
-  }
+      if (verified) {
+        req.login(tempUser, (loginErr) => {
+            if (loginErr) return next(loginErr);
+            req.session.tempUser = null;
+            res.redirect("/instances");
+        });
+      } else {
+        res.status(400).redirect("/2fa?err=InvalidAuthCode");
+      }
+  }).catch(next);
 });
 
 router.get("/verify/:token", async (req, res) => {
@@ -429,13 +431,11 @@ function generateRandomCode(length) {
  *
  * @returns {Response} No specific return value but ends the user's session and redirects.
  */
-router.get("/auth/logout", async (req, res, next) => {
-  try {
-    await req.logout();
+router.get("/auth/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
     res.redirect("/");
-  } catch (err) {
-    return next(err);
-  }
+  });
 });
 
 module.exports = router;
