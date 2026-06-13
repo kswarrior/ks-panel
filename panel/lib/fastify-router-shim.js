@@ -39,6 +39,9 @@ function staticNotAvailable() {
 module.exports = {
   Router,
   static: staticNotAvailable,
-  json: () => (_req, _res, next) => next(),
-  urlencoded: () => (_req, _res, next) => next(),
+  json: () => (req, res, next) => {
+    if (typeof req.body === 'object' && req.body !== null) return next();
+    next();
+  },
+  urlencoded: () => (req, res, next) => next(),
 };

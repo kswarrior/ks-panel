@@ -1,5 +1,5 @@
 const { db } = require("../handlers/db.js");
-const config = require("../config.json");
+const config = require("../utils/config.js");
 const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
 

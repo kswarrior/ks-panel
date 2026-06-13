@@ -7,6 +7,9 @@ const pluginsJsonPath = path.join(__dirname, "../../database/plugins/plugins.jso
 
 function readPluginsJson() {
   try {
+    if (!fs.existsSync(pluginsJsonPath)) {
+      return {};
+    }
     const pluginsJson = fs.readFileSync(pluginsJsonPath, "utf8");
     return JSON.parse(pluginsJson);
   } catch (error) {
@@ -17,6 +20,10 @@ function readPluginsJson() {
 
 function loadPlugins(pluginDir) {
   const plugins = {};
+  if (!fs.existsSync(pluginDir)) {
+    fs.mkdirSync(pluginDir, { recursive: true });
+    return plugins;
+  }
   const pluginFolders = fs.readdirSync(pluginDir);
   const pluginsJson = readPluginsJson();
 

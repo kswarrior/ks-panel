@@ -4,7 +4,7 @@ const fs = require("node:fs");
 
 let config = {};
 try {
-  config = require("../config.json");
+  config = require("../utils/config.js");
 } catch (e) {
   // config.json might not exist yet
 }

@@ -1,7 +1,7 @@
 const { Router } = require("../../lib/fastify-router-shim.js");
 const router = Router();
 const { db } = require("../../handlers/db.js");
-const config = require("../../config.json");
+const config = require("../../utils/config.js");
 const { isAdmin } = require("../../utils/isAdmin.js");
 
 // Required for live PM2 logs

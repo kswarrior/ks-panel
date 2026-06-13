@@ -64,45 +64,47 @@ async function validateApiKey(req, res, next) {
 }
 
 /**
- * GET /api/v1/users/:type?/:value?
- *
- * Retrieves a list of users or a specific user based on the provided type and value. If no type or value is provided, returns all users.
- *
- * @param {string} type - The type of user to retrieve. Can be 'email' or 'username'.
- * @param {string} value - The value of the user to retrieve. Only required if type is 'email' or 'username'.
- * @returns {Object} The retrieved user object.
+ * GET /api/v1/users
+ * Retrieves all users.
  */
-router.get("/api/v1/users/:type?/:value?", validateApiKey, async (req, res) => {
+router.get("/api/v1/users", validateApiKey, async (req, res) => {
   try {
-    const { type, value } = req.params;
     const users = (await db.get("users")) || [];
-
-    // If both type and value are provided, search for a specific user
-    if (type && value) {
-      let user;
-
-      if (type === "email") {
-        user = users.find((user) => user.email === value);
-      } else if (type === "username") {
-        user = users.find((user) => user.username === value);
-      } else {
-        return res
-          .status(400)
-          .json({ error: 'Invalid search type. Use "email" or "username".' });
-      }
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      return res.json(user);
-    }
-
-    // If no type or value, return all users
     res.json(users);
   } catch (error) {
     log.error("Error retrieving users:", error);
     res.status(500).json({ error: "Failed to retrieve users" });
+  }
+});
+
+/**
+ * GET /api/v1/users/:type/:value
+ * Retrieves a specific user based on type and value.
+ */
+router.get("/api/v1/users/:type/:value", validateApiKey, async (req, res) => {
+  try {
+    const { type, value } = req.params;
+    const users = (await db.get("users")) || [];
+
+    let user;
+    if (type === "email") {
+      user = users.find((user) => user.email === value);
+    } else if (type === "username") {
+      user = users.find((user) => user.username === value);
+    } else {
+      return res
+        .status(400)
+        .json({ error: 'Invalid search type. Use "email" or "username".' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json(user);
+  } catch (error) {
+    log.error("Error retrieving user:", error);
+    res.status(500).json({ error: "Failed to retrieve user" });
   }
 });
 
@@ -778,7 +780,7 @@ async function updateInstanceState(volumeId, state, containerId, userId) {
         ? { ...i, InternalState: state, ContainerId: containerId }
         : i
     );
-    await db.set("instances", updatedGlobalInstances);
+    await db.set("instances", globalInstances);
   }
 }
 
