@@ -124,7 +124,8 @@ async function buildServer() {
     if (req.path === "/setup/admin" || req.path.startsWith("/assets") || req.path.startsWith("/api/setup") || req.path === "/favicon.ico") return;
     const users = await db.get("users");
     if (!users || users.length === 0) {
-        return reply.redirect("/setup/admin");
+        reply.redirect("/setup/admin");
+        return;
     }
   });
 

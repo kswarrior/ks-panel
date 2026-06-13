@@ -3,6 +3,24 @@ function normalizePath(routePath) {
   return routePath.replace(/\*/g, '*');
 }
 
+function isSystemObject(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+    // Check for standard request/reply/socket objects
+    if (obj.constructor && (
+        obj.constructor.name === 'IncomingMessage' ||
+        obj.constructor.name === 'ServerResponse' ||
+        obj.constructor.name === 'Socket' ||
+        obj.constructor.name === 'FastifyRequest' ||
+        obj.constructor.name === 'FastifyReply'
+    )) return true;
+
+    // Fallback detection for objects with too much internal state
+    if (obj.headers !== undefined && obj.socket !== undefined) return true;
+    if (obj.raw !== undefined && obj.id !== undefined && obj.params !== undefined) return true;
+
+    return false;
+}
+
 function decorateRequestReply(request, reply) {
   if (!request.path) request.path = request.url.split('?')[0];
   if (!request.originalUrl) request.originalUrl = request.url;
@@ -17,43 +35,47 @@ function decorateRequestReply(request, reply) {
   if (!reply.header) reply.header = (n, v) => { reply.raw.setHeader(n, v); return reply; };
 
   if (!reply.status) reply.status = (c) => { reply.raw.statusCode = c; return reply; };
-  if (!reply.json) reply.json = (payload) => reply.send(payload);
 
-  if (!reply._patchedRender) {
-      reply._patchedRender = true;
+  // Patch methods to return undefined to prevent circular structure errors
+  // when an async handler returns the reply object itself.
+  if (!reply._patchedBridge) {
+      reply._patchedBridge = true;
+
+      const originalSend = reply.send.bind(reply);
+      reply.send = (payload) => {
+        if (reply.sent || reply.raw.writableEnded) return;
+        if (isSystemObject(payload)) {
+            originalSend();
+        } else {
+            originalSend(payload);
+        }
+      };
+
+      reply.json = (payload) => {
+        reply.send(payload);
+      };
+
       const originalRender = reply.render;
       reply.render = (view, data = {}) => {
         if (typeof originalRender === 'function' && reply.view) {
-            return reply.view(view, { ...reply.locals, ...data });
+            reply.view(view, { ...reply.locals, ...data });
+        } else {
+            reply.send({ view, data: { ...reply.locals, ...data } });
         }
-        return reply.send({ view, data: { ...reply.locals, ...data } });
+      };
+
+      const fastifyRedirect = reply.redirect.bind(reply);
+      reply.redirect = (statusOrUrl, maybeUrl) => {
+        if (reply.sent || reply.raw.writableEnded) return;
+        if (typeof statusOrUrl === 'number') {
+            fastifyRedirect(statusOrUrl, maybeUrl);
+        } else {
+            fastifyRedirect(statusOrUrl);
+        }
       };
   }
 
-  // Ensure redirect works as expected in Express style
-  const fastifyRedirect = reply.redirect.bind(reply);
-  reply.redirect = (statusOrUrl, maybeUrl) => {
-    if (reply.sent || reply.raw.writableEnded) return;
-    if (typeof statusOrUrl === 'number') {
-      return fastifyRedirect(statusOrUrl, maybeUrl);
-    }
-    return fastifyRedirect(statusOrUrl);
-  };
-
   return { req: request, res: reply };
-}
-
-function isSystemObject(obj) {
-    if (!obj || typeof obj !== 'object') return false;
-    // Check for Request/Reply or raw Node.js Socket/Stream objects which cause circular errors
-    return obj.constructor && (
-        obj.constructor.name === 'IncomingMessage' ||
-        obj.constructor.name === 'ServerResponse' ||
-        obj.constructor.name === 'Socket' ||
-        obj.constructor.name === 'FastifyRequest' ||
-        obj.constructor.name === 'FastifyReply' ||
-        obj.headers !== undefined && obj.socket !== undefined // Likely a request-like object
-    );
 }
 
 async function runHandlers(handlers, request, reply) {
@@ -74,6 +96,15 @@ async function runHandlers(handlers, request, reply) {
       };
 
       const next = (err) => done(err);
+
+      // Listen for finishing events to settle correctly
+      const onFinish = () => {
+          reply.raw.removeListener('finish', onFinish);
+          reply.raw.removeListener('close', onFinish);
+          done();
+      };
+      reply.raw.on('finish', onFinish);
+      reply.raw.on('close', onFinish);
 
       try {
         const result = handler(request, reply, next);
@@ -101,19 +132,12 @@ async function runHandlers(handlers, request, reply) {
               done();
           }
         } else {
-            const timeout = setTimeout(() => {
+            // Callback handler, safety timeout
+            setTimeout(() => {
                 if (!settled && !reply.sent && !reply.raw.writableEnded) {
                     done();
                 }
             }, 10000);
-
-            const checkSent = setInterval(() => {
-                if (reply.sent || reply.raw.writableEnded || settled) {
-                    clearTimeout(timeout);
-                    clearInterval(checkSent);
-                    if (!settled) done();
-                }
-            }, 50);
         }
       } catch (error) {
         if (!settled) done(error);
