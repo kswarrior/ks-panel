@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cyber-pink: #ff00ff;
+  --color-cyber-blue: #00ffff;
+  --color-cyber-purple: #9d00ff;
+  --color-cyber-green: #39ff14;
+  --color-cyber-bg: #050505;
+
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+}
+
+:root {
+  background-color: #050505;
+  color: white;
+}
+
+@layer base {
+  html, body {
+    background-color: #050505 !important;
+    color: white !important;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+  }
+
+  .glass-card {
+    @apply glass p-6 transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .neon-text-blue {
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+
+  .neon-text-purple {
+    color: #9d00ff;
+    text-shadow: 0 0 10px rgba(157, 0, 255, 0.5);
+  }
+
+  .neon-border-purple {
+    border-color: #9d00ff;
+    box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+  }
+}
