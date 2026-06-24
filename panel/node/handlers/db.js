@@ -4,10 +4,14 @@ const fs = require("node:fs");
 
 let config = {};
 try {
-  config = require("../config.json");
-} catch (e) {
-  // config.json might not exist yet
-}
+  const configPath = process.pkg
+    ? path.join(path.dirname(process.execPath), "config.json")
+    : path.join(__dirname, "../config.json");
+
+  if (fs.existsSync(configPath)) {
+    config = require(configPath);
+  }
+} catch (e) {}
 
 // Env override
 const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
@@ -32,9 +36,15 @@ if (databaseURL.startsWith("postgres")) {
 
   // Ensure the storage directory exists for sqlite
   const sqlitePath = databaseURL.replace("sqlite://", "");
-  const dir = path.dirname(path.resolve(__dirname, "..", sqlitePath));
+  const absoluteSqlitePath = process.pkg
+    ? path.resolve(process.cwd(), sqlitePath)
+    : path.resolve(__dirname, "..", sqlitePath);
+
+  const dir = path.dirname(absoluteSqlitePath);
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+    } catch (e) {}
   }
 
   store = new SQLiteStore(databaseURL, {
@@ -44,7 +54,7 @@ if (databaseURL.startsWith("postgres")) {
 
   // Enable WAL mode for better performance and to prevent corruption
   try {
-    const sqlite = require('better-sqlite3')(sqlitePath);
+    const sqlite = require('better-sqlite3')(absoluteSqlitePath);
     sqlite.pragma('journal_mode = WAL');
     sqlite.pragma('synchronous = NORMAL');
     sqlite.close();
@@ -92,7 +102,11 @@ async function getAllData() {
         return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
     });
   } else if (databaseURL.startsWith("sqlite")) {
-    const sqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
+    const sqlitePath = databaseURL.replace("sqlite://", "");
+    const absoluteSqlitePath = process.pkg
+      ? path.resolve(process.cwd(), sqlitePath)
+      : path.resolve(__dirname, "..", sqlitePath);
+    const sqlite = require('better-sqlite3')(absoluteSqlitePath);
     const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();
     sqlite.close();
     return rows.map(row => {

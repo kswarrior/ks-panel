@@ -2,7 +2,19 @@ const readline = require("readline");
 const { db } = require("../handlers/db.js");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
-const config = require("../config.json");
+const fs = require("node:fs");
+const path = require("path");
+
+let config = {};
+try {
+  const configPath = process.pkg
+    ? path.join(path.dirname(process.execPath), "config.json")
+    : path.join(__dirname, "../config.json");
+
+  if (fs.existsSync(configPath)) {
+    config = require(configPath);
+  }
+} catch (e) {}
 
 const saltRounds = config.saltRounds || 10;
 
