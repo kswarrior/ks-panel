@@ -3,9 +3,16 @@ const path = require("path");
 const express = require("express");
 const router = express.Router();
 
-const pluginsJsonPath = path.join(__dirname, "../../database/plugins/plugins.json");
+const pluginsJsonPath = process.pkg ? path.resolve(process.cwd(), "database/plugins/plugins.json") : path.join(__dirname, "../../database/plugins/plugins.json");
 
 function readPluginsJson() {
+  if (!fs.existsSync(pluginsJsonPath)) {
+    try {
+      const dir = path.dirname(pluginsJsonPath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(pluginsJsonPath, "{}", "utf8");
+    } catch (e) {}
+  }
   try {
     const pluginsJson = fs.readFileSync(pluginsJsonPath, "utf8");
     return JSON.parse(pluginsJson);

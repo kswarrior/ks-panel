@@ -105,13 +105,7 @@
       "lib/**/*",
       "utils/**/*",
       "routes/**/*",
-      "exec/**/*",
-      "index.js",
-      "node_modules/sql-ts/dist/lib.cjs",
-      "*.env",
-      "config.json",
-      "LICENSE",
-      "README.md"
+      "exec/**/*"
     ],
     "targets": [
       "node18-linux-x64"

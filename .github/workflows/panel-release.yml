@@ -42,4 +42,4 @@ jobs:
           if ! gh release view "$VERSION" > /dev/null 2>&1; then
             gh release create "$VERSION" --title "Release $VERSION" --notes "Standalone binary release for KS Panel version $VERSION."
           fi
-          gh release upload "$VERSION" panel/release/kspanel --clobber
+          gh release upload "$VERSION" panel/release/kspanel panel/release/better_sqlite3.node --clobber

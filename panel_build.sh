@@ -28,11 +28,16 @@ fi
 echo "🛠️  Compiling binary with pkg..."
 npx pkg . --targets "$TARGET" --output "../release/$BINARY_NAME"
 
+# Copy native modules
+echo "📦 Copying native modules to release folder..."
+# Find and copy better_sqlite3.node to the release folder
+find node_modules/better-sqlite3 -name "better_sqlite3.node" -exec cp {} "../release/" \;
+
 # Set executable permission
 echo "🔐 Setting executable permissions..."
 chmod +x "../release/$BINARY_NAME"
 
-echo "✅ Build complete! Binary located at $RELEASE_DIR/$BINARY_NAME"
+echo "✅ Build complete! Binary and native modules are in $RELEASE_DIR"
 echo "💡 Usage:"
 echo "   ./$RELEASE_DIR/$BINARY_NAME seed"
 echo "   ./$RELEASE_DIR/$BINARY_NAME create:user"

@@ -1,19 +1,7 @@
 const { db } = require("../handlers/db.js");
-const fs = require("node:fs");
-const path = require("path");
+const config = require("../config.json");
 const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
-
-let config = {};
-try {
-  const configPath = process.pkg
-    ? path.join(path.dirname(process.execPath), "config.json")
-    : path.join(__dirname, "../config.json");
-
-  if (fs.existsSync(configPath)) {
-    config = require(configPath);
-  }
-} catch (e) {}
 
 async function init() {
   const ksPanel = await db.get("ks_panel_instance");
@@ -53,7 +41,7 @@ async function init() {
     const info = {
       panelId: panelId,
       setupTime: setupTime,
-      originalVersion: config.version || "1.0.0",
+      originalVersion: config.version,
     };
 
     await db.set("ks_panel_instance", info);

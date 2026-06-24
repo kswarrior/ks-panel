@@ -4,14 +4,10 @@ const fs = require("node:fs");
 
 let config = {};
 try {
-  const configPath = process.pkg
-    ? path.join(path.dirname(process.execPath), "config.json")
-    : path.join(__dirname, "../config.json");
-
-  if (fs.existsSync(configPath)) {
-    config = require(configPath);
-  }
-} catch (e) {}
+  config = require("../config.json");
+} catch (e) {
+  // config.json might not exist yet
+}
 
 // Env override
 const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
@@ -36,15 +32,10 @@ if (databaseURL.startsWith("postgres")) {
 
   // Ensure the storage directory exists for sqlite
   const sqlitePath = databaseURL.replace("sqlite://", "");
-  const absoluteSqlitePath = process.pkg
-    ? path.resolve(process.cwd(), sqlitePath)
-    : path.resolve(__dirname, "..", sqlitePath);
-
+  const absoluteSqlitePath = process.pkg ? path.resolve(process.cwd(), sqlitePath) : path.resolve(__dirname, "..", sqlitePath);
   const dir = path.dirname(absoluteSqlitePath);
   if (!fs.existsSync(dir)) {
-    try {
-      fs.mkdirSync(dir, { recursive: true });
-    } catch (e) {}
+    fs.mkdirSync(dir, { recursive: true });
   }
 
   store = new SQLiteStore(databaseURL, {
@@ -102,11 +93,7 @@ async function getAllData() {
         return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
     });
   } else if (databaseURL.startsWith("sqlite")) {
-    const sqlitePath = databaseURL.replace("sqlite://", "");
-    const absoluteSqlitePath = process.pkg
-      ? path.resolve(process.cwd(), sqlitePath)
-      : path.resolve(__dirname, "..", sqlitePath);
-    const sqlite = require('better-sqlite3')(absoluteSqlitePath);
+    const sqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
     const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();
     sqlite.close();
     return rows.map(row => {
