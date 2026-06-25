@@ -5,18 +5,10 @@ const fs = require("node:fs");
 const isPkg = typeof process.pkg !== "undefined";
 const rootDir = isPkg ? path.dirname(process.execPath) : path.join(__dirname, "..");
 
-let config = {};
-try {
-  const configPath = isPkg ? path.join(rootDir, "config.json") : path.join(__dirname, "../config.json");
-  if (fs.existsSync(configPath)) {
-    config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-  }
-} catch (e) {
-  // config.json might not exist yet
-}
+const { config } = require("../utils/config.js");
 
 // Env override
-const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/database.sqlite";
 const databaseTable = process.env.DB_TABLE || config.databaseTable || "kspanel";
 
 let store;
@@ -36,7 +28,6 @@ if (databaseURL.startsWith("postgres")) {
 } else if (databaseURL.startsWith("sqlite")) {
   const SQLiteStore = require("@keyvhq/sqlite");
 
-  // Ensure the storage directory exists for sqlite
   const sqlitePathStr = databaseURL.replace("sqlite://", "");
   const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
   const dir = path.dirname(sqlitePath);
@@ -49,9 +40,13 @@ if (databaseURL.startsWith("postgres")) {
     keySize: 255,
   });
 
-  // Enable WAL mode for better performance and to prevent corruption
   try {
-    const sqlite = require('better-sqlite3')(sqlitePath);
+    const betterSqlite3 = require('better-sqlite3');
+    const options = {};
+    if (isPkg) {
+      options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node');
+    }
+    const sqlite = new betterSqlite3(sqlitePath, options);
     sqlite.pragma('journal_mode = WAL');
     sqlite.pragma('synchronous = NORMAL');
     sqlite.close();
@@ -64,7 +59,6 @@ if (databaseURL.startsWith("postgres")) {
     collection: databaseTable,
   });
 } else {
-  // Default to in-memory if protocol is unknown
   store = new Map();
   console.warn("Unknown database protocol, using in-memory store.");
 }
@@ -97,7 +91,12 @@ async function getAllData() {
   } else if (databaseURL.startsWith("sqlite")) {
     const sqlitePathStr = databaseURL.replace("sqlite://", "");
     const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
-    const sqlite = require('better-sqlite3')(sqlitePath);
+    const betterSqlite3 = require('better-sqlite3');
+    const options = {};
+    if (isPkg) {
+      options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node');
+    }
+    const sqlite = new betterSqlite3(sqlitePath, options);
     const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();
     sqlite.close();
     return rows.map(row => {

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { db, getAllData } = require("../../handlers/db.js");
-const config = require("../../config.json");
+const { config } = require("../../utils/config.js");
 const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 const fs = require('node:fs');
 const path = require('path');
@@ -242,7 +242,7 @@ router.post("/admin/database/update", hasPermission('manage_settings'), async (r
     }
 
     // Update config.json
-    const configPath = path.join(__dirname, "../../config.json");
+    const { configPath } = require("../../utils/config.js");
     let configObj = {};
     if (fs.existsSync(configPath)) {
       configObj = JSON.parse(fs.readFileSync(configPath, "utf8"));

@@ -39,7 +39,7 @@ router.get("/instances", isAuthenticated, async (req, res) => {
     req,
     user: req.user,
     instances,
-    config: require("../../config.json"),
+    config: require("../../utils/config.js").config,
   });
 });
 
@@ -69,7 +69,7 @@ router.get("/instance/:id", async (req, res) => {
   return res.redirect("/instances?err=NOTACTIVEYET");
   }
 
-  const config = require("../../config.json");
+  const { config } = require("../../utils/config.js");
   const { port, domain } = config;
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);

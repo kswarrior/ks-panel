@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const { db } = require("./db.js");
-const config = require("../config.json");
+const { config } = require("../utils/config.js");
 
 async function getSMTPSettings() {
   const smtpSettings = await db.get("smtp_settings");
