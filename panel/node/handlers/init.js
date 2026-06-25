@@ -1,5 +1,7 @@
+const fs = require("node:fs");
+const path = require("path");
 const { db } = require("../handlers/db.js");
-const config = require("../config.json");
+const config = fs.existsSync(path.join(__dirname, "..", "config.json")) ? require("../config.json") : {};
 const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
 

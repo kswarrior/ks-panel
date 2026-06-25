@@ -2,9 +2,15 @@ const Keyv = require("keyv");
 const path = require("path");
 const fs = require("node:fs");
 
+const isPkg = typeof process.pkg !== "undefined";
+const rootDir = isPkg ? path.dirname(process.execPath) : path.join(__dirname, "..");
+
 let config = {};
 try {
-  config = require("../config.json");
+  const configPath = isPkg ? path.join(rootDir, "config.json") : path.join(__dirname, "../config.json");
+  if (fs.existsSync(configPath)) {
+    config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  }
 } catch (e) {
   // config.json might not exist yet
 }
@@ -31,21 +37,21 @@ if (databaseURL.startsWith("postgres")) {
   const SQLiteStore = require("@keyvhq/sqlite");
 
   // Ensure the storage directory exists for sqlite
-  const sqlitePath = databaseURL.replace("sqlite://", "");
-  const absoluteSqlitePath = process.pkg ? path.resolve(process.cwd(), sqlitePath) : path.resolve(__dirname, "..", sqlitePath);
-  const dir = path.dirname(absoluteSqlitePath);
+  const sqlitePathStr = databaseURL.replace("sqlite://", "");
+  const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
+  const dir = path.dirname(sqlitePath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  store = new SQLiteStore(databaseURL, {
+  store = new SQLiteStore("sqlite://" + sqlitePath, {
     table: databaseTable,
     keySize: 255,
   });
 
   // Enable WAL mode for better performance and to prevent corruption
   try {
-    const sqlite = require('better-sqlite3')(absoluteSqlitePath);
+    const sqlite = require('better-sqlite3')(sqlitePath);
     sqlite.pragma('journal_mode = WAL');
     sqlite.pragma('synchronous = NORMAL');
     sqlite.close();
@@ -67,10 +73,6 @@ const db = new Keyv({ store, namespace: 'kspanel' });
 
 db.on('error', err => console.error('Keyv database error:', err));
 
-/**
- * Helper to get all data from the database for migration or backup.
- * Keyv doesn't support this natively, so we query the underlying table.
- */
 async function getAllData() {
   const table = databaseTable;
 
@@ -93,7 +95,9 @@ async function getAllData() {
         return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
     });
   } else if (databaseURL.startsWith("sqlite")) {
-    const sqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
+    const sqlitePathStr = databaseURL.replace("sqlite://", "");
+    const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
+    const sqlite = require('better-sqlite3')(sqlitePath);
     const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();
     sqlite.close();
     return rows.map(row => {
@@ -109,7 +113,6 @@ async function getAllData() {
     const cursor = collection.find({});
     const results = [];
     await cursor.forEach(doc => {
-      // Keyv stores as { _id: 'namespace:key', value: { value: 'actual_value' } }
       const key = doc._id.replace(/^kspanel:/, '');
       let val = doc.value;
       if (typeof val === 'string') {
@@ -122,8 +125,5 @@ async function getAllData() {
   }
   return [];
 }
-
-// Optional: Test connection on load (async, non-blocking)
-db.get('__test_conn__').catch(() => {});
 
 module.exports = { db, getAllData, databaseURL, databaseTable };

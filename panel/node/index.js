@@ -31,7 +31,7 @@ require('dotenv').config();  // Load env vars FIRST
 
 let config = {};
 try {
-  config = require("./config.json");
+  config = fs.existsSync((process.pkg ? path.join(path.dirname(process.execPath), "config.json") : path.join(__dirname, "config.json"))) ? require("./config.json") : {};
 } catch (e) {
   // config.json might not exist
 }
@@ -72,7 +72,7 @@ if (databaseURL.startsWith("postgres")) {
   });
 } else if (databaseURL.startsWith("sqlite")) {
   const SqliteStore = require('better-sqlite3-session-store')(session);
-  const dbSqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
+  const isPkg = typeof process.pkg !== "undefined"; const rootDir = isPkg ? path.dirname(process.execPath) : __dirname; const sqlitePathStr = databaseURL.replace("sqlite://", ""); const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr); const dbSqlite = require('better-sqlite3')(sqlitePath);
   sessionStore = new SqliteStore({
     client: dbSqlite,
     expired: {
@@ -222,7 +222,7 @@ function replaceRandomValues(obj) {
  * Updates the config.json file by replacing "random" values with random strings.
  */
 async function updateConfig() {
-  const configPath = path.join(__dirname, "config.json");
+  const configPath = (process.pkg ? path.join(path.dirname(process.execPath), "config.json") : path.join(__dirname, "config.json"));
 
   try {
     if (!fs.existsSync(configPath)) return;
