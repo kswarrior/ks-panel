@@ -14,10 +14,10 @@ const analytics = require("./utils/analytics.js");
 const crypto = require("node:crypto");
 
 const { isAdmin, hasPermission, checkPermission, anyAdminPerm } = require("./utils/isAdmin.js");
-const { config, saveConfig } = require("./utils/config.js");
+const { config, saveConfig, rootDir, isPkg } = require("./utils/config.js");
 
 const { loadPlugins } = require("./plugins/loadPls.js");
-const pluginsDir = process.pkg ? path.resolve(process.cwd(), "database/plugins") : path.join(__dirname, "../database/plugins");
+const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../database/plugins");
 if (!fs.existsSync(pluginsDir)) fs.mkdirSync(pluginsDir, { recursive: true });
 
 let plugins = loadPlugins(pluginsDir);
@@ -30,13 +30,11 @@ log.setLevel('debug');
 
 require('dotenv').config();
 
-// Override config with env if set
 if (process.env.DB_URL) config.databaseURL = process.env.DB_URL;
 if (process.env.SESSION_SECRET) config.session_secret = process.env.SESSION_SECRET;
 
 const { db } = require("./handlers/db.js");
 
-// Session store setup based on DB protocol
 const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/database.sqlite";
 let sessionStore;
 
@@ -65,11 +63,14 @@ if (databaseURL.startsWith("postgres")) {
   });
 } else if (databaseURL.startsWith("sqlite")) {
   const SqliteStore = require('better-sqlite3-session-store')(session);
-  const isPkg = typeof process.pkg !== "undefined";
-  const rootDir = isPkg ? path.dirname(process.execPath) : __dirname;
   const sqlitePathStr = databaseURL.replace("sqlite://", "");
   const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
-  const betterSqlite3 = require('better-sqlite3'); const options = {}; if (isPkg) { options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node'); } const dbSqlite = new betterSqlite3(sqlitePath, options);
+  const betterSqlite3 = require('better-sqlite3');
+  const options = {};
+  if (isPkg) {
+    options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node');
+  }
+  const dbSqlite = new betterSqlite3(sqlitePath, options);
   sessionStore = new SqliteStore({
     client: dbSqlite,
     expired: {
@@ -86,7 +87,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: config.mode === "production",
       sameSite: "lax",
@@ -100,7 +101,6 @@ app.use(cookieParser());
 app.use(analytics);
 app.use(translationMiddleware);
 
-// Setup check middleware
 app.use(async (req, res, next) => {
   if (req.path === "/setup/admin" || req.path.startsWith("/assets") || req.path.startsWith("/api/setup")) return next();
 
@@ -114,10 +114,6 @@ app.use(async (req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-/**
- * Dynamic Rate Limiter
- * Fetches settings from DB to allow live updates without restart.
- */
 let dynamicRateLimit = {
   windowMs: 5 * 60 * 1000,
   max: 5000
@@ -128,7 +124,7 @@ const rateLimitMiddleware = async (req, res, next) => {
     const security = await db.get("security_settings") || {};
     if (security.rateLimitWindow && security.rateLimitMax) {
       dynamicRateLimit.windowMs = parseInt(security.rateLimitWindow) * 60 * 1000;
-      dynamicRateLimit.max = parseInt(security.rateLimitMax);
+      dynamicRateLimit.max = parseInt(security.max);
     }
   } catch (e) {}
 
@@ -144,8 +140,7 @@ const rateLimitMiddleware = async (req, res, next) => {
 
 app.use(rateLimitMiddleware);
 
-// --- Network Traffic Tracking & Enforcement ---
-let netTraffic = { in: 0, out: 0, limit: 1024 * 1024 * 1024 }; // Default 1GB
+let netTraffic = { in: 0, out: 0, limit: 1024 * 1024 * 1024 };
 db.get("security_settings").then(s => { if(s && s.networkLimit) netTraffic.limit = s.networkLimit * 1024 * 1024; });
 
 app.use((req, res, next) => {
@@ -205,7 +200,12 @@ if (replaceRandomValues(config)) {
 }
 
 function getLanguages() {
-  return fs.readdirSync(path.join(__dirname, "lang")).map((file) => file.split(".")[0]);
+  const externalLangDir = path.join(rootDir, "lang");
+  const internalLangDir = path.join(__dirname, "lang");
+  const langDir = (isPkg && fs.existsSync(externalLangDir)) ? externalLangDir : internalLangDir;
+
+  if (!fs.existsSync(langDir)) return ["en"];
+  return fs.readdirSync(langDir).map((file) => file.split(".")[0]);
 }
 
 app.get("/setLanguage", async (req, res) => {
@@ -216,7 +216,7 @@ app.get("/setLanguage", async (req, res) => {
       httpOnly: true,
       sameSite: "strict",
     });
-    req.user.lang = lang;
+    if (req.user) req.user.lang = lang;
     res.json({ success: true });
   } else {
     res.json({ success: false });
@@ -238,9 +238,10 @@ if (config.mode === "production") {
 }
 
 app.set("view engine", "ejs");
-app.use(express.static(path.join(__dirname, "public")));
+const externalPublicDir = path.join(rootDir, "public");
+const internalPublicDir = path.join(__dirname, "public");
+app.use(express.static((isPkg && fs.existsSync(externalPublicDir)) ? externalPublicDir : internalPublicDir));
 
-// ====================== GLOBAL VIEW LOCALS & SETTINGS ======================
 app.use(async (req, res, next) => {
   try {
     const [settings, theme, users, roles] = await Promise.all([
@@ -320,7 +321,7 @@ pluginRoutes.events = events;
 
 app.use("/", pluginRoutes);
 
-const pluginDir = path.join(__dirname, "plugins");
+const pluginDir = pluginsDir;
 const PluginViewsDir = fs
   .readdirSync(pluginDir)
   .filter(file => {
@@ -332,7 +333,11 @@ const PluginViewsDir = fs
   })
   .map((addonName) => path.join(pluginDir, addonName, "views"))
   .filter(viewPath => fs.existsSync(viewPath));
-app.set("views", [path.join(__dirname, "views"), ...PluginViewsDir]);
+
+const externalViewsDir = path.join(rootDir, "views");
+const internalViewsDir = path.join(__dirname, "views");
+const baseViewsDir = (isPkg && fs.existsSync(externalViewsDir)) ? externalViewsDir : internalViewsDir;
+app.set("views", [baseViewsDir, ...PluginViewsDir]);
 
 init();
 

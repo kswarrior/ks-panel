@@ -20,9 +20,9 @@ const path = require("path");
 const { v4: uuid } = require("uuid");
 const log = new (require("cat-loggr"))();
 
-const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
-const INSTANCES_DIR = path.join(__dirname, "../../../database/instances");
-const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
+const TEMPLATES_DIR = path.join(rootDir, "database/templates");
+const INSTANCES_DIR = path.join(rootDir, "database/instances");
+const workflowsFilePath = path.join(rootDir, "storage/workflows.json");
 
 // ────────────────────────────────────────────────
 // Helper: Delete instance logic (unchanged)

@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const log = new (require("cat-loggr"))();
 
-const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
+const TEMPLATES_DIR = path.join(rootDir, "database/templates");
 
 router.get("/dashboard/create", async (req, res) => {
   if (!req.user) return res.redirect("/login");

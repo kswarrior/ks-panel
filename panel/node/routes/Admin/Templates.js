@@ -5,10 +5,11 @@ const path = require("path");
 
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { logAudit } = require("../../handlers/auditLog.js");
+const { rootDir } = require("../../utils/config.js");
 
 const log = new (require("cat-loggr"))();
 
-const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
+const TEMPLATES_DIR = path.join(rootDir, "database/templates");
 
 if (!fs.existsSync(TEMPLATES_DIR)) {
   fs.mkdirSync(TEMPLATES_DIR, { recursive: true });

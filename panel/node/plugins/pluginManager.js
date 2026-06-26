@@ -7,7 +7,8 @@ const { isAdmin } = require("../utils/isAdmin");
 const AdmZip = require('adm-zip');
 const https = require('https');
 const multer = require("multer");
-const upload = multer({ dest: 'storage/temp/' });
+const { paths, isPkg } = require("../utils/config.js");
+const upload = multer({ dest: path.join(paths.storage, 'temp/') });
 
 const router = express.Router();
 
@@ -24,10 +25,9 @@ router.checkPluginPermission = async (pluginName, permission) => {
 let pluginList = [];
 let pluginSidebar = {};
 
-const pluginsDir = path.resolve(__dirname, "../../database/plugins");
-const pluginsJsonPath = path.resolve(__dirname, "../../database/plugins/plugins.json");
+const pluginsDir = paths.plugins;
+const pluginsJsonPath = path.join(paths.plugins, "plugins.json");
 
-// Ensure plugins can resolve dependencies from the panel's node_modules
 const pluginNodeModules = path.join(pluginsDir, "node_modules");
 const panelNodeModules = path.resolve(__dirname, "../node_modules");
 
@@ -43,8 +43,6 @@ try {
         shouldCreate = true;
       }
     } else {
-      // If it's a real directory, we might want to move it or just leave it
-      // For now, let's leave it to avoid data loss, but log a warning
       log.warn("database/plugins/node_modules is a real directory, not a symlink.");
     }
   } catch (e) {
@@ -52,7 +50,6 @@ try {
   }
 
   if (shouldCreate) {
-    // Use relative path for symlink to be more portable
     const relativePanelModules = path.relative(pluginsDir, panelNodeModules);
     fs.symlinkSync(relativePanelModules, pluginNodeModules, 'junction');
     log.info(`Created symlink for plugins node_modules pointing to ${relativePanelModules}`);
@@ -63,12 +60,10 @@ try {
 
 let isLoadingPlugins = false;
 
-// Injected from index.js
 let events = null;
 let appInstance = null;
 let dbInstance = null;
 
-// Setter for injections
 router.setAppAndDb = (app, db) => {
   appInstance = app;
   dbInstance = db;
@@ -76,6 +71,7 @@ router.setAppAndDb = (app, db) => {
 
 async function readPluginsJson() {
   try {
+    if (!fs.existsSync(pluginsJsonPath)) return {};
     const pluginsJson = await fs.promises.readFile(pluginsJsonPath, "utf8");
     if (!pluginsJson.trim()) {
       log.error("Error: plugins.json is empty.");
@@ -96,6 +92,8 @@ async function readPluginsJson() {
 async function writePluginsJson(plugins) {
   try {
     const tempPath = pluginsJsonPath + ".tmp";
+    const dir = path.dirname(pluginsJsonPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     await fs.promises.writeFile(
       tempPath,
       JSON.stringify(plugins, null, 4),
@@ -192,6 +190,7 @@ async function loadAndActivatePlugins() {
     });
 
     let pluginsJson = await readPluginsJson();
+    if (!fs.existsSync(pluginsDir)) fs.mkdirSync(pluginsDir, { recursive: true });
     const pluginDirs = await fs.promises.readdir(pluginsDir);
 
     log.info("Loading plugins...");
@@ -201,7 +200,10 @@ async function loadAndActivatePlugins() {
       const pluginPath = path.join(pluginsDir, pluginName);
       const manifestPath = path.join(pluginPath, "manifest.json");
 
-      const isDirectory = fs.statSync(pluginPath).isDirectory();
+      let isDirectory = false;
+      try {
+          isDirectory = fs.statSync(pluginPath).isDirectory();
+      } catch (e) { continue; }
       if (!isDirectory) continue;
 
       if (!fs.existsSync(manifestPath)) {
@@ -284,7 +286,6 @@ async function loadAndActivatePlugins() {
         const pluginRouter = pluginModule.router || (typeof pluginModule === 'function' ? pluginModule : null);
 
         if (pluginRouter && typeof pluginRouter === "function") {
-          // Wrapped router to inject permission checks automatically if needed
           router.use(`/${manifest.router}`, (req, res, next) => {
             req.pluginName = manifest.name;
             pluginRouter(req, res, next);
@@ -385,10 +386,6 @@ async function fetchStorePlugins() {
   });
 }
 
-// ────────────────────────────────────────────────
-// Management & Permissions
-// ────────────────────────────────────────────────
-
 router.get("/admin/plugins/overview/:name/download", isAdmin, async (req, res) => {
   try {
     const pluginName = req.params.name;
@@ -426,10 +423,6 @@ router.post("/admin/plugins/overview/:name/permissions/update", isAdmin, async (
     res.status(500).send("Update failed.");
   }
 });
-
-// ────────────────────────────────────────────────
-// Existing admin routes
-// ────────────────────────────────────────────────
 
 router.get("/admin/plugins/overview", isAdmin, async (req, res) => {
   const pluginsJson = await readPluginsJson();
@@ -564,10 +557,6 @@ router.post("/admin/plugins/overview/reload", isAdmin, async (req, res) => {
   }
 });
 
-// ────────────────────────────────────────────────
-// Plugin Store – improved filtering
-// ────────────────────────────────────────────────
-
 router.get("/admin/plugins/store", isAdmin, async (req, res) => {
   try {
     let storePlugins = await fetchStorePlugins();
@@ -581,7 +570,6 @@ router.get("/admin/plugins/store", isAdmin, async (req, res) => {
       min_price
     } = req.query;
 
-    // Search
     if (search?.trim()) {
       const term = search.toLowerCase().trim();
       filtered = filtered.filter(p =>
@@ -591,17 +579,14 @@ router.get("/admin/plugins/store", isAdmin, async (req, res) => {
       );
     }
 
-    // Category
     if (category && category !== '') {
       filtered = filtered.filter(p => p.category === category);
     }
 
-    // Min version (simple string compare – consider semver for production)
     if (min_version) {
       filtered = filtered.filter(p => (p.version || '0.0.0') >= min_version);
     }
 
-    // Price filtering – matches your requested UI options
     const minPriceValue = parseFloat(min_price) || 0;
 
     if (price_filter === 'free') {
@@ -614,7 +599,6 @@ router.get("/admin/plugins/store", isAdmin, async (req, res) => {
         return !isNaN(numericPrice) && numericPrice >= minPriceValue;
       });
     }
-    // 'all' → no price filter
 
     const allCategories = [...new Set(storePlugins.map(p => p.category).filter(Boolean))].sort();
 
@@ -682,7 +666,7 @@ router.get("/admin/plugins/studio/src", isAdmin, async (req, res) => {
     const { type, file } = req.query;
     if (!type || !file) return res.status(400).send("Missing parameters.");
 
-    const baseDir = type === "view" ? path.join(__dirname, "../views") : path.join(__dirname, "../routes");
+    const baseDir = type === "view" ? paths.views : path.join(__dirname, "../routes");
     const fullPath = path.join(baseDir, file);
 
     if (!fullPath.startsWith(baseDir)) return res.status(403).send("Forbidden.");
@@ -696,11 +680,12 @@ router.get("/admin/plugins/studio/src", isAdmin, async (req, res) => {
 });
 
 router.get("/admin/plugins/studio", isAdmin, async (req, res) => {
-  const viewsDir = path.join(__dirname, "../views");
+  const viewsDir = paths.views;
   const routesDir = path.join(__dirname, "../routes");
 
   const getFiles = (dir, base = "") => {
     let results = [];
+    if (!fs.existsSync(dir)) return results;
     const list = fs.readdirSync(dir);
     list.forEach(file => {
       const fullPath = path.join(dir, file);
@@ -743,7 +728,6 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
     fs.mkdirSync(path.join(pluginPath, "router"), { recursive: true });
     fs.mkdirSync(path.join(pluginPath, "views"), { recursive: true });
 
-    // Build sidebar manifest
     const adminsidebar = {};
     if (sidebar_name) {
       const names = Array.isArray(sidebar_name) ? sidebar_name : [sidebar_name];
@@ -781,16 +765,10 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
 
     fs.writeFileSync(path.join(pluginPath, "manifest.json"), JSON.stringify(manifest, null, 2));
 
-    // Handle Structured Files (Scaffolding Logic)
     const {
       fe_filenames, fe_contents,
       be_filenames, be_contents
     } = req.body;
-
-    // Handle Scaffolding Uploads (from multi-file input)
-    if (req.files) {
-      // Logic for handling scaffolds with uploaded files
-    }
 
     if (fe_filenames) {
        const names = Array.isArray(fe_filenames) ? fe_filenames : [fe_filenames];
@@ -808,7 +786,6 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
        });
     }
 
-    // Default Fallbacks if no structured files provided
     if (!be_filenames) {
       let routerContent = `const express = require('express');\nconst router = express.Router();\n\nrouter.get('/', (req, res) => {\n  res.render('../views/index', { req, user: req.user });\n});\n\nmodule.exports = router;`;
       if (custom_code && custom_code_type === 'javascript') routerContent = custom_code;
@@ -821,10 +798,9 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
       fs.writeFileSync(path.join(pluginPath, "views/index.ejs"), viewContent);
     }
 
-    // Import logic
     if (import_views && Array.isArray(import_views)) {
       import_views.forEach(v => {
-        const src = path.join(__dirname, "../views", v);
+        const src = path.join(paths.views, v);
         const dest = path.join(pluginPath, "views", path.basename(v));
         if (fs.existsSync(src)) fs.copyFileSync(src, dest);
       });
@@ -849,10 +825,6 @@ router.post("/admin/plugins/studio/create", isAdmin, async (req, res) => {
     res.status(500).send("Plugin creation failed.");
   }
 });
-
-// ────────────────────────────────────────────────
-// Error handling & startup
-// ────────────────────────────────────────────────
 
 process.on("uncaughtException", (error) => {
   log.error(`Uncaught Exception: ${error.message}`);

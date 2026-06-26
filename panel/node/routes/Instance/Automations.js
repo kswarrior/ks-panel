@@ -12,9 +12,9 @@ const fs = require("fs");
 const schedule = require("node-schedule");
 const axios = require("axios");
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
+const { rootDir, isPkg } = require("../../utils/config.js"); const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../../plugins"); const plugins = loadPlugins(pluginsDir);
 
-const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
+const workflowsFilePath = path.join(rootDir, "storage/workflows.json");
 const scheduledWorkflowsFilePath = path.join(
   __dirname,
   "../../storage/scheduledWorkflows.json"

@@ -34,11 +34,6 @@ jobs:
           VERSION=$(jq -r .version panel/node/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Create Archive
-        run: |
-          cd release/kspanel
-          tar -cJf ../../panel.tar.xz .
-
       - name: Create or Update Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

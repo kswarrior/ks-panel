@@ -6,7 +6,7 @@ const { loadPlugins } = require("../../plugins/loadPls.js");
 const path = require("path");
 const log = new (require("cat-loggr"))();
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
+const { rootDir, isPkg } = require("../../utils/config.js"); const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../../plugins"); const plugins = loadPlugins(pluginsDir);
 
 router.get("/instance/:id/users", async (req, res) => {
   const { id } = req.params;

@@ -1,11 +1,12 @@
 const fs = require("node:fs");
 const path = require("path");
 const { db } = require("../handlers/db.js");
-const { config } = require("../utils/config.js");
+const { config, paths } = require("../utils/config.js");
 const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
 
 async function init() {
+  if (!fs.existsSync(paths.storage)) fs.mkdirSync(paths.storage, { recursive: true });
   const ksPanel = await db.get("ks_panel_instance");
 
   if (!ksPanel) {

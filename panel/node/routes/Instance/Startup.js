@@ -17,7 +17,7 @@ const {
   updateDatabaseWithNewInstance,
 } = require("./InstanceReDeploy.js");
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
+const { rootDir, isPkg } = require("../../utils/config.js"); const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../../plugins"); const plugins = loadPlugins(pluginsDir);
 const router = express.Router();
 
 const allPluginData = Object.values(plugins).map((plugin) => plugin.config);
@@ -57,7 +57,7 @@ router.get("/instance/:id/startup", async (req, res) => {
     // Load per-instance template.json (exactly like Power.js)
     let templateData = { Variables: {} };
 
-    const templatePath = path.join(__dirname, "../../../database/instances", id, "template.json");
+    const templatePath = path.join(rootDir, "database/instances", id, "template.json");
 
     if (fs.existsSync(templatePath)) {
       try {
@@ -133,7 +133,7 @@ router.post("/instances/startup/changevariable/:id", async (req, res) => {
     await db.set(`${id}_instance`, updatedInstance);
 
     // 2. ALSO EDIT template.json (new feature you requested)
-    const templatePath = path.join(__dirname, "../../../database/instances", id, "template.json");
+    const templatePath = path.join(rootDir, "database/instances", id, "template.json");
     if (fs.existsSync(templatePath)) {
       let rawTemplate = JSON.parse(fs.readFileSync(templatePath, "utf8"));
       

@@ -100,8 +100,6 @@
       "views/**/*",
       "handlers/**/*",
       "lang/**/*",
-      "storage/**/*",
-      "plugins/**/*",
       "lib/**/*",
       "utils/**/*",
       "routes/**/*",

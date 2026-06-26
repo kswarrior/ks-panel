@@ -13,6 +13,7 @@ TARGET="node18-linux-x64"
 echo "🚀 Starting build process for KS Panel..."
 
 # Ensure release directory exists from project root
+rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 
 # Navigate to Node source directory
@@ -44,13 +45,13 @@ function assign(target) {
 exports.assign = assign;
 function loadNativeModule(name) {
     if (typeof process.pkg !== 'undefined') {
-        const externalPath = path.join(path.dirname(process.execPath), name + ".node");
+        const externalPath = path.resolve(path.join(path.dirname(process.execPath), name + ".node"));
         try {
-            // Use path.resolve to be safe
-            const absolutePath = path.resolve(externalPath);
-            return { dir: path.dirname(process.execPath), module: require(absolutePath) };
+            // Using eval('require') to bypass pkg's static analysis and force external load
+            const requireFunc = eval('require');
+            return { dir: path.dirname(process.execPath), module: requireFunc(externalPath) };
         } catch (e) {
-            // Fallback to internal if external fails
+            // Fallback
         }
     }
     var dirs = ['build/Release', 'build/Debug', "prebuilds/" + process.platform + "-" + process.arch];
@@ -83,7 +84,8 @@ const path = require('path');
 let binding;
 if (typeof process.pkg !== 'undefined') {
     const externalPath = path.resolve(path.join(path.dirname(process.execPath), 'vscode-sqlite3.node'));
-    binding = require(externalPath);
+    const requireFunc = eval('require');
+    binding = requireFunc(externalPath);
 } else {
     binding = require('../build/Release/vscode-sqlite3.node');
 }
@@ -94,7 +96,8 @@ fi
 # 3. Patch bcrypt
 BCRYPT_JS="node_modules/bcrypt/bcrypt.js"
 if [ -f "$BCRYPT_JS" ]; then
-    sed -i 's|var bindings = require(binding_path);|var bindings; if (typeof process.pkg !== "undefined") { bindings = require(path.resolve(path.join(path.dirname(process.execPath), "bcrypt_lib.node"))); } else { bindings = require(binding_path); }|' "$BCRYPT_JS"
+    # We use sed to replace the requirement of binding_path with eval('require') of external path
+    sed -i 's|var bindings = require(binding_path);|var bindings; if (typeof process.pkg !== "undefined") { const requireFunc = eval("require"); const externalPath = require("path").resolve(require("path").join(require("path").dirname(process.execPath), "bcrypt_lib.node")); bindings = requireFunc(externalPath); } else { bindings = require(binding_path); }|' "$BCRYPT_JS"
 fi
 
 # Build the binary using pkg
@@ -103,16 +106,24 @@ npx pkg . --targets "$TARGET" --output "../../$RELEASE_DIR/$BINARY_NAME"
 
 # Copy native modules
 echo "📦 Copying native modules to release folder..."
-# Explicitly copy critical ones first to ensure they are there
-find node_modules -name "pty.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
-find node_modules -name "vscode-sqlite3.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
-find node_modules -name "bcrypt_lib.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
-find node_modules -name "better_sqlite3.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
-# Then find all other .node files and copy them
-find node_modules -name "*.node" -exec cp -n {} "../../$RELEASE_DIR/" \;
+find node_modules -name "*.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
+
+# Copy assets to release
+echo "📦 Copying assets (lang, public, views, templates)..."
+cp -r lang "../../$RELEASE_DIR/"
+cp -r public "../../$RELEASE_DIR/"
+cp -r views "../../$RELEASE_DIR/"
+mkdir -p "../../$RELEASE_DIR/database/templates"
+cp -r database/templates/* "../../$RELEASE_DIR/database/templates/" 2>/dev/null || true
+
+# Create panel.tar.xz
+echo "📦 Creating panel.tar.xz..."
+cd "../../release/kspanel"
+tar -cJf ../../panel.tar.xz .
+cd - > /dev/null
 
 # Set executable permission
 echo "🔐 Setting executable permissions..."
 chmod +x "../../$RELEASE_DIR/$BINARY_NAME"
 
-echo "✅ Build complete!"
+echo "✅ Build complete! Assets collected in $RELEASE_DIR and panel.tar.xz created."
