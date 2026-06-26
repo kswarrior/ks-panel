@@ -34,6 +34,11 @@ jobs:
           VERSION=$(jq -r .version panel/node/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Create Archive
+        run: |
+          cd release/kspanel
+          tar -cJf ../../panel.tar.xz .
+
       - name: Create or Update Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,4 +47,4 @@ jobs:
           if ! gh release view "$VERSION" > /dev/null 2>&1; then
             gh release create "$VERSION" --title "Release $VERSION" --notes "Standalone binary release for KS Panel version $VERSION."
           fi
-          gh release upload "$VERSION" release/kspanel/* --clobber
+          gh release upload "$VERSION" panel.tar.xz --clobber

@@ -46,7 +46,9 @@ function loadNativeModule(name) {
     if (typeof process.pkg !== 'undefined') {
         const externalPath = path.join(path.dirname(process.execPath), name + ".node");
         try {
-            return { dir: path.dirname(process.execPath), module: require(externalPath) };
+            // Use path.resolve to be safe
+            const absolutePath = path.resolve(externalPath);
+            return { dir: path.dirname(process.execPath), module: require(absolutePath) };
         } catch (e) {
             // Fallback to internal if external fails
         }
@@ -80,7 +82,8 @@ if [ -f "$SQLITE_BINDING" ]; then
 const path = require('path');
 let binding;
 if (typeof process.pkg !== 'undefined') {
-    binding = require(path.join(path.dirname(process.execPath), 'vscode-sqlite3.node'));
+    const externalPath = path.resolve(path.join(path.dirname(process.execPath), 'vscode-sqlite3.node'));
+    binding = require(externalPath);
 } else {
     binding = require('../build/Release/vscode-sqlite3.node');
 }
@@ -91,7 +94,7 @@ fi
 # 3. Patch bcrypt
 BCRYPT_JS="node_modules/bcrypt/bcrypt.js"
 if [ -f "$BCRYPT_JS" ]; then
-    sed -i 's|var bindings = require(binding_path);|var bindings; if (typeof process.pkg !== "undefined") { bindings = require(path.join(path.dirname(process.execPath), "bcrypt_lib.node")); } else { bindings = require(binding_path); }|' "$BCRYPT_JS"
+    sed -i 's|var bindings = require(binding_path);|var bindings; if (typeof process.pkg !== "undefined") { bindings = require(path.resolve(path.join(path.dirname(process.execPath), "bcrypt_lib.node"))); } else { bindings = require(binding_path); }|' "$BCRYPT_JS"
 fi
 
 # Build the binary using pkg
@@ -100,10 +103,16 @@ npx pkg . --targets "$TARGET" --output "../../$RELEASE_DIR/$BINARY_NAME"
 
 # Copy native modules
 echo "📦 Copying native modules to release folder..."
-find node_modules -name "*.node" -exec cp {} "../../$RELEASE_DIR/" \;
+# Explicitly copy critical ones first to ensure they are there
+find node_modules -name "pty.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
+find node_modules -name "vscode-sqlite3.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
+find node_modules -name "bcrypt_lib.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
+find node_modules -name "better_sqlite3.node" -exec cp -f {} "../../$RELEASE_DIR/" \;
+# Then find all other .node files and copy them
+find node_modules -name "*.node" -exec cp -n {} "../../$RELEASE_DIR/" \;
 
 # Set executable permission
 echo "🔐 Setting executable permissions..."
 chmod +x "../../$RELEASE_DIR/$BINARY_NAME"
 
-echo "✅ Build complete! Binary and native modules are in $RELEASE_DIR"
+echo "✅ Build complete!"
