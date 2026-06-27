@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const { db, getAllData, databaseTable } = require("../handlers/db.js");
 const Keyv = require("keyv");
 const fs = require("node:fs");

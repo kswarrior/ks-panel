@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 // UPDATED: panel/routes/admin/instances.js (full file)
 // Changes for your request:
 // - Full support for new template format (already in your code)
