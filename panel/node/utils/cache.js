@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 /**
  * Simple in-memory cache system with TTL (Time To Live)
  * Used to cache frequently accessed database records

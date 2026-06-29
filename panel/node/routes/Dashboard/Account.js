@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 /**
  * @fileoverview This module sets up administrative routes for managing and monitoring server nodes
  * within the network. It provides functionality to create, delete, and debug nodes, as well as check
@@ -11,7 +12,6 @@ const { db } = require("../../handlers/db.js");
 const bcrypt = require("bcrypt");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
-const { config } = require("../../utils/config.js");
 const saltRounds = config.saltRounds || 10;
 const log = new (require("cat-loggr"))();
 const { isAuthenticated } = require("../../handlers/auth.js");

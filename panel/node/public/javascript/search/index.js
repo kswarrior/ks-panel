@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 console.log(`
   __                          __ 
 _____/ /____  ______  ____  _____/ /_

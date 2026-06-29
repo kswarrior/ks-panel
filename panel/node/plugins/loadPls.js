@@ -1,8 +1,8 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const router = express.Router();
-const { paths, isPkg } = require("../utils/config.js");
 
 const pluginsJsonPath = path.join(paths.plugins, "plugins.json");
 

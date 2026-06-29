@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
@@ -8,7 +9,6 @@ const { db } = require("../../handlers/db.js");
 const { logAudit } = require("../../handlers/auditLog.js");
 const { sendTestEmail } = require("../../handlers/email.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
-const { rootDir, isPkg } = require("../../utils/config.js");
 const log = new (require("cat-loggr"))();
 
 const PUBLIC_DIR = isPkg ? path.join(rootDir, "public") : path.join(__dirname, "..", "..", "public");

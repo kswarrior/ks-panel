@@ -1,9 +1,9 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const { hasPermission } = require("../../utils/isAdmin");
-const { rootDir, isPkg } = require("../../utils/config.js");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 

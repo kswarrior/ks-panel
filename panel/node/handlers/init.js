@@ -1,7 +1,7 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const fs = require("node:fs");
 const path = require("path");
 const { db } = require("../handlers/db.js");
-const { config, paths } = require("../utils/config.js");
 const { v4: uuidv4 } = require("uuid");
 const log = new (require("cat-loggr"))();
 

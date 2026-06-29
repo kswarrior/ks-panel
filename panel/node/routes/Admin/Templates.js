@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -5,7 +6,6 @@ const path = require("path");
 
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { logAudit } = require("../../handlers/auditLog.js");
-const { rootDir } = require("../../utils/config.js");
 
 const log = new (require("cat-loggr"))();
 

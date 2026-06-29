@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const axios = require("axios");
 const { db } = require("../../handlers/db.js");
@@ -17,7 +18,6 @@ const {
   updateDatabaseWithNewInstance,
 } = require("./InstanceReDeploy.js");
 
-const { rootDir, isPkg } = require("../../utils/config.js"); const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../../plugins"); const plugins = loadPlugins(pluginsDir);
 const router = express.Router();
 
 const allPluginData = Object.values(plugins).map((plugin) => plugin.config);

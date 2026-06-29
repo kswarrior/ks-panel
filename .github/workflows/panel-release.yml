@@ -1,45 +1,27 @@
 name: Release Panel Binary
-
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'panel/**'
-      - 'build.sh'
+    branches: [main]
+    paths: ['panel/**', 'build.sh']
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Build KS Panel Binary
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '18'}
+      - name: Build
         run: ./build.sh
-
       - name: Get Version
         id: get_version
-        run: |
-          VERSION=$(jq -r .version panel/node/package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create or Update Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.get_version.outputs.version }}
+        run: echo "version=$(jq -r .version panel/node/package.json)" >> $GITHUB_OUTPUT
+      - name: Release
+        env: {GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}, VERSION: ${{ steps.get_version.outputs.version }}}
         run: |
           if ! gh release view "$VERSION" > /dev/null 2>&1; then
-            gh release create "$VERSION" --title "Release $VERSION" --notes "Standalone binary release for KS Panel version $VERSION."
+            gh release create "$VERSION" --title "Release $VERSION" --notes "Standalone binary release"
           fi
           gh release upload "$VERSION" panel.tar.xz --clobber

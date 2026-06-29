@@ -1,6 +1,6 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const path = require("path");
 const fs = require("fs");
-const { rootDir, isPkg } = require("../utils/config.js");
 
 function loadTranslations(lang) {
   const externalPath = path.join(rootDir, `lang/${lang}/lang.json`);

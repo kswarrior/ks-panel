@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 /**
  * Centralized Node operations helper
  * Replaces the duplicate checkNodeStatus functions across the codebase

@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
@@ -14,10 +15,9 @@ const analytics = require("./utils/analytics.js");
 const crypto = require("node:crypto");
 
 const { isAdmin, hasPermission, checkPermission, anyAdminPerm } = require("./utils/isAdmin.js");
-const { config, saveConfig, rootDir, isPkg } = require("./utils/config.js");
 
 const { loadPlugins } = require("./plugins/loadPls.js");
-const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../database/plugins");
+const pluginsDir = paths.plugins;
 if (!fs.existsSync(pluginsDir)) fs.mkdirSync(pluginsDir, { recursive: true });
 
 let plugins = loadPlugins(pluginsDir);
@@ -68,7 +68,9 @@ if (databaseURL.startsWith("postgres")) {
   const betterSqlite3 = require('better-sqlite3');
   const options = {};
   if (isPkg) {
-    options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node');
+    const req = eval('require');
+    const p = req('path');
+    options.nativeBinding = p.resolve(p.join(p.dirname(process.execPath), 'better_sqlite3.node'));
   }
   const dbSqlite = new betterSqlite3(sqlitePath, options);
   sessionStore = new SqliteStore({
@@ -195,15 +197,13 @@ function replaceRandomValues(obj) {
 }
 
 if (replaceRandomValues(config)) {
+  const { saveConfig } = require("./utils/config.js");
   saveConfig(config);
   log.info("Config updated with random values.");
 }
 
 function getLanguages() {
-  const externalLangDir = path.join(rootDir, "lang");
-  const internalLangDir = path.join(__dirname, "lang");
-  const langDir = (isPkg && fs.existsSync(externalLangDir)) ? externalLangDir : internalLangDir;
-
+  const langDir = paths.lang;
   if (!fs.existsSync(langDir)) return ["en"];
   return fs.readdirSync(langDir).map((file) => file.split(".")[0]);
 }
@@ -238,9 +238,8 @@ if (config.mode === "production") {
 }
 
 app.set("view engine", "ejs");
-const externalPublicDir = path.join(rootDir, "public");
-const internalPublicDir = path.join(__dirname, "public");
-app.use(express.static((isPkg && fs.existsSync(externalPublicDir)) ? externalPublicDir : internalPublicDir));
+const publicDir = paths.public;
+app.use(express.static(fs.existsSync(publicDir) ? publicDir : path.join(__dirname, "public")));
 
 app.use(async (req, res, next) => {
   try {
@@ -321,22 +320,21 @@ pluginRoutes.events = events;
 
 app.use("/", pluginRoutes);
 
-const pluginDir = pluginsDir;
-const PluginViewsDir = fs
-  .readdirSync(pluginDir)
-  .filter(file => {
-      try {
-          return fs.statSync(path.join(pluginDir, file)).isDirectory();
-      } catch (e) {
-          return false;
-      }
-  })
-  .map((addonName) => path.join(pluginDir, addonName, "views"))
-  .filter(viewPath => fs.existsSync(viewPath));
+const pluginDir = paths.plugins;
+const PluginViewsDir = fs.existsSync(pluginDir)
+  ? fs.readdirSync(pluginDir)
+      .filter(file => {
+          try {
+              return fs.statSync(path.join(pluginDir, file)).isDirectory();
+          } catch (e) {
+              return false;
+          }
+      })
+      .map((addonName) => path.join(pluginDir, addonName, "views"))
+      .filter(viewPath => fs.existsSync(viewPath))
+  : [];
 
-const externalViewsDir = path.join(rootDir, "views");
-const internalViewsDir = path.join(__dirname, "views");
-const baseViewsDir = (isPkg && fs.existsSync(externalViewsDir)) ? externalViewsDir : internalViewsDir;
+const baseViewsDir = fs.existsSync(paths.views) ? paths.views : path.join(__dirname, "views");
 app.set("views", [baseViewsDir, ...PluginViewsDir]);
 
 init();

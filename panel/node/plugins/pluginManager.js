@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -7,7 +8,6 @@ const { isAdmin } = require("../utils/isAdmin");
 const AdmZip = require('adm-zip');
 const https = require('https');
 const multer = require("multer");
-const { paths, isPkg } = require("../utils/config.js");
 const upload = multer({ dest: path.join(paths.storage, 'temp/') });
 
 const router = express.Router();

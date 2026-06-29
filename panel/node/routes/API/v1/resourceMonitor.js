@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 // resourceMonitor.js remains the same as previously provided
 const express = require('express');
 const router = express.Router();

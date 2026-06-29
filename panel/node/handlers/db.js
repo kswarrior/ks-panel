@@ -1,11 +1,7 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const Keyv = require("keyv");
 const path = require("path");
 const fs = require("node:fs");
-
-const isPkg = typeof process.pkg !== "undefined";
-const rootDir = isPkg ? path.dirname(process.execPath) : path.join(__dirname, "..");
-
-const { config } = require("../utils/config.js");
 
 // Env override
 const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/database.sqlite";
@@ -44,7 +40,9 @@ if (databaseURL.startsWith("postgres")) {
     const betterSqlite3 = require('better-sqlite3');
     const options = {};
     if (isPkg) {
-      options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node');
+      const req = eval('require');
+      const p = req('path');
+      options.nativeBinding = p.resolve(p.join(p.dirname(process.execPath), 'better_sqlite3.node'));
     }
     const sqlite = new betterSqlite3(sqlitePath, options);
     sqlite.pragma('journal_mode = WAL');
@@ -94,7 +92,9 @@ async function getAllData() {
     const betterSqlite3 = require('better-sqlite3');
     const options = {};
     if (isPkg) {
-      options.nativeBinding = path.join(path.dirname(process.execPath), 'better_sqlite3.node');
+      const req = eval('require');
+      const p = req('path');
+      options.nativeBinding = p.resolve(p.join(p.dirname(process.execPath), 'better_sqlite3.node'));
     }
     const sqlite = new betterSqlite3(sqlitePath, options);
     const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();

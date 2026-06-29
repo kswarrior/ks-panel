@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 /**
  * @fileoverview Provides authentication middleware to ensure that routes are accessible only
  * to authenticated users. This middleware leverages Passport's authentication check to determine

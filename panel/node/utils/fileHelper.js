@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const axios = require("axios");
 const log = new (require("cat-loggr"))();
 

@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 function updateSelectedFlag() {
   const select = document.getElementById("language-selector");
   const selectedFlag = document.getElementById("selected-flag");

@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 module.exports = {
   proxy: "http://localhost:8080",
   files: ["views/**/*.ejs"],
