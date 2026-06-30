@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
@@ -11,7 +12,6 @@ const log = new (require("cat-loggr"))();
 const { loadPlugins } = require("../../plugins/loadPls.js");
 const path = require("path");
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
 
 router.get("/instance/:id/files/view/:file", async (req, res) => {
   if (!req.user) return res.redirect("/");

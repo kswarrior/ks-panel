@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 /**
  * @fileoverview This module sets up the authentication routes using Passport for user
  * authentication with a local strategy. It handles user login, logout, and registration processes.

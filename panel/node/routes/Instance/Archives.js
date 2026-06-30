@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
@@ -9,7 +10,6 @@ const {
 const { loadPlugins } = require("../../plugins/loadPls.js");
 const path = require("path");
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
 
 /**
  * GET /instance/:id/archives

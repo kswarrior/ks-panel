@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
@@ -10,11 +11,13 @@ const { sendTestEmail } = require("../../handlers/email.js");
 const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const log = new (require("cat-loggr"))();
 
+const PUBLIC_DIR = isPkg ? path.join(rootDir, "public") : path.join(__dirname, "..", "..", "public");
+
 // ====================== MULTER FOR LOGO (unchanged) ======================
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const uploadPath = path.join(__dirname, "..", "..", "public", "assets");
+      const uploadPath = path.join(PUBLIC_DIR, "assets");
       fs.mkdirSync(uploadPath, { recursive: true });
       cb(null, uploadPath);
     },
@@ -36,7 +39,7 @@ const upload = multer({
 // Multer for backgrounds (NOW SUPPORTS GIF, MP4, PNG, JPG, WEBP)
 const bgStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const bgPath = path.join(__dirname, "..", "..", "public", "assets", "backgrounds");
+    const bgPath = path.join(PUBLIC_DIR, "assets", "backgrounds");
     fs.mkdirSync(bgPath, { recursive: true });
     cb(null, bgPath);
   },
@@ -91,7 +94,7 @@ router.post(
         theme.backgrounds = { login: "", dashboard: "", admin: "", instances: "" };
       }
 
-      const bgDir = path.join(__dirname, "..", "..", "public", "assets", "backgrounds");
+      const bgDir = path.join(PUBLIC_DIR, "assets", "backgrounds");
       fs.mkdirSync(bgDir, { recursive: true });
 
       let backgroundPath = "";
@@ -123,7 +126,7 @@ router.post(
       } else if (type === "none") {
         // Optional: delete old file
         if (theme.backgrounds.dashboard) {
-          const oldPath = path.join(__dirname, "..", "..", "public", theme.backgrounds.dashboard);
+          const oldPath = path.join(PUBLIC_DIR, theme.backgrounds.dashboard);
           if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
         backgroundPath = "";
@@ -248,14 +251,7 @@ router.post(
         await db.set("settings", settings);
         res.redirect("/admin/settings");
       } else if (type === "none") {
-        const logoPath = path.join(
-          __dirname,
-          "..",
-          "..",
-          "public",
-          "assets",
-          "logo.png"
-        );
+        const logoPath = path.join(PUBLIC_DIR, "assets", "logo.png");
         if (fs.existsSync(logoPath)) fs.unlinkSync(logoPath);
         settings.logo = false;
         await db.set("settings", settings);

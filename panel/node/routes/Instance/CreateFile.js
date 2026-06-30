@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
@@ -10,7 +11,6 @@ const { createFile } = require("../../utils/fileHelper");
 const { loadPlugins } = require("../../plugins/loadPls.js");
 const path = require("path");
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
 
 router.post("/instance/:id/files/create/:filename", async (req, res) => {
   if (!req.user) return res.status(401).send("Authentication required");

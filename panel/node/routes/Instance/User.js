@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
@@ -6,7 +7,6 @@ const { loadPlugins } = require("../../plugins/loadPls.js");
 const path = require("path");
 const log = new (require("cat-loggr"))();
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
 
 router.get("/instance/:id/users", async (req, res) => {
   const { id } = req.params;

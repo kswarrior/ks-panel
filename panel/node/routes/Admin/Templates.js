@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -8,7 +9,7 @@ const { logAudit } = require("../../handlers/auditLog.js");
 
 const log = new (require("cat-loggr"))();
 
-const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
+const TEMPLATES_DIR = path.join(rootDir, "database/templates");
 
 if (!fs.existsSync(TEMPLATES_DIR)) {
   fs.mkdirSync(TEMPLATES_DIR, { recursive: true });

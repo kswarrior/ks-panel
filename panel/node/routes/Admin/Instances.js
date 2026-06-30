@@ -1,12 +1,4 @@
-// UPDATED: panel/routes/admin/instances.js (full file)
-// Changes for your request:
-// - Full support for new template format (already in your code)
-// - CRITICAL FIX: Now sets InternalState = "STOPPED" (matches what Wings sets)
-// - Removed checkContainerState call (it was forcing "READY" and timing out to FAILED)
-// - No more "Awaiting Installation" screen
-// - Start/Restart/Stop buttons work perfectly
-// - Old templates that still return "READY" will still work if you ever switch back
-
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
@@ -20,13 +12,10 @@ const path = require("path");
 const { v4: uuid } = require("uuid");
 const log = new (require("cat-loggr"))();
 
-const TEMPLATES_DIR = path.join(__dirname, "../../../database/templates");
-const INSTANCES_DIR = path.join(__dirname, "../../../database/instances");
-const workflowsFilePath = path.join(__dirname, "../../storage/workflows.json");
+const TEMPLATES_DIR = path.join(rootDir, "database/templates");
+const INSTANCES_DIR = path.join(rootDir, "database/instances");
+const workflowsFilePath = path.join(rootDir, "storage/workflows.json");
 
-// ────────────────────────────────────────────────
-// Helper: Delete instance logic (unchanged)
-// ────────────────────────────────────────────────
 async function deleteInstance(instance) {
   try {
     await axios({
@@ -72,9 +61,6 @@ function deleteWorkflowFromFile(instanceId) {
   }
 }
 
-// ────────────────────────────────────────────────
-// GET /admin/instances/overview → list only (unchanged)
-// ────────────────────────────────────────────────
 router.get("/admin/instances/overview", hasPermission('all'), async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -85,7 +71,6 @@ router.get("/admin/instances/overview", hasPermission('all'), async (req, res) =
 
     let allInstances = await db.get("instances") || [];
 
-    // Apply filters
     if (search || nodeFilter || userFilter) {
       allInstances = allInstances.filter(i => {
         const searchMatch = !search ||
@@ -148,9 +133,6 @@ router.get("/admin/instances/overview", hasPermission('all'), async (req, res) =
   }
 });
 
-// ────────────────────────────────────────────────
-// GET /admin/instances/create → create form (unchanged)
-// ────────────────────────────────────────────────
 router.get("/admin/instances/create", hasPermission('create_instances'), async (req, res) => {
   try {
     let nodes = (await db.get("nodes")) || [];
@@ -197,9 +179,6 @@ router.get("/admin/instances/create", hasPermission('create_instances'), async (
   }
 });
 
-// ────────────────────────────────────────────────
-// POST /admin/instances/create → FULLY UPDATED + STOPPED FIX
-// ────────────────────────────────────────────────
 router.post("/admin/instances/create", hasPermission('create_instances'), async (req, res) => {
   const {
     name,
@@ -283,16 +262,12 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       }
     );
 
-    // ====================== FIXED STATE ======================
-    // Old: "INSTALLING" + checkContainerState (expected READY)
-    // New: Directly "STOPPED" (matches Wings + your no-auto-start request)
-    // No more checkContainerState → no timeout to FAILED, no "Awaiting Installation"
     const instanceData = {
       Name: name,
       Id,
       Node: node,
       User: userId,
-      InternalState: "STOPPED",           // ← CHANGED
+      InternalState: "STOPPED",
       ContainerId: response.data.containerId || Id,
       VolumeId: Id,
       Memory: parseInt(memory),
@@ -301,7 +276,7 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       Allocation: { IP: allocationIp, Port: allocationPort },
       TemplateFilename: templateFilename,
       Primary: true,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Default 30 days
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     };
 
     let userInstances = (await db.get(`${userId}_instances`)) || [];
@@ -336,9 +311,6 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
       "utf8"
     );
 
-    // checkContainerState removed (it was the cause of the problem)
-    // Wings already set its own state to STOPPED and container is running idle
-
     logAudit(req.user.userId, req.user.username, "instance:create", req.ip);
 
     res.status(201).json({
@@ -355,10 +327,6 @@ router.post("/admin/instances/create", hasPermission('create_instances'), async 
     });
   }
 });
-
-// ────────────────────────────────────────────────
-// All other routes (unchanged)
-// ────────────────────────────────────────────────
 
 router.get("/admin/instances/:id/edit", hasPermission('all'), async (req, res) => {
   const { id } = req.params;

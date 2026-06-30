@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const express = require('express');
 const https = require('https');
 const { exec } = require('child_process');

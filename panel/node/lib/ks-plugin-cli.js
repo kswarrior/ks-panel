@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const commander = require('commander');
 const path = require('path');
 const pluginManager = require('../plugins/pluginManager.js');

@@ -1,6 +1,6 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const nodemailer = require("nodemailer");
 const { db } = require("./db.js");
-const config = require("../config.json");
 
 async function getSMTPSettings() {
   const smtpSettings = await db.get("smtp_settings");

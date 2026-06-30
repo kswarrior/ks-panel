@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const os = require("os");
 const pty = require("node-pty");
 

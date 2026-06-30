@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("./utils/config.js");
 const EventEmitter = require('eventemitter3');
 
 const events = new EventEmitter();

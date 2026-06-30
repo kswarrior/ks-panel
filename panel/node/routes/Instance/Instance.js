@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
@@ -10,7 +11,8 @@ const path = require("path");
 const { fetchFiles, fetchFileContent } = require("../../utils/fileHelper");
 const { isAuthenticated } = require("../../handlers/auth.js");
 
-const plugins = loadPlugins(path.join(__dirname, "../../plugins"));
+const pluginsDir = isPkg ? path.resolve(rootDir, "database/plugins") : path.join(__dirname, "../../plugins");
+const plugins = loadPlugins(pluginsDir);
 
 router.get("/instances", isAuthenticated, async (req, res) => {
   if (!req.user) return res.redirect("/");
@@ -39,7 +41,7 @@ router.get("/instances", isAuthenticated, async (req, res) => {
     req,
     user: req.user,
     instances,
-    config: require("../../config.json"),
+    config,
   });
 });
 
@@ -69,7 +71,6 @@ router.get("/instance/:id", async (req, res) => {
   return res.redirect("/instances?err=NOTACTIVEYET");
   }
 
-  const config = require("../../config.json");
   const { port, domain } = config;
 
   const allPluginData = Object.values(plugins).map((plugin) => plugin.config);

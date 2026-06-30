@@ -1,7 +1,7 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const { db, getAllData } = require("../../handlers/db.js");
-const config = require("../../config.json");
 const { isAdmin, anyAdminPerm, hasPermission } = require("../../utils/isAdmin.js");
 const fs = require('node:fs');
 const path = require('path');
@@ -86,6 +86,7 @@ async function getDashboardStats() {
   if (config.databaseURL) {
     dbUrlMasked = config.databaseURL.replace(/:\/\/[^:]+:[^@]+@/, '://****:****@');
     try {
+      const { Client } = require('pg');
       const client = new Client({ connectionString: config.databaseURL });
       await client.connect();
 
@@ -242,7 +243,6 @@ router.post("/admin/database/update", hasPermission('manage_settings'), async (r
     }
 
     // Update config.json
-    const configPath = path.join(__dirname, "../../config.json");
     let configObj = {};
     if (fs.existsSync(configPath)) {
       configObj = JSON.parse(fs.readFileSync(configPath, "utf8"));
@@ -253,8 +253,6 @@ router.post("/admin/database/update", hasPermission('manage_settings'), async (r
     fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2), "utf8");
 
     if (migrate === 'true' && currentData.length > 0) {
-      // Logic to write data to NEW database
-      // We need a temporary Keyv instance for the new DB
       const Keyv = require('keyv');
       let store;
       if (databaseURL.startsWith("postgres")) {
@@ -273,9 +271,8 @@ router.post("/admin/database/update", hasPermission('manage_settings'), async (r
 
     res.redirect("/admin/database?msg=DatabaseUpdatedSuccess");
 
-    // Trigger restart after a delay to allow redirect
     setTimeout(() => {
-      process.exit(0); // PM2 will restart it
+      process.exit(0);
     }, 2000);
   } catch (err) {
     console.error('Database update failed:', err);

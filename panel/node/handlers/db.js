@@ -1,16 +1,10 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const Keyv = require("keyv");
 const path = require("path");
 const fs = require("node:fs");
 
-let config = {};
-try {
-  config = require("../config.json");
-} catch (e) {
-  // config.json might not exist yet
-}
-
 // Env override
-const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/kspanel.sqlite";
+const databaseURL = process.env.DB_URL || config.databaseURL || "sqlite://storage/database.sqlite";
 const databaseTable = process.env.DB_TABLE || config.databaseTable || "kspanel";
 
 let store;
@@ -30,21 +24,27 @@ if (databaseURL.startsWith("postgres")) {
 } else if (databaseURL.startsWith("sqlite")) {
   const SQLiteStore = require("@keyvhq/sqlite");
 
-  // Ensure the storage directory exists for sqlite
-  const sqlitePath = databaseURL.replace("sqlite://", "");
-  const dir = path.dirname(path.resolve(__dirname, "..", sqlitePath));
+  const sqlitePathStr = databaseURL.replace("sqlite://", "");
+  const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
+  const dir = path.dirname(sqlitePath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  store = new SQLiteStore(databaseURL, {
+  store = new SQLiteStore("sqlite://" + sqlitePath, {
     table: databaseTable,
     keySize: 255,
   });
 
-  // Enable WAL mode for better performance and to prevent corruption
   try {
-    const sqlite = require('better-sqlite3')(sqlitePath);
+    const betterSqlite3 = require('better-sqlite3');
+    const options = {};
+    if (isPkg) {
+      const req = eval('require');
+      const p = req('path');
+      options.nativeBinding = p.resolve(p.join(p.dirname(process.execPath), 'better_sqlite3.node'));
+    }
+    const sqlite = new betterSqlite3(sqlitePath, options);
     sqlite.pragma('journal_mode = WAL');
     sqlite.pragma('synchronous = NORMAL');
     sqlite.close();
@@ -57,7 +57,6 @@ if (databaseURL.startsWith("postgres")) {
     collection: databaseTable,
   });
 } else {
-  // Default to in-memory if protocol is unknown
   store = new Map();
   console.warn("Unknown database protocol, using in-memory store.");
 }
@@ -66,10 +65,6 @@ const db = new Keyv({ store, namespace: 'kspanel' });
 
 db.on('error', err => console.error('Keyv database error:', err));
 
-/**
- * Helper to get all data from the database for migration or backup.
- * Keyv doesn't support this natively, so we query the underlying table.
- */
 async function getAllData() {
   const table = databaseTable;
 
@@ -92,7 +87,16 @@ async function getAllData() {
         return { key: row.key.replace(/^kspanel:/, ''), value: parsed.value };
     });
   } else if (databaseURL.startsWith("sqlite")) {
-    const sqlite = require('better-sqlite3')(databaseURL.replace("sqlite://", ""));
+    const sqlitePathStr = databaseURL.replace("sqlite://", "");
+    const sqlitePath = path.isAbsolute(sqlitePathStr) ? sqlitePathStr : path.resolve(rootDir, sqlitePathStr);
+    const betterSqlite3 = require('better-sqlite3');
+    const options = {};
+    if (isPkg) {
+      const req = eval('require');
+      const p = req('path');
+      options.nativeBinding = p.resolve(p.join(p.dirname(process.execPath), 'better_sqlite3.node'));
+    }
+    const sqlite = new betterSqlite3(sqlitePath, options);
     const rows = sqlite.prepare(`SELECT key, value FROM "${table}"`).all();
     sqlite.close();
     return rows.map(row => {
@@ -108,7 +112,6 @@ async function getAllData() {
     const cursor = collection.find({});
     const results = [];
     await cursor.forEach(doc => {
-      // Keyv stores as { _id: 'namespace:key', value: { value: 'actual_value' } }
       const key = doc._id.replace(/^kspanel:/, '');
       let val = doc.value;
       if (typeof val === 'string') {
@@ -121,8 +124,5 @@ async function getAllData() {
   }
   return [];
 }
-
-// Optional: Test connection on load (async, non-blocking)
-db.get('__test_conn__').catch(() => {});
 
 module.exports = { db, getAllData, databaseURL, databaseTable };

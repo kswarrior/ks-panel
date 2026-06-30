@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../../utils/config.js");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -6,11 +7,23 @@ const { hasPermission } = require("../../utils/isAdmin");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-const LANG_DIR = path.join(__dirname, "../../lang");
+const LANG_DIR = isPkg ? path.join(rootDir, "lang") : path.join(__dirname, "../../lang");
+
+// Ensure LANG_DIR exists externally if in pkg
+if (isPkg && !fs.existsSync(LANG_DIR)) {
+    fs.mkdirSync(LANG_DIR, { recursive: true });
+}
 
 // Helper to get all language codes
 function getLangCodes() {
-    return fs.readdirSync(LANG_DIR).filter(f => fs.statSync(path.join(LANG_DIR, f)).isDirectory());
+    if (!fs.existsSync(LANG_DIR)) return [];
+    return fs.readdirSync(LANG_DIR).filter(f => {
+        try {
+            return fs.statSync(path.join(LANG_DIR, f)).isDirectory();
+        } catch (e) {
+            return false;
+        }
+    });
 }
 
 // List languages
@@ -75,7 +88,8 @@ router.post("/admin/languages/create", hasPermission("manage_settings"), async (
 
     try {
         fs.mkdirSync(newLangDir, { recursive: true });
-        const enContent = fs.readFileSync(path.join(LANG_DIR, "en", "lang.json"), "utf8");
+        const enPath = path.join(LANG_DIR, "en", "lang.json");
+        const enContent = fs.existsSync(enPath) ? fs.readFileSync(enPath, "utf8") : "{}";
         fs.writeFileSync(path.join(newLangDir, "lang.json"), enContent, "utf8");
         res.redirect(`/admin/languages/edit/${code}?msg=Created`);
     } catch (e) {

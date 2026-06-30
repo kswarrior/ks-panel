@@ -1,3 +1,4 @@
+const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 const { db } = require("../handlers/db.js");
 const log = new (require("cat-loggr"))();
 
