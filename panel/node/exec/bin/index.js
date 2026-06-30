@@ -1,4 +1,3 @@
-const { config, rootDir, isPkg, paths } = require("../utils/config.js");
 #!/usr/bin/env node
 
 const { Command } = require("commander");
