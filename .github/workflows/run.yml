@@ -34,7 +34,7 @@ jobs:
           
           echo "Running kspanel seed..."
           ./kspanel seed
-          ./kspanel create:user -u kshosting -e kshosting@ksmail.com -p kshosting@55 -r 1
+          ./kspanel create:user --username kshosting --email kshosting@ksmail.com --password kshosting@55 --role 1
           ./kspanel import:template minecraft
           ./kspanel setup:localnode --port 4040
           
