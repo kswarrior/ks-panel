@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= name %> - Error</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --accent-color: #ef4444;
+    --glass-bg: rgba(10, 10, 10, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --glass-blur: 24px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #f8fafc;
+    overflow-x: hidden;
+  }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+</style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+  <div class="w-full max-w-[500px] text-center">
+    <div class="glass rounded-[2.5rem] p-12 shadow-2xl relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="mb-8">
+          <div class="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">Unexpected Error</h1>
+          <p class="text-neutral-400 text-sm font-medium">Something went wrong while processing your request.</p>
+        </div>
+
+        <div class="bg-black/20 rounded-2xl p-6 mb-8 text-left border border-white/5">
+          <p class="text-red-400 font-mono text-xs break-all"><%= typeof error !== 'undefined' ? error : 'Internal Server Error' %></p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <a href="javascript:history.back()" class="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-neutral-200 active:scale-[0.98] transition-all shadow-xl shadow-white/5">
+            Go Back
+          </a>
+          <a href="/" class="w-full bg-white/5 text-white font-bold py-4 rounded-2xl hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10">
+            Return Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

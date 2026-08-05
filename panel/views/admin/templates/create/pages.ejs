@@ -1,12 +1,541 @@
-<div id="pagesContainer" class="space-y-3"></div>
-<button onclick="addPage()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Page</button>
-<button onclick="savePagesSection()" class="tf-btn tf-btn-accent w-full">💾 Save Pages (pages.json)</button>
+<style>
+.feature-tile {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.feature-tile:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.feature-tile.active {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02));
+}
+
+.feature-tile.active .tile-status {
+  color: #34d399;
+}
+
+.feature-tile.active .tile-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tile-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: #10b981;
+  color: white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.3s ease;
+  font-size: 0.6rem;
+  font-weight: bold;
+}
+</style>
+
+<div class="tf-card mb-8 border-white/5 bg-transparent p-0">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest">Core Features (Enable/Disable)</h3>
+    <span class="text-[10px] text-amber-400 font-medium">Card tiles automatically sync visual pages</span>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <%
+      const features = [
+        { id: 'console', name: 'Console', icon: '⚡' },
+        { id: 'files', name: 'Files', icon: '📁' },
+        { id: 'users', name: 'Users', icon: '👥' },
+        { id: 'network', name: 'Network', icon: '🌐' },
+        { id: 'archives', name: 'Archives', icon: '🗄️' },
+        { id: 'automations', name: 'Automations', icon: '⏰' },
+        { id: 'db', name: 'Databases', icon: '💾' },
+        { id: 'ftp', name: 'FTP', icon: '📤' },
+        { id: 'settings', name: 'Settings', icon: '⚙️' },
+        { id: 'startup', name: 'Startup', icon: '🚀' }
+      ];
+    %>
+
+    <% features.forEach(f => { %>
+      <div onclick="toggleTile('<%= f.id %>')" id="tile-<%= f.id %>" class="feature-tile p-4 flex flex-col items-center justify-center gap-2 <%= f.id === 'console' ? 'active' : '' %>">
+        <div class="tile-check">✓</div>
+        <span class="text-2xl mb-1"><%= f.icon %></span>
+        <div class="text-center">
+          <p class="text-[10px] font-bold text-white uppercase tracking-tighter"><%= f.name %></p>
+          <p class="tile-status text-[9px] text-neutral-500 font-medium transition-colors"><%= f.id === 'console' ? 'ENABLED' : 'DISABLED' %></p>
+        </div>
+        <input type="checkbox" id="toggle-<%= f.id %>" name="feature-<%= f.id %>" <%= f.id === 'console' ? 'checked' : '' %> class="hidden" onchange="syncCorePage('<%= f.id %>')">
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<div id="pagesContainer" class="space-y-6 mb-6"></div>
+<div class="flex gap-3">
+  <div class="relative group inline-block">
+    <button type="button" class="tf-btn tf-btn-accent text-xs">+ Add New Page</button>
+    <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-neutral-900 border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
+      <button type="button" onclick="addPage('generic')" class="w-full text-left px-4 py-2 text-[10px] text-neutral-300 hover:bg-white/5 hover:text-white uppercase font-bold tracking-widest border-b border-white/5">Custom Page</button>
+      <button type="button" onclick="addPage('console')" class="w-full text-left px-4 py-2 text-[10px] text-emerald-400 hover:bg-white/5 hover:text-emerald-300 uppercase font-bold tracking-widest border-b border-white/5">Console</button>
+      <button type="button" onclick="addPage('files')" class="w-full text-left px-4 py-2 text-[10px] text-blue-400 hover:bg-white/5 hover:text-blue-300 uppercase font-bold tracking-widest border-b border-white/5">Files</button>
+      <button type="button" onclick="addPage('users')" class="w-full text-left px-4 py-2 text-[10px] text-cyan-400 hover:bg-white/5 hover:text-cyan-300 uppercase font-bold tracking-widest border-b border-white/5">Users</button>
+      <button type="button" onclick="addPage('network')" class="w-full text-left px-4 py-2 text-[10px] text-amber-400 hover:bg-white/5 hover:text-amber-300 uppercase font-bold tracking-widest border-b border-white/5">Network</button>
+      <button type="button" onclick="addPage('archives')" class="w-full text-left px-4 py-2 text-[10px] text-purple-400 hover:bg-white/5 hover:text-purple-300 uppercase font-bold tracking-widest border-b border-white/5">Archives</button>
+      <button type="button" onclick="addPage('automations')" class="w-full text-left px-4 py-2 text-[10px] text-orange-400 hover:bg-white/5 hover:text-orange-300 uppercase font-bold tracking-widest border-b border-white/5">Automations</button>
+      <button type="button" onclick="addPage('db')" class="w-full text-left px-4 py-2 text-[10px] text-red-400 hover:bg-white/5 hover:text-red-300 uppercase font-bold tracking-widest border-b border-white/5">Databases</button>
+      <button type="button" onclick="addPage('ftp')" class="w-full text-left px-4 py-2 text-[10px] text-sky-400 hover:bg-white/5 hover:text-sky-300 uppercase font-bold tracking-widest border-b border-white/5">FTP</button>
+      <button type="button" onclick="addPage('settings')" class="w-full text-left px-4 py-2 text-[10px] text-slate-400 hover:bg-white/5 hover:text-slate-300 uppercase font-bold tracking-widest border-b border-white/5">Settings</button>
+      <button type="button" onclick="addPage('startup')" class="w-full text-left px-4 py-2 text-[10px] text-indigo-400 hover:bg-white/5 hover:text-indigo-300 uppercase font-bold tracking-widest border-b border-white/5">Startup</button>
+    </div>
+  </div>
+</div>
+
+<template id="filesPageTemplate">
+  <div class="tf-card border-blue-500/20 bg-blue-500/5" data-core-type="files">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-blue-400 uppercase tracking-tighter">Files Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('files')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="files">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="files" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Files">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="schedulesPageTemplate">
+  <div class="tf-card border-orange-500/20 bg-orange-500/5" data-core-type="automations">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-orange-400 uppercase tracking-tighter">Automations Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('automations')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="automations">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="automations" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Automations">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="startupPageTemplate">
+  <div class="tf-card border-indigo-500/20 bg-indigo-500/5" data-core-type="startup">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-tighter">Startup Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('startup')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="startup">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="startup" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Startup">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="settingsPageTemplate">
+  <div class="tf-card border-slate-500/20 bg-slate-500/5" data-core-type="settings">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-slate-400 uppercase tracking-tighter">Settings Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('settings')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="settings">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="settings" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Settings">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="portsPageTemplate">
+  <div class="tf-card border-amber-500/20 bg-amber-500/5" data-core-type="network">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-amber-400 uppercase tracking-tighter">Network Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('network')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="network">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="network" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Network">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="databasesPageTemplate">
+  <div class="tf-card border-red-500/20 bg-red-500/5" data-core-type="db">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-red-400 uppercase tracking-tighter">Databases Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('db')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="db">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="db" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Databases">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="backupsPageTemplate">
+  <div class="tf-card border-purple-500/20 bg-purple-500/5" data-core-type="archives">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-purple-400 uppercase tracking-tighter">Archives Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('archives')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="archives">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="archives" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Archives">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="ftpPageTemplate">
+  <div class="tf-card border-blue-300/20 bg-blue-300/5" data-core-type="ftp">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-blue-300 uppercase tracking-tighter">FTP Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('ftp')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="ftp">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="ftp" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="FTP">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="usersPageTemplate">
+  <div class="tf-card border-cyan-500/20 bg-cyan-500/5" data-core-type="users">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-tighter">Users Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="toggleOffFeature('users')">×</button>
+    </div>
+    <input type="hidden" name="page-type" value="users">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="users" readonly>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Users">
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="consolePageTemplate">
+  <div class="tf-card border-emerald-500/20 bg-emerald-500/5" data-core-type="console">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-tighter">Console Configuration</h3>
+      <button type="button" class="text-neutral-500 hover:text-red-400" onclick="confirmRemoval(this)">×</button>
+    </div>
+
+    <input type="hidden" name="page-type" value="console">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Route Path</label>
+        <input type="text" name="page-id" class="tf-input font-mono" value="console" required>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Display Name</label>
+        <input type="text" name="page-name" class="tf-input" value="Console">
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="space-y-6">
+      <!-- Action Buttons -->
+      <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="text-[10px] font-bold text-neutral-400 uppercase">Custom Action Buttons (Click, Timer, Menu)</h4>
+          <button type="button" onclick="addConsoleBtn(this)" class="tf-btn tf-btn-secondary py-1 text-[9px]">+ Add Button</button>
+        </div>
+        <div class="console-btns-container space-y-2"></div>
+      </div>
+
+      <!-- Quick Codes / Macros -->
+      <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="text-[10px] font-bold text-neutral-400 uppercase">Quick Codes (Macros)</h4>
+          <button type="button" onclick="addQuickCode(this)" class="tf-btn tf-btn-secondary py-1 text-[9px]">+ Add Macro</button>
+        </div>
+        <div class="quick-codes-container grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </div>
+
+      <!-- Status & Conditions -->
+      <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+        <h4 class="text-[10px] font-bold text-neutral-400 uppercase mb-3">Status Logic & Graphs</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-[9px] text-neutral-500 uppercase">Overload Condition</label>
+            <input type="text" name="overload-condition" class="tf-input text-xs font-mono" placeholder="cpu > 95 || ram > 90">
+          </div>
+          <div>
+            <label class="text-[9px] text-neutral-500 uppercase">Log Status Trigger</label>
+            <input type="text" name="log-trigger" class="tf-input text-xs font-mono" placeholder="regex:Ready on port ([0-9]+)">
+          </div>
+        </div>
+        <div class="flex gap-4">
+           <label class="flex items-center gap-2 cursor-pointer">
+             <input type="checkbox" name="show-graphs" checked class="rounded border-white/10 bg-white/5">
+             <span class="text-[10px] text-neutral-400 uppercase">Show Real-time Graphs</span>
+           </label>
+           <label class="flex items-center gap-2 cursor-pointer">
+             <input type="checkbox" name="show-info" checked class="rounded border-white/10 bg-white/5">
+             <span class="text-[10px] text-neutral-400 uppercase">Show Server Info Widget</span>
+           </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="genericPageTemplate">
+  <div class="tf-card group">
+    <button type="button" class="tf-remove-btn" onclick="confirmRemoval(this)">×</button>
+    <input type="hidden" name="page-type" value="generic">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Page Slug / ID</label>
+        <input type="text" name="page-id" class="tf-input font-mono" placeholder="logs" required>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Page Title</label>
+        <input type="text" name="page-name" class="tf-input" placeholder="Server Logs">
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">EJS Content</label>
+        <textarea name="page-ejs" class="tf-input h-48 font-mono text-xs" placeholder="<div>Your HTML here</div>"></textarea>
+      </div>
+      <div class="tf-field-long">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Client JS</label>
+        <textarea name="page-js" class="tf-input h-48 font-mono text-xs" placeholder="console.log('Page loaded');"></textarea>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="consoleBtnTemplate">
+  <div class="flex gap-2 items-start bg-white/5 p-3 rounded-lg border border-white/5">
+    <div class="flex-1 space-y-2">
+      <div class="flex gap-2">
+        <input type="text" name="btn-label" class="tf-input py-1 text-xs" placeholder="Label">
+        <select name="btn-type" class="tf-input searchable-select py-1 text-xs w-28">
+          <option value="click">Click Action</option>
+          <option value="timer">Timer (Recurring)</option>
+          <option value="menu">Dropdown Menu</option>
+        </select>
+      </div>
+      <input type="text" name="btn-cmd" class="tf-input py-1 text-xs font-mono" placeholder="Command (or JSON for menu)">
+    </div>
+    <select name="btn-style" class="tf-input searchable-select py-1 text-xs w-24">
+      <option value="blue">Blue</option>
+      <option value="red">Red</option>
+      <option value="green">Green</option>
+      <option value="gray">Gray</option>
+    </select>
+    <button type="button" class="text-neutral-500 hover:text-red-400 px-1 mt-1" onclick="confirmRemoval(this)">×</button>
+  </div>
+</template>
+
+<template id="quickCodeTemplate">
+  <div class="flex flex-col gap-1 bg-white/5 p-2 rounded-lg border border-white/5">
+    <input type="text" name="code-name" class="tf-input py-1 text-[10px]" placeholder="Name (e.g. Restart App)">
+    <textarea name="code-body" class="tf-input py-1 text-[10px] font-mono h-12" placeholder="pm2 restart all"></textarea>
+    <button type="button" class="text-right text-[10px] text-neutral-600 hover:text-red-400" onclick="confirmRemoval(this)">Remove</button>
+  </div>
+</template>
 
 <script>
-// full page logic
-window.savePagesSection = async () => {
-  const data = { pages: [] };
-  await fetch('/admin/templates/save-pages', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-  showNotification('Pages saved as pages.json', 'success');
-};
+function confirmRemoval(btn) {
+  const target = btn.classList.contains('tf-remove-btn') || btn.parentElement.classList.contains('tf-card') ? btn.closest('.tf-card') : btn.parentElement;
+  if (btn.dataset.confirmed === "true") {
+    target.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = oldHtml;
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
+function toggleTile(id) {
+  const checkbox = document.getElementById(`toggle-${id}`);
+  checkbox.checked = !checkbox.checked;
+  checkbox.dispatchEvent(new Event('change'));
+
+  const tile = document.getElementById(`tile-${id}`);
+  const status = tile.querySelector('.tile-status');
+
+  if (checkbox.checked) {
+    tile.classList.add('active');
+    status.textContent = 'ENABLED';
+  } else {
+    tile.classList.remove('active');
+    status.textContent = 'DISABLED';
+  }
+}
+
+function addPage(type) {
+  const container = document.getElementById('pagesContainer');
+  const existing = container.querySelector(`[data-core-type="${type}"]`);
+  const coreTypes = ['console', 'files', 'network', 'db', 'archives', 'users', 'automations', 'startup', 'settings', 'ftp'];
+  if (coreTypes.includes(type) && existing) return;
+
+  let tempId = 'genericPageTemplate';
+  if (type === 'console') tempId = 'consolePageTemplate';
+  else if (type === 'files') tempId = 'filesPageTemplate';
+  else if (type === 'network') tempId = 'portsPageTemplate';
+  else if (type === 'db') tempId = 'databasesPageTemplate';
+  else if (type === 'archives') tempId = 'backupsPageTemplate';
+  else if (type === 'users') tempId = 'usersPageTemplate';
+  else if (type === 'automations') tempId = 'schedulesPageTemplate';
+  else if (type === 'startup') tempId = 'startupPageTemplate';
+  else if (type === 'settings') tempId = 'settingsPageTemplate';
+  else if (type === 'ftp') tempId = 'ftpPageTemplate';
+
+  const clone = document.getElementById(tempId).content.cloneNode(true);
+  container.appendChild(clone);
+
+  if (coreTypes.includes(type)) {
+    const toggle = document.getElementById(`toggle-${type}`);
+    if (toggle) {
+      toggle.checked = true;
+      const tile = document.getElementById(`tile-${type}`);
+      if (tile) {
+        tile.classList.add('active');
+        tile.querySelector('.tile-status').textContent = 'ENABLED';
+      }
+    }
+  }
+
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
+}
+
+function syncCorePage(type) {
+  const toggle = document.getElementById(`toggle-${type}`);
+  if (!toggle) return;
+  const isChecked = toggle.checked;
+  const container = document.getElementById('pagesContainer');
+  const existing = container.querySelector(`[data-core-type="${type}"]`);
+
+  if (isChecked) {
+    if (!existing) addPage(type);
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+function toggleOffFeature(type) {
+  const toggle = document.getElementById(`toggle-${type}`);
+  if (toggle) {
+    toggle.checked = false;
+    const tile = document.getElementById(`tile-${type}`);
+    if (tile) {
+      tile.classList.remove('active');
+      tile.querySelector('.tile-status').textContent = 'DISABLED';
+    }
+    syncCorePage(type);
+  } else {
+    const existing = document.getElementById('pagesContainer').querySelector(`[data-core-type="${type}"]`);
+    if (existing) existing.remove();
+  }
+}
+
+// Ensure initial setup
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    syncCorePage('console');
+    syncCorePage('files');
+    syncCorePage('users');
+    syncCorePage('network');
+    syncCorePage('archives');
+    syncCorePage('automations');
+    syncCorePage('db');
+    syncCorePage('ftp');
+    syncCorePage('settings');
+    syncCorePage('startup');
+  }, 100);
+});
+
+function addConsoleBtn(btn) {
+  const container = btn.parentElement.nextElementSibling;
+  container.appendChild(document.getElementById('consoleBtnTemplate').content.cloneNode(true));
+  if (typeof initSearchableSelects === 'function') initSearchableSelects();
+}
+
+function addQuickCode(btn) {
+  const container = btn.parentElement.nextElementSibling;
+  container.appendChild(document.getElementById('quickCodeTemplate').content.cloneNode(true));
+}
 </script>

@@ -1,12 +1,104 @@
-<div id="installStepsContainer" class="space-y-3"></div>
-<button onclick="addInstallStep()" class="tf-btn tf-btn-accent text-xs mb-4">+ Add Step</button>
-<button onclick="saveInstallStepsSection()" class="tf-btn tf-btn-accent w-full">💾 Save Install Steps (installsteps.json)</button>
+<div id="installStepsContainer" class="space-y-4 mb-6"></div>
+<button type="button" onclick="addInstallStep()" class="tf-btn tf-btn-secondary text-xs">+ Add Install Step</button>
+
+<template id="installStepTemplate">
+  <div class="tf-card group">
+    <button type="button" class="tf-remove-btn opacity-0 group-hover:opacity-100 transition-opacity" onclick="confirmRemoval(this)">×</button>
+    <div class="tf-row">
+      <div class="tf-field-short">
+        <label class="text-[10px] font-semibold text-neutral-500 uppercase">Step Type</label>
+        <select name="type" class="tf-input text-sm" onchange="updateInstallFields(this)">
+          <option value="shell">Shell Command</option>
+          <option value="download">Download File</option>
+          <option value="extract">Extract Archive</option>
+          <option value="copy">Move/Copy File</option>
+          <option value="write">Write File</option>
+        </select>
+      </div>
+      <div class="tf-field-long step-fields-container">
+        <!-- Fields injected here -->
+      </div>
+    </div>
+  </div>
+</template>
 
 <script>
-// full install step logic
-window.saveInstallStepsSection = async () => {
-  const data = { install_steps: [] };
-  await fetch('/admin/templates/save-installsteps', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-  showNotification('Install steps saved as installsteps.json', 'success');
-};
+function confirmRemoval(btn) {
+  if (btn.dataset.confirmed === "true") {
+    btn.parentElement.remove();
+  } else {
+    btn.dataset.confirmed = "true";
+    btn.innerHTML = "<span class='text-[10px] font-bold'>CONFIRM?</span>";
+    btn.classList.add('text-red-500');
+    setTimeout(() => {
+      btn.dataset.confirmed = "false";
+      btn.innerHTML = "×";
+      btn.classList.remove('text-red-500');
+    }, 3000);
+  }
+}
+
+function addInstallStep(data = {}) {
+  const container = document.getElementById('installStepsContainer');
+  const temp = document.getElementById('installStepTemplate');
+  const clone = temp.content.cloneNode(true);
+
+  // We need to find the select and container within the clone
+  const select = clone.querySelector('select[name="type"]');
+  const fieldContainer = clone.querySelector('.step-fields-container');
+
+  if (data.type) {
+    select.value = data.type;
+  }
+
+  // Call internal logic to populate fields
+  populateFields(fieldContainer, select.value, data);
+
+  container.appendChild(clone);
+}
+
+function updateInstallFields(select) {
+  const fieldContainer = select.closest('.tf-row').querySelector('.step-fields-container');
+  populateFields(fieldContainer, select.value, {});
+}
+
+function populateFields(container, type, data = {}) {
+  if (type === 'download') {
+    container.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Download URL</label>
+          <input type="text" name="url" value="${data.url || ''}" class="tf-input py-2 text-xs" placeholder="https://example.com/file.jar">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">Output Name</label>
+          <input type="text" name="output" value="${data.output || ''}" class="tf-input py-2 text-xs" placeholder="server.jar">
+        </div>
+      </div>`;
+  } else if (type === 'extract' || type === 'copy') {
+    container.innerHTML = `
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">${type === 'extract' ? 'Archive' : 'Source'} Path</label>
+        <input type="text" name="path" value="${data.path || ''}" class="tf-input py-2 text-xs" placeholder="server.zip">
+      </div>`;
+  } else if (type === 'write') {
+    container.innerHTML = `
+      <div class="space-y-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">File Path</label>
+          <input type="text" name="path" value="${data.path || ''}" class="tf-input py-2 text-xs" placeholder="eula.txt">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase">File Content</label>
+          <textarea name="content" class="tf-input py-2 text-xs h-24" placeholder="eula=true">${data.content || ''}</textarea>
+        </div>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-neutral-500 uppercase">Shell Command</label>
+        <input type="text" name="command" value="${data.command || ''}" class="tf-input font-mono py-2 text-xs" placeholder="apt-get update && apt-get install -y git">
+      </div>`;
+  }
+}
 </script>

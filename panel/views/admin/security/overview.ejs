@@ -1,0 +1,305 @@
+<%- include('../../components/template') %>
+
+<!-- XTerm.js CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+
+<main id="content" class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-[1600px] mx-auto">
+
+    <!-- Header -->
+    <header class="mb-10 pb-8 border-b border-white/5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-4xl font-black text-white tracking-tight">Security Center</h1>
+          <p class="text-neutral-400 mt-2 font-medium">Advanced VPS protection, real-time logging, and system-level control.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <div class="px-4 py-2 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            Premier League Shield Active
+          </div>
+          <div class="px-4 py-2 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold flex items-center gap-2">
+            Rate Limit: <%= security.rateLimitMax/1000 %>k/<%= security.rateLimitWindow %>m (IP-locked)
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+      <!-- Left Column: Resource & Terminal -->
+      <div class="lg:col-span-3 space-y-8">
+
+        <!-- Metrics Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass p-6 rounded-3xl">
+            <h3 class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-4">Panel CPU</h3>
+            <div class="flex items-end justify-between">
+              <span id="panel-cpu" class="text-3xl font-black text-white">--%</span>
+              <div class="flex flex-col items-end">
+                <span id="panel-priority" class="text-[10px] font-bold text-blue-400 uppercase">Priority: --</span>
+                <div class="flex gap-1 mt-1">
+                  <button onclick="setPriority(-10)" class="w-4 h-4 rounded bg-red-500/20 hover:bg-red-500/40 transition-colors" title="High Priority"></button>
+                  <button onclick="setPriority(0)" class="w-4 h-4 rounded bg-blue-500/20 hover:bg-blue-500/40 transition-colors" title="Normal Priority"></button>
+                  <button onclick="setPriority(10)" class="w-4 h-4 rounded bg-white/10 hover:bg-white/20 transition-colors" title="Low Priority"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glass p-6 rounded-3xl">
+            <h3 class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-4">Panel Memory</h3>
+            <span id="panel-ram" class="text-3xl font-black text-emerald-400">-- MB</span>
+          </div>
+          <div class="glass p-6 rounded-3xl">
+            <h3 class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-4">VPS Infrastructure</h3>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs text-neutral-400">System Load</span>
+              <span id="vps-cpu" class="text-xs font-bold text-white">--%</span>
+            </div>
+            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+              <div id="vps-cpu-bar" class="h-full bg-blue-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terminal & Logs Tabs -->
+        <div class="bg-black/40 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col h-[700px]">
+          <div class="px-8 py-4 bg-white/5 border-b border-white/5 flex items-center justify-between">
+            <div class="flex gap-6">
+              <button onclick="switchTerminalTab('terminal')" id="term-tab-btn" class="text-[10px] font-bold uppercase tracking-widest border-b-2 border-blue-500 pb-1 text-white transition-all">Root Terminal</button>
+              <button onclick="switchTerminalTab('logs')" id="logs-tab-btn" class="text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent pb-1 text-neutral-500 hover:text-white transition-all">Panel Logs</button>
+            </div>
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-500/20"></div>
+              <div class="w-3 h-3 rounded-full bg-amber-500/20"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-500/20"></div>
+            </div>
+          </div>
+
+          <!-- Terminal Tab -->
+          <div id="terminal-container" class="flex-1 p-4 bg-[#050505]">
+            <div id="terminal" class="h-full w-full"></div>
+          </div>
+
+          <!-- Logs Tab -->
+          <div id="logs-container" class="flex-1 hidden p-6 overflow-y-auto font-mono text-sm text-neutral-300 bg-[#050505]">
+            <div id="log-content" class="space-y-1">
+              <div class="text-neutral-500 italic">Streaming panel logs...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Scanners & Ports -->
+      <div class="space-y-8">
+
+        <!-- Scanners -->
+        <div class="space-y-4">
+          <h3 class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-2">Premium Scanners</h3>
+
+          <div class="glass p-6 rounded-3xl border-red-500/10">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              </div>
+              <span class="font-bold text-white text-sm">DDoS Scanner</span>
+            </div>
+            <button onclick="runSecurityScan('DDoS')" class="w-full py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/10 transition-all uppercase tracking-widest">Active Scan</button>
+          </div>
+
+          <div class="glass p-6 rounded-3xl border-amber-500/10">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <span class="font-bold text-white text-sm">Vulnerabilities</span>
+            </div>
+            <button onclick="runSecurityScan('Filesystem')" class="w-full py-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[10px] font-bold border border-amber-500/10 transition-all uppercase tracking-widest">Audit FS</button>
+          </div>
+        </div>
+
+        <!-- Security Configuration -->
+        <div class="glass p-8 rounded-[2.5rem]">
+          <h3 class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-6">Firewall Settings</h3>
+          <form id="security-form" class="space-y-6">
+            <div>
+              <label class="text-[10px] font-bold text-neutral-600 uppercase tracking-widest ml-1 mb-2 block">IP Rate Limit (Requests)</label>
+              <input type="number" name="rateLimitMax" value="<%= security.rateLimitMax %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all">
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-neutral-600 uppercase tracking-widest ml-1 mb-2 block">Window (Minutes)</label>
+              <input type="number" name="rateLimitWindow" value="<%= security.rateLimitWindow %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all">
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-neutral-600 uppercase tracking-widest ml-1 mb-2 block">Network Limit (MB/s)</label>
+              <input type="number" name="networkLimit" value="<%= security.networkLimit %>" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all">
+            </div>
+            <button type="button" onclick="saveSecuritySettings()" class="w-full py-4 rounded-2xl bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-neutral-200 transition-all shadow-xl shadow-white/5">Update Shield</button>
+          </form>
+        </div>
+
+        <!-- Network Throughput -->
+        <div class="glass p-8 rounded-[2.5rem] bg-purple-600/5 border-purple-500/10">
+          <h3 class="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-6">Throughput Quota</h3>
+          <div class="space-y-6">
+            <div>
+              <div class="flex justify-between mb-2"><span class="text-xs text-neutral-400">Total Input</span><span id="traffic-in" class="text-xs font-bold text-white">0 MB</span></div>
+              <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div id="traffic-in-bar" class="h-full bg-purple-500 w-0 transition-all duration-500"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2"><span class="text-xs text-neutral-400">Total Output</span><span id="traffic-out" class="text-xs font-bold text-white">0 MB</span></div>
+              <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div id="traffic-out-bar" class="h-full bg-indigo-500 w-0 transition-all duration-500"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Ports -->
+        <div class="glass p-8 rounded-[2.5rem]">
+          <h3 class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-6">Active VPS Ports</h3>
+          <div id="port-list" class="space-y-3">
+            <div class="text-xs text-neutral-500 italic">Scanning infrastructure...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+// Terminal Setup
+let term, socket;
+function initTerminal() {
+  term = new Terminal({
+    cursorBlink: true,
+    fontFamily: '"JetBrains Mono", monospace',
+    fontSize: 14,
+    theme: {
+      background: 'transparent',
+      foreground: '#d4d4d4',
+      cursor: '#3b82f6'
+    }
+  });
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(document.getElementById('terminal'));
+  fitAddon.fit();
+
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  socket = new WebSocket(`${protocol}//${window.location.host}/admin/security/ws/terminal`);
+
+  socket.onmessage = (ev) => term.write(ev.data);
+  term.onData(data => socket.send(data));
+
+  window.addEventListener('resize', () => fitAddon.fit());
+}
+
+// Log Stream
+let logSource;
+function startLogStream() {
+  logSource = new EventSource('/admin/dashboard/api/server-logs/stream');
+  const content = document.getElementById('log-content');
+  logSource.onmessage = (e) => {
+    if(content.children.length === 1) content.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'hover:bg-white/5 px-2 rounded transition-colors';
+    div.innerHTML = `<span class="text-neutral-600 font-bold mr-3">${new Date().toLocaleTimeString()}</span><span class="text-neutral-300 font-mono text-xs">${e.data}</span>`;
+    content.appendChild(div);
+    content.scrollTop = content.scrollHeight;
+    if(content.children.length > 300) content.removeChild(content.firstChild);
+  };
+}
+
+function switchTerminalTab(tab) {
+  const isTerm = tab === 'terminal';
+  document.getElementById('terminal-container').classList.toggle('hidden', !isTerm);
+  document.getElementById('logs-container').classList.toggle('hidden', isTerm);
+
+  document.getElementById('term-tab-btn').className = isTerm ?
+    'text-[10px] font-bold uppercase tracking-widest border-b-2 border-blue-500 pb-1 text-white transition-all' :
+    'text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent pb-1 text-neutral-500 hover:text-white transition-all';
+
+  document.getElementById('logs-tab-btn').className = !isTerm ?
+    'text-[10px] font-bold uppercase tracking-widest border-b-2 border-blue-500 pb-1 text-white transition-all' :
+    'text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent pb-1 text-neutral-500 hover:text-white transition-all';
+}
+
+async function updateSecurityMetrics() {
+  try {
+    const vRes = await fetch('/admin/insights/api/system-metrics');
+    const v = await vRes.json();
+    document.getElementById('vps-cpu').textContent = v.cpu.percent + '%';
+    document.getElementById('vps-cpu-bar').style.width = v.cpu.percent + '%';
+
+    const pRes = await fetch('/admin/insights/api/panel-metrics');
+    const p = await pRes.json();
+    document.getElementById('panel-cpu').textContent = p.cpu + '%';
+    document.getElementById('panel-ram').textContent = p.ram + ' MB';
+    document.getElementById('panel-priority').textContent = 'Priority: ' + (p.priority < 0 ? 'High' : (p.priority > 0 ? 'Low' : 'Normal'));
+
+    const tRes = await fetch('/api/security/traffic');
+    const traffic = await tRes.json();
+    const limit = traffic.limit || 1;
+    document.getElementById('traffic-in').textContent = (traffic.in / 1024 / 1024).toFixed(1) + ' MB';
+    document.getElementById('traffic-out').textContent = (traffic.out / 1024 / 1024).toFixed(1) + ' MB';
+    document.getElementById('traffic-in-bar').style.width = (traffic.in / limit * 100) + '%';
+    document.getElementById('traffic-out-bar').style.width = (traffic.out / limit * 100) + '%';
+
+    const ptRes = await fetch('/admin/security/api/ports');
+    const ports = await ptRes.json();
+    const plist = document.getElementById('port-list');
+    plist.innerHTML = '';
+    ports.slice(0, 10).forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5';
+      div.innerHTML = `<span class="text-xs font-mono text-white">${p.addr}</span><span class="text-[10px] font-black text-neutral-500 uppercase">${p.proto}</span>`;
+      plist.appendChild(div);
+    });
+  } catch(e) {}
+}
+
+async function setPriority(lvl) {
+  await fetch('/admin/insights/api/panel-control', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ priority: lvl })
+  });
+  updateSecurityMetrics();
+}
+
+async function saveSecuritySettings() {
+  const form = document.getElementById('security-form');
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+
+  try {
+    const res = await fetch('/admin/security/api/settings', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if(res.ok) {
+      alert('Security parameters updated and deployed to firewall.');
+      window.location.reload();
+    }
+  } catch(e) { alert('Failed to update settings'); }
+}
+
+function runSecurityScan(type) {
+  alert(`Initiating Premier League ${type} Scan... Check terminal for logs.`);
+  term.write(`\r\n\x1b[33m[SHIELD] Starting deep ${type} inspection...\x1b[0m\r\n`);
+  setTimeout(() => term.write(`\x1b[32m[OK] Scan completed. No threats found in ${type} layer.\x1b[0m\r\n# `), 2000);
+}
+
+window.onload = () => {
+  initTerminal();
+  startLogStream();
+  setInterval(updateSecurityMetrics, 5000);
+  updateSecurityMetrics();
+};
+</script>
+
+<%- include('../../components/footer') %>

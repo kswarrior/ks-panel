@@ -1,5 +1,0 @@
-{
-  "watch": ["index.js", "handlers", "utils"],
-  "ext": "js,json",
-  "ignore": ["node_modules", "storage", "volumes", "ftp", "logs", "config.json"]
-}

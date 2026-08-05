@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { db } = require("../../handlers/db.js");
-const { isAdmin } = require("../../utils/isAdmin.js");
+const { isAdmin, hasPermission } = require("../../utils/isAdmin.js");
 const { paginate } = require("../../utils/dbHelper.js");
 const log = new (require("cat-loggr"))();
 
-router.get("/admin/auditlogs", isAdmin, async (req, res) => {
+router.get("/admin/auditlogs", hasPermission("view_audit_logs"), async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 50;

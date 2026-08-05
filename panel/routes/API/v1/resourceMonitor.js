@@ -3,6 +3,27 @@ const express = require('express');
 const router = express.Router();
 const os = require('os');
 const fsPromises = require('fs/promises');
+const fs = require('fs');
+
+let lastNetStats = { rx: 0, tx: 0, time: Date.now() };
+
+function getNetworkStats() {
+  try {
+    const data = fs.readFileSync('/proc/net/dev', 'utf8');
+    const lines = data.split('\n');
+    let rx = 0, tx = 0;
+    lines.forEach(line => {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length > 10 && parts[0].includes(':') && !parts[0].startsWith('lo:')) {
+        rx += parseInt(parts[1]);
+        tx += parseInt(parts[9]);
+      }
+    });
+    return { rx, tx };
+  } catch (e) {
+    return { rx: 0, tx: 0 };
+  }
+}
 
 async function getCpuUsage() {
   function getCpuTimes() {
@@ -34,6 +55,15 @@ router.get('/resourceMonitor', async (req, res) => {
   const ramPercent = (usedRam / totalRam) * 100;
 
   const cpuPercent = await getCpuUsage();
+  const cpuCores = os.cpus().length;
+
+  const currentNet = getNetworkStats();
+  const now = Date.now();
+  const timeDiff = (now - lastNetStats.time) / 1000;
+  const rxSpeed = (currentNet.rx - lastNetStats.rx) / timeDiff; // bytes/s
+  const txSpeed = (currentNet.tx - lastNetStats.tx) / timeDiff;
+
+  lastNetStats = { ...currentNet, time: now };
 
   let disk = { used: 0, total: 0, percent: 0 };
   try {
@@ -48,8 +78,11 @@ router.get('/resourceMonitor', async (req, res) => {
 
   res.status(200).json({
     ram: { used: usedRam, total: totalRam, percent: ramPercent },
-    cpu: { percent: cpuPercent },
-    disk: { used: disk.used, total: disk.total, percent: disk.percent }
+    cpu: { percent: cpuPercent, cores: cpuCores },
+    disk: { used: disk.used, total: disk.total, percent: disk.percent },
+    network: { rx: rxSpeed, tx: txSpeed },
+    uptime: os.uptime(),
+    load: os.loadavg()
   });
 });
 

@@ -1,0 +1,123 @@
+<%- include('../components/template') %>
+<main id="content">
+   <div class="bg-transparent text-white min-h-screen p-4 md:p-8">
+      <div class="max-w-7xl mx-auto">
+         <!-- Header -->
+         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+               <h1 class="text-3xl font-bold tracking-tight">Notification Center</h1>
+               <p class="text-white/60 mt-1">Broadcast alerts and send direct notifications to users.</p>
+            </div>
+         </div>
+
+         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Send Notification Form -->
+            <div class="lg:col-span-2 space-y-6">
+               <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl">
+                  <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+                     <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                     </svg>
+                     Compose Alert
+                  </h2>
+
+                  <form id="notificationForm" class="space-y-4">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                           <label class="block text-sm font-medium text-white/60 mb-2">Target Audience</label>
+                           <select id="target" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                              <option value="broadcast" class="bg-slate-900">Global Broadcast (All Users)</option>
+                              <% users.forEach(function(u) { %>
+                                 <option value="<%= u.userId %>" class="bg-slate-900"><%= u.username %> (<%= u.email %>)</option>
+                              <% }); %>
+                           </select>
+                        </div>
+                        <div>
+                           <label class="block text-sm font-medium text-white/60 mb-2">Alert Type</label>
+                           <select id="type" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                              <option value="important" class="bg-slate-900 text-blue-400">Important (Blue)</option>
+                              <option value="warning" class="bg-slate-900 text-yellow-400">Warning (Yellow)</option>
+                              <option value="error" class="bg-slate-900 text-red-400">Critical Error (Red)</option>
+                           </select>
+                        </div>
+                     </div>
+
+                     <div>
+                        <label class="block text-sm font-medium text-white/60 mb-2">Message</label>
+                        <textarea id="message" rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Enter notification message..."></textarea>
+                     </div>
+
+                     <div class="flex justify-end">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2">
+                           <span>Send Notification</span>
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                           </svg>
+                        </button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+
+            <!-- Stats & Presets -->
+            <div class="space-y-6">
+               <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl">
+                  <h3 class="text-lg font-semibold mb-4">Quick Presets</h3>
+                  <div class="space-y-3">
+                     <button onclick="setPreset('Maintenance Mode', 'We will be performing scheduled maintenance in 15 minutes.')" class="w-full text-left p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group">
+                        <p class="font-medium group-hover:text-blue-400 transition-colors">Maintenance</p>
+                        <p class="text-xs text-white/40 mt-1 line-clamp-1 text-ellipsis">15 minute warning...</p>
+                     </button>
+                     <button onclick="setPreset('Security Update', 'A critical security update has been applied.')" class="w-full text-left p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group">
+                        <p class="font-medium group-hover:text-red-400 transition-colors">Security Patch</p>
+                        <p class="text-xs text-white/40 mt-1 line-clamp-1 text-ellipsis">Critical security update...</p>
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</main>
+
+<script>
+function setPreset(title, msg) {
+   document.getElementById('message').value = `[${title}] ${msg}`;
+}
+
+document.getElementById('notificationForm').addEventListener('submit', async (e) => {
+   e.preventDefault();
+   const target = document.getElementById('target').value;
+   const type = document.getElementById('type').value;
+   const message = document.getElementById('message').value;
+
+   if (!message) return alert("Please enter a message.");
+
+   const payload = {
+      type,
+      message,
+      broadcast: target === 'broadcast'
+   };
+
+   if (target !== 'broadcast') {
+      payload.userId = target;
+   }
+
+   try {
+      const response = await fetch('/api/notifications/add', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+         alert('Notification sent successfully!');
+         document.getElementById('message').value = '';
+      } else {
+         alert('Error: ' + (data.error || 'Failed to send'));
+      }
+   } catch (err) {
+      alert('Network error occurred.');
+   }
+});
+</script>

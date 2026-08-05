@@ -1,68 +1,152 @@
-<!doctype html>
-<html class="h-full">
+<!DOCTYPE html>
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= name %></title>
-  <link href="../assets/tailwind.css" rel="stylesheet">
-  <link rel="preconnect" href="https://cdn.fontshare.com">
-  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,300,600,400,700&display=swap" rel="stylesheet">
+  <title><%= name %> - Create Account</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.1/dist/index.global.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --accent-color: #3b82f6;
+    --glass-bg: rgba(10, 10, 10, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --glass-blur: 24px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('<%= (typeof theme !== "undefined" && theme && theme.backgrounds && theme.backgrounds.login) || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" %>');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #f8fafc;
+    overflow-x: hidden;
+  }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+
+  .input-field {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .input-field:focus {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+</style>
 </head>
-<body style="font-family: 'General Sans'" class="bg-[#141414] h-full">
-<div class="min-h-full flex">
-  <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-    <div class="mx-auto w-full max-w-sm lg:w-96">
-      <div>
-        <img class="h-12 w-auto rounded-xl" src="<%= settings.logo %>" alt="">
-        <h2 class="mt-6 text-3xl font-medium text-white">Register an account</h2>
-        <p class="mt-2 text-sm text-neutral-500">
-          Please enter your details below.
-        </p>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+<div class="w-full max-w-[420px] animate-slide-up">
+  <div class="glass rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+    <!-- Subtle Gradient Glows -->
+    <div class="absolute -top-24 -left-24 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full"></div>
+    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full"></div>
+
+    <div class="relative z-10">
+      <div class="mb-10 text-center">
+        <img src="<%= logo %>" class="w-20 h-20 mx-auto mb-6 object-contain drop-shadow-2xl rounded-2xl" alt="Logo" onerror="this.src='/assets/logo.webp'">
+        <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1"><%= name %></h1>
+        <p class="text-neutral-400 text-sm font-medium italic opacity-80 mb-4">Join our community</p>
+        <p class="text-neutral-500 text-xs font-semibold tracking-wide uppercase">Create your credentials to begin</p>
       </div>
 
-      <div class="mt-8">
-        <div class="mt-6">
-          <form method="POST" action="/auth/register" class="space-y-6">
-            <div>
-              <label for="username" class="block text-sm font-medium text-neutral-400"> Username </label>
-              <div class="mt-1">
-                <input placeholder="example" id="username" name="username" autocomplete="username" required class="appearance-none block w-full px-3 py-2 bg-white/10 border border-transparent rounded-xl placeholder-neutral-500 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 text-white transition sm:text-sm">
-              </div>
+      <form method="POST" action="/auth/register" class="space-y-6">
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Unique Tag</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-neutral-500 group-focus-within:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
             </div>
-
-            <div>
-              <label for="email" class="block text-sm font-medium text-neutral-400"> Email </label>
-              <div class="mt-1">
-                <input placeholder="example@domain.com" id="email" name="email" autocomplete="email" required class="appearance-none block w-full px-3 py-2 bg-white/10 border border-transparent rounded-xl placeholder-neutral-500 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 text-white transition sm:text-sm">
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <label for="password" class="block text-sm font-medium text-neutral-400"> Password </label>
-              <div class="mt-1">
-                <input placeholder="********" id="password" name="password" type="password" autocomplete="new-password" required class="appearance-none block w-full px-3 py-2 bg-white/10 border border-transparent rounded-xl placeholder-neutral-500 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 text-white transition sm:text-sm">
-              </div>
-            </div>
-
-            <div>
-              <button type="submit" class="w-full flex transition justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-neutral-800 bg-white hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500">Register</button>
-            </div>
-            
-            <% if (req.query.err && req.query.err == "InvalidCredentials") { %>
-              <div class="mt-2"></div>
-              <span class="text-amber-600 pt-4 font-normal text-sm">Invalid credentials. Please try again.</span>
-            <% } %>
-          </form>
+            <input class="input-field w-full pl-12 pr-5 py-4 rounded-2xl text-white placeholder-neutral-600 focus:outline-none text-sm"
+                   placeholder="Username"
+                   id="username"
+                   name="username"
+                   autocomplete="username"
+                   required>
+          </div>
         </div>
-      </div>
-      <div class="mt-6 text-sm text-neutral-500">
-        Already have an account? <a href="/login" class="font-normal text-neutral-500 hover:text-white transition ">Sign in</a>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Email Link</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-neutral-500 group-focus-within:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <input class="input-field w-full pl-12 pr-5 py-4 rounded-2xl text-white placeholder-neutral-600 focus:outline-none text-sm"
+                   placeholder="Email Address"
+                   id="email"
+                   name="email"
+                   type="email"
+                   autocomplete="email"
+                   required>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.2em] ml-1">Secure Key</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-neutral-500 group-focus-within:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
+            <input class="input-field w-full pl-12 pr-5 py-4 rounded-2xl text-white placeholder-neutral-600 focus:outline-none text-sm"
+                   placeholder="••••••••••••"
+                   id="password"
+                   name="password"
+                   type="password"
+                   autocomplete="new-password"
+                   required>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-neutral-200 active:scale-[0.98] transition-all shadow-xl shadow-white/5 mt-2">
+          Create Account
+        </button>
+
+        <% if (req.query.err && req.query.err == "InvalidCredentials") { %>
+          <p class="text-center text-red-400 text-xs font-bold mt-4 animate-pulse">Request Rejected: Data Error</p>
+        <% } %>
+      </form>
+
+      <div class="mt-10 text-center">
+        <p class="text-neutral-500 text-xs font-medium">
+          Already established?
+          <a href="/login" class="text-white font-bold hover:underline ml-1">Log in here</a>
+        </p>
       </div>
     </div>
   </div>
-  <div class="hidden lg:block relative w-0 flex-1">
-    <img class="absolute inset-0 h-full w-full object-cover" src="https://i.imgur.com/8G5eRWX.jpeg" alt="">
-  </div>
 </div>
+
 </body>
 </html>
