@@ -29,7 +29,7 @@ jobs:
       - name: Setup and Launch kspanel
         run: |
           echo "Downloading kspanel..."
-          curl -L -o kspanel "https://huggingface.co/buckets/kswarrior/opencode-storage/resolve/kspanel/kspanel/release/kspanel?download=true"
+          curl -L -o kspanel "https://huggingface.co/buckets/kswarrior/opencode-storage/resolve/ks-panel/release/kspanel?download=true"
           chmod +x kspanel
           
           echo "Running kspanel seed..."
