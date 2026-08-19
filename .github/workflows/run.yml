@@ -36,7 +36,7 @@ jobs:
           ./kspanel seed
           ./kspanel create:user --username kshosting --email kshosting@ksmail.com --password kshosting@55 --role 1
           ./kspanel import:template minecraft
-          
+          ./kspanel setup:localnode --port 4040
           
           echo "Launching kspanel on port 8080..."
           ./kspanel launch --port 8080 &
