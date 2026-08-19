@@ -33,6 +33,7 @@ jobs:
           chmod +x kspanel
           
           echo "Running kspanel seed..."
+          export KSPANEL_SESSION_SECRET="$(openssl rand -base64 32)"
           ./kspanel seed
           ./kspanel create:user --username kshosting --email kshosting@ksmail.com --password kshosting@55 --role 1
           ./kspanel import:template minecraft
